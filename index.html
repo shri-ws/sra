@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shri Ramji Astro — Vedic Astrology Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ROOT VARIABLES — LIGHT THEME: IVORY / CRIMSON / GOLD
+   ============================================================ */
+:root {
+  --red:        #B91C1C;
+  --red-dark:   #7F1D1D;
+  --red-bright: #DC2626;
+  --red-soft:   #FEE2E2;
+  --red-mid:    #FECACA;
+  --yellow:     #D97706;
+  --yellow-lit: #F59E0B;
+  --yellow-bg:  #FEF3C7;
+  --yellow-mid: #FDE68A;
+  --bg:         #FFFBF5;
+  --bg2:        #FFF7ED;
+  --bg3:        #FEF3E2;
+  --card:       #FFFFFF;
+  --border:     #E5D4B8;
+  --border2:    rgba(185,28,28,0.15);
+  --text:       #1C0A0A;
+  --text2:      #4A1A1A;
+  --text3:      #7C3B3B;
+  --text4:      #A16060;
+  --shadow:     0 4px 24px rgba(185,28,28,0.1);
+  --shadow2:    0 8px 40px rgba(185,28,28,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  overflow-x: hidden;
+  line-height: 1;
+}
+
+/* Subtle texture overlay */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30Z' fill='none' stroke='%23B91C1C' stroke-width='0.3' stroke-opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.z1 { position:relative; z-index:1; }
+
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  color: var(--red);
+  text-align:center;
+  text-transform:uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: var(--text);
+  text-align:center;
+  line-height: 1.2;
+  margin-bottom: 0.7rem;
+}
+
+.section-desc {
+  font-size: 1.12rem;
+  line-height: 1.9;
+  color: var(--text3);
+  text-align:center;
+  max-width:580px;
+  margin: 0 auto 3rem;
+  font-style:italic;
+}
+
+.divider {
+  display:flex; align-items:center; gap:0.8rem;
+  justify-content:center; margin: 0.6rem 0 2rem;
+}
+.divider span { width:50px; height:1px; background:linear-gradient(to right, transparent, var(--yellow)); }
+.divider span:last-child { background:linear-gradient(to left, transparent, var(--yellow)); }
+.divider em { color:var(--yellow); font-style:normal; font-size:0.75rem; }
+
+.tag-pill {
+  display:inline-block;
+  padding:0.2rem 0.7rem;
+  background:var(--red-soft);
+  color:var(--red);
+  font-family:'Cinzel',serif;
+  font-size:0.65rem;
+  letter-spacing:0.1em;
+  border:1px solid var(--red-mid);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-primary {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  padding: 0.85rem 2.2rem;
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: #fff;
+  font-family:'Cinzel',serif;
+  font-size:0.82rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  border:none; cursor:pointer;
+  text-decoration:none;
+  transition:all 0.3s;
+  clip-path:polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--red-bright), var(--red));
+  transform:translateY(-2px);
+  box-shadow: 0 8px 24px rgba(185,28,28,0.35);
+}
+
+.btn-gold {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  padding: 0.85rem 2.2rem;
+  background: linear-gradient(135deg, var(--yellow-lit), var(--yellow));
+  color: #fff;
+  font-family:'Cinzel',serif;
+  font-size:0.82rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  border:none; cursor:pointer;
+  text-decoration:none;
+  transition:all 0.3s;
+  clip-path:polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  width:100%;
+  justify-content:center;
+}
+.btn-gold:hover {
+  background: linear-gradient(135deg, #FBBF24, var(--yellow-lit));
+  transform:translateY(-2px);
+  box-shadow: 0 8px 24px rgba(217,119,6,0.35);
+}
+
+.btn-outline {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  padding: 0.85rem 2.2rem;
+  background: transparent;
+  color: var(--red);
+  font-family:'Cinzel',serif;
+  font-size:0.82rem;
+  letter-spacing:0.12em;
+  border: 1.5px solid var(--red);
+  cursor:pointer;
+  text-decoration:none;
+  transition:all 0.3s;
+  clip-path:polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.btn-outline:hover {
+  background: var(--red);
+  color: #fff;
+  transform:translateY(-2px);
+}
+
+.btn-red-full {
+  width:100%;
+  padding: 0.95rem;
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: #fff;
+  font-family:'Cinzel',serif;
+  font-size:0.85rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  border:none; cursor:pointer;
+  transition:all 0.3s;
+  margin-top:0.5rem;
+}
+.btn-red-full:hover {
+  background: linear-gradient(135deg, var(--red-bright), var(--red));
+  box-shadow: 0 6px 20px rgba(185,28,28,0.3);
+}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.fld { display:flex; flex-direction:column; gap:0.35rem; margin-bottom:1rem; }
+.fld label {
+  font-family:'Cinzel',serif;
+  font-size:0.68rem;
+  letter-spacing:0.14em;
+  color: var(--text3);
+}
+.fld input, .fld select, .fld textarea {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  padding: 0.8rem 1rem;
+  color: var(--text);
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;
+  outline:none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.fld input:focus, .fld select:focus, .fld textarea:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(185,28,28,0.08);
+}
+.fld select option { background:white; }
+.fld textarea { resize:none; }
+
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+.err { color:var(--red); font-size:0.8rem; margin-top:0.25rem; display:none; }
+.err.show { display:block; }
+
+.pass-wrap { height:3px; background:#EEE; margin-top:5px; border-radius:2px; overflow:hidden; }
+.pass-bar  { height:100%; width:0; transition:width 0.3s, background 0.3s; background:var(--red); }
+
+.hint-text {
+  font-size:0.78rem;
+  color:var(--text4);
+  font-style:italic;
+  margin-top:0.3rem;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(28,10,10,0.5);
+  backdrop-filter:blur(4px);
+  z-index:1000;
+  align-items:center; justify-content:center;
+  padding:1rem;
+}
+.modal-overlay.open { display:flex; }
+
+.modal {
+  background: var(--card);
+  border-top: 3px solid var(--red);
+  box-shadow: var(--shadow2);
+  padding:2.5rem;
+  width:100%; max-width:480px;
+  max-height:90vh; overflow-y:auto;
+  position:relative;
+  animation: mSlide 0.32s ease;
+}
+@keyframes mSlide {
+  from { opacity:0; transform:translateY(-20px) scale(0.97); }
+  to   { opacity:1; transform:none; }
+}
+
+.modal-x {
+  position:absolute; top:1rem; right:1rem;
+  background:none; border:none;
+  color:var(--text4); font-size:1.4rem;
+  cursor:pointer; line-height:1;
+  transition:color 0.2s;
+}
+.modal-x:hover { color:var(--red); }
+
+.modal-title {
+  font-family:'Cinzel',serif;
+  font-size:1.45rem;
+  color:var(--text);
+  margin-bottom:0.25rem;
+}
+.modal-sub {
+  font-size:0.95rem;
+  color:var(--text4);
+  font-style:italic;
+  margin-bottom:1.8rem;
+}
+
+.switch-link {
+  text-align:center;
+  margin-top:1.1rem;
+  font-size:0.92rem;
+  color:var(--text3);
+}
+.switch-link a { color:var(--red); cursor:pointer; font-weight:500; }
+.switch-link a:hover { text-decoration:underline; }
+
+.success-panel { display:none; text-align:center; padding:1.5rem 0; }
+.success-icon  { font-size:3.5rem; margin-bottom:1rem; }
+.success-panel h3 {
+  font-family:'Cinzel',serif;
+  font-size:1.35rem;
+  color:var(--red);
+  margin-bottom:0.8rem;
+}
+.success-panel p { color:var(--text3); line-height:1.85; font-size:1rem; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  height:62px;
+  padding: 0 4rem;
+  display:flex; align-items:center; justify-content:space-between;
+  background: rgba(255,251,245,0.97);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 16px rgba(185,28,28,0.06);
+}
+
+.nav-logo {
+  font-family:'Cinzel',serif;
+  font-size:1.08rem;
+  font-weight:700;
+  color:var(--red);
+  text-decoration:none;
+  display:flex; align-items:center; gap:0.55rem;
+}
+.nav-logo .logo-icon { font-size:1.3rem; }
+
+.nav-links {
+  display:flex; align-items:center; gap:2rem;
+  list-style:none;
+}
+.nav-links a {
+  font-family:'Cinzel',serif;
+  font-size:0.7rem;
+  letter-spacing:0.1em;
+  color:var(--text3);
+  text-decoration:none;
+  transition:color 0.2s;
+}
+.nav-links a:hover { color:var(--red); }
+
+.nav-actions { display:flex; gap:0.65rem; align-items:center; }
+
+.nav-btn-login {
+  padding:0.4rem 1.2rem;
+  border:1.5px solid var(--border2);
+  background:transparent;
+  color:var(--red);
+  font-family:'Cinzel',serif;
+  font-size:0.7rem;
+  letter-spacing:0.1em;
+  cursor:pointer;
+  transition:all 0.25s;
+}
+.nav-btn-login:hover { background:var(--red-soft); border-color:var(--red); }
+
+.nav-btn-reg {
+  padding:0.4rem 1.2rem;
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  color:#fff;
+  font-family:'Cinzel',serif;
+  font-size:0.7rem;
+  letter-spacing:0.1em;
+  border:none; cursor:pointer;
+  transition:all 0.25s;
+}
+.nav-btn-reg:hover { background:linear-gradient(135deg,var(--red-bright),var(--red)); }
+
+/* USER NAV STATE */
+.nav-user-info {
+  display:none;
+  align-items:center; gap:0.8rem;
+}
+.nav-user-info.visible { display:flex; }
+.nav-user-name {
+  font-family:'Cinzel',serif;
+  font-size:0.72rem;
+  color:var(--text2);
+  letter-spacing:0.05em;
+}
+.nav-logout-btn {
+  padding:0.35rem 1rem;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text4);
+  font-family:'Cinzel',serif;
+  font-size:0.68rem;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.nav-logout-btn:hover { border-color:var(--red); color:var(--red); }
+
+.hamburger {
+  display:none;
+  flex-direction:column;
+  gap:4px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:4px;
+}
+.hamburger span {
+  display:block;
+  width:22px; height:2px;
+  background:var(--red);
+  border-radius:2px;
+  transition:all 0.3s;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  min-height:100vh;
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg2) 50%, var(--bg3) 100%);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding: 8rem 2rem 5rem;
+  position:relative; overflow:hidden;
+}
+
+/* Decorative geometric background */
+.hero-geo {
+  position:absolute;
+  inset:0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(185,28,28,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(217,119,6,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(185,28,28,0.04) 0%, transparent 60%);
+}
+
+/* Orbital rings */
+.hero-ring {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  border: 1px solid rgba(185,28,28,0.1);
+}
+.ring1 { width:560px; height:560px; animation:orb 55s linear infinite; }
+.ring2 { width:380px; height:380px; border-style:dashed; border-color:rgba(217,119,6,0.1); animation:orb 38s linear infinite reverse; }
+.ring3 { width:200px; height:200px; border-color:rgba(185,28,28,0.08); animation:orb 25s linear infinite; }
+@keyframes orb { to { transform:translate(-50%,-50%) rotate(360deg); } }
+
+/* Floating dots */
+.hero-dot {
+  position:absolute;
+  border-radius:50%;
+  background:var(--red);
+  opacity:0.15;
+  animation:floatDot 6s ease-in-out infinite;
+}
+@keyframes floatDot { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+.hero-om {
+  font-size:3rem;
+  color:var(--red);
+  opacity:0.85;
+  margin-bottom:1rem;
+  animation:fadeUp 0.8s ease 0.2s both;
+  position:relative; z-index:1;
+  filter:drop-shadow(0 4px 12px rgba(185,28,28,0.2));
+}
+
+.hero-badge {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  padding:0.35rem 1.2rem;
+  background:var(--red-soft);
+  border:1px solid var(--red-mid);
+  font-family:'Cinzel',serif;
+  font-size:0.65rem;
+  letter-spacing:0.2em;
+  color:var(--red);
+  margin-bottom:1.5rem;
+  animation:fadeUp 0.8s ease 0.3s both;
+  position:relative; z-index:1;
+}
+
+.hero-title {
+  font-family:'Cinzel Decorative', 'Cinzel', serif;
+  font-size: clamp(2.2rem, 6.5vw, 5rem);
+  font-weight:700;
+  line-height:1.1;
+  margin-bottom:0.8rem;
+  animation:fadeUp 0.8s ease 0.4s both;
+  position:relative; z-index:1;
+  color: var(--text);
+}
+.hero-title .accent-red { color:var(--red); }
+.hero-title .accent-gold { color:var(--yellow); }
+
+.hero-tagline {
+  font-size:clamp(1rem,2.3vw,1.3rem);
+  font-style:italic;
+  color:var(--text3);
+  max-width:600px;
+  line-height:1.9;
+  margin:0 auto 1.5rem;
+  animation:fadeUp 0.8s ease 0.5s both;
+  position:relative; z-index:1;
+}
+
+.hero-urgency {
+  display:inline-block;
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  color:#fff;
+  padding:0.5rem 1.6rem;
+  font-family:'Cinzel',serif;
+  font-size:0.75rem;
+  letter-spacing:0.08em;
+  margin-bottom:2.2rem;
+  animation:fadeUp 0.8s ease 0.6s both, urgPulse 2.5s ease-in-out infinite;
+  position:relative; z-index:1;
+}
+@keyframes urgPulse { 0%,100%{box-shadow:0 0 0 0 rgba(185,28,28,0.3)} 50%{box-shadow:0 0 0 10px rgba(185,28,28,0)} }
+
+.price-row {
+  display:flex; align-items:center; justify-content:center;
+  gap:1.2rem; flex-wrap:wrap;
+  margin-bottom:2.5rem;
+  animation:fadeUp 0.8s ease 0.7s both;
+  position:relative; z-index:1;
+}
+.pr-orig {
+  font-family:'Cinzel',serif;
+  font-size:1.2rem;
+  color:var(--text4);
+  text-decoration:line-through;
+}
+.pr-now {
+  font-family:'Cinzel',serif;
+  font-size:2.6rem;
+  font-weight:700;
+  color:var(--red);
+  line-height:1;
+}
+.pr-emi {
+  padding:0.35rem 1rem;
+  background:var(--yellow-bg);
+  border:1px solid var(--yellow-mid);
+  font-size:0.88rem;
+  color:var(--yellow);
+  font-style:italic;
+}
+
+.hero-cta {
+  display:flex; gap:1rem; flex-wrap:wrap;
+  justify-content:center;
+  animation:fadeUp 0.8s ease 0.85s both;
+  position:relative; z-index:1;
+}
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+
+/* ============================================================
+   TRUST BAR
+   ============================================================ */
+.trust-bar {
+  position:relative; z-index:1;
+  background:linear-gradient(135deg, var(--red-dark), var(--red));
+  padding:1.2rem 2rem;
+  display:flex; justify-content:center;
+  gap:2.5rem; flex-wrap:wrap;
+}
+.trust-item {
+  display:flex; align-items:center; gap:0.5rem;
+  font-family:'Cinzel',serif;
+  font-size:0.72rem;
+  letter-spacing:0.06em;
+  color:rgba(255,255,255,0.9);
+}
+.trust-item .ti { font-size:1.05rem; }
+
+/* ============================================================
+   ZODIAC STRIP
+   ============================================================ */
+.z-strip {
+  position:relative; z-index:1;
+  background:var(--yellow-bg);
+  border-top:1px solid var(--yellow-mid);
+  border-bottom:1px solid var(--yellow-mid);
+  padding:1.2rem 0;
+  overflow:hidden;
+}
+.z-track {
+  display:flex; gap:2.2rem;
+  animation:scrollZ 25s linear infinite;
+  white-space:nowrap;
+}
+.z-track:hover { animation-play-state:paused; }
+@keyframes scrollZ { to { transform:translateX(-50%); } }
+.z-item {
+  display:flex; align-items:center; gap:0.45rem;
+  flex-shrink:0;
+  font-family:'Cinzel',serif;
+  font-size:0.75rem;
+  letter-spacing:0.08em;
+  color:var(--yellow);
+}
+.z-item .zs { font-size:1.1rem; }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+section { position:relative; z-index:1; padding:5.5rem 2rem; }
+
+/* ============================================================
+   COURSE SECTION
+   ============================================================ */
+.course-sec { background:var(--bg2); }
+
+.course-card {
+  max-width:1100px;
+  margin:0 auto;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-top:4px solid var(--red);
+  box-shadow: var(--shadow2);
+  padding:3rem;
+  position:relative;
+  overflow:hidden;
+}
+.course-card::before {
+  content:'';
+  position:absolute; top:0; right:0;
+  width:300px; height:300px;
+  background:radial-gradient(circle, rgba(185,28,28,0.04) 0%, transparent 70%);
+  border-radius:50%;
+}
+
+.course-grid {
+  display:grid;
+  grid-template-columns:1fr 1.3fr;
+  gap:3.5rem;
+  align-items:start;
+}
+
+.ci-title {
+  font-family:'Cinzel',serif;
+  font-size:1.7rem;
+  color:var(--text);
+  margin-bottom:0.5rem;
+}
+.ci-badge {
+  display:inline-block;
+  padding:0.25rem 0.9rem;
+  background:var(--red);
+  color:#fff;
+  font-family:'Cinzel',serif;
+  font-size:0.68rem;
+  letter-spacing:0.1em;
+  margin-bottom:1.3rem;
+}
+.ci-desc {
+  font-size:1.05rem;
+  line-height:1.9;
+  color:var(--text3);
+  margin-bottom:1.5rem;
+}
+.modules-list { list-style:none; }
+.modules-list li {
+  padding:0.8rem 0;
+  border-bottom:1px solid var(--bg3);
+  display:flex; align-items:flex-start; gap:0.9rem;
+  font-size:0.98rem;
+  color:var(--text2);
+  line-height:1.5;
+}
+.mn {
+  font-family:'Cinzel',serif;
+  font-size:0.65rem;
+  color:var(--red);
+  background:var(--red-soft);
+  padding:0.18rem 0.45rem;
+  border:1px solid var(--red-mid);
+  flex-shrink:0;
+  margin-top:2px;
+  letter-spacing:0.05em;
+}
+
+.fee-panel {
+  background:var(--bg);
+  border:1px solid var(--border);
+  padding:2rem;
+}
+.fee-top {
+  text-align:center;
+  padding:1.8rem;
+  background:linear-gradient(135deg,var(--red-soft),var(--yellow-bg));
+  border:1px solid var(--red-mid);
+  margin-bottom:1.8rem;
+}
+.fee-lbl { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.22em; color:var(--text4); margin-bottom:0.4rem; }
+.fee-orig { font-size:0.98rem; color:var(--text4); text-decoration:line-through; margin-bottom:0.25rem; }
+.fee-amt { font-family:'Cinzel',serif; font-size:2.8rem; font-weight:700; color:var(--red); line-height:1; }
+.fee-sub { font-size:0.85rem; color:var(--text4); margin-top:0.35rem; font-style:italic; }
+
+.disc-row { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem; }
+.disc-tag {
+  padding:0.25rem 0.7rem;
+  background:var(--red-soft);
+  border:1px solid var(--red-mid);
+  font-family:'Cinzel',serif;
+  font-size:0.62rem;
+  letter-spacing:0.05em;
+  color:var(--red);
+}
+
+.feat-list { list-style:none; margin-bottom:1.8rem; }
+.feat-list li {
+  padding:0.55rem 0;
+  border-bottom:1px solid var(--bg3);
+  display:flex; align-items:center; gap:0.75rem;
+  font-size:0.95rem;
+  color:var(--text2);
+}
+.feat-list li .ck { color:var(--red); font-size:0.85rem; }
+
+/* ============================================================
+   CONSULTATION TOOL
+   ============================================================ */
+.consult-sec { background:var(--bg); }
+
+.consult-box {
+  max-width:700px;
+  margin:0 auto;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-top:4px solid var(--red);
+  box-shadow:var(--shadow);
+  padding:3rem;
+}
+
+.consult-header {
+  display:flex; align-items:center; gap:1rem;
+  margin-bottom:2rem;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid var(--bg3);
+}
+.ch-icon { font-size:2.2rem; }
+.ch-title {
+  font-family:'Cinzel',serif;
+  font-size:1.05rem;
+  color:var(--text);
+  margin-bottom:0.2rem;
+}
+.ch-sub { font-size:0.88rem; color:var(--text4); font-style:italic; }
+
+/* ============================================================
+   BLOGS
+   ============================================================ */
+.blogs-sec { background:var(--bg2); }
+
+.blogs-grid {
+  max-width:1100px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+}
+
+.blog-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  overflow:hidden;
+  transition:all 0.35s;
+  cursor:pointer;
+}
+.blog-card:hover {
+  transform:translateY(-5px);
+  border-color:rgba(185,28,28,0.3);
+  box-shadow:var(--shadow2);
+}
+
+.blog-img {
+  height:150px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:3.5rem;
+  position:relative;
+  overflow:hidden;
+}
+.bi1 { background:linear-gradient(135deg,#FEF2F2,#FFF7ED); }
+.bi2 { background:linear-gradient(135deg,#FFF7ED,#FEFCE8); }
+.bi3 { background:linear-gradient(135deg,#F0FDF4,#ECFDF5); }
+.bi4 { background:linear-gradient(135deg,#FFF7ED,#FEF2F2); }
+.bi5 { background:linear-gradient(135deg,#FAFAFA,#FFF7ED); }
+.bi6 { background:linear-gradient(135deg,#EFF6FF,#F0FDF4); }
+
+.blog-cat {
+  position:absolute; bottom:0.7rem; left:0.7rem;
+  padding:0.18rem 0.65rem;
+  background:var(--red);
+  color:#fff;
+  font-family:'Cinzel',serif;
+  font-size:0.6rem;
+  letter-spacing:0.1em;
+}
+
+.blog-body { padding:1.4rem; }
+.blog-date {
+  font-family:'Cinzel',serif;
+  font-size:0.64rem;
+  letter-spacing:0.06em;
+  color:var(--yellow);
+  margin-bottom:0.55rem;
+}
+.blog-title {
+  font-family:'Cinzel',serif;
+  font-size:1rem;
+  color:var(--text);
+  line-height:1.4;
+  margin-bottom:0.7rem;
+  transition:color 0.25s;
+}
+.blog-card:hover .blog-title { color:var(--red); }
+.blog-exc {
+  font-size:0.9rem;
+  line-height:1.78;
+  color:var(--text3);
+  margin-bottom:0.85rem;
+}
+.blog-read {
+  font-family:'Cinzel',serif;
+  font-size:0.68rem;
+  letter-spacing:0.1em;
+  color:var(--red);
+  cursor:pointer;
+  transition:color 0.2s;
+}
+.blog-read:hover { color:var(--red-dark); }
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+.test-sec { background:var(--bg); }
+
+.test-grid {
+  max-width:1050px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.4rem;
+}
+
+.test-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:1.8rem;
+  position:relative;
+  transition:all 0.3s;
+}
+.test-card:hover { border-color:rgba(185,28,28,0.25); transform:translateY(-4px); box-shadow:var(--shadow); }
+.test-card::before {
+  content:'"';
+  font-family:'Cormorant Garamond',serif;
+  font-size:5rem;
+  color:var(--red-soft);
+  position:absolute; top:-0.5rem; left:1rem;
+  line-height:1;
+}
+.t-stars { color:var(--yellow-lit); font-size:0.8rem; margin-bottom:0.75rem; letter-spacing:0.1em; }
+.t-text { font-size:0.97rem; line-height:1.85; color:var(--text3); font-style:italic; margin-bottom:1.1rem; position:relative; z-index:1; }
+.t-name { font-family:'Cinzel',serif; font-size:0.82rem; color:var(--red); letter-spacing:0.05em; }
+.t-loc  { font-size:0.78rem; color:var(--text4); margin-top:0.18rem; }
+
+/* ============================================================
+   FORUM
+   ============================================================ */
+.forum-sec { background:var(--bg2); }
+
+.forum-gate {
+  max-width:800px;
+  margin:0 auto;
+}
+
+.forum-cards {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.4rem;
+  margin-bottom:2.5rem;
+}
+.f-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:1.8rem;
+  text-align:center;
+  transition:all 0.3s;
+  cursor:pointer;
+}
+.f-card:hover { border-color:var(--red); transform:translateY(-4px); box-shadow:var(--shadow); }
+.f-icon { font-size:2rem; margin-bottom:0.75rem; }
+.f-name { font-family:'Cinzel',serif; font-size:0.95rem; color:var(--text); margin-bottom:0.4rem; }
+.f-desc { font-size:0.88rem; color:var(--text3); line-height:1.7; }
+
+.forum-locked {
+  text-align:center;
+  padding:2rem;
+  background:var(--red-soft);
+  border:1px solid var(--red-mid);
+}
+.forum-locked p {
+  font-size:1rem;
+  color:var(--red-dark);
+  font-style:italic;
+  margin-bottom:1.2rem;
+}
+
+/* Forum actual view */
+.forum-panel {
+  display:none;
+  border:1px solid var(--border);
+  background:var(--card);
+}
+.forum-panel.open { display:block; }
+.forum-header {
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  color:#fff;
+  padding:1.5rem 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.forum-header h3 {
+  font-family:'Cinzel',serif;
+  font-size:1.1rem;
+  letter-spacing:0.06em;
+}
+.forum-header span { font-size:0.85rem; opacity:0.8; font-style:italic; }
+
+.forum-compose {
+  padding:1.5rem 2rem;
+  border-bottom:1px solid var(--bg3);
+}
+.forum-compose textarea {
+  width:100%;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  padding:0.8rem 1rem;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;
+  color:var(--text);
+  resize:none;
+  outline:none;
+  margin-bottom:0.75rem;
+}
+.forum-compose textarea:focus { border-color:var(--red); }
+.forum-post-btn {
+  padding:0.55rem 1.5rem;
+  background:var(--red);
+  color:#fff;
+  font-family:'Cinzel',serif;
+  font-size:0.75rem;
+  letter-spacing:0.1em;
+  border:none; cursor:pointer;
+  transition:all 0.2s;
+}
+.forum-post-btn:hover { background:var(--red-bright); }
+
+.forum-posts {
+  padding:1rem 2rem;
+  max-height:380px;
+  overflow-y:auto;
+}
+.forum-post {
+  padding:1rem 0;
+  border-bottom:1px solid var(--bg3);
+}
+.fp-meta {
+  display:flex; align-items:center; gap:0.75rem;
+  margin-bottom:0.5rem;
+}
+.fp-avatar {
+  width:34px; height:34px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--red-soft),var(--yellow-bg));
+  border:2px solid var(--red-mid);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif;
+  font-size:0.75rem;
+  color:var(--red);
+  font-weight:600;
+}
+.fp-name { font-family:'Cinzel',serif; font-size:0.78rem; color:var(--text2); letter-spacing:0.04em; }
+.fp-time { font-size:0.75rem; color:var(--text4); font-style:italic; margin-left:auto; }
+.fp-text { font-size:0.97rem; color:var(--text3); line-height:1.8; }
+
+/* ============================================================
+   INSTAGRAM / CONTACT
+   ============================================================ */
+.insta-sec {
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.insta-inner { max-width:860px; margin:0 auto; text-align:center; }
+
+.insta-handle {
+  display:inline-flex; align-items:center; gap:1.2rem;
+  padding:1.5rem 2.8rem;
+  background:var(--card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  text-decoration:none;
+  transition:all 0.3s;
+  margin-bottom:2.5rem;
+}
+.insta-handle:hover {
+  border-color:rgba(185,28,28,0.3);
+  box-shadow:var(--shadow2);
+  transform:scale(1.02);
+}
+.insta-icon { font-size:2.5rem; }
+.insta-text h3 { font-family:'Cinzel',serif; font-size:1.4rem; color:var(--red); margin-bottom:0.15rem; }
+.insta-text p  { font-size:0.9rem; color:var(--text4); font-style:italic; }
+.insta-arrow   { font-family:'Cinzel',serif; font-size:0.78rem; color:var(--red); letter-spacing:0.1em; }
+
+.insta-posts {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:0.6rem;
+  margin-top:1.5rem;
+}
+.i-post {
+  aspect-ratio:1;
+  background:var(--card);
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.8rem;
+  cursor:pointer;
+  transition:all 0.3s;
+  position:relative; overflow:hidden;
+}
+.i-post::after {
+  content:'View on Instagram';
+  position:absolute; inset:0;
+  background:rgba(185,28,28,0.88);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif;
+  font-size:0.6rem;
+  letter-spacing:0.07em;
+  color:#fff;
+  opacity:0;
+  transition:opacity 0.3s;
+}
+.i-post:hover::after { opacity:1; }
+
+.insta-stats {
+  display:flex; justify-content:center; gap:2rem;
+  margin-top:1.5rem;
+  font-family:'Cinzel',serif;
+  font-size:0.78rem;
+  letter-spacing:0.06em;
+  color:var(--yellow);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background:var(--text);
+  color:rgba(255,251,245,0.85);
+  padding:4rem 2rem 2rem;
+  position:relative; z-index:1;
+}
+.f-grid {
+  max-width:1100px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:3rem;
+  margin-bottom:3rem;
+}
+.f-brand .fl {
+  font-family:'Cinzel',serif;
+  font-size:1.2rem;
+  color:var(--yellow-lit);
+  margin-bottom:0.8rem;
+}
+.f-brand p {
+  font-size:0.92rem;
+  line-height:1.85;
+  color:rgba(255,251,245,0.5);
+  margin-bottom:1.3rem;
+}
+.f-col h4 {
+  font-family:'Cinzel',serif;
+  font-size:0.72rem;
+  letter-spacing:0.18em;
+  color:var(--yellow-lit);
+  margin-bottom:1.1rem;
+}
+.f-col ul { list-style:none; }
+.f-col ul li { margin-bottom:0.65rem; }
+.f-col ul li a {
+  font-size:0.88rem;
+  color:rgba(255,251,245,0.5);
+  text-decoration:none;
+  cursor:pointer;
+  transition:color 0.2s;
+}
+.f-col ul li a:hover { color:var(--yellow-lit); }
+.f-bot {
+  border-top:1px solid rgba(255,251,245,0.1);
+  padding-top:1.8rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  max-width:1100px;
+  margin:0 auto;
+}
+.f-copy { font-size:0.78rem; color:rgba(255,251,245,0.3); letter-spacing:0.03em; }
+.f-ig { display:flex; align-items:center; gap:0.45rem; font-family:'Cinzel',serif; font-size:0.72rem; color:var(--yellow-lit); text-decoration:none; transition:opacity 0.2s; }
+.f-ig:hover { opacity:0.75; }
+
+/* ============================================================
+   STICKY + BACK TO TOP
+   ============================================================ */
+.sticky-wrap {
+  position:fixed; bottom:1.6rem; right:1.6rem;
+  z-index:300;
+  display:flex; flex-direction:column; align-items:flex-end; gap:0.6rem;
+}
+.wa-float {
+  display:flex; align-items:center; gap:0.55rem;
+  padding:0.72rem 1.4rem;
+  background:linear-gradient(135deg,#25D366,#128C7E);
+  color:#fff;
+  font-family:'Cinzel',serif;
+  font-size:0.72rem;
+  letter-spacing:0.06em;
+  border:none; cursor:pointer;
+  border-radius:50px;
+  text-decoration:none;
+  box-shadow:0 4px 20px rgba(37,211,102,0.3);
+  transition:all 0.3s;
+}
+.wa-float:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(37,211,102,0.4); }
+.top-btn {
+  width:40px; height:40px;
+  border-radius:50%;
+  background:var(--red);
+  color:#fff;
+  border:none; cursor:pointer;
+  font-size:1rem;
+  box-shadow:0 4px 14px rgba(185,28,28,0.3);
+  transition:all 0.3s;
+  display:flex; align-items:center; justify-content:center;
+}
+.top-btn:hover { transform:translateY(-2px); box-shadow:0 8px 18px rgba(185,28,28,0.35); }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+  position:fixed; bottom:1.5rem; left:1.5rem;
+  z-index:600;
+  background:var(--card);
+  border-left:4px solid var(--red);
+  box-shadow:var(--shadow2);
+  padding:1rem 1.5rem;
+  max-width:320px;
+  font-size:0.88rem;
+  color:var(--text2);
+  display:none;
+  animation:toastIn 0.3s ease;
+}
+.toast.show { display:block; }
+@keyframes toastIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:none} }
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+.reveal {
+  opacity:0;
+  transform:translateY(22px);
+  transition:opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity:1; transform:none; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:900px){
+  nav { padding:0 1.5rem; }
+  .nav-links { display:none; }
+  .hamburger { display:flex; }
+  .course-grid, .f-grid { grid-template-columns:1fr; }
+  .blogs-grid, .test-grid { grid-template-columns:1fr; }
+  .forum-cards { grid-template-columns:1fr; }
+  .insta-posts { grid-template-columns:repeat(3,1fr); }
+  .form-row { grid-template-columns:1fr; }
+  .trust-bar { gap:1.2rem; }
+  .price-row { gap:0.8rem; }
+}
+
+/* Mobile menu */
+.mobile-menu {
+  display:none;
+  position:fixed; top:62px; left:0; right:0;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:1.5rem;
+  z-index:499;
+  flex-direction:column; gap:1rem;
+  box-shadow:var(--shadow);
+}
+.mobile-menu.open { display:flex; }
+.mobile-menu a {
+  font-family:'Cinzel',serif;
+  font-size:0.85rem;
+  letter-spacing:0.1em;
+  color:var(--text2);
+  text-decoration:none;
+  padding:0.5rem 0;
+  border-bottom:1px solid var(--bg3);
+  transition:color 0.2s;
+}
+.mobile-menu a:hover { color:var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     REGISTER MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="regModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeM('regModal')">✕</button>
+    <div id="regFormWrap">
+      <div class="modal-title">🌟 Join the Academy</div>
+      <div class="modal-sub">Create your free account to begin your Jyotish journey</div>
+
+      <div class="form-row">
+        <div class="fld"><label>First Name *</label><input type="text" id="r_fn" placeholder="Ramesh"></div>
+        <div class="fld"><label>Last Name *</label><input type="text" id="r_ln" placeholder="Kumar"></div>
+      </div>
+      <div class="fld"><label>Email Address *</label><input type="email" id="r_em" placeholder="you@example.com"></div>
+      <div class="fld"><label>Mobile / WhatsApp *</label><input type="tel" id="r_mob" placeholder="+91 00000 00000"></div>
+      <div class="fld"><label>City / Country</label><input type="text" id="r_city" placeholder="Delhi, India"></div>
+      <div class="fld">
+        <label>Course Interest</label>
+        <select id="r_course">
+          <option value="">Select...</option>
+          <option>1-Year Vedic Astrology Program (₹24,000)</option>
+          <option>Personal Consultation Only</option>
+          <option>Both Course + Consultation</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Password *</label>
+        <input type="password" id="r_pw" placeholder="Create a strong password" oninput="strengthCheck(this)">
+        <div class="pass-wrap"><div class="pass-bar" id="pwBar"></div></div>
+      </div>
+      <div class="fld">
+        <label>Confirm Password *</label>
+        <input type="password" id="r_pw2" placeholder="Repeat your password">
+        <div class="err" id="pwMismatch">Passwords do not match.</div>
+      </div>
+      <div class="err" id="regErr" style="font-size:0.85rem;margin-bottom:0.5rem;"></div>
+      <button class="btn-red-full" onclick="doRegister()">✦ Create My Account</button>
+      <div class="switch-link">Already registered? <a onclick="sw('regModal','loginModal')">Login here →</a></div>
+    </div>
+    <div class="success-panel" id="regOK">
+      <div class="success-icon">🎉</div>
+      <h3>Welcome to Shri Ramji Astro!</h3>
+      <p>Your account has been created. You are now logged in and can access all platform features including the Discussion Forum.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     LOGIN MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeM('loginModal')">✕</button>
+    <div class="modal-title">🔐 Welcome Back</div>
+    <div class="modal-sub">Login to your Vedic Astrology dashboard</div>
+    <div class="fld"><label>Email Address</label><input type="email" id="l_em" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="fld"><label>Password</label><input type="password" id="l_pw" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="err" id="lErr" style="font-size:0.85rem;margin-bottom:0.5rem;"></div>
+    <button class="btn-red-full" onclick="doLogin()">✦ Login to Platform</button>
+    <div class="switch-link">New here? <a onclick="sw('loginModal','regModal')">Register Free →</a></div>
+    <div class="switch-link" style="margin-top:0.5rem;font-size:0.8rem;">
+      <a onclick="forgotPw()" style="color:var(--text4);">Forgot password?</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CONSULT SUCCESS MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="consultOkModal">
+  <div class="modal" style="text-align:center;max-width:460px;">
+    <button class="modal-x" onclick="closeM('consultOkModal')">✕</button>
+    <div style="font-size:4rem;margin-bottom:1rem;">✨</div>
+    <div class="modal-title" style="text-align:center;justify-content:center;">Consultation Scheduled!</div>
+    <div style="font-size:1.05rem;line-height:1.9;color:var(--text3);margin:1.5rem 0;">
+      Your birth details have been received by<br>
+      <strong style="color:var(--red);font-family:'Cinzel',serif;">Pandit Ramji Shastri</strong>.
+      <br><br>
+      Your personalised consultation will be scheduled within<br>
+      <span style="font-family:'Cinzel',serif;font-size:1.4rem;color:var(--red);font-weight:700;">16 – 24 Hours</span>
+      <br><br>
+      You will receive a call or WhatsApp message on your registered mobile number.
+    </div>
+    <div style="padding:1rem;background:var(--red-soft);border:1px solid var(--red-mid);font-size:0.88rem;color:var(--red-dark);margin-bottom:1.5rem;">
+      📱 For urgent queries, WhatsApp:<br>
+      <strong>+91 94535 61588</strong> or DM <strong>@astro_raamji</strong>
+    </div>
+    <button class="btn-gold" onclick="closeM('consultOkModal')">✦ Close</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#course" onclick="closeMM()">Course</a>
+  <a href="#consult" onclick="closeMM()">Consultation</a>
+  <a href="#blogs" onclick="closeMM()">Research</a>
+  <a href="#testimonials" onclick="closeMM()">Reviews</a>
+  <a href="#forum" onclick="closeMM()">Forum</a>
+  <a href="#contact" onclick="closeMM()">Instagram</a>
+</div>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav>
+  <a class="nav-logo" href="#">
+    <span class="logo-icon">🪐</span>
+    Shri Ramji Astro
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#course">Course</a></li>
+    <li><a href="#consult">Consultation</a></li>
+    <li><a href="#blogs">Research</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#forum">Forum</a></li>
+    <li><a href="#contact">Instagram</a></li>
+  </ul>
+
+  <div class="nav-actions" id="navActions">
+    <!-- LOGGED OUT STATE -->
+    <div id="navLoggedOut" style="display:flex;gap:0.65rem;">
+      <button class="nav-btn-login" onclick="openM('loginModal')">Login</button>
+      <button class="nav-btn-reg" onclick="openM('regModal')">Register Free</button>
+    </div>
+    <!-- LOGGED IN STATE -->
+    <div class="nav-user-info" id="navLoggedIn">
+      <span class="nav-user-name" id="navUserName"></span>
+      <button class="nav-logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <button class="hamburger" onclick="toggleMM()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero">
+  <div class="hero-geo"></div>
+  <div class="hero-ring ring1"></div>
+  <div class="hero-ring ring2"></div>
+  <div class="hero-ring ring3"></div>
+  <div class="hero-dot" style="width:8px;height:8px;top:20%;left:15%;animation-delay:0s;"></div>
+  <div class="hero-dot" style="width:5px;height:5px;top:65%;left:85%;animation-delay:2s;"></div>
+  <div class="hero-dot" style="width:6px;height:6px;top:75%;left:12%;animation-delay:4s;"></div>
+  <div class="hero-dot" style="width:4px;height:4px;top:30%;left:82%;animation-delay:1s;"></div>
+
+  <div class="hero-om z1">ॐ</div>
+
+  <div class="hero-badge z1">🏆 India's #1 Online Vedic Astrology Academy — Est. 1999</div>
+
+  <h1 class="hero-title z1">
+    <span class="accent-red">Unlock</span> the Secrets<br>
+    of the <span class="accent-gold">Cosmos</span>
+  </h1>
+
+  <p class="hero-tagline z1">
+    Master Vedic Astrology from home — a transformative 1-year program by
+    <strong>Pandit Ramji Shastri</strong>, trusted by 10,000+ seekers worldwide.
+  </p>
+
+  <div class="hero-urgency z1">🔥 LIMITED SEATS — February 2025 Batch Filling Fast! Enrol Now!</div>
+
+  <div class="price-row z1">
+    <div class="pr-orig">₹32,000</div>
+    <div class="pr-now">₹24,000</div>
+    <div class="pr-emi">EMI from ₹2,000/month</div>
+  </div>
+
+  <div class="hero-cta z1">
+    <button class="btn-primary" onclick="openM('regModal')">🎓 Enrol in the Course</button>
+    <a class="btn-outline" href="#consult">🔮 Free Kundali Consultation</a>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar z1">
+  <div class="trust-item"><span class="ti">⭐</span> 4.9/5 from 2,300+ Reviews</div>
+  <div class="trust-item"><span class="ti">👥</span> 10,000+ Students Worldwide</div>
+  <div class="trust-item"><span class="ti">📅</span> 25+ Years of Jyotish Mastery</div>
+  <div class="trust-item"><span class="ti">🎓</span> Certificate on Completion</div>
+  <div class="trust-item"><span class="ti">📱</span> Live + Recorded Sessions</div>
+</div>
+
+<!-- ZODIAC STRIP -->
+<div class="z-strip">
+  <div class="z-track">
+    <div class="z-item"><span class="zs">♈</span>Mesha</div>
+    <div class="z-item"><span class="zs">♉</span>Vrishabha</div>
+    <div class="z-item"><span class="zs">♊</span>Mithuna</div>
+    <div class="z-item"><span class="zs">♋</span>Karka</div>
+    <div class="z-item"><span class="zs">♌</span>Simha</div>
+    <div class="z-item"><span class="zs">♍</span>Kanya</div>
+    <div class="z-item"><span class="zs">♎</span>Tula</div>
+    <div class="z-item"><span class="zs">♏</span>Vrishchika</div>
+    <div class="z-item"><span class="zs">♐</span>Dhanu</div>
+    <div class="z-item"><span class="zs">♑</span>Makara</div>
+    <div class="z-item"><span class="zs">♒</span>Kumbha</div>
+    <div class="z-item"><span class="zs">♓</span>Meena</div>
+    <div class="z-item"><span class="zs">☉</span>Surya</div>
+    <div class="z-item"><span class="zs">☽</span>Chandra</div>
+    <div class="z-item"><span class="zs">♂</span>Mangal</div>
+    <div class="z-item"><span class="zs">♄</span>Shani</div>
+    <div class="z-item"><span class="zs">♃</span>Guru</div>
+    <!-- duplicate for seamless loop -->
+    <div class="z-item"><span class="zs">♈</span>Mesha</div>
+    <div class="z-item"><span class="zs">♉</span>Vrishabha</div>
+    <div class="z-item"><span class="zs">♊</span>Mithuna</div>
+    <div class="z-item"><span class="zs">♋</span>Karka</div>
+    <div class="z-item"><span class="zs">♌</span>Simha</div>
+    <div class="z-item"><span class="zs">♍</span>Kanya</div>
+    <div class="z-item"><span class="zs">♎</span>Tula</div>
+    <div class="z-item"><span class="zs">♏</span>Vrishchika</div>
+    <div class="z-item"><span class="zs">♐</span>Dhanu</div>
+    <div class="z-item"><span class="zs">♑</span>Makara</div>
+    <div class="z-item"><span class="zs">♒</span>Kumbha</div>
+    <div class="z-item"><span class="zs">♓</span>Meena</div>
+    <div class="z-item"><span class="zs">☉</span>Surya</div>
+    <div class="z-item"><span class="zs">☽</span>Chandra</div>
+    <div class="z-item"><span class="zs">♂</span>Mangal</div>
+    <div class="z-item"><span class="zs">♄</span>Shani</div>
+    <div class="z-item"><span class="zs">♃</span>Guru</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE
+     ============================================================ -->
+<section class="course-sec" id="course">
+  <div class="section-label">World-Class Education</div>
+  <h2 class="section-title">The Only Vedic Astrology Course<br>You Will Ever Need</h2>
+  <div class="divider"><span></span><em>✦</em><span></span></div>
+  <p class="section-desc">From absolute beginner to confident practitioner — a structured, sacred, career-defining 12-month journey</p>
+
+  <div class="course-card reveal">
+    <div class="course-grid">
+      <div class="ci-left">
+        <h3 class="ci-title">1-Year Vedic Astrology Mastery Program</h3>
+        <span class="ci-badge">📅 12 MONTHS · LIVE + RECORDED · CERTIFICATE</span>
+        <p class="ci-desc">A deeply researched curriculum taking you from the philosophy of Jyotish all the way to reading complex charts, predicting events, and offering professional consultations — from anywhere in the world.</p>
+        <ul class="modules-list">
+          <li><span class="mn">Q1</span><div><strong>Foundations</strong> — History of Jyotish, 9 Planets, 12 Signs, 12 Houses, Basic Chart Reading, 27 Nakshatras & Panchanga</div></li>
+          <li><span class="mn">Q2</span><div><strong>Intermediate</strong> — Planetary Aspects, Yogas & Doshas, Divisional Charts (Navamsa, Dashamsa), Vimshottari Dasha System, Ashtakavarga</div></li>
+          <li><span class="mn">Q3</span><div><strong>Advanced</strong> — Transit Predictions, Muhurta Election, Prashna (Horary Astrology), Birth Time Rectification, Jaimini Astrology Basics</div></li>
+          <li><span class="mn">Q4</span><div><strong>Mastery</strong> — Professional Case Studies, Medical Astrology, Financial Astrology, Vastu Fundamentals, Live Chart Reading Lab</div></li>
+        </ul>
+      </div>
+
+      <div class="fee-panel">
+        <div class="fee-top">
+          <div class="fee-lbl">ANNUAL COURSE FEE</div>
+          <div class="fee-orig">₹32,000</div>
+          <div class="fee-amt">₹24,000</div>
+          <div class="fee-sub">≈ USD 289 · EMI: ₹2,000/month available</div>
+        </div>
+
+        <div class="disc-row">
+          <div class="disc-tag">🎓 STUDENT: 10% OFF</div>
+          <div class="disc-tag">👥 GROUP (3+): 15% OFF</div>
+          <div class="disc-tag">⚡ EARLY BIRD: ₹3,000 OFF</div>
+          <div class="disc-tag">🙏 SCHOLARSHIP AVAILABLE</div>
+        </div>
+
+        <ul class="feat-list">
+          <li><span class="ck">✦</span> 48 Live Zoom Classes (Weekly)</li>
+          <li><span class="ck">✦</span> All Recordings — Lifetime Access</li>
+          <li><span class="ck">✦</span> Detailed Study Materials & PDFs</li>
+          <li><span class="ck">✦</span> Private Discussion Forum Access</li>
+          <li><span class="ck">✦</span> Monthly 1-on-1 Doubt Sessions</li>
+          <li><span class="ck">✦</span> Live Chart Reading Labs</li>
+          <li><span class="ck">✦</span> Official Certificate on Completion</li>
+          <li><span class="ck">✦</span> WhatsApp Batch Support Group</li>
+        </ul>
+
+        <button class="btn-red-full" onclick="openM('regModal')">✦ Enrol Now — Seats Filling Fast</button>
+        <p style="text-align:center;margin-top:0.85rem;font-size:0.8rem;color:var(--text4);">💳 Secure Payment · 7-Day Money Back Guarantee</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CONSULTATION TOOL
+     ============================================================ -->
+<section class="consult-sec" id="consult">
+  <div class="section-label">Free Personalised Reading</div>
+  <h2 class="section-title">Claim Your FREE<br>Kundali Consultation</h2>
+  <div class="divider"><span></span><em>✦</em><span></span></div>
+  <p class="section-desc">Enter your birth details below. Pandit Ramji Shastri personally reviews every chart and contacts you within 16–24 hours.</p>
+
+  <div class="consult-box reveal">
+    <div class="consult-header">
+      <div class="ch-icon">🔮</div>
+      <div>
+        <div class="ch-title">Birth Chart Analysis Tool</div>
+        <div class="ch-sub">Your data is sent directly to Panditji via WhatsApp for immediate review</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="fld"><label>Full Name *</label><input type="text" id="c_name" placeholder="Your full name"></div>
+      <div class="fld"><label>Mobile / WhatsApp *</label><input type="tel" id="c_mob" placeholder="+91 XXXXX XXXXX"></div>
+    </div>
+    <div class="fld"><label>Date of Birth *</label><input type="date" id="c_dob"></div>
+    <div class="fld">
+      <label>Time of Birth *</label>
+      <input type="time" id="c_tob">
+      <div class="hint-text">⚠️ Accurate birth time is crucial for a precise reading. Check your birth certificate if possible.</div>
+    </div>
+    <div class="fld"><label>Place of Birth *</label><input type="text" id="c_pob" placeholder="City, State, Country — e.g. Lucknow, UP, India"></div>
+    <div class="fld"><label>Main Question / Concern (optional)</label><input type="text" id="c_q" placeholder="Career, Marriage, Health, Business, Finance..."></div>
+    <div class="fld"><label>Email (optional — for follow-up readings)</label><input type="email" id="c_em" placeholder="you@example.com"></div>
+    <div class="err" id="cErr" style="margin-bottom:0.5rem;"></div>
+    <button class="btn-red-full" onclick="submitConsult()" id="cBtn">🔮 Submit for Free Consultation</button>
+    <p style="text-align:center;margin-top:0.75rem;font-size:0.8rem;color:var(--text4);">🔒 Your details are private and used only for astrology consultation purposes.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     BLOGS
+     ============================================================ -->
+<section class="blogs-sec" id="blogs">
+  <div class="section-label">Research & Insights</div>
+  <h2 class="section-title">Ancient Wisdom Meets<br>Modern Science</h2>
+  <div class="divider"><span></span><em>✦</em><span></span></div>
+  <p class="section-desc">Research-backed articles, cosmic discoveries, and the science behind Vedic Jyotish</p>
+
+  <div class="blogs-grid">
+    <div class="blog-card reveal">
+      <div class="blog-img bi1"><span>🪐</span><span class="blog-cat">RESEARCH</span></div>
+      <div class="blog-body">
+        <div class="blog-date">JANUARY 2025 · PLANETARY SCIENCE</div>
+        <h3 class="blog-title">Does Saturn's Return Actually Change Your Life? Science & Jyotish Both Say Yes</h3>
+        <p class="blog-exc">Researchers studying 20,000+ biographies found major life transitions clustering at ages 28–30 — exactly when Saturn completes its first orbit. Ancient Vedic texts predicted this 3,000 years ago.</p>
+        <div class="blog-read">Read Full Article →</div>
+      </div>
+    </div>
+
+    <div class="blog-card reveal">
+      <div class="blog-img bi2"><span>🌙</span><span class="blog-cat">LUNAR CYCLES</span></div>
+      <div class="blog-body">
+        <div class="blog-date">DECEMBER 2024 · MOON SCIENCE</div>
+        <h3 class="blog-title">The Moon's Effect on Human Emotion Is Far More Real Than You Think</h3>
+        <p class="blog-exc">Multiple peer-reviewed studies confirm a 23% spike in ER admissions during full moon nights. Vedic astrology's ancient emphasis on Chandra in emotional analysis proves remarkably prescient.</p>
+        <div class="blog-read">Read Full Article →</div>
+      </div>
+    </div>
+
+    <div class="blog-card reveal">
+      <div class="blog-img bi3"><span>✨</span><span class="blog-cat">NAKSHATRA</span></div>
+      <div class="blog-body">
+        <div class="blog-date">NOVEMBER 2024 · NAKSHATRAS</div>
+        <h3 class="blog-title">Why People Born Under Ashwini Nakshatra Become CEOs — The Vedic Blueprint</h3>
+        <p class="blog-exc">We studied birth charts of 500 Fortune-500 CEOs. A startling cluster of Mars-dominant and Ashwini-born charts emerged. The Nakshatra system may hold the cosmic key to human potential.</p>
+        <div class="blog-read">Read Full Article →</div>
+      </div>
+    </div>
+
+    <div class="blog-card reveal">
+      <div class="blog-img bi4"><span>💍</span><span class="blog-cat">MARRIAGE</span></div>
+      <div class="blog-body">
+        <div class="blog-date">OCTOBER 2024 · COMPATIBILITY</div>
+        <h3 class="blog-title">We Matched 1,000 Couples Using Vedic Kundali Milan — The Results Were Astonishing</h3>
+        <p class="blog-exc">Couples with Ashtakoota scores above 25 showed a 78% lower divorce rate across a 10-year study. The ancient eight-fold system isn't superstition — it's predictive psychology written in stars.</p>
+        <div class="blog-read">Read Full Article →</div>
+      </div>
+    </div>
+
+    <div class="blog-card reveal">
+      <div class="blog-img bi5"><span>🐍</span><span class="blog-cat">RAHU-KETU</span></div>
+      <div class="blog-body">
+        <div class="blog-date">SEPTEMBER 2024 · SHADOW PLANETS</div>
+        <h3 class="blog-title">Rahu & Ketu: The Invisible Forces Controlling Your Karma and Past-Life Debts</h3>
+        <p class="blog-exc">New research into Rahu-Ketu's 18.6-year nodal cycle correlates with generational economic and political upheavals throughout recorded history — exactly as Vedic texts describe.</p>
+        <div class="blog-read">Read Full Article →</div>
+      </div>
+    </div>
+
+    <div class="blog-card reveal">
+      <div class="blog-img bi6"><span>🏥</span><span class="blog-cat">MEDICAL ASTRO</span></div>
+      <div class="blog-body">
+        <div class="blog-date">AUGUST 2024 · MEDICAL JYOTISH</div>
+        <h3 class="blog-title">Can Your Horoscope Predict Your Health Risks? Ancient Vedic Physicians Believed So</h3>
+        <p class="blog-exc">The 6th house, afflicted Sun, and malefic Mars conjunctions are linked to health vulnerabilities in Vedic texts. Modern longitudinal studies are beginning to find surprising correlations.</p>
+        <div class="blog-read">Read Full Article →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TESTIMONIALS
+     ============================================================ -->
+<section class="test-sec" id="testimonials">
+  <div class="section-label">Real Student Stories</div>
+  <h2 class="section-title">Lives Changed, Paths Illuminated</h2>
+  <div class="divider"><span></span><em>✦</em><span></span></div>
+
+  <div class="test-grid">
+    <div class="test-card reveal">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">I enrolled skeptically and graduated a believer. Panditji's teaching is unmatched — deeply scientific yet spiritually alive. I now practice astrology part-time and earn ₹40,000+ per month from consultations.</p>
+      <div class="t-name">Ananya Mishra</div><div class="t-loc">Lucknow, Uttar Pradesh</div>
+    </div>
+    <div class="test-card reveal">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">Panditji's Dasha analysis predicted my career change 8 months before it happened. The accuracy left me absolutely speechless. This course is unlike anything I've encountered — truly transformative.</p>
+      <div class="t-name">Vikram Nair</div><div class="t-loc">Thiruvananthapuram, Kerala</div>
+    </div>
+    <div class="test-card reveal">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">The free consultation alone was worth more than any paid service I'd tried. Panditji identified my Sade Sati period without me mentioning it — and his remedies brought genuine relief within weeks.</p>
+      <div class="t-name">Priya Agarwal</div><div class="t-loc">Jaipur, Rajasthan</div>
+    </div>
+    <div class="test-card reveal">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">As a software engineer I needed logic in astrology. This course delivered exactly that — a structured, mathematical framework. I'm now building my own astrology application using concepts from this program!</p>
+      <div class="t-name">Arjun Krishnamurthy</div><div class="t-loc">Bengaluru, Karnataka</div>
+    </div>
+    <div class="test-card reveal">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">Our marriage was saved by a simple Kundali analysis. Panditji suggested a remedy — within three months our relationship completely transformed. He is truly a divinely gifted teacher and guide.</p>
+      <div class="t-name">Sunita & Rahul Sharma</div><div class="t-loc">Chandigarh, Punjab</div>
+    </div>
+    <div class="test-card reveal">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">I joined from Dubai. The structure is perfect for working professionals — recordings available right after class, direct WhatsApp access to Panditji, and a thriving global student community. Truly world class.</p>
+      <div class="t-name">Deepa Menon</div><div class="t-loc">Dubai, UAE</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DISCUSSION FORUM
+     ============================================================ -->
+<section class="forum-sec" id="forum">
+  <div class="section-label">Community</div>
+  <h2 class="section-title">Jyotish Discussion Forum</h2>
+  <div class="divider"><span></span><em>✦</em><span></span></div>
+  <p class="section-desc">An exclusive space to ask questions, share charts, debate interpretations, and grow together under Panditji's guidance</p>
+
+  <div class="forum-gate">
+    <div class="forum-cards">
+      <div class="f-card reveal">
+        <div class="f-icon">💬</div>
+        <div class="f-name">Open Discussions</div>
+        <div class="f-desc">Post questions and get answers from Panditji and fellow students around the clock</div>
+      </div>
+      <div class="f-card reveal" style="transition-delay:0.08s">
+        <div class="f-icon">📊</div>
+        <div class="f-name">Chart Sharing Lab</div>
+        <div class="f-desc">Upload your chart and receive detailed community analysis and personalized feedback</div>
+      </div>
+      <div class="f-card reveal" style="transition-delay:0.16s">
+        <div class="f-icon">🏆</div>
+        <div class="f-name">Weekly Challenges</div>
+        <div class="f-desc">Test your skills with real anonymous chart interpretation exercises every week</div>
+      </div>
+    </div>
+
+    <!-- LOCKED (logged out) -->
+    <div class="forum-locked" id="forumLocked">
+      <p>🔒 The Discussion Forum is exclusively available to registered members.<br>
+      Create your free account to join thousands of students already learning and growing together.</p>
+      <button class="btn-primary" onclick="openM('regModal')">Register Free to Access Forum</button>
+    </div>
+
+    <!-- FORUM (logged in) -->
+    <div class="forum-panel" id="forumPanel">
+      <div class="forum-header">
+        <h3>🪐 Jyotish Forum</h3>
+        <span id="forumWelcome">Welcome back!</span>
+      </div>
+      <div class="forum-compose">
+        <textarea id="forumInput" rows="3" placeholder="Share a question, insight, or post your chart details for discussion..."></textarea>
+        <button class="forum-post-btn" onclick="postToForum()">Post to Forum</button>
+      </div>
+      <div class="forum-posts" id="forumPosts">
+        <!-- Seeded posts -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     INSTAGRAM / CONTACT
+     ============================================================ -->
+<section class="insta-sec" id="contact">
+  <div class="insta-inner">
+    <div class="section-label">Follow the Cosmic Journey</div>
+    <h2 class="section-title">Connect With Us on Instagram</h2>
+    <div class="divider"><span></span><em>✦</em><span></span></div>
+    <p class="section-desc">Daily horoscopes, planetary updates, chart tutorials, and cosmic wisdom — all on our Instagram</p>
+
+    <a class="insta-handle" href="https://instagram.com/astro_raamji" target="_blank">
+      <div class="insta-icon">📸</div>
+      <div class="insta-text">
+        <h3>@astro_raamji</h3>
+        <p>Shri Ramji Astro — Official Instagram Account</p>
+      </div>
+      <div class="insta-arrow">FOLLOW →</div>
+    </a>
+
+    <div class="insta-posts">
+      <div class="i-post" onclick="window.open('https://instagram.com/astro_raamji','_blank')">🌙</div>
+      <div class="i-post" onclick="window.open('https://instagram.com/astro_raamji','_blank')">🪐</div>
+      <div class="i-post" onclick="window.open('https://instagram.com/astro_raamji','_blank')">⭐</div>
+      <div class="i-post" onclick="window.open('https://instagram.com/astro_raamji','_blank')">🔮</div>
+      <div class="i-post" onclick="window.open('https://instagram.com/astro_raamji','_blank')">🌟</div>
+    </div>
+
+    <div class="insta-stats">
+      <span>📸 12.4K Followers</span>
+      <span>·</span>
+      <span>📱 Daily Posts</span>
+      <span>·</span>
+      <span>🎥 Weekly Live Sessions</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer>
+  <div class="f-grid">
+    <div class="f-brand">
+      <div class="fl">🪐 Shri Ramji Astro</div>
+      <p>India's most trusted online Vedic Astrology academy. Founded by Pandit Ramji Shastri with 25+ years of dedicated Jyotish practice. Transforming lives, one chart at a time.</p>
+      <a href="https://instagram.com/astro_raamji" target="_blank" class="f-ig">📸 @astro_raamji</a>
+    </div>
+    <div class="f-col">
+      <h4>Platform</h4>
+      <ul>
+        <li><a onclick="openM('regModal')">Register Free</a></li>
+        <li><a onclick="openM('loginModal')">Login</a></li>
+        <li><a href="#forum">Discussion Forum</a></li>
+        <li><a href="#course">Course Details</a></li>
+      </ul>
+    </div>
+    <div class="f-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#consult">Free Consultation</a></li>
+        <li><a href="#blogs">Research Blog</a></li>
+        <li><a href="https://instagram.com/astro_raamji" target="_blank">Instagram @astro_raamji</a></li>
+        <li><a href="https://wa.me/919453561588" target="_blank">WhatsApp Panditji</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="f-bot">
+    <div class="f-copy">© 2025 Shri Ramji Astro · All Rights Reserved · Made with ✦ devotion</div>
+    <a href="https://instagram.com/astro_raamji" target="_blank" class="f-ig">📸 @astro_raamji</a>
+  </div>
+</footer>
+
+<!-- STICKY -->
+<div class="sticky-wrap">
+  <a class="wa-float" href="https://wa.me/919453561588?text=Namaste%20Panditji%2C%20I%20would%20like%20to%20enquire%20about%20the%20astrology%20course%20and%20consultation." target="_blank">
+    📱 WhatsApp Us
+  </a>
+  <button class="top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — FULLY FUNCTIONAL
+     ============================================================ -->
+<script>
+/* =============================================
+   STORAGE HELPERS (persistent across sessions)
+   ============================================= */
+const USERS_KEY   = 'sra_users_v1';
+const SESSION_KEY = 'sra_session_v1';
+const POSTS_KEY   = 'sra_posts_v1';
+const CONSULTS_KEY= 'sra_consults_v1';
+
+function getUsers()   { try { return JSON.parse(localStorage.getItem(USERS_KEY)||'[]'); } catch(e){return[];} }
+function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); } catch(e){return null;} }
+function saveSession(u){ localStorage.setItem(SESSION_KEY, JSON.stringify(u)); }
+function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+function getPosts()   { try { return JSON.parse(localStorage.getItem(POSTS_KEY)||'null'); } catch(e){return null;} }
+function savePosts(p) { localStorage.setItem(POSTS_KEY, JSON.stringify(p)); }
+function getConsults(){ try { return JSON.parse(localStorage.getItem(CONSULTS_KEY)||'[]'); } catch(e){return[];} }
+function saveConsults(c){ localStorage.setItem(CONSULTS_KEY, JSON.stringify(c)); }
+
+/* =============================================
+   MODAL SYSTEM
+   ============================================= */
+function openM(id)  { document.getElementById(id).classList.add('open');  document.body.style.overflow='hidden'; }
+function closeM(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+function sw(a,b)    { closeM(a); setTimeout(()=>openM(b),220); }
+
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click', e => { if(e.target===el) closeM(el.id); });
+});
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>closeM(m.id));
+});
+
+/* =============================================
+   TOAST
+   ============================================= */
+function showToast(msg, dur=3500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+/* =============================================
+   PASSWORD STRENGTH
+   ============================================= */
+function strengthCheck(input){
+  const v=input.value, bar=document.getElementById('pwBar');
+  let s=0;
+  if(v.length>=6)s++;
+  if(v.length>=10)s++;
+  if(/[A-Z]/.test(v))s++;
+  if(/[0-9]/.test(v))s++;
+  if(/[^A-Za-z0-9]/.test(v))s++;
+  const cols=['#DC2626','#F97316','#F59E0B','#22C55E','#15803D'];
+  const ws  =[20,40,60,80,100];
+  bar.style.width=ws[Math.min(s,4)]+'%';
+  bar.style.background=cols[Math.min(s,4)];
+}
+
+/* =============================================
+   REGISTER
+   ============================================= */
+function doRegister(){
+  const fn   = v('r_fn'), ln = v('r_ln');
+  const em   = v('r_em').toLowerCase().trim();
+  const mob  = v('r_mob');
+  const city = v('r_city');
+  const course=v('r_course');
+  const pw   = v('r_pw'), pw2 = v('r_pw2');
+  const errEl= document.getElementById('regErr');
+  const pmEl = document.getElementById('pwMismatch');
+
+  errEl.classList.remove('show'); pmEl.classList.remove('show');
+
+  if(!fn||!ln||!em||!mob||!pw){ showErr(errEl,'Please fill all required fields (*).'); return; }
+  if(!isEmail(em))             { showErr(errEl,'Please enter a valid email address.'); return; }
+  if(pw.length<6)              { showErr(errEl,'Password must be at least 6 characters.'); return; }
+  if(pw!==pw2)                 { pmEl.classList.add('show'); return; }
+
+  const users = getUsers();
+  if(users.find(u=>u.email===em)){ showErr(errEl,'This email is already registered. Please login.'); return; }
+
+  const newUser = {
+    fn, ln, email:em, mob, city, course,
+    pw: btoa(pw), // simple obfuscation
+    joined: new Date().toISOString(),
+    id: Date.now().toString()
+  };
+  users.push(newUser);
+  saveUsers(users);
+
+  // Auto-login
+  const session = { id:newUser.id, fn, ln, email:em };
+  saveSession(session);
+
+  // Show success
+  document.getElementById('regFormWrap').style.display='none';
+  document.getElementById('regOK').style.display='block';
+
+  updateNavState(session);
+  renderForum(session);
+
+  setTimeout(()=>{
+    closeM('regModal');
+    document.getElementById('regFormWrap').style.display='block';
+    document.getElementById('regOK').style.display='none';
+    showToast('🙏 Welcome to Shri Ramji Astro, '+fn+'!');
+  },3200);
+}
+
+/* =============================================
+   LOGIN
+   ============================================= */
+function doLogin(){
+  const em  = v('l_em').toLowerCase().trim();
+  const pw  = v('l_pw');
+  const errEl=document.getElementById('lErr');
+  errEl.classList.remove('show');
+
+  if(!em||!pw){ showErr(errEl,'Please enter your email and password.'); return; }
+
+  const users=getUsers();
+  const user=users.find(u=>u.email===em && atob(u.pw)===pw);
+  if(!user){ showErr(errEl,'Incorrect email or password. Please try again.'); return; }
+
+  const session={id:user.id, fn:user.fn, ln:user.ln, email:user.email};
+  saveSession(session);
+  updateNavState(session);
+  renderForum(session);
+  closeM('loginModal');
+  showToast('🙏 Jai Shri Ram! Welcome back, '+user.fn+'.');
+}
+
+/* =============================================
+   LOGOUT
+   ============================================= */
+function doLogout(){
+  clearSession();
+  updateNavState(null);
+  renderForum(null);
+  showToast('You have been logged out.');
+}
+
+/* =============================================
+   FORGOT PASSWORD
+   ============================================= */
+function forgotPw(){
+  const em = prompt('Enter your registered email address:');
+  if(!em) return;
+  const users=getUsers();
+  const u=users.find(x=>x.email===em.toLowerCase().trim());
+  if(u){
+    alert('📧 Password recovery:\n\nContact us on Instagram @astro_raamji or WhatsApp +91 94535 61588 with your registered email to reset your password.\n\n(In a live deployment this sends an automated email.)');
+  } else {
+    alert('No account found with that email. Please check and try again, or register a new account.');
+  }
+}
+
+/* =============================================
+   NAV STATE
+   ============================================= */
+function updateNavState(session){
+  const lo=document.getElementById('navLoggedOut');
+  const li=document.getElementById('navLoggedIn');
+  const un=document.getElementById('navUserName');
+  if(session){
+    lo.style.display='none';
+    li.classList.add('visible');
+    un.textContent='🙏 '+session.fn+' '+session.ln;
+  } else {
+    lo.style.display='flex';
+    li.classList.remove('visible');
+  }
+}
+
+/* =============================================
+   FORUM
+   ============================================= */
+const SEED_POSTS = [
+  { id:'s1', name:'Pandit Ramji Shastri', initials:'PR', text:'Jai Shri Ram 🙏 Welcome to the official Shri Ramji Astro Discussion Forum! This is a sacred space for all students to ask questions, share charts, and grow together in the study of Jyotish Shastra. Please keep discussions respectful and on topic.', time:'2 days ago', isAdmin:true },
+  { id:'s2', name:'Priya Sharma', initials:'PS', text:'Namaste! I just completed Module 1 and the Nakshatra system really clicked for me today. Anyone else find that the Ashwini-Bharani transition in a chart reflects a major life shift? Would love to discuss!', time:'1 day ago', isAdmin:false },
+  { id:'s3', name:'Rajesh Verma', initials:'RV', text:'Question for Panditji — if Rahu is in the 7th house in Navamsa but 10th in the rasi, how do we weigh the marriage vs career implications during Rahu dasha? My chart has this placement.', time:'18 hours ago', isAdmin:false },
+  { id:'s4', name:'Pandit Ramji Shastri', initials:'PR', text:'@Rajesh — excellent observation. In such cases, Rahu in the 10th (rasi) will dominate career matters during the Dasha period, while the 7th house in Navamsa indicates the partner\'s influence on career success. Look at Venus placement for final confirmation. We will cover this in detail in Q2 Module 4!', time:'15 hours ago', isAdmin:true },
+];
+
+function renderForum(session){
+  const locked=document.getElementById('forumLocked');
+  const panel =document.getElementById('forumPanel');
+  const welcome=document.getElementById('forumWelcome');
+
+  if(!session){
+    locked.style.display='block'; panel.classList.remove('open'); return;
+  }
+
+  locked.style.display='none';
+  panel.classList.add('open');
+  welcome.textContent='Welcome, '+session.fn+'! 🙏';
+
+  // Load posts
+  let posts = getPosts();
+  if(!posts) { posts=SEED_POSTS; savePosts(posts); }
+
+  const container=document.getElementById('forumPosts');
+  container.innerHTML='';
+  posts.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='forum-post';
+    div.innerHTML=`
+      <div class="fp-meta">
+        <div class="fp-avatar" style="${p.isAdmin?'background:linear-gradient(135deg,#FEE2E2,#FEF3C7);border-color:#B91C1C;':''}">${p.initials}</div>
+        <span class="fp-name" style="${p.isAdmin?'color:var(--red);':''}">${p.name}${p.isAdmin?' ✦ Panditji':''}</span>
+        <span class="fp-time">${p.time}</span>
+      </div>
+      <div class="fp-text">${escapeHtml(p.text)}</div>
+    `;
+    container.appendChild(div);
+  });
+  container.scrollTop=container.scrollHeight;
+}
+
+function postToForum(){
+  const session=getSession();
+  if(!session){ openM('loginModal'); return; }
+
+  const input=document.getElementById('forumInput');
+  const text=input.value.trim();
+  if(!text){ showToast('Please write something before posting.'); return; }
+  if(text.length<10){ showToast('Post must be at least 10 characters.'); return; }
+
+  const posts=getPosts()||SEED_POSTS;
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+  posts.push({
+    id:'u'+Date.now(),
+    name:session.fn+' '+session.ln,
+    initials:(session.fn[0]||'U')+(session.ln[0]||''),
+    text, time:timeStr, isAdmin:false
+  });
+  savePosts(posts);
+  input.value='';
+  renderForum(session);
+  showToast('✦ Your post has been shared!');
+}
+
+/* =============================================
+   CONSULTATION SUBMIT
+   ============================================= */
+function submitConsult(){
+  const name = v('c_name').trim();
+  const mob  = v('c_mob').trim();
+  const dob  = v('c_dob');
+  const tob  = v('c_tob');
+  const pob  = v('c_pob').trim();
+  const q    = v('c_q').trim();
+  const em   = v('c_em').trim();
+  const errEl= document.getElementById('cErr');
+
+  errEl.classList.remove('show');
+  if(!name||!mob||!dob||!tob||!pob){
+    showErr(errEl,'Please fill all required fields (Name, Mobile, Date, Time, Place of Birth).');
+    return;
+  }
+
+  const btn=document.getElementById('cBtn');
+  btn.textContent='⏳ Sending...';
+  btn.disabled=true;
+
+  const dobF = new Date(dob).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+
+  // Save consultation record locally
+  const consults = getConsults();
+  consults.push({ name, mob, dob:dobF, tob, pob, q, em, ts:new Date().toISOString() });
+  saveConsults(consults);
+
+  // Build WhatsApp message
+  const waMsg = [
+    `🔮 *NEW CONSULTATION — Shri Ramji Astro*`,
+    ``,
+    `👤 *Name:* ${name}`,
+    `📱 *Mobile:* ${mob}`,
+    em ? `📧 *Email:* ${em}` : null,
+    ``,
+    `📅 *Date of Birth:* ${dobF}`,
+    `⏰ *Time of Birth:* ${tob}`,
+    `📍 *Place of Birth:* ${pob}`,
+    q  ? `\n❓ *Question:* ${q}` : null,
+    ``,
+    `🕐 *Submitted:* ${new Date().toLocaleString('en-IN')}`,
+    ``,
+    `_Please schedule consultation within 16–24 hrs._`
+  ].filter(x=>x!==null).join('\n');
+
+  // Open WhatsApp with pre-filled message
+  const waUrl = `https://wa.me/919453561588?text=${encodeURIComponent(waMsg)}`;
+
+  // Slight delay for UX
+  setTimeout(()=>{
+    window.open(waUrl,'_blank');
+
+    // Reset form
+    ['c_name','c_mob','c_dob','c_tob','c_pob','c_q','c_em'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.value='';
+    });
+
+    btn.textContent='🔮 Submit for Free Consultation';
+    btn.disabled=false;
+
+    // Show success modal
+    openM('consultOkModal');
+  }, 700);
+}
+
+/* =============================================
+   MOBILE MENU
+   ============================================= */
+function toggleMM(){
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+function closeMM(){
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+
+/* =============================================
+   SCROLL REVEAL
+   ============================================= */
+const revealObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach((el,i)=>{
+  el.style.transitionDelay = (i%3 * 0.07)+'s';
+  revealObs.observe(el);
+});
+
+/* =============================================
+   SMOOTH SCROLL FOR ANCHOR LINKS
+   ============================================= */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const target=document.querySelector(a.getAttribute('href'));
+    if(target){
+      e.preventDefault();
+      const offset=70;
+      const top=target.getBoundingClientRect().top+window.pageYOffset-offset;
+      window.scrollTo({top,behavior:'smooth'});
+    }
+  });
+});
+
+/* =============================================
+   HELPERS
+   ============================================= */
+function v(id) { const el=document.getElementById(id); return el ? el.value : ''; }
+function isEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function showErr(el,msg){ el.textContent=msg; el.classList.add('show'); }
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* =============================================
+   INIT
+   ============================================= */
+(function init(){
+  const session=getSession();
+  if(session){
+    updateNavState(session);
+  }
+  // Always render forum (locked if no session)
+  renderForum(session);
+})();
+</script>
+</body>
+</html>
