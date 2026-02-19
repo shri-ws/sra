@@ -4,70 +4,1810 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shri Ramji Astro — 1-Year Vedic Astrology Program</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --red:        #B91C1C;
-    --red-dark:   #7F1D1D;
-    --red-bright: #DC2626;
-    --red-soft:   #FEE2E2;
-    --red-mid:    #FECACA;
-    --gold:       #D97706;
-    --gold-lit:   #F59E0B;
-    --gold-bg:    #FEF3C7;
-    --gold-mid:   #FDE68A;
-    --bg:         #FFFBF5;
-    --bg2:        #FFF7ED;
-    --bg3:        #FEF3E2;
+    --red:        #C41E3A;
+    --red-dark:   #8B1538;
+    --red-bright: #E63946;
+    --red-soft:   #FFE5E5;
+    --red-mid:    #FFD6D6;
+    --gold:       #D4AF37;
+    --gold-lit:   #F4C430;
+    --gold-dark:  #B8921F;
+    --gold-bg:    #FFF9E6;
+    --gold-mid:   #FFF3CC;
+    --bg:         #FFFEF9;
+    --bg2:        #FFF9F0;
+    --bg3:        #FFF3E6;
     --card:       #FFFFFF;
-    --border:     #E5D4B8;
-    --text:       #1C0A0A;
-    --text2:      #4A1A1A;
-    --text3:      #7C3B3B;
-    --text4:      #A16060;
+    --border:     #E8DCC8;
+    --text:       #2D1B0E;
+    --text2:      #4A3526;
+    --text3:      #6B4F3D;
+    --text4:      #8C6954;
+    --shadow:     0 8px 32px rgba(196,30,58,0.08);
+    --shadow-lg:  0 16px 56px rgba(196,30,58,0.12);
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
 
   body {
-    background: var(--bg);
+    background: linear-gradient(135deg, #FFFEF9 0%, #FFF9F0 100%);
     color: var(--text);
     font-family: 'Cormorant Garamond', serif;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 17px;
   }
 
-  /* ── PRINT / PAGE LAYOUT ── */
+  /* ══════════════════════════════════════
+     PAGE CONTAINER — Premium Print Layout
+  ══════════════════════════════════════ */
   .page {
-    width: 794px;
-    min-height: 1123px;
-    margin: 0 auto 2rem;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto 3rem;
     background: var(--card);
-    box-shadow: 0 8px 40px rgba(185,28,28,0.13);
+    box-shadow: var(--shadow-lg);
     position: relative;
     overflow: hidden;
     page-break-after: always;
+    padding: 0;
   }
 
   @media print {
     body { margin:0; background:white; }
     .page { box-shadow:none; margin:0; page-break-after:always; width:100%; }
-    .no-print { display:none; }
+    @page { size: A4; margin: 0; }
   }
 
-  /* ── SACRED SYMBOLS SVG ── */
-  .om-svg, .swastik-svg {
-    display: block;
-    margin: 0 auto;
+  /* ══════════════════════════════════════
+     ELEGANT SACRED SYMBOLS
+  ══════════════════════════════════════ */
+  .om-elegant {
+    filter: drop-shadow(0 4px 20px rgba(212,175,55,0.4));
+    opacity: 0.95;
   }
 
-  /* ─────────────────────────────────────
-     PAGE 1 — COVER
-  ───────────────────────────────────── */
+  .swastik-elegant {
+    opacity: 0.85;
+    filter: drop-shadow(0 2px 8px rgba(212,175,55,0.3));
+  }
+
+  /* ══════════════════════════════════════
+     COVER PAGE — Luxurious & Sacred
+  ══════════════════════════════════════ */
   .cover {
-    background: linear-gradient(160deg, #1C0A0A 0%, #3B0000 40%, #1C0A0A 100%);
-    color: #FFFBF5;
+    min-height: 297mm;
+    background: radial-gradient(ellipse at top, #2D1B0E 0%, #1A0F08 50%, #0D0604 100%);
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-  
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 3rem;
+    overflow: hidden;
+  }
+
+  /* Mystical mandala background */
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      radial-gradient(circle at 20% 30%, rgba(212,175,55,0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(196,30,58,0.05) 0%, transparent 40%);
+    pointer-events: none;
+  }
+
+  /* Sacred geometry pattern */
+  .cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40Z' fill='none' stroke='%23D4AF37' stroke-width='0.5' stroke-opacity='0.06'/%3E%3Ccircle cx='40' cy='40' r='15' fill='none' stroke='%23D4AF37' stroke-width='0.3' stroke-opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .cover-content { position: relative; z-index: 1; max-width: 700px; }
+
+  .cover-brand {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.35em;
+    color: var(--gold-lit);
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+  }
+
+  .cover-om-large {
+    margin-bottom: 2rem;
+  }
+
+  .cover-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .cover-line {
+    width: 100px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+
+  .cover-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.3;
+    color: #FFFEF9;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.02em;
+    text-shadow: 0 4px 24px rgba(212,175,55,0.3);
+  }
+
+  .cover-title .gold { 
+    color: var(--gold-lit);
+    display: block;
+    margin-top: 0.3rem;
+  }
+
+  .cover-subtitle {
+    font-family: 'Lora', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: rgba(255,254,249,0.75);
+    letter-spacing: 0.15em;
+    margin-bottom: 3rem;
+    font-weight: 400;
+  }
+
+  .cover-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0;
+    max-width: 700px;
+    width: 100%;
+    border: 1.5px solid rgba(212,175,55,0.3);
+    background: rgba(212,175,55,0.03);
+    margin-bottom: 3rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .cover-stat {
+    padding: 1.8rem 1rem;
+    text-align: center;
+    border-right: 1px solid rgba(212,175,55,0.2);
+    position: relative;
+  }
+  .cover-stat:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold-lit);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: rgba(255,254,249,0.6);
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  .cover-pricing {
+    background: rgba(212,175,55,0.08);
+    border: 1.5px solid rgba(212,175,55,0.35);
+    padding: 2rem 3rem;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 2.5rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .pricing-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .price-block {
+    text-align: center;
+  }
+
+  .price-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: rgba(255,254,249,0.5);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .price-amount {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--gold-lit);
+    line-height: 1;
+  }
+
+  .price-note {
+    font-size: 0.75rem;
+    color: rgba(255,254,249,0.45);
+    font-style: italic;
+    margin-top: 0.4rem;
+  }
+
+  .price-divider {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, rgba(212,175,55,0.3), transparent);
+  }
+
+  .cover-footer {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .footer-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(212,175,55,0.3), transparent);
+  }
+
+  .cover-contact {
+    font-size: 0.85rem;
+    color: rgba(255,254,249,0.5);
+    font-style: italic;
+  }
+
+  /* ══════════════════════════════════════
+     INNER PAGES — Clean Professional Layout
+  ══════════════════════════════════════ */
+  .page-header {
+    background: linear-gradient(135deg, var(--red-dark), var(--red));
+    padding: 1.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-brand {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,254,249,0.95);
+    font-weight: 500;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .header-contact {
+    font-size: 0.8rem;
+    color: rgba(255,254,249,0.75);
+    font-style: italic;
+  }
+
+  .page-body {
+    padding: 3.5rem 3.5rem 6rem;
+    min-height: calc(297mm - 80px);
+  }
+
+  .page-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2D1B0E, #1A0F08);
+    padding: 1rem 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: rgba(255,254,249,0.5);
+  }
+
+  .footer-page {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+  }
+
+  /* ══════════════════════════════════════
+     TYPOGRAPHY — Enhanced Readability
+  ══════════════════════════════════════ */
+  .section-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 0.7rem;
+    letter-spacing: 0.01em;
+  }
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0 2.5rem;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--gold), transparent);
+  }
+
+  .divider-line:last-child {
+    background: linear-gradient(to left, var(--gold), transparent);
+  }
+
+  /* ══════════════════════════════════════
+     QUARTER OVERVIEW CARDS
+  ══════════════════════════════════════ */
+  .quarters-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .quarter-card {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-top: 3px solid var(--red);
+    padding: 2rem;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .quarter-card::before {
+    content: '';
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+    background-image: url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='30' y='10' width='20' height='60' rx='2' fill='%23C41E3A' opacity='0.08'/%3E%3Crect x='10' y='30' width='60' height='20' rx='2' fill='%23C41E3A' opacity='0.08'/%3E%3Crect x='50' y='10' width='20' height='20' rx='1' fill='%23C41E3A' opacity='0.08'/%3E%3Crect x='10' y='50' width='20' height='20' rx='1' fill='%23C41E3A' opacity='0.08'/%3E%3C/svg%3E");
+    background-size: contain;
+    pointer-events: none;
+  }
+
+  .qc-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--red);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .qc-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 0.4rem;
+  }
+
+  .qc-months {
+    font-size: 0.85rem;
+    color: var(--text4);
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+
+  .qc-topics {
+    font-size: 0.92rem;
+    color: var(--text3);
+    line-height: 1.7;
+  }
+
+  /* ══════════════════════════════════════
+     SPECIAL OFFER BOX
+  ══════════════════════════════════════ */
+  .special-box {
+    background: linear-gradient(135deg, var(--gold-bg), var(--red-soft));
+    border: 1.5px solid var(--gold-mid);
+    border-left: 4px solid var(--gold);
+    padding: 1.8rem 2rem;
+    margin: 2rem 0;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .special-icon {
+    flex-shrink: 0;
+    font-size: 2rem;
+  }
+
+  .special-content {
+    flex: 1;
+  }
+
+  .special-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    color: var(--gold-dark);
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+  }
+
+  .special-text {
+    font-size: 0.98rem;
+    color: var(--text2);
+    line-height: 1.75;
+  }
+
+  .special-text strong {
+    color: var(--red-dark);
+    font-weight: 600;
+  }
+
+  /* ══════════════════════════════════════
+     INCLUSIONS GRID
+  ══════════════════════════════════════ */
+  .inclusions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .inclusion-card {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .inclusion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--gold);
+  }
+
+  .inc-icon {
+    font-size: 2rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .inc-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  .inc-desc {
+    font-size: 0.85rem;
+    color: var(--text3);
+    line-height: 1.6;
+  }
+
+  /* ══════════════════════════════════════
+     QUARTER DETAIL PAGES
+  ══════════════════════════════════════ */
+  .quarter-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .quarter-badge {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border: 2px solid var(--red);
+    background: var(--red-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qb-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  .qb-number {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--red);
+    line-height: 1;
+  }
+
+  .quarter-info {
+    flex: 1;
+  }
+
+  .qi-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--red);
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+  }
+
+  .qi-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+  }
+
+  .qi-months {
+    font-size: 0.9rem;
+    color: var(--text4);
+    font-style: italic;
+  }
+
+  .quarter-overview {
+    background: var(--gold-bg);
+    border-left: 3px solid var(--gold);
+    padding: 1.3rem 1.8rem;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    color: var(--text2);
+    line-height: 1.8;
+    font-style: italic;
+  }
+
+  /* ══════════════════════════════════════
+     LEARNING OBJECTIVES
+  ══════════════════════════════════════ */
+  .objectives-header {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: var(--red);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .objectives-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  .objectives-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .objectives-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-size: 0.95rem;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+
+  .obj-bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+
+  /* ══════════════════════════════════════
+     SCHEDULE TABLE — Clean & Readable
+  ══════════════════════════════════════ */
+  .schedule-header {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: var(--red);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .schedule-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  .schedule-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 2rem;
+    font-size: 0.92rem;
+  }
+
+  .schedule-table thead tr {
+    background: linear-gradient(135deg, var(--red-dark), var(--red));
+  }
+
+  .schedule-table thead th {
+    padding: 0.9rem 1.2rem;
+    text-align: left;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .schedule-table tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .schedule-table tbody tr:nth-child(even) {
+    background: var(--bg2);
+  }
+
+  .schedule-table tbody td {
+    padding: 1rem 1.2rem;
+    color: var(--text2);
+    line-height: 1.65;
+    vertical-align: top;
+  }
+
+  .td-week {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--red);
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  .td-topic {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ══════════════════════════════════════
+     ASSESSMENT BOX
+  ══════════════════════════════════════ */
+  .assessment-box {
+    background: linear-gradient(135deg, var(--gold-bg), var(--red-soft));
+    border: 1.5px solid var(--gold-mid);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .assess-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .assess-content {
+    flex: 1;
+  }
+
+  .assess-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-dark);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .assess-text {
+    font-size: 0.95rem;
+    color: var(--text2);
+    line-height: 1.75;
+  }
+
+  /* ══════════════════════════════════════
+     SPECIALIZATION CARDS
+  ══════════════════════════════════════ */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin: 2rem 0;
+  }
+
+  .spec-card {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-top: 2px solid var(--gold);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .spec-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+    border-color: var(--gold);
+  }
+
+  .sc-icon {
+    font-size: 2rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .sc-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .sc-desc {
+    font-size: 0.88rem;
+    color: var(--text3);
+    line-height: 1.65;
+  }
+
+  /* ══════════════════════════════════════
+     PRICING CARDS — Enhanced
+  ══════════════════════════════════════ */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .price-card {
+    border: 2px solid var(--border);
+    background: var(--bg2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .price-card.featured {
+    border: 2px solid var(--gold);
+    box-shadow: var(--shadow);
+  }
+
+  .price-header {
+    padding: 2rem 2rem 1.5rem;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: #fff;
+    text-align: center;
+  }
+
+  .price-card.featured .price-header {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  }
+
+  .ph-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .ph-amount {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .ph-subtitle {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    font-style: italic;
+  }
+
+  .price-body {
+    padding: 2rem;
+    background: var(--card);
+  }
+
+  .price-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--bg3);
+    font-size: 0.92rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .price-feature:last-child {
+    border-bottom: none;
+  }
+
+  .pf-check {
+    color: var(--red);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .price-card.featured .pf-check {
+    color: var(--gold);
+  }
+
+  .price-cta {
+    padding: 1.2rem;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    color: #fff;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .price-card.featured .price-cta {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — Mobile Optimization
+  ══════════════════════════════════════ */
+  @media (max-width: 900px) {
+    .page {
+      width: 100%;
+      margin-bottom: 1rem;
+      box-shadow: none;
+    }
+
+    .page-body {
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .quarters-grid,
+    .objectives-list,
+    .pricing-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .inclusions-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .spec-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cover-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pricing-row {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .price-divider {
+      width: 100px;
+      height: 1px;
+    }
+
+    .quarter-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE 1 — COVER PAGE
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="cover-content">
+      
+      <div class="cover-brand">Shri Ramji Astro · @astro_raamji</div>
+
+      <!-- Elegant OM Symbol -->
+      <div class="cover-om-large">
+        <svg class="om-elegant" width="140" height="140" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="96" stroke="#D4AF37" stroke-width="0.8" stroke-dasharray="5 4" opacity="0.4"/>
+          <circle cx="100" cy="100" r="88" stroke="#D4AF37" stroke-width="0.5" opacity="0.25"/>
+          <text x="100" y="125" text-anchor="middle" font-family="serif" font-size="100" fill="url(#omGrad)">ॐ</text>
+          <g opacity="0.3">
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(0,100,100)"/>
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(45,100,100)"/>
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(90,100,100)"/>
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(135,100,100)"/>
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(180,100,100)"/>
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(225,100,100)"/>
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(270,100,100)"/>
+            <ellipse cx="100" cy="8" rx="5" ry="10" fill="#F4C430" transform="rotate(315,100,100)"/>
+          </g>
+          <circle cx="100" cy="100" r="4" fill="#F4C430" opacity="0.6"/>
+          <defs>
+            <linearGradient id="omGrad" x1="50" y1="20" x2="150" y2="180">
+              <stop offset="0%" stop-color="#F4C430"/>
+              <stop offset="50%" stop-color="#D4AF37"/>
+              <stop offset="100%" stop-color="#B8921F"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- Ornamental divider with Swastik -->
+      <div class="cover-ornament">
+        <div class="cover-line"></div>
+        <svg class="swastik-elegant" width="44" height="44" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="8" width="20" height="64" rx="2.5" fill="url(#swGrad)"/>
+          <rect x="8" y="30" width="64" height="20" rx="2.5" fill="url(#swGrad)"/>
+          <rect x="50" y="8" width="22" height="22" rx="1.5" fill="url(#swGrad)"/>
+          <rect x="8" y="50" width="22" height="22" rx="1.5" fill="url(#swGrad)"/>
+          <circle cx="40" cy="40" r="3.5" fill="#FFF9E6" opacity="0.5"/>
+          <defs>
+            <linearGradient id="swGrad" x1="0" y1="0" x2="80" y2="80">
+              <stop offset="0%" stop-color="#F4C430"/>
+              <stop offset="100%" stop-color="#D4AF37"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="cover-line"></div>
+      </div>
+
+      <h1 class="cover-title">
+        1-Year Vedic Astrology
+        <span class="gold">Program</span>
+      </h1>
+
+      <div class="cover-subtitle">From Foundations to Professional Practice</div>
+
+      <!-- Stats Grid -->
+      <div class="cover-stats">
+        <div class="cover-stat">
+          <div class="stat-num">48</div>
+          <div class="stat-label">Live<br>Classes</div>
+        </div>
+        <div class="cover-stat">
+          <div class="stat-num">12</div>
+          <div class="stat-label">Months<br>Program</div>
+        </div>
+        <div class="cover-stat">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Structured<br>Quarters</div>
+        </div>
+        <div class="cover-stat">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">WhatsApp<br>Support</div>
+        </div>
+        <div class="cover-stat">
+          <div class="stat-num">✦</div>
+          <div class="stat-label">Certificate<br>Included</div>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="cover-pricing">
+        <div class="pricing-row">
+          <div class="price-block">
+            <div class="price-label">Course Only</div>
+            <div class="price-amount">₹24,000</div>
+          </div>
+          <div class="price-divider"></div>
+          <div class="price-block">
+            <div class="price-label">Course + Free Consultations</div>
+            <div class="price-amount">₹27,000</div>
+            <div class="price-note">✦ Best Value — Recommended</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer ornament -->
+      <div class="cover-footer">
+        <div class="footer-line"></div>
+        <svg width="28" height="28" viewBox="0 0 80 80" fill="none" opacity="0.5">
+          <rect x="30" y="10" width="20" height="60" rx="2" fill="#D4AF37"/>
+          <rect x="10" y="30" width="60" height="20" rx="2" fill="#D4AF37"/>
+          <rect x="50" y="10" width="20" height="20" rx="1" fill="#D4AF37"/>
+          <rect x="10" y="50" width="20" height="20" rx="1" fill="#D4AF37"/>
+        </svg>
+        <div class="footer-line"></div>
+      </div>
+
+      <div class="cover-contact">
+        Instagram: @astro_raamji · WhatsApp: +91 94535 61588
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE 2 — PROGRAMME OVERVIEW
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-brand">Shri Ramji Astro · @astro_raamji</div>
+    <div class="header-right">
+      <svg width="26" height="26" viewBox="0 0 200 200" fill="none">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#F4C430" opacity="0.9">ॐ</text>
+      </svg>
+      <div class="header-contact">+91 94535 61588</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="section-eyebrow">1-Year Vedic Astrology Program</div>
+    <h2 class="section-title">Programme Overview</h2>
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <svg width="18" height="18" viewBox="0 0 80 80" fill="none">
+        <rect x="30" y="10" width="20" height="60" rx="2" fill="#D4AF37"/>
+        <rect x="10" y="30" width="60" height="20" rx="2" fill="#D4AF37"/>
+        <rect x="50" y="10" width="20" height="20" rx="1" fill="#D4AF37"/>
+        <rect x="10" y="50" width="20" height="20" rx="1" fill="#D4AF37"/>
+      </svg>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="quarters-grid">
+      <div class="quarter-card">
+        <div class="qc-label">Quarter One</div>
+        <div class="qc-title">Foundations of Vedic Astrology</div>
+        <div class="qc-months">Months 1 – 3</div>
+        <div class="qc-topics">Introduction to Jyotish · The Navagrahas — 9 Planets · The 12 Rashis · The 12 Bhavas (Houses) · Reading the Birth Chart · 27 Nakshatras · Panchanga</div>
+      </div>
+
+      <div class="quarter-card">
+        <div class="qc-label">Quarter Two</div>
+        <div class="qc-title">Intermediate Jyotish — Depth & Prediction</div>
+        <div class="qc-months">Months 4 – 6</div>
+        <div class="qc-topics">Planetary Aspects (Drishti) · Yogas — Auspicious Combos · Doshas & Afflictions · Vimshottari Dasha System · Divisional Charts · Ashtakavarga</div>
+      </div>
+
+      <div class="quarter-card">
+        <div class="qc-label">Quarter Three</div>
+        <div class="qc-title">Advanced Prediction & Marital Astrology</div>
+        <div class="qc-months">Months 7 – 9</div>
+        <div class="qc-topics">Gochara — Transit Analysis · Muhurta — Auspicious Timing · Prashna Jyotish (Horary) · Birth Time Rectification · Marital Astrology · Varshaphala · Jaimini Basics</div>
+      </div>
+
+      <div class="quarter-card">
+        <div class="qc-label">Quarter Four</div>
+        <div class="qc-title">Career Astrology & Professional Practice</div>
+        <div class="qc-months">Months 10 – 12</div>
+        <div class="qc-topics">Career Astrology — Deep Dive · Wealth & Business Astrology · Vastu Shastra Fundamentals · Classical Texts — BPHS · Professional Client Sessions · Capstone & Graduation</div>
+      </div>
+    </div>
+
+    <div class="special-box">
+      <div class="special-icon">
+        <svg width="38" height="38" viewBox="0 0 200 200" fill="none">
+          <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#D4AF37">ॐ</text>
+        </svg>
+      </div>
+      <div class="special-content">
+        <div class="special-title">✦ Special Offer — ₹27,000 Package</div>
+        <div class="special-text">Enrol in the ₹27,000 package and receive <strong>1 Full Year of FREE personal consultations</strong> with Pandit Ramji Shastri — exclusively for enrolled students. Ask questions, get personal chart readings, and receive individual guidance throughout your entire learning journey at no extra cost.</div>
+      </div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-top:2.5rem;">What's Included</div>
+
+    <div class="inclusions-grid">
+      <div class="inclusion-card">
+        <div class="inc-icon">🎥</div>
+        <div class="inc-title">48 Live Zoom Classes</div>
+        <div class="inc-desc">One 90-minute live class every week with Panditji — fully interactive</div>
+      </div>
+
+      <div class="inclusion-card">
+        <div class="inc-icon">🙏</div>
+        <div class="inc-title">1-on-1 Doubt Sessions</div>
+        <div class="inc-desc">Monthly 30-minute personal doubt-clearing session directly with Panditji</div>
+      </div>
+
+      <div class="inclusion-card">
+        <div class="inc-icon">💬</div>
+        <div class="inc-title">Discussion Forum</div>
+        <div class="inc-desc">Exclusive student forum for chart sharing, questions and peer discussion 24/7</div>
+      </div>
+
+      <div class="inclusion-card">
+        <div class="inc-icon">📱</div>
+        <div class="inc-title">WhatsApp Support</div>
+        <div class="inc-desc">Private student WhatsApp group for daily tips, questions and community</div>
+      </div>
+
+      <div class="inclusion-card">
+        <div class="inc-icon">📊</div>
+        <div class="inc-title">Live Chart Reading Labs</div>
+        <div class="inc-desc">Monthly lab sessions — real anonymised charts analysed live by Panditji</div>
+      </div>
+
+      <div class="inclusion-card">
+        <div class="inc-icon">📜</div>
+        <div class="inc-title">Certificate of Astrology</div>
+        <div class="inc-desc">Official Shri Ramji Astro Certificate of Vedic Astrology on completion</div>
+      </div>
+
+      <div class="inclusion-card">
+        <div class="inc-icon">⭐</div>
+        <div class="inc-title">1 Year FREE Consultations</div>
+        <div class="inc-desc">Included with ₹27,000 package — 12 months personal chart consultations</div>
+      </div>
+
+      <div class="inclusion-card">
+        <div class="inc-icon">🔄</div>
+        <div class="inc-title">Flexible Batch Access</div>
+        <div class="inc-desc">All sessions recorded — access any class at your own pace, from anywhere</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-text">Shri Ramji Astro · @astro_raamji · +91 94535 61588</div>
+    <div class="footer-page">Page 2</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE 3 — QUARTER ONE
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-brand">Shri Ramji Astro · @astro_raamji</div>
+    <div class="header-right">
+      <svg width="26" height="26" viewBox="0 0 200 200" fill="none">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#F4C430" opacity="0.9">ॐ</text>
+      </svg>
+      <div class="header-contact">+91 94535 61588</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="quarter-header">
+      <div class="quarter-badge">
+        <div class="qb-label">QUARTER</div>
+        <div class="qb-number">ONE</div>
+      </div>
+      <div class="quarter-info">
+        <div class="qi-eyebrow">Months 1 – 3</div>
+        <div class="qi-title">Foundations of Vedic Astrology</div>
+        <div class="qi-months">Build an unshakeable foundation in the cosmic language of Jyotish</div>
+      </div>
+      <svg width="54" height="54" viewBox="0 0 200 200" fill="none" style="margin-left:auto;">
+        <circle cx="100" cy="100" r="90" stroke="#D4AF37" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+        <text x="100" y="135" text-anchor="middle" font-family="serif" font-size="110" fill="url(#omG2)">ॐ</text>
+        <defs>
+          <linearGradient id="omG2" x1="0" y1="0" x2="200" y2="200">
+            <stop offset="0%" stop-color="#F4C430"/>
+            <stop offset="100%" stop-color="#D4AF37"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="quarter-overview">
+      Build an unshakeable foundation in the cosmic language of Jyotish. You will learn the philosophical roots, the sacred mathematics, and the essential vocabulary that every Vedic astrologer must master before advancing to prediction.
+    </div>
+
+    <div class="objectives-header">Learning Objectives</div>
+    <ul class="objectives-list">
+      <li><span class="obj-bullet"></span>Understand the philosophical and historical origins of Jyotish Shastra</li>
+      <li><span class="obj-bullet"></span>Learn all 9 planets (Navagrahas) — significations, strengths and weaknesses</li>
+      <li><span class="obj-bullet"></span>Master the 12 Rashis (zodiac signs) and their individual characteristics</li>
+      <li><span class="obj-bullet"></span>Understand the 12 Bhavas (houses) and what each house governs in life</li>
+      <li><span class="obj-bullet"></span>Learn to read and cast a complete Janma Kundali (birth chart)</li>
+      <li><span class="obj-bullet"></span>Study the 27 Nakshatras and their profound influence on personality and destiny</li>
+      <li><span class="obj-bullet"></span>Understand Panchanga — the five-limbed Vedic calendar and its daily use</li>
+    </ul>
+
+    <div class="schedule-header">Weekly Schedule</div>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th style="width:100px;">Week</th>
+          <th style="width:200px;">Topic</th>
+          <th>Content Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-week">Week 1–2</td>
+          <td class="td-topic">Introduction to Jyotish</td>
+          <td>History, philosophy, Vedic worldview, karma and dharma as seen through astrology</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 3–4</td>
+          <td class="td-topic">The Navagrahas — 9 Planets</td>
+          <td>Sun to Saturn, Rahu, Ketu — qualities, rulerships, exaltation, debilitation, gem & mantra</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 5–6</td>
+          <td class="td-topic">The 12 Rashis</td>
+          <td>Mesha to Meena — elements, modalities, sign lords, body parts ruled, characteristics</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 7–8</td>
+          <td class="td-topic">The 12 Bhavas (Houses)</td>
+          <td>Meaning of each house, natural significators, Bhava vs Rashi chart distinctions</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 9–10</td>
+          <td class="td-topic">Reading the Birth Chart</td>
+          <td>South Indian & North Indian chart formats, Lagna, planetary positions, basic interpretation</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 11</td>
+          <td class="td-topic">The 27 Nakshatras</td>
+          <td>Ashwini to Revati — pada system, deities, animal symbols, compatibility, nakshatra lords</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 12</td>
+          <td class="td-topic">Panchanga & Q1 Review</td>
+          <td>Tithi, Vara, Nakshatra, Yoga, Karana — Q1 chart reading practice session with Panditji</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="assessment-box">
+      <div class="assess-icon">📝</div>
+      <div class="assess-content">
+        <div class="assess-title">Quarter Assessment</div>
+        <div class="assess-text">End-of-quarter chart reading exercise: Interpret a provided birth chart — identify all planets, sign placements, house positions, and write a basic personality and life-area summary.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-text">Shri Ramji Astro · @astro_raamji · +91 94535 61588</div>
+    <div class="footer-page">Page 3</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE 4 — QUARTER TWO
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-brand">Shri Ramji Astro · @astro_raamji</div>
+    <div class="header-right">
+      <svg width="26" height="26" viewBox="0 0 200 200" fill="none">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#F4C430" opacity="0.9">ॐ</text>
+      </svg>
+      <div class="header-contact">+91 94535 61588</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="quarter-header">
+      <div class="quarter-badge">
+        <div class="qb-label">QUARTER</div>
+        <div class="qb-number">TWO</div>
+      </div>
+      <div class="quarter-info">
+        <div class="qi-eyebrow">Months 4 – 6</div>
+        <div class="qi-title">Intermediate Jyotish — Depth & Prediction</div>
+        <div class="qi-months">Move into rich predictive tools — Dashas, Vargas, Ashtakavarga</div>
+      </div>
+      <svg width="54" height="54" viewBox="0 0 80 80" fill="none" style="margin-left:auto;opacity:0.22;">
+        <rect x="30" y="5" width="20" height="70" rx="3" fill="#D4AF37"/>
+        <rect x="5" y="30" width="70" height="20" rx="3" fill="#D4AF37"/>
+        <rect x="50" y="5" width="25" height="25" rx="2" fill="#D4AF37"/>
+        <rect x="5" y="50" width="25" height="25" rx="2" fill="#D4AF37"/>
+      </svg>
+    </div>
+
+    <div class="quarter-overview">
+      Move beyond basic chart reading into the rich predictive tools of Vedic astrology. Learn how planets interact, how time unfolds through Dasha systems, and how divisional charts reveal deeper dimensions of career, marriage and spiritual life.
+    </div>
+
+    <div class="objectives-header">Learning Objectives</div>
+    <ul class="objectives-list">
+      <li><span class="obj-bullet"></span>Master planetary aspects (Drishti) — standard and special aspects of Mars, Jupiter, Saturn</li>
+      <li><span class="obj-bullet"></span>Understand and identify major Yogas (auspicious combinations) and Doshas</li>
+      <li><span class="obj-bullet"></span>Learn the Vimshottari Dasha system — the primary predictive timeline of 120 years</li>
+      <li><span class="obj-bullet"></span>Study Divisional Charts (Varga) — Navamsa D-9, Dashamsa D-10, Saptamsa D-7</li>
+      <li><span class="obj-bullet"></span>Apply Ashtakavarga for planetary strength analysis and transit predictions</li>
+      <li><span class="obj-bullet"></span>Understand planetary dignity — exaltation, debilitation and Moolatrikona positions</li>
+      <li><span class="obj-bullet"></span>Conduct intermediate chart readings with event-level predictions</li>
+    </ul>
+
+    <div class="schedule-header">Weekly Schedule</div>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th style="width:100px;">Week</th>
+          <th style="width:200px;">Topic</th>
+          <th>Content Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-week">Week 13–14</td>
+          <td class="td-topic">Planetary Aspects (Drishti)</td>
+          <td>7th house aspect for all planets; special aspects of Mars, Jupiter & Saturn with examples</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 15–16</td>
+          <td class="td-topic">Yogas — Auspicious Combos</td>
+          <td>Raja Yogas, Dhana Yogas, Pancha Mahapurusha Yogas, Neecha Bhanga Raja Yoga</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 17</td>
+          <td class="td-topic">Doshas & Afflictions</td>
+          <td>Manglik Dosha, Kaal Sarp Dosha, Grahan Dosha — identification and classical remedies</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 18–19</td>
+          <td class="td-topic">Vimshottari Dasha System</td>
+          <td>120-year cycle, Mahadasha, Antardasha, Pratyantara — calculating and applying prediction timelines</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 20–21</td>
+          <td class="td-topic">Divisional Charts (Vargas)</td>
+          <td>Navamsa (D-9) for marriage, Dashamsa (D-10) for career, Saptamsa (D-7) for children</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 22</td>
+          <td class="td-topic">Ashtakavarga System</td>
+          <td>Sarvashtakavarga, Bhinnashtakavarga, applying Ashtakavarga to transit predictions</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 23–24</td>
+          <td class="td-topic">Dignity & Q2 Review</td>
+          <td>Exaltation, debilitation, own sign, Moolatrikona — Shadbala strength — full Q2 prediction workshop</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="assessment-box">
+      <div class="assess-icon">📝</div>
+      <div class="assess-content">
+        <div class="assess-title">Quarter Assessment</div>
+        <div class="assess-text">Predictive exercise: Using Vimshottari Dasha and transits, identify at least three significant life events from a provided chart and forecast the next 2 years.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-text">Shri Ramji Astro · @astro_raamji · +91 94535 61588</div>
+    <div class="footer-page">Page 4</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE 5 — QUARTER THREE
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-brand">Shri Ramji Astro · @astro_raamji</div>
+    <div class="header-right">
+      <svg width="26" height="26" viewBox="0 0 200 200" fill="none">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#F4C430" opacity="0.9">ॐ</text>
+      </svg>
+      <div class="header-contact">+91 94535 61588</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="quarter-header">
+      <div class="quarter-badge">
+        <div class="qb-label">QUARTER</div>
+        <div class="qb-number">THREE</div>
+      </div>
+      <div class="quarter-info">
+        <div class="qi-eyebrow">Months 7 – 9</div>
+        <div class="qi-title">Advanced Prediction & Marital Astrology</div>
+        <div class="qi-months">Master the advanced toolkit — Gochara, Muhurta, Prashna, Marital Analysis</div>
+      </div>
+      <svg width="54" height="54" viewBox="0 0 200 200" fill="none" style="margin-left:auto;">
+        <circle cx="100" cy="100" r="90" stroke="#D4AF37" stroke-width="1" stroke-dasharray="4 3" opacity="0.25"/>
+        <text x="100" y="135" text-anchor="middle" font-family="serif" font-size="110" fill="url(#omG3)">ॐ</text>
+        <defs>
+          <linearGradient id="omG3" x1="0" y1="0" x2="200" y2="200">
+            <stop offset="0%" stop-color="#F4C430"/>
+            <stop offset="100%" stop-color="#D4AF37"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="quarter-overview">
+      Master the advanced toolkit of the professional Vedic astrologer. From timing auspicious events to in-depth marital analysis, answering specific questions without a birth chart, and rectifying unknown birth times using classical methods.
+    </div>
+
+    <div class="objectives-header">Learning Objectives</div>
+    <ul class="objectives-list">
+      <li><span class="obj-bullet"></span>Master Gochara (transit) analysis — Sade Sati, Jupiter & Saturn transits</li>
+      <li><span class="obj-bullet"></span>Learn Muhurta (electional astrology) — choosing auspicious moments for life events</li>
+      <li><span class="obj-bullet"></span>Study Prashna Jyotish (Horary astrology) — answering questions without birth data</li>
+      <li><span class="obj-bullet"></span>Understand Birth Time Rectification (BTR) using multiple classical methods</li>
+      <li><span class="obj-bullet"></span>Deep-dive into Marital Astrology — Kundali Milan, 7th house, timing of marriage</li>
+      <li><span class="obj-bullet"></span>Learn Varshaphala (Solar Return) for yearly predictions</li>
+      <li><span class="obj-bullet"></span>Introduction to Jaimini Astrology — Karakas, Chara Dasha, Pada Lagnas</li>
+    </ul>
+
+    <div class="schedule-header">Weekly Schedule</div>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th style="width:100px;">Week</th>
+          <th style="width:200px;">Topic</th>
+          <th>Content Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-week">Week 25–26</td>
+          <td class="td-topic">Gochara — Transit Analysis</td>
+          <td>Sade Sati, Dhaiya, Jupiter & Saturn transits — cross-referencing Ashtakavarga with natal chart</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 27–28</td>
+          <td class="td-topic">Muhurta — Auspicious Timing</td>
+          <td>Marriage muhurta, business launch, property purchase, travel — step-by-step selection method</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 29–30</td>
+          <td class="td-topic">Prashna Jyotish (Horary)</td>
+          <td>Setting a Prashna chart, question-specific house analysis, answering Yes/No and detailed queries</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 31</td>
+          <td class="td-topic">Birth Time Rectification</td>
+          <td>Tattwa method, significant events method — practical BTR workshop with real charts</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 32–33</td>
+          <td class="td-topic">Marital Astrology Deep Dive</td>
+          <td>7th & 8th house analysis, Kundali Milan Ashtakoota system, Manglik & Kaal Sarp in marriage</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 34</td>
+          <td class="td-topic">Varshaphala — Annual Charts</td>
+          <td>Solar return chart, Muntha, Year Lord — annual prediction cycle and its application</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 35–36</td>
+          <td class="td-topic">Jaimini Basics & Q3 Lab</td>
+          <td>Atmakaraka, Amatyakaraka, Chara Dasha, Pada Lagna — live case study workshop with Panditji</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="assessment-box">
+      <div class="assess-icon">📝</div>
+      <div class="assess-content">
+        <div class="assess-title">Quarter Assessment</div>
+        <div class="assess-text">Full predictive report: Prepare a complete 5-year forecast for an assigned chart including Dasha timeline, Gochara transits, marital indicators and annual predictions.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-text">Shri Ramji Astro · @astro_raamji · +91 94535 61588</div>
+    <div class="footer-page">Page 5</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE 6 — QUARTER FOUR
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-brand">Shri Ramji Astro · @astro_raamji</div>
+    <div class="header-right">
+      <svg width="26" height="26" viewBox="0 0 200 200" fill="none">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#F4C430" opacity="0.9">ॐ</text>
+      </svg>
+      <div class="header-contact">+91 94535 61588</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="quarter-header">
+      <div class="quarter-badge">
+        <div class="qb-label">QUARTER</div>
+        <div class="qb-number">FOUR</div>
+      </div>
+      <div class="quarter-info">
+        <div class="qi-eyebrow">Months 10 – 12</div>
+        <div class="qi-title">Career Astrology & Professional Practice</div>
+        <div class="qi-months">Become a confident, ethical, professional Vedic astrologer</div>
+      </div>
+      <svg width="54" height="54" viewBox="0 0 80 80" fill="none" style="margin-left:auto;opacity:0.22;">
+        <rect x="30" y="5" width="20" height="70" rx="3" fill="#D4AF37"/>
+        <rect x="5" y="30" width="70" height="20" rx="3" fill="#D4AF37"/>
+        <rect x="50" y="5" width="25" height="25" rx="2" fill="#D4AF37"/>
+        <rect x="5" y="50" width="25" height="25" rx="2" fill="#D4AF37"/>
+      </svg>
+    </div>
+
+    <div class="quarter-overview">
+      Become a confident, ethical, professional Vedic astrologer. Master Career Astrology in depth, learn the professional consultation framework, conduct real client sessions, and complete your capstone project to earn your Certificate of Vedic Astrology.
+    </div>
+
+    <div class="objectives-header">Learning Objectives</div>
+    <ul class="objectives-list">
+      <li><span class="obj-bullet"></span>Master Career Astrology — 10th house, D-10 Dashamsa, Artha triad, timing career shifts</li>
+      <li><span class="obj-bullet"></span>Understand wealth indicators — 2nd & 11th house, Dhana Yogas, business charts</li>
+      <li><span class="obj-bullet"></span>Study Vastu Shastra fundamentals and its connection to planetary positions</li>
+      <li><span class="obj-bullet"></span>Study classical texts — key chapters of Brihat Parashara Hora Shastra (BPHS)</li>
+      <li><span class="obj-bullet"></span>Complete the Live Chart Reading Lab — 10 real charts analysed with Panditji</li>
+      <li><span class="obj-bullet"></span>Master professional consultation — ethics, structure, client care, difficult insights</li>
+      <li><span class="obj-bullet"></span>Submit capstone project and receive your Certificate of Vedic Astrology</li>
+    </ul>
+
+    <div class="schedule-header">Weekly Schedule</div>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th style="width:100px;">Week</th>
+          <th style="width:200px;">Topic</th>
+          <th>Content Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-week">Week 37–38</td>
+          <td class="td-topic">Career Astrology — Deep Dive</td>
+          <td>10th house & D-10 Dashamsa analysis, career Yogas, Artha triad (2nd, 6th, 10th), timing job changes</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 39–40</td>
+          <td class="td-topic">Wealth & Business Astrology</td>
+          <td>2nd & 11th house, Dhana Yogas, timing financial decisions, reading business charts</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 41</td>
+          <td class="td-topic">Vastu Shastra Fundamentals</td>
+          <td>Directional planetary rulers, Vastu Purusha Mandala, directional remedies linked to charts</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 42</td>
+          <td class="td-topic">Classical Texts — BPHS</td>
+          <td>Key chapters of Brihat Parashara Hora Shastra — the foundational scripture of Jyotish</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 43–44</td>
+          <td class="td-topic">Professional Client Sessions</td>
+          <td>Consultation structure, ethical boundaries, delivering difficult news, note-taking, building rapport</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 45–46</td>
+          <td class="td-topic">Live Chart Reading Lab</td>
+          <td>10 real anonymised charts — Panditji reads live, students analyse, group discussion & feedback</td>
+        </tr>
+        <tr>
+          <td class="td-week">Week 47–48</td>
+          <td class="td-topic">Capstone & Graduation</td>
+          <td>Submit 25-page chart analysis report, group presentation, certificate ceremony, alumni launch</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="assessment-box">
+      <div class="assess-icon">🎓</div>
+      <div class="assess-content">
+        <div class="assess-title">Capstone Project</div>
+        <div class="assess-text">Comprehensive written analysis (minimum 25 pages) of an assigned chart — covering all predictive, career, marital and spiritual dimensions, with a 5-year forecast and recommended remedies.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-text">Shri Ramji Astro · @astro_raamji · +91 94535 61588</div>
+    <div class="footer-page">Page 6</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PAGE 7 — SPECIALISATIONS & FEES
+══════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="header-brand">Shri Ramji Astro · @astro_raamji</div>
+    <div class="header-right">
+      <svg width="26" height="26" viewBox="0 0 200 200" fill="none">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#F4C430" opacity="0.9">ॐ</text>
+      </svg>
+      <div class="header-contact">+91 94535 61588</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="section-eyebrow">Post-Certification Deepening</div>
+    <h2 class="section-title">Specialisation Tracks</h2>
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <svg width="18" height="18" viewBox="0 0 80 80" fill="none">
+        <rect x="30" y="10" width="20" height="60" rx="2" fill="#D4AF37"/>
+        <rect x="10" y="30" width="60" height="20" rx="2" fill="#D4AF37"/>
+        <rect x="50" y="10" width="20" height="20" rx="1" fill="#D4AF37"/>
+        <rect x="10" y="50" width="20" height="20" rx="1" fill="#D4AF37"/>
+      </svg>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card">
+        <div class="sc-icon">💍</div>
+        <div class="sc-title">Kundali Milan</div>
+        <div class="sc-desc">Marriage compatibility — Ashtakoota, Manglik analysis, long-term harmony assessment</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="sc-icon">🌹</div>
+        <div class="sc-title">Marital Astrology</div>
+        <div class="sc-desc">7th & 8th house, timing of marriage, relationship dynamics, compatibility & remedies</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="sc-icon">💼</div>
+        <div class="sc-title">Career Astrology</div>
+        <div class="sc-desc">10th house, D-10 Dashamsa, Artha triad, Dhana Yogas, timing career milestones</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="sc-icon">🕉️</div>
+        <div class="sc-title">Spiritual Astrology</div>
+        <div class="sc-desc">12th house, Moksha triad, past-life karma indicators, spiritual practice guidance</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="sc-icon">⏰</div>
+        <div class="sc-title">Muhurta Specialist</div>
+        <div class="sc-desc">Advanced event timing for marriage, business, surgery, travel and investment</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="sc-icon">🔮</div>
+        <div class="sc-title">Prashna Jyotish</div>
+        <div class="sc-desc">Horary astrology — answering any life question without a birth chart</div>
+      </div>
+    </div>
+
+    <div class="section-eyebrow" style="margin-top:3rem;">Investment in Your Jyotish Journey</div>
+    <h2 class="section-title">Fees & Enrolment</h2>
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <svg width="24" height="24" viewBox="0 0 200 200" fill="none">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#D4AF37">ॐ</text>
+      </svg>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-header">
+          <div class="ph-label">Course Only</div>
+          <div class="ph-amount">₹24,000</div>
+          <div class="ph-subtitle">Full 1-Year Program</div>
+        </div>
+        <div class="price-body">
+          <div class="price-feature"><span class="pf-check">✦</span>Full 1-year program — all 4 quarters</div>
+          <div class="price-feature"><span class="pf-check">✦</span>48 live Zoom classes with Panditji</div>
+          <div class="price-feature"><span class="pf-check">✦</span>Discussion forum access (24/7)</div>
+          <div class="price-feature"><span class="pf-check">✦</span>1-on-1 monthly doubt sessions</div>
+          <div class="price-feature"><span class="pf-check">✦</span>Certificate on completion</div>
+          <div class="price-feature"><span class="pf-check">✦</span>All sessions recorded — flexible access</div>
+        </div>
+        <div class="price-cta">Enrol Now · @astro_raamji</div>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-header">
+          <div class="ph-label">Course + Free Consultations</div>
+          <div class="ph-amount">₹27,000</div>
+          <div class="ph-subtitle">⭐ Best Value — Recommended</div>
+        </div>
+        <div class="price-body">
+          <div class="price-feature"><span class="pf-check">✦</span>Everything in Course Only, PLUS:</div>
+          <div class="price-feature"><span class="pf-check">✦</span>1 Year of FREE personal consultations</div>
+          <div class="price-feature"><span class="pf-check">✦</span>Priority WhatsApp batch access</div>
+          <div class="price-feature"><span class="pf-check">✦</span>Personal chart review each quarter</div>
+          <div class="price-feature"><span class="pf-check">✦</span>Direct access to Panditji for guidance</div>
+          <div class="price-feature"><span class="pf-check">✦</span>12 months of chart consultations</div>
+        </div>
+        <div class="price-cta">Enrol Now · WhatsApp: +91 94535 61588</div>
+      </div>
+    </div>
+
+    <!-- Bottom ornament -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:2.5rem;">
+      <div style="flex:1;height:1px;background:linear-gradient(to right,transparent,#D4AF37);"></div>
+      <svg width="32" height="32" viewBox="0 0 80 80" fill="none" opacity="0.4">
+        <rect x="30" y="10" width="20" height="60" rx="2" fill="#D4AF37"/>
+        <rect x="10" y="30" width="60" height="20" rx="2" fill="#D4AF37"/>
+        <rect x="50" y="10" width="20" height="20" rx="1" fill="#D4AF37"/>
+        <rect x="10" y="50" width="20" height="20" rx="1" fill="#D4AF37"/>
+      </svg>
+      <svg width="32" height="32" viewBox="0 0 200 200" fill="none" opacity="0.4">
+        <text x="100" y="140" text-anchor="middle" font-family="serif" font-size="140" fill="#D4AF37">ॐ</text>
+      </svg>
+      <svg width="32" height="32" viewBox="0 0 80 80" fill="none" opacity="0.4">
+        <rect x="30" y="10" width="20" height="60" rx="2" fill="#D4AF37"/>
+        <rect x="10" y="30" width="60" height="20" rx="2" fill="#D4AF37"/>
+        <rect x="50" y="10" width="20" height="20" rx="1" fill="#D4AF37"/>
+        <rect x="10" y="50" width="20" height="20" rx="1" fill="#D4AF37"/>
+      </svg>
+      <div style="flex:1;height:1px;background:linear-gradient(to left,transparent,#D4AF37);"></div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-text">Shri Ramji Astro · @astro_raamji · +91 94535 61588</div>
+    <div class="footer-page">Page 7</div>
+  </div>
+</div>
+
+</body>
+</html>
