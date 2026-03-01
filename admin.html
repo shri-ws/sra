@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin — Shri Ramji Astro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#c9a84c;--gold2:rgba(201,168,76,0.12);
+  --bg:#07060e;--card:#0f0d1a;--card2:#141220;
+  --border:rgba(201,168,76,0.18);--border2:rgba(201,168,76,0.08);
+  --text:#ede8df;--muted:#6a6278;
+  --green:#4ade80;--green-bg:rgba(74,222,128,0.08);--green-border:rgba(74,222,128,0.2);
+  --red:#f87171;--red-bg:rgba(248,113,113,0.08);--red-border:rgba(248,113,113,0.2);
+  --yellow:#fbbf24;--yellow-bg:rgba(251,191,36,0.08);--yellow-border:rgba(251,191,36,0.2);
+  --blue:#60a5fa;--blue-bg:rgba(96,165,250,0.08);--blue-border:rgba(96,165,250,0.2);
+}
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:48px 40px;max-width:380px;width:100%;text-align:center}
+.login-icon{font-size:44px;margin-bottom:16px}
+.login-box h2{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--muted);margin-bottom:28px}
+.login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;text-align:left}
+.login-field label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.login-field input{background:#0a0816;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px 14px;font-family:'Lato',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%}
+.login-field input:focus{border-color:var(--gold)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#c9a84c,#8b6a1a);border:none;border-radius:9px;color:#000;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
+
+/* ── LAYOUT ── */
+#app{display:none;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo-text{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold);display:block}
+.sidebar-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;color:var(--muted);border:1px solid transparent}
+.nav-item:hover{background:var(--gold2);color:var(--text)}
+.nav-item.active{background:var(--gold2);border-color:var(--border);color:var(--gold)}
+.nav-item-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:16px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Lato',sans-serif;font-size:12px;cursor:pointer;transition:all .2s}
+.logout-btn:hover{border-color:var(--red-border);color:var(--red)}
+
+.main{margin-left:220px;padding:28px 28px 60px;min-height:100vh}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.topbar h1{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:#fff}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.refresh-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.refresh-btn:hover{background:var(--gold2)}
+.last-updated{font-size:11px;color:var(--muted)}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.stats-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-val{font-family:'Cinzel',serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:4px}
+.stat-sub{font-size:12px;color:var(--muted)}
+.stat-card.gold .stat-val{color:var(--gold)}
+.stat-card.green .stat-val{color:var(--green)}
+
+/* ── SECTION TABS ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content}
+.tab{padding:8px 18px;border-radius:7px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);transition:all .2s;border:1px solid transparent}
+.tab.active{background:var(--gold2);border-color:var(--border);color:var(--gold)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.table-title{font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.search-input{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 14px;font-family:'Lato',sans-serif;font-size:13px;outline:none;transition:border-color .2s;width:220px}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{color:var(--muted)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:12px 16px;text-align:left;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(201,168,76,0.03);white-space:nowrap}
+.tbl td{padding:13px 16px;border-bottom:1px solid var(--border2);font-size:13px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(201,168,76,0.03)}
+.tbl-name{font-weight:700;color:#fff}
+.tbl-email{color:var(--muted);font-size:12px}
+.tbl-phone a{color:var(--gold);text-decoration:none}
+.tbl-date{color:var(--muted);font-size:12px}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
+.badge.completed{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.badge.pending{background:var(--yellow-bg);border:1px solid var(--yellow-border);color:var(--yellow)}
+.badge.failed{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.badge.new{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue)}
+
+/* ── AMOUNT ── */
+.amount{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:40px;color:var(--muted)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px}
+
+/* ── PANEL (section) ── */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:16px 16px 60px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .menu-btn{display:flex}
+}
+.menu-btn{display:none;background:transparent;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:4px}
+
+/* ── EXPORT BTN ── */
+.export-btn{padding:8px 14px;background:var(--gold2);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.export-btn:hover{background:rgba(201,168,76,0.2)}
+
+/* ── REVENUE CHART BARS ── */
+.mini-bars{display:flex;align-items:flex-end;gap:4px;height:40px;margin-top:8px}
+.bar{flex:1;background:var(--gold);border-radius:2px 2px 0 0;opacity:0.6;transition:opacity .2s}
+.bar:hover{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <h2>Admin Login</h2>
+    <p>Shri Ramji Astro — Dashboard</p>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-text">🪐 Shri Ramji Astro</span>
+      <span class="sidebar-logo-sub">Admin Dashboard</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item active" onclick="showPanel('overview')">
+        <span class="nav-item-icon">📊</span> Overview
+      </div>
+      <div class="nav-item" onclick="showPanel('payments')">
+        <span class="nav-item-icon">💰</span> Payments
+      </div>
+      <div class="nav-item" onclick="showPanel('students')">
+        <span class="nav-item-icon">🎓</span> Students
+      </div>
+      <div class="nav-item" onclick="showPanel('consultations')">
+        <span class="nav-item-icon">🔮</span> Consultations
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <h1 id="panelTitle">Overview</h1>
+      </div>
+      <div class="topbar-right">
+        <span class="last-updated" id="lastUpdated"></span>
+        <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW ── -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats-grid">
+        <div class="stat-card gold">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-val" id="stat-revenue">—</div>
+          <div class="stat-sub">All completed payments</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Completed Payments</div>
+          <div class="stat-val" id="stat-completed">—</div>
+          <div class="stat-sub">Successfully paid</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Students</div>
+          <div class="stat-val" id="stat-students">—</div>
+          <div class="stat-sub">Registered accounts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Consultations</div>
+          <div class="stat-val" id="stat-consults">—</div>
+          <div class="stat-sub">Form submissions</div>
+        </div>
+      </div>
+
+      <!-- Recent payments -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">Recent Payments</span>
+          <span style="font-size:12px;color:var(--muted)">Last 10 transactions</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Plan</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Payment ID</th>
+              </tr>
+            </thead>
+            <tbody id="recent-payments-tbody">
+              <tr><td colspan="6" class="loading"><div class="spin"></div><br/>Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAYMENTS ── -->
+    <div class="panel" id="panel-payments">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">All Payments</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="search-input" type="text" placeholder="Search name / email..." oninput="filterPayments(this.value)"/>
+            <button class="export-btn" onclick="exportCSV('payments')">⬇ Export CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Phone</th>
+                <th>Plan</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Payment ID</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="payments-tbody">
+              <tr><td colspan="7" class="loading"><div class="spin"></div><br/>Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS ── -->
+    <div class="panel" id="panel-students">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">All Students</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="search-input" type="text" placeholder="Search name / email..." oninput="filterStudents(this.value)"/>
+            <button class="export-btn" onclick="exportCSV('students')">⬇ Export CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Interest</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr><td colspan="6" class="loading"><div class="spin"></div><br/>Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONSULTATIONS ── -->
+    <div class="panel" id="panel-consultations">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">Consultation Requests</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="search-input" type="text" placeholder="Search name / phone..." oninput="filterConsults(this.value)"/>
+            <button class="export-btn" onclick="exportCSV('consultations')">⬇ Export CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>DOB</th>
+                <th>Place of Birth</th>
+                <th>Question</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="consults-tbody">
+              <tr><td colspan="8" class="loading"><div class="spin"></div><br/>Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── CONFIG ── */
+const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
+
+/* ── CHANGE THESE CREDENTIALS ── */
+const ADMIN_USER = 'panditji';
+const ADMIN_PASS = 'SRA@Admin2025';
+
+/* ── State ── */
+let allPayments = [], allStudents = [], allConsults = [];
+
+/* ── Login ── */
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadAll();
+  } else {
+    document.getElementById('loginErr').textContent = 'Invalid username or password.';
+  }
+}
+
+function doLogout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+/* ── Panel nav ── */
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(name.slice(0,4))) n.classList.add('active');
+  });
+  const titles = { overview:'Overview', payments:'Payments', students:'Students', consultations:'Consultations' };
+  document.getElementById('panelTitle').textContent = titles[name] || name;
+}
+
+/* ── Fetch from Supabase ── */
+async function dbGet(table, order = 'created_at', limit = 500) {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${table}?order=${order}.desc&limit=${limit}`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    return await r.json();
+  } catch(e) { console.error(e); return []; }
+}
+
+/* ── Load all data ── */
+async function loadAll() {
+  document.getElementById('lastUpdated').textContent = 'Loading...';
+  const [payments, students, consults] = await Promise.all([
+    dbGet('payments'), dbGet('students'), dbGet('consultations')
+  ]);
+  allPayments = payments || [];
+  allStudents = students || [];
+  allConsults = consults || [];
+
+  renderStats();
+  renderRecentPayments();
+  renderPayments(allPayments);
+  renderStudents(allStudents);
+  renderConsults(allConsults);
+
+  const now = new Date();
+  document.getElementById('lastUpdated').textContent =
+    'Updated ' + now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+}
+
+/* ── Format helpers ── */
+const fmtAmt = n => n ? '₹' + Number(n).toLocaleString('en-IN') : '—';
+const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) : '—';
+const fmtPid = id => id ? `<span style="font-size:11px;font-family:monospace;color:var(--muted)">${id.slice(0,20)}...</span>` : '—';
+const statusBadge = s => {
+  const map = { completed:'completed', pending:'pending', failed:'failed', new:'new' };
+  return `<span class="badge ${map[s]||'pending'}">${s||'pending'}</span>`;
+};
+const waLink = p => p ? `<a class="tbl-phone" href="https://wa.me/91${p.replace(/\D/g,'').slice(-10)}" target="_blank">📱 ${p}</a>` : '—';
+
+/* ── Stats ── */
+function renderStats() {
+  const completed = allPayments.filter(p => p.status === 'completed');
+  const revenue = completed.reduce((s, p) => s + (p.amount || 0), 0);
+  document.getElementById('stat-revenue').textContent = fmtAmt(revenue);
+  document.getElementById('stat-completed').textContent = completed.length;
+  document.getElementById('stat-students').textContent = allStudents.length;
+  document.getElementById('stat-consults').textContent = allConsults.length;
+}
+
+/* ── Recent Payments ── */
+function renderRecentPayments() {
+  const tbody = document.getElementById('recent-payments-tbody');
+  const rows = allPayments.slice(0, 10);
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">💰</div>No payments yet</div></td></tr>'; return; }
+  tbody.innerHTML = rows.map(p => `
+    <tr>
+      <td><div class="tbl-name">${p.student_name || '—'}</div><div class="tbl-email">${p.student_email || ''}</div></td>
+      <td style="max-width:160px;font-size:12px">${p.plan_name || '—'}</td>
+      <td><span class="amount">${fmtAmt(p.amount)}</span></td>
+      <td>${statusBadge(p.status)}</td>
+      <td class="tbl-date">${fmtDate(p.created_at)}</td>
+      <td>${fmtPid(p.razorpay_payment_id)}</td>
+    </tr>`).join('');
+}
+
+/* ── All Payments ── */
+function renderPayments(data) {
+  const tbody = document.getElementById('payments-tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">💰</div>No payments found</div></td></tr>'; return; }
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td><div class="tbl-name">${p.student_name || '—'}</div><div class="tbl-email">${p.student_email || ''}</div></td>
+      <td>${waLink(p.student_phone)}</td>
+      <td style="max-width:160px;font-size:12px">${p.plan_name || '—'}</td>
+      <td><span class="amount">${fmtAmt(p.amount)}</span></td>
+      <td>${statusBadge(p.status)}</td>
+      <td>${fmtPid(p.razorpay_payment_id)}</td>
+      <td class="tbl-date">${fmtDate(p.created_at)}</td>
+    </tr>`).join('');
+}
+
+/* ── All Students ── */
+function renderStudents(data) {
+  const tbody = document.getElementById('students-tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">🎓</div>No students yet</div></td></tr>'; return; }
+  tbody.innerHTML = data.map(s => `
+    <tr>
+      <td><div class="tbl-name">${s.first_name || ''} ${s.last_name || ''}</div></td>
+      <td class="tbl-email">${s.email || '—'}</td>
+      <td>${waLink(s.phone)}</td>
+      <td style="font-size:12px;color:var(--muted)">${s.city || '—'}</td>
+      <td style="font-size:12px">${s.course_interest || '—'}</td>
+      <td class="tbl-date">${fmtDate(s.created_at)}</td>
+    </tr>`).join('');
+}
+
+/* ── Consultations ── */
+function renderConsults(data) {
+  const tbody = document.getElementById('consults-tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">🔮</div>No consultations yet</div></td></tr>'; return; }
+  tbody.innerHTML = data.map(c => `
+    <tr>
+      <td><div class="tbl-name">${c.full_name || '—'}</div></td>
+      <td>${waLink(c.phone)}</td>
+      <td class="tbl-email">${c.email || '—'}</td>
+      <td style="font-size:12px">${c.dob || '—'}</td>
+      <td style="font-size:12px">${c.place_of_birth || '—'}</td>
+      <td style="max-width:200px;font-size:12px;color:var(--muted)">${(c.question||'').slice(0,60)+(c.question?.length>60?'...':'') || '—'}</td>
+      <td>${statusBadge(c.status || 'pending')}</td>
+      <td class="tbl-date">${fmtDate(c.created_at)}</td>
+    </tr>`).join('');
+}
+
+/* ── Filters ── */
+function filterPayments(q) {
+  const f = q.toLowerCase();
+  renderPayments(allPayments.filter(p =>
+    (p.student_name||'').toLowerCase().includes(f) ||
+    (p.student_email||'').toLowerCase().includes(f) ||
+    (p.plan_name||'').toLowerCase().includes(f)
+  ));
+}
+function filterStudents(q) {
+  const f = q.toLowerCase();
+  renderStudents(allStudents.filter(s =>
+    (s.first_name+' '+s.last_name).toLowerCase().includes(f) ||
+    (s.email||'').toLowerCase().includes(f) ||
+    (s.phone||'').includes(f)
+  ));
+}
+function filterConsults(q) {
+  const f = q.toLowerCase();
+  renderConsults(allConsults.filter(c =>
+    (c.full_name||'').toLowerCase().includes(f) ||
+    (c.phone||'').includes(f) ||
+    (c.email||'').toLowerCase().includes(f)
+  ));
+}
+
+/* ── Export CSV ── */
+function exportCSV(type) {
+  let rows, headers, filename;
+  if (type === 'payments') {
+    headers = ['Name','Email','Phone','Plan','Amount','Status','Payment ID','Date'];
+    rows = allPayments.map(p => [p.student_name,p.student_email,p.student_phone,p.plan_name,p.amount,p.status,p.razorpay_payment_id,fmtDate(p.created_at)]);
+    filename = 'SRA_Payments.csv';
+  } else if (type === 'students') {
+    headers = ['First Name','Last Name','Email','Phone','City','Course Interest','Joined'];
+    rows = allStudents.map(s => [s.first_name,s.last_name,s.email,s.phone,s.city,s.course_interest,fmtDate(s.created_at)]);
+    filename = 'SRA_Students.csv';
+  } else {
+    headers = ['Name','Phone','Email','DOB','Place of Birth','Question','Status','Date'];
+    rows = allConsults.map(c => [c.full_name,c.phone,c.email,c.dob,c.place_of_birth,c.question,c.status,fmtDate(c.created_at)]);
+    filename = 'SRA_Consultations.csv';
+  }
+  const csv = [headers, ...rows].map(r => r.map(v => '"'+(v||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = filename;
+  a.click();
+}
+</script>
+</body>
+</html>
