@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>Supabase Test</title>
+<style>
+body{background:#05030a;color:#ede8df;font-family:monospace;padding:30px;font-size:14px}
+h2{color:#c9a84c;margin-bottom:20px}
+.box{background:#100e1a;border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:20px;margin-bottom:16px}
+.ok{color:#4ade80}
+.err{color:#f87171}
+.info{color:#c9a84c}
+button{background:linear-gradient(135deg,#c9a84c,#8b6a1a);border:none;padding:12px 24px;border-radius:8px;color:#000;font-family:Cinzel,serif;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:20px}
+pre{white-space:pre-wrap;word-break:break-all;font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<h2>🔍 Supabase Connection Test</h2>
+<button onclick="runTests()">▶ Run All Tests</button>
+<div id="results"></div>
+
+<script>
+const URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
+
+function log(html){ document.getElementById('results').innerHTML += html; }
+
+async function testTable(table){
+  log(`<div class="box"><div class="info">Testing: ${table}...</div>`);
+  try {
+    const r = await fetch(`${URL}/rest/v1/${table}?select=*&limit=3`, {
+      headers: {
+        'apikey': KEY,
+        'Authorization': 'Bearer ' + KEY,
+        'Accept': 'application/json',
+      }
+    });
+    const text = await r.text();
+    if(r.ok){
+      const data = JSON.parse(text);
+      log(`<div class="ok">✅ ${table}: OK — ${data.length} rows returned</div>`);
+      if(data.length > 0){
+        log(`<pre>${JSON.stringify(data[0], null, 2)}</pre>`);
+      } else {
+        log(`<div style="color:#7a7080">  (table is empty — that's fine)</div>`);
+      }
+    } else {
+      log(`<div class="err">❌ ${table}: HTTP ${r.status}</div><pre>${text}</pre>`);
+    }
+  } catch(e){
+    log(`<div class="err">❌ ${table}: Network Error — ${e.message}</div>`);
+  }
+  log(`</div>`);
+}
+
+async function testInsert(){
+  log(`<div class="box"><div class="info">Testing INSERT into students...</div>`);
+  try {
+    const r = await fetch(`${URL}/rest/v1/students`, {
+      method: 'POST',
+      headers: {
+        'apikey': KEY,
+        'Authorization': 'Bearer ' + KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({
+        first_name: 'Test',
+        last_name: 'User',
+        email: 'test_' + Date.now() + '@test.com',
+        phone: '9999999999',
+        city: 'Test City',
+        course_interest: 'Test',
+        password_hash: 'testhash',
+      })
+    });
+    const text = await r.text();
+    if(r.ok){
+      log(`<div class="ok">✅ INSERT works! Row created successfully.</div><pre>${text}</pre>`);
+    } else {
+      log(`<div class="err">❌ INSERT failed: HTTP ${r.status}</div><pre>${text}</pre>`);
+    }
+  } catch(e){
+    log(`<div class="err">❌ INSERT error: ${e.message}</div>`);
+  }
+  log(`</div>`);
+}
+
+async function runTests(){
+  document.getElementById('results').innerHTML = '';
+  log(`<div class="box"><div class="ok">🚀 Starting tests at ${new Date().toLocaleTimeString()}</div></div>`);
+  await testTable('students');
+  await testTable('payments');
+  await testTable('consultations');
+  await testTable('forum_posts');
+  await testInsert();
+  log(`<div class="box"><div class="ok">✅ All tests complete!</div></div>`);
+}
+</script>
+</body>
+</html>
