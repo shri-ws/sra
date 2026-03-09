@@ -37,6 +37,10 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
 .plan-amt{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--gold);display:block}
 .plan-orig{font-size:12px;color:var(--muted);text-decoration:line-through}
 .badge{position:absolute;top:-1px;right:14px;background:var(--gold);color:#000;font-family:'Cinzel',serif;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:0 0 6px 6px}
+.emi-highlight{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:13px 16px;margin-top:14px;display:flex;align-items:center;gap:12px}
+.emi-highlight-icon{font-size:22px;flex-shrink:0}
+.emi-highlight-text{font-size:12px;color:var(--muted);line-height:1.5}
+.emi-highlight-text strong{color:var(--gold);display:block;font-family:'Cinzel',serif;font-size:13px;margin-bottom:2px}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .fields.one{grid-template-columns:1fr}
 @media(max-width:480px){.fields{grid-template-columns:1fr}}
@@ -66,6 +70,23 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
 .emi-months{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold)}
 .emi-label{font-size:10px;color:var(--muted);margin:2px 0}
 .emi-amount{font-size:13px;color:var(--text);font-weight:700}
+
+/* Support Section */
+.support-section{background:linear-gradient(135deg,rgba(201,168,76,0.06) 0%,rgba(16,14,26,0.9) 100%);border:1px solid rgba(201,168,76,0.3);border-radius:14px;margin-bottom:16px;overflow:hidden;position:relative}
+.support-section::before{content:'✦';position:absolute;top:14px;right:18px;font-size:22px;color:rgba(201,168,76,0.15)}
+.support-body{padding:22px 20px}
+.support-msg{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:18px;border-left:2px solid rgba(201,168,76,0.3);padding-left:14px}
+.support-msg em{color:var(--text);font-style:normal}
+.support-amounts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.support-chip{padding:8px 16px;background:#0c0a16;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-family:'Cinzel',serif;font-size:12px;cursor:pointer;transition:all .2s}
+.support-chip:hover,.support-chip.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.08)}
+.support-custom-row{display:flex;gap:10px;align-items:flex-end}
+.support-custom-row .field{flex:1}
+.support-pay-btn{height:44px;padding:0 20px;background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(139,106,26,0.15));border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.support-pay-btn:hover{background:linear-gradient(135deg,rgba(201,168,76,0.25),rgba(139,106,26,0.25))}
+.support-pay-btn:disabled{opacity:0.5;cursor:not-allowed}
+.support-note{font-size:11px;color:var(--muted);margin-top:10px;text-align:center}
+
 .pay-btn{width:100%;padding:16px;background:linear-gradient(135deg,#c9a84c,#8b6a1a);border:none;border-radius:10px;color:#000;font-family:'Cinzel',serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .25s;box-shadow:0 4px 20px rgba(201,168,76,0.25);margin-top:4px}
 .pay-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,0.35)}
 .pay-btn:disabled{background:#222;color:#555;cursor:not-allowed;transform:none;box-shadow:none}
@@ -98,8 +119,8 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
 <div class="overlay" id="overlay">
   <div class="success-box">
     <div class="icon">🙏</div>
-    <h2>Payment Successful!</h2>
-    <p>Your enrolment is confirmed.<br/>Panditji will contact you on WhatsApp within <strong style="color:#fff">16–24 hours.</strong></p>
+    <h2 id="successTitle">Payment Successful!</h2>
+    <p id="successMsg">Your enrolment is confirmed.<br/>Panditji will contact you on WhatsApp within <strong style="color:#fff">16–24 hours.</strong></p>
     <hr/>
     <div class="pay-ref">PAYMENT ID<strong id="payId">—</strong></div>
     <div class="pay-ref" style="margin-top:12px;">Urgent? WhatsApp Panditji<strong><a href="https://wa.me/919453561588" style="color:var(--gold);text-decoration:none;">+91 94535 61588</a></strong></div>
@@ -110,7 +131,7 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
 <div class="page">
   <div class="page-title">
     <h1>Complete Your Enrolment</h1>
-    <p>Secure payment · UPI · Cards · EMI · Net Banking</p>
+    <p>Secure payment · UPI · Cards · No Cost EMI · Net Banking</p>
   </div>
 
   <div class="section">
@@ -121,7 +142,7 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
         <div class="plan-text">
           <div class="plan-name">📚 1-Year Astrology Program</div>
           <div class="plan-sub">48 Live Classes · Recordings · Certificate · Forum Access</div>
-          <div class="plan-emi">EMI from ₹2,000/month on credit card</div>
+          <div class="plan-emi">No Cost EMI from ₹2,000/month · 0% interest</div>
         </div>
         <div class="plan-price"><span class="plan-amt">₹24,000</span><span class="plan-orig">₹32,000</span></div>
         <div class="badge">Popular</div>
@@ -131,7 +152,7 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
         <div class="plan-text">
           <div class="plan-name">🔮 Personal Consultation</div>
           <div class="plan-sub">1-on-1 chart readings with Panditji for 1 year</div>
-          <div class="plan-emi">EMI from ₹1,667/month on credit card</div>
+          <div class="plan-emi">No Cost EMI available on select cards</div>
         </div>
         <div class="plan-price"><span class="plan-amt">₹4,999</span></div>
       </div>
@@ -140,9 +161,17 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
         <div class="plan-text">
           <div class="plan-name">💫 Course + Consultation Bundle</div>
           <div class="plan-sub">Best value — Full program AND personal readings</div>
-          <div class="plan-emi">EMI from ₹2,250/month on credit card</div>
+          <div class="plan-emi">No Cost EMI from ₹2,250/month · 0% interest</div>
         </div>
         <div class="plan-price"><span class="plan-amt">₹26,999</span><span class="plan-orig">₹37,000</span></div>
+      </div>
+
+      <div class="emi-highlight">
+        <div class="emi-highlight-icon">✨</div>
+        <div class="emi-highlight-text">
+          <strong>No Cost EMI Available</strong>
+          Pay in easy instalments at 0% interest on HDFC, ICICI, SBI, Axis, Kotak &amp; more. No hidden charges — you pay exactly the course price, nothing extra.
+        </div>
       </div>
     </div>
   </div>
@@ -182,22 +211,48 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
         <div class="total-row"><span class="lbl">Plan</span><span class="val" id="sumPlan">1-Year Astrology Program</span></div>
         <div class="total-row"><span class="lbl">Price</span><span class="val" id="sumBase">₹24,000</span></div>
         <div class="total-row" id="discRow" style="display:none"><span class="lbl">Discount</span><span class="val" id="sumDisc" style="color:var(--green)">—</span></div>
-        <div class="total-row"><span class="lbl">GST (18%)</span><span class="val" id="sumGst">₹4,320</span></div>
-        <div class="total-row big"><span class="lbl">Total Payable</span><span class="val" id="sumTotal">₹28,320</span></div>
+        <div class="total-row big"><span class="lbl">Total Payable</span><span class="val" id="sumTotal">₹24,000</span></div>
       </div>
       <div class="savings" id="savingsBox">🎉 You are saving <strong id="savingsAmt"></strong> on this order!</div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-label">⑤ EMI Breakdown (Credit Card)</div>
+    <div class="section-label">⑤ EMI Breakdown (No Cost · 0% Interest)</div>
     <div class="section-body" style="display:flex;flex-direction:column;gap:14px">
       <div class="emi-grid">
         <div class="emi-card"><div class="emi-months">3</div><div class="emi-label">months</div><div class="emi-amount" id="emi3">—</div></div>
         <div class="emi-card"><div class="emi-months">6</div><div class="emi-label">months</div><div class="emi-amount" id="emi6">—</div></div>
         <div class="emi-card"><div class="emi-months">12</div><div class="emi-label">months</div><div class="emi-amount" id="emi12">—</div></div>
       </div>
-      <p style="font-size:12px;color:var(--muted)">Available on HDFC, ICICI, SBI, Axis, Kotak &amp; more.</p>
+      <p style="font-size:12px;color:var(--muted)">✦ Zero interest · Available on HDFC, ICICI, SBI, Axis, Kotak &amp; more.</p>
+    </div>
+  </div>
+
+  <!-- Support Section -->
+  <div class="support-section">
+    <div class="section-label" style="background:rgba(201,168,76,0.06)">🙏 Support Our Work (Optional)</div>
+    <div class="support-body">
+      <div class="support-msg">
+        Vedic Astrology is one of India's most precious gifts to humanity — an ancient science of light that has guided countless souls for thousands of years. <em>Panditji has dedicated his life to keeping this sacred knowledge alive, accessible, and affordable for every seeker.</em>
+        <br/><br/>
+        Running live classes, maintaining this platform, and reaching more students across the country takes resources. If this work has touched you, or you simply wish to contribute to its continuity — <em>your support, however small, is a blessing.</em>
+      </div>
+      <div class="support-amounts">
+        <div class="support-chip" onclick="setSupport(101)">₹101</div>
+        <div class="support-chip" onclick="setSupport(251)">₹251</div>
+        <div class="support-chip" onclick="setSupport(501)">₹501</div>
+        <div class="support-chip" onclick="setSupport(1001)">₹1,001</div>
+        <div class="support-chip" onclick="setSupport(0)" id="chip-custom">Custom</div>
+      </div>
+      <div class="support-custom-row">
+        <div class="field">
+          <label>Amount (₹)</label>
+          <input type="number" id="supportAmt" placeholder="Enter any amount" min="1" oninput="clearSupportChips()"/>
+        </div>
+        <button class="support-pay-btn" id="supportBtn" onclick="paySupportDonation()">Offer Support</button>
+      </div>
+      <div class="support-note">100% goes directly towards sustaining Panditji's teaching mission 🪐</div>
     </div>
   </div>
 
@@ -208,15 +263,15 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
         <span class="pay-icon">📱 UPI</span>
         <span class="pay-icon">💳 Credit Card</span>
         <span class="pay-icon">💳 Debit Card</span>
-        <span class="pay-icon">📦 EMI</span>
+        <span class="pay-icon">✨ No Cost EMI</span>
         <span class="pay-icon">🏦 Net Banking</span>
         <span class="pay-icon">👛 Wallets</span>
       </div>
-      <button class="pay-btn" id="payBtn" onclick="pay()">🔒 Pay Securely — <span id="btnAmt">₹28,320</span></button>
+      <button class="pay-btn" id="payBtn" onclick="pay()">🔒 Pay Securely — <span id="btnAmt">₹24,000</span></button>
       <div class="trust-strip">
         <span class="trust-item">🔒 SSL Encrypted</span>
         <span class="trust-item">✦ Razorpay Secured</span>
-        <span class="trust-item">↩ 7-Day Money Back</span>
+        <span class="trust-item">✨ No Cost EMI Available</span>
       </div>
     </div>
   </div>
@@ -232,7 +287,7 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
 <script>
 const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
-const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD'; // ← Paste your Razorpay Live Key here
+const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
 
 const H = { 'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation' };
 
@@ -261,7 +316,6 @@ const COUPONS = {
   'RAMJI2025':{ flat:2000, msg:'₹2,000 Special Discount applied!' },
 };
 
-const GST=0.18;
 let S={id:'course',name:'1-Year Astrology Program',base:24000,orig:32000,disc:0,total:0};
 const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
 
@@ -285,13 +339,12 @@ function applyCoupon(){
 }
 
 function updateSummary(){
-  const after=S.base-S.disc,gst=after*GST,total=after+gst;
-  S.total=Math.round(total);
+  const after=S.base-S.disc;
+  S.total=Math.round(after);
   document.getElementById('sumPlan').textContent=S.name;
   document.getElementById('sumBase').textContent=fmt(S.base);
-  document.getElementById('sumGst').textContent=fmt(gst);
-  document.getElementById('sumTotal').textContent=fmt(total);
-  document.getElementById('btnAmt').textContent=fmt(total);
+  document.getElementById('sumTotal').textContent=fmt(after);
+  document.getElementById('btnAmt').textContent=fmt(after);
   const dr=document.getElementById('discRow');
   dr.style.display=S.disc>0?'flex':'none';
   if(S.disc>0)document.getElementById('sumDisc').textContent='− '+fmt(S.disc);
@@ -299,9 +352,78 @@ function updateSummary(){
   const sb=document.getElementById('savingsBox');
   sb.style.display=saved>0?'block':'none';
   if(saved>0)document.getElementById('savingsAmt').textContent=fmt(saved);
-  document.getElementById('emi3').textContent=fmt(total/3)+'/mo';
-  document.getElementById('emi6').textContent=fmt(total/6)+'/mo';
-  document.getElementById('emi12').textContent=fmt(total/12)+'/mo';
+  document.getElementById('emi3').textContent=fmt(after/3)+'/mo';
+  document.getElementById('emi6').textContent=fmt(after/6)+'/mo';
+  document.getElementById('emi12').textContent=fmt(after/12)+'/mo';
+}
+
+// Support / Donation logic
+let supportSelected = 0;
+
+function setSupport(amt) {
+  supportSelected = amt;
+  document.querySelectorAll('.support-chip').forEach(c => c.classList.remove('active'));
+  if(amt > 0) {
+    document.getElementById('supportAmt').value = amt;
+    // highlight correct chip
+    const chips = document.querySelectorAll('.support-chip');
+    chips.forEach(c => { if(c.textContent === fmt(amt)) c.classList.add('active'); });
+  } else {
+    document.getElementById('supportAmt').value = '';
+    document.getElementById('chip-custom').classList.add('active');
+    document.getElementById('supportAmt').focus();
+  }
+}
+
+function clearSupportChips() {
+  supportSelected = 0;
+  document.querySelectorAll('.support-chip').forEach(c => c.classList.remove('active'));
+}
+
+async function paySupportDonation() {
+  const amt = parseInt(document.getElementById('supportAmt').value);
+  if(!amt || amt < 1) { alert('Please enter a valid amount to offer as support.'); return; }
+
+  const btn = document.getElementById('supportBtn');
+  btn.disabled = true;
+  btn.textContent = 'Opening...';
+
+  try {
+    const rzp = new Razorpay({
+      key: RZP_KEY,
+      amount: amt * 100,
+      currency: 'INR',
+      name: 'Shri Ramji Astro',
+      description: 'Support — Vedic Astrology Mission',
+      theme: { color: '#c9a84c' },
+      async handler(r) {
+        await dbInsert('payments', {
+          student_email: 'support@donation',
+          student_name: 'Anonymous Supporter',
+          student_phone: '',
+          plan_name: 'Support Donation',
+          amount: amt,
+          status: 'completed',
+          razorpay_payment_id: r.razorpay_payment_id
+        });
+        document.getElementById('successTitle').textContent = '🙏 Thank You!';
+        document.getElementById('successMsg').innerHTML = 'Your generous support means the world.<br/>May this act of giving bring you abundant blessings. 🪐';
+        document.getElementById('payId').textContent = r.razorpay_payment_id;
+        document.getElementById('overlay').classList.add('show');
+      },
+      modal: { ondismiss() { btn.disabled = false; btn.textContent = 'Offer Support'; } }
+    });
+    rzp.on('payment.failed', r => {
+      alert('Payment failed: ' + r.error.description);
+      btn.disabled = false;
+      btn.textContent = 'Offer Support';
+    });
+    rzp.open();
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Offer Support';
+  }
 }
 
 async function pay(){
@@ -319,7 +441,6 @@ async function pay(){
   btn.disabled=true;
   btn.innerHTML='<span class="spin"></span> Opening Payment...';
 
-  // Save to DB
   await dbInsert('students',{first_name:fname,last_name:lname,email,phone,city,course_interest:S.name});
   await dbInsert('payments',{student_email:email,student_name:fname+' '+lname,student_phone:phone,plan_name:S.name,amount:S.total,status:'pending',razorpay_payment_id:null});
 
@@ -329,9 +450,11 @@ async function pay(){
       name:'Shri Ramji Astro', description:S.name,
       prefill:{name:fname+' '+lname,email,contact:phone.replace(/\D/g,'').slice(-10)},
       theme:{color:'#c9a84c'},
-      config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
+      config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'No Cost EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
       async handler(r){
         await dbPatch('payments','student_email=eq.'+encodeURIComponent(email)+'&status=eq.pending',{status:'completed',razorpay_payment_id:r.razorpay_payment_id});
+        document.getElementById('successTitle').textContent = 'Payment Successful!';
+        document.getElementById('successMsg').innerHTML = 'Your enrolment is confirmed.<br/>Panditji will contact you on WhatsApp within <strong style="color:#fff">16–24 hours.</strong>';
         document.getElementById('payId').textContent=r.razorpay_payment_id;
         document.getElementById('overlay').classList.add('show');
         const msg=encodeURIComponent('🙏 NEW PAYMENT\n\nName: '+fname+' '+lname+'\nEmail: '+email+'\nPhone: '+phone+'\nPlan: '+S.name+'\nAmount: '+fmt(S.total)+'\nPayment ID: '+r.razorpay_payment_id);
@@ -347,7 +470,7 @@ async function pay(){
     });
     rzp.open();
   } catch(e){
-    alert('Please add your Razorpay Live Key to the RZP_KEY variable in payment.html');
+    alert('Something went wrong. Please try again or contact us on WhatsApp.');
     btn.disabled=false;
     btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';
   }
