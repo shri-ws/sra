@@ -65,11 +65,7 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
 .total-row.big .lbl{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold)}
 .total-row.big .val{font-size:22px;color:var(--gold)}
 .savings{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-top:12px;display:none}
-.emi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.emi-card{background:#0c0a16;border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
-.emi-months{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold)}
-.emi-label{font-size:10px;color:var(--muted);margin:2px 0}
-.emi-amount{font-size:13px;color:var(--text);font-weight:700}
+
 
 /* Support Section */
 .support-section{background:linear-gradient(135deg,rgba(201,168,76,0.06) 0%,rgba(16,14,26,0.9) 100%);border:1px solid rgba(201,168,76,0.3);border-radius:14px;margin-bottom:16px;overflow:hidden;position:relative}
@@ -94,6 +90,36 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
 .trust-item{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
 .pay-icons{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
 .pay-icon{background:#0c0a16;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--muted)}
+/* ════ RESPONSIVE ════ */
+@media(max-width:600px){
+  .page{padding:0 14px 60px;margin:24px auto}
+  .page-title h1{font-size:20px}
+  .plan{padding:12px 14px;gap:10px}
+  .plan-name{font-size:12px}
+  .plan-amt{font-size:16px}
+  .badge{font-size:7px;padding:2px 8px}
+  .fields{grid-template-columns:1fr}
+  .emi-highlight{flex-direction:column;gap:8px;text-align:center}
+  .total-row .val{font-size:12px}
+  .total-row.big .val{font-size:18px}
+  .pay-btn{font-size:13px;padding:14px}
+  .trust-strip{gap:12px}
+  .support-amounts{gap:6px}
+  .support-chip{font-size:11px;padding:7px 12px}
+  .support-custom-row{flex-direction:column}
+  .support-pay-btn{height:44px;width:100%}
+  nav{padding:0 14px}
+  .logo{font-size:14px}
+  .section-label{font-size:10px;padding:11px 16px}
+  .section-body{padding:16px}
+}
+@media(max-width:380px){
+  .plan{flex-wrap:wrap}
+  .plan-price{width:100%;text-align:left;margin-left:32px}
+  .pay-icons{gap:6px}
+  .pay-icon{font-size:11px;padding:4px 10px}
+}
+
 .overlay{position:fixed;inset:0;z-index:999;background:rgba(8,6,15,0.93);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
 .overlay.show{opacity:1;pointer-events:all}
 .success-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:44px 36px;max-width:420px;width:100%;text-align:center;transform:translateY(16px);transition:transform .3s}
@@ -218,14 +244,19 @@ nav{background:rgba(8,6,15,0.96);border-bottom:1px solid var(--border);padding:0
   </div>
 
   <div class="section">
-    <div class="section-label">⑤ EMI Breakdown (No Cost · 0% Interest)</div>
-    <div class="section-body" style="display:flex;flex-direction:column;gap:14px">
-      <div class="emi-grid">
-        <div class="emi-card"><div class="emi-months">3</div><div class="emi-label">months</div><div class="emi-amount" id="emi3">—</div></div>
-        <div class="emi-card"><div class="emi-months">6</div><div class="emi-label">months</div><div class="emi-amount" id="emi6">—</div></div>
-        <div class="emi-card"><div class="emi-months">12</div><div class="emi-label">months</div><div class="emi-amount" id="emi12">—</div></div>
+    <div class="section-label">⑤ No Cost EMI</div>
+    <div class="section-body">
+      <div style="display:flex;align-items:center;gap:18px;background:#0c0a16;border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:18px 20px">
+        <div style="text-align:center;flex-shrink:0">
+          <div style="font-family:'Cinzel',serif;font-size:32px;font-weight:700;color:var(--gold)" id="emi12">—</div>
+
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">per month</div>
+        </div>
+        <div style="border-left:1px solid var(--border);padding-left:18px">
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:#fff;margin-bottom:4px">Pay in 12 easy instalments</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6">0% interest · No hidden charges<br/>Available on HDFC, ICICI, SBI, Axis, Kotak &amp; more</div>
+        </div>
       </div>
-      <p style="font-size:12px;color:var(--muted)">✦ Zero interest · Available on HDFC, ICICI, SBI, Axis, Kotak &amp; more.</p>
     </div>
   </div>
 
@@ -352,8 +383,6 @@ function updateSummary(){
   const sb=document.getElementById('savingsBox');
   sb.style.display=saved>0?'block':'none';
   if(saved>0)document.getElementById('savingsAmt').textContent=fmt(saved);
-  document.getElementById('emi3').textContent=fmt(after/3)+'/mo';
-  document.getElementById('emi6').textContent=fmt(after/6)+'/mo';
   document.getElementById('emi12').textContent=fmt(after/12)+'/mo';
 }
 
