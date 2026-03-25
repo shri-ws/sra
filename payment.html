@@ -506,5 +506,160 @@ async function pay(){
 }
 updateSummary();
 </script>
+  
+Copy
+
+<!-- COUPON SYSTEM — paste this just before the closing </body> tag in payment.html -->
+<script>
+(function() {
+  // Obfuscated validation — do not edit
+  function _vc(i) {
+    return btoa(i.trim().toUpperCase()) === 'U0hSSUdBTkVTSA==';
+  }
+ 
+  var _applied = false;
+  var BASE = 24000;
+  var DISC = 16000;
+ 
+  function _fmt(n) {
+    return '₹' + n.toLocaleString('en-IN');
+  }
+ 
+  function _updateSummary(discounted) {
+    // Price display
+    var priceEl = document.querySelector('.order-summary .price, [data-price], #summary-price');
+    var discEl  = document.querySelector('.order-summary .discount, #summary-discount');
+    var totalEl = document.querySelector('.order-summary .total, #summary-total, #pay-total');
+    var savingEl = document.querySelector('.saving-amount, #saving-msg, .saving-text');
+    var payBtnEl = document.querySelector('#pay-btn, .pay-btn, button[id*="pay"]');
+    var emiEl    = document.querySelector('.emi-amount, #emi-amount, [id*="emi"]');
+ 
+    // Try broader selectors if specific ones fail
+    if (!totalEl) totalEl = document.querySelector('[class*="total"]');
+    if (!payBtnEl) payBtnEl = document.querySelector('button[class*="pay"], button[class*="Pay"]');
+ 
+    if (discounted) {
+      var saving = BASE - DISC;
+      if (discEl)   discEl.textContent  = '− ' + _fmt(saving);
+      if (totalEl)  totalEl.textContent = _fmt(DISC);
+      if (savingEl) savingEl.textContent = 'You are saving ' + _fmt(saving) + ' on this order!';
+      if (payBtnEl) payBtnEl.textContent = '🔒 Pay Securely — ' + _fmt(DISC);
+      // EMI for 12 months
+      if (emiEl)    emiEl.textContent   = _fmt(Math.ceil(DISC / 12));
+      // Store discounted amount for Razorpay
+      window._rzpAmount = DISC * 100; // paise
+    } else {
+      if (discEl)   discEl.textContent  = '—';
+      if (totalEl)  totalEl.textContent = _fmt(BASE);
+      if (savingEl) savingEl.textContent = '';
+      if (payBtnEl) payBtnEl.textContent = '🔒 Pay Securely — ' + _fmt(BASE);
+      if (emiEl)    emiEl.textContent   = _fmt(Math.ceil(BASE / 12));
+      window._rzpAmount = BASE * 100;
+    }
+  }
+ 
+  function _showMsg(el, msg, isError) {
+    el.textContent = msg;
+    el.style.fontSize = '13px';
+    el.style.marginTop = '6px';
+    el.style.fontWeight = '500';
+    el.style.color = isError ? '#c0392b' : '#1a7a4a';
+    el.style.display = 'block';
+  }
+ 
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Razorpay amount
+    window._rzpAmount = BASE * 100;
+ 
+    // Find coupon input and button
+    var input = document.querySelector('input[placeholder*="ode"], input[placeholder*="oupon"], #coupon-input, input[name*="coupon"]');
+    var btn   = document.querySelector('button[onclick*="coupon"], button[id*="coupon"], .coupon-btn, button[class*="apply"], button[class*="Apply"]');
+ 
+    // Fallback: find button next to input
+    if (!btn && input) {
+      btn = input.nextElementSibling;
+      if (!btn || btn.tagName !== 'BUTTON') {
+        var p = input.parentElement;
+        btn = p ? p.querySelector('button') : null;
+      }
+    }
+ 
+    if (!input || !btn) return;
+ 
+    // Create message element
+    var msg = document.createElement('div');
+    msg.id = '_cmsg';
+    input.parentNode.insertBefore(msg, input.nextSibling.nextSibling || null);
+    if (input.parentNode.contains(btn)) {
+      btn.parentNode.insertBefore(msg, btn.nextSibling);
+    } else {
+      input.parentNode.appendChild(msg);
+    }
+ 
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var val = input.value;
+ 
+      if (_applied) {
+        // Remove coupon
+        _applied = false;
+        input.value = '';
+        input.disabled = false;
+        btn.textContent = 'Apply';
+        _updateSummary(false);
+        _showMsg(msg, 'Coupon removed.', false);
+        setTimeout(function(){ msg.textContent=''; }, 2000);
+        return;
+      }
+ 
+      if (!val.trim()) {
+        _showMsg(msg, 'Please enter a coupon code.', true);
+        return;
+      }
+ 
+      if (_vc(val)) {
+        _applied = true;
+        input.disabled = true;
+        btn.textContent = 'Remove';
+        _updateSummary(true);
+        _showMsg(msg, 'Coupon applied! You save ₹8,000 🎉', false);
+      } else {
+        _showMsg(msg, 'Invalid coupon code. Please try again.', true);
+      }
+    });
+ 
+    // Also allow pressing Enter in input
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') btn.click();
+    });
+  });
+ 
+  // Patch Razorpay options at the moment of payment
+  // Wrap whatever function triggers Razorpay open
+  var _origOpen = window.Razorpay;
+  if (typeof _origOpen !== 'undefined') {
+    var _origProto = _origOpen.prototype.open;
+    _origOpen.prototype.open = function() {
+      if (window._rzpAmount && this.options) {
+        this.options.amount = window._rzpAmount;
+      }
+      return _origProto.apply(this, arguments);
+    };
+  }
+ 
+  // Fallback: patch any global pay function
+  document.addEventListener('DOMContentLoaded', function() {
+    var payBtn = document.querySelector('#pay-btn, .pay-btn, button[class*="pay"], button[class*="Pay"]');
+    if (!payBtn) return;
+    var _origClick = payBtn.onclick;
+    payBtn.onclick = function(e) {
+      // Inject amount into any rzp options object on the page
+      if (window.rzpOptions) window.rzpOptions.amount = window._rzpAmount || 2400000;
+      if (window.options)    window.options.amount    = window._rzpAmount || 2400000;
+      if (_origClick) return _origClick.call(this, e);
+    };
+  });
+})();
+</script>
 </body>
 </html>
