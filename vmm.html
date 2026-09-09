@@ -595,6 +595,22 @@
         @keyframes pulseWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
         @keyframes pulseDanger { 0%, 100% { opacity: 1; } 50% { opacity: 0.75; } }
 
+        /* Worldwide Birthplace Picker */
+        .world-location-picker { grid-column: 1 / -1; margin-top: 10px; padding: 12px; background: #FFFBF3; border: 1px solid var(--border-color); border-radius: 10px; }
+        .world-location-title { font-size: 0.82rem; font-weight: 700; color: var(--primary); margin-bottom: 7px; }
+        .world-location-row { display: flex; gap: 8px; align-items: stretch; }
+        .world-location-row input { flex: 1; min-width: 0; }
+        .world-search-btn { white-space: nowrap; padding: 9px 14px; border: 1px solid var(--gold-accent); border-radius: 8px; background: linear-gradient(135deg,var(--gold-accent),var(--gold-dark)); color:#1A0D00; font-weight:700; cursor:pointer; }
+        .world-results { display:none; margin-top:7px; max-height:220px; overflow:auto; border:1px solid var(--border-color); border-radius:8px; background:#fff; box-shadow:0 5px 15px rgba(0,0,0,.08); }
+        .world-result { padding:9px 11px; border-bottom:1px solid var(--border-soft); cursor:pointer; }
+        .world-result:last-child { border-bottom:0; }
+        .world-result:hover { background:#FAF6ED; }
+        .world-result-main { font-weight:700; color:var(--primary); font-size:.84rem; }
+        .world-result-meta { font-size:.73rem; color:var(--text-muted); margin-top:2px; }
+        .world-location-status { font-size:.74rem; color:var(--text-muted); margin-top:6px; min-height:16px; }
+        .world-location-chip { display:inline-block; margin-top:5px; padding:4px 8px; border-radius:15px; background:#EAF4EC; color:#264E36; font-size:.72rem; font-weight:700; }
+        @media (max-width:600px) { .world-location-row { flex-direction:column; } .world-search-btn { width:100%; } }
+
         @media (max-width: 600px) {
             .features-grid { grid-template-columns: 1fr; }
             .paywall-modal { padding: 24px 18px; }
@@ -790,9 +806,21 @@
                         </div>
                         <div class="form-group">
                             <label id="lblGroomCity">स्थान (City / Coordinates)</label>
-                            <input type="text" id="groomCityName" list="presetCities" placeholder="Search city..." oninput="onCityInput('groom')">
+                            <input type="text" id="groomCityName" list="presetCities" placeholder="Search or type city..." oninput="onCityInput('groom')">
                         </div>
                     </div>
+
+                    <div class="world-location-picker">
+                        <div class="world-location-title">🌍 जन्म स्थान चुनें — Worldwide Birthplace</div>
+                        <div class="world-location-row">
+                            <input type="text" id="groomWorldSearch" placeholder="Search city, town or birthplace worldwide..." oninput="queueWorldSearch('groom')">
+                            <button type="button" class="world-search-btn" onclick="searchWorldBirthplace('groom')">🌍 Search</button>
+                        </div>
+                        <div class="world-results" id="groomWorldResults"></div>
+                        <div class="world-location-status" id="groomWorldStatus">स्थान चुनने पर latitude, longitude और timezone अपने-आप सेट होंगे।</div>
+                        <div id="groomWorldChip"></div>
+                    </div>
+
                     <div class="custom-coords-row">
                         <div class="form-group">
                             <label>अक्षांश (Latitude °N)</label>
@@ -804,6 +832,8 @@
                         </div>
                     </div>
 
+                    <input type="hidden" id="groomWorldTimezone" value="">
+                    <input type="hidden" id="groomWorldCountry" value="">
                     <div class="derived-info" id="groomDerivedInfo" style="display:none;"></div>
                     <div class="chart-box" id="groomChartBox" style="display:none;">
                         <div class="chart-title" id="uiGroomChartTitle">वर लग्न चक्र (D-1)</div>
@@ -825,9 +855,21 @@
                         </div>
                         <div class="form-group">
                             <label id="lblBrideCity">स्थान (City / Coordinates)</label>
-                            <input type="text" id="brideCityName" list="presetCities" placeholder="Search city..." oninput="onCityInput('bride')">
+                            <input type="text" id="brideCityName" list="presetCities" placeholder="Search or type city..." oninput="onCityInput('bride')">
                         </div>
                     </div>
+
+                    <div class="world-location-picker">
+                        <div class="world-location-title">🌍 जन्म स्थान चुनें — Worldwide Birthplace</div>
+                        <div class="world-location-row">
+                            <input type="text" id="brideWorldSearch" placeholder="Search city, town or birthplace worldwide..." oninput="queueWorldSearch('bride')">
+                            <button type="button" class="world-search-btn" onclick="searchWorldBirthplace('bride')">🌍 Search</button>
+                        </div>
+                        <div class="world-results" id="brideWorldResults"></div>
+                        <div class="world-location-status" id="brideWorldStatus">स्थान चुनने पर latitude, longitude और timezone अपने-आप सेट होंगे।</div>
+                        <div id="brideWorldChip"></div>
+                    </div>
+
                     <div class="custom-coords-row">
                         <div class="form-group">
                             <label>अक्षांश (Latitude °N)</label>
@@ -839,6 +881,8 @@
                         </div>
                     </div>
 
+                    <input type="hidden" id="brideWorldTimezone" value="">
+                    <input type="hidden" id="brideWorldCountry" value="">
                     <div class="derived-info" id="brideDerivedInfo" style="display:none;"></div>
                     <div class="chart-box" id="brideChartBox" style="display:none;">
                         <div class="chart-title" id="uiBrideChartTitle">वधू लग्न चक्र (D-1)</div>
@@ -1270,6 +1314,79 @@
                     break;
                 }
             }
+        }
+
+        // Worldwide Birthplace Search Handlers
+        const worldSearchTimers = { groom: null, bride: null };
+
+        function escapeWorldHtml(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function queueWorldSearch(person) {
+            clearTimeout(worldSearchTimers[person]);
+            const q = document.getElementById(`${person}WorldSearch`).value.trim();
+            if (q.length < 3) {
+                document.getElementById(`${person}WorldResults`).style.display = 'none';
+                return;
+            }
+            worldSearchTimers[person] = setTimeout(() => searchWorldBirthplace(person, true), 550);
+        }
+
+        async function searchWorldBirthplace(person, silent = false) {
+            const input = document.getElementById(`${person}WorldSearch`);
+            const resultsBox = document.getElementById(`${person}WorldResults`);
+            const status = document.getElementById(`${person}WorldStatus`);
+            const q = input.value.trim();
+            if (q.length < 2) {
+                if (!silent) status.textContent = 'कम से कम 2 अक्षर लिखें।';
+                return;
+            }
+            status.textContent = 'Searching worldwide…';
+            try {
+                const url = 'https://geocoding-api.open-meteo.com/v1/search?name=' +
+                    encodeURIComponent(q) + '&count=10&language=en&format=json';
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Search failed');
+                const data = await res.json();
+                const places = (data.results || []).filter(x => Number.isFinite(x.latitude) && Number.isFinite(x.longitude));
+                if (!places.length) {
+                    resultsBox.innerHTML = '';
+                    resultsBox.style.display = 'none';
+                    status.textContent = 'No birthplace found. आप manual latitude/longitude भी भर सकते हैं।';
+                    return;
+                }
+                resultsBox.innerHTML = places.map((p, i) => {
+                    const main = [p.name, p.admin1, p.country].filter(Boolean).join(', ');
+                    const meta = `${Number(p.latitude).toFixed(4)}°, ${Number(p.longitude).toFixed(4)}°${p.timezone ? ' • ' + p.timezone : ''}`;
+                    return `<div class="world-result" onclick="selectWorldBirthplace('${person}', ${i})">
+                        <div class="world-result-main">${escapeWorldHtml(main)}</div>
+                        <div class="world-result-meta">${escapeWorldHtml(meta)}</div>
+                    </div>`;
+                }).join('');
+                window[`_${person}WorldPlaces`] = places;
+                resultsBox.style.display = 'block';
+                status.textContent = `${places.length} worldwide locations found.`;
+            } catch (err) {
+                resultsBox.style.display = 'none';
+                status.textContent = 'Worldwide search unavailable. Internet connection check करें; manual coordinates remain available.';
+            }
+        }
+
+        function selectWorldBirthplace(person, index) {
+            const places = window[`_${person}WorldPlaces`] || [];
+            const p = places[index];
+            if (!p) return;
+            document.getElementById(`${person}CityName`).value = [p.name, p.admin1, p.country].filter(Boolean).join(', ');
+            document.getElementById(`${person}Lat`).value = Number(p.latitude).toFixed(4);
+            document.getElementById(`${person}Lon`).value = Number(p.longitude).toFixed(4);
+            document.getElementById(`${person}WorldTimezone`).value = p.timezone || '';
+            document.getElementById(`${person}WorldCountry`).value = p.country || '';
+            document.getElementById(`${person}WorldResults`).style.display = 'none';
+            document.getElementById(`${person}WorldStatus`).textContent = '✓ Location selected successfully.';
+            document.getElementById(`${person}WorldChip`).innerHTML = `<span class="world-location-chip">📍 ${escapeWorldHtml(p.name)}, ${escapeWorldHtml(p.country || '')} (${Number(p.latitude).toFixed(2)}°, ${Number(p.longitude).toFixed(2)}°)</span>`;
+            if (person === 'groom') handleGroomChange();
+            else handleBrideChange();
         }
 
         function normalizeDegrees(x) { x = x % 360; return x < 0 ? x + 360 : x; }
