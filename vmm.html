@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Yatra+One&family=Rozha+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         :root {
             --primary: #4A0E17;
@@ -564,10 +565,41 @@
             margin-top: 40px;
         }
 
+        /* 20-MINUTE SESSION TIMER STYLES */
+        .session-timer-bar {
+            position: sticky;
+            top: 60px;
+            z-index: 190;
+            background: linear-gradient(135deg, #1C0A00, #3D1C00);
+            border-bottom: 2px solid var(--gold-accent);
+            color: #FFFFFF;
+            padding: 10px clamp(14px, 4%, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.88rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: background 0.5s ease;
+        }
+        .session-timer-bar.warning {
+            background: linear-gradient(135deg, #4A1A00, #8C3B00);
+            border-color: #FF9800;
+            animation: pulseWarning 2s infinite;
+        }
+        .session-timer-bar.danger {
+            background: linear-gradient(135deg, #4A0005, #8C000B);
+            border-color: #F44336;
+            animation: pulseDanger 1s infinite;
+        }
+        @keyframes pulseWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
+        @keyframes pulseDanger { 0%, 100% { opacity: 1; } 50% { opacity: 0.75; } }
+
         @media (max-width: 600px) {
             .features-grid { grid-template-columns: 1fr; }
             .paywall-modal { padding: 24px 18px; }
             .paywall-title { font-size: 1.5rem; }
+            .session-timer-bar { font-size: 0.78rem; padding: 8px 12px; flex-direction: column; gap: 6px; text-align: center; }
         }
     </style>
 </head>
@@ -586,6 +618,21 @@
             <a href="admin.html">एडमिन (Admin)</a>
         </div>
     </nav>
+
+    <!-- STICKY 20-MINUTE VIP SESSION TIMER BAR -->
+    <div class="session-timer-bar" id="sessionTimerBar" style="display:none;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.1rem;">👑</span>
+            <span><b>VIP सत्र सक्रिय (20 Min Session)</b> — ४-इन-१ संस्कार व विवाह मुहूर्त विश्लेषक</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px;">
+            <span>⏱️ शेष समय: <b id="sessionCountdown" style="font-family:monospace; font-size:1.2rem; color:var(--gold-light);">20:00</b></span>
+            <button onclick="lockAccessExpired()" style="background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); color:#fff; padding:4px 12px; border-radius:6px; font-size:0.78rem; cursor:pointer; font-weight:600;">सत्र समाप्त करें</button>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
 
     <!-- PREMIUM PAYWALL MODAL OVERLAY -->
     <div class="paywall-overlay active" id="paywallOverlay">
@@ -620,10 +667,10 @@
                     </div>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">✨</span>
+                    <span class="feature-icon">⏱️</span>
                     <div class="feature-text">
-                        <b id="f4_title">श्लोक ९१ १-लाख दोषनाशक</b>
-                        <span id="f4_desc">सुरगुरु (बृहस्पति) के केन्द्र/त्रिकोण स्थिति द्वारा १ लाख दोष परिहार एवं लग्न सारणी।</span>
+                        <b id="f4_title">२० मिनट VIP लाइव एक्सेस</b>
+                        <span id="f4_desc">भुगतान सफल होते ही २० मिनट का पूर्ण सत्र अनलॉक होगा (लाइव काउन्टडाउन टाइमर के साथ)।</span>
                     </div>
                 </div>
             </div>
@@ -631,7 +678,7 @@
             <!-- Pricing Box -->
             <div class="pricing-box">
                 <div class="price-details">
-                    <div class="price-label" id="p_priceLabel">एकमुश्त लाइफटाइम एक्सेस</div>
+                    <div class="price-label" id="p_priceLabel">२०-मिनट VIP प्रीमियम एक्सेस</div>
                     <div>
                         <span class="price-amount">₹1,111</span>
                         <span class="price-old">₹3,500</span>
@@ -640,10 +687,17 @@
                 <div class="price-tag">६८% छूट (सीमित समय)</div>
             </div>
 
-            <!-- Main Pay Button -->
-            <button class="pay-btn-main" onclick="openPaymentGateway()">
-                ⚡ ₹११११ का ऑनलाइन भुगतान करें एवं तुरंत अनलॉक करें
+            <!-- Main Pay Button (Razorpay Gateway) -->
+            <button class="pay-btn-main" onclick="triggerRazorpayCheckout()">
+                ⚡ Razorpay द्वारा ₹१,१११ ऑनलाइन भुगतान करें (20 मिनट एक्सेस)
             </button>
+
+            <!-- Secondary toggle for UPI QR code & UTR -->
+            <div style="margin-top:12px;">
+                <button onclick="togglePaymentQrView()" style="background:none; border:none; color:var(--gold-light); font-size:0.82rem; text-decoration:underline; cursor:pointer;">
+                    या UPI QR Code / UTR अथवा VIP Passcode द्वारा अनलॉक करें
+                </button>
+            </div>
 
             <!-- Payment QR View (Hidden initially) -->
             <div class="payment-qr-view" id="paymentQrView">
@@ -672,7 +726,7 @@
             </div>
 
             <div class="guarantee-note">
-                🔒 100% सुरक्षित भुगतान | तात्कालिक एक्सेस | श्री रामजी एस्ट्रो संस्थान द्वारा प्रमाणित
+                🔒 100% सुरक्षित Razorpay भुगतान | 20 मिनट एक्सेस | श्री रामजी एस्ट्रो संस्थान द्वारा प्रमाणित
             </div>
         </div>
     </div>
@@ -870,40 +924,177 @@
     </footer>
 
     <script>
+        const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
         let currentLang = 'hi';
         let currentCeremony = 'vivah';
         let groomProfile = null;
         let brideProfile = null;
         let isUnlocked = false;
+        let sessionTimerInterval = null;
 
-        // Check Unlock Status on Page Load
+        // Toast Notification Helper
+        function showToast(msg, duration = 4500) {
+            const toast = document.createElement('div');
+            toast.style.cssText = "background: linear-gradient(135deg, #380B12, #5E1420); color: #FFF; border: 1px solid #C5A059; padding: 12px 18px; border-radius: 10px; font-size: 0.88rem; box-shadow: 0 5px 20px rgba(0,0,0,0.4); pointer-events: auto; animation: fadeIn 0.3s ease;";
+            toast.innerHTML = msg;
+            const container = document.getElementById('toastContainer') || document.body;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, duration);
+        }
+
+        // Check Unlock & Expiry Status on Page Load
         function checkUnlockStatus() {
             const unlockedState = localStorage.getItem('sra_vmm_unlocked');
-            if (unlockedState === 'true') {
+            const expiry = parseInt(localStorage.getItem('sra_vmm_expiry') || '0');
+            const now = Date.now();
+
+            if (unlockedState === 'true' && expiry > now) {
                 isUnlocked = true;
                 document.getElementById('paywallOverlay').classList.remove('active');
                 document.getElementById('mainContainer').classList.remove('locked');
                 document.getElementById('vipStatusBadge').style.display = 'inline-flex';
+                document.getElementById('sessionTimerBar').style.display = 'flex';
+                initSessionTimer();
+            } else {
+                if (unlockedState === 'true') {
+                    // Session had expired while away
+                    lockAccessExpired();
+                } else {
+                    document.getElementById('paywallOverlay').classList.add('active');
+                    document.getElementById('mainContainer').classList.add('locked');
+                    document.getElementById('sessionTimerBar').style.display = 'none';
+                }
             }
         }
 
-        function unlockAccess() {
+        function startVipSession(minutes = 20, paymentId = null) {
+            const durationMs = minutes * 60 * 1000;
+            const expiryTime = Date.now() + durationMs;
+
             localStorage.setItem('sra_vmm_unlocked', 'true');
+            localStorage.setItem('sra_vmm_expiry', expiryTime.toString());
+            
+            if (paymentId) {
+                localStorage.setItem('sra_vmm_last_payid', paymentId);
+            }
+
+            unlockAccess();
+            showToast(`🎉 <b>भुगतान सफल!</b> आपका ${minutes}-मिनट का VIP एक्सेस प्रारंभ हो गया है।`);
+            alert(`🎉 भुगतान सफल (Payment Successful)!\n\nआपका 20 मिनट का VIP सत्र सक्रिय कर दिया गया है।\n\nपृष्ठ के शीर्ष पर स्थित टाइमर द्वारा समय देख सकते हैं।`);
+        }
+
+        function unlockAccess() {
             isUnlocked = true;
             document.getElementById('paywallOverlay').classList.remove('active');
             document.getElementById('mainContainer').classList.remove('locked');
             document.getElementById('vipStatusBadge').style.display = 'inline-flex';
+            document.getElementById('sessionTimerBar').style.display = 'flex';
+            initSessionTimer();
         }
 
-        function openPaymentGateway() {
-            document.getElementById('paymentQrView').style.display = 'block';
+        function initSessionTimer() {
+            if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+            const timerBar = document.getElementById('sessionTimerBar');
+            const countdownEl = document.getElementById('sessionCountdown');
+
+            function updateTimer() {
+                const expiry = parseInt(localStorage.getItem('sra_vmm_expiry') || '0');
+                const now = Date.now();
+                const remainingMs = expiry - now;
+
+                if (remainingMs <= 0) {
+                    clearInterval(sessionTimerInterval);
+                    lockAccessExpired();
+                    return;
+                }
+
+                const totalSec = Math.floor(remainingMs / 1000);
+                const m = Math.floor(totalSec / 60);
+                const s = totalSec % 60;
+                const timeStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+                if (countdownEl) countdownEl.textContent = timeStr;
+
+                if (m < 2) {
+                    timerBar.className = 'session-timer-bar danger';
+                } else if (m < 5) {
+                    timerBar.className = 'session-timer-bar warning';
+                } else {
+                    timerBar.className = 'session-timer-bar';
+                }
+
+                if (m === 5 && s === 0) {
+                    showToast('⚠️ <b>चेतावनी:</b> आपके VIP सत्र में केवल 5 मिनट शेष हैं!');
+                }
+                if (m === 1 && s === 0) {
+                    showToast('🚨 <b>महत्वपूर्ण:</b> केवल 1 मिनट शेष है!');
+                }
+            }
+
+            updateTimer();
+            sessionTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function lockAccessExpired() {
+            localStorage.removeItem('sra_vmm_unlocked');
+            localStorage.removeItem('sra_vmm_expiry');
+            isUnlocked = false;
+
+            if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+            document.getElementById('sessionTimerBar').style.display = 'none';
+            document.getElementById('paywallOverlay').classList.add('active');
+            document.getElementById('mainContainer').classList.add('locked');
+            document.getElementById('vipStatusBadge').style.display = 'none';
+
+            alert("⚠️ सत्र समाप्त (VIP Session Expired)!\n\nआपका 20 मिनट का VIP सत्र समाप्त हो गया है।\n\nनवीन सत्र प्रारम्भ करने हेतु कृपया पुनः भुगतान करें।");
+        }
+
+        function triggerRazorpayCheckout() {
+            try {
+                const options = {
+                    key: RZP_KEY,
+                    amount: 111100, // ₹1,111 in paise
+                    currency: 'INR',
+                    name: 'Shri Ramji Astro',
+                    description: 'VIP Vivah Muhurt & Matchmaking (20 Min Session)',
+                    prefill: {
+                        name: 'VIP User',
+                        email: 'user@shriramjiastro.in',
+                        contact: '9517117775'
+                    },
+                    theme: { color: '#C5A059' },
+                    handler: function(response) {
+                        const payId = response.razorpay_payment_id;
+                        startVipSession(20, payId);
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            console.log('Payment modal dismissed');
+                        }
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch(e) {
+                alert('Razorpay loading failed. Please check internet connection or use UPI QR Code / VIP Code.');
+            }
+        }
+
+        function togglePaymentQrView() {
+            const qrView = document.getElementById('paymentQrView');
+            qrView.style.display = qrView.style.display === 'block' ? 'none' : 'block';
         }
 
         function verifyPaymentUTR() {
             const utr = document.getElementById('utrInput').value.trim();
             if (utr.length >= 6) {
-                alert("भुगतान सफलतापूर्वक सत्यापित हुआ! ₹1,111 VIP एक्सेस अनलॉक हो गया है।");
-                unlockAccess();
+                startVipSession(20, 'UTR_' + utr);
             } else {
                 alert("कृपया वैध UTR / Transaction No. दर्ज करें।");
             }
@@ -912,8 +1103,7 @@
         function verifyVipCode() {
             const code = document.getElementById('vipCodeInput').value.trim().toUpperCase();
             if (code === 'RAM1111' || code === 'ASTRO1111' || code === 'VIP1111' || code === '1111') {
-                alert("VIP Passcode Verified! Unlocking Premium Engine...");
-                unlockAccess();
+                startVipSession(20, 'PASSCODE_' + code);
             } else {
                 alert("अवैध VIP कोड। कृपया ₹1111 का भुगतान करें या सही कोड दर्ज करें।");
             }
