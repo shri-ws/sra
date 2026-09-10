@@ -297,14 +297,24 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
         }
         svg.kundli-chart {
-            width: 280px;
-            height: 280px;
-            background: #FFFFFF;
+            width: 100%;
+            max-width: 320px;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            background: #FFFDF9;
             border: 2px solid var(--primary);
-            border-radius: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(74, 14, 23, 0.08);
+            display: block;
+            margin: 0 auto;
         }
+        .kundli-line { stroke: var(--gold-accent); stroke-width: 1.5; }
+        .rashi-num { font-size: 11px; fill: #8A7B75; font-weight: 800; text-anchor: middle; dominant-baseline: central; font-family: sans-serif; }
+        .planet-txt { font-size: 10.5px; fill: var(--primary); font-weight: 800; text-anchor: middle; dominant-baseline: central; font-family: sans-serif; }
+        .planet-txt-asc { font-size: 11px; fill: #B71C1C; font-weight: 900; text-anchor: middle; dominant-baseline: central; font-family: sans-serif; }
 
         .stats-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
         .stat-box {
@@ -609,13 +619,77 @@
         .world-result-meta { font-size:.73rem; color:var(--text-muted); margin-top:2px; }
         .world-location-status { font-size:.74rem; color:var(--text-muted); margin-top:6px; min-height:16px; }
         .world-location-chip { display:inline-block; margin-top:5px; padding:4px 8px; border-radius:15px; background:#EAF4EC; color:#264E36; font-size:.72rem; font-weight:700; }
-        @media (max-width:600px) { .world-location-row { flex-direction:column; } .world-search-btn { width:100%; } }
+        /* ==================== RESPONSIVE DESIGN FOR MOBILE PHONES ==================== */
+        @media (max-width: 992px) {
+            .two-col-grid { grid-template-columns: 1fr; gap: 16px; }
+            .ceremony-tabs { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
 
-        @media (max-width: 600px) {
-            .features-grid { grid-template-columns: 1fr; }
-            .paywall-modal { padding: 24px 18px; }
-            .paywall-title { font-size: 1.5rem; }
-            .session-timer-bar { font-size: 0.78rem; padding: 8px 12px; flex-direction: column; gap: 6px; text-align: center; }
+        @media (max-width: 768px) {
+            body { padding: 10px 8px; }
+            nav {
+                height: auto;
+                min-height: 56px;
+                padding: 8px 12px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .nav-logo { font-size: 14px; }
+            .nav-links { flex-wrap: wrap; gap: 4px; }
+            .nav-links a { font-size: 10px; padding: 4px 8px; }
+
+            .brand-banner { padding: 24px 14px 20px; border-radius: 12px; margin-bottom: 20px; }
+            .mangal-shloka { font-size: clamp(0.78rem, 3.2vw, 0.95rem); line-height: 1.4; }
+            .brand-title { font-size: clamp(1.4rem, 5vw, 1.9rem); }
+            .brand-subtitle { font-size: clamp(0.78rem, 3vw, 0.88rem); }
+
+            .glass-card { padding: 16px 12px; border-radius: 12px; margin-bottom: 18px; }
+            .card-header-styled { font-size: 1.1rem; }
+
+            .person-box { padding: 12px 10px; }
+            .form-grid { grid-template-columns: 1fr; gap: 10px; }
+            .custom-coords-row { grid-template-columns: 1fr; gap: 8px; }
+
+            svg.kundli-chart {
+                width: 100%;
+                max-width: 300px;
+                height: auto;
+                aspect-ratio: 1 / 1;
+            }
+
+            .stats-summary { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stat-box { padding: 10px 8px; }
+            .stat-box .number { font-size: 1.25rem; }
+            .stat-box .label { font-size: 0.68rem; }
+
+            .table-container { border-radius: 12px; margin-bottom: 18px; }
+            table { min-width: 600px; font-size: 0.78rem; }
+            th, td { padding: 8px 10px; }
+
+            .paywall-modal { padding: 20px 14px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+            .paywall-title { font-size: 1.3rem; }
+            .paywall-subtitle { font-size: 0.84rem; }
+            .pricing-box { flex-direction: column; text-align: center; gap: 10px; }
+            .price-details { text-align: center; }
+            .pay-btn-main { font-size: 0.95rem; padding: 12px 16px; }
+
+            .session-timer-bar {
+                flex-direction: column;
+                text-align: center;
+                gap: 6px;
+                padding: 8px 12px;
+                font-size: 0.78rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ceremony-tabs { grid-template-columns: 1fr; }
+            .tab-btn { padding: 10px 12px; }
+            .tab-title { font-size: 0.88rem; }
+            .tab-sub { font-size: 0.7rem; }
+            .lang-switch { position: static; display: inline-flex; margin-bottom: 12px; }
+            .world-location-row { flex-direction: column; }
+            .world-search-btn { width: 100%; }
         }
     </style>
 </head>
@@ -1548,28 +1622,40 @@
 
         function renderNorthIndianChart(containerId, ascendantRashiId, planets) {
             const houseRashis = {};
-            for (let i = 1; i <= 12; i++) {
-                houseRashis[i] = ((ascendantRashiId + i - 2) % 12) + 1;
+            for (let h = 1; h <= 12; h++) {
+                houseRashis[h] = ((ascendantRashiId + h - 2) % 12) + 1;
             }
 
-            const houseCoords = {
-                1: { rashi: [135, 110], planets: [135, 75] },
-                2: { rashi: [75, 55], planets: [60, 35] },
-                3: { rashi: [55, 75], planets: [35, 60] },
-                4: { rashi: [110, 135], planets: [75, 135] },
-                5: { rashi: [55, 195], planets: [35, 210] },
-                6: { rashi: [75, 215], planets: [60, 235] },
-                7: { rashi: [135, 160], planets: [135, 195] },
-                8: { rashi: [195, 215], planets: [210, 235] },
-                9: { rashi: [215, 195], planets: [235, 210] },
-                10: { rashi: [160, 135], planets: [195, 135] },
-                11: { rashi: [215, 75], planets: [235, 60] },
-                12: { rashi: [195, 55], planets: [210, 35] }
+            const houseConfig = {
+                1:  { rashi: [135, 112], center: [135, 58] },
+                2:  { rashi: [102, 32],  center: [52, 32] },
+                3:  { rashi: [32, 102],  center: [32, 52] },
+                4:  { rashi: [112, 135], center: [58, 135] },
+                5:  { rashi: [32, 168],  center: [32, 218] },
+                6:  { rashi: [102, 238], center: [52, 238] },
+                7:  { rashi: [135, 158], center: [135, 212] },
+                8:  { rashi: [168, 238], center: [218, 238] },
+                9:  { rashi: [238, 168], center: [238, 218] },
+                10: { rashi: [158, 135], center: [212, 135] },
+                11: { rashi: [238, 102], center: [238, 52] },
+                12: { rashi: [168, 32],  center: [218, 32] }
             };
 
+            const housePlanets = {};
+            for (let h = 1; h <= 12; h++) housePlanets[h] = [];
+
+            planets.forEach(p => {
+                for (let h = 1; h <= 12; h++) {
+                    if (houseRashis[h] === p.rashi) {
+                        housePlanets[h].push(p);
+                        break;
+                    }
+                }
+            });
+
             let svgContent = `
-                <svg class="kundli-chart" viewBox="0 0 270 270">
-                    <rect x="5" y="5" width="260" height="260" fill="none" stroke="#C5A059" stroke-width="2"/>
+                <svg class="kundli-chart" viewBox="0 0 270 270" width="100%" height="auto">
+                    <rect x="5" y="5" width="260" height="260" fill="#FFFDF9" stroke="#C5A059" stroke-width="2.5" rx="4"/>
                     <line x1="5" y1="5" x2="265" y2="265" class="kundli-line"/>
                     <line x1="265" y1="5" x2="5" y2="265" class="kundli-line"/>
                     <line x1="135" y1="5" x2="5" y2="135" class="kundli-line"/>
@@ -1579,21 +1665,45 @@
             `;
 
             for (let h = 1; h <= 12; h++) {
-                const pos = houseCoords[h].rashi;
-                svgContent += `<text x="${pos[0]}" y="${pos[1]}" class="rashi-num">${houseRashis[h]}</text>`;
+                const [rx, ry] = houseConfig[h].rashi;
+                svgContent += `<text x="${rx}" y="${ry}" class="rashi-num">${houseRashis[h]}</text>`;
             }
 
-            planets.forEach(p => {
-                let foundHouse = 1;
-                for (let h = 1; h <= 12; h++) {
-                    if (houseRashis[h] === p.rashi) { foundHouse = h; break; }
+            for (let h = 1; h <= 12; h++) {
+                const plist = housePlanets[h];
+                if (!plist || plist.length === 0) continue;
+
+                const [cx, cy] = houseConfig[h].center;
+                if (plist.length === 1) {
+                    const p = plist[0];
+                    const cls = p.isAsc ? 'planet-txt-asc' : 'planet-txt';
+                    svgContent += `<text x="${cx}" y="${cy}" class="${cls}">${p.name}</text>`;
+                } else if (plist.length <= 3) {
+                    const lineOffset = 11;
+                    const startY = cy - ((plist.length - 1) * lineOffset) / 2;
+                    plist.forEach((p, idx) => {
+                        const cls = p.isAsc ? 'planet-txt-asc' : 'planet-txt';
+                        svgContent += `<text x="${cx}" y="${startY + idx * lineOffset}" class="${cls}">${p.name}</text>`;
+                    });
+                } else {
+                    const rows = [];
+                    for (let i = 0; i < plist.length; i += 2) {
+                        rows.push(plist.slice(i, i + 2));
+                    }
+                    const lineOffset = 11;
+                    const startY = cy - ((rows.length - 1) * lineOffset) / 2;
+                    rows.forEach((row, rIdx) => {
+                        const rowText = row.map(p => p.name).join(' ');
+                        const hasAsc = row.some(p => p.isAsc);
+                        const cls = hasAsc ? 'planet-txt-asc' : 'planet-txt';
+                        svgContent += `<text x="${cx}" y="${startY + rIdx * lineOffset}" class="${cls}">${rowText}</text>`;
+                    });
                 }
-                const pos = houseCoords[foundHouse].planets;
-                svgContent += `<text x="${pos[0]}" y="${pos[1]}" class="planet-txt">${p.name}</text>`;
-            });
+            }
 
             svgContent += `</svg>`;
-            document.getElementById(containerId).innerHTML = svgContent;
+            const container = document.getElementById(containerId);
+            if (container) container.innerHTML = svgContent;
         }
 
         function handleGroomChange() { groomProfile = calculateProfile('groom'); }
@@ -1635,11 +1745,22 @@
             `;
 
             document.getElementById(type + 'ChartBox').style.display = 'block';
-            renderNorthIndianChart(type + 'ChartContainer', p.asc.rashi, [
-                { name: 'चन्द्र', rashi: p.moon.rashi },
-                { name: 'सूर्य', rashi: p.sun.rashi },
-                { name: 'गुरु', rashi: p.jupiter.rashi }
-            ]);
+
+            const isHi = currentLang === 'hi';
+            const planetList = [
+                { name: isHi ? 'ल' : 'Asc', rashi: p.asc.rashi, isAsc: true },
+                { name: isHi ? 'सू' : 'Su', rashi: p.sun.rashi },
+                { name: isHi ? 'च' : 'Mo', rashi: p.moon.rashi },
+                { name: isHi ? 'मं' : 'Ma', rashi: p.mars.rashi },
+                { name: isHi ? 'बु' : 'Me', rashi: p.mercury.rashi },
+                { name: isHi ? 'गु' : 'Ju', rashi: p.jupiter.rashi },
+                { name: isHi ? 'शु' : 'Ve', rashi: p.venus.rashi },
+                { name: isHi ? 'श' : 'Sa', rashi: p.saturn.rashi },
+                { name: isHi ? 'रा' : 'Ra', rashi: p.rahu.rashi },
+                { name: isHi ? 'के' : 'Ke', rashi: ((p.rahu.rashi + 5) % 12) + 1 }
+            ];
+
+            renderNorthIndianChart(type + 'ChartContainer', p.asc.rashi, planetList);
 
             return profile;
         }
