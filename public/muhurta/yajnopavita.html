@@ -650,16 +650,20 @@
         }
 
         async function calculateUpanayana() {
-            const childName = document.getElementById('childName').value;
-            const childDob = document.getElementById('childDob').value;
-            const childTob = document.getElementById('childTob').value;
+            const childName = (document.getElementById('childName').value || 'बालक').trim();
+            const childDob = document.getElementById('childDob').value || '2015-05-10';
+            const childTob = document.getElementById('childTob').value || '10:30';
             
-            const lat = document.getElementById('latInput').value;
-            const lon = document.getElementById('lonInput').value;
-            const tz = document.getElementById('tzInput').value;
+            const lat = document.getElementById('latInput').value || '26.8467';
+            const lon = document.getElementById('lonInput').value || '80.9462';
+            const tz = document.getElementById('tzInput').value || '5.5';
 
-            const startDate = document.getElementById('startDate').value;
-            const days = document.getElementById('scanDays').value;
+            let startDate = document.getElementById('startDate').value;
+            if (!startDate) {
+                startDate = new Date().toISOString().split('T')[0];
+                document.getElementById('startDate').value = startDate;
+            }
+            const days = document.getElementById('scanDays').value || '30';
 
             const loader = document.getElementById('loader');
             const natalBox = document.getElementById('natalKundliContainer');
@@ -685,6 +689,7 @@
                     runClientEngine(childName, childDob, childTob, parseFloat(lat), parseFloat(lon), parseFloat(tz), startDate, parseInt(days));
                 }
             } catch (err) {
+                console.warn("API fetch error, running JS client engine:", err);
                 runClientEngine(childName, childDob, childTob, parseFloat(lat), parseFloat(lon), parseFloat(tz), startDate, parseInt(days));
             }
         }
@@ -1114,7 +1119,11 @@
 
         const ORBIT_ELEMENTS = {
             earth:   [1.00000261, 0.00000562, 0.01671123, -0.00004392, 0.000015, -0.012946, 100.464571, 35999.372449, 102.937681, 0.323273, 0.0, 0.0],
-            jupiter: [5.20288700, -0.00011607, 0.04838624, -0.00013257, 1.304396, -0.001837, 34.396440, 3034.746128, 14.728479, 0.212526, 100.473909, 0.204691]
+            mercury: [0.38709927, 0.00000037, 0.20563593, 0.00001906, 7.004979, -0.005947, 252.250323, 149472.674111, 77.457796, 0.160476, 48.330765, -0.125349],
+            venus:   [0.72333566, 0.00000000, 0.00677672, -0.00004107, 3.394676, -0.000857, 181.979099, 58517.815387, 131.602467, 0.002683, 76.679842, -0.277693],
+            mars:    [1.52371034, 0.00001847, 0.09339410, 0.00007882, 1.849691, -0.000813, -4.553432, 19140.302684, -23.943629, 0.444410, 49.559538, -0.292573],
+            jupiter: [5.20288700, -0.00011607, 0.04838624, -0.00013257, 1.304396, -0.001837, 34.396440, 3034.746128, 14.728479, 0.212526, 100.473909, 0.204691],
+            saturn:  [9.53667594, -0.00125060, 0.05386179, -0.00050991, 2.485991, 0.001936, 49.954244, 1222.493622, 92.598878, -0.418972, 113.662424, -0.288677]
         };
 
         function solveKepler(M_deg, e) {
@@ -1130,6 +1139,7 @@
 
         function getHeliocentricPos(planetKey, T) {
             const el = ORBIT_ELEMENTS[planetKey];
+            if (!el) return { x: 0, y: 0, z: 0 };
             const a = el[0] + el[1] * T;
             const e = el[2] + el[3] * T;
             const I = el[4] + el[5] * T;
