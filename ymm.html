@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ymm.html — श्री रामजी एस्ट्रो | VIP यज्ञोपवीत (उपनयन) मुहूर्त विश्लेषक</title>
+    <title>yajnopavita.html — श्री रामजी एस्ट्रो | VIP यज्ञोपवीत (उपनयन) मुहूर्त विश्लेषक</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -468,7 +468,7 @@
         <div class="nav-links">
             <a href="index.html">होम</a>
             <a href="vmm.html">💍 विवाह मुहूर्त</a>
-            <a href="ymm.html" class="active">🪔 यज्ञोपवीत मुहूर्त</a>
+            <a href="yajnopavita.html" class="active">🪔 यज्ञोपवीत मुहूर्त</a>
             <button class="lang-switch" onclick="toggleLanguage()">English</button>
         </div>
     </nav>
@@ -689,35 +689,187 @@
             }
         }
 
+        function generateNorthIndianKundliSVG(natal) {
+            const planets = natal.planets || [];
+            const lagnaSign = natal.lagna_sign || 1;
+
+            const housePlanets = {};
+            for (let h = 1; h <= 12; h++) housePlanets[h] = [];
+            
+            planets.forEach(p => {
+                const h = p.house || (((p.sign - lagnaSign + 12) % 12) + 1);
+                if (housePlanets[h]) housePlanets[h].push(p);
+            });
+
+            const houseRashis = {};
+            for (let h = 1; h <= 12; h++) {
+                houseRashis[h] = ((lagnaSign - 1 + h - 1) % 12) + 1;
+            }
+
+            const rashiPos = {
+                1:  { x: 220, y: 40 },
+                2:  { x: 195, y: 35 },
+                3:  { x: 35,  y: 195 },
+                4:  { x: 40,  y: 220 },
+                5:  { x: 35,  y: 245 },
+                6:  { x: 195, y: 405 },
+                7:  { x: 220, y: 400 },
+                8:  { x: 245, y: 405 },
+                9:  { x: 405, y: 245 },
+                10: { x: 400, y: 220 },
+                11: { x: 405, y: 195 },
+                12: { x: 245, y: 35 }
+            };
+
+            const houseCenter = {
+                1:  { x: 220, y: 115 },
+                2:  { x: 110, y: 65 },
+                3:  { x: 65,  y: 110 },
+                4:  { x: 110, y: 220 },
+                5:  { x: 65,  y: 330 },
+                6:  { x: 110, y: 375 },
+                7:  { x: 220, y: 325 },
+                8:  { x: 330, y: 375 },
+                9:  { x: 375, y: 330 },
+                10: { x: 330, y: 220 },
+                11: { x: 375, y: 110 },
+                12: { x: 330, y: 65 }
+            };
+
+            let svg = `
+            <svg viewBox="0 0 440 440" width="100%" height="auto" style="max-width:440px; display:block; margin: 0 auto; filter: drop-shadow(0px 4px 12px rgba(74, 14, 23, 0.15));">
+                <defs>
+                    <linearGradient id="kundliBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFFDF9"/>
+                        <stop offset="100%" stop-color="#FAF5E8"/>
+                    </linearGradient>
+                    <linearGradient id="lagnaHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(201, 168, 76, 0.22)"/>
+                        <stop offset="100%" stop-color="rgba(201, 168, 76, 0.05)"/>
+                    </linearGradient>
+                </defs>
+                
+                <rect x="8" y="8" width="424" height="424" rx="14" fill="url(#kundliBg)" stroke="#4A0E17" stroke-width="3"/>
+                <rect x="14" y="14" width="412" height="412" rx="10" fill="none" stroke="#C9A84C" stroke-width="1.5" stroke-dasharray="8,4"/>
+                
+                <polygon points="220,20 320,120 220,220 120,120" fill="url(#lagnaHighlight)" stroke="#C9A84C" stroke-width="1.5"/>
+
+                <line x1="20" y1="20" x2="420" y2="420" stroke="#4A0E17" stroke-width="2"/>
+                <line x1="20" y1="420" x2="420" y2="20" stroke="#4A0E17" stroke-width="2"/>
+                <polygon points="220,20 420,220 220,420 20,220" fill="none" stroke="#4A0E17" stroke-width="2.5"/>
+            `;
+
+            for (let h = 1; h <= 12; h++) {
+                const pos = rashiPos[h];
+                const rashiNum = houseRashis[h];
+                svg += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" font-size="13" font-weight="800" fill="#A81C1C" font-family="'Cinzel', serif">${rashiNum}</text>`;
+            }
+
+            for (let h = 1; h <= 12; h++) {
+                const pList = housePlanets[h];
+                if (!pList || pList.length === 0) continue;
+
+                const center = houseCenter[h];
+                const lineHeight = 16;
+                const startY = center.y - ((pList.length - 1) * lineHeight / 2);
+
+                pList.forEach((p, idx) => {
+                    const py = startY + (idx * lineHeight);
+                    const retroLabel = p.is_retro ? '(व)' : '';
+                    const textStr = `${p.hi_name}${retroLabel} ${p.deg}°${String(p.min).padStart(2,'0')}'`;
+                    const color = p.key === 'Asc' ? '#8C6D2B' : (p.is_retro ? '#B71C1C' : '#2A1F1D');
+                    const weight = (p.key === 'Asc' || p.key === 'Moon' || p.key === 'Sun') ? '800' : '600';
+                    
+                    svg += `<text x="${center.x}" y="${py}" text-anchor="middle" font-size="12" font-weight="${weight}" fill="${color}" font-family="'Plus Jakarta Sans', sans-serif">${textStr}</text>`;
+                });
+            }
+
+            svg += `</svg>`;
+            return svg;
+        }
+
         function renderNatalKundliCard(name, natal) {
             const natalBox = document.getElementById('natalKundliContainer');
+            
+            const svgChart = generateNorthIndianKundliSVG(natal);
+            const planets = natal.planets || [];
+
+            let tableRowsHtml = '';
+            planets.forEach(p => {
+                const retroTag = p.is_retro ? '<span style="color:#B71C1C; font-weight:bold;">वक्री (R)</span>' : 'मार्गी (Direct)';
+                const houseSuffix = p.house === 1 ? '1म (लग्न)' : `${p.house}म भाव`;
+                tableRowsHtml += `
+                    <tr style="border-bottom: 1px solid var(--border-soft);">
+                        <td style="padding: 6px 10px; font-weight: 700; color: var(--primary);">${p.hi_name} (${p.name})</td>
+                        <td style="padding: 6px 10px;">${p.sign_name}</td>
+                        <td style="padding: 6px 10px; font-weight: 700;">${p.deg}° ${String(p.min).padStart(2,'0')}'</td>
+                        <td style="padding: 6px 10px;">${retroTag}</td>
+                        <td style="padding: 6px 10px;">${p.nakshatra || '-'} ${p.pada ? '(पद ' + p.pada + ')' : ''}</td>
+                        <td style="padding: 6px 10px; font-weight: 700; color: var(--gold-dark);">${houseSuffix}</td>
+                    </tr>
+                `;
+            });
+
             natalBox.innerHTML = `
-                <div class="natal-card">
-                    <div class="natal-title">
+                <div class="natal-card" style="border: 2px solid var(--gold); background: #FFFBF4; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(74, 14, 23, 0.08);">
+                    <div class="natal-title" style="display:flex; align-items:center; gap:8px; font-size:18px; font-weight:800; color:var(--primary); border-bottom: 2px dashed var(--gold-border); padding-bottom: 12px; margin-bottom: 16px;">
                         <span>👦</span>
-                        <span>${name} — जन्म कुण्डली परिचय (Natal Kundli Summary)</span>
+                        <span>${name} — जन्म कुण्डली एवं स्पष्ट ग्रह स्थिति (Natal Kundli & Planetary Degrees)</span>
                     </div>
-                    <div class="natal-grid">
-                        <div class="natal-item">
-                            <div class="natal-item-label">जन्म राशि (Moon Sign)</div>
-                            <div class="natal-item-val">${natal.moon_sign_name || RASHI_NAMES[natal.moon_sign]}</div>
+                    
+                    <div class="natal-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                        <div class="natal-item" style="background:#FFF; padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+                            <div class="natal-item-label" style="font-size:11px; color:var(--text-muted); font-weight:700;">जन्म लग्न (Natal Lagna)</div>
+                            <div class="natal-item-val" style="font-size:15px; font-weight:800; color:var(--primary);">${natal.lagna_name || RASHI_NAMES[natal.lagna_sign]}</div>
                         </div>
-                        <div class="natal-item">
-                            <div class="natal-item-label">जन्म नक्षत्र व पद</div>
-                            <div class="natal-item-val">${natal.nakshatra_name || NAKSHATRAS_27[natal.nakshatra]} (पद ${natal.pada})</div>
+                        <div class="natal-item" style="background:#FFF; padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+                            <div class="natal-item-label" style="font-size:11px; color:var(--text-muted); font-weight:700;">जन्म राशि (Moon Sign)</div>
+                            <div class="natal-item-val" style="font-size:15px; font-weight:800; color:var(--primary);">${natal.moon_sign_name || RASHI_NAMES[natal.moon_sign]}</div>
                         </div>
-                        <div class="natal-item">
-                            <div class="natal-item-label">जन्म लग्न (Natal Lagna)</div>
-                            <div class="natal-item-val">${natal.lagna_name || RASHI_NAMES[natal.lagna_sign]}</div>
+                        <div class="natal-item" style="background:#FFF; padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+                            <div class="natal-item-label" style="font-size:11px; color:var(--text-muted); font-weight:700;">जन्म नक्षत्र व पद</div>
+                            <div class="natal-item-val" style="font-size:15px; font-weight:800; color:var(--primary);">${natal.nakshatra_name || NAKSHATRAS_27[natal.nakshatra]} (पद ${natal.pada})</div>
                         </div>
-                        <div class="natal-item">
-                            <div class="natal-item-label">सूर्य राशि (Sun Sign)</div>
-                            <div class="natal-item-val">${natal.sun_sign_name || RASHI_NAMES[natal.sun_sign]}</div>
+                        <div class="natal-item" style="background:#FFF; padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+                            <div class="natal-item-label" style="font-size:11px; color:var(--text-muted); font-weight:700;">सूर्य राशि (Sun Sign)</div>
+                            <div class="natal-item-val" style="font-size:15px; font-weight:800; color:var(--primary);">${natal.sun_sign_name || RASHI_NAMES[natal.sun_sign]}</div>
                         </div>
-                        <div class="natal-item">
-                            <div class="natal-item-label">गुरु राशि (Jupiter Sign)</div>
-                            <div class="natal-item-val">${natal.jup_sign_name || RASHI_NAMES[natal.jup_sign]}</div>
+                        <div class="natal-item" style="background:#FFF; padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+                            <div class="natal-item-label" style="font-size:11px; color:var(--text-muted); font-weight:700;">गुरु राशि (Jupiter Sign)</div>
+                            <div class="natal-item-val" style="font-size:15px; font-weight:800; color:var(--primary);">${natal.jup_sign_name || RASHI_NAMES[natal.jup_sign]}</div>
                         </div>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; margin-top: 16px;">
+                        <div style="flex: 1; min-width: 300px; max-width: 440px; margin: 0 auto;">
+                            <div style="text-align: center; font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
+                                🪔 उत्तर भारतीय जन्म लग्न चक्र (North Indian Kundli Chart)
+                            </div>
+                            ${svgChart}
+                        </div>
+
+                        ${planets.length > 0 ? `
+                        <div style="flex: 1.2; min-width: 320px; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; overflow-x: auto;">
+                            <div style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                                📜 स्पष्ट ग्रह स्थिति एवं भाव सारणी (Planetary Degrees Table)
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+                                <thead>
+                                    <tr style="background: var(--gold-light); color: var(--primary); border-bottom: 2px solid var(--gold-border);">
+                                        <th style="padding: 6px 10px;">ग्रह</th>
+                                        <th style="padding: 6px 10px;">राशि</th>
+                                        <th style="padding: 6px 10px;">अंश (Deg)</th>
+                                        <th style="padding: 6px 10px;">गति</th>
+                                        <th style="padding: 6px 10px;">नक्षत्र (पद)</th>
+                                        <th style="padding: 6px 10px;">भाव</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -795,23 +947,71 @@
             const loader = document.getElementById('loader');
             loader.style.display = 'none';
 
-            const dobParts = dob.split('-');
-            const tobParts = tob.split(':');
-            const dobDate = new Date(Date.UTC(parseInt(dobParts[0]), parseInt(dobParts[1]) - 1, parseInt(dobParts[2]), parseInt(tobParts[0]) - tz, parseInt(tobParts[1])));
+            const dobParts = dob.split('-').map(Number);
+            const tobParts = tob.split(':').map(Number);
+            const localTotalMins = (tobParts[0] * 60 + tobParts[1]) - (tz * 60);
+            const dobDate = new Date(Date.UTC(dobParts[0], dobParts[1] - 1, dobParts[2], 0, localTotalMins));
             
-            const jdNatal = toJulianDay(dobDate.getUTCFullYear(), dobDate.getUTCMonth() + 1, dobDate.getUTCDate(), dobDate.getUTCHours() + dobDate.getUTCMinutes() / 60.0);
+            const hourUTC = dobDate.getUTCHours() + dobDate.getUTCMinutes() / 60.0;
+            const jdNatal = toJulianDay(dobDate.getUTCFullYear(), dobDate.getUTCMonth() + 1, dobDate.getUTCDate(), hourUTC);
             const TNatal = (jdNatal - 2451545.0) / 36525.0;
-            const ayanamsaNatal = 23.85 + (TNatal * 100) * 0.013972;
+            const ayanamsaNatal = 23.77 + (TNatal * 100) * 0.013972;
 
             const moonNatal = getMoonSidereal(TNatal, ayanamsaNatal);
             const sunNatal = getSunSidereal(TNatal, ayanamsaNatal);
+            const marsNatal = getGeocentricPlanet('mars', TNatal, ayanamsaNatal);
+            const mercNatal = getGeocentricPlanet('mercury', TNatal, ayanamsaNatal);
             const jupNatal = getGeocentricPlanet('jupiter', TNatal, ayanamsaNatal);
-            const ascNatal = computeAscendant(jdNatal, TNatal, dobDate.getUTCHours(), lat, lon, ayanamsaNatal);
+            const venNatal = getGeocentricPlanet('venus', TNatal, ayanamsaNatal);
+            const satNatal = getGeocentricPlanet('saturn', TNatal, ayanamsaNatal);
+            const ascNatal = computeAscendant(jdNatal, TNatal, hourUTC, lat, lon, ayanamsaNatal);
+
+            const rahuSid = normalizeDegrees(125.04452 - 1934.136261 * TNatal - ayanamsaNatal);
+            const ketuSid = normalizeDegrees(rahuSid + 180.0);
 
             const childMoonSign = moonNatal.rashi;
             const nakNum = Math.floor(moonNatal.sidereal / (360 / 27)) + 1;
             const nakDegree = moonNatal.sidereal % (360 / 27);
             const pada = Math.floor(nakDegree / (360 / 27 / 4)) + 1;
+
+            function formatPlanetObj(key, pname, hi, sidereal, isRetro) {
+                const sign = Math.floor(sidereal / 30) + 1;
+                const degFloat = sidereal % 30;
+                const deg = Math.floor(degFloat);
+                const min = Math.floor((degFloat - deg) * 60);
+                const nakN = Math.floor(sidereal / (360 / 27)) + 1;
+                const nakD = sidereal % (360 / 27);
+                const pd = Math.floor(nakD / (360 / 27 / 4)) + 1;
+                const house = ((sign - ascNatal.rashi + 12) % 12) + 1;
+
+                return {
+                    key: key,
+                    name: pname,
+                    hi_name: hi,
+                    sign: sign,
+                    sign_name: RASHI_NAMES[sign],
+                    lon: sidereal,
+                    deg: deg,
+                    min: min,
+                    is_retro: !!isRetro,
+                    nakshatra: NAKSHATRAS_27[nakN] || '#' + nakN,
+                    pada: pd,
+                    house: house
+                };
+            }
+
+            const planetsList = [
+                formatPlanetObj('Asc', 'Lagna', 'लग्न', ascNatal.deg, false),
+                formatPlanetObj('Sun', 'Sun', 'सूर्य', sunNatal.sidereal, false),
+                formatPlanetObj('Moon', 'Moon', 'चन्द्र', moonNatal.sidereal, false),
+                formatPlanetObj('Mars', 'Mars', 'मंगल', marsNatal.sidereal, false),
+                formatPlanetObj('Mercury', 'Mercury', 'बुध', mercNatal.sidereal, true),
+                formatPlanetObj('Jupiter', 'Jupiter', 'गुरु', jupNatal.sidereal, false),
+                formatPlanetObj('Venus', 'Venus', 'शुक्र', venNatal.sidereal, false),
+                formatPlanetObj('Saturn', 'Saturn', 'शनि', satNatal.sidereal, true),
+                formatPlanetObj('Rahu', 'Rahu', 'राहु', rahuSid, false),
+                formatPlanetObj('Ketu', 'Ketu', 'केतु', ketuSid, false)
+            ];
 
             renderNatalKundliCard(name, {
                 moon_sign: childMoonSign,
@@ -824,7 +1024,8 @@
                 sun_sign: sunNatal.rashi,
                 sun_sign_name: RASHI_NAMES[sunNatal.rashi],
                 jup_sign: jupNatal.rashi,
-                jup_sign_name: RASHI_NAMES[jupNatal.rashi]
+                jup_sign_name: RASHI_NAMES[jupNatal.rashi],
+                planets: planetsList
             });
 
             const UPANAYANA_NAKSHATRAS = new Set([1, 4, 5, 7, 8, 12, 13, 14, 15, 16, 17, 21, 23, 26, 27]);

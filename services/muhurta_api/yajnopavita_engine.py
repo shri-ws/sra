@@ -88,6 +88,95 @@ def calculate_natal_kundli(
     res_jup, _ = swe.calc_ut(jd_ut, swe.JUPITER, flags)
     jup_sign = int(res_jup[0] // 30) + 1
 
+    planet_defs = [
+        ("Sun", swe.SUN, "सूर्य"),
+        ("Moon", swe.MOON, "चन्द्र"),
+        ("Mars", swe.MARS, "मंगल"),
+        ("Mercury", swe.MERCURY, "बुध"),
+        ("Jupiter", swe.JUPITER, "गुरु"),
+        ("Venus", swe.VENUS, "शुक्र"),
+        ("Saturn", swe.SATURN, "शनि"),
+        ("Rahu", swe.MEAN_NODE, "राहु")
+    ]
+
+    planets_data = []
+    
+    # Lagna
+    asc_deg = int(ascendant_lon % 30)
+    asc_min = int(((ascendant_lon % 30) - asc_deg) * 60)
+    asc_nak_num = int(ascendant_lon // (360.0 / 27.0)) + 1
+    asc_nak_deg = ascendant_lon % (360.0 / 27.0)
+    asc_pada = int(asc_nak_deg // (360.0 / 27.0 / 4.0)) + 1
+    
+    planets_data.append({
+        "key": "Asc",
+        "name": "Lagna",
+        "hi_name": "लग्न",
+        "sign": ascendant_sign,
+        "sign_name": RASHI_NAMES[ascendant_sign],
+        "lon": ascendant_lon,
+        "deg": asc_deg,
+        "min": asc_min,
+        "is_retro": False,
+        "nakshatra": NAKSHATRA_NAMES[asc_nak_num] if asc_nak_num < len(NAKSHATRA_NAMES) else str(asc_nak_num),
+        "pada": asc_pada,
+        "house": 1
+    })
+
+    for pkey, pid, phi in planet_defs:
+        pres, _ = swe.calc_ut(jd_ut, pid, flags)
+        plon = pres[0]
+        psign = int(plon // 30) + 1
+        pdeg = int(plon % 30)
+        pmin = int(((plon % 30) - pdeg) * 60)
+        is_retro = pres[3] < 0 if pkey not in ["Sun", "Moon", "Rahu"] else False
+        
+        pnak_num = int(plon // (360.0 / 27.0)) + 1
+        pnak_deg = plon % (360.0 / 27.0)
+        ppada = int(pnak_deg // (360.0 / 27.0 / 4.0)) + 1
+        phouse = ((psign - ascendant_sign + 12) % 12) + 1
+
+        planets_data.append({
+            "key": pkey,
+            "name": pkey,
+            "hi_name": phi,
+            "sign": psign,
+            "sign_name": RASHI_NAMES[psign],
+            "lon": plon,
+            "deg": pdeg,
+            "min": pmin,
+            "is_retro": is_retro,
+            "nakshatra": NAKSHATRA_NAMES[pnak_num] if pnak_num < len(NAKSHATRA_NAMES) else str(pnak_num),
+            "pada": ppada,
+            "house": phouse
+        })
+
+    # Ketu
+    rahu_obj = next(p for p in planets_data if p["key"] == "Rahu")
+    ketu_lon = (rahu_obj["lon"] + 180.0) % 360.0
+    ketu_sign = int(ketu_lon // 30) + 1
+    ketu_deg = int(ketu_lon % 30)
+    ketu_min = int(((ketu_lon % 30) - ketu_deg) * 60)
+    knak_num = int(ketu_lon // (360.0 / 27.0)) + 1
+    knak_deg = ketu_lon % (360.0 / 27.0)
+    kpada = int(knak_deg // (360.0 / 27.0 / 4.0)) + 1
+    khouse = ((ketu_sign - ascendant_sign + 12) % 12) + 1
+
+    planets_data.append({
+        "key": "Ketu",
+        "name": "Ketu",
+        "hi_name": "केतु",
+        "sign": ketu_sign,
+        "sign_name": RASHI_NAMES[ketu_sign],
+        "lon": ketu_lon,
+        "deg": ketu_deg,
+        "min": ketu_min,
+        "is_retro": False,
+        "nakshatra": NAKSHATRA_NAMES[knak_num] if knak_num < len(NAKSHATRA_NAMES) else str(knak_num),
+        "pada": kpada,
+        "house": khouse
+    })
+
     return {
         "dob": dob_str,
         "tob": tob_str,
@@ -104,7 +193,8 @@ def calculate_natal_kundli(
         "sun_sign": sun_sign,
         "sun_sign_name": RASHI_NAMES[sun_sign],
         "jup_sign": jup_sign,
-        "jup_sign_name": RASHI_NAMES[jup_sign]
+        "jup_sign_name": RASHI_NAMES[jup_sign],
+        "planets": planets_data
     }
 
 def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str, Any]:
