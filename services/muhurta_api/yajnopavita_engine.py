@@ -13,9 +13,6 @@ PLANET_IDS = {
 }
 
 # Muhūrta Cintāmaṇi Prescribed Constellations for Upanayana (1-indexed)
-# Hasta(13), Chitra(14), Swati(15), Vishakha(16), Anuradha(17), Rohini(4), 
-# U.Phal(12), U.Ashadha(21), U.Bhadra(26), Revati(27), Ashwini(1), 
-# Mrigashira(5), Punarvasu(7), Pushya(8), Dhanishta(23)
 UPANAYANA_NAKSHATRAS = {1, 4, 5, 7, 8, 12, 13, 14, 15, 16, 17, 21, 23, 26, 27}
 
 # Prohibited Tithis: 4, 9, 14 (Rikta), 30 (Amavasya), 6, 8, 12, etc.
@@ -53,6 +50,64 @@ def get_julian_day(dt_utc: datetime) -> float:
         dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0
     )
 
+def calculate_natal_kundli(
+    dob_str: str,
+    tob_str: str,
+    lat: float,
+    lon: float,
+    tz_offset_hours: float = 5.5
+) -> Dict[str, Any]:
+    """
+    Computes Child's Natal Kundli: Janma Rashi (Moon Sign), Janma Nakshatra + Pada, and Lagna.
+    """
+    # Parse DOB & TOB
+    dt_local = datetime.strptime(f"{dob_str} {tob_str}", "%Y-%m-%d %H:%M")
+    dt_utc = dt_local - timedelta(hours=tz_offset_hours)
+    jd_ut = get_julian_day(dt_utc)
+
+    flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED
+
+    # Moon sidereal longitude
+    res_moon, _ = swe.calc_ut(jd_ut, swe.MOON, flags)
+    moon_lon = res_moon[0]
+    moon_rashi = int(moon_lon // 30) + 1
+    
+    nak_num = int(moon_lon // (360.0 / 27.0)) + 1
+    nak_degree_in = moon_lon % (360.0 / 27.0)
+    pada = int(nak_degree_in // (360.0 / 27.0 / 4.0)) + 1
+    nak_name = NAKSHATRA_NAMES[nak_num] if nak_num < len(NAKSHATRA_NAMES) else str(nak_num)
+
+    # Ascendant (Lagna)
+    cusps, ascmc = swe.houses_ex(jd_ut, lat, lon, b'E', flags)
+    ascendant_lon = ascmc[0]
+    ascendant_sign = int(ascendant_lon // 30) + 1
+
+    # Sun & Jupiter signs
+    res_sun, _ = swe.calc_ut(jd_ut, swe.SUN, flags)
+    sun_sign = int(res_sun[0] // 30) + 1
+
+    res_jup, _ = swe.calc_ut(jd_ut, swe.JUPITER, flags)
+    jup_sign = int(res_jup[0] // 30) + 1
+
+    return {
+        "dob": dob_str,
+        "tob": tob_str,
+        "lat": lat,
+        "lon": lon,
+        "tz_offset": tz_offset_hours,
+        "moon_sign": moon_rashi,
+        "moon_sign_name": RASHI_NAMES[moon_rashi],
+        "nakshatra": nak_num,
+        "nakshatra_name": nak_name,
+        "pada": pada,
+        "lagna_sign": ascendant_sign,
+        "lagna_name": RASHI_NAMES[ascendant_sign],
+        "sun_sign": sun_sign,
+        "sun_sign_name": RASHI_NAMES[sun_sign],
+        "jup_sign": jup_sign,
+        "jup_sign_name": RASHI_NAMES[jup_sign]
+    }
+
 def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str, Any]:
     flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED
     planets = {}
@@ -75,7 +130,7 @@ def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str,
         "nakshatra": int(ketu_lon // (360.0 / 27.0)) + 1
     }
 
-    # Ascendant and 12 Bhavas (Equal House System / Porphyry)
+    # Ascendant and 12 Bhavas
     cusps, ascmc = swe.houses_ex(jd_ut, lat, lon, b'E', flags)
     ascendant_lon = ascmc[0]
     ascendant_sign = int(ascendant_lon // 30) + 1
@@ -100,7 +155,7 @@ def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str,
     jup_combust = abs((planets["Jupiter"]["lon"] - sun_lon + 180) % 360 - 180) < 11.0
     ven_combust = abs((planets["Venus"]["lon"] - sun_lon + 180) % 360 - 180) < 9.0
 
-    # Uttarāyaṇa: Sun in signs 10 (Capricorn), 11, 12, 1, 2, 3
+    # Uttarāyaṇa: Sun in signs 10, 11, 12, 1, 2, 3
     is_uttarayana = planets["Sun"]["sign"] in {10, 11, 12, 1, 2, 3}
 
     # Bhadrā (Viṣṭi Karaṇa)
@@ -126,14 +181,11 @@ def evaluate_yajnopavita_slot(
     lon: float,
     child_moon_sign: int
 ) -> Optional[Dict[str, Any]]:
-    # Convert local time to UTC
     dt_utc = dt_local.astimezone(timezone.utc)
     jd = get_julian_day(dt_utc)
     state = calculate_astronomy_state(jd, lat, lon)
 
     weekday = dt_local.weekday()
-    # Python weekday: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
-    # Normalize: Sunday=0, Monday=1, Tuesday=2, Wednesday=3, Thursday=4, Friday=5, Saturday=6
     py_to_vedic_varna = {6: 0, 0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6}
     vedic_varna = py_to_vedic_varna[weekday]
 
@@ -178,7 +230,7 @@ def evaluate_yajnopavita_slot(
     if sun_house_from_moon in {4, 8, 12}:
         return None  # Unfavorable Surya Bala
 
-    # Rule 9: Pāpa-Kartarī Check (12th and 2nd from Lagna must not both contain malefics)
+    # Rule 9: Pāpa-Kartarī Check
     malefics = {"Sun", "Mars", "Saturn", "Rahu", "Ketu"}
     h12_malefics = set(state["houses"][12]).intersection(malefics)
     h2_malefics = set(state["houses"][2]).intersection(malefics)
@@ -214,15 +266,12 @@ def scan_yajnopavita_window(
     current = start_date
     end = start_date + timedelta(days=days)
     
-    # Scan in 20-minute steps
     step = timedelta(minutes=20)
     while current < end:
-        # Daytime restriction: 06:30 AM to 05:30 PM local
         if 6 <= current.hour < 17 or (current.hour == 17 and current.minute <= 30):
             match = evaluate_yajnopavita_slot(current, lat, lon, child_moon_sign)
             if match:
                 valid_slots.append(match)
-                # Skip 90 minutes forward upon finding a valid window
                 current += timedelta(minutes=90)
                 continue
         current += step

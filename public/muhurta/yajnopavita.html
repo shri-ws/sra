@@ -190,7 +190,7 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 16px;
         }
         .form-group {
@@ -243,6 +243,53 @@
             transform: translateY(-1px);
             box-shadow: 0 8px 25px rgba(140, 109, 43, 0.4);
             background: linear-gradient(135deg, #E8C96C 0%, #C9A84C 100%);
+        }
+
+        /* NATAL KUNDLI CARD */
+        .natal-card {
+            background: linear-gradient(135deg, #2A1F1D 0%, #380B12 100%);
+            border: 1px solid var(--gold);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            color: #FFF;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .natal-title {
+            font-family: 'Rozha One', serif;
+            color: var(--gold2);
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+            padding-bottom: 6px;
+        }
+        .natal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            font-size: 13px;
+        }
+        .natal-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(201, 168, 76, 0.15);
+        }
+        .natal-item-label {
+            font-size: 11px;
+            color: var(--gold-light);
+            opacity: 0.8;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .natal-item-val {
+            font-size: 14px;
+            font-weight: 700;
+            color: #FFF;
+            margin-top: 2px;
         }
 
         /* RESULTS AREA */
@@ -381,18 +428,6 @@
             border-radius: 14px;
             font-size: 14px;
         }
-
-        /* Toast Container */
-        #toastContainer {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -417,62 +452,66 @@
         <div class="hero-banner">
             <h1 class="hero-title" id="txtTitle">यज्ञोपवीत (उपनयन) संस्कार मुहूर्त विश्लेषक</h1>
             <p class="hero-subtitle" id="txtSubtitle">
-                मुहूर्तचिन्तामणि (संस्कार प्रकरण) एवं यथार्थ केपलरियन खगोलीय सिद्धान्तों पर आधारित उत्तरायण, त्रिबल शुद्धि (सूर्य, चन्द्र, गुरु), अष्टम भाव शुद्धि एवं पञ्चाङ्ग शोधन युक्त।
+                बालक जन्म विवरण (तिथि, समय, स्थान) द्वारा जन्म कुण्डली (राशि, नक्षत्र, लग्न) का यथार्थ साधन एवं मुहूर्तचिन्तामणि अनुसार त्रिबल, अष्टम भाव व पञ्चाङ्ग शोधन।
             </p>
             <div class="hero-tags">
+                <span class="hero-tag">👦 बालक जन्म कुण्डली साधन</span>
                 <span class="hero-tag">✨ उत्तरायण विचार</span>
                 <span class="hero-tag">☀️ सूर्य-चन्द्र-गुरु त्रिबल</span>
                 <span class="hero-tag">🛡️ अष्टम भाव शुद्धि</span>
-                <span class="hero-tag">🚫 भद्रा व मौढ्य परिहार</span>
             </div>
         </div>
 
         <!-- INPUT CARD -->
         <div class="input-card">
             <div class="card-header">
-                <span>📋 बालक जन्म विवरण एवं शोधन मापदण्ड</span>
+                <span>👦 बालक जन्म विवरण (Child Natal Birth Details)</span>
             </div>
             
             <div class="form-grid">
                 
                 <div class="form-group">
-                    <label class="form-label" id="lblRashi">बालक की जन्म राशि (Janma Rashi)</label>
-                    <select id="moonSign" class="form-control">
-                        <option value="1">1. मेष (Aries)</option>
-                        <option value="2">2. वृषभ (Taurus)</option>
-                        <option value="3">3. मिथुन (Gemini)</option>
-                        <option value="4">4. कर्क (Cancer)</option>
-                        <option value="5">5. सिंह (Leo)</option>
-                        <option value="6">6. कन्या (Virgo)</option>
-                        <option value="7">7. तुला (Libra)</option>
-                        <option value="8">8. वृश्चिक (Scorpio)</option>
-                        <option value="9">9. धनु (Sagittarius)</option>
-                        <option value="10">10. मकर (Capricorn)</option>
-                        <option value="11">11. कुम्भ (Aquarius)</option>
-                        <option value="12">12. मीन (Pisces)</option>
-                    </select>
+                    <label class="form-label">बालक का नाम (Child Name)</label>
+                    <input type="text" id="childName" class="form-control" value="बालक (Child)">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" id="lblCity">स्थान (City / Location)</label>
+                    <label class="form-label">जन्म दिनांक (Birth Date - DOB)</label>
+                    <input type="date" id="childDob" class="form-control" value="2015-05-10">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">जन्म समय (Birth Time - TOB)</label>
+                    <input type="time" id="childTob" class="form-control" value="10:30">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">जन्म स्थान (Birthplace Location)</label>
                     <select id="geoCoords" class="form-control">
-                        <option value="26.8467,80.9462">Lucknow (लखनऊ) [26.84° N, 80.94° E]</option>
-                        <option value="28.6139,77.2090">New Delhi (नई दिल्ली) [28.61° N, 77.20° E]</option>
-                        <option value="25.3176,82.9739">Varanasi (वाराणसी) [25.31° N, 82.97° E]</option>
-                        <option value="19.0760,72.8777">Mumbai (मुंबई) [19.07° N, 72.87° E]</option>
-                        <option value="22.5726,88.3639">Kolkata (कोलकाता) [22.57° N, 88.36° E]</option>
-                        <option value="13.0827,80.2707">Chennai (चेन्नई) [13.08° N, 80.27° E]</option>
-                        <option value="12.9716,77.5946">Bengaluru (बेंगलुरु) [12.97° N, 77.59° E]</option>
+                        <option value="26.8467,80.9462,5.5">Lucknow (लखनऊ) [26.84° N, 80.94° E, UTC+5.5]</option>
+                        <option value="28.6139,77.2090,5.5">New Delhi (नई दिल्ली) [28.61° N, 77.20° E, UTC+5.5]</option>
+                        <option value="25.3176,82.9739,5.5">Varanasi (वाराणसी) [25.31° N, 82.97° E, UTC+5.5]</option>
+                        <option value="19.0760,72.8777,5.5">Mumbai (मुंबई) [19.07° N, 72.87° E, UTC+5.5]</option>
+                        <option value="22.5726,88.3639,5.5">Kolkata (कोलकाता) [22.57° N, 88.36° E, UTC+5.5]</option>
+                        <option value="13.0827,80.2707,5.5">Chennai (चेन्नई) [13.08° N, 80.27° E, UTC+5.5]</option>
+                        <option value="12.9716,77.5946,5.5">Bengaluru (बेंगलुरु) [12.97° N, 77.59° E, UTC+5.5]</option>
                     </select>
                 </div>
 
+            </div>
+
+            <div class="card-header" style="margin-top: 24px;">
+                <span>🪔 मुहूर्त शोधन मापदण्ड (Search Window Parameters)</span>
+            </div>
+
+            <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label" id="lblStartDate">खोज आरम्भ दिनांक (Start Date)</label>
+                    <label class="form-label">खोज आरम्भ दिनांक (Start Date)</label>
                     <input type="date" id="startDate" class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" id="lblDuration">शोधन अवधि (Scan Window)</label>
+                    <label class="form-label">शोधन अवधि (Scan Duration)</label>
                     <select id="scanDays" class="form-control">
                         <option value="7">अगले 7 दिन (7 Days)</option>
                         <option value="15">अगले 15 दिन (15 Days)</option>
@@ -481,11 +520,10 @@
                         <option value="90">अगले 90 दिन (90 Days)</option>
                     </select>
                 </div>
-
             </div>
 
             <button onclick="calculateUpanayana()" class="btn-calc" id="btnCalculate">
-                <span>🪔 शुद्ध यज्ञोपवीत मुहूर्त खोजें</span>
+                <span>🪔 बालक कुण्डली साधन एवं शुद्ध यज्ञोपवीत मुहूर्त खोजें</span>
             </button>
         </div>
 
@@ -494,13 +532,15 @@
             
             <div id="loader" class="loader">
                 <div class="spinner"></div>
-                <p style="font-weight: 700; color: var(--primary);">संस्कार श्लोकों एवं स्विस एफिमेरिस द्वारा सूक्ष्म शोधन जारी है...</p>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">त्रिबल, अष्टम शुद्धि एवं पञ्चाङ्ग गणना...</p>
+                <p style="font-weight: 700; color: var(--primary);">बालक जन्म कुण्डली साधन एवं पञ्चाङ्ग त्रिबल शोधन जारी है...</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">स्विस एफिमेरिस एवं संस्कार श्लोक गणना...</p>
             </div>
+
+            <div id="natalKundliContainer"></div>
 
             <div id="resultsContent">
                 <div class="empty-state">
-                    विवरण भरें एवं "शुद्ध यज्ञोपवीत मुहूर्त खोजें" बटन पर क्लिक करें।
+                    बालक जन्म तिथि, समय और स्थान भरें एवं "बालक कुण्डली साधन एवं मुहूर्त खोजें" बटन पर क्लिक करें।
                 </div>
             </div>
 
@@ -508,96 +548,96 @@
 
     </div>
 
-    <div id="toastContainer"></div>
-
     <script>
         let currentLang = 'hi';
-
         document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
 
-        const I18N = {
-            hi: {
-                title: "यज्ञोपवीत (उपनयन) संस्कार मुहूर्त विश्लेषक",
-                subtitle: "मुहूर्तचिन्तामणि (संस्कार प्रकरण) एवं यथार्थ केपलरियन खगोलीय सिद्धान्तों पर आधारित उत्तरायण, त्रिबल शुद्धि (सूर्य, चन्द्र, गुरु), अष्टम भाव शुद्धि एवं पञ्चाङ्ग शोधन युक्त।",
-                rashi: "बालक की जन्म राशि (Janma Rashi)",
-                city: "स्थान (City / Location)",
-                startDate: "खोज आरम्भ दिनांक (Start Date)",
-                duration: "शोधन अवधि (Scan Window)",
-                btnCalc: "🪔 शुद्ध यज्ञोपवीत मुहूर्त खोजें",
-                btnLang: "English",
-                emptyMsg: "विवरण भरें एवं \"शुद्ध यज्ञोपवीत मुहूर्त खोजें\" बटन पर क्लिक करें।",
-                searchingMsg: "संस्कार श्लोकों एवं स्विस एफिमेरिस द्वारा सूक्ष्म शोधन जारी है...",
-                notFoundMsg: "दी गई अवधि में कोई शुद्ध यज्ञोपवीत मुहूर्त प्राप्त नहीं हुआ। (दक्षिणायन, भद्रा, अष्टम अशुद्धि अथवा त्रिबल दोष)।"
-            },
-            en: {
-                title: "Yajnopavita (Upanayana) Muhurta Analyzer",
-                subtitle: "Based on Muhurta Chintamani (Samskara Prakarana) & Keplerian Sidereal Calculations. Scrutinizes Uttarayana, Tribala (Sun, Moon, Jupiter), Astama Suddhi & Panchanga rules.",
-                rashi: "Child's Natal Moon Sign (Janma Rashi)",
-                city: "Location (City / Coordinates)",
-                startDate: "Search Start Date",
-                duration: "Scan Window",
-                btnCalc: "🪔 Search Pure Upanayana Muhurtas",
-                btnLang: "हिन्दी",
-                emptyMsg: "Enter details above and click \"Search Pure Upanayana Muhurtas\".",
-                searchingMsg: "Scrutinizing scriptural shlokas & sidereal ephemeris...",
-                notFoundMsg: "No pure Yajnopavita Muhurta found in the selected date range (Dakshinayana, Bhadra, 8th House affliction, or Tribala fault)."
-            }
-        };
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'hi' ? 'en' : 'hi';
-            const lang = I18N[currentLang];
-            document.getElementById('txtTitle').textContent = lang.title;
-            document.getElementById('txtSubtitle').textContent = lang.subtitle;
-            document.getElementById('lblRashi').textContent = lang.rashi;
-            document.getElementById('lblCity').textContent = lang.city;
-            document.getElementById('lblStartDate').textContent = lang.startDate;
-            document.getElementById('lblDuration').textContent = lang.duration;
-            document.getElementById('btnCalculate').innerHTML = `<span>${lang.btnCalc}</span>`;
-            document.querySelector('.lang-switch').textContent = lang.btnLang;
-        }
+        const RASHI_NAMES = ["", "Meṣa (Aries)", "Vṛṣabha (Taurus)", "Mithuna (Gemini)", "Karka (Cancer)", "Siṁha (Leo)", "Kanyā (Virgo)", "Tulā (Libra)", "Vṛścika (Scorpio)", "Dhanu (Sagittarius)", "Makara (Capricorn)", "Kumbha (Aquarius)", "Mīna (Pisces)"];
+        const NAKSHATRAS_27 = ["", "Aśvinī", "Bharaṇī", "Kṛttikā", "Rohiṇī", "Mṛgaśirā", "Ārdrā", "Punarvasu", "Puṣya", "Āśleṣā", "Maghā", "Pūrvāphālgunī", "Uttarāphālgunī", "Hasta", "Citrā", "Svātī", "Viśākhā", "Anurādhā", "Jyeshṭhā", "Mūla", "Pūrvāṣāḍhā", "Uttarāṣāḍhā", "Śravaṇa", "Dhaniṣṭhā", "Śatabhiṣā", "Pūrvābhādrapadā", "Uttarābhādrapadā", "Revatī"];
 
         async function calculateUpanayana() {
-            const [lat, lon] = document.getElementById('geoCoords').value.split(',');
-            const moonSign = document.getElementById('moonSign').value;
+            const childName = document.getElementById('childName').value;
+            const childDob = document.getElementById('childDob').value;
+            const childTob = document.getElementById('childTob').value;
+            const [lat, lon, tz] = document.getElementById('geoCoords').value.split(',');
             const startDate = document.getElementById('startDate').value;
             const days = document.getElementById('scanDays').value;
 
             const loader = document.getElementById('loader');
+            const natalBox = document.getElementById('natalKundliContainer');
             const content = document.getElementById('resultsContent');
 
             content.innerHTML = '';
+            natalBox.innerHTML = '';
             loader.style.display = 'block';
 
             try {
-                const response = await fetch(`/api/muhurta/yajnopavita?moon_sign=${moonSign}&lat=${lat}&lon=${lon}&start_date=${startDate}&days=${days}`);
+                const url = `/api/muhurta/yajnopavita?child_dob=${childDob}&child_tob=${childTob}&child_lat=${lat}&child_lon=${lon}&child_tz=${tz}&lat=${lat}&lon=${lon}&start_date=${startDate}&days=${days}`;
+                const response = await fetch(url);
                 
                 if (response.ok) {
                     const data = await response.json();
                     loader.style.display = 'none';
-                    renderResults(data.results || []);
+
+                    if (data.natal_kundli) {
+                        renderNatalKundliCard(childName, data.natal_kundli);
+                    }
+                    renderResults(data.results || [], data.moon_sign);
                 } else {
-                    runClientEngine(parseFloat(lat), parseFloat(lon), parseInt(moonSign), startDate, parseInt(days));
+                    runClientEngine(childName, childDob, childTob, parseFloat(lat), parseFloat(lon), parseFloat(tz), startDate, parseInt(days));
                 }
             } catch (err) {
-                runClientEngine(parseFloat(lat), parseFloat(lon), parseInt(moonSign), startDate, parseInt(days));
+                runClientEngine(childName, childDob, childTob, parseFloat(lat), parseFloat(lon), parseFloat(tz), startDate, parseInt(days));
             }
         }
 
-        function renderResults(slots) {
+        function renderNatalKundliCard(name, natal) {
+            const natalBox = document.getElementById('natalKundliContainer');
+            natalBox.innerHTML = `
+                <div class="natal-card">
+                    <div class="natal-title">
+                        <span>👦</span>
+                        <span>${name} — जन्म कुण्डली परिचय (Natal Kundli Summary)</span>
+                    </div>
+                    <div class="natal-grid">
+                        <div class="natal-item">
+                            <div class="natal-item-label">जन्म राशि (Moon Sign)</div>
+                            <div class="natal-item-val">${natal.moon_sign_name || RASHI_NAMES[natal.moon_sign]}</div>
+                        </div>
+                        <div class="natal-item">
+                            <div class="natal-item-label">जन्म नक्षत्र व पद</div>
+                            <div class="natal-item-val">${natal.nakshatra_name || NAKSHATRAS_27[natal.nakshatra]} (पद ${natal.pada})</div>
+                        </div>
+                        <div class="natal-item">
+                            <div class="natal-item-label">जन्म लग्न (Natal Lagna)</div>
+                            <div class="natal-item-val">${natal.lagna_name || RASHI_NAMES[natal.lagna_sign]}</div>
+                        </div>
+                        <div class="natal-item">
+                            <div class="natal-item-label">सूर्य राशि (Sun Sign)</div>
+                            <div class="natal-item-val">${natal.sun_sign_name || RASHI_NAMES[natal.sun_sign]}</div>
+                        </div>
+                        <div class="natal-item">
+                            <div class="natal-item-label">गुरु राशि (Jupiter Sign)</div>
+                            <div class="natal-item-val">${natal.jup_sign_name || RASHI_NAMES[natal.jup_sign]}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderResults(slots, moonSign) {
             const content = document.getElementById('resultsContent');
-            const lang = I18N[currentLang];
 
             if (!slots || slots.length === 0) {
                 content.innerHTML = `<div class="empty-state" style="color: var(--fail-text); background: var(--fail-bg); border-color: rgba(183,28,28,0.2); font-weight: 700;">
-                    ${lang.notFoundMsg}
+                    दी गई अवधि में बालक की कुण्डली के अनुसार कोई शुद्ध यज्ञोपवीत मुहूर्त प्राप्त नहीं हुआ। (दक्षिणायन, भद्रा, अष्टम अशुद्धि अथवा त्रिबल दोष)।
                 </div>`;
                 return;
             }
 
             let html = `
                 <div class="results-summary">
-                    <div><strong>शोधन परिणाम:</strong> दी गई अवधि में <span class="summary-badge">${slots.length} शुद्ध मुहूर्त</span> प्राप्त हुए।</div>
+                    <div><strong>शोधन परिणाम:</strong> दी गई अवधि में बालक की जन्म राशि (${RASHI_NAMES[moonSign] || 'राशि #' + moonSign}) हेतु <span class="summary-badge">${slots.length} शुद्ध मुहूर्त</span> प्राप्त हुए।</div>
                     <div style="font-size: 12px; color: var(--text-muted);">शास्त्रोक्त: उत्तरायण • त्रिबल शुद्ध • अष्टम निर्दोष</div>
                 </div>
             `;
@@ -643,16 +683,45 @@
             content.innerHTML = html;
         }
 
-        function runClientEngine(lat, lon, childMoonSign, startDateStr, days) {
+        function runClientEngine(name, dob, tob, lat, lon, tz, startDateStr, days) {
             const loader = document.getElementById('loader');
             loader.style.display = 'none';
+
+            const dobParts = dob.split('-');
+            const tobParts = tob.split(':');
+            const dobDate = new Date(Date.UTC(parseInt(dobParts[0]), parseInt(dobParts[1]) - 1, parseInt(dobParts[2]), parseInt(tobParts[0]) - tz, parseInt(tobParts[1])));
+            
+            const jdNatal = toJulianDay(dobDate.getUTCFullYear(), dobDate.getUTCMonth() + 1, dobDate.getUTCDate(), dobDate.getUTCHours() + dobDate.getUTCMinutes() / 60.0);
+            const TNatal = (jdNatal - 2451545.0) / 36525.0;
+            const ayanamsaNatal = 23.85 + (TNatal * 100) * 0.013972;
+
+            const moonNatal = getMoonSidereal(TNatal, ayanamsaNatal);
+            const sunNatal = getSunSidereal(TNatal, ayanamsaNatal);
+            const jupNatal = getGeocentricPlanet('jupiter', TNatal, ayanamsaNatal);
+            const ascNatal = computeAscendant(jdNatal, TNatal, dobDate.getUTCHours(), lat, lon, ayanamsaNatal);
+
+            const childMoonSign = moonNatal.rashi;
+            const nakNum = Math.floor(moonNatal.sidereal / (360 / 27)) + 1;
+            const nakDegree = moonNatal.sidereal % (360 / 27);
+            const pada = Math.floor(nakDegree / (360 / 27 / 4)) + 1;
+
+            renderNatalKundliCard(name, {
+                moon_sign: childMoonSign,
+                moon_sign_name: RASHI_NAMES[childMoonSign],
+                nakshatra: nakNum,
+                nakshatra_name: NAKSHATRAS_27[nakNum] || '#' + nakNum,
+                pada: pada,
+                lagna_sign: ascNatal.rashi,
+                lagna_name: RASHI_NAMES[ascNatal.rashi],
+                sun_sign: sunNatal.rashi,
+                sun_sign_name: RASHI_NAMES[sunNatal.rashi],
+                jup_sign: jupNatal.rashi,
+                jup_sign_name: RASHI_NAMES[jupNatal.rashi]
+            });
 
             const UPANAYANA_NAKSHATRAS = new Set([1, 4, 5, 7, 8, 12, 13, 14, 15, 16, 17, 21, 23, 26, 27]);
             const PROHIBITED_TITHIS = new Set([4, 6, 8, 9, 12, 14, 19, 21, 23, 24, 27, 29, 30]);
             const PERMISSIBLE_WEEKDAYS = new Set([0, 1, 3, 4, 5]);
-
-            const NAK_NAMES = ["", "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha", "P.Phalguni", "U.Phalguni", "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Moola", "P.Ashadha", "U.Ashadha", "Shravana", "Dhanishta", "Shatabhisha", "P.Bhadrapada", "U.Bhadrapada", "Revati"];
-            const RASHI_NAMES = ["", "Mesha", "Vrishabha", "Mithun", "Karka", "Simha", "Kanya", "Tula", "Vrishchik", "Dhanu", "Makara", "Kumbha", "Meen"];
 
             const startDt = new Date(startDateStr + 'T07:00:00Z');
             const endDt = new Date(startDt.getTime() + days * 24 * 3600 * 1000);
@@ -688,7 +757,7 @@
                                 tithi: tithi,
                                 tithi_name: 'Tithi #' + tithi,
                                 nakshatra: nakshatra,
-                                nakshatra_name: NAK_NAMES[nakshatra] || '#' + nakshatra,
+                                nakshatra_name: NAKSHATRAS_27[nakshatra] || '#' + nakshatra,
                                 lagna_sign: asc.rashi,
                                 lagna_name: RASHI_NAMES[asc.rashi] || '#' + asc.rashi,
                                 guru_bala_house: jupBala,
@@ -704,7 +773,7 @@
                 cur.setTime(cur.getTime() + 30 * 60 * 1000);
             }
 
-            renderResults(results);
+            renderResults(results, childMoonSign);
         }
 
         function normalizeDegrees(x) { x = x % 360; return x < 0 ? x + 360 : x; }
