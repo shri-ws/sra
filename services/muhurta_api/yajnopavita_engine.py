@@ -15,8 +15,14 @@ PLANET_IDS = {
 # Muhūrta Cintāmaṇi Prescribed Constellations for Upanayana (1-indexed)
 UPANAYANA_NAKSHATRAS = {1, 4, 5, 7, 8, 12, 13, 14, 15, 16, 17, 21, 23, 26, 27}
 
-# Prohibited Tithis: 4, 9, 14 (Rikta), 30 (Amavasya), 6, 8, 12, etc.
+# Top Choice Asterisms for Upanayana
+SUPREME_NAKSHATRAS = {4, 8, 12, 13, 14, 15, 21, 26, 27} # Rohini, Pushya, U.Phalguni, Hasta, Chitra, Swati, U.Ashadha, U.Bhadra, Revati
+
+# Prohibited Tithis
 PROHIBITED_TITHIS = {4, 6, 8, 9, 12, 14, 19, 21, 23, 24, 27, 29, 30}
+
+# Top Tithis (Sukla Paksha 2, 3, 5, 7, 10, 11, 13)
+SUPREME_TITHIS = {2, 3, 5, 7, 10, 11, 13}
 
 # Permissible Weekdays: 0 (Sunday), 1 (Monday), 3 (Wednesday), 4 (Thursday), 5 (Friday)
 PERMISSIBLE_WEEKDAYS = {0, 1, 3, 4, 5}
@@ -24,7 +30,7 @@ PERMISSIBLE_WEEKDAYS = {0, 1, 3, 4, 5}
 NAKSHATRA_NAMES = [
     "", "Aśvinī", "Bharaṇī", "Kṛttikā", "Rohiṇī", "Mṛgaśirā", "Ārdrā",
     "Punarvasu", "Puṣya", "Āśleṣā", "Maghā", "Pūrvāphālgunī", "Uttarāphālgunī",
-    "Hasta", "Citrā", "Svātī", "Viśākhā", "Anurādhā", "Jyeṣṭhā",
+    "Hasta", "Citrā", "Svātī", "Viśākhā", "Anurādhā", "Jyeshṭhā",
     "Mūla", "Pūrvāṣāḍhā", "Uttarāṣāḍhā", "Śravaṇa", "Dhaniṣṭhā", "Śatabhiṣā",
     "Pūrvābhādrapadā", "Uttarābhādrapadā", "Revatī"
 ]
@@ -57,17 +63,12 @@ def calculate_natal_kundli(
     lon: float,
     tz_offset_hours: float = 5.5
 ) -> Dict[str, Any]:
-    """
-    Computes Child's Natal Kundli: Janma Rashi (Moon Sign), Janma Nakshatra + Pada, and Lagna.
-    """
-    # Parse DOB & TOB
     dt_local = datetime.strptime(f"{dob_str} {tob_str}", "%Y-%m-%d %H:%M")
     dt_utc = dt_local - timedelta(hours=tz_offset_hours)
     jd_ut = get_julian_day(dt_utc)
 
     flags = swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED
 
-    # Moon sidereal longitude
     res_moon, _ = swe.calc_ut(jd_ut, swe.MOON, flags)
     moon_lon = res_moon[0]
     moon_rashi = int(moon_lon // 30) + 1
@@ -77,12 +78,10 @@ def calculate_natal_kundli(
     pada = int(nak_degree_in // (360.0 / 27.0 / 4.0)) + 1
     nak_name = NAKSHATRA_NAMES[nak_num] if nak_num < len(NAKSHATRA_NAMES) else str(nak_num)
 
-    # Ascendant (Lagna)
     cusps, ascmc = swe.houses_ex(jd_ut, lat, lon, b'E', flags)
     ascendant_lon = ascmc[0]
     ascendant_sign = int(ascendant_lon // 30) + 1
 
-    # Sun & Jupiter signs
     res_sun, _ = swe.calc_ut(jd_ut, swe.SUN, flags)
     sun_sign = int(res_sun[0] // 30) + 1
 
@@ -122,7 +121,6 @@ def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str,
             "nakshatra": int(res[0] // (360.0 / 27.0)) + 1
         }
     
-    # Ketu
     ketu_lon = (planets["Rahu"]["lon"] + 180.0) % 360.0
     planets["Ketu"] = {
         "lon": ketu_lon,
@@ -130,18 +128,15 @@ def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str,
         "nakshatra": int(ketu_lon // (360.0 / 27.0)) + 1
     }
 
-    # Ascendant and 12 Bhavas
     cusps, ascmc = swe.houses_ex(jd_ut, lat, lon, b'E', flags)
     ascendant_lon = ascmc[0]
     ascendant_sign = int(ascendant_lon // 30) + 1
 
-    # Map planets to houses from Lagna
     house_occupants = {i: [] for i in range(1, 13)}
     for p_name, p_data in planets.items():
         h = ((p_data["sign"] - ascendant_sign) % 12) + 1
         house_occupants[h].append(p_name)
 
-    # Panchāṅga Calculation
     sun_lon = planets["Sun"]["lon"]
     moon_lon = planets["Moon"]["lon"]
     elongation = (moon_lon - sun_lon) % 360.0
@@ -151,14 +146,10 @@ def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str,
     yoga = int(((sun_lon + moon_lon) % 360.0) // (360.0 / 27.0)) + 1
     karana = int(elongation // 6.0) + 1
 
-    # Combustion (Maudhya)
     jup_combust = abs((planets["Jupiter"]["lon"] - sun_lon + 180) % 360 - 180) < 11.0
     ven_combust = abs((planets["Venus"]["lon"] - sun_lon + 180) % 360 - 180) < 9.0
 
-    # Uttarāyaṇa: Sun in signs 10, 11, 12, 1, 2, 3
     is_uttarayana = planets["Sun"]["sign"] in {10, 11, 12, 1, 2, 3}
-
-    # Bhadrā (Viṣṭi Karaṇa)
     is_bhadra = karana in {7, 14, 21, 28, 35, 42, 49, 56}
 
     return {
@@ -205,7 +196,7 @@ def evaluate_yajnopavita_slot(
     if state["tithi"] in PROHIBITED_TITHIS:
         return None
 
-    # Rule 5: Combustion (Guru/Śukra Maudhya)
+    # Rule 5: Combustion
     if state["combustion"]["jupiter"] or state["combustion"]["venus"]:
         return None
 
@@ -220,15 +211,15 @@ def evaluate_yajnopavita_slot(
     # Rule 8: Tri-Bala (Guru-Bala, Sūrya-Bala, Candra-Bala)
     jup_house_from_moon = ((state["planets"]["Jupiter"]["sign"] - child_moon_sign) % 12) + 1
     if jup_house_from_moon in {4, 8, 12}:
-        return None  # Unfavorable Guru Bala
+        return None
 
     moon_house_from_moon = ((state["planets"]["Moon"]["sign"] - child_moon_sign) % 12) + 1
     if moon_house_from_moon in {4, 8, 12}:
-        return None  # Unfavorable Chandra Bala
+        return None
 
     sun_house_from_moon = ((state["planets"]["Sun"]["sign"] - child_moon_sign) % 12) + 1
     if sun_house_from_moon in {4, 8, 12}:
-        return None  # Unfavorable Surya Bala
+        return None
 
     # Rule 9: Pāpa-Kartarī Check
     malefics = {"Sun", "Mars", "Saturn", "Rahu", "Ketu"}
@@ -236,6 +227,43 @@ def evaluate_yajnopavita_slot(
     h2_malefics = set(state["houses"][2]).intersection(malefics)
     if h12_malefics and h2_malefics:
         return None
+
+    # Compute Muhūrta Quality Score (0-100%)
+    score = 65.0  # Base passing score for passing all 9 mandatory rules
+
+    # Guru Bala Bonus
+    if jup_house_from_moon in {2, 5, 7, 9, 11}:
+        score += 15.0  # Pūrṇa Śubha
+    elif jup_house_from_moon in {1, 3, 6, 10}:
+        score += 8.0   # Madhyama
+
+    # Surya Bala Bonus
+    if sun_house_from_moon in {3, 6, 10, 11}:
+        score += 10.0  # Full strength
+    elif sun_house_from_moon in {1, 2, 5, 7, 9}:
+        score += 5.0
+
+    # Chandra Bala Bonus
+    if moon_house_from_moon in {1, 3, 6, 7, 10, 11}:
+        score += 10.0
+
+    # Supreme Asterism Bonus
+    if state["nakshatra"] in SUPREME_NAKSHATRAS:
+        score += 5.0
+
+    # Supreme Tithi Bonus
+    if state["tithi"] in SUPREME_TITHIS:
+        score += 5.0
+
+    score = min(100.0, round(score, 1))
+
+    # Determine Rank Grade
+    if score >= 95.0:
+        rank_grade = "Grade A+ (सर्वथा निर्दोष - Flawless VIP)"
+    elif score >= 85.0:
+        rank_grade = "Grade A (उत्तम - High Quality)"
+    else:
+        rank_grade = "Grade B (मध्यम - Moderate)"
 
     nak_name = NAKSHATRA_NAMES[state["nakshatra"]] if state["nakshatra"] < len(NAKSHATRA_NAMES) else str(state["nakshatra"])
     tithi_name = TITHI_NAMES[state["tithi"]] if state["tithi"] < len(TITHI_NAMES) else f"Tithi #{state['tithi']}"
@@ -252,6 +280,8 @@ def evaluate_yajnopavita_slot(
         "guru_bala_house": jup_house_from_moon,
         "sun_bala_house": sun_house_from_moon,
         "moon_bala_house": moon_house_from_moon,
+        "score": score,
+        "rank_grade": rank_grade,
         "status": "Śuddha Yajñopavīta Muhūrta"
     }
 
@@ -275,5 +305,12 @@ def scan_yajnopavita_window(
                 current += timedelta(minutes=90)
                 continue
         current += step
+
+    # Sort slots by Muhūrta Score (Highest Rank First)
+    valid_slots.sort(key=lambda x: x["score"], reverse=True)
+
+    # Assign Rank Numbers
+    for index, slot in enumerate(valid_slots, start=1):
+        slot["rank"] = index
 
     return valid_slots

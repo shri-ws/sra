@@ -104,7 +104,6 @@
             cursor: pointer;
         }
 
-        /* MAIN CONTAINER */
         .main-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -112,7 +111,6 @@
             position: relative;
         }
 
-        /* HERO TITLE SECTION */
         .hero-banner {
             text-align: center;
             background: linear-gradient(135deg, #2A1F1D 0%, #4A0E17 100%);
@@ -167,7 +165,6 @@
             font-weight: 600;
         }
 
-        /* INPUT CARD */
         .input-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -197,6 +194,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            position: relative;
         }
         .form-label {
             font-size: 12px;
@@ -218,6 +216,41 @@
         .form-control:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+        }
+
+        .world-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #FFFDF9;
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 500;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: none;
+            margin-top: 4px;
+        }
+        .world-result-item {
+            padding: 10px 14px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-soft);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .world-result-item:hover {
+            background: var(--gold-dim);
+        }
+        .world-result-main {
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .world-result-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
         .btn-calc {
@@ -245,7 +278,6 @@
             background: linear-gradient(135deg, #E8C96C 0%, #C9A84C 100%);
         }
 
-        /* NATAL KUNDLI CARD */
         .natal-card {
             background: linear-gradient(135deg, #2A1F1D 0%, #380B12 100%);
             border: 1px solid var(--gold);
@@ -292,48 +324,50 @@
             margin-top: 2px;
         }
 
-        /* RESULTS AREA */
-        .results-section {
-            margin-top: 24px;
-        }
-        .results-summary {
-            background: #FFFDF9;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px 18px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            font-size: 14px;
-        }
-        .summary-badge {
-            background: var(--primary);
-            color: var(--gold-light);
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-
         .slot-card {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
-            border-left: 5px solid var(--gold);
+            border-left: 6px solid var(--gold);
             border-radius: 14px;
-            padding: 18px 20px;
-            margin-bottom: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             transition: all 0.2s ease;
+            position: relative;
         }
         .slot-card:hover {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             border-color: var(--gold);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #2A1F1D 0%, #4A0E17 100%);
+            color: var(--gold2);
+            border: 1px solid var(--gold);
+            font-weight: 800;
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .score-bar-bg {
+            height: 6px;
+            background: #E2E8F0;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        .score-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #D97706, #059669);
+            border-radius: 4px;
         }
 
         .slot-header {
@@ -344,21 +378,12 @@
             gap: 10px;
         }
         .slot-time {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 800;
             color: var(--primary);
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        .verdict-tag {
-            background: var(--pass-bg);
-            color: var(--pass-text);
-            border: 1px solid rgba(27, 94, 32, 0.2);
-            font-size: 12px;
-            font-weight: 800;
-            padding: 4px 12px;
-            border-radius: 20px;
         }
 
         .slot-details {
@@ -368,7 +393,7 @@
             font-size: 13px;
             color: var(--text-main);
             background: #FAF8F5;
-            padding: 12px;
+            padding: 14px;
             border-radius: 10px;
         }
         .detail-item {
@@ -391,7 +416,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 4px;
+            align-items: center;
         }
         .tribala-chip {
             background: var(--gold-dim);
@@ -399,7 +424,7 @@
             color: var(--gold-dark);
             font-size: 11px;
             font-weight: 700;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 6px;
         }
 
@@ -452,11 +477,11 @@
         <div class="hero-banner">
             <h1 class="hero-title" id="txtTitle">यज्ञोपवीत (उपनयन) संस्कार मुहूर्त विश्लेषक</h1>
             <p class="hero-subtitle" id="txtSubtitle">
-                बालक जन्म विवरण (तिथि, समय, स्थान) द्वारा जन्म कुण्डली (राशि, नक्षत्र, लग्न) का यथार्थ साधन एवं मुहूर्तचिन्तामणि अनुसार त्रिबल, अष्टम भाव व पञ्चाङ्ग शोधन।
+                विश्व के किसी भी स्थान हेतु बालक जन्म कुण्डली साधन एवं मुहूर्तचिन्तामणि अनुसार श्रेष्ठता रैंकिंग (Quality Score & Rank Grade) सहित शुद्ध मुहूर्त शोधन।
             </p>
             <div class="hero-tags">
-                <span class="hero-tag">👦 बालक जन्म कुण्डली साधन</span>
-                <span class="hero-tag">✨ उत्तरायण विचार</span>
+                <span class="hero-tag">📍 विश्वभर का कोई भी स्थान (Worldwide Search)</span>
+                <span class="hero-tag">🥇 मुहूर्त रैंकिंग व गुणवत्ता स्कोर</span>
                 <span class="hero-tag">☀️ सूर्य-चन्द्र-गुरु त्रिबल</span>
                 <span class="hero-tag">🛡️ अष्टम भाव शुद्धि</span>
             </div>
@@ -486,8 +511,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">जन्म स्थान (Birthplace Location)</label>
-                    <select id="geoCoords" class="form-control">
+                    <label class="form-label">📍 विश्वभर में जन्म स्थान खोजें (Search Any Birthplace Worldwide)</label>
+                    <input type="text" id="worldSearchInput" class="form-control" placeholder="उदा. Ayodhya, Gorakhpur, London, New York..." oninput="onWorldSearchInput()">
+                    <div id="worldSearchResults" class="world-search-results"></div>
+                </div>
+
+            </div>
+
+            <div class="form-grid" style="margin-top: 12px;">
+                <div class="form-group">
+                    <label class="form-label">चयनित / मुख्य स्थान (Location Preset)</label>
+                    <select id="geoCoords" class="form-control" onchange="onCityPresetChange()">
                         <option value="26.8467,80.9462,5.5">Lucknow (लखनऊ) [26.84° N, 80.94° E, UTC+5.5]</option>
                         <option value="28.6139,77.2090,5.5">New Delhi (नई दिल्ली) [28.61° N, 77.20° E, UTC+5.5]</option>
                         <option value="25.3176,82.9739,5.5">Varanasi (वाराणसी) [25.31° N, 82.97° E, UTC+5.5]</option>
@@ -498,6 +532,14 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label">अक्षांश, रेखांश एवं टाइमज़ोन (Lat, Lon, UTC Offset)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" step="0.0001" id="latInput" class="form-control" value="26.8467" placeholder="Lat">
+                        <input type="number" step="0.0001" id="lonInput" class="form-control" value="80.9462" placeholder="Lon">
+                        <input type="number" step="0.1" id="tzInput" class="form-control" value="5.5" placeholder="UTC Offset">
+                    </div>
+                </div>
             </div>
 
             <div class="card-header" style="margin-top: 24px;">
@@ -523,7 +565,7 @@
             </div>
 
             <button onclick="calculateUpanayana()" class="btn-calc" id="btnCalculate">
-                <span>🪔 बालक कुण्डली साधन एवं शुद्ध यज्ञोपवीत मुहूर्त खोजें</span>
+                <span>🪔 बालक कुण्डली साधन एवं मुहूर्त रैंकिंग निकालें</span>
             </button>
         </div>
 
@@ -532,15 +574,15 @@
             
             <div id="loader" class="loader">
                 <div class="spinner"></div>
-                <p style="font-weight: 700; color: var(--primary);">बालक जन्म कुण्डली साधन एवं पञ्चाङ्ग त्रिबल शोधन जारी है...</p>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">स्विस एफिमेरिस एवं संस्कार श्लोक गणना...</p>
+                <p style="font-weight: 700; color: var(--primary);">बालक जन्म कुण्डली साधन एवं मुहूर्त गुणवत्ता रैंकिंग गणना जारी है...</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">स्विस एफिमेरिस एवं संस्कार श्लोक शोधन...</p>
             </div>
 
             <div id="natalKundliContainer"></div>
 
             <div id="resultsContent">
                 <div class="empty-state">
-                    बालक जन्म तिथि, समय और स्थान भरें एवं "बालक कुण्डली साधन एवं मुहूर्त खोजें" बटन पर क्लिक करें।
+                    बालक जन्म विवरण भरें एवं "बालक कुण्डली साधन एवं मुहूर्त रैंकिंग निकालें" पर क्लिक करें।
                 </div>
             </div>
 
@@ -550,16 +592,80 @@
 
     <script>
         let currentLang = 'hi';
+        let worldSearchTimer = null;
         document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
 
         const RASHI_NAMES = ["", "Meṣa (Aries)", "Vṛṣabha (Taurus)", "Mithuna (Gemini)", "Karka (Cancer)", "Siṁha (Leo)", "Kanyā (Virgo)", "Tulā (Libra)", "Vṛścika (Scorpio)", "Dhanu (Sagittarius)", "Makara (Capricorn)", "Kumbha (Aquarius)", "Mīna (Pisces)"];
         const NAKSHATRAS_27 = ["", "Aśvinī", "Bharaṇī", "Kṛttikā", "Rohiṇī", "Mṛgaśirā", "Ārdrā", "Punarvasu", "Puṣya", "Āśleṣā", "Maghā", "Pūrvāphālgunī", "Uttarāphālgunī", "Hasta", "Citrā", "Svātī", "Viśākhā", "Anurādhā", "Jyeshṭhā", "Mūla", "Pūrvāṣāḍhā", "Uttarāṣāḍhā", "Śravaṇa", "Dhaniṣṭhā", "Śatabhiṣā", "Pūrvābhādrapadā", "Uttarābhādrapadā", "Revatī"];
 
+        function onCityPresetChange() {
+            const [lat, lon, tz] = document.getElementById('geoCoords').value.split(',');
+            document.getElementById('latInput').value = lat;
+            document.getElementById('lonInput').value = lon;
+            document.getElementById('tzInput').value = tz;
+        }
+
+        function onWorldSearchInput() {
+            clearTimeout(worldSearchTimer);
+            const query = document.getElementById('worldSearchInput').value.trim();
+            const resultsBox = document.getElementById('worldSearchResults');
+
+            if (query.length < 2) {
+                resultsBox.style.display = 'none';
+                return;
+            }
+
+            worldSearchTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=8&language=en&format=json`);
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    
+                    if (!data.results || data.results.length === 0) {
+                        resultsBox.innerHTML = '<div class="world-result-item" style="color:var(--text-muted);">कोई स्थान नहीं मिला। अक्षांश/रेखांश सीधे भरें।</div>';
+                        resultsBox.style.display = 'block';
+                        return;
+                    }
+
+                    resultsBox.innerHTML = data.results.map((place, i) => {
+                        const nameStr = [place.name, place.admin1, place.country].filter(Boolean).join(', ');
+                        const latVal = Number(place.latitude).toFixed(4);
+                        const lonVal = Number(place.longitude).toFixed(4);
+                        return `
+                            <div class="world-result-item" onclick="selectWorldPlace('${escapeHtml(nameStr)}', ${latVal}, ${lonVal})">
+                                <div class="world-result-main">📍 ${escapeHtml(nameStr)}</div>
+                                <div class="world-result-sub">Lat: ${latVal}°, Lon: ${lonVal}° ${place.timezone ? '• ' + place.timezone : ''}</div>
+                            </div>
+                        `;
+                    }).join('');
+                    resultsBox.style.display = 'block';
+                } catch (e) {
+                    resultsBox.style.display = 'none';
+                }
+            }, 400);
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function selectWorldPlace(name, lat, lon) {
+            document.getElementById('worldSearchInput').value = name;
+            document.getElementById('latInput').value = lat;
+            document.getElementById('lonInput').value = lon;
+            document.getElementById('tzInput').value = 5.5;
+            document.getElementById('worldSearchResults').style.display = 'none';
+        }
+
         async function calculateUpanayana() {
             const childName = document.getElementById('childName').value;
             const childDob = document.getElementById('childDob').value;
             const childTob = document.getElementById('childTob').value;
-            const [lat, lon, tz] = document.getElementById('geoCoords').value.split(',');
+            
+            const lat = document.getElementById('latInput').value;
+            const lon = document.getElementById('lonInput').value;
+            const tz = document.getElementById('tzInput').value;
+
             const startDate = document.getElementById('startDate').value;
             const days = document.getElementById('scanDays').value;
 
@@ -637,19 +743,29 @@
 
             let html = `
                 <div class="results-summary">
-                    <div><strong>शोधन परिणाम:</strong> दी गई अवधि में बालक की जन्म राशि (${RASHI_NAMES[moonSign] || 'राशि #' + moonSign}) हेतु <span class="summary-badge">${slots.length} शुद्ध मुहूर्त</span> प्राप्त हुए।</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">शास्त्रोक्त: उत्तरायण • त्रिबल शुद्ध • अष्टम निर्दोष</div>
+                    <div><strong>शोधन एवं रैंकिंग परिणाम:</strong> बालक की जन्म राशि (${RASHI_NAMES[moonSign] || 'राशि #' + moonSign}) हेतु <span class="summary-badge">${slots.length} श्रेष्ठ मुहूर्त (Ranked)</span> प्राप्त हुए।</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">रैंकिंग: गुणवत्ता स्कोर (% Quality Score) अनुसार अवरोही क्रम</div>
                 </div>
             `;
 
-            html += slots.map(slot => `
+            html += slots.map((slot, i) => `
                 <div class="slot-card">
                     <div class="slot-header">
-                        <div class="slot-time">
-                            <span>🪔</span>
-                            <span>${slot.datetime}</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="rank-badge">🥇 #${slot.rank || (i+1)} सर्वश्रेष्ठ</span>
+                            <div class="slot-time">
+                                <span>🪔</span>
+                                <span>${slot.datetime}</span>
+                            </div>
                         </div>
-                        <div class="verdict-tag">✓ ${slot.status || 'Śuddha Muhūrta'}</div>
+                        <div class="verdict-tag">✓ ${slot.rank_grade || 'Śuddha Muhūrta'}</div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 12px; font-weight: 800; color: var(--gold-dark);">मुहूर्त सामर्थ्य स्कोर: ${slot.score || 85}%</span>
+                        <div class="score-bar-bg">
+                            <div class="score-bar-fill" style="width: ${slot.score || 85}%;"></div>
+                        </div>
                     </div>
 
                     <div class="slot-details">
@@ -720,6 +836,7 @@
             });
 
             const UPANAYANA_NAKSHATRAS = new Set([1, 4, 5, 7, 8, 12, 13, 14, 15, 16, 17, 21, 23, 26, 27]);
+            const SUPREME_NAKSHATRAS = new Set([4, 8, 12, 13, 14, 15, 21, 26, 27]);
             const PROHIBITED_TITHIS = new Set([4, 6, 8, 9, 12, 14, 19, 21, 23, 24, 27, 29, 30]);
             const PERMISSIBLE_WEEKDAYS = new Set([0, 1, 3, 4, 5]);
 
@@ -751,6 +868,17 @@
 
                     if (isUttarayana && PERMISSIBLE_WEEKDAYS.has(weekday) && UPANAYANA_NAKSHATRAS.has(nakshatra) && !PROHIBITED_TITHIS.has(tithi)) {
                         if (![4, 8, 12].includes(jupBala) && ![4, 8, 12].includes(moonBala) && ![4, 8, 12].includes(sunBala)) {
+                            let score = 65.0;
+                            if ([2, 5, 7, 9, 11].includes(jupBala)) score += 15.0;
+                            else if ([1, 3, 6, 10].includes(jupBala)) score += 8.0;
+
+                            if ([3, 6, 10, 11].includes(sunBala)) score += 10.0;
+                            if ([1, 3, 6, 7, 10, 11].includes(moonBala)) score += 10.0;
+                            if (SUPREME_NAKSHATRAS.has(nakshatra)) score += 5.0;
+
+                            score = Math.min(100.0, Math.round(score));
+                            let grade = score >= 95 ? "Grade A+ (सर्वथा निर्दोष - Flawless VIP)" : (score >= 85 ? "Grade A (उत्तम - High Quality)" : "Grade B (मध्यम)");
+
                             const asc = computeAscendant(jd, T, cur.getUTCHours(), lat, lon, ayanamsa);
                             results.push({
                                 datetime: cur.toISOString().replace('T', ' ').substring(0, 16),
@@ -763,6 +891,8 @@
                                 guru_bala_house: jupBala,
                                 sun_bala_house: sunBala,
                                 moon_bala_house: moonBala,
+                                score: score,
+                                rank_grade: grade,
                                 status: 'Śuddha Yajñopavīta Muhūrta'
                             });
                             cur.setTime(cur.getTime() + 90 * 60 * 1000);
@@ -772,6 +902,9 @@
                 }
                 cur.setTime(cur.getTime() + 30 * 60 * 1000);
             }
+
+            results.sort((a, b) => b.score - a.score);
+            results.forEach((r, idx) => r.rank = idx + 1);
 
             renderResults(results, childMoonSign);
         }
