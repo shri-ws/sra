@@ -218,6 +218,7 @@
             box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
         }
 
+        /* Worldwide Location Search Box */
         .world-search-results {
             position: absolute;
             top: 100%;
@@ -278,6 +279,7 @@
             background: linear-gradient(135deg, #E8C96C 0%, #C9A84C 100%);
         }
 
+        /* NATAL KUNDLI CARD */
         .natal-card {
             background: linear-gradient(135deg, #2A1F1D 0%, #380B12 100%);
             border: 1px solid var(--gold);
@@ -324,6 +326,7 @@
             margin-top: 2px;
         }
 
+        /* RANKED SLOT CARD */
         .slot-card {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
@@ -480,7 +483,7 @@
                 विश्व के किसी भी स्थान हेतु बालक जन्म कुण्डली साधन एवं मुहूर्तचिन्तामणि अनुसार श्रेष्ठता रैंकिंग (Quality Score & Rank Grade) सहित शुद्ध मुहूर्त शोधन।
             </p>
             <div class="hero-tags">
-                <span class="hero-tag">📍 विश्वभर का कोई भी स्थान (Worldwide Search)</span>
+                <span class="hero-tag">📍 विश्वभर का कोई भी स्थान (Worldwide Location Search)</span>
                 <span class="hero-tag">🥇 मुहूर्त रैंकिंग व गुणवत्ता स्कोर</span>
                 <span class="hero-tag">☀️ सूर्य-चन्द्र-गुरु त्रिबल</span>
                 <span class="hero-tag">🛡️ अष्टम भाव शुद्धि</span>
@@ -511,33 +514,29 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">📍 विश्वभर में जन्म स्थान खोजें (Search Any Birthplace Worldwide)</label>
-                    <input type="text" id="worldSearchInput" class="form-control" placeholder="उदा. Ayodhya, Gorakhpur, London, New York..." oninput="onWorldSearchInput()">
+                    <label class="form-label">📍 जन्म स्थान खोजें (Type Any Birthplace Worldwide)</label>
+                    <input type="text" id="worldSearchInput" class="form-control" value="Lucknow, Uttar Pradesh, India" placeholder="उदा. Ayodhya, Gorakhpur, London, New York..." oninput="onWorldSearchInput()">
                     <div id="worldSearchResults" class="world-search-results"></div>
                 </div>
 
             </div>
 
-            <div class="form-grid" style="margin-top: 12px;">
-                <div class="form-group">
-                    <label class="form-label">चयनित / मुख्य स्थान (Location Preset)</label>
-                    <select id="geoCoords" class="form-control" onchange="onCityPresetChange()">
-                        <option value="26.8467,80.9462,5.5">Lucknow (लखनऊ) [26.84° N, 80.94° E, UTC+5.5]</option>
-                        <option value="28.6139,77.2090,5.5">New Delhi (नई दिल्ली) [28.61° N, 77.20° E, UTC+5.5]</option>
-                        <option value="25.3176,82.9739,5.5">Varanasi (वाराणसी) [25.31° N, 82.97° E, UTC+5.5]</option>
-                        <option value="19.0760,72.8777,5.5">Mumbai (मुंबई) [19.07° N, 72.87° E, UTC+5.5]</option>
-                        <option value="22.5726,88.3639,5.5">Kolkata (कोलकाता) [22.57° N, 88.36° E, UTC+5.5]</option>
-                        <option value="13.0827,80.2707,5.5">Chennai (चेन्नई) [13.08° N, 80.27° E, UTC+5.5]</option>
-                        <option value="12.9716,77.5946,5.5">Bengaluru (बेंगलुरु) [12.97° N, 77.59° E, UTC+5.5]</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">अक्षांश, रेखांश एवं टाइमज़ोन (Lat, Lon, UTC Offset)</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="number" step="0.0001" id="latInput" class="form-control" value="26.8467" placeholder="Lat">
-                        <input type="number" step="0.0001" id="lonInput" class="form-control" value="80.9462" placeholder="Lon">
-                        <input type="number" step="0.1" id="tzInput" class="form-control" value="5.5" placeholder="UTC Offset">
+            <div class="form-grid" style="margin-top: 16px;">
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="form-label">स्थान अक्षांश, रेखांश एवं टाइमज़ोन (Calculated Coordinates: Lat, Lon, UTC Offset)</label>
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1;">
+                            <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">LATITUDE (अक्षांश)</span>
+                            <input type="number" step="0.0001" id="latInput" class="form-control" value="26.8467" placeholder="Lat">
+                        </div>
+                        <div style="flex: 1;">
+                            <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">LONGITUDE (रेखांश)</span>
+                            <input type="number" step="0.0001" id="lonInput" class="form-control" value="80.9462" placeholder="Lon">
+                        </div>
+                        <div style="flex: 1;">
+                            <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">TIMEZONE OFFSET (UTC)</span>
+                            <input type="number" step="0.1" id="tzInput" class="form-control" value="5.5" placeholder="UTC Offset">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -597,13 +596,6 @@
 
         const RASHI_NAMES = ["", "Meṣa (Aries)", "Vṛṣabha (Taurus)", "Mithuna (Gemini)", "Karka (Cancer)", "Siṁha (Leo)", "Kanyā (Virgo)", "Tulā (Libra)", "Vṛścika (Scorpio)", "Dhanu (Sagittarius)", "Makara (Capricorn)", "Kumbha (Aquarius)", "Mīna (Pisces)"];
         const NAKSHATRAS_27 = ["", "Aśvinī", "Bharaṇī", "Kṛttikā", "Rohiṇī", "Mṛgaśirā", "Ārdrā", "Punarvasu", "Puṣya", "Āśleṣā", "Maghā", "Pūrvāphālgunī", "Uttarāphālgunī", "Hasta", "Citrā", "Svātī", "Viśākhā", "Anurādhā", "Jyeshṭhā", "Mūla", "Pūrvāṣāḍhā", "Uttarāṣāḍhā", "Śravaṇa", "Dhaniṣṭhā", "Śatabhiṣā", "Pūrvābhādrapadā", "Uttarābhādrapadā", "Revatī"];
-
-        function onCityPresetChange() {
-            const [lat, lon, tz] = document.getElementById('geoCoords').value.split(',');
-            document.getElementById('latInput').value = lat;
-            document.getElementById('lonInput').value = lon;
-            document.getElementById('tzInput').value = tz;
-        }
 
         function onWorldSearchInput() {
             clearTimeout(worldSearchTimer);
