@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shri Ramji Astro — BPHS कम्प्यूटेशनल पंचांग, षोडशवर्ग एवं ग्लोबल मैप इंजन</title>
+<!-- Leaflet CSS & JS for Interactive Pinpoint Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --primary: #7c1305;
+    --primary-light: #fef2f2;
+    --accent: #b45309;
+    --dark: #0f172a;
+    --border: #cbd5e1;
+    --chart-line: #94a3b8;
+    --chart-bg: #fff;
+    --chart-text: #1e293b;
+    --chart-accent: #b91c1c;
+    --sandhi-alert: #991b1b;
+    --gold: #c9a84c;
+    --bg-dark: #07060e;
+  }
+  * { box-sizing: border-box; font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body { margin: 0; padding: 0; background: #f8fafc; color: var(--dark); }
+
+  /* SITE NAVIGATION BAR */
+  nav {
+    background: #0b0a14;
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 18px; align-items: center; }
+  .nav-links a {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a.active { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 2px; }
+
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+  }
+
+  /* CONTAINER */
+  .container { max-width: 1400px; margin: 20px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 24px; }
+  
+  .header { text-align: center; border-bottom: 2px solid var(--primary-light); padding-bottom: 16px; margin-bottom: 24px; }
+  .header h1 { margin: 0; color: var(--primary); font-size: 26px; font-family: 'Cinzel', serif; }
+  .header p { margin: 6px 0 0 0; color: #64748b; font-size: 14px; font-weight: 500; }
+
+  /* Input Box */
+  .input-panel { background: #fafafa; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .field { display: flex; flex-direction: column; }
+  .field label { font-size: 12px; font-weight: bold; margin-bottom: 6px; color: #374151; }
+  .field input { padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: #fff; }
+  .field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(124, 19, 5, 0.1); }
+  
+  /* Map Box */
+  .map-wrapper { margin-top: 16px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .map-header { background: #f1f5f9; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #334155; display: flex; justify-content: space-between; align-items: center; }
+  #map { height: 280px; width: 100%; background: #e2e8f0; }
+  
+  .btn-calc { width: 100%; padding: 14px; background: var(--primary); color: #fff; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-top: 16px; transition: background 0.2s; box-shadow: 0 2px 8px rgba(124,19,5,0.25); }
+  .btn-calc:hover { background: #5a0c02; }
+
+  #outputSection { display: none; }
+  .row-title { font-size: 16px; font-weight: bold; color: var(--primary); margin: 24px 0 12px 0; border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; font-family: 'Cinzel', serif; }
+
+  /* Charts Pair Grid */
+  .charts-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 960px) { .charts-pair { grid-template-columns: 1fr; } }
+  .chart-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.04); text-align: center; }
+  .chart-card h3 { margin: 0 0 14px 0; font-size: 15px; color: var(--primary); }
+  .svg-box { width: 100%; max-width: 440px; height: auto; margin: 0 auto; }
+
+  /* Varga Strip */
+  .varga-section { margin-bottom: 24px; background: #f1f5f9; padding: 16px; border-radius: 10px; border: 1px solid var(--border); }
+  .varga-section h3 { margin: 0 0 12px 0; font-size: 14px; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; }
+  .varga-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+  .v-btn { padding: 8px 14px; background: #fff; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: #475569; transition: all 0.2s; }
+  .v-btn:hover { background: #e2e8f0; }
+  .v-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  /* Sandhi Alert Panel */
+  .sandhi-panel { background: #fffbeb; border: 1px solid #fef3c7; border-left: 5px solid var(--accent); border-radius: 10px; padding: 18px; margin-bottom: 24px; }
+  .sandhi-panel h3 { margin: 0 0 12px 0; color: #92400e; font-size: 16px; }
+  .badge-sandhi { display: inline-block; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-right: 6px; }
+  .badge-shift { display: inline-block; background: #e0f2fe; color: #075985; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-right: 6px; }
+  .sandhi-item { margin-bottom: 8px; font-size: 13.5px; line-height: 1.5; }
+
+  /* Tables Grid */
+  .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-top: 24px; }
+  .table-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: #fff; }
+  .table-card h3 { margin: 0 0 12px 0; color: var(--primary); font-size: 14px; border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left; }
+  th { background: #f8fafc; color: #475569; font-weight: 600; }
+  .retro { color: #b91c1c; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<!-- SITE NAVBAR -->
+<nav>
+  <a href="index.html" class="nav-logo"><span>🪐</span> SHRI RAMJI ASTRO</a>
+  <div class="nav-links">
+    <a href="accurate-predictions.html" class="active">🔮 Kundli Maker</a>
+    <a href="vmm.html">💍 Vivah Muhurt</a>
+    <a href="yajnopavita.html">🪔 Yagyopavit Muhurt</a>
+    <a href="index.html#consultation">🔮 Consultation</a>
+    <a href="index.html#course">📚 Courses</a>
+    <a href="admin.html">🔐 Admin</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="header">
+    <h1>BPHS कम्प्यूटेशनल पंचांग, षोडशवर्ग एवं ग्लोबल मैप इंजन</h1>
+    <p>ग्लोबल मैप व शहर चयन • सेंट्रल डिफरेंस वक्री शोधन • ट्रू श्रीपति चतुष्कोण त्रिभाजन • BPHS कालवेला व षोडशवर्ग</p>
+  </div>
+
+  <!-- Universal Birth Input Form -->
+  <div class="input-panel">
+    <div class="form-grid">
+      <div class="field">
+        <label>जन्म तिथि (Date of Birth)</label>
+        <input type="date" id="inDate" required>
+      </div>
+      <div class="field">
+        <label>जन्म समय (Local Time - 24Hr)</label>
+        <input type="time" id="inTime" step="1" required>
+      </div>
+      <div class="field">
+        <label>जन्म स्थान खोजें (Search City / Town)</label>
+        <input type="text" id="inCitySearch" placeholder="उदा. Sitapur, London, New York..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchCityLocation();}">
+      </div>
+      <div class="field">
+        <label>अक्षांश (Latitude - N)</label>
+        <input type="number" id="inLat" step="0.0001" placeholder="उदा. 27.5667" required>
+      </div>
+      <div class="field">
+        <label>देशांतर (Longitude - E)</label>
+        <input type="number" id="inLon" step="0.0001" placeholder="उदा. 80.6833" required>
+      </div>
+      <div class="field">
+        <label>टाइमज़ोन ऑफ़सेट (Hours - UTC)</label>
+        <input type="number" id="inTz" step="0.25" placeholder="उदा. 5.5" required>
+      </div>
+    </div>
+
+    <!-- Interactive Pinpoint Map -->
+    <div class="map-wrapper">
+      <div class="map-header">
+        <span>📍 विश्व मानचित्र पर क्लिक करके स्थान चुनें (Pinpoint Location on Map)</span>
+        <span id="geoStatusText" style="color: #0284c7;">रेडी</span>
+      </div>
+      <div id="map"></div>
+    </div>
+
+    <button class="btn-calc" onclick="executeParasharaMaster()">कुण्डली एवं षोडशवर्ग जनरेट करें (Calculate Master Engine)</button>
+  </div>
+
+  <!-- Dynamic Output Section (Hidden by Default) -->
+  <div id="outputSection">
+    
+    <!-- Row 1: North Indian Pair -->
+    <div class="row-title">पंक्ति 1: उत्तर भारतीय शैली (North Indian Diamond Style)</div>
+    <div class="charts-pair">
+      <div class="chart-card">
+        <h3>लग्न कुण्डली (D1 Rasi Chart)</h3>
+        <div class="svg-box">
+          <svg id="northRasiSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>भाव चलित कुण्डली (True Sripati Bhava Chalit)</h3>
+        <div class="svg-box">
+          <svg id="northChalitSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: South Indian Pair -->
+    <div class="row-title">पंक्ति 2: दक्षिण भारतीय शैली (South Indian Box Style)</div>
+    <div class="charts-pair">
+      <div class="chart-card">
+        <h3>लग्न कुण्डली (D1 Rasi Chart)</h3>
+        <div class="svg-box">
+          <svg id="southRasiSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>भाव चलित कुण्डली (True Sripati Bhava Chalit)</h3>
+        <div class="svg-box">
+          <svg id="southChalitSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bhava Sandhi & Planetary Shift Notification -->
+    <div class="sandhi-panel">
+      <h3>भाव संधि एवं ग्रह विस्थापन विश्लेषण (BPHS Analysis)</h3>
+      <div id="sandhiAnalysisContent"></div>
+    </div>
+
+    <!-- Varga Selector Strip -->
+    <div class="varga-section">
+      <h3 id="activeVargaTitle">षोडशवर्ग कुण्डली चयन — D1 राशि</h3>
+      <div class="varga-strip" id="vargaStrip"></div>
+    </div>
+
+    <!-- Selected Varga Chart Pair -->
+    <div class="charts-pair">
+      <div class="chart-card">
+        <h3 id="vargaNorthHeading">चयनित वर्ग कुण्डली (उत्तर भारतीय)</h3>
+        <div class="svg-box">
+          <svg id="vargaNorthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3 id="vargaSouthHeading">चयनित वर्ग कुण्डली (दक्षिण भारतीय)</h3>
+        <div class="svg-box">
+          <svg id="vargaSouthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Astronomical Tables -->
+    <div class="tables-grid">
+      <div class="table-card">
+        <h3>ग्रह स्पष्ट एवं गति (Planetary Longitudes & Central Diff Motion)</h3>
+        <table id="tblPlanets">
+          <thead><tr><th>ग्रह</th><th>राशि</th><th>अंश-कला-विकला</th><th>दैनिक गति</th><th>नक्षत्र</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <h3>श्रीपति भाव स्पष्ट (True Sripati Cusps: Quadrant Trisection)</h3>
+        <table id="tblSripati">
+          <thead><tr><th>भाव</th><th>भाव आरम्भ (Sandhi 1)</th><th>भाव मध्य (Madhya)</th><th>भाव अंत (Sandhi 2)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <h3>5 अप्रकाश उपग्रह एवं कालवेला (BPHS Ch. 3)</h3>
+        <table id="tblUpagrahas">
+          <thead><tr><th>संज्ञा</th><th>राशि</th><th>अंश-कला-विकला</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <h3>विशेष लग्न एवं प्राणपद (Ch. 3 व 5)</h3>
+        <table id="tblSpecialLagnas">
+          <thead><tr><th>संज्ञा</th><th>राशि</th><th>अंश-कला-विकला</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SIGNS = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुम्भ", "मीन"];
+const NAKSHATRAS = [
+  "अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा",
+  "पुनर्वसु", "पुष्य", "आश्लेषा", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी",
+  "हस्त", "चित्रा", "स्वाति", "विशाखा", "अनुराधा", "ज्येष्ठा",
+  "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा",
+  "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"
+];
+
+const VARGAS_CONFIG = [
+  { id: 1, name: "D1 राशि" },
+  { id: 2, name: "D2 होरा" },
+  { id: 3, name: "D3 द्रेष्काण" },
+  { id: 4, name: "D4 चतुर्थांश" },
+  { id: 7, name: "D7 सप्तांश" },
+  { id: 9, name: "D9 नवमांश" },
+  { id: 10, name: "D10 दशमांश" },
+  { id: 12, name: "D12 द्वादशांश" },
+  { id: 16, name: "D16 षोडशांश" },
+  { id: 20, name: "D20 विंशांश" },
+  { id: 24, name: "D24 सिद्धांश" },
+  { id: 27, name: "D27 भांश" },
+  { id: 30, name: "D30 त्रिंशांश" },
+  { id: 40, name: "D40 खवेदांश" },
+  { id: 45, name: "D45 अक्षवेदांश" },
+  { id: 60, name: "D60 षष्ट्यंश" }
+];
+
+let selectedVarga = 1;
+let currentCalculation = {};
+let map, marker;
+
+const DEG = Math.PI / 180;
+const RAD = 180 / Math.PI;
+
+function norm360(d) {
+  return ((d % 360) + 360) % 360;
+}
+
+function formatDMS(deg) {
+  deg = (deg % 30 + 30) % 30;
+  const d = Math.floor(deg);
+  const m = Math.floor((deg - d) * 60);
+  const s = Math.round(((deg - d) * 60 - m) * 60);
+  return `${d}° ${m}' ${s}"`;
+}
+
+function getJD(year, month, day, hourUTC) {
+  if (month <= 2) { year -= 1; month += 12; }
+  const A = Math.floor(year / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5 + hourUTC / 24.0;
+}
+
+// -------------------------------------------------------------
+// LEAFLET MAP & CITY SEARCH ENGINE
+// -------------------------------------------------------------
+function initMap() {
+  const defaultLat = 27.5667;
+  const defaultLon = 80.6833;
+
+  map = L.map('map').setView([defaultLat, defaultLon], 5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    subdomains: 'abcd',
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+  }).addTo(map);
+
+  marker = L.marker([defaultLat, defaultLon], { draggable: true }).addTo(map);
+
+  marker.on('dragend', function(e) {
+    const coord = marker.getLatLng();
+    updateCoordinatesAndFetchTz(coord.lat, coord.lng);
+  });
+
+  map.on('click', function(e) {
+    marker.setLatLng(e.latlng);
+    updateCoordinatesAndFetchTz(e.latlng.lat, e.latlng.lng);
+  });
+
+  // Set default values in inputs
+  document.getElementById("inLat").value = defaultLat.toFixed(4);
+  document.getElementById("inLon").value = defaultLon.toFixed(4);
+  document.getElementById("inTz").value = "5.5";
+  const now = new Date();
+  document.getElementById("inDate").value = now.toISOString().split('T')[0];
+  document.getElementById("inTime").value = now.toTimeString().split(' ')[0].substring(0, 5);
+}
+
+async function searchCityLocation() {
+  const city = document.getElementById("inCitySearch").value.trim();
+  const statusEl = document.getElementById("geoStatusText");
+  if (!city) return;
+
+  statusEl.innerText = "स्थान खोजा जा रहा है...";
+  try {
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=hi&format=json`);
+    const data = await res.json();
+    if (data && data.results && data.results.length > 0) {
+      const item = data.results[0];
+      const lat = item.latitude;
+      const lon = item.longitude;
+      map.setView([lat, lon], 11);
+      marker.setLatLng([lat, lon]);
+      statusEl.innerText = `प्राप्त: ${item.name} (${item.country || ''})`;
+      updateCoordinatesAndFetchTz(lat, lon);
+    } else {
+      statusEl.innerText = "स्थान नहीं मिला, कृपया पिन को ड्रैग करें।";
+    }
+  } catch(e) {
+    statusEl.innerText = "नेटवर्क अनुपलब्ध, मैन्युअल निर्देशांक मान्य हैं।";
+  }
+}
+
+async function updateCoordinatesAndFetchTz(lat, lon) {
+  document.getElementById("inLat").value = lat.toFixed(4);
+  document.getElementById("inLon").value = lon.toFixed(4);
+  const statusEl = document.getElementById("geoStatusText");
+
+  try {
+    const tzRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
+    const tzData = await tzRes.json();
+    if (tzData && tzData.utc_offset_seconds !== undefined) {
+      const tzHrs = tzData.utc_offset_seconds / 3600;
+      document.getElementById("inTz").value = tzHrs;
+      statusEl.innerText = `अक्षांश: ${lat.toFixed(2)}°, देशांतर: ${lon.toFixed(2)}° (UTC ${tzHrs >= 0 ? '+' : ''}${tzHrs})`;
+    } else {
+      const est = Math.round((lon / 15) * 2) / 2;
+      document.getElementById("inTz").value = est;
+    }
+  } catch(e) {
+    const est = Math.round((lon / 15) * 2) / 2;
+    document.getElementById("inTz").value = est;
+  }
+}
+
+// -------------------------------------------------------------
+// DYNAMIC KEPLERIAN & 3D PERTURBATION ENGINE
+// -------------------------------------------------------------
+function solveKepler(M, e) {
+  let E = M;
+  for (let i = 0; i < 15; i++) {
+    const dE = (E - e * Math.sin(E) - M) / (1.0 - e * Math.cos(E));
+    E -= dE;
+    if (Math.abs(dE) < 1e-7) break;
+  }
+  return E;
+}
+
+const ORBITAL_DATA = {
+  Earth: { a: [1.00000261, 0.00000562], e: [0.01671123, -0.00004392], I: [0.00001531, -0.01294668], L: [100.46457166, 35999.37244981], w: [102.93768193, 0.32327364], node: [0.0, 0.0] },
+  Mercury: { a: [0.38709927, 0.00000037], e: [0.20563593, 0.00001906], I: [7.00497902, -0.00594749], L: [252.25032350, 149472.67411175], w: [77.45779628, 0.16047689], node: [48.33076593, -0.12534081] },
+  Venus: { a: [0.72333566, 0.00000390], e: [0.00677672, -0.00004107], I: [3.39467605, -0.00078890], L: [181.97909950, 58517.81538729], w: [131.60246718, 0.00268329], node: [76.67984255, -0.27769418] },
+  Mars: { a: [1.52371034, 0.00001847], e: [0.09339410, 0.00007882], I: [1.84969142, -0.00813131], L: [-4.55343205, 19140.30268499], w: [-20.69234015, 0.44441088], node: [49.55953891, -0.29257343] },
+  Jupiter: { a: [5.20288700, -0.00011607], e: [0.04838624, -0.00013253], I: [1.30439695, -0.00183714], L: [34.39644051, 3034.74612775], w: [14.72847983, 0.21252668], node: [100.47390909, 0.20469106] },
+  Saturn: { a: [9.53667594, -0.00125060], e: [0.05386179, -0.00050991], I: [2.48599187, 0.00193609], L: [49.95424423, 1222.49362201], w: [92.59887831, -0.41897216], node: [113.66242448, -0.28867794] }
+};
+
+function getPlanetHeliocentric(elements, T) {
+  const a = elements.a[0] + elements.a[1] * T;
+  const e = elements.e[0] + elements.e[1] * T;
+  const I = (elements.I[0] + elements.I[1] * T) * DEG;
+  const L = norm360(elements.L[0] + elements.L[1] * T) * DEG;
+  const longPeri = norm360(elements.w[0] + elements.w[1] * T) * DEG;
+  const node = norm360(elements.node[0] + elements.node[1] * T) * DEG;
+
+  const M = norm360((L - longPeri) * RAD) * DEG;
+  const E = solveKepler(M, e);
+
+  const x_orb = a * (Math.cos(E) - e);
+  const y_orb = a * Math.sqrt(1.0 - e * e) * Math.sin(E);
+
+  const periNode = longPeri - node;
+  const cosNode = Math.cos(node), sinNode = Math.sin(node);
+  const cosPeri = Math.cos(periNode), sinPeri = Math.sin(periNode);
+  const cosI = Math.cos(I);
+
+  const Px = cosNode * cosPeri - sinNode * sinPeri * cosI;
+  const Py = sinNode * cosPeri + cosNode * sinPeri * cosI;
+  const Qx = -cosNode * sinPeri - sinNode * cosPeri * cosI;
+  const Qy = -sinNode * sinPeri + cosNode * cosPeri * cosI;
+
+  const x = x_orb * Px + y_orb * Qx;
+  const y = x_orb * Py + y_orb * Qy;
+  const z = (x_orb * sinPeri + y_orb * cosPeri) * Math.sin(I);
+
+  return { x, y, z };
+}
+
+function computeSiderealGeocentricLongitude(T, ayanamsa) {
+  const earth = getPlanetHeliocentric(ORBITAL_DATA.Earth, T);
+
+  // Sun
+  const sunX = -earth.x;
+  const sunY = -earth.y;
+  const sunTrop = norm360(Math.atan2(sunY, sunX) * RAD);
+  const sunSid = norm360(sunTrop - ayanamsa);
+
+  const result = { Sun: sunSid };
+
+  ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'].forEach(pName => {
+    const pHelio = getPlanetHeliocentric(ORBITAL_DATA[pName], T);
+    let geoX = pHelio.x - earth.x;
+    let geoY = pHelio.y - earth.y;
+
+    if (pName === 'Jupiter' || pName === 'Saturn') {
+      const M_jup = norm360(19.895 + 3034.9057 * T) * DEG;
+      const M_sat = norm360(316.967 + 1222.1138 * T) * DEG;
+      const deltaSat = (-0.812 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * DEG)
+                        - 0.046 * Math.sin(2 * M_sat - 2 * M_jup)
+                        + 0.171 * Math.sin(M_jup - M_sat - 4.4 * DEG)) * DEG;
+      const deltaJup = (0.332 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * DEG)) * DEG;
+
+      const r = Math.sqrt(geoX * geoX + geoY * geoY);
+      if (pName === 'Saturn') {
+        const curL = Math.atan2(geoY, geoX) + deltaSat;
+        geoX = r * Math.cos(curL);
+        geoY = r * Math.sin(curL);
+      } else {
+        const curL = Math.atan2(geoY, geoX) + deltaJup;
+        geoX = r * Math.cos(curL);
+        geoY = r * Math.sin(curL);
+      }
+    }
+
+    const pTrop = norm360(Math.atan2(geoY, geoX) * RAD);
+    result[pName] = norm360(pTrop - ayanamsa);
+  });
+
+  // Moon (Truncated Brown/Meeus Lunar terms)
+  const L_moon = 218.3165 + 481267.8813 * T;
+  const M_moon = 134.9634 + 477198.8676 * T;
+  const M_sun = 357.5291 + 35999.0503 * T;
+  const D_elong = 297.8502 + 445267.1115 * T;
+  const moonPerturb = 6.289 * Math.sin(M_moon * DEG)
+                    - 1.274 * Math.sin((M_moon - 2 * D_elong) * DEG)
+                    + 0.658 * Math.sin(2 * D_elong * DEG)
+                    - 0.186 * Math.sin(M_sun * DEG);
+  result.Moon = norm360(L_moon + moonPerturb - ayanamsa);
+
+  // Mean Rahu / Ketu
+  const nodeTrop = 125.04452 - 1934.136261 * T + 0.0020708 * T * T;
+  result.Rahu = norm360(nodeTrop - ayanamsa);
+  result.Ketu = norm360(result.Rahu + 180);
+
+  return result;
+}
+
+// -------------------------------------------------------------
+// TRUE SUNRISE & SPHERICAL TRIGONOMETRY
+// -------------------------------------------------------------
+function calculateClassicalSunrise(JD_midnight, lat, lon, tz, ayanamsa) {
+  const T_noon = (JD_midnight + 0.5 - 2451545.0) / 36525.0;
+  const M_sun = norm360(357.5291 + 35999.0503 * T_noon) * DEG;
+  const L0 = norm360(280.4665 + 36000.7698 * T_noon) * DEG;
+  const sunTrop = L0 + (1.9146 * Math.sin(M_sun) + 0.02 * Math.sin(2 * M_sun)) * DEG;
+  const eps = (23.439291 - 0.0130042 * T_noon) * DEG;
+
+  const sinDelta = Math.sin(eps) * Math.sin(sunTrop);
+  const delta = Math.asin(sinDelta);
+
+  const phi = lat * DEG;
+  let cosH0 = -Math.tan(phi) * Math.tan(delta);
+  cosH0 = Math.max(-1.0, Math.min(1.0, cosH0));
+  const H0 = Math.acos(cosH0) * RAD;
+
+  const alpha = Math.atan2(Math.cos(eps) * Math.sin(sunTrop), Math.cos(sunTrop)) * RAD;
+  const EOT = (L0 * RAD - alpha);
+
+  const solarNoonLMT = 12.0 - (EOT / 15.0);
+  const tzCorrection = tz - (lon / 15.0);
+  const solarNoonStandard = solarNoonLMT + tzCorrection;
+
+  const halfDayHours = H0 / 15.0;
+  const sunriseHrs = solarNoonStandard - halfDayHours;
+  const sunsetHrs = solarNoonStandard + halfDayHours;
+  const dinamanaHrs = 2 * halfDayHours;
+
+  return { sunriseHrs, sunsetHrs, dinamanaHrs };
+}
+
+function computeLagnaFromRAMC(RAMC, lat, eps, ayanamsa) {
+  const phi = lat * DEG;
+  const epsRad = eps * DEG;
+  const ramcRad = RAMC * DEG;
+
+  const ascRad = Math.atan2(
+    Math.cos(ramcRad),
+    -Math.sin(ramcRad) * Math.cos(epsRad) - Math.tan(phi) * Math.sin(epsRad)
+  );
+  const ascTrop = norm360(ascRad * RAD);
+  return norm360(ascTrop - ayanamsa);
+}
+
+function calculateTrueSripatiCusps(RAMC, lat, eps, ayanamsa) {
+  const phi = lat * DEG;
+  const epsRad = eps * DEG;
+  const ramcRad = RAMC * DEG;
+
+  // 1. Midheaven (MC)
+  const mcRad = Math.atan2(Math.sin(ramcRad), Math.cos(ramcRad) * Math.cos(epsRad));
+  const mcTrop = norm360(mcRad * RAD);
+  const mcSid = norm360(mcTrop - ayanamsa);
+
+  // 2. Ascendant (Lagna)
+  const ascSid = computeLagnaFromRAMC(RAMC, lat, eps, ayanamsa);
+
+  const icSid = norm360(mcSid + 180);
+  const dscSid = norm360(ascSid + 180);
+
+  // Quadrant Trisection
+  const arc10_1 = norm360(ascSid - mcSid);
+  const b11_mid = norm360(mcSid + arc10_1 / 3.0);
+  const b12_mid = norm360(mcSid + (2.0 * arc10_1) / 3.0);
+
+  const arc1_4 = norm360(icSid - ascSid);
+  const b2_mid = norm360(ascSid + arc1_4 / 3.0);
+  const b3_mid = norm360(ascSid + (2.0 * arc1_4) / 3.0);
+
+  const arc4_7 = norm360(dscSid - icSid);
+  const b5_mid = norm360(icSid + arc4_7 / 3.0);
+  const b6_mid = norm360(icSid + (2.0 * arc4_7) / 3.0);
+
+  const arc7_10 = norm360(mcSid - dscSid);
+  const b8_mid = norm360(dscSid + arc7_10 / 3.0);
+  const b9_mid = norm360(dscSid + (2.0 * arc7_10) / 3.0);
+
+  const bhavaMadhyas = [
+    ascSid, b2_mid, b3_mid, icSid, b5_mid, b6_mid,
+    dscSid, b8_mid, b9_mid, mcSid, b11_mid, b12_mid
+  ];
+
+  const cusps = [];
+  for (let i = 0; i < 12; i++) {
+    const prevIdx = (i + 11) % 12;
+    const nextIdx = (i + 1) % 12;
+
+    const curMid = bhavaMadhyas[i];
+    const prevMid = bhavaMadhyas[prevIdx];
+    const nextMid = bhavaMadhyas[nextIdx];
+
+    const arcPrev = norm360(curMid - prevMid);
+    const sandhiStart = norm360(prevMid + arcPrev / 2.0);
+
+    const arcNext = norm360(nextMid - curMid);
+    const sandhiEnd = norm360(curMid + arcNext / 2.0);
+
+    cusps.push({
+      house: i + 1,
+      sandhi1: sandhiStart,
+      mid: curMid,
+      sandhi2: sandhiEnd,
+      midSign: Math.floor(curMid / 30),
+      midDeg: curMid % 30,
+      sandhi1Sign: Math.floor(sandhiStart / 30),
+      sandhi1Deg: sandhiStart % 30,
+      sandhi2Sign: Math.floor(sandhiEnd / 30),
+      sandhi2Deg: sandhiEnd % 30
+    });
+  }
+
+  return cusps;
+}
+
+// -------------------------------------------------------------
+// MASTER EXECUTION CONTROLLER
+// -------------------------------------------------------------
+function executeParasharaMaster() {
+  const dateStr = document.getElementById("inDate").value;
+  const timeStr = document.getElementById("inTime").value;
+  const latStr = document.getElementById("inLat").value;
+  const lonStr = document.getElementById("inLon").value;
+  const tzStr = document.getElementById("inTz").value;
+
+  if (!dateStr || !timeStr || !latStr || !lonStr || !tzStr) {
+    alert("कृपया सभी जन्म विवरण (तारीख, समय, स्थान, अक्षांश, देशांतर और टाइमज़ोन) भरें।");
+    return;
+  }
+
+  const lat = parseFloat(latStr);
+  const lon = parseFloat(lonStr);
+  const tz = parseFloat(tzStr);
+
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [hh, mm, ss] = (timeStr + ":00").split(':').slice(0, 3).map(Number);
+
+  const birthLocalHrs = hh + mm / 60 + (ss || 0) / 3600;
+  const utcHrs = birthLocalHrs - tz;
+
+  const JD = getJD(y, m, d, utcHrs);
+  const T = (JD - 2451545.0) / 36525.0;
+
+  // True Chitra Paksha (Lahiri) Ayanamsa
+  const ayanamsa = 23.85307 + 1.396822 * T + 0.000308 * T * T;
+  const eps = 23.439291 - 0.0130042 * T;
+
+  // Central Difference Speed: stepDays = 0.05 days (1.2 hours)
+  const stepDays = 0.05;
+
+  const pos_center = computeSiderealGeocentricLongitude(T, ayanamsa);
+  const pos_plus   = computeSiderealGeocentricLongitude(T + (stepDays / 36525.0), ayanamsa);
+  const pos_minus  = computeSiderealGeocentricLongitude(T - (stepDays / 36525.0), ayanamsa);
+
+  const PLANET_NAMES = {
+    Sun: "सूर्य", Moon: "चन्द्र", Mars: "मंगल", Mercury: "बुध",
+    Jupiter: "गुरु", Venus: "शुक्र", Saturn: "शनि", Rahu: "राहु", Ketu: "केतु"
+  };
+
+  const planets = [];
+  for (let key in PLANET_NAMES) {
+    const lonCenter = pos_center[key];
+    
+    // Central Difference: (f(T + dT) - f(T - dT)) / (2 * stepDays)
+    let dDiff = pos_plus[key] - pos_minus[key];
+    while (dDiff < -180) dDiff += 360;
+    while (dDiff > 180) dDiff -= 360;
+    const speed = dDiff / (2.0 * stepDays);
+
+    let isRetro = false;
+    if (key === 'Sun' || key === 'Moon') {
+      isRetro = false;
+    } else if (key === 'Rahu' || key === 'Ketu') {
+      isRetro = true;
+    } else {
+      isRetro = (speed < 0);
+    }
+
+    planets.push({
+      id: key,
+      name: PLANET_NAMES[key],
+      abs: lonCenter,
+      speed: (key === 'Rahu' || key === 'Ketu') ? -Math.abs(speed) : speed,
+      retro: isRetro
+    });
+  }
+
+  // Local Sidereal Time & RAMC
+  let GMST = norm360(280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T);
+  const RAMC = norm360(GMST + lon);
+
+  // True Sripati Cusps
+  const sripatiBhavas = calculateTrueSripatiCusps(RAMC, lat, eps, ayanamsa);
+  const lagnaAbs = sripatiBhavas[0].mid;
+  const lagnaSign = Math.floor(lagnaAbs / 30);
+
+  planets.unshift({
+    id: "Lagna",
+    name: "लग्न",
+    abs: lagnaAbs,
+    speed: 360.0,
+    retro: false
+  });
+
+  // Placements
+  planets.forEach(p => {
+    p.sign = Math.floor(p.abs / 30);
+    p.deg = p.abs % 30;
+    p.rasiHouse = (p.sign - lagnaSign + 12) % 12 + 1;
+
+    p.chalitHouse = 1;
+    for (let i = 0; i < 12; i++) {
+      const s1 = sripatiBhavas[i].sandhi1;
+      const s2 = sripatiBhavas[i].sandhi2;
+      let inside = false;
+      if (s1 < s2) {
+        inside = (p.abs >= s1 && p.abs < s2);
+      } else {
+        inside = (p.abs >= s1 || p.abs < s2);
+      }
+      if (inside) {
+        p.chalitHouse = sripatiBhavas[i].house;
+        break;
+      }
+    }
+
+    p.isSandhi = false;
+    for (let i = 0; i < 12; i++) {
+      const diff1 = Math.abs(p.abs - sripatiBhavas[i].sandhi1);
+      const diff2 = Math.abs(p.abs - sripatiBhavas[i].sandhi2);
+      if (diff1 <= 1.5 || diff1 >= 358.5 || diff2 <= 1.5 || diff2 >= 358.5) {
+        p.isSandhi = true;
+        break;
+      }
+    }
+  });
+
+  // Sunrise, Dinamana & BPHS Kalavelas
+  const sunObj = planets.find(p => p.id === "Sun");
+  const sunAbs = sunObj.abs;
+
+  const JD_midnight = Math.floor(JD - 0.5) + 0.5;
+  const sunData = calculateClassicalSunrise(JD_midnight, lat, lon, tz, ayanamsa);
+  const sunriseHrs = sunData.sunriseHrs;
+  const dinamanaHrs = sunData.dinamanaHrs;
+  const ratrimanaHrs = 24.0 - dinamanaHrs;
+
+  let elapsedSinceSunrise = birthLocalHrs - sunriseHrs;
+  if (elapsedSinceSunrise < 0) elapsedSinceSunrise += 24.0;
+  const ishtaGhati = elapsedSinceSunrise * 2.5;
+
+  const isDayBirth = (birthLocalHrs >= sunriseHrs && birthLocalHrs < (sunriseHrs + dinamanaHrs));
+  const weekday = (Math.floor(JD + 0.5 + tz / 24.0) + 1) % 7;
+  const portionSpan = isDayBirth ? (dinamanaHrs / 8.0) : (ratrimanaHrs / 8.0);
+
+  // BPHS Gulika (Ascendant at start of Saturn's portion)
+  const DAY_GULIKA_PORTIONS = [6, 5, 4, 3, 2, 1, 0];
+  const NIGHT_GULIKA_PORTIONS = [2, 1, 0, 6, 5, 4, 3];
+  const gulikaPortionIndex = isDayBirth ? DAY_GULIKA_PORTIONS[weekday] : NIGHT_GULIKA_PORTIONS[weekday];
+  const gulikaElapsedHrs = gulikaPortionIndex * portionSpan;
+  const gulikaEventLocalTime = isDayBirth ? (sunriseHrs + gulikaElapsedHrs) : ((sunriseHrs + dinamanaHrs) + gulikaElapsedHrs);
+
+  const gulikaUtcHrs = gulikaEventLocalTime - tz;
+  const gulikaJD = getJD(y, m, d, gulikaUtcHrs);
+  const gulikaT = (gulikaJD - 2451545.0) / 36525.0;
+  const gulikaAyanamsa = 23.85307 + 1.396822 * gulikaT + 0.000308 * gulikaT * gulikaT;
+  const gulikaGMST = norm360(280.46061837 + 360.98564736629 * (gulikaJD - 2451545.0) + 0.000387933 * gulikaT * gulikaT);
+  const gulikaRAMC = norm360(gulikaGMST + lon);
+  const gulikaAbs = computeLagnaFromRAMC(gulikaRAMC, lat, eps, gulikaAyanamsa);
+
+  // Yamaghantaka (Ascendant at start of Jupiter's portion)
+  const DAY_YAMA_PORTIONS = [4, 3, 2, 1, 0, 6, 5];
+  const yamaElapsedHrs = DAY_YAMA_PORTIONS[weekday] * portionSpan;
+  const yamaEventLocalTime = sunriseHrs + yamaElapsedHrs;
+  const yamaUtcHrs = yamaEventLocalTime - tz;
+  const yamaJD = getJD(y, m, d, yamaUtcHrs);
+  const yamaT = (yamaJD - 2451545.0) / 36525.0;
+  const yamaGMST = norm360(280.46061837 + 360.98564736629 * (yamaJD - 2451545.0) + 0.000387933 * yamaT * yamaT);
+  const yamaRAMC = norm360(yamaGMST + lon);
+  const yamaghantakaAbs = computeLagnaFromRAMC(yamaRAMC, lat, eps, ayanamsa);
+
+  // 5 Aprakasha Upagrahas (BPHS Ch. 3)
+  const dhooma = norm360(sunAbs + 133 + 20/60);
+  const vyatipata = norm360(360 - dhooma);
+  const parivesha = norm360(vyatipata + 180);
+  const indrachapa = norm360(360 - parivesha);
+  const upaketu = norm360(indrachapa + 16 + 40/60);
+
+  // Special Lagnas (BPHS Ch. 5) & Pranapada (Ch. 3)
+  const bhavaLagna = norm360(sunAbs + (ishtaGhati / 5.0) * 30.0);
+  const horaLagna = norm360(sunAbs + (ishtaGhati / 2.5) * 30.0);
+  const ghatiLagna = norm360(sunAbs + ishtaGhati * 30.0);
+
+  let pranaBase = (ishtaGhati * 60.0) / 15.0 * 30.0;
+  const sunSign = Math.floor(sunAbs / 30);
+  if (sunSign % 3 === 1) pranaBase += 240.0;
+  else if (sunSign % 3 === 2) pranaBase += 120.0;
+  const pranapada = norm360(sunAbs + pranaBase);
+
+  currentCalculation = {
+    planets,
+    sripatiBhavas,
+    lagnaSign,
+    upagrahas: [
+      { name: "धूम (Dhooma)", abs: dhooma },
+      { name: "व्यतीपात (Vyatipata)", abs: vyatipata },
+      { name: "परिवेष (Parivesha)", abs: parivesha },
+      { name: "इन्द्रचाप (Indrachapa)", abs: indrachapa },
+      { name: "उपकेतु (Upaketu)", abs: upaketu },
+      { name: "गुलिक (Gulika - आरंभ लग्न)", abs: gulikaAbs },
+      { name: "यमघण्टक (Yamaghantaka)", abs: yamaghantakaAbs }
+    ],
+    specialLagnas: [
+      { name: "भाव लग्न (Bhava Lagna)", abs: bhavaLagna },
+      { name: "होरा लग्न (Hora Lagna)", abs: horaLagna },
+      { name: "घटिका लग्न (Ghati Lagna)", abs: ghatiLagna },
+      { name: "प्राणपद लग्न (Pranapada)", abs: pranapada }
+    ]
+  };
+
+  document.getElementById("outputSection").style.display = "block";
+
+  renderSandhiAlerts(planets);
+  renderAllTables();
+  renderRasiAndChalitCharts();
+  initVargaButtons();
+  renderSelectedVargaCharts();
+}
+
+// -------------------------------------------------------------
+// BPHS VARGA MATHEMATICS (D1 to D60)
+// -------------------------------------------------------------
+function getVargaSign(sign, deg, varga) {
+  const eps = 0.00001;
+  switch(varga) {
+    case 1: return sign;
+    case 2:
+      if (sign % 2 === 0) return deg < 15 ? 4 : 3;
+      return deg < 15 ? 3 : 4;
+    case 3:
+      const dPart = Math.floor((deg - eps) / 10);
+      const shift = dPart === 0 ? 0 : (dPart === 1 ? 4 : 8);
+      return (sign + shift) % 12;
+    case 4:
+      return (sign + Math.floor((deg - eps) / 7.5) * 3) % 12;
+    case 7:
+      const sStart = (sign % 2 === 0) ? sign : (sign + 6) % 12;
+      return (sStart + Math.floor((deg - eps) / (30/7))) % 12;
+    case 9:
+      let nStart = (sign % 3 === 0) ? sign : (sign % 3 === 1 ? (sign + 8) % 12 : (sign + 4) % 12);
+      return (nStart + Math.floor((deg - eps) / (3 + 20/60))) % 12;
+    case 10:
+      let dsStart = (sign % 2 === 0) ? sign : (sign + 8) % 12;
+      return (dsStart + Math.floor((deg - eps) / 3.0)) % 12;
+    case 12:
+      return (sign + Math.floor((deg - eps) / 2.5)) % 12;
+    case 16:
+      let shStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 4 : 8);
+      return (shStart + Math.floor((deg - eps) / 1.875)) % 12;
+    case 20:
+      let vStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 8 : 4);
+      return (vStart + Math.floor((deg - eps) / 1.5)) % 12;
+    case 24:
+      let sidStart = (sign % 2 === 0) ? 4 : 3;
+      return (sidStart + Math.floor((deg - eps) / 1.25)) % 12;
+    case 27:
+      return ((sign % 4) * 3 + Math.floor((deg - eps) / (1 + 7/60))) % 12;
+    case 30:
+      if (sign % 2 === 0) {
+        if (deg < 5) return 0; if (deg < 10) return 10; if (deg < 18) return 8; if (deg < 25) return 2; return 6;
+      } else {
+        if (deg < 5) return 1; if (deg < 12) return 5; if (deg < 20) return 11; if (deg < 25) return 9; return 7;
+      }
+    case 40:
+      return (((sign % 2 === 0) ? 0 : 6) + Math.floor((deg - eps) / 0.75)) % 12;
+    case 45:
+      let akStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 4 : 8);
+      return (akStart + Math.floor((deg - eps) / (30/45))) % 12;
+    case 60:
+      return (sign + Math.floor((deg * 2) - eps) % 12) % 12;
+    default: return sign;
+  }
+}
+
+// -------------------------------------------------------------
+// RENDERERS
+// -------------------------------------------------------------
+function renderSandhiAlerts(planets) {
+  const container = document.getElementById("sandhiAnalysisContent");
+  const sandhiPlanets = planets.filter(p => p.id !== "Lagna" && p.isSandhi);
+  const shiftedPlanets = planets.filter(p => p.id !== "Lagna" && p.rasiHouse !== p.chalitHouse);
+
+  let html = "";
+  if (sandhiPlanets.length > 0) {
+    html += `<div class="sandhi-item"><span class="badge-sandhi">भाव संधि पर स्थित</span> <b>` +
+      sandhiPlanets.map(p => `${p.name} (${SIGNS[p.sign]} ${formatDMS(p.deg)})`).join(', ') +
+      `</b> श्रीपति भाव संधि (±1.5°) के सीमांत बिंदु पर स्थित हैं। BPHS अनुसार ये ग्रह संधि-दोष से प्रभावित रहेंगे।</div>`;
+  } else {
+    html += `<div class="sandhi-item"><span style="color:#166534; font-weight:bold;">✓ कोई भी ग्रह भाव संधि के संकीर्ण क्षेत्र में नहीं है।</span></div>`;
+  }
+
+  if (shiftedPlanets.length > 0) {
+    shiftedPlanets.forEach(p => {
+      html += `<div class="sandhi-item"><span class="badge-shift">भाव परिवर्तन (Shift)</span> <b>${p.name}</b> राशि कुण्डली में <b>भाव ${p.rasiHouse}</b> में है, परन्तु श्रीपति भाव चलित में <b>भाव ${p.chalitHouse}</b> में स्थापित है। फलित में यह ग्रह <b>भाव ${p.chalitHouse}</b> का फल देगा।</div>`;
+    });
+  } else {
+    html += `<div class="sandhi-item"><b>भाव संरेखण:</b> सभी ग्रह राशि कुण्डली और भाव चलित दोनों में एक ही भाव में हैं।</div>`;
+  }
+  container.innerHTML = html;
+}
+
+function renderAllTables() {
+  const { planets, sripatiBhavas, upagrahas, specialLagnas } = currentCalculation;
+
+  document.querySelector("#tblPlanets tbody").innerHTML = planets.map(p => {
+    const nakIdx = Math.floor(p.abs / (13 + 20/60)) % 27;
+    const speedStr = `${p.speed >= 0 ? '+' : ''}${p.speed.toFixed(3)}°/दिन`;
+    return `<tr>
+      <td><b>${p.name}</b> ${p.retro ? '<span class="retro">(व)</span>' : ''}</td>
+      <td>${SIGNS[p.sign]}</td>
+      <td>${formatDMS(p.deg)}</td>
+      <td>${speedStr}</td>
+      <td>${NAKSHATRAS[nakIdx]}</td>
+    </tr>`;
+  }).join('');
+
+  document.querySelector("#tblSripati tbody").innerHTML = sripatiBhavas.map(b => `<tr>
+    <td><b>भाव ${b.house}</b></td>
+    <td>${SIGNS[b.sandhi1Sign]} ${formatDMS(b.sandhi1Deg)}</td>
+    <td>${SIGNS[b.midSign]} ${formatDMS(b.midDeg)}</td>
+    <td>${SIGNS[b.sandhi2Sign]} ${formatDMS(b.sandhi2Deg)}</td>
+  </tr>`).join('');
+
+  document.querySelector("#tblUpagrahas tbody").innerHTML = upagrahas.map(u => `<tr>
+    <td><b>${u.name}</b></td>
+    <td>${SIGNS[Math.floor(u.abs / 30)]}</td>
+    <td>${formatDMS(u.abs % 30)}</td>
+  </tr>`).join('');
+
+  document.querySelector("#tblSpecialLagnas tbody").innerHTML = specialLagnas.map(l => `<tr>
+    <td><b>${l.name}</b></td>
+    <td>${SIGNS[Math.floor(l.abs / 30)]}</td>
+    <td>${formatDMS(l.abs % 30)}</td>
+  </tr>`).join('');
+}
+
+// -------------------------------------------------------------
+// SVG GRAPHICS: NORTH & SOUTH INDIAN STYLES
+// -------------------------------------------------------------
+const NORTH_HOUSE_COORDS = {
+  1:  { rx: 200, ry: 130, sx: 200, sy: 175 },
+  2:  { rx: 115, ry: 45,  sx: 115, sy: 85  },
+  3:  { rx: 45,  ry: 115, sx: 85,  sy: 115 },
+  4:  { rx: 130, ry: 200, sx: 175, sy: 200 },
+  5:  { rx: 45,  ry: 285, sx: 85,  sy: 285 },
+  6:  { rx: 115, ry: 355, sx: 115, sy: 315 },
+  7:  { rx: 200, ry: 270, sx: 200, sy: 225 },
+  8:  { rx: 285, ry: 355, sx: 285, sy: 315 },
+  9:  { rx: 355, ry: 285, sx: 315, sy: 285 },
+  10: { rx: 270, ry: 200, sx: 225, sy: 200 },
+  11: { rx: 355, ry: 115, sx: 315, sy: 115 },
+  12: { rx: 285, ry: 45,  sx: 285, sy: 85  }
+};
+
+const SOUTH_BOX_SIGNS = [
+  { s: 11, x: 5, y: 5 },     { s: 0, x: 102.5, y: 5 }, { s: 1, x: 200, y: 5 },   { s: 2, x: 297.5, y: 5 },
+  { s: 10, x: 5, y: 102.5 },                                                     { s: 3, x: 297.5, y: 102.5 },
+  { s: 9,  x: 5, y: 200 },                                                       { s: 4, x: 297.5, y: 200 },
+  { s: 8,  x: 5, y: 297.5 }, { s: 7, x: 102.5, y: 297.5 },{ s: 6, x: 200, y: 297.5 },{ s: 5, x: 297.5, y: 297.5 }
+];
+
+function drawNorthBase(svgId) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = `
+    <rect x="5" y="5" width="390" height="390" fill="var(--chart-bg)" stroke="var(--chart-line)" stroke-width="2"/>
+    <line x1="5" y1="5" x2="395" y2="395" stroke="var(--chart-line)" stroke-width="1.5"/>
+    <line x1="395" y1="5" x2="5" y2="395" stroke="var(--chart-line)" stroke-width="1.5"/>
+    <polygon points="200,5 395,200 200,395 5,200" fill="none" stroke="var(--chart-line)" stroke-width="1.5"/>
+  `;
+}
+
+function drawSouthBase(svgId) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = `
+    <rect x="5" y="5" width="390" height="390" fill="var(--chart-bg)" stroke="var(--chart-line)" stroke-width="2"/>
+    <line x1="102.5" y1="5" x2="102.5" y2="395" stroke="var(--chart-line)" stroke-width="1.5"/>
+    <line x1="200"   y1="5" x2="200"   y2="395" stroke="var(--chart-line)" stroke-width="1.5"/>
+    <line x1="297.5" y1="5" x2="297.5" y2="395" stroke="var(--chart-line)" stroke-width="1.5"/>
+    <line x1="5" y1="102.5" x2="395" y2="102.5" stroke="var(--chart-line)" stroke-width="1.5"/>
+    <line x1="5" y1="200"   x2="395" y2="200"   stroke="var(--chart-line)" stroke-width="1.5"/>
+    <line x1="5" y1="297.5" x2="395" y2="297.5" stroke="var(--chart-line)" stroke-width="1.5"/>
+    <rect x="102.5" y="102.5" width="195" height="195" fill="#f8fafc" stroke="none"/>
+  `;
+}
+
+function renderRasiAndChalitCharts() {
+  const { planets, lagnaSign, sripatiBhavas } = currentCalculation;
+
+  // 1. North Rasi Chart
+  drawNorthBase("northRasiSvg");
+  const nRasiSvg = document.getElementById("northRasiSvg");
+  for (let h = 1; h <= 12; h++) {
+    const sNum = (lagnaSign + h - 1) % 12 + 1;
+    const pt = NORTH_HOUSE_COORDS[h];
+    nRasiSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
+    const occ = [];
+    if (h === 1) occ.push("लग्न");
+    planets.filter(p => p.id !== "Lagna" && p.rasiHouse === h).forEach(p => {
+      occ.push(`${p.name}${p.retro ? '*' : ''}`);
+    });
+    nRasiSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
+  }
+
+  // 2. North Chalit Chart
+  drawNorthBase("northChalitSvg");
+  const nChalitSvg = document.getElementById("northChalitSvg");
+  for (let h = 1; h <= 12; h++) {
+    const bhavaData = sripatiBhavas[h - 1];
+    const sNum = bhavaData.midSign + 1;
+    const pt = NORTH_HOUSE_COORDS[h];
+    nChalitSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
+    const occ = [];
+    if (h === 1) occ.push("लग्न");
+    planets.filter(p => p.id !== "Lagna" && p.chalitHouse === h).forEach(p => {
+      occ.push(`${p.name}${p.retro ? '*' : ''}`);
+    });
+    nChalitSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
+  }
+
+  // 3. South Rasi Chart
+  drawSouthBase("southRasiSvg");
+  const sRasiSvg = document.getElementById("southRasiSvg");
+  SOUTH_BOX_SIGNS.forEach(b => {
+    const isLagna = (b.s === lagnaSign);
+    sRasiSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+    if (isLagna) {
+      sRasiSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
+    }
+    const occ = [];
+    if (isLagna) occ.push("लग्न");
+    planets.filter(p => p.id !== "Lagna" && p.sign === b.s).forEach(p => {
+      occ.push(`${p.name}${p.retro ? '*' : ''}`);
+    });
+    sRasiSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
+  });
+
+  // 4. South Chalit Chart
+  drawSouthBase("southChalitSvg");
+  const sChalitSvg = document.getElementById("southChalitSvg");
+  SOUTH_BOX_SIGNS.forEach(b => {
+    const isLagna = (b.s === lagnaSign);
+    sChalitSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+    if (isLagna) {
+      sChalitSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
+    }
+
+    const occ = [];
+    if (isLagna) occ.push("लग्न");
+    planets.filter(p => p.id !== "Lagna" && p.sign === b.s).forEach(p => {
+      occ.push(`${p.name}[H${p.chalitHouse}]${p.retro ? '*' : ''}`);
+    });
+    sChalitSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="#0f766e" font-size="10" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
+  });
+}
+
+// -------------------------------------------------------------
+// VARGA CHARTS RENDERER (D1 to D60)
+// -------------------------------------------------------------
+function initVargaButtons() {
+  const strip = document.getElementById("vargaStrip");
+  strip.innerHTML = VARGAS_CONFIG.map(v => `
+    <button class="v-btn ${v.id === selectedVarga ? 'active' : ''}" onclick="selectVarga(${v.id})">${v.name}</button>
+  `).join('');
+}
+
+function selectVarga(vId) {
+  selectedVarga = vId;
+  const cfg = VARGAS_CONFIG.find(v => v.id === vId);
+  document.getElementById("activeVargaTitle").innerText = `षोडशवर्ग कुण्डली चयन — ${cfg.name}`;
+  document.getElementById("vargaNorthHeading").innerText = `चयनित वर्ग: ${cfg.name} (उत्तर भारतीय)`;
+  document.getElementById("vargaSouthHeading").innerText = `चयनित वर्ग: ${cfg.name} (दक्षिण भारतीय)`;
+  
+  document.querySelectorAll('.v-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.innerText.includes(`D${vId}`));
+  });
+
+  renderSelectedVargaCharts();
+}
+
+function renderSelectedVargaCharts() {
+  const { planets } = currentCalculation;
+  if (!planets) return;
+  const lagna = planets.find(p => p.id === "Lagna");
+  const vLagnaSign = getVargaSign(lagna.sign, lagna.deg, selectedVarga);
+
+  // Varga North
+  drawNorthBase("vargaNorthSvg");
+  const vNorthSvg = document.getElementById("vargaNorthSvg");
+  for (let h = 1; h <= 12; h++) {
+    const sNum = (vLagnaSign + h - 1) % 12 + 1;
+    const pt = NORTH_HOUSE_COORDS[h];
+    vNorthSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
+    const occ = [];
+    if (h === 1) occ.push("लग्न");
+    planets.filter(p => p.id !== "Lagna").forEach(p => {
+      const pVSign = getVargaSign(p.sign, p.deg, selectedVarga);
+      if (pVSign === sNum - 1) occ.push(`${p.name}${p.retro ? '*' : ''}`);
+    });
+    vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
+  }
+
+  // Varga South
+  drawSouthBase("vargaSouthSvg");
+  const vSouthSvg = document.getElementById("vargaSouthSvg");
+  SOUTH_BOX_SIGNS.forEach(b => {
+    const isVLagna = (b.s === vLagnaSign);
+    vSouthSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+    if (isVLagna) {
+      vSouthSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
+    }
+    const occ = [];
+    if (isVLagna) occ.push("लग्न");
+    planets.filter(p => p.id !== "Lagna").forEach(p => {
+      const pVSign = getVargaSign(p.sign, p.deg, selectedVarga);
+      if (pVSign === b.s) occ.push(`${p.name}${p.retro ? '*' : ''}`);
+    });
+    vSouthSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
+  });
+}
+
+// Auto-initialize map when DOM is loaded
+window.addEventListener('DOMContentLoaded', () => {
+  initMap();
+});
+</script>
+</body>
+</html>
