@@ -1474,149 +1474,166 @@
             return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + hourUTC / 24 + B - 1524.5;
         }
 
-        function lahiriAyanamsa(T) { return 23.85 + (T * 100) * 0.013972; }
-
-        function solveKepler(M_deg, e) {
-            const M_rad = torad(M_deg);
-            let E_rad = M_rad;
-            for (let i = 0; i < 15; i++) {
-                let dE = (E_rad - e * Math.sin(E_rad) - M_rad) / (1 - e * Math.cos(E_rad));
-                E_rad -= dE;
-                if (Math.abs(dE) < 1e-7) break;
-            }
-            return E_rad;
+        function lahiriAyanamsa(T) {
+            return 23.85307 + 1.396822 * T + 0.000308 * T * T;
         }
 
-        const ORBIT_ELEMENTS = {
-            mercury: [0.38709927, 0.00000037, 0.20563593, 0.00001906, 7.004979, -0.005947, 252.250323, 149472.674111, 77.457796, 0.160476, 48.330765, -0.125349],
-            venus:   [0.72333566, 0.00000490, 0.00677672, -0.00004107, 3.394676, -0.000788, 181.979099, 58517.815387, 131.602467, 0.002683, 76.679842, -0.277694],
-            earth:   [1.00000261, 0.00000562, 0.01671123, -0.00004392, 0.000015, -0.012946, 100.464571, 35999.372449, 102.937681, 0.323273, 0.0, 0.0],
-            mars:    [1.52371034, 0.00001847, 0.09339410, 0.00007882, 1.849691, -0.008131, -4.553432, 19140.302684, -23.943629, 0.444410, 49.559538, -0.292573],
-            jupiter: [5.20288700, -0.00011607, 0.04838624, -0.00013257, 1.304396, -0.001837, 34.396440, 3034.746128, 14.728479, 0.212526, 100.473909, 0.204691],
-            saturn:  [9.53667594, -0.00125060, 0.05386179, -0.00050991, 2.485991, 0.001936, 49.954244, 1222.493622, 92.598878, -0.418972, 113.662424, -0.288671]
+        const BPHS_DEG = Math.PI / 180;
+        const BPHS_RAD = 180 / Math.PI;
+
+        function bphsSolveKepler(M, e) {
+            let E = M;
+            for (let i = 0; i < 15; i++) {
+                const dE = (E - e * Math.sin(E) - M) / (1.0 - e * Math.cos(E));
+                E -= dE;
+                if (Math.abs(dE) < 1e-7) break;
+            }
+            return E;
+        }
+
+        const BPHS_ORBITAL_DATA = {
+            Earth: { a: [1.00000261, 0.00000562], e: [0.01671123, -0.00004392], I: [0.00001531, -0.01294668], L: [100.46457166, 35999.37244981], w: [102.93768193, 0.32327364], node: [0.0, 0.0] },
+            Mercury: { a: [0.38709927, 0.00000037], e: [0.20563593, 0.00001906], I: [7.00497902, -0.00594749], L: [252.25032350, 149472.67411175], w: [77.45779628, 0.16047689], node: [48.33076593, -0.12534081] },
+            Venus: { a: [0.72333566, 0.00000390], e: [0.00677672, -0.00004107], I: [3.39467605, -0.00078890], L: [181.97909950, 58517.81538729], w: [131.60246718, 0.00268329], node: [76.67984255, -0.27769418] },
+            Mars: { a: [1.52371034, 0.00001847], e: [0.09339410, 0.00007882], I: [1.84969142, -0.00813131], L: [-4.55343205, 19140.30268499], w: [-20.69234015, 0.44441088], node: [49.55953891, -0.29257343] },
+            Jupiter: { a: [5.20288700, -0.00011607], e: [0.04838624, -0.00013253], I: [1.30439695, -0.00183714], L: [34.39644051, 3034.74612775], w: [14.72847983, 0.21252668], node: [100.47390909, 0.20469106] },
+            Saturn: { a: [9.53667594, -0.00125060], e: [0.05386179, -0.00050991], I: [2.48599187, 0.00193609], L: [49.95424423, 1222.49362201], w: [92.59887831, -0.41897216], node: [113.66242448, -0.28867794] }
         };
 
-        function getHeliocentricPos(planetKey, T) {
-            const el = ORBIT_ELEMENTS[planetKey];
-            const a = el[0] + el[1] * T;
-            const e = el[2] + el[3] * T;
-            const I = el[4] + el[5] * T;
-            const L = normalizeDegrees(el[6] + el[7] * T);
-            const w = normalizeDegrees(el[8] + el[9] * T);
-            const O = normalizeDegrees(el[10] + el[11] * T);
+        function getPlanetHeliocentricBPHS(elements, T) {
+            const a = elements.a[0] + elements.a[1] * T;
+            const e = elements.e[0] + elements.e[1] * T;
+            const I = (elements.I[0] + elements.I[1] * T) * BPHS_DEG;
+            const L = normalizeDegrees(elements.L[0] + elements.L[1] * T) * BPHS_DEG;
+            const longPeri = normalizeDegrees(elements.w[0] + elements.w[1] * T) * BPHS_DEG;
+            const node = normalizeDegrees(elements.node[0] + elements.node[1] * T) * BPHS_DEG;
 
-            const omega = normalizeDegrees(w - O);
-            const M = normalizeDegrees(L - w);
+            const M = normalizeDegrees((L - longPeri) * BPHS_RAD) * BPHS_DEG;
+            const E = bphsSolveKepler(M, e);
 
-            const E_rad = solveKepler(M, e);
-            const x_prime = a * (Math.cos(E_rad) - e);
-            const y_prime = a * Math.sqrt(1 - e * e) * Math.sin(E_rad);
+            const x_orb = a * (Math.cos(E) - e);
+            const y_orb = a * Math.sqrt(1.0 - e * e) * Math.sin(E);
 
-            const r = Math.sqrt(x_prime * x_prime + y_prime * y_prime);
-            const v = Math.atan2(y_prime, x_prime);
+            const periNode = longPeri - node;
+            const cosNode = Math.cos(node), sinNode = Math.sin(node);
+            const cosPeri = Math.cos(periNode), sinPeri = Math.sin(periNode);
+            const cosI = Math.cos(I);
 
-            const u = v + torad(omega);
-            const Ir = torad(I);
-            const Or = torad(O);
+            const Px = cosNode * cosPeri - sinNode * sinPeri * cosI;
+            const Py = sinNode * cosPeri + cosNode * sinPeri * cosI;
+            const Qx = -cosNode * sinPeri - sinNode * cosPeri * cosI;
+            const Qy = -sinNode * sinPeri + cosNode * cosPeri * cosI;
 
-            const x = r * (Math.cos(Or) * Math.cos(u) - Math.sin(Or) * Math.sin(u) * Math.cos(Ir));
-            const y = r * (Math.sin(Or) * Math.cos(u) + Math.cos(Or) * Math.sin(u) * Math.cos(Ir));
-            const z = r * (Math.sin(u) * Math.sin(Ir));
+            const x = x_orb * Px + y_orb * Qx;
+            const y = x_orb * Py + y_orb * Qy;
+            const z = (x_orb * sinPeri + y_orb * cosPeri) * Math.sin(I);
+
             return { x, y, z };
         }
 
-        function getGeocentricPlanet(planetKey, T, ayanamsa) {
-            const p = getHeliocentricPos(planetKey, T);
-            const e = getHeliocentricPos('earth', T);
-            const x_geo = p.x - e.x;
-            const y_geo = p.y - e.y;
-            let lambda = normalizeDegrees(todeg(Math.atan2(y_geo, x_geo)));
-            let sidereal = normalizeDegrees(lambda - ayanamsa);
-            return { sayana: lambda, sidereal: sidereal, rashi: Math.floor(sidereal / 30) + 1 };
+        function computeSiderealGeocentricLongitudeBPHS(T, ayanamsa) {
+            const earth = getPlanetHeliocentricBPHS(BPHS_ORBITAL_DATA.Earth, T);
+
+            const sunX = -earth.x;
+            const sunY = -earth.y;
+            const sunTrop = normalizeDegrees(Math.atan2(sunY, sunX) * BPHS_RAD);
+            const sunSid = normalizeDegrees(sunTrop - ayanamsa);
+
+            const result = { Sun: sunSid };
+
+            ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'].forEach(pName => {
+                const pHelio = getPlanetHeliocentricBPHS(BPHS_ORBITAL_DATA[pName], T);
+                let geoX = pHelio.x - earth.x;
+                let geoY = pHelio.y - earth.y;
+
+                if (pName === 'Jupiter' || pName === 'Saturn') {
+                    const M_jup = normalizeDegrees(19.895 + 3034.9057 * T) * BPHS_DEG;
+                    const M_sat = normalizeDegrees(316.967 + 1222.1138 * T) * BPHS_DEG;
+                    const deltaSat = (-0.812 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * BPHS_DEG)
+                                      - 0.046 * Math.sin(2 * M_sat - 2 * M_jup)
+                                      + 0.171 * Math.sin(M_jup - M_sat - 4.4 * BPHS_DEG)) * BPHS_DEG;
+                    const deltaJup = (0.332 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * BPHS_DEG)) * BPHS_DEG;
+
+                    const r = Math.sqrt(geoX * geoX + geoY * geoY);
+                    if (pName === 'Saturn') {
+                        const curL = Math.atan2(geoY, geoX) + deltaSat;
+                        geoX = r * Math.cos(curL);
+                        geoY = r * Math.sin(curL);
+                    } else {
+                        const curL = Math.atan2(geoY, geoX) + deltaJup;
+                        geoX = r * Math.cos(curL);
+                        geoY = r * Math.sin(curL);
+                    }
+                }
+
+                const pTrop = normalizeDegrees(Math.atan2(geoY, geoX) * BPHS_RAD);
+                result[pName] = normalizeDegrees(pTrop - ayanamsa);
+            });
+
+            // Moon (Truncated Brown/Meeus Lunar terms)
+            const L_moon = 218.3165 + 481267.8813 * T;
+            const M_moon = 134.9634 + 477198.8676 * T;
+            const M_sun = 357.5291 + 35999.0503 * T;
+            const D_elong = 297.8502 + 445267.1115 * T;
+            const moonPerturb = 6.289 * Math.sin(M_moon * BPHS_DEG)
+                              - 1.274 * Math.sin((M_moon - 2 * D_elong) * BPHS_DEG)
+                              + 0.658 * Math.sin(2 * D_elong * BPHS_DEG)
+                              - 0.186 * Math.sin(M_sun * BPHS_DEG);
+            result.Moon = normalizeDegrees(L_moon + moonPerturb - ayanamsa);
+
+            // Mean Rahu / Ketu
+            const nodeTrop = 125.04452 - 1934.136261 * T + 0.0020708 * T * T;
+            result.Rahu = normalizeDegrees(nodeTrop - ayanamsa);
+            result.Ketu = normalizeDegrees(result.Rahu + 180);
+
+            return result;
         }
 
-        function getSunSidereal(T, ayanamsa) {
-            const e = getHeliocentricPos('earth', T);
-            const lambda = normalizeDegrees(todeg(Math.atan2(-e.y, -e.x)));
-            const sidereal = normalizeDegrees(lambda - ayanamsa);
-            return { sayana: lambda, sidereal: sidereal, rashi: Math.floor(sidereal / 30) + 1 };
-        }
+        function computeAscendantBPHS(RAMC, latDeg, eps, ayanamsa) {
+            const phi = latDeg * BPHS_DEG;
+            const epsRad = eps * BPHS_DEG;
+            const ramcRad = RAMC * BPHS_DEG;
 
-        const MOON_TERMS = [
-            [0,0,1,0, 6288774], [2,0,-1,0, 1274027], [2,0,0,0, 658314], [0,0,2,0, 213618],
-            [0,1,0,0, -185116], [0,0,0,2, -114332], [2,0,-2,0, 58793], [2,-1,-1,0, 57066],
-            [2,0,1,0, 53322], [2,-1,0,0, 45758], [0,1,-1,0, -40923], [1,0,0,0, -34720],
-            [0,1,1,0, -30383], [2,0,0,-2, 15327], [0,0,1,2, -12528], [0,0,1,-2, 10980],
-            [4,0,-1,0, 10675], [0,0,3,0, 10034], [4,0,-2,0, 8548], [2,1,-1,0, -7888],
-            [2,1,0,0, -6766], [1,0,-1,0, -5163], [1,1,0,0, 4987], [2,-1,1,0, 4036], [2,0,2,0, 3994]
-        ];
-
-        function getMoonSidereal(T, ayanamsa) {
-            const Lp = normalizeDegrees(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T);
-            const D  = normalizeDegrees(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T);
-            const M  = normalizeDegrees(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T);
-            const Mp = normalizeDegrees(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T);
-            const F  = normalizeDegrees(93.2720950 + 483202.0175233 * T - 0.0036539 * T * T);
-            const E = 1 - 0.002516 * T - 0.0000074 * T * T;
-
-            let sigmaL = 0;
-            for (const [d, m, mp, f, coef] of MOON_TERMS) {
-                let e = 1;
-                if (Math.abs(m) === 1) e = E; else if (Math.abs(m) === 2) e = E * E;
-                sigmaL += coef * e * Math.sin(d * torad(D) + m * torad(M) + mp * torad(Mp) + f * torad(F));
-            }
-            const sayana = normalizeDegrees(Lp + sigmaL / 1000000);
-            const sidereal = normalizeDegrees(sayana - ayanamsa);
-            return { sayana: sayana, sidereal: sidereal, rashi: Math.floor(sidereal / 30) + 1 };
-        }
-
-        function getMeanRahu(T, ayanamsa) {
-            const sayana = normalizeDegrees(125.04452 - 1934.136261 * T);
-            const sidereal = normalizeDegrees(sayana - ayanamsa);
-            return { sayana: sayana, sidereal: sidereal, rashi: Math.floor(sidereal / 30) + 1 };
-        }
-
-        function computeAscendant(JD, T, hourUTC, latDeg, lonDeg, ayanamsa) {
-            const JD0 = Math.floor(JD - 0.5) + 0.5;
-            const T0 = (JD0 - 2451545.0) / 36525.0;
-            let GMST0 = 100.46061837 + 36000.770053608 * T0 + 0.000387933 * T0 * T0 - (T0 * T0 * T0) / 38710000.0;
-            GMST0 = normalizeDegrees(GMST0);
-
-            const LMST = normalizeDegrees(GMST0 + (hourUTC * 15.04106864) + lonDeg);
-            const eps = 23.43929111 - 0.013004167 * T;
-
-            const ramcR = torad(LMST);
-            const epsR = torad(eps);
-            const phiR = torad(latDeg);
-
-            const y = Math.cos(ramcR);
-            const x = - (Math.sin(ramcR) * Math.cos(epsR) + Math.tan(phiR) * Math.sin(epsR));
-
-            let ascSayana = todeg(Math.atan2(y, x));
-            ascSayana = normalizeDegrees(ascSayana);
-            const ascNirayana = normalizeDegrees(ascSayana - ayanamsa);
-            return { deg: ascNirayana, rashi: Math.floor(ascNirayana / 30) + 1 };
+            const ascRad = Math.atan2(
+                Math.cos(ramcRad),
+                -Math.sin(ramcRad) * Math.cos(epsRad) - Math.tan(phi) * Math.sin(epsRad)
+            );
+            const ascTrop = normalizeDegrees(ascRad * BPHS_RAD);
+            return normalizeDegrees(ascTrop - ayanamsa);
         }
 
         function computePlanets(y, m, d, hourUTC, latDeg = 28.61, lonDeg = 77.20) {
             const JD = toJulianDay(y, m, d, hourUTC);
-            const T = (JD - 2451545.0) / 36525;
+            const T = (JD - 2451545.0) / 36525.0;
             const ayanamsa = lahiriAyanamsa(T);
 
-            const sun = getSunSidereal(T, ayanamsa);
-            const moon = getMoonSidereal(T, ayanamsa);
-            const mars = getGeocentricPlanet('mars', T, ayanamsa);
-            const mercury = getGeocentricPlanet('mercury', T, ayanamsa);
-            const jupiter = getGeocentricPlanet('jupiter', T, ayanamsa);
-            const venus = getGeocentricPlanet('venus', T, ayanamsa);
-            const saturn = getGeocentricPlanet('saturn', T, ayanamsa);
-            const rahu = getMeanRahu(T, ayanamsa);
+            const pos = computeSiderealGeocentricLongitudeBPHS(T, ayanamsa);
+            const eps = 23.439291 - 0.0130042 * T;
 
-            const asc = computeAscendant(JD, T, hourUTC, latDeg, lonDeg, ayanamsa);
+            let GMST = normalizeDegrees(280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T);
+            const RAMC = normalizeDegrees(GMST + lonDeg);
+
+            const ascSid = computeAscendantBPHS(RAMC, latDeg, eps, ayanamsa);
+
+            const formatObj = (sid) => ({
+                sayana: normalizeDegrees(sid + ayanamsa),
+                sidereal: sid,
+                rashi: Math.floor(sid / 30) + 1,
+                deg: sid % 30
+            });
 
             return {
                 JD, T, ayanamsa,
-                sun, moon, mars, mercury, jupiter, venus, saturn, rahu, asc
+                sun: formatObj(pos.Sun),
+                moon: formatObj(pos.Moon),
+                mars: formatObj(pos.Mars),
+                mercury: formatObj(pos.Mercury),
+                jupiter: formatObj(pos.Jupiter),
+                venus: formatObj(pos.Venus),
+                saturn: formatObj(pos.Saturn),
+                rahu: formatObj(pos.Rahu),
+                ketu: formatObj(pos.Ketu),
+                asc: { deg: ascSid, rashi: Math.floor(ascSid / 30) + 1 }
             };
         }
 
@@ -1719,7 +1736,13 @@
 
             const [y, m, d] = dob.split('-').map(Number);
             const [hh, mm] = time.split(':').map(Number);
-            const hourUTC = hh + mm / 60.0 - 5.5; // IST to UTC
+            let tz = 5.5;
+            const tzInput = document.getElementById(type + 'Tz') || document.getElementById(type + 'WorldTimezone');
+            if (tzInput && tzInput.value) {
+                const parsedTz = parseFloat(tzInput.value);
+                if (!isNaN(parsedTz)) tz = parsedTz;
+            }
+            const hourUTC = hh + mm / 60.0 - tz;
 
             const p = computePlanets(y, m, d, hourUTC, lat, lon);
             const moonNakIndex = Math.floor(p.moon.sidereal / (360 / 27));
