@@ -5,10 +5,82 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Admin — Shri Ramji Astro</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="theme.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--gold:#c9a84c;--bg:#07060e;--card:#0f0d1a;--border:rgba(201,168,76,0.18);--text:#ede8df;--muted:#6a6278;--green:#4ade80;--red:#f87171;--yellow:#fbbf24}
-body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-size:14px;min-height:100vh}
+:root, [data-theme="day"] {
+  --gold: #b48220;
+  --bg: #fdfbf7;
+  --card: #ffffff;
+  --border: rgba(124,19,5,0.18);
+  --text: #2c0a06;
+  --muted: #6e594d;
+  --green: #15803d;
+  --red: #b91c1c;
+  --yellow: #d97706;
+  --toggle-bg: #efe4d3;
+  --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
+}
+[data-theme="night"] {
+  --gold: #c9a84c;
+  --bg: #090514;
+  --card: #140a2b;
+  --border: rgba(201,168,76,0.3);
+  --text: #f3eeff;
+  --muted: #9d8cb8;
+  --green: #4ade80;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --toggle-bg: #1a0b36;
+  --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
+}
+
+/* ELEGANT TOGGLE SWITCH STYLING (NO ICONS) */
+.theme-toggle-container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 86px;
+  height: 30px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  padding: 2px;
+  user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.theme-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 40px;
+  height: 24px;
+  background: var(--toggle-slider-bg);
+  border-radius: 14px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+[data-theme="night"] .theme-slider {
+  transform: translateX(40px);
+}
+.theme-label {
+  flex: 1;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+[data-theme="day"] .label-day, :root:not([data-theme="night"]) .label-day { color: #ffffff; }
+[data-theme="day"] .label-night, :root:not([data-theme="night"]) .label-night { color: var(--muted); }
+[data-theme="night"] .label-day { color: var(--muted); }
+[data-theme="night"] .label-night { color: #000000; }
+
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-size:14px;min-height:100vh;transition:background 0.3s ease, color 0.3s ease}
 
 /* LOGIN */
 #loginScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -130,6 +202,12 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <div class="topbar">
       <h1 id="panelTitle">Overview</h1>
       <div style="display:flex;gap:10px;align-items:center">
+        <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
+        <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
+          <span class="theme-label label-day">DAY</span>
+          <span class="theme-slider"></span>
+          <span class="theme-label label-night">NIGHT</span>
+        </div>
         <span id="lastSync" style="font-size:11px;color:var(--muted)"></span>
         <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
       </div>

@@ -10,23 +10,28 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Yatra+One&family=Rozha+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="theme.js"></script>
     <style>
-        :root {
+        /* DAY MODE (DEFAULT): Golden, Maroon, and White */
+        :root, [data-theme="day"] {
             --primary: #4A0E17;
             --primary-light: #721624;
-            --gold: #C9A84C;
-            --gold2: #E8C96C;
+            --gold: #b48220;
+            --gold2: #8e620c;
             --gold-accent: #C5A059;
             --gold-light: #F4E8C1;
             --gold-dark: #8C6D2B;
-            --gold-dim: rgba(197, 160, 89, 0.12);
-            --gold-border: rgba(197, 160, 89, 0.25);
-            --bg-body: #FAF6EF;
+            --gold-dim: rgba(180, 130, 32, 0.12);
+            --gold-border: rgba(124, 19, 5, 0.22);
+            --bg-body: #fdfbf7;
             --card-bg: #FFFFFF;
             --text-main: #2A1F1D;
             --text-muted: #6B5B57;
             --border-color: #E6DCB8;
             --border-soft: #F0EADB;
+            --nav-bg: rgba(255, 255, 255, 0.96);
+            --toggle-bg: #efe4d3;
+            --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
             --pass-bg: #E8F5E9;
             --pass-text: #1B5E20;
             --warn-bg: #FFF8E1;
@@ -35,15 +40,43 @@
             --fail-text: #B71C1C;
         }
 
+        /* NIGHT MODE: Deep Purple, Golden, and Dark Accents */
+        [data-theme="night"] {
+            --primary: #7c1305;
+            --primary-light: #2a113b;
+            --gold: #c9a84c;
+            --gold2: #f0d584;
+            --gold-accent: #c9a84c;
+            --gold-light: #f4e8c1;
+            --gold-dark: #8c6d2b;
+            --gold-dim: rgba(201, 168, 76, 0.15);
+            --gold-border: rgba(201, 168, 76, 0.35);
+            --bg-body: #090514;
+            --card-bg: #140a2b;
+            --text-main: #f3eeff;
+            --text-muted: #9d8cb8;
+            --border-color: #3b2859;
+            --border-soft: #271a3d;
+            --nav-bg: rgba(11, 5, 24, 0.96);
+            --toggle-bg: #1a0b36;
+            --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
+            --pass-bg: #132e19;
+            --pass-text: #86efac;
+            --warn-bg: #382805;
+            --warn-text: #fde047;
+            --fail-bg: #3a1015;
+            --fail-text: #fca5a5;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
             background-color: var(--bg-body);
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='70' viewBox='0 0 140 70'><text x='70' y='32' fill='%23C5A059' fill-opacity='0.085' font-family='serif' font-weight='bold' font-size='16' text-anchor='middle'>राम राम</text><text x='0' y='67' fill='%23C5A059' fill-opacity='0.085' font-family='serif' font-weight='bold' font-size='16' text-anchor='middle'>राम राम</text><text x='140' y='67' fill='%23C5A059' fill-opacity='0.085' font-family='serif' font-weight='bold' font-size='16' text-anchor='middle'>राम राम</text></svg>");
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
             padding: 0;
             margin: 0 auto;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         /* TOP NAVIGATION */
@@ -54,14 +87,60 @@
             right: 0;
             z-index: 200;
             height: 60px;
-            background: rgba(42, 31, 29, 0.96);
+            background: var(--nav-bg);
             backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--gold-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 clamp(14px, 4%, 48px);
+            transition: background 0.3s ease;
         }
+
+        /* ELEGANT TOGGLE SWITCH STYLING (NO ICONS) */
+        .theme-toggle-container {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            width: 86px;
+            height: 30px;
+            background: var(--toggle-bg);
+            border: 1px solid var(--gold-border);
+            border-radius: 20px;
+            cursor: pointer;
+            padding: 2px;
+            user-select: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .theme-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 40px;
+            height: 24px;
+            background: var(--toggle-slider-bg);
+            border-radius: 14px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        [data-theme="night"] .theme-slider {
+            transform: translateX(40px);
+        }
+        .theme-label {
+            flex: 1;
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+        [data-theme="day"] .label-day, :root:not([data-theme="night"]) .label-day { color: #ffffff; }
+        [data-theme="day"] .label-night, :root:not([data-theme="night"]) .label-night { color: var(--text-muted); }
+        [data-theme="night"] .label-day { color: var(--text-muted); }
+        [data-theme="night"] .label-night { color: #000000; }
         .nav-logo {
             font-family: 'Cinzel', serif;
             font-size: 16px;
@@ -470,6 +549,12 @@
             <a href="vmm.html">💍 विवाह मुहूर्त</a>
             <a href="yajnopavita.html" class="active">🪔 यज्ञोपवीत मुहूर्त</a>
             <button class="lang-switch" onclick="toggleLanguage()">English</button>
+        </div>
+        <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
+        <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
+            <span class="theme-label label-day">DAY</span>
+            <span class="theme-slider"></span>
+            <span class="theme-label label-night">NIGHT</span>
         </div>
     </nav>
 

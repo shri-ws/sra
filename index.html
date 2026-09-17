@@ -24,22 +24,58 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="theme.js"></script>
 
   <style>
-    :root {
-      --gold: #c9a84c;
-      --gold2: #e8c96c;
-      --gold-dim: rgba(201,168,76,0.12);
-      --gold-border: rgba(201,168,76,0.25);
-      --bg: #05030a;
-      --bg2: #0b0714;
-      --bg3: #11091e;
-      --card: #0f0d1a;
-      --text: #ede8df;
-      --muted: #8c829e;
-      --green: #4ade80;
-      --red: #f87171;
+    /* DAY MODE (DEFAULT): Golden, Maroon, and White */
+    :root, [data-theme="day"] {
+      --bg: #fdfbf7;
+      --bg2: #f7f2e8;
+      --bg3: #ebe0cf;
+      --card: #ffffff;
+      --card-border: rgba(124, 19, 5, 0.18);
+      --text: #2c0a06;
+      --heading-color: #7c1305;
+      --muted: #6e594d;
+      --gold: #b48220;
+      --gold2: #8e620c;
+      --gold-dim: rgba(180, 130, 32, 0.12);
+      --gold-border: rgba(124, 19, 5, 0.22);
+      --primary: #7c1305;
+      --primary-light: #fef2f2;
+      --nav-bg: rgba(255, 255, 255, 0.96);
+      --nav-text: #2c0a06;
+      --hero-bg: radial-gradient(ellipse 120% 90% at 50% 30%, #f9edd9 0%, #fdfbf7 75%);
+      --star-opacity: 0.12;
+      --toggle-bg: #efe4d3;
+      --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
+      --green: #15803d;
+      --red: #b91c1c;
       --radius: 16px;
+    }
+
+    /* NIGHT MODE: Deep Purple, Golden, and Dark Accents */
+    [data-theme="night"] {
+      --bg: #090514;
+      --bg2: #120926;
+      --bg3: #1c0e3a;
+      --card: #140a2b;
+      --card-border: rgba(201, 168, 76, 0.3);
+      --text: #f3eeff;
+      --heading-color: #ffd875;
+      --muted: #9d8cb8;
+      --gold: #c9a84c;
+      --gold2: #f0d584;
+      --gold-dim: rgba(201, 168, 76, 0.15);
+      --gold-border: rgba(201, 168, 76, 0.35);
+      --primary: #7c1305;
+      --primary-light: #2a113b;
+      --nav-bg: rgba(11, 5, 24, 0.96);
+      --nav-text: #f3eeff;
+      --hero-bg: radial-gradient(ellipse 120% 90% at 50% 30%, #1a0b36 0%, #090514 75%);
+      --star-opacity: 0.85;
+      --toggle-bg: #1a0b36;
+      --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
     }
 
     *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,34 +87,82 @@
       font-size: 14px;
       line-height: 1.6;
       overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     /* BACKGROUND ANIMATED STARS */
-    #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: var(--star-opacity); transition: opacity 0.3s ease; }
     .star { position: absolute; background: #fff; border-radius: 50%; opacity: var(--op); animation: pulse var(--d) ease-in-out infinite var(--del); }
 
     /* NAV */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       height: 64px;
-      background: rgba(5,3,10,.96);
+      background: var(--nav-bg);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--gold-border);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 clamp(14px, 4%, 48px);
+      transition: background 0.3s ease;
     }
     .nav-logo { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700; color: var(--gold); text-decoration: none; display: flex; align-items: center; gap: 8px; }
     .nav-links { display: flex; align-items: center; gap: 4px; }
     .nav-links a { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 7px; transition: all .2s; text-transform: uppercase; }
     .nav-links a:hover, .nav-links a.active { color: var(--gold); background: var(--gold-dim); }
-    .nav-btns { display: flex; align-items: center; gap: 8px; }
+    .nav-btns { display: flex; align-items: center; gap: 10px; }
     .btn-nav { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.5px; padding: 7px 14px; border-radius: 8px; cursor: pointer; transition: all .2s; text-transform: uppercase; border: none; }
     .btn-login { background: transparent; border: 1px solid var(--gold-border); color: var(--gold); }
     .btn-login:hover { background: var(--gold-dim); }
     .btn-register { background: linear-gradient(135deg,#c9a84c,#8b6a1a); color: #000; font-weight: 700; }
     #logoutBtn { display: none; background: transparent; border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+
+    /* ELEGANT TOGGLE SWITCH STYLING (NO ICONS) */
+    .theme-toggle-container {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      width: 86px;
+      height: 30px;
+      background: var(--toggle-bg);
+      border: 1px solid var(--gold-border);
+      border-radius: 20px;
+      cursor: pointer;
+      padding: 2px;
+      user-select: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .theme-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 40px;
+      height: 24px;
+      background: var(--toggle-slider-bg);
+      border-radius: 14px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    [data-theme="night"] .theme-slider {
+      transform: translateX(40px);
+    }
+    .theme-label {
+      flex: 1;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      z-index: 2;
+      transition: color 0.3s ease;
+    }
+    [data-theme="day"] .label-day, :root:not([data-theme="night"]) .label-day { color: #ffffff; }
+    [data-theme="day"] .label-night, :root:not([data-theme="night"]) .label-night { color: var(--muted); }
+    [data-theme="night"] .label-day { color: var(--muted); }
+    [data-theme="night"] .label-night { color: #000000; }
+
     .hamburger { display: none; background: none; border: none; color: var(--gold); font-size: 24px; cursor: pointer; }
-    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(5,3,10,.99); border-bottom: 1px solid var(--gold-border); padding: 16px; flex-direction: column; gap: 6px; z-index: 199; }
+    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: var(--nav-bg); border-bottom: 1px solid var(--gold-border); padding: 16px; flex-direction: column; gap: 8px; z-index: 199; }
     .mobile-menu.open { display: flex; }
     .mobile-menu a { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 1.5px; color: var(--muted); text-decoration: none; padding: 10px 14px; border-radius: 8px; text-transform: uppercase; }
 
@@ -226,6 +310,12 @@
       <a href="admin.html">🔐 Admin</a>
     </div>
     <div class="nav-btns">
+      <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
+      <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
+        <span class="theme-label label-day">DAY</span>
+        <span class="theme-slider"></span>
+        <span class="theme-label label-night">NIGHT</span>
+      </div>
       <button class="btn-nav btn-login" onclick="openModal('loginModal')">Login</button>
       <button class="btn-nav btn-register" onclick="openModal('registerModal')">Register</button>
       <button class="btn-nav" id="logoutBtn" onclick="doLogout()">Logout</button>
@@ -242,7 +332,12 @@
     <a href="#course" onclick="closeMobileMenu()">📚 Jyotish Courses</a>
     <a href="admin.html" onclick="closeMobileMenu()">🔐 Admin Dashboard</a>
     <div style="height:1px;background:var(--gold-border);margin:6px 0"></div>
-    <div style="display:flex;gap:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div class="theme-toggle-container" onclick="toggleTheme()" title="Switch Day/Night Mode">
+        <span class="theme-label label-day">DAY</span>
+        <span class="theme-slider"></span>
+        <span class="theme-label label-night">NIGHT</span>
+      </div>
       <button class="btn-nav btn-login" style="flex:1" onclick="openModal('loginModal');closeMobileMenu()">Login</button>
       <button class="btn-nav btn-register" style="flex:1" onclick="openModal('registerModal');closeMobileMenu()">Register</button>
     </div>
