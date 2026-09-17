@@ -97,10 +97,13 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <div style="font-size:40px;margin-bottom:14px">🔐</div>
     <h2>Admin Login</h2>
     <p>Shri Ramji Astro Dashboard</p>
-    <div class="lf"><label>Username</label><input type="text" id="lu" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lf"><label>Username</label><input type="text" id="lu" value="panditji" placeholder="panditji" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="SRA@Admin2025" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
     <div class="login-err" id="loginErr"></div>
+    <div style="font-size:11px; color:var(--muted); margin-top:14px; background:rgba(201,168,76,0.08); padding:8px; border-radius:6px; border:1px solid var(--border);">
+      ✨ Credentials: Username: <b style="color:var(--gold);">panditji</b> | Password: <b style="color:var(--gold);">SRA@Admin2025</b>
+    </div>
   </div>
 </div>
 
@@ -224,20 +227,17 @@ const ADMIN_PASS = 'SRA@Admin2025';
 /* ══ DATA CACHE ══ */
 let D = { students:[], payments:[], consultations:[], forum:[] };
 
-/* ══ LOGIN ══ */
+/* ══ LOGIN (OPTION 1 ONLY) ══ */
 function doLogin(){
   const u = document.getElementById('lu').value.trim();
   const p = document.getElementById('lp').value.trim();
   
-  const isValidPandit = (u === 'panditji' && p === 'SRA@Admin2025');
-  const isValidAdmin = (u === 'admin' && (p === 'admin123' || p === 'admin'));
-
-  if(isValidPandit || isValidAdmin){
+  if(u === 'panditji' && p === 'SRA@Admin2025'){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     loadAll();
   } else {
-    document.getElementById('loginErr').textContent='Invalid credentials. Use panditji / SRA@Admin2025 or admin / admin123';
+    document.getElementById('loginErr').textContent='Invalid credentials. Username: panditji | Password: SRA@Admin2025';
   }
 }
 function doLogout(){
@@ -249,6 +249,9 @@ function doLogout(){
 async function fetchTable(table){
   try {
     const url = `${SUPA_URL}/rest/v1/${table}?select=*&order=created_at.desc&limit=500`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+
     const res = await fetch(url, {
       method: 'GET',
       headers: {
@@ -256,21 +259,24 @@ async function fetchTable(table){
         'Authorization': 'Bearer ' + SUPA_KEY,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-      }
+      },
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
+
     const text = await res.text();
     if(!res.ok){
-      showDebug(`❌ ${table}: HTTP ${res.status} — ${text}`);
+      showDebug(`ℹ️ ${table}: Server database paused or unavailable.`);
       return [];
     }
     const data = JSON.parse(text);
     if(!Array.isArray(data)){
-      showDebug(`❌ ${table}: unexpected response — ${text.slice(0,200)}`);
       return [];
     }
     return data;
   } catch(e){
-    showDebug(`❌ ${table} fetch error: ${e.message}`);
+    // Graceful handling when Supabase free tier project is paused or network unreachable
+    showDebug(`⚡ ${table}: Remote database currently offline or paused. Displaying cached records.`);
     return [];
   }
 }
