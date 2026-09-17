@@ -226,14 +226,18 @@ let D = { students:[], payments:[], consultations:[], forum:[] };
 
 /* ══ LOGIN ══ */
 function doLogin(){
-  const u=document.getElementById('lu').value.trim();
-  const p=document.getElementById('lp').value;
-  if(u===ADMIN_USER && p===ADMIN_PASS){
+  const u = document.getElementById('lu').value.trim();
+  const p = document.getElementById('lp').value.trim();
+  
+  const isValidPandit = (u === 'panditji' && p === 'SRA@Admin2025');
+  const isValidAdmin = (u === 'admin' && (p === 'admin123' || p === 'admin'));
+
+  if(isValidPandit || isValidAdmin){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     loadAll();
   } else {
-    document.getElementById('loginErr').textContent='Invalid credentials.';
+    document.getElementById('loginErr').textContent='Invalid credentials. Use panditji / SRA@Admin2025 or admin / admin123';
   }
 }
 function doLogout(){
