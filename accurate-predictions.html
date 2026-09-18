@@ -233,6 +233,34 @@
   .badge-shift { display: inline-block; background: #e0f2fe; color: #075985; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-right: 6px; }
   .sandhi-item { margin-bottom: 8px; font-size: 13.5px; line-height: 1.5; color: var(--dark); }
 
+  /* 5-Level Vimshottari Dasha Inspector (JHora Style) */
+  .dasha-container { background: var(--card-bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 22px; margin-top: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+  .dasha-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold-border); padding-bottom: 12px; margin-bottom: 16px; gap: 12px; }
+  .dasha-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 18px; margin: 0; font-weight: 700; }
+  
+  .dasha-active-box { background: rgba(180,83,9,0.08); border: 1px solid var(--gold-border); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  .dasha-active-title { font-size: 12px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .dasha-chain { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .dasha-pill { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .dasha-pill-level { background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Dasha Table / Tree */
+  .dasha-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .dasha-table th { background: var(--bg); color: var(--gold); padding: 12px 14px; text-align: left; font-family: 'Cinzel', serif; font-size: 12px; border-bottom: 2px solid var(--gold-border); }
+  .dasha-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--dark); vertical-align: middle; }
+  .dasha-row { transition: background 0.15s; }
+  .dasha-row:hover { background: rgba(180,83,9,0.05); }
+  .dasha-row.active-period { background: rgba(180,83,9,0.12) !important; font-weight: bold; }
+  .dasha-toggle-btn { background: var(--card-bg); border: 1px solid var(--gold-border); color: var(--gold); border-radius: 4px; width: 22px; height: 22px; font-size: 12px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; user-select: none; }
+  .dasha-badge-active { background: #16a34a; color: #fff; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 8px; text-transform: uppercase; }
+
+  /* Level Indentations */
+  .lvl-1 { padding-left: 12px !important; font-weight: 700; color: var(--primary); }
+  .lvl-2 { padding-left: 32px !important; color: var(--gold); font-weight: 600; }
+  .lvl-3 { padding-left: 52px !important; color: var(--dark); font-size: 12.5px; }
+  .lvl-4 { padding-left: 72px !important; color: var(--dark); font-size: 12px; opacity: 0.9; }
+  .lvl-5 { padding-left: 92px !important; color: var(--dark); font-size: 11.5px; opacity: 0.85; }
+
   /* Tables Grid */
   .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-top: 24px; }
   .table-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--card-bg); }
@@ -408,6 +436,46 @@
         <table id="tblSpecialLagnas">
           <thead><tr><th>संज्ञा</th><th>राशि</th><th>अंश-कला-विकला</th></tr></thead>
           <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5-LEVEL PARASHARI VIMSHOTTARI DASHA INSPECTOR (JHORA PARITY) -->
+    <div class="dasha-container">
+      <div class="dasha-header">
+        <div>
+          <h3 class="dasha-title">📜 विंशोत्तरी दशा (५-स्तरीय पराशरी सूक्ष्म दशा - Jagannatha Hora Standard)</h3>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+            Mahadasha ➔ Antardasha ➔ Pratyantardasha ➔ Sukshma Dasha ➔ Prana Dasha
+          </p>
+        </div>
+        <div>
+          <button class="v-btn" onclick="jumpToActiveDashaStream()" style="background:var(--primary); color:#fff; font-weight:700;">⚡ आज की सक्रिय दशा पर जाएँ (Active Today)</button>
+        </div>
+      </div>
+
+      <!-- Live Active Dasha Stream Banner -->
+      <div class="dasha-active-box">
+        <div class="dasha-active-title">📍 आज की सक्रिय ५-स्तरीय दशा श्रेणी (Current Active Dasha Stream as of Today):</div>
+        <div class="dasha-chain" id="dashaActiveChain">
+          <span style="color:var(--gold);">गणना की जा रही है...</span>
+        </div>
+      </div>
+
+      <!-- Interactive 5-Level Dasha Tree Table -->
+      <div style="overflow-x: auto;">
+        <table class="dasha-table">
+          <thead>
+            <tr>
+              <th style="width: 35%;">दशा स्वामी (Dasha Lord Chain)</th>
+              <th style="width: 15%;">अवधि (Duration)</th>
+              <th style="width: 25%;">आरम्भ तिथि व समय (Start Date & Time)</th>
+              <th style="width: 25%;">समाप्ति तिथि व समय (End Date & Time)</th>
+            </tr>
+          </thead>
+          <tbody id="tblDashaTree">
+            <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -911,6 +979,301 @@ function calculateTrueSripatiCusps(RAMC, lat, eps, ayanamsa) {
 }
 
 // -------------------------------------------------------------
+// 5-LEVEL PARASHARI VIMSHOTTARI DASHA SYSTEM (JHORA PARITY)
+// -------------------------------------------------------------
+const MS_PER_SOLAR_YEAR = 31556925993.6; // 365.242199 days * 86400 * 1000 ms
+
+const DASHA_LORDS = [
+  { id: "Ketu", name: "केतु", years: 7, color: "#8E44AD" },
+  { id: "Venus", name: "शुक्र", years: 20, color: "#E91E63" },
+  { id: "Sun", name: "सूर्य", years: 6, color: "#D35400" },
+  { id: "Moon", name: "चन्द्र", years: 10, color: "#2980B9" },
+  { id: "Mars", name: "मंगल", years: 7, color: "#C0392B" },
+  { id: "Rahu", name: "राहु", years: 18, color: "#2C3E50" },
+  { id: "Jupiter", name: "गुरु", years: 16, color: "#D4AC0D" },
+  { id: "Saturn", name: "शनि", years: 19, color: "#34495E" },
+  { id: "Mercury", name: "बुध", years: 17, color: "#27AE60" }
+];
+
+let dashaTreeData = [];
+let currentActiveChain = [];
+
+function formatDashaDate(dateObj) {
+  if (!dateObj || isNaN(dateObj.getTime())) return "--";
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  const m = months[dateObj.getMonth()];
+  const y = dateObj.getFullYear();
+  let hrs = dateObj.getHours();
+  const mins = String(dateObj.getMinutes()).padStart(2, '0');
+  const secs = String(dateObj.getSeconds()).padStart(2, '0');
+  const ampm = hrs >= 12 ? 'PM' : 'AM';
+  hrs = hrs % 12;
+  hrs = hrs ? hrs : 12;
+  const hrsStr = String(hrs).padStart(2, '0');
+  return `${d} ${m} ${y}, ${hrsStr}:${mins}:${secs} ${ampm}`;
+}
+
+function formatDuration(durationMs) {
+  const totalDays = durationMs / (86400 * 1000);
+  if (totalDays >= 365) {
+    const yrs = totalDays / 365.242199;
+    const wholeYrs = Math.floor(yrs);
+    const remMonths = (yrs - wholeYrs) * 12;
+    const wholeMonths = Math.floor(remMonths);
+    const remDays = Math.round((remMonths - wholeMonths) * 30.4375);
+    let str = `${wholeYrs}वर्ष`;
+    if (wholeMonths > 0) str += ` ${wholeMonths}माह`;
+    if (remDays > 0) str += ` ${remDays}दिन`;
+    return str;
+  } else if (totalDays >= 1) {
+    const wholeDays = Math.floor(totalDays);
+    const hrs = Math.round((totalDays - wholeDays) * 24);
+    return `${wholeDays}दिन ${hrs}घंटे`;
+  } else {
+    const hrs = Math.floor(totalDays * 24);
+    const mins = Math.round((totalDays * 24 - hrs) * 60);
+    return `${hrs}घंटे ${mins}मि.`;
+  }
+}
+
+function generateSubNodes(parentNode) {
+  if (parentNode.isGenerated && parentNode.children.length > 0) return;
+  
+  const parentLordIdx = parentNode.lordIndex;
+  const parentDur = parentNode.durationMs;
+  let cursor = parentNode.startMs;
+  
+  parentNode.children = [];
+  
+  for (let i = 0; i < 9; i++) {
+    const subLordIdx = (parentLordIdx + i) % 9;
+    const subLord = DASHA_LORDS[subLordIdx];
+    const subDur = parentDur * (subLord.years / 120.0);
+    const subEnd = cursor + subDur;
+    
+    const childNode = {
+      id: `${parentNode.id}_${i}`,
+      path: `${parentNode.path}-${i}`,
+      level: parentNode.level + 1,
+      lordIndex: subLordIdx,
+      lordName: subLord.name,
+      lordEn: subLord.id,
+      color: subLord.color,
+      startMs: cursor,
+      endMs: subEnd,
+      startDate: new Date(cursor),
+      endDate: new Date(subEnd),
+      durationMs: subDur,
+      children: [],
+      expanded: false,
+      isGenerated: false
+    };
+    
+    parentNode.children.push(childNode);
+    cursor = subEnd;
+  }
+  
+  parentNode.isGenerated = true;
+}
+
+function findActiveChainForTimestamp(targetMs) {
+  const chain = [];
+  
+  const activeMD = dashaTreeData.find(n => targetMs >= n.startMs && targetMs < n.endMs);
+  if (!activeMD) return chain;
+  chain.push(activeMD);
+  activeMD.expanded = true;
+  generateSubNodes(activeMD);
+  
+  const activeAD = activeMD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
+  if (!activeAD) return chain;
+  chain.push(activeAD);
+  activeAD.expanded = true;
+  generateSubNodes(activeAD);
+  
+  const activePD = activeAD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
+  if (!activePD) return chain;
+  chain.push(activePD);
+  activePD.expanded = true;
+  generateSubNodes(activePD);
+  
+  const activeSD = activePD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
+  if (!activeSD) return chain;
+  chain.push(activeSD);
+  activeSD.expanded = true;
+  generateSubNodes(activeSD);
+  
+  const activePRD = activeSD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
+  if (!activePRD) return chain;
+  chain.push(activePRD);
+  activePRD.expanded = true;
+  
+  return chain;
+}
+
+function compute5LevelVimshottari(birthDateObj, moonAbsDeg) {
+  const birthMs = birthDateObj.getTime();
+  const nakLen = 13 + 20 / 60; // 13.333333333333334 degrees
+  const moonNorm = (moonAbsDeg % 360 + 360) % 360;
+  
+  const nakIndex = Math.floor(moonNorm / nakLen);
+  const nakElapsedDeg = moonNorm % nakLen;
+  const remFraction = 1.0 - (nakElapsedDeg / nakLen);
+  
+  const birthMDLordIndex = nakIndex % 9;
+  
+  let mdStartCursor = birthMs - (1.0 - remFraction) * (DASHA_LORDS[birthMDLordIndex].years * MS_PER_SOLAR_YEAR);
+  
+  dashaTreeData = [];
+  
+  for (let i = 0; i < 9; i++) {
+    const lordIdx = (birthMDLordIndex + i) % 9;
+    const lord = DASHA_LORDS[lordIdx];
+    const mdDur = lord.years * MS_PER_SOLAR_YEAR;
+    const mdEnd = mdStartCursor + mdDur;
+    
+    const mdNode = {
+      id: `md_${i}`,
+      path: `${i}`,
+      level: 1,
+      lordIndex: lordIdx,
+      lordName: lord.name,
+      lordEn: lord.id,
+      color: lord.color,
+      startMs: mdStartCursor,
+      endMs: mdEnd,
+      startDate: new Date(mdStartCursor),
+      endDate: new Date(mdEnd),
+      durationMs: mdDur,
+      children: [],
+      expanded: false,
+      isGenerated: false
+    };
+    
+    generateSubNodes(mdNode);
+    mdNode.children.forEach(adNode => {
+      generateSubNodes(adNode);
+    });
+    
+    dashaTreeData.push(mdNode);
+    mdStartCursor = mdEnd;
+  }
+  
+  const nowMs = Date.now();
+  currentActiveChain = findActiveChainForTimestamp(nowMs);
+  
+  updateActiveDashaChainBanner();
+  renderDashaTreeUI();
+}
+
+function updateActiveDashaChainBanner() {
+  const container = document.getElementById("dashaActiveChain");
+  if (!container) return;
+  
+  if (!currentActiveChain || currentActiveChain.length === 0) {
+    container.innerHTML = `<span style="color:var(--gold);">वर्तमान तिथि जन्म दशा अवधि के बाहर है।</span>`;
+    return;
+  }
+  
+  const levelLabels = ["महादशा (MD)", "अंतर्दशा (AD)", "प्रत्यंतर (PD)", "सूक्ष्म (SD)", "प्राण (PRD)"];
+  
+  let html = currentActiveChain.map((node, idx) => {
+    return `<div class="dasha-pill">
+      <span style="opacity:0.8; font-size:11px;">${levelLabels[idx]}:</span>
+      <strong>${node.lordName} (${node.lordEn})</strong>
+    </div>`;
+  }).join(` <span class="dasha-arrow">➔</span> `);
+  
+  container.innerHTML = html;
+}
+
+function findNodeById(nodes, id) {
+  for (let node of nodes) {
+    if (node.id === id) return node;
+    if (node.children && node.children.length > 0) {
+      const found = findNodeById(node.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function toggleDashaNode(id) {
+  const node = findNodeById(dashaTreeData, id);
+  if (!node || node.level >= 5) return;
+  
+  node.expanded = !node.expanded;
+  if (node.expanded) {
+    generateSubNodes(node);
+  }
+  renderDashaTreeUI();
+}
+
+function jumpToActiveDashaStream() {
+  if (!currentActiveChain || currentActiveChain.length === 0) {
+    alert("सक्रिय दशा उपलब्ध नहीं है।");
+    return;
+  }
+  
+  currentActiveChain.forEach(node => {
+    node.expanded = true;
+    if (node.level < 5) generateSubNodes(node);
+  });
+  
+  renderDashaTreeUI();
+  
+  setTimeout(() => {
+    const activeEl = document.querySelector(".dasha-badge-active") || document.querySelector(".dasha-row-active");
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 100);
+}
+
+function renderDashaTreeUI() {
+  const tbody = document.getElementById("tblDashaTree");
+  if (!tbody) return;
+  
+  let rowsHtml = "";
+  const nowMs = Date.now();
+  
+  function appendNodeRows(node) {
+    const isLeaf = node.level === 5;
+    const hasChildren = node.level < 5;
+    const isActiveToday = (nowMs >= node.startMs && nowMs < node.endMs);
+    const activeClass = isActiveToday ? "dasha-row-active" : "";
+    const activeBadge = isActiveToday ? `<span class="dasha-badge-active">⚡ सक्रिय (Active Today)</span>` : "";
+    
+    const indentPx = (node.level - 1) * 20;
+    const toggleIcon = hasChildren ? (node.expanded ? "➖ " : "➕ ") : "• ";
+    const levelTag = ["MD", "AD", "PD", "SD", "PRD"][node.level - 1];
+    
+    rowsHtml += `<tr class="lvl-${node.level} ${activeClass}" id="dasha_row_${node.id}">
+      <td style="padding-left: ${indentPx + 12}px;">
+        <span class="dasha-toggle" onclick="toggleDashaNode('${node.id}')" style="cursor:${hasChildren ? 'pointer':'default'}; user-select:none;">
+          ${toggleIcon}
+        </span>
+        <span style="display:inline-block; width:34px; font-size:11px; font-weight:700; color:var(--gold); border:1px solid var(--gold-border); border-radius:4px; text-align:center; padding:1px 3px; margin-right:6px;">${levelTag}</span>
+        <strong style="color:${node.color}; font-size:14px;">${node.lordName} (${node.lordEn})</strong>
+        ${activeBadge}
+      </td>
+      <td>${formatDuration(node.durationMs)}</td>
+      <td style="font-family: monospace; font-size: 13px;">${formatDashaDate(node.startDate)}</td>
+      <td style="font-family: monospace; font-size: 13px;">${formatDashaDate(node.endDate)}</td>
+    </tr>`;
+    
+    if (node.expanded && hasChildren && node.children) {
+      node.children.forEach(child => appendNodeRows(child));
+    }
+  }
+  
+  dashaTreeData.forEach(mdNode => appendNodeRows(mdNode));
+  
+  tbody.innerHTML = rowsHtml;
+}
+
+// -------------------------------------------------------------
 // MASTER EXECUTION CONTROLLER
 // -------------------------------------------------------------
 function executeParasharaMaster() {
@@ -1122,6 +1485,12 @@ function executeParasharaMaster() {
   renderRasiAndChalitCharts();
   initVargaButtons();
   renderSelectedVargaCharts();
+
+  const birthDateObj = new Date(y, m - 1, d, hh, mm, ss);
+  const moonObj = planets.find(p => p.id === "Moon");
+  if (moonObj) {
+    compute5LevelVimshottari(birthDateObj, moonObj.abs);
+  }
 }
 
 // -------------------------------------------------------------
