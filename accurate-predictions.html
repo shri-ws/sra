@@ -3066,6 +3066,37 @@ function toggleMobileLoginView() {
   }
 }
 
+function performLoginSuccess(userData) {
+  console.log("performLoginSuccess executed with:", userData);
+  const err = document.getElementById("otpErrMsg");
+  try {
+    const userIdentifier = userData.email || userData.name || "google_verified_user";
+    localStorage.setItem("sra_verified_google_user", JSON.stringify(userData));
+    localStorage.setItem("sra_verified_mobile", userIdentifier);
+
+    const nameInput = document.getElementById("inName");
+    if (nameInput && (!nameInput.value || nameInput.value.trim() === "")) {
+      nameInput.value = userData.name || "";
+    }
+
+    const modal = document.getElementById("modalMobileOtp");
+    if (modal) {
+      modal.style.display = "none";
+    }
+    if (err) err.textContent = "";
+
+    logUserToDatabase({
+      phone: userIdentifier,
+      name: userData.name || "Google User",
+      action: "GOOGLE_SIGNIN_SUCCESS"
+    });
+  } catch(e) {
+    console.error("Login success handler error:", e);
+    const modal = document.getElementById("modalMobileOtp");
+    if (modal) modal.style.display = "none";
+  }
+}
+
 function handleGoogleCredentialResponse(response) {
   const err = document.getElementById("otpErrMsg");
   try {
@@ -3080,16 +3111,14 @@ function handleGoogleCredentialResponse(response) {
     }).join(''));
 
     const user = JSON.parse(jsonPayload);
-    console.log("Verified Google API User:", user);
+    console.log("Verified Official Google User:", user);
 
-    if (window.performGoogleLoginSuccess) {
-      window.performGoogleLoginSuccess({
-        name: user.name || user.given_name || "Google User",
-        email: user.email || "",
-        photo: user.picture || "",
-        uid: user.sub || ""
-      });
-    }
+    performLoginSuccess({
+      name: user.name || user.given_name || "Google User",
+      email: user.email || "",
+      photo: user.picture || "",
+      uid: user.sub || ""
+    });
   } catch(e) {
     console.error("Google Credential decode error:", e);
     if (err) err.textContent = "गूगल क्रेडेंशियल प्रमाणीकरण में त्रुटि।";
@@ -3100,30 +3129,6 @@ window.loginWithGoogle = function() {
   console.log("loginWithGoogle triggered - Official Google OAuth Token Client");
   const err = document.getElementById("otpErrMsg");
   if (err) err.textContent = "गूगल ऑथेंटिकेशन विंडो खोली जा रही है...";
-
-  const performLoginSuccess = (userData) => {
-    try {
-      localStorage.setItem("sra_verified_google_user", JSON.stringify(userData));
-      localStorage.setItem("sra_verified_mobile", userData.email || userData.name);
-
-      const nameInput = document.getElementById("inName");
-      if (nameInput && (!nameInput.value || nameInput.value.trim() === "")) {
-        nameInput.value = userData.name || "";
-      }
-
-      const modal = document.getElementById("modalMobileOtp");
-      if (modal) modal.style.display = "none";
-      if (err) err.textContent = "";
-
-      logUserToDatabase({
-        phone: userData.email,
-        name: userData.name,
-        action: "GOOGLE_SIGNIN_SUCCESS"
-      });
-    } catch(e) {
-      console.error("Login success handler error:", e);
-    }
-  };
 
   window.performGoogleLoginSuccess = performLoginSuccess;
   const clientId = "743660238131-ns71r43gn7cdn106u55elcbonmuarb9b.apps.googleusercontent.com";
