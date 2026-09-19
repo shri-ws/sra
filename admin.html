@@ -170,13 +170,10 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <div style="font-size:40px;margin-bottom:14px">🔐</div>
     <h2>Admin Login</h2>
     <p>Shri Ramji Astro Dashboard</p>
-    <div class="lf"><label>Username</label><input type="text" id="lu" value="panditji" placeholder="panditji" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <div class="lf"><label>Password</label><input type="password" id="lp" value="SRA@Admin2025" placeholder="SRA@Admin2025" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lf"><label>Username</label><input type="text" id="lu" placeholder="Username" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
     <div class="login-err" id="loginErr"></div>
-    <div style="font-size:11px; color:var(--muted); margin-top:14px; background:rgba(201,168,76,0.08); padding:8px; border-radius:6px; border:1px solid var(--border);">
-      ✨ Credentials: Username: <b style="color:var(--gold);">panditji</b> | Password: <b style="color:var(--gold);">SRA@Admin2025</b>
-    </div>
   </div>
 </div>
 
@@ -347,12 +344,8 @@ function doLogin(){
   try {
     const lu = document.getElementById('lu');
     const lp = document.getElementById('lp');
-    let u = lu ? lu.value.trim() : '';
-    let p = lp ? lp.value.trim() : '';
-    
-    if (!u) u = 'panditji';
-    if (!p) p = 'SRA@Admin2025';
-
+    const u = lu ? lu.value.trim() : '';
+    const p = lp ? lp.value.trim() : '';
     const err = document.getElementById('loginErr');
     
     if(u.toLowerCase() === 'panditji' && p === 'SRA@Admin2025'){
@@ -362,13 +355,12 @@ function doLogin(){
       if (err) err.textContent = '';
       loadAll();
     } else {
-      if (err) err.textContent = 'Invalid credentials. Username: panditji | Password: SRA@Admin2025';
+      if (err) err.textContent = 'Invalid credentials. Username or Password incorrect.';
     }
   } catch(e) {
     console.error("doLogin error:", e);
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadAll();
+    const err = document.getElementById('loginErr');
+    if (err) err.textContent = 'Login error. Please check inputs.';
   }
 }
 
