@@ -292,6 +292,98 @@
   th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; color: var(--dark); }
   th { background: var(--bg); color: var(--gold); font-weight: 600; }
   .retro { color: #b91c1c; font-weight: bold; }
+
+  /* Mobile Responsive Table Cards (< 768px) */
+  @media (max-width: 768px) {
+    .tables-grid { grid-template-columns: 1fr !important; }
+    .table-card { padding: 12px; overflow-x: hidden; }
+    .table-card table,
+    .table-card thead,
+    .table-card tbody,
+    .table-card th,
+    .table-card td,
+    .table-card tr,
+    .dasha-table,
+    .dasha-table thead,
+    .dasha-table tbody,
+    .dasha-table th,
+    .dasha-table td,
+    .dasha-table tr {
+      display: block;
+    }
+
+    .table-card thead tr,
+    .dasha-table thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    .table-card tr {
+      border: 1px solid var(--gold-border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: var(--bg);
+      padding: 6px 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    .table-card td {
+      border: none;
+      border-bottom: 1px dashed var(--border);
+      padding: 8px 4px !important;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: right;
+      font-size: 12px;
+    }
+
+    .table-card td:last-child {
+      border-bottom: none;
+    }
+
+    .table-card td::before {
+      content: attr(data-label);
+      font-weight: 700;
+      color: var(--gold);
+      text-align: left;
+      font-size: 11.5px;
+      padding-right: 10px;
+    }
+
+    .dasha-table tbody tr {
+      border: 1px solid var(--gold-border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: var(--bg);
+      padding: 6px 10px;
+    }
+
+    .dasha-table td {
+      border: none;
+      border-bottom: 1px dashed var(--border);
+      padding: 8px 4px !important;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: right;
+      font-size: 12px;
+    }
+
+    .dasha-table td:last-child {
+      border-bottom: none;
+    }
+
+    .dasha-table td::before {
+      content: attr(data-label);
+      font-weight: 700;
+      color: var(--gold);
+      text-align: left;
+      font-size: 11.5px;
+      padding-right: 10px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -382,6 +474,18 @@
 
   <!-- Universal Birth Input Form -->
   <div class="input-panel">
+    <!-- Progressive Disclosure Mode Switcher Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:12px; flex-wrap:wrap; gap:10px;">
+      <div style="font-weight:700; color:var(--gold); font-size:14px; font-family:'Cinzel', serif; display:flex; align-items:center; gap:6px;">
+        <span>⚡</span> इनपुट मोड चुनें (Input Mode Selection):
+      </div>
+      <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:8px; overflow:hidden; background:var(--bg);">
+        <button type="button" id="btnModeQuick" class="v-btn active" onclick="switchDisclosureMode('quick')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--primary); color:#fff;">⚡ 1-Step Quick Mode</button>
+        <button type="button" id="btnModeExpert" class="v-btn" onclick="switchDisclosureMode('expert')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--card-bg); color:var(--gold); border-left:1px solid var(--border);">🔬 Expert Mode</button>
+      </div>
+    </div>
+
+    <!-- Basic Required Fields (Visible in Quick Mode) -->
     <div class="form-grid">
       <div class="field">
         <label>जातक का नाम (Full Candidate Name)</label>
@@ -399,27 +503,40 @@
         <label>जन्म स्थान खोजें (Search City / Town)</label>
         <input type="text" id="inCitySearch" placeholder="उदा. Sitapur, London, New York..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchCityLocation();}">
       </div>
-      <div class="field">
-        <label>अक्षांश (Latitude - N)</label>
-        <input type="number" id="inLat" step="0.0001" placeholder="उदा. 27.5667" required>
-      </div>
-      <div class="field">
-        <label>देशांतर (Longitude - E)</label>
-        <input type="number" id="inLon" step="0.0001" placeholder="उदा. 80.6833" required>
-      </div>
-      <div class="field">
-        <label>टाइमज़ोन ऑफ़सेट (Hours - UTC)</label>
-        <input type="number" id="inTz" step="0.25" placeholder="उदा. 5.5" required>
-      </div>
     </div>
 
-    <!-- Interactive Pinpoint Map -->
-    <div class="map-wrapper">
-      <div class="map-header">
-        <span>📍 विश्व मानचित्र पर क्लिक करके स्थान चुनें (Pinpoint Location on Map)</span>
-        <span id="geoStatusText" style="color: #0284c7;">रेडी</span>
+    <!-- Advanced Collapsible Coordinates & Map Wrapper -->
+    <div id="advancedCoordToggleRow" style="margin-top:14px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <a href="javascript:void(0)" onclick="toggleAdvancedCoordsOnly()" id="linkToggleAdvanced" style="font-size:12.5px; color:var(--gold); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+        <span id="advToggleIcon">📍</span> <span id="advToggleText">उन्नत अक्षांश/देशांतर एवं मानचित्र दिखाएँ (Show Advanced Coords & Map)</span>
+      </a>
+      <span style="font-size:11px; color:var(--muted);" id="advModeNote">(Quick Mode: auto-computed via city search)</span>
+    </div>
+
+    <div id="advancedCoordWrapper" style="display:none; transition:all 0.3s ease; border-top:1px dashed var(--gold-border); padding-top:14px; margin-top:10px;">
+      <div class="form-grid">
+        <div class="field">
+          <label>अक्षांश (Latitude - N)</label>
+          <input type="number" id="inLat" step="0.0001" placeholder="उदा. 27.5667" required>
+        </div>
+        <div class="field">
+          <label>देशांतर (Longitude - E)</label>
+          <input type="number" id="inLon" step="0.0001" placeholder="उदा. 80.6833" required>
+        </div>
+        <div class="field">
+          <label>टाइमज़ोन ऑफ़सेट (Hours - UTC)</label>
+          <input type="number" id="inTz" step="0.25" placeholder="उदा. 5.5" required>
+        </div>
       </div>
-      <div id="map"></div>
+
+      <!-- Interactive Pinpoint Map -->
+      <div class="map-wrapper" style="margin-top:16px;">
+        <div class="map-header">
+          <span>📍 विश्व मानचित्र पर क्लिक करके स्थान चुनें (Pinpoint Location on Map)</span>
+          <span id="geoStatusText" style="color: #0284c7;">रेडी</span>
+        </div>
+        <div id="map"></div>
+      </div>
     </div>
 
     <button class="btn-calc" onclick="executeParasharaMaster()">कुण्डली एवं षोडशवर्ग जनरेट करें (Calculate Master Engine)</button>
@@ -824,6 +941,58 @@ function initMap() {
   const now = new Date();
   document.getElementById("inDate").value = now.toISOString().split('T')[0];
   document.getElementById("inTime").value = now.toTimeString().split(' ')[0].substring(0, 5);
+}
+
+function switchDisclosureMode(mode) {
+  const btnQuick = document.getElementById("btnModeQuick");
+  const btnExpert = document.getElementById("btnModeExpert");
+  const wrapper = document.getElementById("advancedCoordWrapper");
+  const toggleText = document.getElementById("advToggleText");
+  const toggleIcon = document.getElementById("advToggleIcon");
+  const modeNote = document.getElementById("advModeNote");
+
+  if (mode === 'quick') {
+    btnQuick.classList.add("active");
+    btnQuick.style.background = "var(--primary)";
+    btnQuick.style.color = "#fff";
+    btnExpert.classList.remove("active");
+    btnExpert.style.background = "var(--card-bg)";
+    btnExpert.style.color = "var(--gold)";
+    wrapper.style.display = "none";
+    if (toggleText) toggleText.innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र दिखाएँ (Show Advanced Coords & Map)";
+    if (toggleIcon) toggleIcon.innerText = "📍";
+    if (modeNote) modeNote.innerText = "(Quick Mode: auto-computed via city search)";
+  } else {
+    btnExpert.classList.add("active");
+    btnExpert.style.background = "var(--primary)";
+    btnExpert.style.color = "#fff";
+    btnQuick.classList.remove("active");
+    btnQuick.style.background = "var(--card-bg)";
+    btnQuick.style.color = "var(--gold)";
+    wrapper.style.display = "block";
+    if (toggleText) toggleText.innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र छिपाएँ (Hide Advanced Coords & Map)";
+    if (toggleIcon) toggleIcon.innerText = "🗺️";
+    if (modeNote) modeNote.innerText = "(Expert Mode: full pinpoint map & coords enabled)";
+    
+    if (window.map) {
+      setTimeout(() => window.map.invalidateSize(), 150);
+    }
+  }
+}
+
+function toggleAdvancedCoordsOnly() {
+  const wrapper = document.getElementById("advancedCoordWrapper");
+  const isHidden = (wrapper.style.display === "none" || !wrapper.style.display);
+  if (isHidden) {
+    wrapper.style.display = "block";
+    document.getElementById("advToggleText").innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र छिपाएँ (Hide Advanced Coords & Map)";
+    document.getElementById("advToggleIcon").innerText = "🗺️";
+    if (window.map) setTimeout(() => window.map.invalidateSize(), 150);
+  } else {
+    wrapper.style.display = "none";
+    document.getElementById("advToggleText").innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र दिखाएँ (Show Advanced Coords & Map)";
+    document.getElementById("advToggleIcon").innerText = "📍";
+  }
 }
 
 async function searchCityLocation() {
@@ -1478,7 +1647,7 @@ function renderDashaTreeUI() {
     const levelTag = ["MD", "AD", "PD", "SD", "PRD"][node.level - 1];
     
     rowsHtml += `<tr class="lvl-${node.level} ${activeClass}" id="dasha_row_${node.id}">
-      <td style="padding-left: ${indentPx + 12}px;">
+      <td data-label="दशा स्वामी" style="padding-left: ${indentPx + 12}px;">
         <span class="dasha-toggle" onclick="toggleDashaNode('${node.id}')" style="cursor:${hasChildren ? 'pointer':'default'}; user-select:none;">
           ${toggleIcon}
         </span>
@@ -1486,9 +1655,9 @@ function renderDashaTreeUI() {
         <strong style="color:${node.color}; font-size:14px;">${node.lordName} (${node.lordEn})</strong>
         ${activeBadge}
       </td>
-      <td>${formatDuration(node.durationMs)}</td>
-      <td style="font-family: monospace; font-size: 13px;">${formatDashaDate(node.startDate)}</td>
-      <td style="font-family: monospace; font-size: 13px;">${formatDashaDate(node.endDate)}</td>
+      <td data-label="अवधि">${formatDuration(node.durationMs)}</td>
+      <td data-label="आरम्भ तिथि" style="font-family: monospace; font-size: 13px;">${formatDashaDate(node.startDate)}</td>
+      <td data-label="समाप्ति तिथि" style="font-family: monospace; font-size: 13px;">${formatDashaDate(node.endDate)}</td>
     </tr>`;
     
     if (node.expanded && hasChildren && node.children) {
@@ -1565,13 +1734,13 @@ function renderCharaDashaUI() {
     const activeBadge = isActive ? `<span class="dasha-badge-active">⚡ सक्रिय (Active Today)</span>` : "";
 
     html += `<tr class="${activeClass}">
-      <td style="padding-left:14px;">
+      <td data-label="राशि दशा" style="padding-left:14px;">
         <strong style="color:var(--primary); font-size:14px;">🏹 ${d.signName} (Chara Dasha)</strong>
         ${activeBadge}
       </td>
-      <td><strong>${d.years} वर्ष</strong></td>
-      <td style="font-family:monospace;">${formatDashaDate(d.startDate)}</td>
-      <td style="font-family:monospace;">${formatDashaDate(d.endDate)}</td>
+      <td data-label="अवधि"><strong>${d.years} वर्ष</strong></td>
+      <td data-label="आरम्भ तिथि" style="font-family:monospace;">${formatDashaDate(d.startDate)}</td>
+      <td data-label="समाप्ति तिथि" style="font-family:monospace;">${formatDashaDate(d.endDate)}</td>
     </tr>`;
   });
 
@@ -1653,13 +1822,13 @@ function renderYoginiDashaUI() {
     const activeBadge = isActive ? `<span class="dasha-badge-active">⚡ सक्रिय (Active Today)</span>` : "";
 
     html += `<tr class="${activeClass}">
-      <td style="padding-left:14px;">
+      <td data-label="योगिनी दशा" style="padding-left:14px;">
         <strong style="color:${d.color}; font-size:14px;">🔮 ${d.name}</strong>
         ${activeBadge}
       </td>
-      <td><strong>${d.years} वर्ष</strong></td>
-      <td style="font-family:monospace;">${formatDashaDate(d.startDate)}</td>
-      <td style="font-family:monospace;">${formatDashaDate(d.endDate)}</td>
+      <td data-label="अवधि"><strong>${d.years} वर्ष</strong></td>
+      <td data-label="आरम्भ तिथि" style="font-family:monospace;">${formatDashaDate(d.startDate)}</td>
+      <td data-label="समाप्ति तिथि" style="font-family:monospace;">${formatDashaDate(d.endDate)}</td>
     </tr>`;
   });
 
@@ -2790,31 +2959,31 @@ function renderAllTables() {
     const nakIdx = Math.floor(p.abs / (13 + 20/60)) % 27;
     const speedStr = `${p.speed >= 0 ? '+' : ''}${p.speed.toFixed(3)}°/दिन`;
     return `<tr>
-      <td><b>${p.name}</b> ${p.retro ? '<span class="retro">(व)</span>' : ''}</td>
-      <td>${SIGNS[p.sign]}</td>
-      <td>${formatDMS(p.deg)}</td>
-      <td>${speedStr}</td>
-      <td>${NAKSHATRAS[nakIdx]}</td>
+      <td data-label="ग्रह"><b>${p.name}</b> ${p.retro ? '<span class="retro">(व)</span>' : ''}</td>
+      <td data-label="राशि">${SIGNS[p.sign]}</td>
+      <td data-label="अंश-कला-विकला">${formatDMS(p.deg)}</td>
+      <td data-label="दैनिक गति">${speedStr}</td>
+      <td data-label="नक्षत्र">${NAKSHATRAS[nakIdx]}</td>
     </tr>`;
   }).join('');
 
   document.querySelector("#tblSripati tbody").innerHTML = sripatiBhavas.map(b => `<tr>
-    <td><b>भाव ${b.house}</b></td>
-    <td>${SIGNS[b.sandhi1Sign]} ${formatDMS(b.sandhi1Deg)}</td>
-    <td>${SIGNS[b.midSign]} ${formatDMS(b.midDeg)}</td>
-    <td>${SIGNS[b.sandhi2Sign]} ${formatDMS(b.sandhi2Deg)}</td>
+    <td data-label="भाव"><b>भाव ${b.house}</b></td>
+    <td data-label="भाव आरम्भ">${SIGNS[b.sandhi1Sign]} ${formatDMS(b.sandhi1Deg)}</td>
+    <td data-label="भाव मध्य">${SIGNS[b.midSign]} ${formatDMS(b.midDeg)}</td>
+    <td data-label="भाव अंत">${SIGNS[b.sandhi2Sign]} ${formatDMS(b.sandhi2Deg)}</td>
   </tr>`).join('');
 
   document.querySelector("#tblUpagrahas tbody").innerHTML = upagrahas.map(u => `<tr>
-    <td><b>${u.name}</b></td>
-    <td>${SIGNS[Math.floor(u.abs / 30)]}</td>
-    <td>${formatDMS(u.abs % 30)}</td>
+    <td data-label="संज्ञा"><b>${u.name}</b></td>
+    <td data-label="राशि">${SIGNS[Math.floor(u.abs / 30)]}</td>
+    <td data-label="अंश-कला-विकला">${formatDMS(u.abs % 30)}</td>
   </tr>`).join('');
 
   document.querySelector("#tblSpecialLagnas tbody").innerHTML = specialLagnas.map(l => `<tr>
-    <td><b>${l.name}</b></td>
-    <td>${SIGNS[Math.floor(l.abs / 30)]}</td>
-    <td>${formatDMS(l.abs % 30)}</td>
+    <td data-label="संज्ञा"><b>${l.name}</b></td>
+    <td data-label="राशि">${SIGNS[Math.floor(l.abs / 30)]}</td>
+    <td data-label="अंश-कला-विकला">${formatDMS(l.abs % 30)}</td>
   </tr>`).join('');
 }
 
