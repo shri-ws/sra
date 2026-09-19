@@ -615,6 +615,8 @@
           </div>
           <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px;">🌐 100 Years</button>
           <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔮 महादशा</button>
+          <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_5Y')" id="btnWindow5Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">📅 5 Years</button>
+          <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_1Y')" id="btnWindow1Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔍 1 Year (Zoom Micro)</button>
         </div>
       </div>
 
@@ -1899,18 +1901,19 @@ function computeSinusoidalLifeWaveData() {
   let tStart = birthMs; // STRICTLY Date of Birth (DOB)
   let tEnd = hundredYrsMs; // STRICTLY DOB + 100 Years
 
-  if (currentLifeWaveWindowMode === "ACTIVE_MD") {
+  if (currentLifeWaveWindowMode === "100Y") {
+    tStart = birthMs;
+    tEnd = hundredYrsMs;
+  } else if (currentLifeWaveWindowMode === "ACTIVE_MD") {
     const activeMD = dashaTreeData.find(n => nowMs >= n.startMs && nowMs < n.endMs) || dashaTreeData[0];
     tStart = Math.max(birthMs, activeMD.startMs);
     tEnd = activeMD.endMs;
-  } else if (currentLifeWaveWindowMode === "MICRO") {
-    if (currentActiveChain && currentActiveChain.length >= 2) {
-      tStart = Math.max(birthMs, currentActiveChain[1].startMs);
-      tEnd = currentActiveChain[1].endMs;
-    } else {
-      tStart = Math.max(birthMs, nowMs - (180 * 86400 * 1000));
-      tEnd = nowMs + (180 * 86400 * 1000);
-    }
+  } else if (currentLifeWaveWindowMode === "MICRO_5Y") {
+    tStart = Math.max(birthMs, nowMs - (2.5 * MS_PER_SOLAR_YEAR));
+    tEnd = nowMs + (2.5 * MS_PER_SOLAR_YEAR);
+  } else if (currentLifeWaveWindowMode === "MICRO_1Y") {
+    tStart = Math.max(birthMs, nowMs - (0.5 * MS_PER_SOLAR_YEAR));
+    tEnd = nowMs + (0.5 * MS_PER_SOLAR_YEAR);
   }
 
   const numSamples = 90;
@@ -2024,34 +2027,74 @@ function detectLifeWaveMilestones() {
   if (!currentCalculation || lifeWavePoints.length < 5) return;
 
   const typeConfig = {
-    ALL: { icon: "✨", title: "उत्कर्ष काल (Peak Life Phase)", type: "ALL" },
-    CAREER: { icon: "💼", title: "करियर व पदोन्नति का स्वर्णिम समय (Career Peak)", type: "CAREER" },
-    MARRIAGE: { icon: "💍", title: "विवाह व शुभ सम्बन्ध योग (Marriage Window)", type: "MARRIAGE" },
-    CHILD: { icon: "👶", title: "सन्तान प्राप्ति व कुलोन्नति (Progeny Window)", type: "CHILD" },
-    CAR: { icon: "🚗", title: "वाहन क्रय व भौतिक सुख (Vehicle Acquisition)", type: "CAR" },
-    HOUSE: { icon: "🏠", title: "गृह निर्माण व भूमि लाभ (Property & House)", type: "HOUSE" },
-    SADHNA: { icon: "🧘", title: "साधना व आध्यात्मिक चेतना (Spiritual Awakening)", type: "SADHNA" }
+    ALL: { icon: "✨", title: "उत्कर्ष काल (Peak Life Phase)", type: "ALL", minAge: 0, maxAge: 120 },
+    CAREER: { icon: "💼", title: "करियर व पदोन्नति का स्वर्णिम समय", type: "CAREER", minAge: 18, maxAge: 65 },
+    MARRIAGE: { icon: "💍", title: "विवाह व शुभ सम्बन्ध योग", type: "MARRIAGE", minAge: 18, maxAge: 45 },
+    CHILD: { icon: "👶", title: "सन्तान प्राप्ति व कुलोन्नति योग", type: "CHILD", minAge: 20, maxAge: 48 },
+    CAR: { icon: "🚗", title: "वाहन क्रय व भौतिक सुख योग", type: "CAR", minAge: 18, maxAge: 85 },
+    HOUSE: { icon: "🏠", title: "गृह निर्माण व भूमि लाभ योग", type: "HOUSE", minAge: 21, maxAge: 85 },
+    SADHNA: { icon: "🧘", title: "साधना व आध्यात्मिक चेतना योग", type: "SADHNA", minAge: 12, maxAge: 120 }
   };
 
   const curCfg = typeConfig[currentLifeWaveMilestoneFilter] || typeConfig.ALL;
+  const birthMs = currentBirthDateObj ? currentBirthDateObj.getTime() : lifeWavePoints[0].timestamp;
+
+  const rawMilestones = [];
 
   for (let i = 2; i < lifeWavePoints.length - 2; i++) {
     const pt = lifeWavePoints[i];
     const prev = lifeWavePoints[i - 1];
     const next = lifeWavePoints[i + 1];
 
+    const ageYrs = (pt.timestamp - birthMs) / (365.2425 * 86400 * 1000);
+
     if (pt.score >= 35 && pt.score >= prev.score && pt.score >= next.score) {
-      lifeWaveMilestones.push({
+      const isInPrimaryAgeWindow = (ageYrs >= curCfg.minAge && ageYrs <= curCfg.maxAge);
+      rawMilestones.push({
         type: curCfg.type,
         icon: curCfg.icon,
         title: curCfg.title,
         timestamp: pt.timestamp,
         pointIndex: i,
         score: pt.score,
-        desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} दशा काल में ${curCfg.title} के प्रबल योग। (बीपीएसएस सूचकांक: +${pt.score}%)`
+        ageYrs: Math.round(ageYrs * 10) / 10,
+        isInPrimaryWindow: isInPrimaryAgeWindow,
+        chain: pt.chain,
+        factors: pt.factors
       });
     }
   }
+
+  // Sort raw milestones by BPHS Score descending to rank them
+  rawMilestones.sort((a, b) => b.score - a.score);
+
+  // Assign Rank 1, Rank 2, Rank 3... and refine titles
+  rawMilestones.forEach((m, idx) => {
+    let rankText = `रैंक #${idx + 1}`;
+    let titleText = m.title;
+
+    if (m.type === "MARRIAGE") {
+      if (idx === 0) titleText = "🥇 मुख्य विवाह योग (Rank 1 Primary Marriage Window)";
+      else if (idx === 1) titleText = "🥈 द्वितीय विवाह / सम्भाव्य सम्बन्ध योग (Rank 2 Window)";
+      else titleText = `🥉 सम्भाव्य विवाह योग (Rank ${idx + 1} Window)`;
+      
+      if (!m.isInPrimaryWindow) {
+        titleText += ` [आयु ${m.ageYrs} वर्ष - उत्तर जीवन सम्भाव्यता]`;
+      }
+    } else {
+      titleText = `${m.icon} ${rankText}: ${m.title}`;
+    }
+
+    lifeWaveMilestones.push({
+      ...m,
+      rank: idx + 1,
+      title: titleText,
+      desc: `${m.chain[0]?.lordName} - ${m.chain[1]?.lordName} दशा काल (आयु ~${m.ageYrs} वर्ष) में ${titleText}। (बीपीएसएस सूचकांक: +${m.score}%)`
+    });
+  });
+
+  // Re-sort chronologically by timestamp for display
+  lifeWaveMilestones.sort((a, b) => a.timestamp - b.timestamp);
 }
 
 function drawSinusoidalLifeWaveCanvas() {
