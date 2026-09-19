@@ -3084,9 +3084,9 @@ function handleGoogleCredentialResponse(response) {
 }
 
 window.loginWithGoogle = function() {
-  console.log("loginWithGoogle triggered - Strict Google API Auth");
+  console.log("loginWithGoogle triggered - Official Google OAuth Token Client");
   const err = document.getElementById("otpErrMsg");
-  if (err) err.textContent = "गूगल ए०पी०आई० (Google API) से कनेक्ट किया जा रहा है...";
+  if (err) err.textContent = "गूगल ऑथेंटिकेशन विंडो खोली जा रही है...";
 
   const performLoginSuccess = (userData) => {
     try {
@@ -3113,59 +3113,67 @@ window.loginWithGoogle = function() {
   };
 
   window.performGoogleLoginSuccess = performLoginSuccess;
+  const clientId = "743660238131-ns71r43gn7cdn106u55elcbonmuarb9b.apps.googleusercontent.com";
 
-  // 1. Try Official Google Identity Services API (GSI)
+  // 1. Try Google Identity Services OAuth2 Token Client (Instant Popup)
+  try {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+      const tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+        callback: (tokenResponse) => {
+          if (tokenResponse && tokenResponse.access_token) {
+            if (err) err.textContent = "गूगल अकाउंट डेटा प्राप्त किया जा रहा है...";
+            fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers: { Authorization: "Bearer " + tokenResponse.access_token }
+            })
+            .then(res => res.json())
+            .then(userInfo => {
+              console.log("Fetched Google Profile:", userInfo);
+              performLoginSuccess({
+                name: userInfo.name || userInfo.given_name || "Google User",
+                email: userInfo.email || "",
+                photo: userInfo.picture || "",
+                uid: userInfo.sub || ""
+              });
+            })
+            .catch(e => {
+              console.error("Userinfo fetch error:", e);
+              if (err) err.textContent = "प्रोफाइल डेटा प्राप्त करने में त्रुटि।";
+            });
+          } else {
+            if (err) err.textContent = "गूगल लॉगिन रद्द कर दिया गया।";
+          }
+        }
+      });
+      tokenClient.requestAccessToken();
+      return;
+    }
+  } catch(e) {
+    console.warn("Google OAuth2 init warning:", e);
+  }
+
+  // 2. Try Google ID One-Tap API
   try {
     if (window.google && window.google.accounts && window.google.accounts.id) {
       window.google.accounts.id.initialize({
-        client_id: "743660238131-ns71r43gn7cdn106u55elcbonmuarb9b.apps.googleusercontent.com",
+        client_id: clientId,
         callback: handleGoogleCredentialResponse,
         auto_select: false
       });
       window.google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed()) {
           console.warn("Google One-Tap Not Displayed:", notification.getNotDisplayedReason());
-          if (err) err.textContent = "कृपया गूगल साइन-इन पॉपअप को अनुमति दें।";
+          if (err) err.textContent = "गूगल प्रोम्प्ट स्क्रीन ब्लॉक है। कृपया रिफ्रेश करें।";
         }
       });
       return;
     }
   } catch(e) {
-    console.warn("Google Identity API notice:", e);
+    console.warn("Google Identity ID notice:", e);
   }
 
-  // 2. Try Firebase Auth Popup
-  if (typeof firebase !== 'undefined' && firebase.auth) {
-    try {
-      if (firebase.apps && !firebase.apps.length) {
-        firebase.initializeApp({
-          apiKey: "AIzaSyDummyKeyForAuthFallbackOnly",
-          authDomain: window.location.hostname || "shriramjiastro.in",
-          projectId: "shriramjiastro"
-        });
-      }
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-          const user = result.user;
-          performLoginSuccess({
-            name: user.displayName || "Google User",
-            email: user.email || "",
-            photo: user.photoURL || "",
-            uid: user.uid
-          });
-        })
-        .catch((error) => {
-          console.warn("Firebase Google Auth popup error:", error);
-          if (err) err.textContent = "गूगल से लॉगिन नहीं हो सका। कृपया पुनः प्रयास करें।";
-        });
-      return;
-    } catch(errEx) {
-      console.warn("Firebase Auth error:", errEx);
-    }
-  }
-
-  if (err) err.textContent = "गूगल साइन-इन सेवा वर्तमान में कनेक्ट नहीं हो सकी।";
+  if (err) err.textContent = "गूगल साइन-इन सर्विस अभी लोड हो रही है, कृपया 2 सेकंड बाद पुनः क्लिक करें।";
 };
 function loginWithGoogle() { window.loginWithGoogle(); }
 
