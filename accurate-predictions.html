@@ -1879,7 +1879,13 @@ function computeSinusoidalLifeWaveData() {
   for (let i = 0; i <= numSamples; i++) {
     const curMs = tStart + i * stepMs;
     const chain = findActiveChainForTimestamp(curMs);
-    const evalRes = evaluateBPHS10Factors(chain, currentCalculation);
+    let evalRes;
+
+    if (currentLifeWaveMilestoneFilter === "ALL") {
+      evalRes = evaluateBPHS10Factors(chain, currentCalculation);
+    } else {
+      evalRes = evaluateDomainBPHSScore(currentLifeWaveMilestoneFilter, chain, currentCalculation);
+    }
 
     const pt = {
       index: i,
@@ -1896,9 +1902,98 @@ function computeSinusoidalLifeWaveData() {
   drawSinusoidalLifeWaveCanvas();
 }
 
+function evaluateDomainBPHSScore(domain, activeDashaChain, natalData) {
+  if (!natalData || !activeDashaChain || activeDashaChain.length === 0) {
+    return { netScore: 0, factors: [] };
+  }
+
+  const lagnaSign = natalData.lagnaSign;
+  const planets = natalData.planets;
+
+  let targetHouses = [10, 11, 1, 9];
+  let targetKarakas = ["Sun", "Mercury", "Saturn", "Jupiter"];
+  let domainName = "करियर व पदोन्नति (Career)";
+  let targetVarga = 10;
+
+  if (domain === "CAREER") {
+    targetHouses = [10, 11, 1, 9];
+    targetKarakas = ["Sun", "Mercury", "Saturn", "Jupiter"];
+    domainName = "करियर व प्रतिष्ठा (Career & Status)";
+    targetVarga = 10;
+  } else if (domain === "MARRIAGE") {
+    targetHouses = [7, 2, 5, 11];
+    targetKarakas = ["Venus", "Jupiter", "Moon"];
+    domainName = "विवाह व जीवनसाथी (Marriage & Relationships)";
+    targetVarga = 9;
+  } else if (domain === "CHILD") {
+    targetHouses = [5, 2, 9, 11];
+    targetKarakas = ["Jupiter", "Sun", "Moon"];
+    domainName = "सन्तान व कुलोन्नति (Progeny)";
+    targetVarga = 7;
+  } else if (domain === "CAR") {
+    targetHouses = [4, 11, 1, 9];
+    targetKarakas = ["Venus", "Mars"];
+    domainName = "वाहन क्रय व भौतिक सुख (Vehicle)";
+    targetVarga = 16;
+  } else if (domain === "HOUSE") {
+    targetHouses = [4, 11, 1, 9];
+    targetKarakas = ["Mars", "Saturn", "Venus"];
+    domainName = "अचल संपत्ति व मकान (Property & Real Estate)";
+    targetVarga = 4;
+  } else if (domain === "SADHNA") {
+    targetHouses = [9, 12, 5, 8];
+    targetKarakas = ["Ketu", "Jupiter", "Saturn"];
+    domainName = "साधना व अध्यात्म (Spiritual Awakening)";
+    targetVarga = 20;
+  }
+
+  const baseEval = evaluateBPHS10Factors(activeDashaChain, natalData);
+  let domainBonus = 0;
+  const levelWeights = [0.45, 0.25, 0.15, 0.08, 0.07];
+
+  activeDashaChain.forEach((node, idx) => {
+    const pId = node.lordEn;
+    const w = levelWeights[idx] || 0.05;
+    const pObj = planets.find(p => p.id === pId);
+    if (!pObj) return;
+
+    let pScore = 0;
+    if (targetKarakas.includes(pId)) pScore += 45;
+    if (targetHouses.includes(pObj.rasiHouse) || targetHouses.includes(pObj.chalitHouse)) pScore += 40;
+
+    const vSign = getVargaSign(pObj.sign, pObj.deg, targetVarga);
+    if (vSign === PLANET_EXALTATION_SIGNS[pId] || (PLANET_OWN_SIGNS_MAP[pId] && PLANET_OWN_SIGNS_MAP[pId].includes(vSign))) {
+      pScore += 30;
+    }
+
+    domainBonus += pScore * w;
+  });
+
+  const netDomainScore = Math.round(0.40 * baseEval.netScore + 0.60 * (domainBonus * 1.6 - 35));
+  const clampedScore = Math.max(-95, Math.min(95, netDomainScore));
+
+  const factors = baseEval.factors.concat([
+    { code: "DOM", name: `${domainName} विशिष्ट कारक बल`, score: Math.round(domainBonus), weight: "60%", desc: `विशेष भाव (H${targetHouses.join(', H')}) तथा नैसर्गिक कारक (${targetKarakas.join(', ')}) विश्लेषण` }
+  ]);
+
+  return { netScore: clampedScore, factors };
+}
+
 function detectLifeWaveMilestones() {
   lifeWaveMilestones = [];
   if (!currentCalculation || lifeWavePoints.length < 5) return;
+
+  const typeConfig = {
+    ALL: { icon: "✨", title: "उत्कर्ष काल (Peak Life Phase)", type: "ALL" },
+    CAREER: { icon: "💼", title: "करियर व पदोन्नति का स्वर्णिम समय (Career Peak)", type: "CAREER" },
+    MARRIAGE: { icon: "💍", title: "विवाह व शुभ सम्बन्ध योग (Marriage Window)", type: "MARRIAGE" },
+    CHILD: { icon: "👶", title: "सन्तान प्राप्ति व कुलोन्नति (Progeny Window)", type: "CHILD" },
+    CAR: { icon: "🚗", title: "वाहन क्रय व भौतिक सुख (Vehicle Acquisition)", type: "CAR" },
+    HOUSE: { icon: "🏠", title: "गृह निर्माण व भूमि लाभ (Property & House)", type: "HOUSE" },
+    SADHNA: { icon: "🧘", title: "साधना व आध्यात्मिक चेतना (Spiritual Awakening)", type: "SADHNA" }
+  };
+
+  const curCfg = typeConfig[currentLifeWaveMilestoneFilter] || typeConfig.ALL;
 
   for (let i = 2; i < lifeWavePoints.length - 2; i++) {
     const pt = lifeWavePoints[i];
@@ -1906,61 +2001,15 @@ function detectLifeWaveMilestones() {
     const next = lifeWavePoints[i + 1];
 
     if (pt.score >= 35 && pt.score >= prev.score && pt.score >= next.score) {
-      const lords = pt.chain.map(n => n.lordEn);
-
-      if (lords.includes("Sun") || lords.includes("Mercury") || lords.includes("Saturn") || lords.includes("Jupiter")) {
-        lifeWaveMilestones.push({
-          type: "CAREER", icon: "💼",
-          title: "करियर व पदोन्नति का स्वर्णिम समय (Career Peak)",
-          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
-          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} दशा में राजयोग व कार्यक्षेत्र में बड़ी उन्नति की संभावना।`
-        });
-      }
-
-      if (lords.includes("Venus") || lords.includes("Jupiter") || lords.includes("Moon")) {
-        lifeWaveMilestones.push({
-          type: "MARRIAGE", icon: "💍",
-          title: "विवाह व शुभ सम्बन्ध योग (Marriage Window)",
-          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
-          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} अवधि में जीवनसाथी मिलन व मांगलिक उत्सव।`
-        });
-      }
-
-      if (lords.includes("Jupiter") || lords.includes("Sun") || lords.includes("Moon")) {
-        lifeWaveMilestones.push({
-          type: "CHILD", icon: "👶",
-          title: "सन्तान प्राप्ति व कुलोन्नति (Progeny Window)",
-          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
-          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} काल में सन्तान सुख व परिवार में हर्षोल्लास।`
-        });
-      }
-
-      if (lords.includes("Venus") || lords.includes("Mars")) {
-        lifeWaveMilestones.push({
-          type: "CAR", icon: "🚗",
-          title: "वाहन क्रय व भौतिक सुख (Vehicle Acquisition)",
-          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
-          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} दशा में नया वाहन/कार क्रय के प्रबल योग।`
-        });
-      }
-
-      if (lords.includes("Mars") || lords.includes("Saturn") || lords.includes("Venus")) {
-        lifeWaveMilestones.push({
-          type: "HOUSE", icon: "🏠",
-          title: "गृह निर्माण व भूमि लाभ (Property & House)",
-          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
-          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} अवधि में अचल संपत्ति, मकान निर्माण व भूमि लाभ।`
-        });
-      }
-
-      if (lords.includes("Ketu") || lords.includes("Jupiter") || lords.includes("Saturn")) {
-        lifeWaveMilestones.push({
-          type: "SADHNA", icon: "🧘",
-          title: "साधना व आध्यात्मिक चेतना (Spiritual Awakening)",
-          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
-          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} काल में उच्च साधना, गुरु कृपा व आत्म-साक्षात्कार।`
-        });
-      }
+      lifeWaveMilestones.push({
+        type: curCfg.type,
+        icon: curCfg.icon,
+        title: curCfg.title,
+        timestamp: pt.timestamp,
+        pointIndex: i,
+        score: pt.score,
+        desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} दशा काल में ${curCfg.title} के प्रबल योग। (बीपीएसएस सूचकांक: +${pt.score}%)`
+      });
     }
   }
 }
@@ -2258,7 +2307,7 @@ function filterLifeWaveMilestones(cat) {
     document.getElementById(targetId).classList.add("active");
   }
 
-  drawSinusoidalLifeWaveCanvas();
+  computeSinusoidalLifeWaveData();
 }
 
 function openBphsModalForPoint(pt) {
