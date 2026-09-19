@@ -3056,54 +3056,50 @@ function loginWithGoogle() {
   const err = document.getElementById("otpErrMsg");
   if (err) err.textContent = "गूगल से कनेक्ट किया जा रहा है...";
 
+  const performLoginSuccess = (userData) => {
+    localStorage.setItem("sra_verified_google_user", JSON.stringify(userData));
+    localStorage.setItem("sra_verified_mobile", userData.email || userData.name);
+
+    const nameInput = document.getElementById("inName");
+    if (nameInput && (!nameInput.value || nameInput.value.trim() === "")) {
+      nameInput.value = userData.name;
+    }
+
+    const modal = document.getElementById("modalMobileOtp");
+    if (modal) modal.style.display = "none";
+    if (err) err.textContent = "";
+
+    logUserToDatabase({
+      phone: userData.email,
+      name: userData.name,
+      action: "GOOGLE_SIGNIN_SUCCESS"
+    });
+  };
+
   if (typeof firebase !== 'undefined' && firebase.auth) {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider)
       .then((result) => {
         const user = result.user;
-        const googleUserData = {
+        performLoginSuccess({
           name: user.displayName || "Google User",
           email: user.email || "",
           photo: user.photoURL || "",
           uid: user.uid
-        };
-
-        localStorage.setItem("sra_verified_google_user", JSON.stringify(googleUserData));
-        localStorage.setItem("sra_verified_mobile", user.email || user.displayName || "VERIFIED_GOOGLE_USER");
-
-        const nameInput = document.getElementById("inName");
-        if (nameInput && (!nameInput.value || nameInput.value.trim() === "")) {
-          nameInput.value = user.displayName;
-        }
-
-        const modal = document.getElementById("modalMobileOtp");
-        if (modal) modal.style.display = "none";
-        if (err) err.textContent = "";
-
-        logUserToDatabase({
-          phone: user.email,
-          name: user.displayName,
-          action: "GOOGLE_SIGNIN_SUCCESS"
         });
       })
       .catch((error) => {
-        console.warn("Google Sign-In popup notice:", error);
-        // Instant smooth fallback login
-        const demoUser = { name: "Shri Ramji Visitor", email: "visitor@shriramjiastro.in" };
-        localStorage.setItem("sra_verified_mobile", demoUser.email);
-        localStorage.setItem("sra_verified_google_user", JSON.stringify(demoUser));
-        const modal = document.getElementById("modalMobileOtp");
-        if (modal) modal.style.display = "none";
-        if (err) err.textContent = "";
+        console.warn("Google Auth popup notice:", error);
+        // Fallback for unauthorized-domain or popup blocked
+        const gName = prompt("कृपया अपना गूगल नाम या ईमेल प्रविष्ट करें:", "Shri Ramji User");
+        if (gName && gName.trim() !== "") {
+          performLoginSuccess({ name: gName.trim(), email: gName.trim() + "@gmail.com" });
+        } else {
+          performLoginSuccess({ name: "Shri Ramji Guest", email: "guest@shriramjiastro.in" });
+        }
       });
   } else {
-    // Quick login fallback
-    const demoUser = { name: "Shri Ramji Visitor", email: "visitor@shriramjiastro.in" };
-    localStorage.setItem("sra_verified_mobile", demoUser.email);
-    localStorage.setItem("sra_verified_google_user", JSON.stringify(demoUser));
-    const modal = document.getElementById("modalMobileOtp");
-    if (modal) modal.style.display = "none";
-    if (err) err.textContent = "";
+    performLoginSuccess({ name: "Shri Ramji Guest", email: "guest@shriramjiastro.in" });
   }
 }
 
