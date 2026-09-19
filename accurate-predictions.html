@@ -806,6 +806,11 @@
           <span style="color: var(--gold); font-weight: 700;">💡 टिप्स:</span> तरंग के किसी भी बिंदु या मील के पत्थर आइकॉन पर क्लिक करके बीपीएसएस 10-कारक फलादेश विवरण देखें।
         </div>
       </div>
+
+      <!-- Prominent Top 3 Event Predictions Summary Panel -->
+      <div id="milestonePredictionsSummaryBox" style="margin-top: 18px; border-top: 1px dashed var(--gold-border); padding-top: 16px;">
+        <!-- Populated dynamically by detectLifeWaveMilestones() -->
+      </div>
     </div>
 
     <!-- BPHS 10-FACTOR DETAILED BREAKDOWN MODAL DRAWER -->
@@ -2263,36 +2268,119 @@ function detectLifeWaveMilestones() {
     }
   }
 
-  // Sort raw milestones by BPHS Score descending to rank them
+  // Sort raw milestones by BPHS Score descending to rank top 3
   rawMilestones.sort((a, b) => b.score - a.score);
 
-  // Assign Rank 1, Rank 2, Rank 3... and refine titles
-  rawMilestones.forEach((m, idx) => {
-    let rankText = `रैंक #${idx + 1}`;
-    let titleText = m.title;
+  // STRICTLY CAP TO MAX 3 PROMINENT YOGAS FOR EVERY DOMAIN (Vivah, Career, Car, House, Child)
+  const top3Prominent = rawMilestones.slice(0, 3);
 
-    if (m.type === "MARRIAGE") {
-      if (idx === 0) titleText = "🥇 मुख्य विवाह योग (Rank 1 Primary Marriage Window)";
-      else if (idx === 1) titleText = "🥈 द्वितीय विवाह / सम्भाव्य सम्बन्ध योग (Rank 2 Window)";
-      else titleText = `🥉 सम्भाव्य विवाह योग (Rank ${idx + 1} Window)`;
-      
-      if (!m.isInPrimaryWindow) {
-        titleText += ` [आयु ${m.ageYrs} वर्ष - उत्तर जीवन सम्भाव्यता]`;
-      }
-    } else {
-      titleText = `${m.icon} ${rankText}: ${m.title}`;
-    }
+  top3Prominent.forEach((m, idx) => {
+    const rankBadges = ["🥇", "🥈", "🥉"];
+    const rankLabels = ["मुख्य प्रथम योग (Rank 1)", "द्वितीय शुभ योग (Rank 2)", "तृतीय सम्भाव्य योग (Rank 3)"];
+    const badge = rankBadges[idx] || "✨";
+    const label = rankLabels[idx] || `रैंक #${idx+1}`;
+
+    let titleText = `${badge} ${label} - ${m.title}`;
+    if (m.type === "MARRIAGE") titleText = `${badge} ${label} - विवाह व शुभ सम्बन्ध योग`;
+    else if (m.type === "CAREER") titleText = `${badge} ${label} - पदोन्नति व करियर उत्कर्ष योग`;
+    else if (m.type === "HOUSE") titleText = `${badge} ${label} - गृह निर्माण व अचल संपत्ति योग`;
+    else if (m.type === "CAR") titleText = `${badge} ${label} - वाहन क्रय व भौतिक सुख योग`;
+    else if (m.type === "CHILD") titleText = `${badge} ${label} - सन्तान प्राप्ति व कुलोन्नति योग`;
+
+    const dt = new Date(m.timestamp);
+    const dateFormatted = `${dt.getDate()} ${dt.toLocaleString('hi-IN', { month: 'short' })} ${dt.getFullYear()}`;
+    const mdName = m.chain[0] ? m.chain[0].lordName : 'दशा';
+    const adName = m.chain[1] ? m.chain[1].lordName : 'अंतर्दशा';
+
+    const descText = `${titleText} • समय: ${dateFormatted} (आयु ~${m.ageYrs} वर्ष) • दशा: ${mdName}-${adName} • गोचर: गुरु/शनि अनुकूलता दृष्टि • (बीपीएसएस सूचकांक: +${m.score}%)`;
 
     lifeWaveMilestones.push({
       ...m,
       rank: idx + 1,
       title: titleText,
-      desc: `${m.chain[0]?.lordName} - ${m.chain[1]?.lordName} दशा काल (आयु ~${m.ageYrs} वर्ष) में ${titleText}। (बीपीएसएस सूचकांक: +${m.score}%)`
+      dateFormatted,
+      desc: descText
     });
   });
 
-  // Re-sort chronologically by timestamp for display
+  // Re-sort chronologically by timestamp for graph display
   lifeWaveMilestones.sort((a, b) => a.timestamp - b.timestamp);
+
+  // Render Top 3 Prominent Event Summary UI Panel
+  renderProminentMilestonesSummaryUI(top3Prominent);
+}
+
+function renderProminentMilestonesSummaryUI(top3List) {
+  const box = document.getElementById("milestonePredictionsSummaryBox");
+  if (!box) return;
+
+  const domainMap = {
+    ALL: "सर्वश्रेष्ठ उत्कर्ष काल (Top Prominent Life Phases)",
+    CAREER: "करियर व पदोन्नति के अधिकतम ३ प्रमुख योग (Top 3 Career Yogas)",
+    MARRIAGE: "विवाह के अधिकतम ३ प्रमुख सर्वोत्कृष्ट योग (Top 3 Marriage Yogas)",
+    CHILD: "संतान प्राप्ति के अधिकतम ३ प्रमुख योग (Top 3 Progeny Yogas)",
+    CAR: "वाहन क्रय के अधिकतम ३ प्रमुख योग (Top 3 Vehicle Yogas)",
+    HOUSE: "गृह निर्माण व संपत्ति के अधिकतम ३ प्रमुख योग (Top 3 Property Yogas)",
+    SADHNA: "साधना व आध्यात्मिक चेतना के अधिकतम ३ प्रमुख योग (Top 3 Sadhna Yogas)"
+  };
+
+  const sectionTitle = domainMap[currentLifeWaveMilestoneFilter] || "अधिकतम ३ सर्वोत्कृष्ट फलित योग";
+
+  if (!top3List || top3List.length === 0) {
+    box.innerHTML = `
+      <div style="background:var(--bg); border:1px solid var(--gold-border); border-radius:10px; padding:16px; text-align:center; color:var(--gold); font-size:13px;">
+        ℹ️ चयनित विषय में बीपीएसएस सूचकांक (+35%) से ऊपर कोई अति-विशिष्ट योग प्राप्त नहीं हुआ। (सामान्य समस्थिति काल)
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+      <h4 style="margin:0; font-family:'Cinzel', serif; color:var(--gold); font-size:15px; font-weight:700;">
+        🌟 ${sectionTitle} (Strict Top 3 Standard)
+      </h4>
+      <span style="font-size:11.5px; color:var(--muted); font-weight:600;">(दशा + गोचर द्वि-ग्रह संचरण आधारित)</span>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+  `;
+
+  top3List.forEach((m, idx) => {
+    const badges = ["🥇 Rank 1", "🥈 Rank 2", "🥉 Rank 3"];
+    const rankTag = badges[idx] || `Rank ${idx+1}`;
+    const dt = new Date(m.timestamp);
+    const dateStr = `${dt.getDate()} ${dt.toLocaleString('hi-IN', { month: 'short' })} ${dt.getFullYear()}`;
+    const mdName = m.chain[0] ? m.chain[0].lordName : 'महादशा';
+    const adName = m.chain[1] ? m.chain[1].lordName : 'अंतर्दशा';
+
+    html += `
+      <div style="background:var(--card-bg); border:1px solid var(--gold-border); border-left:4px solid var(--primary); border-radius:10px; padding:14px; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;" onclick="openBphsModalForPoint(lifeWavePoints[${m.pointIndex}])" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="background:rgba(180,83,9,0.12); color:var(--gold); border:1px solid var(--gold-border); padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700;">
+            ${rankTag}
+          </span>
+          <span style="color:#10b981; font-weight:800; font-size:12px;">
+            +${m.score}% बीपीएसएस बल
+          </span>
+        </div>
+        <div style="font-weight:700; color:var(--primary); font-size:13.5px; margin-bottom:6px;">
+          ${m.icon} ${m.title}
+        </div>
+        <div style="font-size:12px; color:var(--dark); margin-bottom:4px;">
+          📅 <strong>सम्भावित काल:</strong> ${dateStr} (आयु ~${m.ageYrs} वर्ष)
+        </div>
+        <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">
+          📜 <strong>सक्रिय दशा:</strong> ${mdName} ➔ ${adName}
+        </div>
+        <div style="font-size:11.5px; color:var(--gold); font-weight:600;">
+          🌌 <strong>गोचर स्थिति:</strong> गुरु व शनि का शुभ कारक भाव संचरण व अनुकूल दृष्टि
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  box.innerHTML = html;
 }
 
 function drawSinusoidalLifeWaveCanvas() {
