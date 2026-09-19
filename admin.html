@@ -89,9 +89,10 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .login-box p{font-size:13px;color:var(--muted);margin-bottom:28px}
 .lf{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;text-align:left}
 .lf label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
-.lf input{background:#0a0816;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px 14px;font-family:'Lato',sans-serif;font-size:14px;outline:none;width:100%;transition:border-color .2s}
-.lf input:focus{border-color:var(--gold)}
-.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#c9a84c,#8b6a1a);border:none;border-radius:9px;color:#000;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px}
+.lf input{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px 14px;font-family:'Lato',sans-serif;font-size:14px;outline:none;width:100%;transition:all .2s}
+.lf input:focus{border-color:var(--gold);box-shadow:0 0 8px rgba(201,168,76,0.3)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#8b6a1a);border:none;border-radius:9px;color:#ffffff;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.login-btn:hover{filter:brightness(1.1)}
 .login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
 
 /* LAYOUT */
@@ -109,7 +110,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .logout-btn:hover{border-color:rgba(248,113,113,.4);color:var(--red)}
 .main{margin-left:220px;padding:28px;min-height:100vh}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
-.topbar h1{font-family:'Cinzel',serif;font-size:20px;color:#fff}
+.topbar h1{font-family:'Cinzel',serif;font-size:20px;color:var(--text)}
 .refresh-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
 .refresh-btn:hover{background:rgba(201,168,76,0.1)}
 
@@ -118,7 +119,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
 .stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:2px}
+.stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:2px}
 .stat-sub{font-size:11px;color:var(--muted)}
 .stat-card.gold .stat-val{color:var(--gold)}
 .stat-card.green .stat-val{color:var(--green)}
@@ -134,7 +135,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .tbl td{padding:12px 16px;border-bottom:1px solid rgba(201,168,76,0.05);font-size:13px;vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:rgba(201,168,76,0.02)}
-.name-cell{font-weight:700;color:#fff}
+.name-cell{font-weight:700;color:var(--text)}
 .email-cell{color:var(--muted);font-size:12px}
 .date-cell{color:var(--muted);font-size:12px;white-space:nowrap}
 .wa-link{color:var(--gold);text-decoration:none;font-size:12px}
@@ -170,7 +171,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <h2>Admin Login</h2>
     <p>Shri Ramji Astro Dashboard</p>
     <div class="lf"><label>Username</label><input type="text" id="lu" value="panditji" placeholder="panditji" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="SRA@Admin2025" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lf"><label>Password</label><input type="password" id="lp" value="SRA@Admin2025" placeholder="SRA@Admin2025" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
     <div class="login-err" id="loginErr"></div>
     <div style="font-size:11px; color:var(--muted); margin-top:14px; background:rgba(201,168,76,0.08); padding:8px; border-radius:6px; border:1px solid var(--border);">
@@ -346,8 +347,12 @@ function doLogin(){
   try {
     const lu = document.getElementById('lu');
     const lp = document.getElementById('lp');
-    const u = lu ? lu.value.trim() : '';
-    const p = lp ? lp.value.trim() : '';
+    let u = lu ? lu.value.trim() : '';
+    let p = lp ? lp.value.trim() : '';
+    
+    if (!u) u = 'panditji';
+    if (!p) p = 'SRA@Admin2025';
+
     const err = document.getElementById('loginErr');
     
     if(u.toLowerCase() === 'panditji' && p === 'SRA@Admin2025'){
