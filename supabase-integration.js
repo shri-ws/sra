@@ -50,6 +50,45 @@ window.saveConsultation = async (name, phone, email, dob, tob, pob, q) => {
   } catch (e) { console.error('Consult error:', e); }
 };
 
+// 📚 BLOGS & DISCUSSIONS DATABASE ENGINE → blogs table
+window.saveBlogToSupabase = async (blogObj) => {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/blogs`, {
+      method: 'POST',
+      headers: SUPA_HEADERS,
+      body: JSON.stringify({
+        id: blogObj.id,
+        author: blogObj.author,
+        avatar: blogObj.avatar,
+        cred: blogObj.cred,
+        is_verified: blogObj.isVerified,
+        is_admin: blogObj.isAdmin,
+        is_blog: blogObj.isBlog,
+        category: blogObj.category,
+        title: blogObj.title,
+        body: blogObj.body,
+        upvotes: blogObj.upvotes || 1,
+        answers: blogObj.answers || [],
+        status: 'approved'
+      })
+    });
+    if (res.ok) console.log('✅ Blog saved to Supabase Cloud DB');
+  } catch (e) { console.error('Blog save error:', e); }
+};
+
+window.fetchBlogsFromSupabase = async () => {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/blogs?select=*&order=created_at.desc`, {
+      headers: SUPA_HEADERS
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) return data;
+    }
+  } catch (e) { console.error('Fetch blogs error:', e); }
+  return null;
+};
+
 // 🔥 ADMIN FETCH FUNCTIONS
 window.fetchStudents = async () => {
   try {

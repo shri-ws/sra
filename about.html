@@ -14,14 +14,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Shri Ramji Astro — Quora Astrology Forum" />
     <meta property="og:title" content="About Us, Daily Astrology Blog & Quora Q&A Forum | Shri Ramji Astro" />
-    <meta property="og:description" content="Strictly verified Quora-style astrology discussion forum with clean Phone OTP & Google Login options." />
+    <meta property="og:description" content="Strictly verified Quora-style astrology discussion forum with permanent Supabase Cloud Database storage." />
     <meta property="og:url" content="https://shriramjiastro.in/about.html" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     
     <script src="theme.js"></script>
     <script src="supabase-integration.js"></script>
@@ -298,7 +298,7 @@
 
     </div>
 
-    <!-- DUAL-METHOD AUTH MODAL (TRIGGERED ONLY WHEN UNAUTHENTICATED) -->
+    <!-- DUAL-METHOD AUTH MODAL -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-box">
             <button class="btn-close-modal" onclick="closeAuthModal()">✕</button>
@@ -331,7 +331,7 @@
                 </div>
             </div>
 
-            <!-- GOOGLE AUTH TAB (NO AUTO PROMPT) -->
+            <!-- GOOGLE AUTH TAB -->
             <div id="authSecGoogle" style="display:none;">
                 <div style="text-align:center; padding:20px 10px;">
                     <button class="btn-submit-post" style="background:#4285F4; max-width:280px; margin:0 auto;" onclick="loginGoogleDemo()">
@@ -433,75 +433,51 @@
     </div>
 
     <script>
-        let Q_FEED = [
-            {
-                id: 1001,
-                author: "एस्ट्रो रामजी (Founder)",
-                avatar: "logo.png",
-                cred: "Chief Astrologer & Founder • Shri Ramji Astro",
-                isVerified: true,
-                isAdmin: true,
-                isBlog: true,
-                category: "ephemeris",
-                title: "60-टर्म Meeus ELP-2000 लूनर सीरीज क्यों आवश्यक है?",
-                body: "साधारण पंचांगों में चंद्रमा की गति का अनुमानित मान लिया जाता है, जिससे नक्षत्र स्वामी और विंशोत्तरी दशा की शुरुआत में घंटों की त्रुटि आ जाती है। श्री रामजी एस्ट्रो इंजन जीन मेउस (Jean Meeus) के 60-टर्म लूनर क्षोभ समीकरण का उपयोग करता है। इसमें True Lahiri Ayanamsa के साथ 4-term IAU Nutation जोड़ा जाता है जिससे sub-arcsecond सटीकता प्राप्त होती है।",
-                upvotes: 48,
-                answers: [
-                    {
-                        author: "डॉ. वी. के. शास्त्री",
-                        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Shastri",
-                        cred: "सत्यापित ज्योतिषाचार्य (Verified Scholar)",
-                        isVerified: true,
-                        text: "अति उत्तम आलेख! नति-परिवर्तन (Nutation) को जोड़ने से विंशोत्तरी दशा का प्रारंभ काल मिनटों तक सटीक निकलता है।",
-                        time: "3 घंटे पहले"
-                    }
-                ],
-                status: "approved"
-            },
-            {
-                id: 1002,
-                author: "एस्ट्रो रामजी (Founder)",
-                avatar: "logo.png",
-                cred: "Chief Astrologer & Founder • Shri Ramji Astro",
-                isVerified: true,
-                isAdmin: true,
-                isBlog: true,
-                category: "muhurta",
-                title: "विवाह मुहूर्त में 10 महादोषों का परिहार (Parihar) कब और कैसे लागू होता है?",
-                body: "ज्योतिष ग्रंथों (मुहूर्त चिंतामणि) के अनुसार यदि गोचर का बृहस्पति विवाह लग्न से केंद्र (1, 4, 7, 10) या त्रिकोण (5, 9) भाव में स्थित हो, तो वह 10 में से अधिकांश गौण दोषों को नष्ट कर देता है (श्लोक 91)।",
-                upvotes: 32,
-                answers: [],
-                status: "approved"
-            },
-            {
-                id: 1003,
-                author: "आदित्य शर्मा",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aditya",
-                cred: "सत्यापित सदस्य (Verified User)",
-                isVerified: true,
-                isAdmin: false,
-                isBlog: false,
-                category: "kundli",
-                title: "षोडशवर्ग में D9 (नवांश) और D60 (षष्टिांश) का वास्तविक अंतर क्या है?",
-                body: "क्या केवल नवांश चार्ट देखकर विवाह का फलादेश किया जा सकता है या D60 देखना भी अनिवार्य है?",
-                upvotes: 14,
-                answers: [
-                    {
-                        author: "एस्ट्रो रामजी (Founder)",
-                        avatar: "logo.png",
-                        cred: "Chief Astrologer",
-                        isVerified: true,
-                        isAdmin: true,
-                        text: "महर्षि पराशर के अनुसार D9 विवाह और भाग्य की सूक्ष्म शक्ति बताता है, जबकि D60 संचित कर्मों और सूक्ष्म फल का अंतिम निर्णय करता है।",
-                        time: "1 घंटा पहले"
-                    }
-                ],
-                status: "approved"
-            }
-        ];
-
+        let Q_FEED = [];
         let currentUser = null;
         let generatedDemoOtp = null;
+
+        // PERMANENT BLOG DATABASE LOADER (SUPABASE CLOUD DB + JSON FILE + LOCALSTORAGE)
+        async function loadBlogsDatabase() {
+            try {
+                // 1. Try Supabase Cloud Database first
+                if (window.fetchBlogsFromSupabase) {
+                    const supaBlogs = await window.fetchBlogsFromSupabase();
+                    if (supaBlogs && supaBlogs.length > 0) {
+                        Q_FEED = supaBlogs;
+                        renderFeed('all');
+                        return;
+                    }
+                }
+
+                // 2. Try LocalStorage
+                const localData = localStorage.getItem('sra_blogs_database');
+                if (localData) {
+                    Q_FEED = JSON.parse(localData);
+                    renderFeed('all');
+                    return;
+                }
+
+                // 3. Fallback to Master JSON File
+                const res = await fetch('data/blogs_database.json');
+                if (res.ok) {
+                    Q_FEED = await res.json();
+                    localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
+                }
+            } catch(e) {
+                console.error("Database load error:", e);
+            }
+            renderFeed('all');
+        }
+
+        function saveBlogToDatabase(blogObj) {
+            Q_FEED.unshift(blogObj);
+            localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
+            if (window.saveBlogToSupabase) {
+                window.saveBlogToSupabase(blogObj);
+            }
+            renderFeed('all');
+        }
 
         function checkActiveSession() {
             const saved = localStorage.getItem('sra_user_session');
@@ -656,13 +632,13 @@
                 body: body,
                 upvotes: 1,
                 answers: [],
-                status: "approved"
+                status: "approved",
+                created_at: new Date().toISOString()
             };
 
-            Q_FEED.unshift(blogPost);
+            saveBlogToDatabase(blogPost);
             closeAdminModal();
-            renderFeed('all');
-            alert("🎉 बधाई हो! एस्ट्रो रामजी का आधिकारिक ब्लॉग सफलतापूर्वक पोस्ट हो गया है!");
+            alert("🎉 बधाई हो! एस्ट्रो रामजी का आधिकारिक ब्लॉग स्थायी रूप से पब्लिश हो गया है!");
         }
 
         function handlePostSubmit(e) {
@@ -689,14 +665,14 @@
                 body: body,
                 upvotes: 1,
                 answers: [],
-                status: "approved"
+                status: "approved",
+                created_at: new Date().toISOString()
             };
 
-            Q_FEED.unshift(newPost);
+            saveBlogToDatabase(newPost);
             closePostModal();
             document.getElementById('postForm').reset();
-            renderFeed('all');
-            alert("✓ आपका प्रश्न/लेख सफलतापूर्वक पोस्ट हो गया है!");
+            alert("✓ आपका प्रश्न/लेख स्थायी रूप से डेटाबेस में सुरक्षित हो गया है!");
         }
 
         function renderFeed(tab = 'all') {
@@ -706,12 +682,12 @@
             if (tab === 'admin_blogs') {
                 items = Q_FEED.filter(q => q.isAdmin || q.isBlog);
             } else if (tab === 'verified') {
-                items = Q_FEED.filter(q => q.answers.some(a => a.isVerified));
+                items = Q_FEED.filter(q => q.answers && q.answers.some(a => a.isVerified));
             } else if (tab === 'my') {
-                items = currentUser ? Q_FEED.filter(q => q.author.includes(currentUser.name)) : [];
+                items = currentUser ? Q_FEED.filter(q => q.author && q.author.includes(currentUser.name)) : [];
             }
 
-            if (items.length === 0) {
+            if (!items || items.length === 0) {
                 container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);">कोई प्रश्न/आलेख उपलब्ध नहीं है।</div>`;
                 return;
             }
@@ -726,7 +702,7 @@
                                     ${q.author}
                                     ${q.isAdmin ? '<span class="admin-badge">🚩 ASTROLOGER / FOUNDER</span>' : (q.isVerified ? '<span class="verif-badge">✓ VERIFIED</span>' : '')}
                                 </div>
-                                <div class="q-author-cred">${q.cred}</div>
+                                <div class="q-author-cred">${q.cred || ''}</div>
                             </div>
                         </div>
                     </div>
@@ -735,17 +711,17 @@
                     <p class="q-body">${q.body}</p>
 
                     <div class="q-actions">
-                        <button class="btn-upvote" onclick="upvoteQ(${q.id})">▲ Upvote (${q.upvotes})</button>
-                        <button class="btn-answer" onclick="addAnswer(${q.id})">💬 उत्तर दें (${q.answers.length} Answers)</button>
+                        <button class="btn-upvote" onclick="upvoteQ(${q.id})">▲ Upvote (${q.upvotes || 1})</button>
+                        <button class="btn-answer" onclick="addAnswer(${q.id})">💬 उत्तर दें (${(q.answers && q.answers.length) || 0} Answers)</button>
                     </div>
 
-                    ${q.answers.length > 0 ? `
+                    ${(q.answers && q.answers.length > 0) ? `
                         <div class="answers-box">
                             ${q.answers.map(ans => `
                                 <div class="answer-item">
-                                    <div style="display:flex; align-items:center; justify-space-between; margin-bottom:4px;">
+                                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
                                         <b style="font-size:12px; color:var(--gold-dark);">${ans.author} ${ans.isVerified ? '✓' : ''}</b>
-                                        <small style="font-size:10px; color:var(--text-muted);">${ans.time}</small>
+                                        <small style="font-size:10px; color:var(--text-muted);">${ans.time || ''}</small>
                                     </div>
                                     <div style="font-size:12.5px; color:var(--text-main);">${ans.text}</div>
                                 </div>
@@ -758,7 +734,11 @@
 
         function upvoteQ(id) {
             const item = Q_FEED.find(q => q.id === id);
-            if (item) { item.upvotes++; renderFeed(); }
+            if (item) {
+                item.upvotes = (item.upvotes || 1) + 1;
+                localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
+                renderFeed();
+            }
         }
 
         function addAnswer(id) {
@@ -771,6 +751,7 @@
             if (ansText && ansText.trim()) {
                 const item = Q_FEED.find(q => q.id === id);
                 if (item) {
+                    if (!item.answers) item.answers = [];
                     item.answers.push({
                         author: currentUser.name,
                         avatar: currentUser.picture,
@@ -779,6 +760,7 @@
                         text: ansText.trim(),
                         time: "अभी-अभी"
                     });
+                    localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
                     renderFeed();
                 }
             }
@@ -792,7 +774,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             checkActiveSession();
-            renderFeed('all');
+            loadBlogsDatabase();
         });
     </script>
 </body>
