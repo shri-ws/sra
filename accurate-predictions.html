@@ -745,71 +745,95 @@
 
     <!-- BPHS 10-FACTOR MULTI-PARAMETRIC SINUSOIDAL LIFE WAVE & MILESTONE ENGINE -->
     <div class="lifewave-container" id="lifewaveContainer">
-      <div class="dasha-header">
-        <div>
-          <h3 class="dasha-title">🌊 बीपीएसएस 10-कारक पराशरी जीवन तरंग ग्राफ (BPHS Multi-Parametric Life Wave Graph)</h3>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
-            Sthana Bala • Avastha • Functional Benefic • Sripati Chalit • Shodashvarga • Drishti • Yogas • Karakas • Dasha Matrix • Gochar
-          </p>
+      <!-- ADMIN GRAPH FEATURE LOCK OVERLAY -->
+      <div id="graphAdminLockOverlay" style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:12px; padding:36px 24px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+        <div style="font-size:46px; margin-bottom:12px;">🔒</div>
+        <h3 style="font-family:'Cinzel', serif; color:var(--gold); font-size:20px; margin:0 0 8px 0; font-weight:700;">
+          🔐 बीपीएसएस जीवन तरंग ग्राफ — एडमिन रिज़र्व्ड टूल (Admin Access Only)
+        </h3>
+        <p style="font-size:13.5px; color:var(--muted); max-width:620px; margin:0 auto 20px auto; line-height:1.6;">
+          यह एडवांस्ड 10-कारक बीपीएसएस जीवन तरंग ग्राफ एवं फलित फलादेश टूल केवल अधिकृत ज्योतिषाचार्य / एडमिन उपयोग के लिए सुरक्षित किया गया है। ग्राफ व प्रेडिक्शन्स देखने हेतु कृपया एडमिन पासवर्ड दर्ज करें।
+        </p>
+
+        <div style="display:flex; justify-content:center; gap:10px; max-width:380px; margin:0 auto 12px auto; flex-wrap:wrap;">
+          <input type="password" id="inGraphAdminPass" placeholder="एडमिन पासवर्ड दर्ज करें..." onkeydown="if(event.key==='Enter'){unlockGraphFeature();}" style="flex:1; padding:10px 14px; border:1px solid var(--gold-border); border-radius:8px; font-size:14px; background:var(--bg); color:var(--dark); outline:none;">
+          <button class="v-btn" onclick="unlockGraphFeature()" style="padding:10px 20px; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:bold; border-radius:8px; border:none; cursor:pointer;">
+            अनलॉक करें (Unlock)
+          </button>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-          <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:6px; overflow:hidden;">
-            <button class="v-btn" onclick="setDashaSynthesisMode('CUMULATIVE')" id="btnDashaCum" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px; border-radius:0;">🌐 त्रिदशा संयुक्त तरंग (Cumulative)</button>
-            <button class="v-btn" onclick="setDashaSynthesisMode('VIMSHOTTARI')" id="btnDashaVim" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">📜 विंशोत्तरी</button>
-            <button class="v-btn" onclick="setDashaSynthesisMode('CHARA')" id="btnDashaCha" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🏹 चर दशा</button>
-            <button class="v-btn" onclick="setDashaSynthesisMode('YOGINI')" id="btnDashaYog" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🔮 योगिनी</button>
+
+        <div id="graphLockErrMsg" style="color:var(--sandhi-alert); font-size:12.5px; font-weight:bold; min-height:18px;"></div>
+      </div>
+
+      <!-- UNLOCKED GRAPH CONTENT (VISIBLE ONLY WITH ADMIN PASSWORD) -->
+      <div id="graphUnlockedContent" style="display:none;">
+        <div class="dasha-header">
+          <div>
+            <h3 class="dasha-title">🌊 बीपीएसएस 10-कारक पराशरी जीवन तरंग ग्राफ (BPHS Multi-Parametric Life Wave Graph)</h3>
+            <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+              Sthana Bala • Avastha • Functional Benefic • Sripati Chalit • Shodashvarga • Drishti • Yogas • Karakas • Dasha Matrix • Gochar
+            </p>
           </div>
-          <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px;">🌐 100 Years</button>
-          <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔮 महादशा</button>
-          <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_5Y')" id="btnWindow5Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">📅 5 Years</button>
-          <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_1Y')" id="btnWindow1Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔍 1 Year (Zoom Micro)</button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button class="v-btn" onclick="lockGraphFeature()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444; font-size:11px; padding:6px 10px; font-weight:bold;" title="Re-lock graph feature">🔒 लॉक करें (Lock Access)</button>
+            <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:6px; overflow:hidden;">
+              <button class="v-btn" onclick="setDashaSynthesisMode('CUMULATIVE')" id="btnDashaCum" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px; border-radius:0;">🌐 त्रिदशा संयुक्त तरंग (Cumulative)</button>
+              <button class="v-btn" onclick="setDashaSynthesisMode('VIMSHOTTARI')" id="btnDashaVim" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">📜 विंशोत्तरी</button>
+              <button class="v-btn" onclick="setDashaSynthesisMode('CHARA')" id="btnDashaCha" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🏹 चर दशा</button>
+              <button class="v-btn" onclick="setDashaSynthesisMode('YOGINI')" id="btnDashaYog" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🔮 योगिनी</button>
+            </div>
+            <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px;">🌐 100 Years</button>
+            <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔮 महादशा</button>
+            <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_5Y')" id="btnWindow5Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">📅 5 Years</button>
+            <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_1Y')" id="btnWindow1Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔍 1 Year (Zoom Micro)</button>
+          </div>
         </div>
-      </div>
 
-      <!-- Category Milestone Filter Buttons -->
-      <div class="lifewave-filters" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; align-items:center;">
-        <span style="font-size:12px; font-weight:700; color:var(--gold);">📍 मील के पत्थर (Life Milestones Filter):</span>
-        <button class="filter-pill active" onclick="filterLifeWaveMilestones('ALL')" id="fltAll">✨ सभी घटनाएँ (All Events)</button>
-        <button class="filter-pill" onclick="filterLifeWaveMilestones('CAREER')" id="fltCareer">💼 करियर व पदोन्नति (Career)</button>
-        <button class="filter-pill" onclick="filterLifeWaveMilestones('MARRIAGE')" id="fltMarriage">💍 विवाह व जीवनसाथी (Marriage)</button>
-        <button class="filter-pill" onclick="filterLifeWaveMilestones('CHILD')" id="fltChild">👶 संतान प्राप्ति (Children)</button>
-        <button class="filter-pill" onclick="filterLifeWaveMilestones('CAR')" id="fltCar">🚗 वाहन क्रय (Car / Vehicle)</button>
-        <button class="filter-pill" onclick="filterLifeWaveMilestones('HOUSE')" id="fltHouse">🏠 गृह निर्माण व भूमि (Property)</button>
-        <button class="filter-pill" onclick="filterLifeWaveMilestones('SADHNA')" id="fltSadhna">🧘 साधना व अध्यात्म (Sadhna)</button>
-      </div>
-
-      <!-- Sinusoidal Wave Canvas Wrapper -->
-      <div style="position: relative; background: var(--bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 12px; overflow: hidden;" id="cvsWrapper">
-        <canvas id="cvsLifeWave" height="380" style="width: 100%; height: 380px; display: block; cursor: crosshair;"></canvas>
-
-        <!-- Floating Interactive Tooltip -->
-        <div id="lifeWaveTooltip" class="lifewave-tooltip" style="display:none;"></div>
-      </div>
-
-      <!-- Legend & Wave Spectrum Bar -->
-      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--dark); gap: 10px;">
-        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-          <span style="display: inline-flex; align-items: center; gap: 6px;">
-            <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 3px;"></span>
-            <strong style="color: #059669;">राजयोग व शुभ उत्कर्ष (+30% से +100%)</strong>
-          </span>
-          <span style="display: inline-flex; align-items: center; gap: 6px;">
-            <span style="display: inline-block; width: 14px; height: 14px; background: #94a3b8; border-radius: 3px;"></span>
-            <strong style="color: #64748b;">समस्थिति / सामान्य (-30% से +30%)</strong>
-          </span>
-          <span style="display: inline-flex; align-items: center; gap: 6px;">
-            <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #ef4444, #b91c1c); border-radius: 3px;"></span>
-            <strong style="color: #dc2626;">संघर्ष व अवरोध (-100% से -30%)</strong>
-          </span>
+        <!-- Category Milestone Filter Buttons -->
+        <div class="lifewave-filters" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; align-items:center;">
+          <span style="font-size:12px; font-weight:700; color:var(--gold);">📍 मील के पत्थर (Life Milestones Filter):</span>
+          <button class="filter-pill active" onclick="filterLifeWaveMilestones('ALL')" id="fltAll">✨ सभी घटनाएँ (All Events)</button>
+          <button class="filter-pill" onclick="filterLifeWaveMilestones('CAREER')" id="fltCareer">💼 करियर व पदोन्नति (Career)</button>
+          <button class="filter-pill" onclick="filterLifeWaveMilestones('MARRIAGE')" id="fltMarriage">💍 विवाह व जीवनसाथी (Marriage)</button>
+          <button class="filter-pill" onclick="filterLifeWaveMilestones('CHILD')" id="fltChild">👶 संतान प्राप्ति (Children)</button>
+          <button class="filter-pill" onclick="filterLifeWaveMilestones('CAR')" id="fltCar">🚗 वाहन क्रय (Car / Vehicle)</button>
+          <button class="filter-pill" onclick="filterLifeWaveMilestones('HOUSE')" id="fltHouse">🏠 गृह निर्माण व भूमि (Property)</button>
+          <button class="filter-pill" onclick="filterLifeWaveMilestones('SADHNA')" id="fltSadhna">🧘 साधना व अध्यात्म (Sadhna)</button>
         </div>
-        <div>
-          <span style="color: var(--gold); font-weight: 700;">💡 टिप्स:</span> तरंग के किसी भी बिंदु या मील के पत्थर आइकॉन पर क्लिक करके बीपीएसएस 10-कारक फलादेश विवरण देखें।
-        </div>
-      </div>
 
-      <!-- Prominent Top 3 Event Predictions Summary Panel -->
-      <div id="milestonePredictionsSummaryBox" style="margin-top: 18px; border-top: 1px dashed var(--gold-border); padding-top: 16px;">
-        <!-- Populated dynamically by detectLifeWaveMilestones() -->
+        <!-- Sinusoidal Wave Canvas Wrapper -->
+        <div style="position: relative; background: var(--bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 12px; overflow: hidden;" id="cvsWrapper">
+          <canvas id="cvsLifeWave" height="380" style="width: 100%; height: 380px; display: block; cursor: crosshair;"></canvas>
+
+          <!-- Floating Interactive Tooltip -->
+          <div id="lifeWaveTooltip" class="lifewave-tooltip" style="display:none;"></div>
+        </div>
+
+        <!-- Legend & Wave Spectrum Bar -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--dark); gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 3px;"></span>
+              <strong style="color: #059669;">राजयोग व शुभ उत्कर्ष (+30% से +100%)</strong>
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span style="display: inline-block; width: 14px; height: 14px; background: #94a3b8; border-radius: 3px;"></span>
+              <strong style="color: #64748b;">समस्थिति / सामान्य (-30% से +30%)</strong>
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #ef4444, #b91c1c); border-radius: 3px;"></span>
+              <strong style="color: #dc2626;">संघर्ष व अवरोध (-100% से -30%)</strong>
+            </span>
+          </div>
+          <div>
+            <span style="color: var(--gold); font-weight: 700;">💡 टिप्स:</span> तरंग के किसी भी बिंदु या मील के पत्थर आइकॉन पर क्लिक करके बीपीएसएस 10-कारक फलादेश विवरण देखें।
+          </div>
+        </div>
+
+        <!-- Prominent Top 3 Event Predictions Summary Panel -->
+        <div id="milestonePredictionsSummaryBox" style="margin-top: 18px; border-top: 1px dashed var(--gold-border); padding-top: 16px;">
+          <!-- Populated dynamically by detectLifeWaveMilestones() -->
+        </div>
       </div>
     </div>
 
@@ -2091,6 +2115,51 @@ function evaluateBPHS10Factors(activeDashaChain, natalData) {
   return { netScore: clampedScore, factors };
 }
 
+// -------------------------------------------------------------
+// ADMIN GRAPH FEATURE PASSWORD PROTECTION ENGINE
+// -------------------------------------------------------------
+const VALID_GRAPH_PASSWORDS = ["sra360", "ramji360", "admin360", "123456"];
+
+function checkGraphLockState() {
+  const isUnlocked = sessionStorage.getItem("sra_graph_unlocked") === "true";
+  const overlay = document.getElementById("graphAdminLockOverlay");
+  const content = document.getElementById("graphUnlockedContent");
+
+  if (isUnlocked) {
+    if (overlay) overlay.style.display = "none";
+    if (content) content.style.display = "block";
+    if (window.drawSinusoidalLifeWaveCanvas) {
+      setTimeout(() => {
+        drawSinusoidalLifeWaveCanvas();
+      }, 100);
+    }
+  } else {
+    if (overlay) overlay.style.display = "block";
+    if (content) content.style.display = "none";
+  }
+}
+
+function unlockGraphFeature() {
+  const passInput = document.getElementById("inGraphAdminPass");
+  const errMsg = document.getElementById("graphLockErrMsg");
+  if (!passInput) return;
+
+  const inputVal = passInput.value.trim();
+  if (VALID_GRAPH_PASSWORDS.includes(inputVal)) {
+    sessionStorage.setItem("sra_graph_unlocked", "true");
+    if (errMsg) errMsg.innerText = "";
+    checkGraphLockState();
+  } else {
+    if (errMsg) errMsg.innerText = "❌ गलत पासवर्ड! केवल अधिकृत एडमिन ही जीवन तरंग ग्राफ अनलॉक कर सकते हैं।";
+    passInput.focus();
+  }
+}
+
+function lockGraphFeature() {
+  sessionStorage.removeItem("sra_graph_unlocked");
+  checkGraphLockState();
+}
+
 function computeSinusoidalLifeWaveData() {
   if (!dashaTreeData || dashaTreeData.length === 0 || !currentCalculation) return;
 
@@ -2956,6 +3025,8 @@ function executeParasharaMaster() {
     computeJaiminiCharaDasha(lagnaSign, birthDateObj);
     computeYoginiDasha(moonObj.abs, birthDateObj);
   }
+
+  checkGraphLockState();
 }
 
 // -------------------------------------------------------------
