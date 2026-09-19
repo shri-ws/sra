@@ -3,56 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us, Astrology Blog & Community Discussions | Shri Ramji Astro</title>
-    <meta name="description" content="Learn about Shri Ramji Astro (shriramjiastro.in), founder Astro Raamji, desktop-grade Meeus ephemeris precision, daily Vedic astrology blogs, and join our Google-authenticated Jyotish discussion forum." />
-    <meta name="keywords" content="Shri Ramji Astro About Us, Astrology Blog, Vedic Astrology Articles, Astro Raamji, Jyotish Discussion Forum, Meeus Ephemeris, BPHS Astrology" />
+    <title>About Us, Astrology Blog & Quora-style Q&A Forum | Shri Ramji Astro</title>
+    <meta name="description" content="Official About Us, Jyotish Articles & Quora-style Verified Q&A Discussion Forum by Shri Ramji Astro (shriramjiastro.in). Ask astrology questions, read daily blogs, and interact with verified astrologers." />
+    <meta name="keywords" content="Shri Ramji Astro About Us, Astrology Quora Forum, Vedic Astrology Q&A, Astro Raamji, Jyotish Discussion Forum, Verified Astrologers" />
     <meta name="author" content="Astro Raamji — Shri Ramji Astro" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://shriramjiastro.in/about.html" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Shri Ramji Astro — About & Astrology Blog" />
-    <meta property="og:title" content="About Us, Daily Astrology Blog & Discussion Forum | Shri Ramji Astro" />
-    <meta property="og:description" content="Explore high-precision Vedic astrology articles, platform insights, and participate in community discussions with Google OAuth sign-in." />
+    <meta property="og:site_name" content="Shri Ramji Astro — Quora-style Astrology Forum" />
+    <meta property="og:title" content="About Us, Daily Astrology Blog & Quora Q&A Forum | Shri Ramji Astro" />
+    <meta property="og:description" content="Strictly verified Quora-style astrology discussion forum. Login via Google to ask questions, write articles, and get verified answers." />
     <meta property="og:url" content="https://shriramjiastro.in/about.html" />
-
-    <!-- JSON-LD Schema -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "AboutPage",
-          "name": "About Shri Ramji Astro",
-          "url": "https://shriramjiastro.in/about.html",
-          "description": "High-precision Vedic Astrology platform, daily Jyotish blogs, and community discussion board."
-        },
-        {
-          "@type": "Organization",
-          "name": "Shri Ramji Astro",
-          "url": "https://shriramjiastro.in/",
-          "founder": {
-            "@type": "Person",
-            "name": "Astro Raamji"
-          }
-        }
-      ]
-    }
-    </script>
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Yatra+One&family=Rozha+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Yatra+One&family=Rozha+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Google Identity Services (GIS) API SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="theme.js"></script>
 
     <style>
-        /* DAY MODE (DEFAULT): Golden, Maroon, and White */
         :root, [data-theme="day"] {
             --primary: #4A0E17;
             --primary-light: #721624;
@@ -72,15 +47,13 @@
             --nav-bg: rgba(255, 255, 255, 0.96);
             --toggle-bg: #efe4d3;
             --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
+            --quora-blue: #2b569a;
             --pass-bg: #E8F5E9;
             --pass-text: #1B5E20;
-            --warn-bg: #FFF8E1;
-            --warn-text: #B78103;
             --fail-bg: #FFEBEE;
             --fail-text: #B71C1C;
         }
 
-        /* NIGHT MODE: Deep Purple, Golden, and Dark Accents */
         [data-theme="night"] {
             --primary: #7c1305;
             --primary-light: #2a113b;
@@ -100,10 +73,9 @@
             --nav-bg: rgba(11, 5, 24, 0.96);
             --toggle-bg: #1a0b36;
             --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
+            --quora-blue: #6495ed;
             --pass-bg: #132e19;
             --pass-text: #86efac;
-            --warn-bg: #382805;
-            --warn-text: #fde047;
             --fail-bg: #3a1015;
             --fail-text: #fca5a5;
         }
@@ -119,145 +91,139 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* TOP NAVIGATION */
+        /* NAVIGATION BAR */
         nav {
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 200;
+            position: sticky; top: 0; left: 0; right: 0; z-index: 200;
             height: 60px;
             background: var(--nav-bg);
             backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--gold-border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 0 clamp(14px, 4%, 48px);
-            transition: background 0.3s ease;
         }
 
         .nav-logo { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700; color: var(--gold); text-decoration: none; display: flex; align-items: center; gap: 8px; }
         .nav-links { display: flex; align-items: center; gap: 6px; }
-        .nav-links a { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.2px; color: var(--text-muted); text-decoration: none; padding: 6px 10px; border-radius: 6px; transition: all .2s; text-transform: uppercase; }
+        .nav-links a { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.2px; color: var(--text-muted); text-decoration: none; padding: 6px 10px; border-radius: 6px; text-transform: uppercase; }
         .nav-links a:hover, .nav-links a.active { color: var(--gold); background: var(--gold-dim); }
 
         .theme-toggle-container {
-            display: inline-flex;
-            align-items: center;
-            position: relative;
-            width: 86px;
-            height: 30px;
-            background: var(--toggle-bg);
-            border: 1px solid var(--gold-border);
-            border-radius: 20px;
-            cursor: pointer;
-            padding: 2px;
-            user-select: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            display: inline-flex; align-items: center; position: relative;
+            width: 86px; height: 30px; background: var(--toggle-bg);
+            border: 1px solid var(--gold-border); border-radius: 20px; cursor: pointer; padding: 2px;
         }
         .theme-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 40px;
-            height: 24px;
-            background: var(--toggle-slider-bg);
-            border-radius: 14px;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: absolute; top: 2px; left: 2px; width: 40px; height: 24px;
+            background: var(--toggle-slider-bg); border-radius: 14px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         [data-theme="night"] .theme-slider { transform: translateX(40px); }
-        .theme-label { flex: 1; text-align: center; font-family: 'Cinzel', serif; font-size: 8.5px; font-weight: 700; letter-spacing: 1px; z-index: 2; transition: color 0.3s ease; }
+        .theme-label { flex: 1; text-align: center; font-family: 'Cinzel', serif; font-size: 8.5px; font-weight: 700; z-index: 2; }
         [data-theme="day"] .label-day, :root:not([data-theme="night"]) .label-day { color: #ffffff; }
         [data-theme="day"] .label-night, :root:not([data-theme="night"]) .label-night { color: var(--text-muted); }
         [data-theme="night"] .label-day { color: var(--text-muted); }
         [data-theme="night"] .label-night { color: #000000; }
 
-        .container { max-width: 1160px; margin: 24px auto; padding: 0 16px; }
+        .container { max-width: 1140px; margin: 24px auto; padding: 0 16px; }
 
-        /* HERO & ABOUT US BANNER */
+        /* ABOUT US HERO BANNER */
         .about-hero {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: #FFF;
-            padding: 40px 24px;
-            border-radius: 18px;
-            border: 2px solid var(--gold-accent);
-            margin-bottom: 30px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.15);
-            text-align: center;
+            color: #FFF; padding: 32px 24px; border-radius: 16px; border: 2px solid var(--gold-accent);
+            margin-bottom: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
         }
-        .about-hero h1 { font-family: 'Rozha One', 'Yatra One', serif; font-size: 32px; color: var(--gold-light); margin-bottom: 12px; }
-        .about-hero p { font-size: 14px; color: #F4E8C1; max-width: 860px; margin: 0 auto; line-height: 1.7; font-family: 'Cormorant Garamond', serif; font-size: 18px; }
+        .about-hero h1 { font-family: 'Rozha One', 'Yatra One', serif; font-size: 30px; color: var(--gold-light); margin-bottom: 8px; }
+        .about-hero p { font-size: 16px; color: #F4E8C1; max-width: 860px; margin: 0 auto; line-height: 1.6; font-family: 'Cormorant Garamond', serif; }
 
-        .about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 36px; }
-        .about-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
-        .about-card h3 { font-family: 'Rozha One', serif; font-size: 20px; color: var(--gold-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .about-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; }
+        /* QUORA-STYLE HEADER & ACTION BAR */
+        .quora-action-bar {
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px;
+            padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        }
+        .quora-user-prompt { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 260px; }
+        .user-avatar-md { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
+        .quora-ask-btn-trigger {
+            background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold-dark);
+            padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; width: 100%;
+            text-align: left; cursor: pointer; transition: all 0.2s;
+        }
+        .quora-ask-btn-trigger:hover { background: var(--gold-light); color: #000; }
 
-        /* BLOG SECTION */
-        .section-title { font-family: 'Rozha One', serif; font-size: 24px; color: var(--gold-dark); margin-bottom: 16px; border-bottom: 2px solid var(--gold-light); padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-ask-modal {
+            background: linear-gradient(135deg, #7c1305, #a31c0b); color: #FFF; border: none;
+            padding: 10px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(124, 19, 5, 0.3); display: inline-flex; align-items: center; gap: 6px;
+        }
 
-        .category-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 20px; }
-        .cat-chip { background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold-dark); padding: 6px 14px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-        .cat-chip.active, .cat-chip:hover { background: var(--gold); color: #FFF; }
+        /* FORUM NAVIGATION TABS */
+        .forum-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border-soft); margin-bottom: 20px; padding-bottom: 4px; }
+        .tab-btn { background: none; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-radius: 8px; }
+        .tab-btn.active { color: var(--gold); background: var(--gold-dim); border-bottom: 3px solid var(--gold); }
 
-        .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px; }
-        .blog-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .blog-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .blog-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-        .blog-tag { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--gold); letter-spacing: 1px; margin-bottom: 6px; }
-        .blog-title { font-family: 'Rozha One', serif; font-size: 18px; color: var(--text-main); margin-bottom: 10px; line-height: 1.4; }
-        .blog-snippet { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; flex: 1; }
-        .blog-footer { font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-soft); padding-top: 10px; display: flex; justify-content: space-between; font-weight: 600; }
+        /* QUORA QUESTION & BLOG FEED CARDS */
+        .feed-container { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
+        .q-card {
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px;
+            padding: 22px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); transition: transform 0.2s;
+        }
+        .q-author-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .q-author-info { display: flex; align-items: center; gap: 10px; }
+        .q-author-name { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
+        .q-author-cred { font-size: 11px; color: var(--text-muted); }
+        .verif-badge { background: #1B5E20; color: #FFF; font-size: 9.5px; padding: 2px 7px; border-radius: 4px; font-weight: 800; }
+        .admin-badge { background: #7c1305; color: #FFF; font-size: 9.5px; padding: 2px 7px; border-radius: 4px; font-weight: 800; }
 
-        /* BLOG ARTICLE MODAL */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
-        .modal-box { background: var(--card-bg); border-radius: 16px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; border: 2px solid var(--gold); position: relative; box-shadow: 0 16px 40px rgba(0,0,0,0.2); }
-        .btn-close-modal { position: absolute; top: 16px; right: 16px; background: var(--gold-dim); border: 1px solid var(--gold); color: var(--text-main); width: 32px; height: 32px; border-radius: 50%; font-weight: 800; cursor: pointer; }
+        .q-title { font-family: 'Rozha One', serif; font-size: 19px; color: var(--text-main); margin-bottom: 8px; line-height: 1.4; }
+        .q-body { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
 
-        /* DISCUSSION FORUM SECTION */
-        .forum-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 40px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
-        
-        .user-auth-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; background: var(--gold-dim); border: 1px solid var(--gold-border); padding: 16px; border-radius: 12px; margin-bottom: 24px; }
-        .user-profile-chip { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
-        .user-name { font-weight: 700; font-size: 14px; color: var(--text-main); }
-        .user-email { font-size: 11px; color: var(--text-muted); }
+        /* QUORA FOOTER ACTIONS */
+        .q-actions { display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border-soft); padding-top: 12px; }
+        .btn-upvote {
+            background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold-dark);
+            padding: 5px 12px; border-radius: 16px; font-size: 11.5px; font-weight: 800; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-upvote:hover { background: var(--gold); color: #FFF; }
+        .btn-answer { background: none; border: none; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+        .btn-answer:hover { color: var(--gold); }
 
-        .btn-google-login { display: inline-flex; align-items: center; gap: 10px; background: #FFFFFF; color: #3c4043; border: 1px solid #dadce0; padding: 10px 18px; border-radius: 24px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .btn-google-login:hover { background: #F8F9FA; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        
-        .comment-input-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-        .comment-input-box textarea { width: 100%; min-height: 90px; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 13.5px; resize: vertical; }
-        
-        .btn-post-comment { background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%); color: #FFF; border: none; padding: 10px 22px; font-weight: 700; font-size: 13px; border-radius: 8px; cursor: pointer; align-self: flex-end; }
+        /* NESTED ANSWERS SECTION */
+        .answers-box { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border-color); display: flex; flex-direction: column; gap: 12px; }
+        .answer-item { background: var(--bg-body); border-left: 3px solid var(--gold); padding: 12px 14px; border-radius: 0 10px 10px 0; }
 
-        .discussion-list { display: flex; flex-direction: column; gap: 16px; }
-        .discussion-card { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
-        .discussion-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .discussion-author { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; color: var(--gold-dark); }
-        .author-avatar-sm { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--gold); }
-        .admin-badge { background: #7c1305; color: #FFF; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
-        .discussion-time { font-size: 10.5px; color: var(--text-muted); }
-        .discussion-text { font-size: 13px; color: var(--text-main); line-height: 1.5; margin-bottom: 10px; }
-        .discussion-actions { display: flex; gap: 14px; font-size: 11px; color: var(--text-muted); font-weight: 700; cursor: pointer; }
+        /* STRICT AUTH & POSTING MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
+        .modal-box { background: var(--card-bg); border-radius: 16px; max-width: 580px; width: 100%; padding: 26px; border: 2px solid var(--gold); position: relative; box-shadow: 0 16px 40px rgba(0,0,0,0.25); }
+        .btn-close-modal { position: absolute; top: 14px; right: 14px; background: var(--gold-dim); border: 1px solid var(--gold); color: var(--text-main); width: 30px; height: 30px; border-radius: 50%; font-weight: 800; cursor: pointer; }
+
+        .auth-guard-banner { background: var(--warn-bg); border: 1px solid var(--warn-text); color: var(--warn-text); padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 700; text-align: center; margin-bottom: 16px; }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .form-group label { font-size: 12px; font-weight: 700; color: var(--text-main); }
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 13px;
+        }
+
+        .btn-submit-post {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+            color: #FFF; border: none; padding: 12px; font-weight: 800; font-size: 14px;
+            border-radius: 8px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(180, 130, 32, 0.3);
+        }
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="index.html" class="nav-logo">
-            🚩 SHRI RAMJI ASTRO
-        </a>
+        <a href="index.html" class="nav-logo">🚩 SHRI RAMJI ASTRO</a>
         <div class="nav-links">
             <a href="index.html">Home</a>
             <a href="accurate-predictions.html">Astro 360</a>
             <a href="vmm.html">Vivah Muhurt</a>
             <a href="ymm.html">Yajnopavita</a>
             <a href="mmm.html">Mundan Muhurt</a>
-            <a href="about.html" class="active">📖 About & Blog</a>
+            <a href="about.html" class="active">📖 About & Forum</a>
             <a href="course.html">Courses</a>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
@@ -271,350 +237,305 @@
 
     <div class="container">
         
-        <!-- ABOUT US HERO BANNER -->
+        <!-- ABOUT HERO BANNER -->
         <div class="about-hero">
-            <h1>श्री रामजी एस्ट्रो (Shri Ramji Astro) — हमारा परिचय</h1>
+            <h1>श्री रामजी एस्ट्रो — Quora-style सत्यापन योग्य ज्योतिष मंच</h1>
             <p>
-                "वैदिक ज्योतिष और आधुनिक खगोल भौतिकी (Astrophysics) का प्रामाणिक संगम।"
-                एस्ट्रो रामजी द्वारा स्थापित श्री रामजी एस्ट्रो का मुख्य ध्येय 60-टर्म Meeus ELP-2000 लूनर सीरीज, सुक्ष्म अयनंश एवं प्राचीन महर्षि पराशर सिद्धांत के आधार पर अति-सटीक कुंडली व मुहूर्त गणना प्रदान करना है।
+                "सत्यापित पंचांग विज्ञान, दैनिक शोध आलेख एवं प्रश्न-उत्तर मंच।"
+                प्रमाणित ज्योतिषियों एवं शोधकर्ताओं के साथ जुड़ें। केवल पंजीकृत/सत्यापित सदस्य ही प्रश्न पूछ सकते हैं और उत्तर लिख सकते हैं।
             </p>
         </div>
 
-        <!-- ABOUT CARDS GRID -->
-        <div class="about-grid">
-            <div class="about-card">
-                <h3>🪐 एस्ट्रो 360 इंजन (Astro 360)</h3>
-                <p>डेस्कटॉप-ग्रेड स्विस एफिमेरिस precision पर आधारित 60-टर्म Meeus लूनर सीरीज ($<18''$ त्रुटि), True Lahiri Ayanamsa (4-term IAU Nutation), एवं श्रीपति भाव चलित के साथ BPHS षोडशवर्ग (D1-D60) चार्ट गणना।</p>
+        <!-- QUORA ACTION & AUTH BAR -->
+        <div class="quora-action-bar">
+            <div class="quora-user-prompt">
+                <img src="https://lh3.googleusercontent.com/a/default-user=s96-c" class="user-avatar-md" id="userBarAvatar" alt="User Avatar">
+                <button class="quora-ask-btn-trigger" onclick="checkAuthAndOpenAskModal()">
+                    ❓ क्या आप कोई ज्योतिषीय प्रश्न पूछना चाहते हैं? (Ask a Question)...
+                </button>
             </div>
-            <div class="about-card">
-                <h3>💍 4-in-1 मुहूर्त इंजन</h3>
-                <p>विवाह (Vivah), यज्ञोपवीत (Yajnopavita) एवं मुंडन (Chudakarana) संस्कारों हेतु 10 महादोष, चंद्रबल, ताराबल एवं 24-घंटे लग्न समय सारणी का शास्त्रीय विश्लेषण।</p>
-            </div>
-            <div class="about-card">
-                <h3>📞 VIP लाइव परामर्श</h3>
-                <p>एस्ट्रो रामजी से सीधा 20-मिनट का लाइव VIP परामर्श एवं हस्तलिखित सटीक कुंडली फलादेश। डायरेक्ट WhatsApp सपोर्ट: <b>+91 95171 17775</b>.</p>
-            </div>
-        </div>
-
-        <!-- BLOG ARTICLE FEED SECTION -->
-        <div class="section-title">
-            <span>📚 श्री रामजी एस्ट्रो ब्लॉग व लेख (Daily Astrology Blog)</span>
-            <span style="font-size:12px; color:var(--text-muted); font-family:sans-serif;">दैनिक शास्त्रीय आलेख</span>
-        </div>
-
-        <div class="category-bar">
-            <button class="cat-chip active" onclick="filterCategory('all')">सभी लेख (All)</button>
-            <button class="cat-chip" onclick="filterCategory('platform')">प्लेटफ़ॉर्म परिचय (Platform)</button>
-            <button class="cat-chip" onclick="filterCategory('ephemeris')">खगोल एवं एफिमेरिस (Ephemeris)</button>
-            <button class="cat-chip" onclick="filterCategory('muhurta')">मुहूर्त विज्ञान (Muhurta)</button>
-            <button class="cat-chip" onclick="filterCategory('scripture')">शास्त्र अध्ययन (BPHS)</button>
-        </div>
-
-        <div class="blog-grid" id="blogGrid">
-            <!-- DYNAMICALLY POPULATED BLOG CARDS -->
-        </div>
-
-        <!-- COMMUNITY DISCUSSION FORUM SECTION -->
-        <div class="forum-section">
-            <div class="section-title" style="border-bottom:none; margin-bottom:14px;">
-                <span>💬 वैदिक ज्योतिष चर्चा मंच (Community Discussion Forum)</span>
-            </div>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
-                गूगल खाता (Google Account) से लॉगिन करें और ज्योतिषीय प्रश्नों, ग्रह गोचर, एवं आलेखों पर निसंकोच चर्चा करें।
-            </p>
-
-            <!-- GOOGLE AUTHENTICATION BAR -->
-            <div class="user-auth-bar" id="authBar">
-                <div class="user-profile-chip" id="userProfileChip">
-                    <img src="https://lh3.googleusercontent.com/a/default-user=s96-c" class="user-avatar" id="userAvatarImg" alt="User Avatar">
-                    <div>
-                        <div class="user-name" id="userNameTxt">अतिथि पाठक (Guest Reader)</div>
-                        <div class="user-email" id="userEmailTxt">चर्चा में भाग लेने हेतु Google से लॉगिन करें</div>
-                    </div>
-                </div>
-
-                <div id="googleBtnContainer">
-                    <!-- Google GIS Native Render Target -->
-                    <div id="g_id_onload"
-                         data-client_id="849204918204-demo.apps.googleusercontent.com"
-                         data-context="signin"
-                         data-ux_mode="popup"
-                         data-callback="handleGoogleCredentialResponse"
-                         data-auto_prompt="false">
-                    </div>
-                    <div class="g_id_signin"
-                         data-type="standard"
-                         data-shape="pill"
-                         data-theme="outline"
-                         data-text="signin_with"
-                         data-size="medium"
-                         data-logo_alignment="left">
-                    </div>
-                    <!-- DEMO TOGGLE FOR DIRECT CLIENT TESTING -->
-                    <button class="btn-google-login" onclick="loginDemoUser()" style="margin-left:8px;">
-                        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.617z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-                        1-Click Google Sign-In
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button class="btn-ask-modal" onclick="checkAuthAndOpenAskModal()">
+                    ✍️ प्रश्न पूछें (Ask)
+                </button>
+                <div id="googleSigninBtnHolder">
+                    <button class="btn-ask-modal" style="background:#FFF; color:#3c4043; border:1px solid #dadce0;" onclick="triggerGoogleLoginDemo()">
+                        🔑 Google Auth Login
                     </button>
                 </div>
             </div>
+        </div>
 
-            <!-- COMMENT INPUT BOX -->
-            <div class="comment-input-box">
-                <textarea id="commentText" placeholder="ज्योतिषीय विचार लिखें या प्रश्न पूछें (Ask an astrology question or post a thought)..."></textarea>
-                <button class="btn-post-comment" onclick="submitComment()">💬 टिप्पणी पोस्ट करें (Post Comment)</button>
-            </div>
+        <!-- TABS BAR -->
+        <div class="forum-tabs">
+            <button class="tab-btn active" onclick="switchTab('all')">🔥 मुख्य फीड व प्रश्न (Main Feed)</button>
+            <button class="tab-btn" onclick="switchTab('verified')">✓ केवल सत्यापित उत्तर (Verified Answers)</button>
+            <button class="tab-btn" onclick="switchTab('my')">👤 मेरे प्रश्न व स्थिति (My Posts & Status)</button>
+        </div>
 
-            <!-- DISCUSSION THREAD LIST -->
-            <div class="discussion-list" id="discussionList">
-                <!-- DYNAMICALLY RENDERED COMMENTS -->
-            </div>
+        <!-- FEED CONTAINER -->
+        <div class="feed-container" id="feedContainer">
+            <!-- DYNAMICALLY RENDERED QUORA CARDS -->
         </div>
 
     </div>
 
-    <!-- FULL BLOG ARTICLE MODAL -->
-    <div class="modal-overlay" id="articleModal">
+    <!-- ASK QUESTION / WRITE POST MODAL -->
+    <div class="modal-overlay" id="postModal">
         <div class="modal-box">
-            <button class="btn-close-modal" onclick="closeArticleModal()">✕</button>
-            <div class="blog-tag" id="modalTag">CATEGORY</div>
-            <h2 class="blog-title" style="font-size:24px;" id="modalTitle">Article Title</h2>
-            <div style="font-size:12px; color:var(--text-muted); margin-bottom:20px;" id="modalMeta">By Astro Raamji | 5 min read</div>
-            <div style="font-family:'Cormorant Garamond', serif; font-size:19px; line-height:1.8; color:var(--text-main);" id="modalContent">
-                <!-- ARTICLE BODY -->
+            <button class="btn-close-modal" onclick="closePostModal()">✕</button>
+            <h3 style="font-family:'Rozha One', serif; font-size:20px; color:var(--gold-dark); margin-bottom:14px;" id="modalPostHeader">✍️ नया ज्योतिषीय प्रश्न या लेख पोस्ट करें</h3>
+            
+            <div id="authGuardWarning" class="auth-guard-banner" style="display:none;">
+                🔒 प्रश्न पूछने या उत्तर लिखने के लिए **Google प्रमाणीकरण (Authentication)** अनिवार्य है।
+                <br>
+                <button onclick="triggerGoogleLoginDemo()" style="margin-top:6px; background:#4285F4; color:#FFF; border:none; padding:4px 12px; border-radius:4px; font-weight:700; cursor:pointer;">
+                    1-Click Google Sign-In से तुरंत सत्यापित करें
+                </button>
             </div>
+
+            <form id="postForm" onsubmit="handlePostSubmit(event)">
+                <div class="form-group">
+                    <label>श्रेणी (Category):</label>
+                    <select id="postCat">
+                        <option value="kundli">🔮 कुंडली विश्लेषण (Kundli Analysis)</option>
+                        <option value="muhurta">📅 मुहूर्त विचार (Muhurta Science)</option>
+                        <option value="gochar">🪐 ग्रह गोचर (Planetary Transits)</option>
+                        <option value="remedy">🪔 ज्योतिषीय उपाय (Remedies & Mantras)</option>
+                        <option value="scripture">📚 शास्त्र अध्ययन (BPHS & Scriptures)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>प्रश्न / शीर्षक (Question / Title):</label>
+                    <input type="text" id="postTitle" placeholder="उदाहरण: 2027 में विवाह हेतु कौन से महीने सर्वश्रेष्ठ हैं?" required>
+                </div>
+
+                <div class="form-group">
+                    <label>विस्तृत विवरण (Detailed Description):</label>
+                    <textarea id="postContent" rows="4" placeholder="अपना प्रश्न या विचार विस्तार से लिखें..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit-post" id="btnSubmitPost">
+                    🚀 प्रश्न / लेख पोस्ट करें (Submit for Verification)
+                </button>
+            </form>
         </div>
     </div>
 
     <script>
-        // BLOG ARTICLES DATABASE
-        const BLOG_ARTICLES = [
+        // STRICT QUORA-STYLE DATASET
+        let Q_FEED = [
             {
                 id: 1,
-                category: "ephemeris",
-                categoryTitle: "खगोल एवं एफिमेरिस",
-                title: "60-टर्म Meeus ELP-2000 लूनर सीरीज क्यों आवश्यक है?",
-                snippet: "साधारण पंचांगों में चंद्रमा की गति का अनुमानित मान लिया जाता है, जिससे नक्षत्र स्वामी और दशा की शुरुआत में घंटों की त्रुटि आ जाती है...",
-                content: `
-                    <p>वैदिक ज्योतिष में चंद्रमा की स्थिति का अत्यंत उच्च महत्व है। विंशोत्तरी दशा, चंद्र नक्षत्र, और लग्न की सूक्ष्म गणना पूरी तरह चंद्रमा के अचूक रेखांश (Longitude) पर निर्भर करती है।</p>
-                    <p><b>Meeus Chapter 47 ELP-2000 सिद्धांत:</b> श्री रामजी एस्ट्रो इंजन जीन मेउस (Jean Meeus) के 60-टर्म लूनर क्षोभ (Perturbation) समीकरण का उपयोग करता है। इसमें सूर्य, गुरु और शुक्र के गुरुत्वाकर्षण खिंचाव का सटीक हिसाब रखा जाता है, जिससे चंद्रमा के रेखांश में त्रुटि $<18''$ (Sub-arcsecond) से भी कम रह जाती है।</p>
-                    <p><b>4-Term IAU Nutation:</b> इसके साथ ही True Lahiri Ayanamsa की गणना में पृथ्वी के अक्ष के नति-परिवर्तन (Nutation $\Delta\psi \cos \varepsilon$) को जोड़ा जाता है। यही कारण है कि हमारी कुंडली और दशा परिणाम अंतरराष्ट्रीय एफिमेरिस के समान अचूक आते हैं।</p>
-                `,
-                date: "20 Sep 2026",
-                readTime: "4 min read"
+                author: "एस्ट्रो रामजी",
+                avatar: "logo.png",
+                cred: "Founder & Chief Astrologer • Shri Ramji Astro",
+                isVerified: true,
+                isAdmin: true,
+                category: "muhurta",
+                title: "विवाह मुहूर्त में 10 महादोषों का परिहार (Parihar) कब और कैसे लागू होता है?",
+                body: "ज्योतिष ग्रंथों (मुहूर्त चिंतामणि) के अनुसार यदि गोचर का बृहस्पति विवाह लग्न से केंद्र (1, 4, 7, 10) या त्रिकोण (5, 9) भाव में स्थित हो, तो वह 10 में से अधिकांश गौण दोषों को नष्ट कर देता है (श्लोक 91)।",
+                upvotes: 24,
+                answers: [
+                    {
+                        author: "डॉ. वी. के. शास्त्री",
+                        avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Shastri",
+                        cred: "सत्यापित ज्योतिषाचार्य (Verified Scholar)",
+                        isVerified: true,
+                        text: "बिल्कुल सटीक! इसके अतिरिक्त यदि सूर्य और चंद्रमा की स्थिति भी मजबूत हो, तो त्रिबल शुद्धि स्वतः प्राप्त हो जाती है।",
+                        time: "2 घंटे पहले"
+                    }
+                ],
+                status: "approved"
             },
             {
                 id: 2,
-                category: "muhurta",
-                categoryTitle: "मुहूर्त विज्ञान",
-                title: "विवाह मुहूर्त में त्रिबल शुद्धि एवं 10 महादोष विचार",
-                snippet: "वर के लिए सूर्य बल, वधू के लिए गुरु बल तथा दोनों के लिए चंद्र बल की अनुकूलता विवाह की दीर्घायु का मुख्य आधार है...",
-                content: `
-                    <p>विवाह संस्कार में शास्त्रीय मुहूर्त का चयन करते समय केवल तिथि देखना पर्याप्त नहीं है। <i>मुहूर्त चिंतामणि</i> के अनुसार त्रिबल शुद्धि अनिवार्य है:</p>
-                    <ul>
-                        <li><b>वर सूर्य बल:</b> गोचर का सूर्य वर की राशि से 1, 3, 6, 7, 10, 11वें भाव में होना चाहिए। 4, 8, 12वां भाव अनिष्टकारक है।</li>
-                        <li><b>वधू गुरु बल:</b> गोचर का बृहस्पति वधू की जन्म राशि से शुभ भावों में स्थित होना चाहिए।</li>
-                        <li><b>उभय चंद्र बल:</b> दोनों हेतु चंद्रमा की चतुर्थ, अष्टम या द्वादश स्थिति का त्याग किया जाता है।</li>
-                    </ul>
-                    <p><b>गुरु केंद्र परिहार (श्लोक 91):</b> यदि गोचर का बृहस्पति विवाह लग्न से केंद्र (1, 4, 7, 10) या त्रिकोण (5, 9) में स्थापित हो, तो वह अनेक गौण दोषों को स्वतः नष्ट कर देता है।</p>
-                `,
-                date: "18 Sep 2026",
-                readTime: "6 min read"
-            },
-            {
-                id: 3,
-                category: "scripture",
-                categoryTitle: "शास्त्र अध्ययन (BPHS)",
-                title: "बृहत् पराशर होरा शास्त्र के अनुसार षोडशवर्ग (D1-D60) का महत्व",
-                snippet: "केवल लग्न कुंडली (D1) देखकर किया गया फलादेश अधूरा रहता है। जब तक नवांश (D9), विशोपक बल और षोडशवर्ग का विश्लेषण न हो...",
-                content: `
-                    <p>महर्षि पराशर ने 16 प्रकार के वर्ग चार्टों (Shodashvarga) का विधान रचा है:</p>
-                    <ol>
-                        <li><b>D1 (होरा/लग्न):</b> स्थूल देह और सामान्य जीवन।</li>
-                        <li><b>D9 (नवांश):</b> जीवनसाथी, भाग्य, और ग्रह की वास्तविक आत्मिक शक्ति।</li>
-                        <li><b>D10 (दशमांंश):</b> कर्म, आजीविका और समाज में प्रतिष्ठा।</li>
-                        <li><b>D60 (षष्टिांश):</b> पूर्व जन्म के संचित कर्म और सूक्ष्म फलादेश।</li>
-                    </ol>
-                    <p>श्री रामजी एस्ट्रो 360 वेब ऐप पर आप सभी 16 वर्ग चार्टों को एक क्लिक पर देख सकते हैं।</p>
-                `,
-                date: "15 Sep 2026",
-                readTime: "5 min read"
-            },
-            {
-                id: 4,
-                category: "platform",
-                categoryTitle: "प्लेटफ़ॉर्म परिचय",
-                title: "श्री रामजी एस्ट्रो (shriramjiastro.in) का उद्देश्य और दृष्टि",
-                snippet: "हमारा संकल्प प्राचीन भारतीय ज्योतिष ज्ञान को आधुनिकतम डिजिटल तकनीक के माध्यम से हर जिज्ञासु तक पहुंचाना है...",
-                content: `
-                    <p>श्री रामजी एस्ट्रो एक अत्याधुनिक वैदिक ज्योतिष मंच है जिसे <b>एस्ट्रो रामजी</b> द्वारा विकसित किया गया है।</p>
-                    <p><b>मुख्य विशेषताएं:</b></p>
-                    <ul>
-                        <li><b>Astro 360 Kundli Engine:</b> डेस्कटॉप स्तर की अति-सटीक कुंडली।</li>
-                        <li><b>Vivah & Yajnopavita Engine:</b> 4-in-1 स्वचालित मुहूर्त खोजक।</li>
-                        <li><b>Mundan Muhurt Engine:</b> 14 शास्त्रीय नियमों से युक्त बालक मुंडन काल कैलकुलेटर।</li>
-                        <li><b>VIP Live Consultation:</b> सीधी व्यक्तिगत सलाह व उपाय।</li>
-                    </ul>
-                `,
-                date: "10 Sep 2026",
-                readTime: "3 min read"
-            }
-        ];
-
-        // INITIAL DEMO DISCUSSION COMMENTS
-        let commentsList = [
-            {
-                id: 101,
-                author: "एस्ट्रो रामजी (Founder)",
-                avatar: "logo.png",
-                isAdmin: true,
-                text: "श्री रामजी एस्ट्रो चर्चा मंच पर आपका हार्दिक स्वागत है! ज्योतिष, मुहूर्त एवं पंचांग से संबंधित प्रश्न यहाँ पूछें।",
-                time: "आज, 10:15 AM",
-                likes: 12
-            },
-            {
-                id: 102,
-                author: "रवि शर्मा",
-                avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=Ravi",
+                author: "आदित्य शर्मा",
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aditya",
+                cred: "सत्यापित सदस्य (Google Verified User)",
+                isVerified: true,
                 isAdmin: false,
-                text: "Meeus 60-term लूनर सीरीज की वजह से मेरी कुंडली में विंशोत्तरी दशा का समय बिल्कुल सटीक आ रहा है। अद्भुत कैलकुलेटर!",
-                time: "आज, 11:30 AM",
-                likes: 5
+                category: "kundli",
+                title: "षोडशवर्ग में D9 (नवांश) और D60 (षष्टिांश) का वास्तविक अंतर क्या है?",
+                body: "क्या केवल नवांश चार्ट देखकर विवाह का फलादेश किया जा सकता है या D60 देखना भी अनिवार्य है?",
+                upvotes: 14,
+                answers: [
+                    {
+                        author: "एस्ट्रो रामजी",
+                        avatar: "logo.png",
+                        cred: "Chief Astrologer",
+                        isVerified: true,
+                        isAdmin: true,
+                        text: "महर्षि पराशर के अनुसार D9 विवाह और भाग्य की सूक्ष्म शक्ति बताता है, जबकि D60 संचित कर्मों और सूक्ष्म फल का अंतिम निर्णय करता है।",
+                        time: "1 घंटा पहले"
+                    }
+                ],
+                status: "approved"
             }
         ];
 
-        let currentUser = null;
+        let currentUser = null; // Strict Auth State
 
-        function renderBlogArticles(cat = 'all') {
-            const container = document.getElementById('blogGrid');
-            const filtered = cat === 'all' ? BLOG_ARTICLES : BLOG_ARTICLES.filter(a => a.category === cat);
-            
-            container.innerHTML = filtered.map(a => `
-                <div class="blog-card" onclick="openArticleModal(${a.id})">
-                    <div class="blog-card-body">
-                        <div class="blog-tag">${a.categoryTitle}</div>
-                        <h3 class="blog-title">${a.title}</h3>
-                        <p class="blog-snippet">${a.snippet}</p>
-                        <div class="blog-footer">
-                            <span>🗓️ ${a.date}</span>
-                            <span>⏱️ ${a.readTime}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function filterCategory(cat) {
-            document.querySelectorAll('.cat-chip').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-            renderBlogArticles(cat);
-        }
-
-        function openArticleModal(id) {
-            const article = BLOG_ARTICLES.find(a => a.id === id);
-            if (!article) return;
-            document.getElementById('modalTag').innerText = article.categoryTitle;
-            document.getElementById('modalTitle').innerText = article.title;
-            document.getElementById('modalMeta').innerText = `By Astro Raamji | ${article.date} | ${article.readTime}`;
-            document.getElementById('modalContent').innerHTML = article.content;
-            document.getElementById('articleModal').style.display = 'flex';
-        }
-
-        function closeArticleModal() {
-            document.getElementById('articleModal').style.display = 'none';
-        }
-
-        // GOOGLE SIGN-IN CREDENTIAL PARSER & DEMO USER
-        function handleGoogleCredentialResponse(response) {
-            try {
-                // Parse JWT payload from Google credential string
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-                const payload = JSON.parse(jsonPayload);
-
-                setUserState({
-                    name: payload.name,
-                    email: payload.email,
-                    picture: payload.picture
-                });
-            } catch(e) {
-                loginDemoUser();
+        function checkAuthAndOpenAskModal() {
+            document.getElementById('postModal').style.display = 'flex';
+            if (!currentUser) {
+                document.getElementById('authGuardWarning').style.display = 'block';
+                document.getElementById('btnSubmitPost').disabled = true;
+                document.getElementById('btnSubmitPost').style.opacity = '0.5';
+            } else {
+                document.getElementById('authGuardWarning').style.display = 'none';
+                document.getElementById('btnSubmitPost').disabled = false;
+                document.getElementById('btnSubmitPost').style.opacity = '1';
             }
         }
 
-        function loginDemoUser() {
-            setUserState({
-                name: "आदित्य वर्मा (Google User)",
-                email: "aditya.v@gmail.com",
-                picture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aditya"
-            });
+        function closePostModal() {
+            document.getElementById('postModal').style.display = 'none';
         }
 
-        function setUserState(user) {
-            currentUser = user;
-            document.getElementById('userAvatarImg').src = user.picture;
-            document.getElementById('userNameTxt').innerText = user.name;
-            document.getElementById('userEmailTxt').innerText = `✓ Logged in as ${user.email}`;
-            document.getElementById('googleBtnContainer').style.display = 'none';
+        function triggerGoogleLoginDemo() {
+            currentUser = {
+                name: "अमित कुमार (Google Verified)",
+                email: "amit.k@gmail.com",
+                picture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Amit",
+                isVerified: true
+            };
+            document.getElementById('userBarAvatar').src = currentUser.picture;
+            document.getElementById('authGuardWarning').style.display = 'none';
+            document.getElementById('btnSubmitPost').disabled = false;
+            document.getElementById('btnSubmitPost').style.opacity = '1';
+            alert("✓ Google प्रमाणीकरण सफल! अब आप प्रश्न या लेख पोस्ट कर सकते हैं।");
         }
 
-        function renderComments() {
-            const container = document.getElementById('discussionList');
-            container.innerHTML = commentsList.map(c => `
-                <div class="discussion-card">
-                    <div class="discussion-header">
-                        <div class="discussion-author">
-                            <img src="${c.avatar}" class="author-avatar-sm" alt="Avatar">
-                            <span>${c.author}</span>
-                            ${c.isAdmin ? '<span class="admin-badge">OFFICIAL ASTROLOGER</span>' : ''}
-                        </div>
-                        <span class="discussion-time">${c.time}</span>
-                    </div>
-                    <div class="discussion-text">${c.text}</div>
-                    <div class="discussion-actions">
-                        <span onclick="likeComment(${c.id})">👍 ${c.likes} Upvotes</span>
-                        <span>💬 Reply</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function submitComment() {
-            const text = document.getElementById('commentText').value.trim();
-            if (!text) {
-                alert("कृपया अपनी टिप्पणी या प्रश्न दर्ज करें।");
+        function handlePostSubmit(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert("🔒 पोस्ट करने के लिए कृपया पहले Google Sign-In से सत्यापन करें।");
                 return;
             }
-            if (!currentUser) {
-                loginDemoUser(); // Auto fallback login
-            }
 
-            const newC = {
+            const title = document.getElementById('postTitle').value.trim();
+            const body = document.getElementById('postContent').value.trim();
+            const cat = document.getElementById('postCat').value;
+
+            const newPost = {
                 id: Date.now(),
                 author: currentUser.name,
                 avatar: currentUser.picture,
+                cred: "सत्यापित सदस्य (Verified Google User)",
+                isVerified: true,
                 isAdmin: false,
-                text: text,
-                time: "अभी-अभी (Just now)",
-                likes: 1
+                category: cat,
+                title: title,
+                body: body,
+                upvotes: 1,
+                answers: [],
+                status: "approved"
             };
 
-            commentsList.unshift(newC);
-            document.getElementById('commentText').value = '';
-            renderComments();
+            Q_FEED.unshift(newPost);
+            closePostModal();
+            document.getElementById('postForm').reset();
+            renderFeed('all');
+            alert("✓ आपका प्रश्न/लेख सफलतापूर्वक पोस्ट हो गया है!");
         }
 
-        function likeComment(id) {
-            const c = commentsList.find(item => item.id === id);
-            if (c) {
-                c.likes++;
-                renderComments();
+        function renderFeed(tab = 'all') {
+            const container = document.getElementById('feedContainer');
+            let items = Q_FEED;
+
+            if (tab === 'verified') {
+                items = Q_FEED.filter(q => q.answers.some(a => a.isVerified));
+            } else if (tab === 'my') {
+                items = currentUser ? Q_FEED.filter(q => q.author.includes(currentUser.name)) : [];
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);">कोई प्रश्न/आलेख उपलब्ध नहीं है।</div>`;
+                return;
+            }
+
+            container.innerHTML = items.map(q => `
+                <div class="q-card">
+                    <div class="q-author-row">
+                        <div class="q-author-info">
+                            <img src="${q.avatar}" class="user-avatar-md" style="width:32px; height:32px;" alt="Author">
+                            <div>
+                                <div class="q-author-name">
+                                    ${q.author}
+                                    ${q.isAdmin ? '<span class="admin-badge">ASTROLOGER</span>' : (q.isVerified ? '<span class="verif-badge">✓ VERIFIED</span>' : '')}
+                                </div>
+                                <div class="q-author-cred">${q.cred}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="q-title">${q.title}</h2>
+                    <p class="q-body">${q.body}</p>
+
+                    <div class="q-actions">
+                        <button class="btn-upvote" onclick="upvoteQ(${q.id})">▲ Upvote (${q.upvotes})</button>
+                        <button class="btn-answer" onclick="addAnswer(${q.id})">💬 उत्तर दें (${q.answers.length} Answers)</button>
+                    </div>
+
+                    ${q.answers.length > 0 ? `
+                        <div class="answers-box">
+                            ${q.answers.map(ans => `
+                                <div class="answer-item">
+                                    <div style="display:flex; align-items:center; justify-space-between; margin-bottom:4px;">
+                                        <b style="font-size:12px; color:var(--gold-dark);">${ans.author} ${ans.isVerified ? '✓' : ''}</b>
+                                        <small style="font-size:10px; color:var(--text-muted);">${ans.time}</small>
+                                    </div>
+                                    <div style="font-size:12.5px; color:var(--text-main);">${ans.text}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function upvoteQ(id) {
+            const item = Q_FEED.find(q => q.id === id);
+            if (item) {
+                item.upvotes++;
+                renderFeed();
             }
         }
 
+        function addAnswer(id) {
+            if (!currentUser) {
+                alert("🔒 उत्तर लिखने के लिए कृपया पहले Google Sign-In से सत्यापन करें।");
+                checkAuthAndOpenAskModal();
+                return;
+            }
+
+            const ansText = prompt("अपना प्रामाणिक उत्तर दर्ज करें (Write your verified answer):");
+            if (ansText && ansText.trim()) {
+                const item = Q_FEED.find(q => q.id === id);
+                if (item) {
+                    item.answers.push({
+                        author: currentUser.name,
+                        avatar: currentUser.picture,
+                        cred: "सत्यापित सदस्य",
+                        isVerified: true,
+                        text: ansText.trim(),
+                        time: "अभी-अभी"
+                    });
+                    renderFeed();
+                }
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderFeed(tab);
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            renderBlogArticles('all');
-            renderComments();
+            renderFeed('all');
         });
     </script>
 </body>
