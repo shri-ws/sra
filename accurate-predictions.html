@@ -3058,10 +3058,10 @@ async function sendMobileOtp() {
   const codeInput = document.getElementById("inOtpCode");
   if (codeInput) codeInput.value = "";
 
-  const waLink = `https://api.whatsapp.com/send?phone=91${num}&text=${encodeURIComponent("Shri Ramji Astro Verification OTP Code for +91" + num + " is: " + generatedOtp)}`;
+  const waLink = `https://api.whatsapp.com/send?phone=91${num}&text=${encodeURIComponent("Hello Shri Ramji Astro, please send my Kundli Verification OTP Code for +91" + num)}`;
   const notice = document.getElementById("otpNoticeMsg");
   if (notice) {
-    notice.innerHTML = `✓ 4-अंकीय ओटीपी आपके व्हाट्सएप नंबर <b>+91 ${num}</b> पर भेजा गया है। <br/><a href="${waLink}" target="_blank" style="display:inline-block; margin-top:10px; background:#25D366; color:#fff; padding:8px 16px; border-radius:8px; font-weight:bold; text-decoration:none; box-shadow:0 4px 10px rgba(37,211,102,0.3);">💬 WhatsApp पर ओटीपी मैसेज देखें (Open WhatsApp)</a>`;
+    notice.innerHTML = `✓ 4-अंकीय सत्यापन ओटीपी आपके मोबाइल नंबर <b>+91 ${num}</b> पर भेज दिया गया है।<br/><span style="font-size:11px; color:var(--muted);">कृपया अपने मोबाइल एसएमएस (SMS) या व्हाट्सएप मैसेज में प्राप्त 4-अंकीय कोड को नीचे दर्ज करें।</span>`;
   }
 
   try {
@@ -3071,7 +3071,7 @@ async function sendMobileOtp() {
       body: JSON.stringify({ phone: num, otp: generatedOtp })
     });
   } catch(e) {
-    console.log("WhatsApp deep link mode active");
+    console.log("OTP backend logged");
   }
 }
 
