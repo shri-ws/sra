@@ -1264,7 +1264,10 @@ function findActiveChainForTimestamp(targetMs) {
   return chain;
 }
 
+let currentBirthDateObj = null;
+
 function compute5LevelVimshottari(birthDateObj, moonAbsDeg) {
+  currentBirthDateObj = birthDateObj;
   const birthMs = birthDateObj.getTime();
   const nakLen = 13 + 20 / 60; // 13.333333333333334 degrees
   const moonNorm = (moonAbsDeg % 360 + 360) % 360;
@@ -1849,23 +1852,23 @@ function computeSinusoidalLifeWaveData() {
   lifeWavePoints = [];
   lifeWaveMilestones = [];
 
-  const birthMs = dashaTreeData[0].startMs;
+  const birthMs = currentBirthDateObj ? currentBirthDateObj.getTime() : dashaTreeData[0].startMs;
   const hundredYrsMs = birthMs + (100 * MS_PER_SOLAR_YEAR);
   const nowMs = Date.now();
 
-  let tStart = birthMs;
-  let tEnd = hundredYrsMs;
+  let tStart = birthMs; // STRICTLY Date of Birth (DOB)
+  let tEnd = hundredYrsMs; // STRICTLY DOB + 100 Years
 
   if (currentLifeWaveWindowMode === "ACTIVE_MD") {
     const activeMD = dashaTreeData.find(n => nowMs >= n.startMs && nowMs < n.endMs) || dashaTreeData[0];
-    tStart = activeMD.startMs;
+    tStart = Math.max(birthMs, activeMD.startMs);
     tEnd = activeMD.endMs;
   } else if (currentLifeWaveWindowMode === "MICRO") {
     if (currentActiveChain && currentActiveChain.length >= 2) {
-      tStart = currentActiveChain[1].startMs;
+      tStart = Math.max(birthMs, currentActiveChain[1].startMs);
       tEnd = currentActiveChain[1].endMs;
     } else {
-      tStart = nowMs - (180 * 86400 * 1000);
+      tStart = Math.max(birthMs, nowMs - (180 * 86400 * 1000));
       tEnd = nowMs + (180 * 86400 * 1000);
     }
   }
