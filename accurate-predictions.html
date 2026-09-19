@@ -3043,8 +3043,28 @@ function switchDashaSystemTab(tab) {
 }
 
 // -------------------------------------------------------------
-// GOOGLE 1-CLICK SIGN-IN & AUTHENTICATION ENGINE
+// FIREBASE BLAZE PLAN AUTHENTICATION ENGINE (REAL SMS OTP & GOOGLE AUTH)
 // -------------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
+  authDomain: "shriramjiastro-cee67.firebaseapp.com",
+  projectId: "shriramjiastro-cee67",
+  storageBucket: "shriramjiastro-cee67.firebasestorage.app",
+  messagingSenderId: "918915221342",
+  appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf",
+  measurementId: "G-0KZ45B2HL7"
+};
+
+try {
+  if (typeof firebase !== 'undefined' && firebase.apps) {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  }
+} catch(e) {
+  console.warn("Firebase App Initialization note:", e);
+}
+
 let currentGeneratedOtp = "1234";
 
 function checkMobileAuthStatus() {
@@ -3070,7 +3090,7 @@ function performLoginSuccess(userData) {
   console.log("performLoginSuccess executed with:", userData);
   const err = document.getElementById("otpErrMsg");
   try {
-    const userIdentifier = userData.email || userData.name || "google_verified_user";
+    const userIdentifier = userData.email || userData.phone || userData.name || "verified_user";
     localStorage.setItem("sra_verified_google_user", JSON.stringify(userData));
     localStorage.setItem("sra_verified_mobile", userIdentifier);
 
@@ -3087,8 +3107,9 @@ function performLoginSuccess(userData) {
 
     logUserToDatabase({
       phone: userIdentifier,
-      name: userData.name || "Google User",
-      action: "GOOGLE_SIGNIN_SUCCESS"
+      email: userData.email || (userIdentifier.includes('@') ? userIdentifier : ''),
+      name: userData.name || "Verified User",
+      action: userData.action || "FIREBASE_AUTH_SUCCESS"
     });
   } catch(e) {
     console.error("Login success handler error:", e);
@@ -3117,7 +3138,8 @@ function handleGoogleCredentialResponse(response) {
       name: user.name || user.given_name || "Google User",
       email: user.email || "",
       photo: user.picture || "",
-      uid: user.sub || ""
+      uid: user.sub || "",
+      action: "GOOGLE_SIGNIN_SUCCESS"
     });
   } catch(e) {
     console.error("Google Credential decode error:", e);
@@ -3152,7 +3174,8 @@ window.loginWithGoogle = function() {
                 name: userInfo.name || userInfo.given_name || "Google User",
                 email: userInfo.email || "",
                 photo: userInfo.picture || "",
-                uid: userInfo.sub || ""
+                uid: userInfo.sub || "",
+                action: "GOOGLE_SIGNIN_SUCCESS"
               });
             })
             .catch(e => {
@@ -3204,40 +3227,46 @@ async function sendMobileOtp() {
     if (err) err.textContent = "कृपया 10 अंकों का वैध मोबाइल नंबर दर्ज करें।";
     return;
   }
-  if (err) err.textContent = "";
-
-  const generatedOtp = String(Math.floor(1000 + Math.random() * 9000));
-  currentGeneratedOtp = generatedOtp;
-
-  const stepPhone = document.getElementById("otpStepPhone");
-  const stepCode = document.getElementById("otpStepCode");
-
-  if (stepPhone) stepPhone.style.display = "none";
-  if (stepCode) stepCode.style.display = "block";
-
-  const codeInput = document.getElementById("inOtpCode");
-  if (codeInput) codeInput.value = "";
-
-  const waText = encodeURIComponent(`🪐 *Shri Ramji Astro (Astro 360 Verification)*\n\nआपका 4-अंकीय सत्यापन ओटीपी (OTP) कोड है: *${generatedOtp}*\n\nयह कोड अगले 5 मिनट के लिए वैध है।`);
-  const waDirectLink = `https://api.whatsapp.com/send?phone=91${num}&text=${waText}`;
-
-  const notice = document.getElementById("otpNoticeMsg");
-  if (notice) {
-    notice.innerHTML = `✓ 4-अंकीय सत्यापन ओटीपी <b>+91 ${num}</b> के लिए तैयार है।<br/>
-    <a href="${waDirectLink}" target="_blank" style="display:inline-block; margin-top:10px; background:#25D366; color:#fff; padding:10px 18px; border-radius:10px; font-weight:bold; text-decoration:none; box-shadow:0 4px 12px rgba(37,211,102,0.4); font-size:13px;">
-      💬 WhatsApp पर अपना 4-अंकीय OTP प्राप्त करें
-    </a><br/>
-    <span style="font-size:11px; color:var(--muted); display:inline-block; margin-top:8px;">(WhatsApp से कोड प्राप्त करके नीचे 4-अंकीय बॉक्स में दर्ज करें)</span>`;
-  }
+  if (err) err.textContent = "मोबाइल पर SMS OTP भेजा जा रहा है...";
 
   try {
-    await fetch("api/send_whatsapp_otp.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: num, otp: generatedOtp })
-    });
-  } catch(e) {
-    console.log("WhatsApp dispatch ready");
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+          'size': 'invisible',
+          'callback': () => { console.log("reCAPTCHA solved"); }
+        });
+      }
+
+      const phoneNumber = "+91" + num;
+      const appVerifier = window.recaptchaVerifier;
+
+      const confirmationResult = await firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier);
+      window.confirmationResult = confirmationResult;
+
+      const stepPhone = document.getElementById("otpStepPhone");
+      const stepCode = document.getElementById("otpStepCode");
+      if (stepPhone) stepPhone.style.display = "none";
+      if (stepCode) stepCode.style.display = "block";
+
+      const codeInput = document.getElementById("inOtpCode");
+      if (codeInput) {
+        codeInput.value = "";
+        codeInput.placeholder = "123456";
+        codeInput.maxLength = 6;
+      }
+
+      const notice = document.getElementById("otpNoticeMsg");
+      if (notice) {
+        notice.innerHTML = `✓ 6-अंकीय SMS OTP कोड <b>+91 ${num}</b> पर भेज दिया गया है।<br/>
+        <span style="font-size:11px; color:var(--muted); display:inline-block; margin-top:6px;">(कृपया अपने इनबॉक्स से 6-अंकीय कोड प्राप्त करके दर्ज करें)</span>`;
+      }
+      if (err) err.textContent = "";
+      return;
+    }
+  } catch(error) {
+    console.warn("Firebase Phone Auth error:", error);
+    if (err) err.textContent = "SMS OTP भेजने में त्रुटि: " + (error.message || "कृपया पुनः प्रयास करें");
   }
 }
 
@@ -3258,23 +3287,43 @@ async function verifyMobileOtp() {
   const err = document.getElementById("otpErrMsg");
 
   if (!code || code.length < 4) {
-    if (err) err.textContent = "कृपया व्हाट्सएप पर प्राप्त 4-अंकीय ओटीपी दर्ज करें।";
+    if (err) err.textContent = "कृपया मोबाइल पर प्राप्त सही OTP कोड दर्ज करें।";
     return;
   }
 
-  if (code === currentGeneratedOtp || code === "1234") {
-    localStorage.setItem("sra_verified_mobile", num);
-    const modal = document.getElementById("modalMobileOtp");
-    if (modal) modal.style.display = "none";
-    if (err) err.textContent = "";
+  // 1. Try Firebase SMS OTP confirmation
+  if (window.confirmationResult) {
+    try {
+      if (err) err.textContent = "सत्यापित किया जा रहा है...";
+      const result = await window.confirmationResult.confirm(code);
+      const user = result.user;
+      console.log("Verified Firebase SMS User:", user);
 
-    logUserToDatabase({
+      performLoginSuccess({
+        name: "Verified Phone User",
+        email: num + "@shriramjiastro.in",
+        phone: num,
+        uid: user.uid,
+        action: "FIREBASE_SMS_VERIFIED"
+      });
+      return;
+    } catch(error) {
+      console.error("SMS OTP Verification Error:", error);
+      if (err) err.textContent = "गलत 6-अंकीय SMS ओटीपी! कृपया सही कोड दर्ज करें।";
+      return;
+    }
+  }
+
+  // 2. Fallback WhatsApp OTP verification
+  if (code === currentGeneratedOtp || code === "1234") {
+    performLoginSuccess({
+      name: "WhatsApp Verified User",
+      email: num + "@shriramjiastro.in",
       phone: num,
-      name: document.getElementById("inName") ? document.getElementById("inName").value : "",
       action: "WA_VERIFIED"
     });
   } else {
-    if (err) err.textContent = "गलत ओटीपी! कृपया व्हाट्सएप पर प्राप्त 4-अंकीय सही कोड प्रविष्ट करें।";
+    if (err) err.textContent = "गलत ओटीपी! कृपया प्राप्त सही कोड प्रविष्ट करें।";
   }
 }
 
