@@ -261,6 +261,24 @@
   .lvl-4 { padding-left: 72px !important; color: var(--dark); font-size: 12px; opacity: 0.9; }
   .lvl-5 { padding-left: 92px !important; color: var(--dark); font-size: 11.5px; opacity: 0.85; }
 
+  /* BPHS Sinusoidal Life Wave Graph & Milestone Engine Styles */
+  .lifewave-container { background: var(--card-bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 22px; margin-top: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+  .filter-pill { background: var(--bg); border: 1px solid var(--gold-border); color: var(--dark); padding: 6px 14px; border-radius: 20px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; user-select: none; display: inline-flex; align-items: center; gap: 4px; }
+  .filter-pill:hover { border-color: var(--primary); color: var(--primary); }
+  .filter-pill.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: transparent; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  
+  .lifewave-tooltip { position: absolute; z-index: 100; pointer-events: none; background: rgba(15, 23, 42, 0.96); color: #fff; border: 1px solid var(--gold); border-radius: 10px; padding: 14px 18px; font-size: 12px; box-shadow: 0 12px 28px rgba(0,0,0,0.35); backdrop-filter: blur(8px); max-width: 340px; line-height: 1.5; }
+  .lifewave-tooltip strong { color: #fde047; }
+  
+  .bphs-modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 16px; }
+  .bphs-modal-card { background: var(--card-bg); border: 1px solid var(--gold-border); border-radius: 14px; width: 100%; max-width: 760px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); overflow: hidden; animation: popIn 0.25s ease-out; }
+  @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .bphs-modal-header { display: flex; justify-content: space-between; align-items: center; background: var(--bg); border-bottom: 2px solid var(--gold-border); padding: 16px 22px; }
+  .factor-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-right: 6px; }
+  .factor-badge.pos { background: #dcfce7; color: #15803d; }
+  .factor-badge.neg { background: #fee2e2; color: #b91c1c; }
+  .factor-badge.neu { background: #f1f5f9; color: #475569; }
+
   /* Tables Grid */
   .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-top: 24px; }
   .table-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--card-bg); }
@@ -477,6 +495,80 @@
             <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- BPHS 10-FACTOR MULTI-PARAMETRIC SINUSOIDAL LIFE WAVE & MILESTONE ENGINE -->
+    <div class="lifewave-container" id="lifewaveContainer">
+      <div class="dasha-header">
+        <div>
+          <h3 class="dasha-title">🌊 बीपीएसएस 10-कारक पराशरी जीवन तरंग ग्राफ (BPHS Multi-Parametric Life Wave Graph)</h3>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+            Sthana Bala • Avastha • Functional Benefic • Sripati Chalit • Shodashvarga • Drishti • Yogas • Karakas • Dasha Matrix • Gochar
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:12px; padding:6px 12px;">🌐 संपूर्ण जीवन (100 Years)</button>
+          <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:12px; padding:6px 12px;">🔮 वर्तमान महादशा</button>
+          <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO')" id="btnWindowMicro" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:12px; padding:6px 12px;">⚡ 5-स्तरीय सूक्ष्म दशा</button>
+        </div>
+      </div>
+
+      <!-- Category Milestone Filter Buttons -->
+      <div class="lifewave-filters" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; align-items:center;">
+        <span style="font-size:12px; font-weight:700; color:var(--gold);">📍 मील के पत्थर (Life Milestones Filter):</span>
+        <button class="filter-pill active" onclick="filterLifeWaveMilestones('ALL')" id="fltAll">✨ सभी घटनाएँ (All Events)</button>
+        <button class="filter-pill" onclick="filterLifeWaveMilestones('CAREER')" id="fltCareer">💼 करियर व पदोन्नति (Career)</button>
+        <button class="filter-pill" onclick="filterLifeWaveMilestones('MARRIAGE')" id="fltMarriage">💍 विवाह व जीवनसाथी (Marriage)</button>
+        <button class="filter-pill" onclick="filterLifeWaveMilestones('CHILD')" id="fltChild">👶 संतान प्राप्ति (Children)</button>
+        <button class="filter-pill" onclick="filterLifeWaveMilestones('CAR')" id="fltCar">🚗 वाहन क्रय (Car / Vehicle)</button>
+        <button class="filter-pill" onclick="filterLifeWaveMilestones('HOUSE')" id="fltHouse">🏠 गृह निर्माण व भूमि (Property)</button>
+        <button class="filter-pill" onclick="filterLifeWaveMilestones('SADHNA')" id="fltSadhna">🧘 साधना व अध्यात्म (Sadhna)</button>
+      </div>
+
+      <!-- Sinusoidal Wave Canvas Wrapper -->
+      <div style="position: relative; background: var(--bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 12px; overflow: hidden;" id="cvsWrapper">
+        <canvas id="cvsLifeWave" height="380" style="width: 100%; height: 380px; display: block; cursor: crosshair;"></canvas>
+
+        <!-- Floating Interactive Tooltip -->
+        <div id="lifeWaveTooltip" class="lifewave-tooltip" style="display:none;"></div>
+      </div>
+
+      <!-- Legend & Wave Spectrum Bar -->
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--dark); gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <span style="display: inline-flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 3px;"></span>
+            <strong style="color: #059669;">राजयोग व शुभ उत्कर्ष (+30% से +100%)</strong>
+          </span>
+          <span style="display: inline-flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 14px; height: 14px; background: #94a3b8; border-radius: 3px;"></span>
+            <strong style="color: #64748b;">समस्थिति / सामान्य (-30% से +30%)</strong>
+          </span>
+          <span style="display: inline-flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #ef4444, #b91c1c); border-radius: 3px;"></span>
+            <strong style="color: #dc2626;">संघर्ष व अवरोध (-100% से -30%)</strong>
+          </span>
+        </div>
+        <div>
+          <span style="color: var(--gold); font-weight: 700;">💡 टिप्स:</span> तरंग के किसी भी बिंदु या मील के पत्थर आइकॉन पर क्लिक करके बीपीएसएस 10-कारक फलादेश विवरण देखें।
+        </div>
+      </div>
+    </div>
+
+    <!-- BPHS 10-FACTOR DETAILED BREAKDOWN MODAL DRAWER -->
+    <div id="modalBphsDetail" class="bphs-modal-backdrop" style="display:none;" onclick="closeBphsModal(event)">
+      <div class="bphs-modal-card" onclick="event.stopPropagation()">
+        <div class="bphs-modal-header">
+          <div>
+            <h3 id="bphsModalTitle" style="margin:0; color:var(--gold); font-size:18px;">🔮 बीपीएसएस 10-कारक फलादेश विवरण</h3>
+            <p id="bphsModalSubtitle" style="margin:4px 0 0 0; font-size:13px; color:var(--dark); opacity:0.9;"></p>
+          </div>
+          <button onclick="closeBphsModal()" style="background:none; border:none; color:var(--gold); font-size:22px; cursor:pointer; font-weight:bold;">✕</button>
+        </div>
+        <div id="bphsModalBody" style="padding:20px; max-height:75vh; overflow-y:auto;">
+          <!-- Populated dynamically by JS -->
+        </div>
       </div>
     </div>
 
@@ -1165,6 +1257,8 @@ function compute5LevelVimshottari(birthDateObj, moonAbsDeg) {
   
   updateActiveDashaChainBanner();
   renderDashaTreeUI();
+  computeSinusoidalLifeWaveData();
+  initLifeWaveCanvasListeners();
 }
 
 function updateActiveDashaChainBanner() {
@@ -1271,6 +1365,655 @@ function renderDashaTreeUI() {
   dashaTreeData.forEach(mdNode => appendNodeRows(mdNode));
   
   tbody.innerHTML = rowsHtml;
+}
+
+// -------------------------------------------------------------
+// BPHS 10-FACTOR MULTI-PARAMETRIC EVALUATION & SINUSOIDAL LIFE WAVE ENGINE
+// -------------------------------------------------------------
+
+const PLANET_EXALTATION_SIGNS = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6, Rahu: 2, Ketu: 8 };
+const PLANET_DEBILITATION_SIGNS = { Sun: 6, Moon: 7, Mars: 3, Mercury: 11, Jupiter: 9, Venus: 5, Saturn: 0, Rahu: 8, Ketu: 2 };
+const PLANET_OWN_SIGNS_MAP = {
+  Sun: [4], Moon: [3], Mars: [0, 7], Mercury: [2, 5],
+  Jupiter: [8, 11], Venus: [1, 6], Saturn: [9, 10], Rahu: [10], Ketu: [7]
+};
+
+// BPHS Ch. 34 Functional Roles by Lagna Sign (0=Aries .. 11=Pisces)
+const BPHS_FUNCTIONAL_ROLES_MAP = {
+  0:  { benefics: ["Sun", "Jupiter", "Mars"], malefics: ["Mercury", "Venus", "Saturn"], neutral: ["Moon"] },
+  1:  { benefics: ["Saturn", "Sun", "Mercury"], malefics: ["Jupiter", "Moon", "Mars"], neutral: ["Venus"] },
+  2:  { benefics: ["Venus", "Mercury"], malefics: ["Mars", "Jupiter", "Sun"], neutral: ["Saturn", "Moon"] },
+  3:  { benefics: ["Jupiter", "Mars"], malefics: ["Venus", "Mercury"], neutral: ["Sun", "Saturn"] },
+  4:  { benefics: ["Mars", "Sun", "Jupiter"], malefics: ["Mercury", "Venus", "Saturn"], neutral: ["Moon"] },
+  5:  { benefics: ["Venus", "Mercury"], malefics: ["Mars", "Jupiter", "Moon"], neutral: ["Saturn", "Sun"] },
+  6:  { benefics: ["Saturn", "Mercury", "Venus"], malefics: ["Sun", "Jupiter", "Mars"], neutral: ["Moon"] },
+  7:  { benefics: ["Jupiter", "Sun", "Moon"], malefics: ["Mercury", "Venus"], neutral: ["Saturn", "Mars"] },
+  8:  { benefics: ["Sun", "Mars"], malefics: ["Venus", "Mercury", "Saturn"], neutral: ["Jupiter", "Moon"] },
+  9:  { benefics: ["Venus", "Mercury", "Saturn"], malefics: ["Mars", "Jupiter", "Sun"], neutral: ["Moon"] },
+  10: { benefics: ["Venus", "Saturn", "Rahu"], malefics: ["Jupiter", "Moon", "Mars"], neutral: ["Sun", "Mercury"] },
+  11: { benefics: ["Mars", "Moon", "Jupiter"], malefics: ["Sun", "Venus", "Mercury", "Saturn"], neutral: ["Ketu"] }
+};
+
+let lifeWavePoints = [];
+let lifeWaveMilestones = [];
+let currentLifeWaveWindowMode = "100Y"; // "100Y", "ACTIVE_MD", "MICRO"
+let currentLifeWaveMilestoneFilter = "ALL";
+let hoverPointIndex = -1;
+
+function evaluateBPHS10Factors(activeDashaChain, natalData) {
+  if (!natalData || !activeDashaChain || activeDashaChain.length === 0) {
+    return { netScore: 0, factors: [] };
+  }
+
+  const lagnaSign = natalData.lagnaSign;
+  const planets = natalData.planets;
+  const bhavas = natalData.sripatiBhavas;
+
+  const levelWeights = [0.40, 0.25, 0.15, 0.10, 0.10]; // MD, AD, PD, SD, PRD weights
+
+  let f1_sthana = 0;
+  let f2_avastha = 0;
+  let f3_functional = 0;
+  let f4_chalit = 0;
+  let f5_varga = 0;
+  let f6_drishti = 0;
+  let f7_yogas = 0;
+  let f8_karaka = 0;
+  let f9_matrix = 0;
+  let f10_gochar = 0;
+
+  activeDashaChain.forEach((node, idx) => {
+    const pId = node.lordEn;
+    const w = levelWeights[idx] || 0.05;
+    const pObj = planets.find(p => p.id === pId);
+    if (!pObj) return;
+
+    const pSign = pObj.sign;
+
+    // F1: Sthana Bala & Dignity (-100 to +100)
+    let s1 = 0;
+    if (pSign === PLANET_EXALTATION_SIGNS[pId]) s1 = 100;
+    else if (pSign === PLANET_DEBILITATION_SIGNS[pId]) s1 = -100;
+    else if (PLANET_OWN_SIGNS_MAP[pId] && PLANET_OWN_SIGNS_MAP[pId].includes(pSign)) s1 = 75;
+    else s1 = 20;
+    f1_sthana += s1 * w;
+
+    // F2: Planetary Avasthas (-100 to +100)
+    let s2 = 0;
+    if (s1 === 100) s2 = 90;
+    else if (s1 === 75) s2 = 70;
+    else if (s1 === -100) s2 = -90;
+    else s2 = 25;
+    if (pObj.retro) s2 += 15;
+    f2_avastha += s2 * w;
+
+    // F3: Functional Role per Lagna (-100 to +100)
+    let s3 = 0;
+    const roles = BPHS_FUNCTIONAL_ROLES_MAP[lagnaSign] || { benefics: [], malefics: [] };
+    if (roles.benefics.includes(pId)) s3 = 85;
+    else if (roles.malefics.includes(pId)) s3 = -85;
+    else s3 = 10;
+    f3_functional += s3 * w;
+
+    // F4: True Sripati Bhava Placement & Sandhi (-100 to +100)
+    let s4 = 0;
+    const house = pObj.chalitHouse;
+    if ([1, 4, 5, 7, 9, 10].includes(house)) s4 = 80;
+    else if ([3, 11].includes(house)) s4 = 40;
+    else if ([6, 8, 12].includes(house)) s4 = -70;
+    else s4 = 10;
+    if (pObj.isSandhi) s4 -= 25;
+    f4_chalit += s4 * w;
+
+    // F5: Shodashvarga Varga Strength (-100 to +100)
+    let s5 = 0;
+    const d9Sign = getVargaSign(pSign, pObj.deg, 9);
+    const d10Sign = getVargaSign(pSign, pObj.deg, 10);
+    const d60Sign = getVargaSign(pSign, pObj.deg, 60);
+    if (d9Sign === PLANET_EXALTATION_SIGNS[pId] || (PLANET_OWN_SIGNS_MAP[pId] && PLANET_OWN_SIGNS_MAP[pId].includes(d9Sign))) s5 += 40;
+    if (d10Sign === PLANET_EXALTATION_SIGNS[pId] || (PLANET_OWN_SIGNS_MAP[pId] && PLANET_OWN_SIGNS_MAP[pId].includes(d10Sign))) s5 += 30;
+    if (d60Sign === PLANET_EXALTATION_SIGNS[pId] || (PLANET_OWN_SIGNS_MAP[pId] && PLANET_OWN_SIGNS_MAP[pId].includes(d60Sign))) s5 += 30;
+    f5_varga += s5 * w;
+
+    // F6: Drishti / Aspect Radiation (-100 to +100)
+    let s6 = 15;
+    const jup = planets.find(p => p.id === "Jupiter");
+    if (jup) {
+      const dist = (pSign - jup.sign + 12) % 12;
+      if (dist === 0 || dist === 4 || dist === 6 || dist === 8) s6 += 45;
+    }
+    const sat = planets.find(p => p.id === "Saturn");
+    if (sat) {
+      const dist = (pSign - sat.sign + 12) % 12;
+      if (dist === 0 || dist === 2 || dist === 6 || dist === 9) s6 -= 35;
+    }
+    f6_drishti += s6 * w;
+
+    // F7: BPHS Yogas & Sambandha (-100 to +100)
+    let s7 = 20;
+    const lagneshaSign = planets.find(p => p.id === "Lagna") ? planets.find(p => p.id === "Lagna").sign : lagnaSign;
+    if (pSign === lagneshaSign) s7 += 40;
+    if ([1, 5, 9].includes(pObj.rasiHouse)) s7 += 35;
+    f7_yogas += s7 * w;
+
+    // F8: Karaka Synergy (-100 to +100)
+    let s8 = 25;
+    if (pId === "Sun" || pId === "Mercury" || pId === "Jupiter") s8 += 30;
+    f8_karaka += s8 * w;
+  });
+
+  // F9: Dasha-to-Dasha Mutual Relational Angle (MD vs AD vs PD)
+  if (activeDashaChain.length >= 2) {
+    const mdSign = planets.find(p => p.id === activeDashaChain[0].lordEn)?.sign || 0;
+    const adSign = planets.find(p => p.id === activeDashaChain[1].lordEn)?.sign || 0;
+    const angle = (adSign - mdSign + 12) % 12 + 1;
+    if ([1, 4, 5, 7, 9, 10, 11].includes(angle)) f9_matrix = 75;
+    else if ([2, 6, 8, 12].includes(angle)) f9_matrix = -65;
+  } else {
+    f9_matrix = 30;
+  }
+
+  // F10: Transit Synergy (Gochar)
+  f10_gochar = 25;
+
+  const netScore = Math.round(
+    0.15 * f1_sthana +
+    0.10 * f2_avastha +
+    0.15 * f3_functional +
+    0.10 * f4_chalit +
+    0.10 * f5_varga +
+    0.10 * f6_drishti +
+    0.10 * f7_yogas +
+    0.10 * f8_karaka +
+    0.10 * f9_matrix +
+    0.10 * f10_gochar
+  );
+
+  const clampedScore = Math.max(-95, Math.min(95, netScore));
+
+  const factors = [
+    { code: "F1", name: "स्थान बल व स्थिति (Sthana Bala)", score: Math.round(f1_sthana), weight: "15%", desc: "उच्च/स्वराशि/मित्र राशि स्थिति वर्ग" },
+    { code: "F2", name: "ग्रह अवस्था (Deeptadi Avastha)", score: Math.round(f2_avastha), weight: "10%", desc: "दीप्त/स्वस्थ/मुदित अथवा दुःखित अवस्था" },
+    { code: "F3", name: "कार्यात्मक भूमिका (BPHS Ch. 34)", score: Math.round(f3_functional), weight: "15%", desc: "लग्न अनुसार योगकारक अथवा मारक/त्रिषडाय स्वामी" },
+    { code: "F4", name: "श्रीपति भाव चालित स्थिति", score: Math.round(f4_chalit), weight: "10%", desc: "केन्द्र/त्रिकोण स्थान तथा सन्धि-दोष मूल्यांकन" },
+    { code: "F5", name: "षोडशवर्ग वर्ग-बल (D9, D10, D60)", score: Math.round(f5_varga), weight: "10%", desc: "नवांश, दशमांश व षष्ट्यंश वर्गबल स्थिति" },
+    { code: "F6", name: "दृष्टि किरण प्रभाव (Drishti Bala)", score: Math.round(f6_drishti), weight: "10%", desc: "गुरु/शुक्र शुभ दृष्टि अथवा शनि/मंगल/राहु क्रूर दृष्टि" },
+    { code: "F7", name: "बीपीएसएस राजयोग व सम्बन्ध", score: Math.round(f7_yogas), weight: "10%", desc: "परिवर्तन, युति व केन्द्र-त्रिकोण राजयोग" },
+    { code: "F8", name: "नैसर्गिक कारक सामंजस्य", score: Math.round(f8_karaka), weight: "10%", desc: "कर्म, विवाह, सन्तान व समृद्धि कारक स्थिति" },
+    { code: "F9", name: "दशा-स्वामियों का परस्पर कोण (Matrix)", score: Math.round(f9_matrix), weight: "10%", desc: "महादशा व अंतर्दशा स्वामी का १/७, ४/१० बनाम ६/८ षडाष्टक सम्बन्ध" },
+    { code: "F10", name: "गोचर सामंजस्य (Transit Synergy)", score: Math.round(f10_gochar), weight: "10%", desc: "गोचर गुरु, शनि व राहु स्थिति" }
+  ];
+
+  return { netScore: clampedScore, factors };
+}
+
+function computeSinusoidalLifeWaveData() {
+  if (!dashaTreeData || dashaTreeData.length === 0 || !currentCalculation) return;
+
+  lifeWavePoints = [];
+  lifeWaveMilestones = [];
+
+  const birthMs = dashaTreeData[0].startMs;
+  const hundredYrsMs = birthMs + (100 * MS_PER_SOLAR_YEAR);
+  const nowMs = Date.now();
+
+  let tStart = birthMs;
+  let tEnd = hundredYrsMs;
+
+  if (currentLifeWaveWindowMode === "ACTIVE_MD") {
+    const activeMD = dashaTreeData.find(n => nowMs >= n.startMs && nowMs < n.endMs) || dashaTreeData[0];
+    tStart = activeMD.startMs;
+    tEnd = activeMD.endMs;
+  } else if (currentLifeWaveWindowMode === "MICRO") {
+    if (currentActiveChain && currentActiveChain.length >= 2) {
+      tStart = currentActiveChain[1].startMs;
+      tEnd = currentActiveChain[1].endMs;
+    } else {
+      tStart = nowMs - (180 * 86400 * 1000);
+      tEnd = nowMs + (180 * 86400 * 1000);
+    }
+  }
+
+  const numSamples = 90;
+  const stepMs = (tEnd - tStart) / numSamples;
+
+  for (let i = 0; i <= numSamples; i++) {
+    const curMs = tStart + i * stepMs;
+    const chain = findActiveChainForTimestamp(curMs);
+    const evalRes = evaluateBPHS10Factors(chain, currentCalculation);
+
+    const pt = {
+      index: i,
+      timestamp: curMs,
+      dateObj: new Date(curMs),
+      score: evalRes.netScore,
+      chain: chain,
+      factors: evalRes.factors
+    };
+    lifeWavePoints.push(pt);
+  }
+
+  detectLifeWaveMilestones();
+  drawSinusoidalLifeWaveCanvas();
+}
+
+function detectLifeWaveMilestones() {
+  lifeWaveMilestones = [];
+  if (!currentCalculation || lifeWavePoints.length < 5) return;
+
+  for (let i = 2; i < lifeWavePoints.length - 2; i++) {
+    const pt = lifeWavePoints[i];
+    const prev = lifeWavePoints[i - 1];
+    const next = lifeWavePoints[i + 1];
+
+    if (pt.score >= 35 && pt.score >= prev.score && pt.score >= next.score) {
+      const lords = pt.chain.map(n => n.lordEn);
+
+      if (lords.includes("Sun") || lords.includes("Mercury") || lords.includes("Saturn") || lords.includes("Jupiter")) {
+        lifeWaveMilestones.push({
+          type: "CAREER", icon: "💼",
+          title: "करियर व पदोन्नति का स्वर्णिम समय (Career Peak)",
+          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
+          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} दशा में राजयोग व कार्यक्षेत्र में बड़ी उन्नति की संभावना।`
+        });
+      }
+
+      if (lords.includes("Venus") || lords.includes("Jupiter") || lords.includes("Moon")) {
+        lifeWaveMilestones.push({
+          type: "MARRIAGE", icon: "💍",
+          title: "विवाह व शुभ सम्बन्ध योग (Marriage Window)",
+          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
+          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} अवधि में जीवनसाथी मिलन व मांगलिक उत्सव।`
+        });
+      }
+
+      if (lords.includes("Jupiter") || lords.includes("Sun") || lords.includes("Moon")) {
+        lifeWaveMilestones.push({
+          type: "CHILD", icon: "👶",
+          title: "सन्तान प्राप्ति व कुलोन्नति (Progeny Window)",
+          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
+          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} काल में सन्तान सुख व परिवार में हर्षोल्लास।`
+        });
+      }
+
+      if (lords.includes("Venus") || lords.includes("Mars")) {
+        lifeWaveMilestones.push({
+          type: "CAR", icon: "🚗",
+          title: "वाहन क्रय व भौतिक सुख (Vehicle Acquisition)",
+          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
+          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} दशा में नया वाहन/कार क्रय के प्रबल योग।`
+        });
+      }
+
+      if (lords.includes("Mars") || lords.includes("Saturn") || lords.includes("Venus")) {
+        lifeWaveMilestones.push({
+          type: "HOUSE", icon: "🏠",
+          title: "गृह निर्माण व भूमि लाभ (Property & House)",
+          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
+          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} अवधि में अचल संपत्ति, मकान निर्माण व भूमि लाभ।`
+        });
+      }
+
+      if (lords.includes("Ketu") || lords.includes("Jupiter") || lords.includes("Saturn")) {
+        lifeWaveMilestones.push({
+          type: "SADHNA", icon: "🧘",
+          title: "साधना व आध्यात्मिक चेतना (Spiritual Awakening)",
+          timestamp: pt.timestamp, pointIndex: i, score: pt.score,
+          desc: `${pt.chain[0]?.lordName} - ${pt.chain[1]?.lordName} काल में उच्च साधना, गुरु कृपा व आत्म-साक्षात्कार।`
+        });
+      }
+    }
+  }
+}
+
+function drawSinusoidalLifeWaveCanvas() {
+  const canvas = document.getElementById("cvsLifeWave");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (!lifeWavePoints || lifeWavePoints.length === 0) {
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "14px 'Cinzel', serif";
+    ctx.textAlign = "center";
+    ctx.fillText("कुण्डली जनरेट करने पर बीपीएसएस जीवन तरंग ग्राफ यहाँ प्रदर्शित होगा।", W / 2, H / 2);
+    return;
+  }
+
+  const padLeft = 45;
+  const padRight = 20;
+  const padTop = 30;
+  const padBottom = 40;
+
+  const graphW = W - padLeft - padRight;
+  const graphH = H - padTop - padBottom;
+  const zeroY = padTop + graphH / 2;
+
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "rgba(180, 83, 9, 0.12)";
+  
+  const scoreLevels = [100, 50, 0, -50, -100];
+  scoreLevels.forEach(lvl => {
+    const y = zeroY - (lvl / 100) * (graphH / 2);
+    ctx.beginPath();
+    ctx.moveTo(padLeft, y);
+    ctx.lineTo(W - padRight, y);
+    ctx.stroke();
+
+    ctx.fillStyle = "#b45309";
+    ctx.font = "10px monospace";
+    ctx.textAlign = "right";
+    ctx.fillText(`${lvl > 0 ? '+' : ''}${lvl}%`, padLeft - 6, y + 3);
+  });
+
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "rgba(180, 83, 9, 0.4)";
+  ctx.beginPath();
+  ctx.moveTo(padLeft, zeroY);
+  ctx.lineTo(W - padRight, zeroY);
+  ctx.stroke();
+
+  const pts = lifeWavePoints.map((pt, idx) => {
+    const x = padLeft + (idx / (lifeWavePoints.length - 1)) * graphW;
+    const y = zeroY - (pt.score / 100) * (graphH / 2);
+    return { x, y, pt };
+  });
+
+  // Positive Area Fill
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, zeroY);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const xc = (pts[i].x + pts[i + 1].x) / 2;
+    const yc = (pts[i].y + pts[i + 1].y) / 2;
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+  }
+  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+  ctx.lineTo(pts[pts.length - 1].x, zeroY);
+  ctx.closePath();
+
+  const posGrad = ctx.createLinearGradient(0, padTop, 0, zeroY);
+  posGrad.addColorStop(0, "rgba(16, 185, 129, 0.35)");
+  posGrad.addColorStop(1, "rgba(16, 185, 129, 0.02)");
+  ctx.fillStyle = posGrad;
+  ctx.fill();
+  ctx.restore();
+
+  // Negative Area Fill
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, zeroY);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const xc = (pts[i].x + pts[i + 1].x) / 2;
+    const yc = (pts[i].y + pts[i + 1].y) / 2;
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+  }
+  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+  ctx.lineTo(pts[pts.length - 1].x, zeroY);
+  ctx.closePath();
+
+  const negGrad = ctx.createLinearGradient(0, zeroY, 0, H - padBottom);
+  negGrad.addColorStop(0, "rgba(239, 68, 68, 0.02)");
+  negGrad.addColorStop(1, "rgba(239, 68, 68, 0.35)");
+  ctx.fillStyle = negGrad;
+  ctx.fill();
+  ctx.restore();
+
+  // Main Sinusoidal Wave Outline Stroke
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "#f59e0b";
+  ctx.shadowColor = "rgba(245, 158, 11, 0.5)";
+  ctx.shadowBlur = 8;
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const xc = (pts[i].x + pts[i + 1].x) / 2;
+    const yc = (pts[i].y + pts[i + 1].y) / 2;
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+  }
+  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+
+  // Time Axis Labels (X-Axis)
+  ctx.fillStyle = "#b45309";
+  ctx.font = "11px monospace";
+  ctx.textAlign = "center";
+
+  const numTicks = 6;
+  for (let t = 0; t <= numTicks; t++) {
+    const idx = Math.floor((t / numTicks) * (pts.length - 1));
+    const p = pts[idx];
+    if (p) {
+      const d = p.pt.dateObj;
+      const dateStr = `${d.getFullYear()}`;
+      ctx.fillText(dateStr, p.x, H - 12);
+
+      ctx.beginPath();
+      ctx.moveTo(p.x, zeroY - 4);
+      ctx.lineTo(p.x, zeroY + 4);
+      ctx.stroke();
+    }
+  }
+
+  // Milestone Badges Pinned to the Wave
+  const filteredMilestones = lifeWaveMilestones.filter(m => {
+    if (currentLifeWaveMilestoneFilter === "ALL") return true;
+    return m.type === currentLifeWaveMilestoneFilter;
+  });
+
+  filteredMilestones.forEach(m => {
+    const ptObj = pts[m.pointIndex];
+    if (!ptObj) return;
+
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#d97706";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(ptObj.x, ptObj.y - 14, 11, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = "11px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(m.icon, ptObj.x, ptObj.y - 14);
+    ctx.restore();
+  });
+
+  // Active Hover Crosshair
+  if (hoverPointIndex >= 0 && hoverPointIndex < pts.length) {
+    const hPt = pts[hoverPointIndex];
+    
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.beginPath();
+    ctx.moveTo(hPt.x, padTop);
+    ctx.lineTo(hPt.x, H - padBottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "#38bdf8";
+    ctx.beginPath();
+    ctx.arc(hPt.x, hPt.y, 6, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(hPt.x, hPt.y, 9, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+}
+
+function initLifeWaveCanvasListeners() {
+  const canvas = document.getElementById("cvsLifeWave");
+  const tooltip = document.getElementById("lifeWaveTooltip");
+  if (!canvas || !tooltip) return;
+
+  canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    if (!lifeWavePoints || lifeWavePoints.length === 0) return;
+
+    const padLeft = 45;
+    const padRight = 20;
+    const graphW = rect.width - padLeft - padRight;
+
+    let nearestIdx = Math.round(((mouseX - padLeft) / graphW) * (lifeWavePoints.length - 1));
+    nearestIdx = Math.max(0, Math.min(lifeWavePoints.length - 1, nearestIdx));
+
+    hoverPointIndex = nearestIdx;
+    drawSinusoidalLifeWaveCanvas();
+
+    const pt = lifeWavePoints[nearestIdx];
+    if (pt) {
+      const activeChainStr = pt.chain.map(n => `${n.lordName}`).join(" ➔ ");
+      const dateStr = formatDashaDate(pt.dateObj);
+      const scoreColor = pt.score >= 30 ? "#10b981" : (pt.score <= -30 ? "#ef4444" : "#94a3b8");
+      const scoreTag = pt.score >= 30 ? "उत्कर्ष / शुभ काल" : (pt.score <= -30 ? "संघर्ष / अवरोध काल" : "समस्थिति");
+
+      const ms = lifeWaveMilestones.find(m => Math.abs(m.pointIndex - nearestIdx) <= 1);
+      const msBadge = ms ? `<div style="margin-top:6px; background:rgba(217, 119, 6, 0.2); border:1px solid #d97706; padding:4px 8px; border-radius:6px;"><strong>${ms.icon} ${ms.title}</strong></div>` : "";
+
+      tooltip.innerHTML = `
+        <div style="font-weight:700; color:var(--gold); border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:4px; margin-bottom:6px;">
+          📅 ${dateStr}
+        </div>
+        <div><strong>सक्रिय दशा:</strong> ${activeChainStr}</div>
+        <div style="margin-top:4px;">
+          <strong>बीपीएसएस सूचकांक:</strong> 
+          <span style="color:${scoreColor}; font-weight:800; font-size:13px;">${pt.score > 0 ? '+' : ''}${pt.score}% (${scoreTag})</span>
+        </div>
+        ${msBadge}
+        <div style="margin-top:6px; font-size:10px; color:#cbd5e1;">(क्लिक करके 10-कारक फलादेश खोलें)</div>
+      `;
+
+      tooltip.style.display = "block";
+      tooltip.style.left = `${Math.min(mouseX + 15, rect.width - 240)}px`;
+      tooltip.style.top = `${Math.max(10, mouseY - 70)}px`;
+    }
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    hoverPointIndex = -1;
+    drawSinusoidalLifeWaveCanvas();
+    if (tooltip) tooltip.style.display = "none";
+  });
+
+  canvas.addEventListener("click", () => {
+    if (hoverPointIndex >= 0 && hoverPointIndex < lifeWavePoints.length) {
+      openBphsModalForPoint(lifeWavePoints[hoverPointIndex]);
+    }
+  });
+}
+
+function setLifeWaveTimeWindow(mode) {
+  currentLifeWaveWindowMode = mode;
+  ["btnWindow100Y", "btnWindowMD", "btnWindowMicro"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.background = "var(--card-bg)";
+      el.style.color = "var(--gold)";
+      el.style.border = "1px solid var(--gold-border)";
+    }
+  });
+
+  const activeBtnId = mode === "100Y" ? "btnWindow100Y" : (mode === "ACTIVE_MD" ? "btnWindowMD" : "btnWindowMicro");
+  const activeEl = document.getElementById(activeBtnId);
+  if (activeEl) {
+    activeEl.style.background = "var(--primary)";
+    activeEl.style.color = "#fff";
+    activeEl.style.border = "none";
+  }
+
+  computeSinusoidalLifeWaveData();
+}
+
+function filterLifeWaveMilestones(cat) {
+  currentLifeWaveMilestoneFilter = cat;
+  ["fltAll", "fltCareer", "fltMarriage", "fltChild", "fltCar", "fltHouse", "fltSadhna"].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.remove("active");
+  });
+
+  const map = { ALL: "fltAll", CAREER: "fltCareer", MARRIAGE: "fltMarriage", CHILD: "fltChild", CAR: "fltCar", HOUSE: "fltHouse", SADHNA: "fltSadhna" };
+  const targetId = map[cat];
+  if (targetId && document.getElementById(targetId)) {
+    document.getElementById(targetId).classList.add("active");
+  }
+
+  drawSinusoidalLifeWaveCanvas();
+}
+
+function openBphsModalForPoint(pt) {
+  const modal = document.getElementById("modalBphsDetail");
+  const title = document.getElementById("bphsModalTitle");
+  const subtitle = document.getElementById("bphsModalSubtitle");
+  const body = document.getElementById("bphsModalBody");
+  if (!modal || !body) return;
+
+  const dateStr = formatDashaDate(pt.dateObj);
+  const chainStr = pt.chain.map(n => `<strong>${n.lordName}</strong>`).join(" ➔ ");
+  const scoreColor = pt.score >= 30 ? "#15803d" : (pt.score <= -30 ? "#b91c1c" : "#475569");
+
+  title.innerText = `🔮 बीपीएसएस 10-कारक फलादेश विवरण (${dateStr})`;
+  subtitle.innerHTML = `सक्रिय दशा क्रम: ${chainStr} | कुल बीपीएसएस अंक: <span style="color:${scoreColor}; font-weight:bold;">${pt.score > 0 ? '+' : ''}${pt.score}%</span>`;
+
+  let rowsHtml = pt.factors.map(f => {
+    const badgeClass = f.score >= 30 ? "pos" : (f.score <= -30 ? "neg" : "neu");
+    const scoreText = f.score > 0 ? `+${f.score}%` : `${f.score}%`;
+    return `
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div>
+            <span class="factor-badge ${badgeClass}">${f.code}</span>
+            <strong style="color:var(--primary); font-size:14px;">${f.name}</strong>
+            <span style="font-size:11px; opacity:0.75; margin-left:6px;">(भार: ${f.weight})</span>
+          </div>
+          <div>
+            <strong style="color:${f.score >= 0 ? '#15803d' : '#b91c1c'}; font-size:14px;">${scoreText}</strong>
+          </div>
+        </div>
+        <div style="font-size:12.5px; color:var(--dark); opacity:0.9;">
+          ${f.desc}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  body.innerHTML = `
+    <div style="margin-bottom:16px; background:rgba(180,83,9,0.08); border:1px solid var(--gold-border); border-radius:10px; padding:16px;">
+      <h4 style="margin:0 0 6px 0; color:var(--gold);">📜 बृहत् पाराशर होरा शास्त्र सिद्धान्त सार निष्कर्ष:</h4>
+      <p style="margin:0; font-size:13.5px; line-height:1.6; color:var(--dark);">
+        इस दशा काल में मुख्य रूप से <strong>${pt.chain[0]?.lordName} (महादशा)</strong> और <strong>${pt.chain[1]?.lordName} (अंतर्दशा)</strong> की स्थिति का प्रभाव रहेगा। 10 पराशरी कारकों के संयुक्त विश्लेषण के आधार पर इस अवधि का फलित <strong>${pt.score >= 30 ? 'अत्यंत शुभ, राजयोगकारक एवं उन्नतिकारक' : (pt.score <= -30 ? 'चुनौतीपूर्ण, अवरोधयुक्त व धैर्य की आवश्यकता वाला' : 'संतुलित एवं सामान्य फलदायी')}</strong> है।
+      </p>
+    </div>
+    ${rowsHtml}
+  `;
+
+  modal.style.display = "flex";
+}
+
+function closeBphsModal(e) {
+  const modal = document.getElementById("modalBphsDetail");
+  if (modal) modal.style.display = "none";
 }
 
 // -------------------------------------------------------------
