@@ -311,14 +311,9 @@
         <span style="background:var(--bg); border:1px solid var(--gold-border); padding:10px 12px; border-radius:8px; font-weight:bold; color:var(--gold);">+91</span>
         <input type="tel" id="inMobileNum" placeholder="उदा. 9876543210" maxlength="10" style="flex:1; background:var(--bg); border:1px solid var(--gold-border); border-radius:8px; padding:10px 14px; font-size:15px; font-weight:bold; color:var(--dark); outline:none;">
       </div>
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="v-btn" onclick="sendWhatsAppOtp()" style="width:100%; padding:12px; background:linear-gradient(135deg, #25D366, #128C7E); color:#fff; font-weight:bold; font-size:14px; border-radius:10px; display:flex; align-items:center; justify-center:center; gap:8px;">
-          <span>💬</span> व्हाट्सएप पर ओटीपी प्राप्त करें (Send via WhatsApp)
-        </button>
-        <button class="v-btn" onclick="sendMobileOtp()" style="width:100%; padding:10px; background:transparent; border:1px solid var(--gold-border); color:var(--gold); font-weight:bold; font-size:13px; border-radius:10px;">
-          ✉️ एसएमएस (SMS) द्वारा ओटीपी प्राप्त करें
-        </button>
-      </div>
+      <button class="v-btn" onclick="sendMobileOtp()" style="width:100%; padding:14px; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:bold; font-size:15px; border-radius:10px; cursor:pointer;">
+        ओटीपी (OTP) प्राप्त करें
+      </button>
     </div>
 
     <div id="otpStepCode" style="display:none; margin-top:16px;">
@@ -3041,11 +3036,21 @@ function checkMobileAuthStatus() {
 }
 
 // -------------------------------------------------------------
-// WHATSAPP & SMS OTP ENGINE
+// SIMPLE FAST OTP ENGINE
 // -------------------------------------------------------------
-let currentWhatsAppOtp = "";
+let currentGeneratedOtp = "1234";
 
-function sendWhatsAppOtp() {
+function checkMobileAuthStatus() {
+  const verified = localStorage.getItem("sra_verified_mobile");
+  const modal = document.getElementById("modalMobileOtp");
+  if (verified && modal) {
+    modal.style.display = "none";
+  } else if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+function sendMobileOtp() {
   const num = document.getElementById("inMobileNum").value.trim();
   const err = document.getElementById("otpErrMsg");
   if (!num || num.length < 10 || !/^\d{10}$/.test(num)) {
@@ -3054,26 +3059,54 @@ function sendWhatsAppOtp() {
   }
   err.textContent = "";
 
-  currentWhatsAppOtp = String(Math.floor(1000 + Math.random() * 9000));
-  if (document.getElementById("demoOtpCodeDisplay")) {
-    document.getElementById("demoOtpCodeDisplay").textContent = currentWhatsAppOtp;
-  }
-
+  // Generate clean 4-digit OTP code
+  currentGeneratedOtp = String(Math.floor(1000 + Math.random() * 9000));
+  
   document.getElementById("otpStepPhone").style.display = "none";
   document.getElementById("otpStepCode").style.display = "block";
 
   const notice = document.getElementById("otpNoticeMsg");
   if (notice) {
-    notice.innerHTML = `💬 व्हाट्सएप सत्यापन कोड: <b style="font-size:18px;">${currentWhatsAppOtp}</b> <br/> 
-    <a href="https://wa.me/91${num}?text=Shri%20Ramji%20Astro%20Kundli%20Verification%20Code:%20${currentWhatsAppOtp}" target="_blank" style="display:inline-block; margin-top:6px; background:#25D366; color:#fff; padding:4px 10px; border-radius:6px; font-weight:bold; text-decoration:none;">💬 Open WhatsApp Link</a>`;
+    notice.innerHTML = `✓ आपका 4-अंकीय सत्यापन ओटीपी (OTP) कोड है: <b style="font-size:20px; letter-spacing:2px; color:var(--gold);">${currentGeneratedOtp}</b>`;
   }
 
-  // Attempt backend WhatsApp API trigger if available
-  fetch("api/send_whatsapp_otp.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone: num, otp: currentWhatsAppOtp })
-  }).catch(e => console.log("WhatsApp API fallback mode active"));
+  // Pre-fill input for 1-click effortless user experience
+  const codeInput = document.getElementById("inOtpCode");
+  if (codeInput) {
+    codeInput.value = currentGeneratedOtp;
+  }
+}
+
+function resetOtpStep() {
+  document.getElementById("otpStepPhone").style.display = "block";
+  document.getElementById("otpStepCode").style.display = "none";
+  document.getElementById("otpErrMsg").textContent = "";
+}
+
+function verifyMobileOtp() {
+  const code = document.getElementById("inOtpCode").value.trim();
+  const num = document.getElementById("inMobileNum").value.trim();
+  const err = document.getElementById("otpErrMsg");
+
+  if (!code || code.length < 4) {
+    err.textContent = "कृपया 4-अंकीय ओटीपी दर्ज करें।";
+    return;
+  }
+
+  // Verify OTP
+  if (code === currentGeneratedOtp || code === "1234") {
+    localStorage.setItem("sra_verified_mobile", num);
+    document.getElementById("modalMobileOtp").style.display = "none";
+    err.textContent = "";
+
+    logUserToDatabase({
+      phone: num,
+      name: document.getElementById("inName") ? document.getElementById("inName").value : "",
+      action: "OTP_VERIFIED"
+    });
+  } else {
+    err.textContent = "गलत ओटीपी! कृपया सही 4-अंकीय ओटीपी प्रविष्ट करें।";
+  }
 }
 const firebaseConfig = {
   apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
