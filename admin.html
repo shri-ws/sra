@@ -188,6 +188,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="showPanel('overview')">📊 &nbsp;Overview</div>
+      <div class="nav-item" onclick="showPanel('emails')">📧 &nbsp;Verified Email Logins</div>
       <div class="nav-item" onclick="showPanel('users')">📱 &nbsp;Registered Users & Queries</div>
       <div class="nav-item" onclick="showPanel('students')">🎓 &nbsp;Students</div>
       <div class="nav-item" onclick="showPanel('payments')">💰 &nbsp;Payments</div>
@@ -294,6 +295,23 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       </div>
     </div>
 
+    <!-- VERIFIED GOOGLE EMAIL ACCOUNTS -->
+    <div class="panel" id="panel-emails">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">📧 Verified Google Email Accounts & Logins (Hostinger DB)</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search Email / Name..." oninput="filterTable('emails-tbody',this.value)"/>
+            <button class="export-btn" onclick="exportCSV('emails')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Email Address</th><th>Candidate Name</th><th>Verification</th><th>Auth Action</th><th>Date / Time</th><th>Actions</th></tr></thead>
+          <tbody id="emails-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
     <!-- REGISTERED USERS & KUNDLI QUERY LOG -->
     <div class="panel" id="panel-users">
       <div class="table-wrap">
@@ -305,7 +323,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Date of Birth</th><th>Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th></tr></thead>
+          <thead><tr><th>Mobile Number / Email</th><th>Candidate Name</th><th>Date of Birth</th><th>Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th></tr></thead>
           <tbody id="users-tbody"></tbody>
         </table></div>
       </div>
@@ -426,7 +444,7 @@ async function loadAll(){
 }
 
 function setLoading(){
-  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','recent-students'].forEach(id=>{
+  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-students'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML=`<tr><td colspan="10" class="loading-row"><span class="spin"></span> Loading...</td></tr>`;
   });
@@ -458,13 +476,43 @@ function renderAll(){
   renderConsultRows('consultations-tbody', D.consultations);
   renderForumRows('forum-tbody', D.forum);
   renderUserQueryRows('users-tbody', D.users);
+  renderEmailRows('emails-tbody', D.users);
+}
+
+function renderEmailRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No verified email accounts logged yet</td></tr>`; return; }
+
+  // Extract all rows with email address or google login
+  const emailRecords = rows.filter(u => {
+    const e = u.email || (u.phone && u.phone.includes('@') ? u.phone : '');
+    return e && e.trim() !== '';
+  });
+
+  if(!emailRecords.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No verified Google emails logged yet</td></tr>`; return; }
+
+  el.innerHTML=emailRecords.map(u => {
+    const email = u.email || u.phone;
+    const name = u.candidate_name || u.name || 'Google User';
+    const method = u.login_method || u.action || 'GOOGLE_SIGNIN_SUCCESS';
+    const loggedAt = u.created_at || u.logged_at || '—';
+
+    return `<tr>
+      <td><div class="name-cell" style="color:var(--gold)">📧 ${safe(email)}</div></td>
+      <td><div style="font-weight:600">${safe(name)}</div></td>
+      <td><span class="badge completed">Verified</span></td>
+      <td><span style="font-size:11px;font-family:monospace;color:var(--muted)">${safe(method)}</span></td>
+      <td class="date-cell">${safe(loggedAt)}</td>
+      <td><a href="mailto:${safe(email)}" style="color:var(--gold);text-decoration:none;font-size:12px;font-weight:bold;">✉️ Send Email</a></td>
+    </tr>`;
+  }).join('');
 }
 
 function renderUserQueryRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
   if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No registered user queries logged yet</td></tr>`; return; }
   el.innerHTML=rows.map(u=>`<tr>
-    <td>${wa(u.phone)}</td>
+    <td>${u.phone && u.phone.includes('@') ? '📧 ' + safe(u.phone) : wa(u.phone)}</td>
     <td><div class="name-cell">${safe(u.candidate_name || u.name)}</div></td>
     <td style="font-size:12px">${safe(u.dob)}</td>
     <td style="font-size:12px">${safe(u.tob)}</td>
@@ -545,8 +593,13 @@ function exportCSV(type){
     headers=['Name','Email','Phone','Plan','Amount','Status','Payment ID','Date'];
     rows=D.payments.map(p=>[p.student_name,p.student_email,p.student_phone,p.plan_name,p.amount,p.status,p.razorpay_payment_id,fmtDate(p.created_at)]);
     filename='SRA_Payments.csv';
+  } else if(type==='emails'){
+    headers=['Email Address','Candidate Name','Login Method','Logged Date'];
+    const emailRecords = D.users.filter(u => (u.email || (u.phone && u.phone.includes('@'))));
+    rows=emailRecords.map(u=>[u.email || u.phone, u.candidate_name||u.name||'Google User', u.login_method||u.action||'GOOGLE_SIGNIN_SUCCESS', u.created_at||u.logged_at]);
+    filename='SRA_Verified_Email_Accounts.csv';
   } else if(type==='users'){
-    headers=['Mobile Phone','Candidate Name','DOB','TOB','Location','Latitude','Longitude','Logged Date'];
+    headers=['Mobile / Email','Candidate Name','DOB','TOB','Location','Latitude','Longitude','Logged Date'];
     rows=D.users.map(u=>[u.phone, u.candidate_name||u.name, u.dob, u.tob, u.location, u.latitude||u.lat, u.longitude||u.lon, u.created_at||u.logged_at]);
     filename='SRA_Registered_Users.csv';
   } else {
@@ -566,7 +619,7 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
   event.currentTarget.classList.add('active');
-  const titles={overview:'Overview',users:'Registered Users & Kundli Query Log',students:'Students',payments:'Payments',consultations:'Consultations',forum:'Forum Posts'};
+  const titles={overview:'Overview',emails:'Verified Email Logins',users:'Registered Users & Kundli Query Log',students:'Students',payments:'Payments',consultations:'Consultations',forum:'Forum Posts'};
   document.getElementById('panelTitle').textContent=titles[name]||name;
 }
 </script>
