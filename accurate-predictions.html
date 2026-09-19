@@ -50,6 +50,10 @@
 
 <script src="theme.js"></script>
 
+<!-- Google Firebase Web SDK Compat (10,000 FREE SMS OTPs / Month) -->
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+
 <style>
   /* DAY MODE (DEFAULT): Golden, Maroon, and White */
   :root, [data-theme="day"] {
@@ -325,6 +329,7 @@
     <div id="otpErrMsg" style="color:var(--red); font-size:12px; margin-top:12px; min-height:18px;"></div>
   </div>
 </div>
+<div id="recaptcha-container"></div>
 
 <nav>
   <a href="index.html" class="nav-logo"><span>🪐</span> SHRI RAMJI ASTRO</a>
@@ -3028,6 +3033,37 @@ function checkMobileAuthStatus() {
   }
 }
 
+// -------------------------------------------------------------
+// GOOGLE FIREBASE PHONE AUTH (10,000 FREE SMS OTPs / MONTH)
+// -------------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "shriramjiastro.firebaseapp.com",
+  projectId: "shriramjiastro",
+  storageBucket: "shriramjiastro.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
+};
+
+let isFirebaseInitialized = false;
+
+function initFirebasePhoneAuth() {
+  if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "YOUR_FIREBASE_API_KEY") {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      isFirebaseInitialized = true;
+      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {}
+      });
+    } catch(e) {
+      console.warn("Firebase Auth Init Warning:", e);
+    }
+  }
+}
+
 async function sendMobileOtp() {
   const num = document.getElementById("inMobileNum").value.trim();
   const err = document.getElementById("otpErrMsg");
@@ -3035,8 +3071,28 @@ async function sendMobileOtp() {
     err.textContent = "कृपया 10 अंकों का वैध मोबाइल नंबर दर्ज करें।";
     return;
   }
-  err.textContent = "ओटीपी भेजा जा रहा है...";
+  err.textContent = "गूगल एसएमएस (SMS) भेजा जा रहा है...";
 
+  if (isFirebaseInitialized && window.recaptchaVerifier) {
+    const phoneNumber = "+91" + num;
+    const appVerifier = window.recaptchaVerifier;
+
+    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
+        err.textContent = "";
+        document.getElementById("otpStepPhone").style.display = "none";
+        document.getElementById("otpStepCode").style.display = "block";
+        document.getElementById("otpNoticeMsg").innerHTML = `✓ गूगल 6-अंकीय ओटीपी आपके मोबाइल +91 ${num} पर भेज दिया गया है।`;
+      })
+      .catch((error) => {
+        console.error("Firebase Auth Error:", error);
+        err.textContent = "गूगल एसएमएस में त्रुटि: " + (error.message || "कृपया पुनः प्रयास करें।");
+      });
+    return;
+  }
+
+  // Fallback to PHP API Endpoint or local demo
   try {
     const res = await fetch("api/send_otp.php", {
       method: "POST",
@@ -3059,7 +3115,6 @@ async function sendMobileOtp() {
       err.textContent = json.message || "ओटीपी भेजने में विफल। कृपया पुनः प्रयास करें।";
     }
   } catch (e) {
-    // Local offline fallback
     err.textContent = "";
     currentGeneratedOtp = String(Math.floor(1000 + Math.random() * 9000));
     document.getElementById("demoOtpCodeDisplay").textContent = currentGeneratedOtp;
@@ -3080,10 +3135,25 @@ async function verifyMobileOtp() {
   const err = document.getElementById("otpErrMsg");
 
   if (!code || code.length < 4) {
-    err.textContent = "कृपया 4-अंकीय ओटीपी दर्ज करें।";
+    err.textContent = "कृपया सही ओटीपी दर्ज करें।";
     return;
   }
   err.textContent = "सत्यापित किया जा रहा है...";
+
+  if (window.confirmationResult) {
+    window.confirmationResult.confirm(code)
+      .then((result) => {
+        localStorage.setItem("sra_verified_mobile", num);
+        document.getElementById("modalMobileOtp").style.display = "none";
+        err.textContent = "";
+        logUserToDatabase({ phone: num, name: document.getElementById("inName") ? document.getElementById("inName").value : "", action: "FIREBASE_VERIFIED" });
+      })
+      .catch((error) => {
+        console.error("Firebase Verification Error:", error);
+        err.textContent = "गलत ओटीपी! कृपया सही ओटीपी दर्ज करें।";
+      });
+    return;
+  }
 
   try {
     const res = await fetch("api/verify_otp.php", {
@@ -3104,7 +3174,6 @@ async function verifyMobileOtp() {
       err.textContent = json.message || "गलत या समय-सीमा समाप्त ओटीपी! कृपया सही ओटीपी दर्ज करें।";
     }
   } catch (e) {
-    // Offline bypass with 1234
     if (code === "1234") {
       localStorage.setItem("sra_verified_mobile", num);
       document.getElementById("modalMobileOtp").style.display = "none";
@@ -3188,6 +3257,7 @@ function loadSessionState() {
 // Auto-initialize map & session when DOM is loaded
 window.addEventListener('DOMContentLoaded', () => {
   initMap();
+  initFirebasePhoneAuth();
   checkMobileAuthStatus();
   switchDashaSystemTab('vim');
   loadSessionState();
