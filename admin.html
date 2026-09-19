@@ -188,6 +188,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="showPanel('overview')">📊 &nbsp;Overview</div>
+      <div class="nav-item" onclick="showPanel('users')">📱 &nbsp;Registered Users & Queries</div>
       <div class="nav-item" onclick="showPanel('students')">🎓 &nbsp;Students</div>
       <div class="nav-item" onclick="showPanel('payments')">💰 &nbsp;Payments</div>
       <div class="nav-item" onclick="showPanel('consultations')">🔮 &nbsp;Consultations</div>
@@ -292,6 +293,23 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
         </table></div>
       </div>
     </div>
+
+    <!-- REGISTERED USERS & KUNDLI QUERY LOG -->
+    <div class="panel" id="panel-users">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">📱 Registered Users & Kundli Query Log (Hostinger DB)</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search Mobile / Candidate..." oninput="filterTable('users-tbody',this.value)"/>
+            <button class="export-btn" onclick="exportCSV('users')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Date of Birth</th><th>Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th></tr></thead>
+          <tbody id="users-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -303,7 +321,7 @@ const ADMIN_USER = 'panditji';
 const ADMIN_PASS = 'SRA@Admin2025';
 
 /* ══ DATA CACHE ══ */
-let D = { students:[], payments:[], consultations:[], forum:[] };
+let D = { students:[], payments:[], consultations:[], forum:[], users:[] };
 
 /* ══ LOGIN (OPTION 1 ONLY) ══ */
 function doLogin(){
@@ -365,6 +383,20 @@ function showDebug(msg){
   el.innerHTML += msg + '<br/>';
 }
 
+async function fetchUserQueries(){
+  try {
+    const res = await fetch('api/get_users.php');
+    if(res.ok){
+      const json = await res.json();
+      if(json && json.data) return json.data;
+    }
+  } catch(e){
+    showDebug(`ℹ️ Registered Users DB endpoint fallback active.`);
+  }
+  const local = localStorage.getItem('sra_user_db');
+  return local ? JSON.parse(local) : [];
+}
+
 async function loadAll(){
   document.getElementById('debugBox').innerHTML='';
   document.getElementById('debugBox').classList.remove('show');
@@ -372,17 +404,19 @@ async function loadAll(){
 
   setLoading();
 
-  const [students, payments, consultations, forum] = await Promise.all([
+  const [students, payments, consultations, forum, users] = await Promise.all([
     fetchTable('students'),
     fetchTable('payments'),
     fetchTable('consultations'),
     fetchTable('forum_posts'),
+    fetchUserQueries(),
   ]);
 
   D.students     = students;
   D.payments     = payments;
   D.consultations= consultations;
   D.forum        = forum;
+  D.users        = users;
 
   renderAll();
 
@@ -392,7 +426,7 @@ async function loadAll(){
 }
 
 function setLoading(){
-  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','recent-students'].forEach(id=>{
+  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','recent-students'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML=`<tr><td colspan="10" class="loading-row"><span class="spin"></span> Loading...</td></tr>`;
   });
@@ -423,6 +457,21 @@ function renderAll(){
   renderPaymentRows('payments-tbody', D.payments);
   renderConsultRows('consultations-tbody', D.consultations);
   renderForumRows('forum-tbody', D.forum);
+  renderUserQueryRows('users-tbody', D.users);
+}
+
+function renderUserQueryRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No registered user queries logged yet</td></tr>`; return; }
+  el.innerHTML=rows.map(u=>`<tr>
+    <td>${wa(u.phone)}</td>
+    <td><div class="name-cell">${safe(u.candidate_name || u.name)}</div></td>
+    <td style="font-size:12px">${safe(u.dob)}</td>
+    <td style="font-size:12px">${safe(u.tob)}</td>
+    <td style="font-size:12px">${safe(u.location)}</td>
+    <td style="font-size:11px;font-family:monospace;color:var(--muted)">${safe(u.latitude || u.lat)}, ${safe(u.longitude || u.lon)}</td>
+    <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
+  </tr>`).join('');
 }
 
 function renderStudentRows(tbodyId, rows){
@@ -496,6 +545,10 @@ function exportCSV(type){
     headers=['Name','Email','Phone','Plan','Amount','Status','Payment ID','Date'];
     rows=D.payments.map(p=>[p.student_name,p.student_email,p.student_phone,p.plan_name,p.amount,p.status,p.razorpay_payment_id,fmtDate(p.created_at)]);
     filename='SRA_Payments.csv';
+  } else if(type==='users'){
+    headers=['Mobile Phone','Candidate Name','DOB','TOB','Location','Latitude','Longitude','Logged Date'];
+    rows=D.users.map(u=>[u.phone, u.candidate_name||u.name, u.dob, u.tob, u.location, u.latitude||u.lat, u.longitude||u.lon, u.created_at||u.logged_at]);
+    filename='SRA_Registered_Users.csv';
   } else {
     headers=['Name','Phone','Email','DOB','Place','Question','Date'];
     rows=D.consultations.map(c=>[c.full_name,c.phone,c.email,c.dob,c.place_of_birth,c.question,fmtDate(c.created_at)]);
@@ -513,7 +566,7 @@ function showPanel(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
   event.currentTarget.classList.add('active');
-  const titles={overview:'Overview',students:'Students',payments:'Payments',consultations:'Consultations',forum:'Forum Posts'};
+  const titles={overview:'Overview',users:'Registered Users & Kundli Query Log',students:'Students',payments:'Payments',consultations:'Consultations',forum:'Forum Posts'};
   document.getElementById('panelTitle').textContent=titles[name]||name;
 }
 </script>

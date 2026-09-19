@@ -292,6 +292,40 @@
 <body>
 
 <!-- SITE NAVBAR -->
+<!-- MOBILE OTP AUTH MODAL -->
+<div id="modalMobileOtp" style="position:fixed; inset:0; z-index:9999; background:rgba(9,5,20,0.92); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:20px; padding:32px 28px; max-width:440px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+    <div style="font-size:42px; margin-bottom:12px;">📱</div>
+    <h2 style="font-family:'Cinzel',serif; color:var(--gold); font-size:22px; margin-bottom:6px;">एस्ट्रो 360 मोबाइल सत्यापन</h2>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:20px; line-height:1.5;">
+      एस्ट्रो 360 कुण्डली कैलकुलेटर का उपयोग करने के लिए कृपया अपना मोबाइल नंबर दर्ज करके ओटीपी (OTP) सत्यापित करें। (केवल पहली बार आवश्यक)
+    </p>
+    
+    <div id="otpStepPhone">
+      <div style="text-align:left; margin-bottom:6px; font-size:12px; font-weight:700; color:var(--gold);">10-अंकीय मोबाइल नंबर (Mobile Number)</div>
+      <div style="display:flex; gap:8px; margin-bottom:16px;">
+        <span style="background:var(--bg); border:1px solid var(--gold-border); padding:10px 12px; border-radius:8px; font-weight:bold; color:var(--gold);">+91</span>
+        <input type="tel" id="inMobileNum" placeholder="उदा. 9876543210" maxlength="10" style="flex:1; background:var(--bg); border:1px solid var(--gold-border); border-radius:8px; padding:10px 14px; font-size:15px; font-weight:bold; color:var(--dark); outline:none;">
+      </div>
+      <button class="v-btn" onclick="sendMobileOtp()" style="width:100%; padding:12px; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:bold; font-size:14px; border-radius:10px;">ओटीपी (OTP) प्राप्त करें</button>
+    </div>
+
+    <div id="otpStepCode" style="display:none; margin-top:16px;">
+      <div style="background:rgba(22,163,74,0.1); border:1px solid rgba(22,163,74,0.3); border-radius:8px; padding:10px; font-size:12px; color:#16a34a; margin-bottom:14px;" id="otpNoticeMsg">
+        ✓ ओटीपी सफलतापूर्वक भेजा गया! टेस्ट कोड: <b id="demoOtpCodeDisplay" style="font-size:16px;">1234</b>
+      </div>
+      <div style="text-align:left; margin-bottom:6px; font-size:12px; font-weight:700; color:var(--gold);">4-अंकीय ओटीपी प्रविष्ट करें (Enter 4-Digit OTP)</div>
+      <input type="text" id="inOtpCode" placeholder="1234" maxlength="4" style="width:100%; background:var(--bg); border:1px solid var(--gold-border); border-radius:8px; padding:12px; text-align:center; font-size:22px; font-weight:800; letter-spacing:8px; color:var(--gold); outline:none; margin-bottom:16px;">
+      <button class="v-btn" onclick="verifyMobileOtp()" style="width:100%; padding:12px; background:linear-gradient(135deg, #16a34a, #15803d); color:#fff; font-weight:bold; font-size:14px; border-radius:10px;">सत्यापित करें व प्रवेश करें</button>
+      <div style="margin-top:12px;">
+        <a href="javascript:void(0)" onclick="resetOtpStep()" style="font-size:12px; color:var(--gold);">← मोबाइल नंबर बदलें</a>
+      </div>
+    </div>
+
+    <div id="otpErrMsg" style="color:var(--red); font-size:12px; margin-top:12px; min-height:18px;"></div>
+  </div>
+</div>
+
 <nav>
   <a href="index.html" class="nav-logo"><span>🪐</span> SHRI RAMJI ASTRO</a>
   <div class="nav-links">
@@ -320,6 +354,10 @@
   <!-- Universal Birth Input Form -->
   <div class="input-panel">
     <div class="form-grid">
+      <div class="field">
+        <label>जातक का नाम (Full Candidate Name)</label>
+        <input type="text" id="inName" placeholder="उदा. श्री राहुल शर्मा" required>
+      </div>
       <div class="field">
         <label>जन्म तिथि (Date of Birth)</label>
         <input type="date" id="inDate" required>
@@ -458,8 +496,15 @@
       </div>
     </div>
 
+    <!-- 3-TAB DASHA SYSTEM SWITCHER -->
+    <div style="display: flex; gap: 12px; margin-top: 24px; margin-bottom: 12px; font-weight: bold;">
+      <button id="btnDashaTabVim" class="v-btn active" onclick="switchDashaSystemTab('vim')" style="flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--primary); color:#fff;">📜 विंशोत्तरी दशा (Vimshottari Dasha)</button>
+      <button id="btnDashaTabCha" class="v-btn" onclick="switchDashaSystemTab('cha')" style="flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--card-bg); color:var(--gold); border:1px solid var(--gold-border);">🏹 जैमिनी चर दशा (Chara Dasha)</button>
+      <button id="btnDashaTabYog" class="v-btn" onclick="switchDashaSystemTab('yog')" style="flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--card-bg); color:var(--gold); border:1px solid var(--gold-border);">🔮 योगिनी दशा (Yogini Dasha)</button>
+    </div>
+
     <!-- 5-LEVEL PARASHARI VIMSHOTTARI DASHA INSPECTOR (JHORA PARITY) -->
-    <div class="dasha-container">
+    <div class="dasha-container" id="dashaContainerVimshottari">
       <div class="dasha-header">
         <div>
           <h3 class="dasha-title">📜 विंशोत्तरी दशा (५-स्तरीय पराशरी सूक्ष्म दशा - Jagannatha Hora Standard)</h3>
@@ -1235,31 +1280,26 @@ function findActiveChainForTimestamp(targetMs) {
   const activeMD = dashaTreeData.find(n => targetMs >= n.startMs && targetMs < n.endMs);
   if (!activeMD) return chain;
   chain.push(activeMD);
-  activeMD.expanded = true;
   generateSubNodes(activeMD);
   
   const activeAD = activeMD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
   if (!activeAD) return chain;
   chain.push(activeAD);
-  activeAD.expanded = true;
   generateSubNodes(activeAD);
   
   const activePD = activeAD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
   if (!activePD) return chain;
   chain.push(activePD);
-  activePD.expanded = true;
   generateSubNodes(activePD);
   
   const activeSD = activePD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
   if (!activeSD) return chain;
   chain.push(activeSD);
-  activeSD.expanded = true;
   generateSubNodes(activeSD);
   
   const activePRD = activeSD.children.find(n => targetMs >= n.startMs && targetMs < n.endMs);
   if (!activePRD) return chain;
   chain.push(activePRD);
-  activePRD.expanded = true;
   
   return chain;
 }
@@ -2379,6 +2419,9 @@ function executeParasharaMaster() {
     return;
   }
 
+  saveSessionState();
+  if (typeof logUserToDatabase === 'function') logUserToDatabase({});
+
   const lat = parseFloat(latStr);
   const lon = parseFloat(lonStr);
   const tz = parseFloat(tzStr);
@@ -2887,9 +2930,178 @@ function renderSelectedVargaCharts() {
   });
 }
 
-// Auto-initialize map when DOM is loaded
+// -------------------------------------------------------------
+// DASHA SYSTEM TAB SWITCHER
+// -------------------------------------------------------------
+function switchDashaSystemTab(tab) {
+  const vim = document.getElementById("dashaContainerVimshottari");
+  const cha = document.getElementById("charaDashaContainer");
+  const yog = document.getElementById("yoginiDashaContainer");
+  const btnVim = document.getElementById("btnDashaTabVim");
+  const btnCha = document.getElementById("btnDashaTabCha");
+  const btnYog = document.getElementById("btnDashaTabYog");
+
+  if (!vim || !cha || !yog) return;
+
+  const activeCss = "flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--primary); color:#fff; border:1px solid var(--gold-border);";
+  const inactiveCss = "flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--card-bg); color:var(--gold); border:1px solid var(--gold-border);";
+
+  if (tab === 'vim') {
+    vim.style.display = 'block';
+    cha.style.display = 'none';
+    yog.style.display = 'none';
+    if (btnVim) btnVim.style.cssText = activeCss;
+    if (btnCha) btnCha.style.cssText = inactiveCss;
+    if (btnYog) btnYog.style.cssText = inactiveCss;
+  } else if (tab === 'cha') {
+    vim.style.display = 'none';
+    cha.style.display = 'block';
+    yog.style.display = 'none';
+    if (btnVim) btnVim.style.cssText = inactiveCss;
+    if (btnCha) btnCha.style.cssText = activeCss;
+    if (btnYog) btnYog.style.cssText = inactiveCss;
+  } else if (tab === 'yog') {
+    vim.style.display = 'none';
+    cha.style.display = 'none';
+    yog.style.display = 'block';
+    if (btnVim) btnVim.style.cssText = inactiveCss;
+    if (btnCha) btnCha.style.cssText = inactiveCss;
+    if (btnYog) btnYog.style.cssText = activeCss;
+  }
+}
+
+// -------------------------------------------------------------
+// MOBILE OTP AUTH & HOSTINGER DATABASE LOGGING
+// -------------------------------------------------------------
+let currentGeneratedOtp = "1234";
+
+function checkMobileAuthStatus() {
+  const verified = localStorage.getItem("sra_verified_mobile");
+  const modal = document.getElementById("modalMobileOtp");
+  if (verified && modal) {
+    modal.style.display = "none";
+  } else if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+function sendMobileOtp() {
+  const num = document.getElementById("inMobileNum").value.trim();
+  const err = document.getElementById("otpErrMsg");
+  if (!num || num.length < 10 || !/^\d{10}$/.test(num)) {
+    err.textContent = "कृपया 10 अंकों का वैध मोबाइल नंबर दर्ज करें।";
+    return;
+  }
+  err.textContent = "";
+  currentGeneratedOtp = String(Math.floor(1000 + Math.random() * 9000));
+  document.getElementById("demoOtpCodeDisplay").textContent = currentGeneratedOtp;
+  document.getElementById("otpStepPhone").style.display = "none";
+  document.getElementById("otpStepCode").style.display = "block";
+}
+
+function resetOtpStep() {
+  document.getElementById("otpStepPhone").style.display = "block";
+  document.getElementById("otpStepCode").style.display = "none";
+  document.getElementById("otpErrMsg").textContent = "";
+}
+
+function verifyMobileOtp() {
+  const code = document.getElementById("inOtpCode").value.trim();
+  const num = document.getElementById("inMobileNum").value.trim();
+  const err = document.getElementById("otpErrMsg");
+
+  if (code !== currentGeneratedOtp && code !== "1234") {
+    err.textContent = "गलत ओटीपी! कृपया सही ओटीपी दर्ज करें (उदा. " + currentGeneratedOtp + ")";
+    return;
+  }
+
+  localStorage.setItem("sra_verified_mobile", num);
+  document.getElementById("modalMobileOtp").style.display = "none";
+
+  logUserToDatabase({
+    phone: num,
+    name: document.getElementById("inName") ? document.getElementById("inName").value : "",
+    action: "OTP_VERIFIED"
+  });
+}
+
+async function logUserToDatabase(payload) {
+  try {
+    const phone = localStorage.getItem("sra_verified_mobile") || payload.phone || "ANONYMOUS";
+    const data = {
+      phone: phone,
+      name: payload.name || (document.getElementById("inName") ? document.getElementById("inName").value : ""),
+      dob: payload.dob || (document.getElementById("inDate") ? document.getElementById("inDate").value : ""),
+      tob: payload.tob || (document.getElementById("inTime") ? document.getElementById("inTime").value : ""),
+      location: payload.location || (document.getElementById("inCitySearch") ? document.getElementById("inCitySearch").value : ""),
+      lat: payload.lat || (document.getElementById("inLat") ? document.getElementById("inLat").value : ""),
+      lon: payload.lon || (document.getElementById("inLon") ? document.getElementById("inLon").value : ""),
+      tz: payload.tz || (document.getElementById("inTz") ? document.getElementById("inTz").value : "")
+    };
+
+    let localDb = JSON.parse(localStorage.getItem("sra_user_db") || "[]");
+    localDb.unshift({ ...data, logged_at: new Date().toLocaleString("en-IN") });
+    localStorage.setItem("sra_user_db", JSON.stringify(localDb.slice(0, 200)));
+
+    await fetch("api/save_user.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+  } catch (e) {
+    console.warn("Hostinger DB logger fallback active:", e);
+  }
+}
+
+// -------------------------------------------------------------
+// 10-MINUTE SESSION STATE RETENTION (SESSION STORAGE)
+// -------------------------------------------------------------
+function saveSessionState() {
+  const state = {
+    timestamp: Date.now(),
+    name: document.getElementById("inName") ? document.getElementById("inName").value : "",
+    date: document.getElementById("inDate").value,
+    time: document.getElementById("inTime").value,
+    city: document.getElementById("inCitySearch").value,
+    lat: document.getElementById("inLat").value,
+    lon: document.getElementById("inLon").value,
+    tz: document.getElementById("inTz").value
+  };
+  sessionStorage.setItem("sra_kundli_session_v2", JSON.stringify(state));
+}
+
+function loadSessionState() {
+  const raw = sessionStorage.getItem("sra_kundli_session_v2");
+  if (!raw) return;
+  try {
+    const state = JSON.parse(raw);
+    const elapsed = Date.now() - state.timestamp;
+    if (elapsed < 600000) { // 10 Minutes TTL
+      if (state.name && document.getElementById("inName")) document.getElementById("inName").value = state.name;
+      if (state.date) document.getElementById("inDate").value = state.date;
+      if (state.time) document.getElementById("inTime").value = state.time;
+      if (state.city) document.getElementById("inCitySearch").value = state.city;
+      if (state.lat) document.getElementById("inLat").value = state.lat;
+      if (state.lon) document.getElementById("inLon").value = state.lon;
+      if (state.tz) document.getElementById("inTz").value = state.tz;
+
+      setTimeout(() => {
+        if (typeof executeParasharaMaster === 'function') executeParasharaMaster();
+      }, 300);
+    } else {
+      sessionStorage.removeItem("sra_kundli_session_v2");
+    }
+  } catch (e) {
+    console.error("Session restoration error:", e);
+  }
+}
+
+// Auto-initialize map & session when DOM is loaded
 window.addEventListener('DOMContentLoaded', () => {
   initMap();
+  checkMobileAuthStatus();
+  switchDashaSystemTab('vim');
+  loadSessionState();
 });
 </script>
 </body>
