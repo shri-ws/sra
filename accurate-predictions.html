@@ -498,6 +498,60 @@
       </div>
     </div>
 
+    <!-- JAIMINI CHARA DASHA SYSTEM (BPHS CH. 46 / JAIMINI UPADESA SUTRAS) -->
+    <div class="dasha-container" id="charaDashaContainer">
+      <div class="dasha-header">
+        <div>
+          <h3 class="dasha-title">🏹 जैमिनी चर दशा (Jaimini Chara Rasi Dasha System - BPHS Ch. 46)</h3>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+            Sign-Based Rasi Dasha (1 to 12 Years per Sign) • Savya / Apsavya Cycle
+          </p>
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="dasha-table">
+          <thead>
+            <tr>
+              <th style="width: 35%;">राशि दशा (Rasi Dasha Sign)</th>
+              <th style="width: 15%;">अवधि (Years)</th>
+              <th style="width: 25%;">आरम्भ तिथि (Start Date)</th>
+              <th style="width: 25%;">समाप्ति तिथि (End Date)</th>
+            </tr>
+          </thead>
+          <tbody id="tblCharaDashaTree">
+            <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर चर दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- YOGINI DASHA SYSTEM (36-YEAR NAKSHATRA CYCLE) -->
+    <div class="dasha-container" id="yoginiDashaContainer">
+      <div class="dasha-header">
+        <div>
+          <h3 class="dasha-title">🔮 योगिनी दशा (36-Year Yogini Nakshatra Cycle)</h3>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+            Mangala (1Y) • Pingala (2Y) • Dhanya (3Y) • Bhramari (4Y) • Bhadrika (5Y) • Ulka (6Y) • Siddha (7Y) • Sankata (8Y)
+          </p>
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="dasha-table">
+          <thead>
+            <tr>
+              <th style="width: 35%;">योगिनी दशा स्वामी (Yogini Dasha)</th>
+              <th style="width: 15%;">अवधि (Years)</th>
+              <th style="width: 25%;">आरम्भ तिथि (Start Date)</th>
+              <th style="width: 25%;">समाप्ति तिथि (End Date)</th>
+            </tr>
+          </thead>
+          <tbody id="tblYoginiDashaTree">
+            <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर योगिनी दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- BPHS 10-FACTOR MULTI-PARAMETRIC SINUSOIDAL LIFE WAVE & MILESTONE ENGINE -->
     <div class="lifewave-container" id="lifewaveContainer">
       <div class="dasha-header">
@@ -507,10 +561,15 @@
             Sthana Bala • Avastha • Functional Benefic • Sripati Chalit • Shodashvarga • Drishti • Yogas • Karakas • Dasha Matrix • Gochar
           </p>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:12px; padding:6px 12px;">🌐 संपूर्ण जीवन (100 Years)</button>
-          <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:12px; padding:6px 12px;">🔮 वर्तमान महादशा</button>
-          <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO')" id="btnWindowMicro" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:12px; padding:6px 12px;">⚡ 5-स्तरीय सूक्ष्म दशा</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+          <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:6px; overflow:hidden;">
+            <button class="v-btn" onclick="setDashaSynthesisMode('CUMULATIVE')" id="btnDashaCum" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px; border-radius:0;">🌐 त्रिदशा संयुक्त तरंग (Cumulative)</button>
+            <button class="v-btn" onclick="setDashaSynthesisMode('VIMSHOTTARI')" id="btnDashaVim" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">📜 विंशोत्तरी</button>
+            <button class="v-btn" onclick="setDashaSynthesisMode('CHARA')" id="btnDashaCha" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🏹 चर दशा</button>
+            <button class="v-btn" onclick="setDashaSynthesisMode('YOGINI')" id="btnDashaYog" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🔮 योगिनी</button>
+          </div>
+          <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px;">🌐 100 Years</button>
+          <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔮 महादशा</button>
         </div>
       </div>
 
@@ -611,6 +670,7 @@ const NAKSHATRAS = [
 ];
 
 const VARGAS_CONFIG = [
+  { id: "GOCHAR", name: "🌌 गोचर कुण्डली (Real-Time Transits)" },
   { id: 1, name: "D1 राशि" },
   { id: 2, name: "D2 होरा" },
   { id: 3, name: "D3 द्रेष्काण" },
@@ -1365,6 +1425,242 @@ function renderDashaTreeUI() {
   dashaTreeData.forEach(mdNode => appendNodeRows(mdNode));
   
   tbody.innerHTML = rowsHtml;
+}
+
+// -------------------------------------------------------------
+// JAIMINI CHARA DASHA ENGINE (BPHS CH. 46 / JAIMINI SUTRAS)
+// -------------------------------------------------------------
+let charaDashaData = [];
+
+function computeJaiminiCharaDasha(lagnaSign, birthDateObj) {
+  const birthMs = birthDateObj.getTime();
+  charaDashaData = [];
+
+  const RASI_LORDS_MAP = {
+    0: "Mars", 1: "Venus", 2: "Mercury", 3: "Moon",
+    4: "Sun", 5: "Mercury", 6: "Venus", 7: "Mars",
+    8: "Jupiter", 9: "Saturn", 10: "Saturn", 11: "Jupiter"
+  };
+
+  const isDirectOrder = (lagnaSign % 2 === 0);
+  let cursorMs = birthMs;
+
+  for (let i = 0; i < 12; i++) {
+    const rasiSign = isDirectOrder ? (lagnaSign + i) % 12 : (lagnaSign - i + 12) % 12;
+    const rasiLordId = RASI_LORDS_MAP[rasiSign];
+    const lordObj = currentCalculation.planets ? currentCalculation.planets.find(p => p.id === rasiLordId) : null;
+    const lordSign = lordObj ? lordObj.sign : rasiSign;
+
+    let yrs = 0;
+    if (rasiSign % 2 === 0) {
+      yrs = (lordSign - rasiSign + 12) % 12;
+    } else {
+      yrs = (rasiSign - lordSign + 12) % 12;
+    }
+    if (yrs === 0) yrs = 12;
+
+    const durMs = yrs * MS_PER_SOLAR_YEAR;
+    const endMs = cursorMs + durMs;
+
+    charaDashaData.push({
+      signIndex: rasiSign,
+      signName: SIGNS[rasiSign],
+      years: yrs,
+      startMs: cursorMs,
+      endMs: endMs,
+      startDate: new Date(cursorMs),
+      endDate: new Date(endMs)
+    });
+
+    cursorMs = endMs;
+  }
+
+  renderCharaDashaUI();
+}
+
+function renderCharaDashaUI() {
+  const tbody = document.getElementById("tblCharaDashaTree");
+  if (!tbody) return;
+
+  const nowMs = Date.now();
+  let html = "";
+
+  charaDashaData.forEach(d => {
+    const isActive = (nowMs >= d.startMs && nowMs < d.endMs);
+    const activeClass = isActive ? "dasha-row-active" : "";
+    const activeBadge = isActive ? `<span class="dasha-badge-active">⚡ सक्रिय (Active Today)</span>` : "";
+
+    html += `<tr class="${activeClass}">
+      <td style="padding-left:14px;">
+        <strong style="color:var(--primary); font-size:14px;">🏹 ${d.signName} (Chara Dasha)</strong>
+        ${activeBadge}
+      </td>
+      <td><strong>${d.years} वर्ष</strong></td>
+      <td style="font-family:monospace;">${formatDashaDate(d.startDate)}</td>
+      <td style="font-family:monospace;">${formatDashaDate(d.endDate)}</td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html;
+}
+
+// -------------------------------------------------------------
+// YOGINI DASHA ENGINE (36-YEAR NAKSHATRA CYCLE)
+// -------------------------------------------------------------
+const YOGINI_LORDS = [
+  { name: "मंगला (Moon)", lord: "Moon", years: 1, color: "#2980B9" },
+  { name: "पिँगला (Sun)", lord: "Sun", years: 2, color: "#D35400" },
+  { name: "धान्या (Jupiter)", lord: "Jupiter", years: 3, color: "#D4AC0D" },
+  { name: "भ्रामरी (Mars)", lord: "Mars", years: 4, color: "#C0392B" },
+  { name: "भद्रिका (Mercury)", lord: "Mercury", years: 5, color: "#27AE60" },
+  { name: "उल्का (Saturn)", lord: "Saturn", years: 6, color: "#34495E" },
+  { name: "सिद्ध (Venus)", lord: "Venus", years: 7, color: "#E91E63" },
+  { name: "सँकटा (Rahu)", lord: "Rahu", years: 8, color: "#2C3E50" }
+];
+
+let yoginiDashaData = [];
+
+function computeYoginiDasha(moonAbsDeg, birthDateObj) {
+  const birthMs = birthDateObj.getTime();
+  yoginiDashaData = [];
+
+  const nakLen = 13 + 20 / 60;
+  const nakIndex = Math.floor(moonAbsDeg / nakLen);
+  const nakElapsed = moonAbsDeg % nakLen;
+  const remFraction = 1.0 - (nakElapsed / nakLen);
+
+  const startYoginiIdx = (nakIndex + 3) % 8;
+  const firstYogini = YOGINI_LORDS[startYoginiIdx];
+  const firstDurMs = firstYogini.years * remFraction * MS_PER_SOLAR_YEAR;
+
+  let cursorMs = birthMs;
+
+  for (let cycle = 0; cycle < 4; cycle++) {
+    for (let i = 0; i < 8; i++) {
+      const idx = (startYoginiIdx + i) % 8;
+      const yLord = YOGINI_LORDS[idx];
+      let durMs = yLord.years * MS_PER_SOLAR_YEAR;
+
+      if (cycle === 0 && i === 0) {
+        durMs = firstDurMs;
+      }
+
+      const endMs = cursorMs + durMs;
+
+      if (cursorMs < birthMs + (100 * MS_PER_SOLAR_YEAR)) {
+        yoginiDashaData.push({
+          name: yLord.name,
+          years: (durMs / MS_PER_SOLAR_YEAR).toFixed(1),
+          color: yLord.color,
+          startMs: cursorMs,
+          endMs: endMs,
+          startDate: new Date(cursorMs),
+          endDate: new Date(endMs)
+        });
+      }
+
+      cursorMs = endMs;
+    }
+  }
+
+  renderYoginiDashaUI();
+}
+
+function renderYoginiDashaUI() {
+  const tbody = document.getElementById("tblYoginiDashaTree");
+  if (!tbody) return;
+
+  const nowMs = Date.now();
+  let html = "";
+
+  yoginiDashaData.forEach(d => {
+    const isActive = (nowMs >= d.startMs && nowMs < d.endMs);
+    const activeClass = isActive ? "dasha-row-active" : "";
+    const activeBadge = isActive ? `<span class="dasha-badge-active">⚡ सक्रिय (Active Today)</span>` : "";
+
+    html += `<tr class="${activeClass}">
+      <td style="padding-left:14px;">
+        <strong style="color:${d.color}; font-size:14px;">🔮 ${d.name}</strong>
+        ${activeBadge}
+      </td>
+      <td><strong>${d.years} वर्ष</strong></td>
+      <td style="font-family:monospace;">${formatDashaDate(d.startDate)}</td>
+      <td style="font-family:monospace;">${formatDashaDate(d.endDate)}</td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html;
+}
+
+// -------------------------------------------------------------
+// COMPREHENSIVE BPHS YOGA & NEECHABHANGA DETECTOR ENGINE
+// -------------------------------------------------------------
+function detectBPHSYogasAndNeechabhanga(natalData) {
+  if (!natalData || !natalData.planets) return [];
+  const planets = natalData.planets;
+  const lagnaSign = natalData.lagnaSign;
+  const yogas = [];
+
+  planets.forEach(p => {
+    if (p.id === "Lagna" || p.id === "Rahu" || p.id === "Ketu") return;
+    if (p.sign === PLANET_DEBILITATION_SIGNS[p.id]) {
+      const exaltLordId = Object.keys(PLANET_EXALTATION_SIGNS).find(k => PLANET_EXALTATION_SIGNS[k] === p.sign);
+      const exaltLord = planets.find(x => x.id === exaltLordId);
+      let nb1 = false;
+      if (exaltLord && [1, 4, 7, 10].includes(exaltLord.rasiHouse)) nb1 = true;
+
+      const d9Sign = getVargaSign(p.sign, p.deg, 9);
+      let nb2 = (d9Sign === p.sign || d9Sign === PLANET_EXALTATION_SIGNS[p.id]);
+
+      if (nb1 || nb2) {
+        yogas.push({
+          title: `🌟 नीचभंग राजयोग (${p.name})`,
+          desc: `${p.name} तुला/नीच राशि में होकर भी नीचभंग राजयोग प्राप्त कर रहा है। जीवन में बाधाओं के पश्चात अकस्मात भारी सफलता।`
+        });
+      }
+    }
+  });
+
+  const MAHA_PUL_CONFIG = [
+    { id: "Mars", yoga: "रुचक महापुरुष योग", cond: [0, 7, 9] },
+    { id: "Mercury", yoga: "भद्र महापुरुष योग", cond: [2, 5] },
+    { id: "Jupiter", yoga: "हंस महापुरुष योग", cond: [3, 8, 11] },
+    { id: "Venus", yoga: "मालव्य महापुरुष योग", cond: [1, 6, 11] },
+    { id: "Saturn", yoga: "शश महापुरुष योग", cond: [6, 9, 10] }
+  ];
+
+  MAHA_PUL_CONFIG.forEach(mp => {
+    const p = planets.find(x => x.id === mp.id);
+    if (p && [1, 4, 7, 10].includes(p.rasiHouse) && mp.cond.includes(p.sign)) {
+      yogas.push({
+        title: `👑 ${mp.yoga} (${p.name})`,
+        desc: `${p.name} केन्द्र स्थान में उच्च/स्वराशि होकर महापुरुष योग निर्मित कर रहा है। समाज में उच्च पद, सत्ता व समृद्धि।`
+      });
+    }
+  });
+
+  const sun = planets.find(p => p.id === "Sun");
+  const merc = planets.find(p => p.id === "Mercury");
+  if (sun && merc && sun.sign === merc.sign) {
+    yogas.push({
+      title: "📚 बुधादित्य योग (सूर्य + बुध)",
+      desc: "सूर्य और बुध की एक ही राशि में युति से प्रखर बुद्धि, व्यापारिक चातुर्य व प्रशासनिक सफलता।"
+    });
+  }
+
+  const moon = planets.find(p => p.id === "Moon");
+  const jup = planets.find(p => p.id === "Jupiter");
+  if (moon && jup) {
+    const dist = (jup.sign - moon.sign + 12) % 12 + 1;
+    if ([1, 4, 7, 10].includes(dist)) {
+      yogas.push({
+        title: "🐘 गजकेसरी योग (गुरु + चन्द्र)",
+        desc: "चन्द्रमा से गुरु का केन्द्र स्थान में होना गजकेसरी योग बनाता है। समाज में अखंड कीर्ति, ज्ञान व धन प्राप्ति।"
+      });
+    }
+  }
+
+  return yogas;
 }
 
 // -------------------------------------------------------------
@@ -2233,6 +2529,8 @@ function executeParasharaMaster() {
   const moonObj = planets.find(p => p.id === "Moon");
   if (moonObj) {
     compute5LevelVimshottari(birthDateObj, moonObj.abs);
+    computeJaiminiCharaDasha(lagnaSign, birthDateObj);
+    computeYoginiDasha(moonObj.abs, birthDateObj);
   }
 }
 
