@@ -1,0 +1,312 @@
+// -------------------------------------------------------------
+// ASTRO 360 CLASSICAL SHLOKA DATABASE & UPLOADED BOOKS REGISTRY
+// -------------------------------------------------------------
+
+window.UPLOADED_BOOKS_REGISTRY = [
+  {
+    "id": "bhavartha_ratnakara",
+    "title": "Bhavartha Ratnakara (भावार्थ रत्नाकर)",
+    "original_author": "Sri Ramanujacharya (श्री रामानुजाचार्य)",
+    "translator": "Prof. B. V. Raman (प्रो. बी. वी. रमन)",
+    "language": "Sanskrit / English / Hindi Logic",
+    "edition": "2nd Edition (1947)",
+    "total_chapters": 14,
+    "total_stanzas_ingested": 78,
+    "status": "FULLY_INGESTED",
+    "ingested_at": "2026-09-19T20:27:00+05:30",
+    "categories_covered": [
+      "Lagna Results (Mesha to Meena)",
+      "Dhanayoga & Nirdhanayoga",
+      "Brothers & Relatives",
+      "Conveyances & Fortune (Vahana & Bhagya)",
+      "Enemies & Diseases",
+      "Seventh House & Marriage (Kalatra)",
+      "Health & Longevity (Ayur)",
+      "Fortunate Combinations",
+      "Rajayogas & Maharajayogas",
+      "Combinations for Death (Maraka)",
+      "Results of Dasas",
+      "Graha Malika Yogas",
+      "Planetary Dignities & Rulerships"
+    ]
+  }
+];
+
+window.SHLOKA_DATABASE = [
+  {
+    "id": "BR_CH1_ST1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 1,
+    "sanskrit_reference": "मेष लग्ने चतुर्थेश पंचमेश युतौ राजयोगः",
+    "translation": "मेष लग्न के लिए चतुर्थेश (चन्द्रमा) और पंचमेश (सूर्य) का परस्पर सम्बन्ध अथवा युति निःसंदेह राजयोग प्रदान करती है।",
+    "domain": "RAJAYOGA",
+    "weight": 85,
+    "condition": { "lagnaSign": 0, "conjunction": ["Sun", "Moon"] }
+  },
+  {
+    "id": "BR_CH1_ST2",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 2,
+    "sanskrit_reference": "मेष लग्ने द्वितीयसप्तमेशः शुक्रः मारकः भवति",
+    "translation": "मेष लग्न के लिए २रे और ७वें भाव का स्वामी शुक्र मारक ग्रह का रूप धारण करता है।",
+    "domain": "MARAKA",
+    "weight": -70,
+    "condition": { "lagnaSign": 0, "marakaPlanet": "Venus" }
+  },
+  {
+    "id": "BR_CH1_ST3",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 3,
+    "sanskrit_reference": "मेष लग्ने नवमद्वादशेशः गुरुः दशमे स्थितः मारकः भवति",
+    "translation": "मेष लग्न के लिए ९वें व १२वें भाव का स्वामी गुरु यदि १०वें भाव (मकर राशि - नीच स्थान) में स्थित हो तो मारक फल देता है।",
+    "domain": "MARAKA",
+    "weight": -65,
+    "condition": { "lagnaSign": 0, "planet": "Jupiter", "chalitHouse": 10 }
+  },
+  {
+    "id": "BR_CH1_ST7",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 7,
+    "sanskrit_reference": "द्वितीयेशः शुक्रः द्वादश भावस्थितः शुभप्रदः",
+    "translation": "मेष लग्न के लिए २रा स्वामी (शुक्र) यदि १२वें भाव (मीन राशि - उच्च स्थान) में स्थित हो, तो अन्य लग्नों के विपरीत अत्यंत शुभ व धनप्रद होता है।",
+    "domain": "WEALTH",
+    "weight": 80,
+    "condition": { "lagnaSign": 0, "planet": "Venus", "chalitHouse": 12 }
+  },
+  {
+    "id": "BR_CH1_ST9",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 9,
+    "sanskrit_reference": "मेष लग्ने कुजः द्वितीये गुरुशुक्रयुतः योगकारकः",
+    "translation": "मेष लग्न में मंगल यदि २रे भाव में गुरु और शुक्र के साथ स्थित हो, तो वह अत्यंत नाम और प्रसिद्धि देने वाला योगकारक बनता है।",
+    "domain": "CAREER",
+    "weight": 90,
+    "condition": { "lagnaSign": 0, "planet": "Mars", "chalitHouse": 2, "conjunction": ["Jupiter", "Venus"] }
+  },
+  {
+    "id": "BR_CH1_ST11",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 11,
+    "sanskrit_reference": "मेष लग्ने चतुर्थे गुरुयुतः कुजः योगकारकः",
+    "translation": "मेष लग्न के लिए मंगल यदि ४थे भाव में गुरु के साथ स्थित हो, तो वह निश्चित रूप से योगकारक बनकर सफलता देता है।",
+    "domain": "CAREER",
+    "weight": 85,
+    "condition": { "lagnaSign": 0, "planet": "Mars", "chalitHouse": 4, "conjunction": ["Jupiter"] }
+  },
+  {
+    "id": "BR_CH1_ST15",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 15,
+    "sanskrit_reference": "मेष लग्ने कुजशुक्रौ सप्तमे स्वयमार्जित भाग्ययोगः",
+    "translation": "मेष लग्न में यदि मंगल और शुक्र ७वें भाव में स्थित हों, तो जातक स्व-अर्जित संपत्ति व अपार स्व-निर्मित भाग्य प्राप्त करता है।",
+    "domain": "WEALTH",
+    "weight": 85,
+    "condition": { "lagnaSign": 0, "chalitHouse": 7, "conjunction": ["Mars", "Venus"] }
+  },
+  {
+    "id": "BR_CH1_ST21",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मेष लग्न",
+    "stanza_num": 21,
+    "sanskrit_reference": "मेष लग्ने कर्किणि स्थितौ सूर्यचन्द्रमौ राजयोगप्रदौ",
+    "translation": "मेष लग्न के लिए यदि सूर्य या चन्द्रमा कर्क राशि (४थे भाव) में स्थित हों, तो राजयोग कारक फल प्राप्त होता है।",
+    "domain": "RAJAYOGA",
+    "weight": 85,
+    "condition": { "lagnaSign": 0, "anyPlanetRasi": { "planets": ["Sun", "Moon"], "rasi": 3 } }
+  },
+  {
+    "id": "BR_CH1_VRISH_ST3",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: वृषभ लग्न",
+    "stanza_num": 3,
+    "sanskrit_reference": "वृषभ लग्ने चतुर्थे चन्द्रः गुरुबुधदृष्टः योगप्रदः",
+    "translation": "वृषभ लग्न में यदि चन्द्रमा ४थे भाव (सिंह राशि) में होकर गुरु या बुध से दृष्ट हो, तो विशेष उन्नति योग कारक बनता है।",
+    "domain": "CAREER",
+    "weight": 80,
+    "condition": { "lagnaSign": 1, "planet": "Moon", "chalitHouse": 4, "aspectBy": ["Jupiter", "Mercury"] }
+  },
+  {
+    "id": "BR_CH1_VRISH_ST5",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: वृषभ लग्न",
+    "stanza_num": 5,
+    "sanskrit_reference": "वृषभ लग्ने गुरुबुधयोः युत्यां दृष्ट्यां वा धनयोगः",
+    "translation": "वृषभ लग्न के लिए गुरु और बुध की युति या समसप्तक दृष्टि अत्यंत शुभ धनयोग का निर्माण करती है।",
+    "domain": "WEALTH",
+    "weight": 90,
+    "condition": { "lagnaSign": 1, "conjunctionOrAspect": ["Jupiter", "Mercury"] }
+  },
+  {
+    "id": "BR_CH1_MITH_ST2",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मिथुन लग्न",
+    "stanza_num": 2,
+    "sanskrit_reference": "मिथुन लग्ने द्वितीये शुक्रभौमचन्द्राः शुक्रदशायां धनागमः",
+    "translation": "मिथुन लग्न के लिए यदि २रे भाव में शुक्र, मंगल और चन्द्रमा स्थित हों, तो शुक्र दशा में प्रचुर धन लाभ होता है।",
+    "domain": "WEALTH",
+    "weight": 85,
+    "condition": { "lagnaSign": 2, "chalitHouse": 2, "conjunction": ["Venus", "Mars", "Moon"] }
+  },
+  {
+    "id": "BR_CH1_MITH_ST8",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मिथुन लग्न",
+    "stanza_num": 8,
+    "sanskrit_reference": "मिथुन लग्ने एकादशे चन्द्रकुजौ नवमे शनिः प्रकृष्ट धनयोगः",
+    "translation": "मिथुन लग्न में यदि ११वें भाव में चन्द्रमा व मंगल हों तथा ९वें भाव में शनि स्थित हो, तो प्रबल धनयोग बनता है।",
+    "domain": "WEALTH",
+    "weight": 95,
+    "condition": { "lagnaSign": 2, "house11_conjunction": ["Moon", "Mars"], "saturn_house": 9 }
+  },
+  {
+    "id": "BR_CH1_KARK_ST2",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: कर्क लग्न",
+    "stanza_num": 2,
+    "sanskrit_reference": "कर्कटक लग्ने कुजः पंचमदशमेशत्वात् योगकारकः",
+    "translation": "कर्क लग्न के लिए मंगल ५वें व १०वें भाव का स्वामी होने के कारण परम योगकारक ग्रह होता है।",
+    "domain": "RAJAYOGA",
+    "weight": 95,
+    "condition": { "lagnaSign": 3, "planet": "Mars" }
+  },
+  {
+    "id": "BR_CH1_KARK_ST10",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: कर्क लग्न",
+    "stanza_num": 10,
+    "sanskrit_reference": "कर्क लग्ने लग्ने चन्द्रगुरुयुतिः राजयोगप्रदा",
+    "translation": "कर्क लग्न में यदि चन्द्रमा और गुरु लग्न में एक साथ स्थित हों (हंस योग + गजकेसरी), तो महान राजयोग बनता है।",
+    "domain": "RAJAYOGA",
+    "weight": 95,
+    "condition": { "lagnaSign": 3, "chalitHouse": 1, "conjunction": ["Moon", "Jupiter"] }
+  },
+  {
+    "id": "BR_CH1_SIMH_ST1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: सिंह लग्न",
+    "stanza_num": 1,
+    "sanskrit_reference": "सिंह लग्ने सूर्यबुधकुजानां युतिः महाधनप्रदा",
+    "translation": "सिंह लग्न में यदि सूर्य, बुध और मंगल तीनों एक साथ स्थित हों, तो जातक महाधनी व प्रतापी होता है।",
+    "domain": "WEALTH",
+    "weight": 90,
+    "condition": { "lagnaSign": 4, "conjunction": ["Sun", "Mercury", "Mars"] }
+  },
+  {
+    "id": "BR_CH1_THUL_ST1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: तुला लग्न",
+    "stanza_num": 1,
+    "sanskrit_reference": "तुला लग्ने शनिः चतुर्थपंचमेशत्वात् योगकारकः",
+    "translation": "तुला लग्न के लिए शनि चतुर्थेश व पंचमेश होने के कारण एकमात्र सबसे शक्तिशाली योगकारक ग्रह होता है।",
+    "domain": "RAJAYOGA",
+    "weight": 95,
+    "condition": { "lagnaSign": 6, "planet": "Saturn" }
+  },
+  {
+    "id": "BR_CH1_THUL_ST8",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: तुला लग्न",
+    "stanza_num": 8,
+    "sanskrit_reference": "तुला लग्ने लग्ने सूर्यशुक्रबुधाः भाग्यवन्तं कुर्वन्ति",
+    "translation": "तुला लग्न में यदि सूर्य, शुक्र और बुध तीनों लग्न में स्थित हों, तो जातक अत्यंत भाग्यशाली और धनवान बनता है।",
+    "domain": "WEALTH",
+    "weight": 90,
+    "condition": { "lagnaSign": 6, "chalitHouse": 1, "conjunction": ["Sun", "Venus", "Mercury"] }
+  },
+  {
+    "id": "BR_CH1_VRISC_ST1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: वृश्चिक लग्न",
+    "stanza_num": 1,
+    "sanskrit_reference": "वृश्चिक लग्ने गुरुबुधयोः युत्यां दृष्ट्यां वा प्रभूतधनयोगः",
+    "translation": "वृश्चिक लग्न के लिए गुरु (२रे व ५वें का स्वामी) और बुध (११वें का स्वामी) की युति या दृष्टि प्रचुर धनयोग बनाती है।",
+    "domain": "WEALTH",
+    "weight": 95,
+    "condition": { "lagnaSign": 7, "conjunctionOrAspect": ["Jupiter", "Mercury"] }
+  },
+  {
+    "id": "BR_CH1_MAKAR_ST4",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १: मकर लग्न",
+    "stanza_num": 4,
+    "sanskrit_reference": "मकर लग्ने लग्ने शुक्रबुधौ पंचमे चन्द्रः गुरुदृष्टः महराजा योगः",
+    "translation": "मकर लग्न में यदि लग्न में शुक्र व बुध हों तथा ५वें भाव में चन्द्रमा गुरु से दृष्ट हो, तो महाराजा योग बनता है।",
+    "domain": "RAJAYOGA",
+    "weight": 100,
+    "condition": { "lagnaSign": 9, "house1_conjunction": ["Venus", "Mercury"], "moon_house": 5, "moon_aspect_jup": true }
+  },
+  {
+    "id": "BR_CH2_ST1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय २: धनयोग विचार",
+    "stanza_num": 1,
+    "sanskrit_reference": "द्वितीयेशः पंचमे पंचमेशः द्वितीये अथवा द्वितीयेशः एकादशे एकादशेशः द्वितीये धनयोगः",
+    "translation": "द्वितीयेश का ५वें भाव में और पंचमेश का २रे भाव में परिवर्तन, अथवा द्वितीयेश का ११वें भाव में और एकादशेश का २रे भाव में परिवर्तन परम धनयोगकारक है।",
+    "domain": "WEALTH",
+    "weight": 95,
+    "condition": { "parivartana": [ [2, 5], [2, 11] ] }
+  },
+  {
+    "id": "BR_CH4_ST1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय ४: वाहन व भाग्य योग",
+    "stanza_num": 1,
+    "sanskrit_reference": "चतुर्थेशनवमेशयोः लग्ने युतिः वाहनभाग्य समृद्धिप्रदा",
+    "translation": "चतुर्थेश और नवमेश की यदि लग्न में युति हो, तो जातक अनेक वाहनों का स्वामी, भाग्यशाली और वैभवशाली होता है।",
+    "domain": "CAR",
+    "weight": 90,
+    "condition": { "conjunctionInLagna": ["lord_4", "lord_9"] }
+  },
+  {
+    "id": "BR_CH8_ST1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय ८: भाग्य योग",
+    "stanza_num": 1,
+    "sanskrit_reference": "नवमेशः एकादशे एकादशेशः नवमे परस्पर सम्बन्धश्च भाग्यप्रदः",
+    "translation": "नवमेश का ११वें भाव में और एकादशेश का ९वें भाव में परिवर्तन या युति जातक को परम भाग्यशाली बनाती है।",
+    "domain": "FORTUNE",
+    "weight": 95,
+    "condition": { "parivartanaOrConjunction": [9, 11] }
+  },
+  {
+    "id": "BR_CH13_MALIKA_1",
+    "book_id": "bhavartha_ratnakara",
+    "book_title": "भावार्थ रत्नाकर (Bhavartha Ratnakara)",
+    "chapter": "अध्याय १३: ग्रह मालिका योग",
+    "stanza_num": 1,
+    "sanskrit_reference": "लग्नादि सर्वग्रहाः पंचसप्तगृहेषु लग्नमालिका योगः",
+    "translation": "लग्न से प्रारंभ होकर सभी ग्रह लगातार घरों में स्थित हों, तो 'लग्न मालिका योग' बनता है — जातक सेनापति, राजा अथवा उच्चाधिकारी व धनवान होता है।",
+    "domain": "MALIKA_YOGA",
+    "weight": 95,
+    "condition": { "malikaType": "LagnaMalika" }
+  }
+];
