@@ -427,8 +427,41 @@
                     <button type="submit" class="btn-submit-post" style="background:var(--primary);">
                         🚀 आधिकारिक ब्लॉग पब्लिश करें (Publish Official Blog)
                     </button>
-                </form>
             </div>
+        </div>
+    </div>
+
+    <!-- SOCIAL SHARE MODAL -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal-box" style="max-width:440px; text-align:center;">
+            <button class="btn-close-modal" onclick="closeShareModal()">✕</button>
+            <h3 style="color:var(--gold); margin-bottom:6px; font-size:20px;">📲 आलेख शेयर करें (Share Article)</h3>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;" id="shareModalTitle">श्री रामजी एस्ट्रो आलेख</p>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:18px;">
+                <a id="shareWa" target="_blank" href="#" style="background:#25D366; color:#FFF; padding:12px; border-radius:10px; font-weight:700; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px;">
+                    💬 WhatsApp
+                </a>
+                <a id="shareFb" target="_blank" href="#" style="background:#1877F2; color:#FFF; padding:12px; border-radius:10px; font-weight:700; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px;">
+                    📘 Facebook
+                </a>
+                <a id="shareRed" target="_blank" href="#" style="background:#FF4500; color:#FFF; padding:12px; border-radius:10px; font-weight:700; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px;">
+                    🤖 Reddit
+                </a>
+                <a id="shareTw" target="_blank" href="#" style="background:#000; color:#FFF; padding:12px; border-radius:10px; font-weight:700; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px;">
+                    𝕏 Twitter / X
+                </a>
+            </div>
+
+            <div style="background:var(--bg-body); border:1px solid var(--border-color); border-radius:10px; padding:10px; display:flex; align-items:center; gap:8px;">
+                <input type="text" id="shareUrlInput" readonly style="flex:1; border:none; background:transparent; font-size:12px; color:var(--text-main); outline:none;">
+                <button onclick="copyShareLink()" style="background:var(--gold); border:none; color:#FFF; padding:8px 14px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;">
+                    📋 Copy Link
+                </button>
+            </div>
+            <p style="font-size:11px; color:var(--text-muted); margin-top:10px;">
+                *Quora पर शेयर करने के लिए 'Copy Link' पर क्लिक करके Quora पर डायरेक्ट लिंक या आंसर में पेस्ट करें।
+            </p>
         </div>
     </div>
 
@@ -693,7 +726,7 @@
             }
 
             container.innerHTML = items.map(q => `
-                <div class="q-card" style="${q.isAdmin ? 'border:2px solid var(--gold); background:var(--card-bg);' : ''}">
+                <div class="q-card" id="post-${q.id}" style="${q.isAdmin ? 'border:2px solid var(--gold); background:var(--card-bg);' : ''}">
                     <div class="q-author-row">
                         <div class="q-author-info">
                             <img src="${q.avatar}" class="user-avatar-md" style="width:34px; height:34px;" alt="Author">
@@ -713,6 +746,9 @@
                     <div class="q-actions">
                         <button class="btn-upvote" onclick="upvoteQ(${q.id})">▲ Upvote (${q.upvotes || 1})</button>
                         <button class="btn-answer" onclick="addAnswer(${q.id})">💬 उत्तर दें (${(q.answers && q.answers.length) || 0} Answers)</button>
+                        <button class="btn-share" onclick="openShareModal(${q.id})" style="background:none; border:none; font-size:12.5px; font-weight:700; color:var(--gold); cursor:pointer; margin-left:auto; display:inline-flex; align-items:center; gap:5px;">
+                            📲 शेयर करें (Share)
+                        </button>
                     </div>
 
                     ${(q.answers && q.answers.length > 0) ? `
@@ -730,6 +766,66 @@
                     ` : ''}
                 </div>
             `).join('');
+        }
+
+        // SOCIAL SHARE & DEEP LINKING ENGINE
+        function openShareModal(id) {
+            const q = Q_FEED.find(item => item.id == id);
+            if (!q) return;
+
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?post=${id}#post-${id}`;
+            const shareTitle = q.title;
+            const shareText = `🚩 ${shareTitle}\n\nविस्तार से पढ़ें श्री रामजी एस्ट्रो पर:\n${shareUrl}`;
+
+            // Web Share API for Mobile Native OS Share Sheet
+            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                navigator.share({
+                    title: shareTitle,
+                    text: `🚩 ${shareTitle} • Shri Ramji Astro`,
+                    url: shareUrl
+                }).catch(() => {});
+                return;
+            }
+
+            // Desktop / Web Modal Fallback
+            document.getElementById('shareModalTitle').innerText = shareTitle;
+            document.getElementById('shareUrlInput').value = shareUrl;
+
+            document.getElementById('shareWa').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            document.getElementById('shareFb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+            document.getElementById('shareRed').href = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}`;
+            document.getElementById('shareTw').href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`;
+
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareUrlInput');
+            input.select();
+            navigator.clipboard.writeText(input.value).then(() => {
+                alert("✓ आलेख का डायरेक्ट लिंक कॉपी हो गया है!\n\nअब आप इसे WhatsApp, Quora, Facebook, Telegram या Reddit पर आसानी से पेस्ट करके शेयर कर सकते हैं।");
+            });
+        }
+
+        function handleDeepLink() {
+            const params = new URLSearchParams(window.location.search);
+            const postId = params.get('post') || (window.location.hash ? window.location.hash.replace('#post-', '') : null);
+
+            if (postId) {
+                setTimeout(() => {
+                    const el = document.getElementById(`post-${postId}`);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.style.border = '2px solid var(--gold)';
+                        el.style.boxShadow = '0 0 24px rgba(212, 160, 23, 0.4)';
+                    }
+                }, 400);
+            }
         }
 
         function upvoteQ(id) {
@@ -772,9 +868,10 @@
             renderFeed(tab);
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             checkActiveSession();
-            loadBlogsDatabase();
+            await loadBlogsDatabase();
+            handleDeepLink();
         });
     </script>
 </body>
