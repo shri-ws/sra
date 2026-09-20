@@ -722,23 +722,28 @@
             // STEP 3: BIRTH PLACE WITH LEAFLET MAP & CITY SEARCH
             setTimeout(() => {
                 appendBotMessage(`
-                    शानदार! अब अपना <b>जन्म स्थान (Birth Place)</b> चुनें। आप शहर की सूची से चुन सकते हैं या मानचित्र (Map) पर पिन लगा सकते हैं:
+                    शानदार! अब अपना <b>जन्म स्थान (Birth Place)</b> चुनें। आप शहर की सूची से चुन सकते हैं या मानचित्र (Map) पर लाइव खोज/पिन लगा सकते हैं:
                     <div class="chat-widget-card">
                         <div class="loc-tabs">
-                            <button class="loc-tab-btn active" onclick="switchLocTab('city')">🏙️ शहर चुनें</button>
-                            <button class="loc-tab-btn" onclick="switchLocTab('map')">🗺️ मैप पिन</button>
+                            <button class="loc-tab-btn active" onclick="switchLocTab('city')">🏙️ मुख्य शहर सूची</button>
+                            <button class="loc-tab-btn" onclick="switchLocTab('map')">🗺️ लाइव नक्शा व खोज (Live Map)</button>
                         </div>
 
                         <div id="cityTabContent">
-                            <label>शहर खोजें (City Search):</label>
+                            <label>प्रसिद्ध शहर चुनें (Select City):</label>
                             <select id="citySelect">
                                 ${CITIES.map(c => `<option value="${c.lat},${c.lon},${c.name}">${c.name}</option>`).join('')}
                             </select>
                         </div>
 
                         <div id="mapTabContent" style="display:none;">
-                            <label>मैप पर पिन लगाएँ (Tap map to select lat/lon):</label>
-                            <div id="bplaceMap"></div>
+                            <label>विश्व का कोई भी शहर खोजें (Search Location):</label>
+                            <div style="display:flex; gap:6px; margin-bottom:8px;">
+                                <input type="text" id="mapSearchInput" placeholder="जैसे: Varanasi, Lucknow, London..." style="flex:1;" onkeypress="if(event.key==='Enter') searchMapLocation()">
+                                <button onclick="searchMapLocation()" style="background:var(--gold); color:#000; border:none; padding:8px 14px; border-radius:8px; font-weight:800; cursor:pointer;">🔍 खोजें</button>
+                            </div>
+                            <div id="bplaceMap" style="height:220px; width:100%; border-radius:10px; border:1px solid var(--border-soft); z-index:1;"></div>
+                            <small style="font-size:11px; color:var(--gold-light); display:block; margin-top:6px;" id="mapPinCoords">📍 चुना गया स्थान: Varanasi (25.32°, 82.97°)</small>
                         </div>
 
                         <button class="btn-widget-submit" onclick="submitPlaceStep()">कुंडली तैयार करें (Generate Kundli) 🚀</button>
@@ -758,35 +763,77 @@
             } else {
                 document.getElementById('cityTabContent').style.display = 'none';
                 document.getElementById('mapTabContent').style.display = 'block';
-                if (leafletMap) leafletMap.invalidateSize();
+                setTimeout(() => {
+                    initLeafletMap();
+                    if (leafletMap) leafletMap.invalidateSize();
+                }, 100);
             }
         }
 
         function initLeafletMap() {
-            if (leafletMap) return;
             const container = document.getElementById('bplaceMap');
             if (!container) return;
 
-            leafletMap = L.map('bplaceMap').setView([25.3176, 82.9739], 7);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(leafletMap);
+            if (!leafletMap) {
+                leafletMap = L.map('bplaceMap').setView([25.3176, 82.9739], 8);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(leafletMap);
 
-            leafletMarker = L.marker([25.3176, 82.9739], { draggable: true }).addTo(leafletMap);
+                leafletMarker = L.marker([25.3176, 82.9739], { draggable: true }).addTo(leafletMap);
 
-            leafletMap.on('click', (e) => {
-                leafletMarker.setLatLng(e.latlng);
-                userBirthData.lat = e.latlng.lat;
-                userBirthData.lon = e.latlng.lng;
-                userBirthData.placeName = `Map Pin (${e.latlng.lat.toFixed(2)}°, ${e.latlng.lng.toFixed(2)}°)`;
-            });
+                function updateCoords(lat, lng, name) {
+                    userBirthData.lat = lat;
+                    userBirthData.lon = lng;
+                    userBirthData.placeName = name || `Map Pin (${lat.toFixed(3)}°, ${lng.toFixed(3)}°)`;
+                    const label = document.getElementById('mapPinCoords');
+                    if (label) label.innerText = `📍 चुना गया स्थान: ${userBirthData.placeName}`;
+                }
 
-            leafletMarker.on('dragend', (e) => {
-                const pos = leafletMarker.getLatLng();
-                userBirthData.lat = pos.lat;
-                userBirthData.lon = pos.lng;
-                userBirthData.placeName = `Map Pin (${pos.lat.toFixed(2)}°, ${pos.lng.toFixed(2)}°)`;
-            });
+                leafletMap.on('click', (e) => {
+                    leafletMarker.setLatLng(e.latlng);
+                    updateCoords(e.latlng.lat, e.latlng.lng);
+                });
+
+                leafletMarker.on('dragend', (e) => {
+                    const pos = leafletMarker.getLatLng();
+                    updateCoords(pos.lat, pos.lng);
+                });
+            } else {
+                leafletMap.invalidateSize();
+            }
+        }
+
+        async function searchMapLocation() {
+            const q = document.getElementById('mapSearchInput').value.trim();
+            if (!q) return;
+
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    const displayName = data[0].display_name.split(',')[0];
+
+                    if (leafletMap && leafletMarker) {
+                        leafletMap.setView([lat, lon], 11);
+                        leafletMarker.setLatLng([lat, lon]);
+                        userBirthData.lat = lat;
+                        userBirthData.lon = lon;
+                        userBirthData.placeName = displayName;
+                        const label = document.getElementById('mapPinCoords');
+                        if (label) label.innerText = `📍 चुना गया स्थान: ${displayName} (${lat.toFixed(3)}°, ${lon.toFixed(3)}°)`;
+                    }
+                } else {
+                    alert("स्थान नहीं मिला। कृपया शहर का नाम पुन: जांच कर टाइप करें।");
+                }
+            } catch(e) {
+                console.error("Map search error:", e);
+            }
         }
 
         function submitPlaceStep() {
