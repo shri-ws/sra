@@ -591,6 +591,7 @@
             <!-- BOTTOM CHAT INPUT BAR -->
             <div class="chat-input-bar">
                 <input type="text" id="customMsgInput" class="chat-input" placeholder="SRA AI से अपना ज्योतिष प्रश्न पूछें..." disabled onkeypress="if(event.key==='Enter') sendCustomMessage()">
+                <button class="btn-send-msg" id="btnMicMsg" onclick="toggleVoiceRecognition()" title="बोलकर प्रश्न पूछें (Voice STT)" disabled style="margin-right:6px; background:rgba(212,160,23,0.15); border:1px solid var(--gold-border); color:var(--gold);">🎙️</button>
                 <button class="btn-send-msg" id="btnSendMsg" onclick="sendCustomMessage()" disabled>🚀</button>
             </div>
 
@@ -846,6 +847,8 @@
                 document.getElementById('promptChips').style.display = 'flex';
                 document.getElementById('customMsgInput').disabled = false;
                 document.getElementById('btnSendMsg').disabled = false;
+                const micBtn = document.getElementById('btnMicMsg');
+                if (micBtn) micBtn.disabled = false;
             }, 800);
         }
 
@@ -1532,6 +1535,95 @@
             return calculateFullAstrologicalChart(dob, tob, lat, lon);
         }
 
+        // WEB SPEECH API (VOICE STT & VOICE TTS) ENGINE
+        let speechRecognitionObj = null;
+        let isListening = false;
+
+        function toggleVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("आपके ब्राउज़र में आवाज़ पहचानने (Voice Speech Recognition) की सुविधा उपलब्ध नहीं है। कृपया Google Chrome ब्राउज़र का उपयोग करें।");
+                return;
+            }
+
+            const micBtn = document.getElementById('btnMicMsg');
+            const input = document.getElementById('customMsgInput');
+
+            if (isListening) {
+                if (speechRecognitionObj) speechRecognitionObj.stop();
+                isListening = false;
+                if (micBtn) {
+                    micBtn.style.background = "rgba(212,160,23,0.15)";
+                    micBtn.innerText = "🎙️";
+                }
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            speechRecognitionObj = new SpeechRecognition();
+            speechRecognitionObj.lang = 'hi-IN';
+            speechRecognitionObj.continuous = false;
+            speechRecognitionObj.interimResults = false;
+
+            speechRecognitionObj.onstart = function() {
+                isListening = true;
+                if (micBtn) {
+                    micBtn.style.background = "#d32f2f";
+                    micBtn.innerText = "🔴";
+                }
+                if (input) input.placeholder = "सुन रहा हूँ... अब बोलें (Listening in Hindi)...";
+            };
+
+            speechRecognitionObj.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                if (input) {
+                    input.value = transcript;
+                    input.placeholder = "SRA AI से अपना ज्योतिष प्रश्न पूछें...";
+                }
+                isListening = false;
+                if (micBtn) {
+                    micBtn.style.background = "rgba(212,160,23,0.15)";
+                    micBtn.innerText = "🎙️";
+                }
+                sendCustomMessage();
+            };
+
+            speechRecognitionObj.onerror = function(event) {
+                isListening = false;
+                if (micBtn) {
+                    micBtn.style.background = "rgba(212,160,23,0.15)";
+                    micBtn.innerText = "🎙️";
+                }
+                if (input) input.placeholder = "SRA AI से अपना ज्योतिष प्रश्न पूछें...";
+            };
+
+            speechRecognitionObj.start();
+        }
+
+        function speakBotMessage(btn) {
+            if (!('speechSynthesis' in window)) {
+                alert("आपके ब्राउज़र में आवाज़ सुनने (Text to Speech) की सुविधा उपलब्ध नहीं है।");
+                return;
+            }
+            const bubble = btn.parentElement.querySelector('.msg-bubble-content');
+            if (!bubble) return;
+            const textToSpeak = bubble.innerText;
+
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                btn.innerText = "🔊 उत्तर सुनें (Listen)";
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'hi-IN';
+            utterance.rate = 0.95;
+            utterance.onend = function() {
+                btn.innerText = "🔊 उत्तर सुनें (Listen)";
+            };
+            btn.innerText = "⏹️ रोकें (Stop)";
+            window.speechSynthesis.speak(utterance);
+        }
+
         // CHAT UI HELPERS
         function appendBotMessage(htmlContent) {
             const container = document.getElementById('chatMessages');
@@ -1539,7 +1631,12 @@
             row.className = 'msg-row bot';
             row.innerHTML = `
                 <img src="logo.png" class="msg-avatar" alt="Bot">
-                <div class="msg-bubble">${htmlContent}</div>
+                <div class="msg-bubble">
+                    <div class="msg-bubble-content">${htmlContent}</div>
+                    <button onclick="speakBotMessage(this)" style="margin-top:10px; background:rgba(212,160,23,0.12); border:1px solid var(--gold-border); color:var(--gold-light); font-size:11px; padding:4px 10px; border-radius:12px; cursor:pointer; font-weight:bold;">
+                        🔊 उत्तर सुनें (Listen Audio)
+                    </button>
+                </div>
             `;
             container.appendChild(row);
             container.scrollTop = container.scrollHeight;
