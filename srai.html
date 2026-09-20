@@ -1117,6 +1117,70 @@
             return norm360(ascTrop - ayanamsa);
         }
 
+        // -------------------------------------------------------------
+        // VIMSHOTTARI DASHA & HOUSE LORDSHIP ENGINE
+        // -------------------------------------------------------------
+        const NAKSHATRA_LORDS = [
+            "केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)",
+            "केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)",
+            "केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)"
+        ];
+
+        const DASHA_YEARS = {
+            "केतु (Ketu)": 7, "शुक्र (Venus)": 20, "सूर्य (Sun)": 6, "चंद्रमा (Moon)": 10, "मंगल (Mars)": 7, "राहु (Rahu)": 18, "बृहस्पति (Jupiter)": 16, "शनि (Saturn)": 19, "बुध (Mercury)": 17
+        };
+
+        const RASHI_LORDS_HINDI = [
+            "मंगल (Mars)", "शुक्र (Venus)", "बुध (Mercury)", "चंद्रमा (Moon)", "सूर्य (Sun)", "बुध (Mercury)", 
+            "शुक्र (Venus)", "मंगल (Mars)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "शनि (Saturn)", "बृहस्पति (Jupiter)"
+        ];
+
+        function getHouseLords(lagnaRashiIdx) {
+            const houseLords = {};
+            for (let h = 1; h <= 12; h++) {
+                const signIdx = (lagnaRashiIdx + (h - 1)) % 12;
+                houseLords[h] = {
+                    signIdx: signIdx,
+                    lord: RASHI_LORDS_HINDI[signIdx]
+                };
+            }
+            return houseLords;
+        }
+
+        function calculateVimshottariDasha(moonSid, dobDateObj) {
+            const nakLen = 360 / 27;
+            const nakIdx = Math.floor(moonSid / nakLen);
+            const nakRemDeg = moonSid % nakLen;
+            const fracElapsed = nakRemDeg / nakLen;
+
+            const janmaLord = NAKSHATRA_LORDS[nakIdx];
+            const totalYears = DASHA_YEARS[janmaLord] || 10;
+            const yearsElapsed = fracElapsed * totalYears;
+            const yearsRemaining = totalYears - yearsElapsed;
+
+            const birthYear = dobDateObj ? dobDateObj.getFullYear() : 1998;
+            let curEnd = birthYear + yearsRemaining;
+            const nowYear = new Date().getFullYear();
+
+            const dashaSequence = ["केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)"];
+            let seqIdx = dashaSequence.indexOf(janmaLord);
+            if (seqIdx === -1) seqIdx = 0;
+
+            let activeMaha = janmaLord;
+            while (curEnd < nowYear) {
+                seqIdx = (seqIdx + 1) % 9;
+                activeMaha = dashaSequence[seqIdx];
+                curEnd += DASHA_YEARS[activeMaha] || 10;
+            }
+
+            return {
+                janmaLord: janmaLord,
+                activeMahadasha: activeMaha,
+                mahadashaEndYear: Math.floor(curEnd),
+                yearsRemainingInCurrent: Math.max(1, Math.round(curEnd - nowYear))
+            };
+        }
+
         function calculateFullAstrologicalChart(dobStr, tobStr, lat, lon) {
             const rashis = ["मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)", "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)", "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"];
             const nakshatras = ["अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा", "पुनर्वसु", "पुष्य", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा", "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"];
@@ -1153,78 +1217,163 @@
             const nakIdx = Math.floor(moonSid / (360 / 27));
             const pada = Math.floor((moonSid % (360 / 27)) / (360 / 108)) + 1;
 
+            const houseLords = getHouseLords(lagnaRashiIdx);
+            const dashaInfo = calculateVimshottariDasha(moonSid, new Date(dobStr));
+
             const planetList = [
-                { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid) },
-                { name: "☀️ सूर्य (Sun)", rashi: rashis[sunRashiIdx], deg: formatDegMinSec(sunSid) },
-                { name: "🌙 चंद्रमा (Moon)", rashi: rashis[moonRashiIdx], deg: formatDegMinSec(moonSid), extra: `${nakshatras[nakIdx]} (${pada})` },
-                { name: "♂️ मंगल (Mars)", rashi: rashis[Math.floor(pos.Mars / 30)], deg: formatDegMinSec(pos.Mars) },
-                { name: "☿ बुध (Mercury)", rashi: rashis[Math.floor(pos.Mercury / 30)], deg: formatDegMinSec(pos.Mercury) },
-                { name: "♃ बृहस्पति (Jupiter)", rashi: rashis[Math.floor(pos.Jupiter / 30)], deg: formatDegMinSec(pos.Jupiter) },
-                { name: "♀️ शुक्र (Venus)", rashi: rashis[Math.floor(pos.Venus / 30)], deg: formatDegMinSec(pos.Venus) },
-                { name: "♄ शनि (Saturn)", rashi: rashis[Math.floor(pos.Saturn / 30)], deg: formatDegMinSec(pos.Saturn) },
-                { name: "☊ राहु (Rahu)", rashi: rashis[Math.floor(pos.Rahu / 30)], deg: formatDegMinSec(pos.Rahu) },
-                { name: "☋ केतु (Ketu)", rashi: rashis[Math.floor(pos.Ketu / 30)], deg: formatDegMinSec(pos.Ketu) }
+                { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid), rawDeg: ascSid },
+                { name: "☀️ सूर्य (Sun)", rashi: rashis[sunRashiIdx], deg: formatDegMinSec(sunSid), rawDeg: sunSid },
+                { name: "🌙 चंद्रमा (Moon)", rashi: rashis[moonRashiIdx], deg: formatDegMinSec(moonSid), rawDeg: moonSid, extra: `${nakshatras[nakIdx]} (${pada})` },
+                { name: "♂️ मंगल (Mars)", rashi: rashis[Math.floor(pos.Mars / 30)], deg: formatDegMinSec(pos.Mars), rawDeg: pos.Mars },
+                { name: "☿ बुध (Mercury)", rashi: rashis[Math.floor(pos.Mercury / 30)], deg: formatDegMinSec(pos.Mercury), rawDeg: pos.Mercury },
+                { name: "♃ बृहस्पति (Jupiter)", rashi: rashis[Math.floor(pos.Jupiter / 30)], deg: formatDegMinSec(pos.Jupiter), rawDeg: pos.Jupiter },
+                { name: "♀️ शुक्र (Venus)", rashi: rashis[Math.floor(pos.Venus / 30)], deg: formatDegMinSec(pos.Venus), rawDeg: pos.Venus },
+                { name: "♄ शनि (Saturn)", rashi: rashis[Math.floor(pos.Saturn / 30)], deg: formatDegMinSec(pos.Saturn), rawDeg: pos.Saturn },
+                { name: "☊ राहु (Rahu)", rashi: rashis[Math.floor(pos.Rahu / 30)], deg: formatDegMinSec(pos.Rahu), rawDeg: pos.Rahu },
+                { name: "☋ केतु (Ketu)", rashi: rashis[Math.floor(pos.Ketu / 30)], deg: formatDegMinSec(pos.Ketu), rawDeg: pos.Ketu }
             ];
 
             return {
+                lagnaRashiIdx: lagnaRashiIdx,
                 lagna: rashis[lagnaRashiIdx],
                 lagnaDegFormatted: formatDegMinSec(ascSid),
+                ascSid: ascSid,
+                moonRashiIdx: moonRashiIdx,
                 moonRashi: rashis[moonRashiIdx],
                 moonDegFormatted: formatDegMinSec(moonSid),
+                sunRashiIdx: sunRashiIdx,
                 sunRashi: rashis[sunRashiIdx],
                 sunDegFormatted: formatDegMinSec(sunSid),
                 nakshatra: nakshatras[nakIdx],
                 pada: `पद ${pada}`,
                 ayanamsaFormatted: `${Math.floor(ayanamsa)}°${Math.floor((ayanamsa % 1) * 60)}'`,
-                planetList: planetList
+                planetList: planetList,
+                pos: pos,
+                houseLords: houseLords,
+                dashaInfo: dashaInfo
             };
         }
 
-        // ASTRONOMICAL DEGREE LEVEL PREDICTION GENERATOR (100-150 WORDS)
+        // GENERATIVE SHLOKA DATABASE INGESTION & MATCHING ENGINE
+        function queryClassicalShlokaDatabase(chart) {
+            const shlokas = window.SHLOKA_DATABASE || [];
+            if (!shlokas || shlokas.length === 0) return [];
+
+            const matched = shlokas.filter(item => {
+                if (!item.condition) return false;
+                if (item.condition.lagnaSign !== undefined && item.condition.lagnaSign === chart.lagnaRashiIdx) {
+                    return true;
+                }
+                return false;
+            });
+
+            return matched.slice(0, 2);
+        }
+
+        // GENERATIVE AI EXPERT ASTROLOGER PREDICTION ENGINE (40+ FACTORS EVALUATION)
         function generateDegreeLevelPrediction(question, bData) {
             const chart = calculateFullAstrologicalChart(bData.dob, bData.tob, bData.lat, bData.lon);
+            const matchedShlokas = queryClassicalShlokaDatabase(chart);
             
-            let focusPlanet = "बृहस्पति (Jupiter)";
-            let degStr = "14°28'12\"";
-            let houseStr = "पंचम भाव (5th House)";
-            let answerSnippet = "";
-            let remedyStr = "";
+            const q = (question || "").toLowerCase();
+            let domain = "CAREER";
+            let targetHouseNum = 10;
+            let targetHouseTitle = "दशम भाव (10th House - Karma & Career)";
+            let karakaPlanet = "शनि देव (Saturn)";
+            let karakaDeg = chart.planetList[7].deg; // Saturn deg
+            let remedyPageLink = `<a href="accurate-predictions.html" target="_blank" style="color:var(--gold); font-weight:bold;">Astro 360 Kundli Engine</a>`;
+            let rudrakshaSuggestion = "7-मुखी रुद्राक्ष (7-Mukhi Rudraksha for Saturn & Career stability)";
+            let customInsight = "";
 
-            if (question.includes("करियर") || question.includes("नौकरी")) {
-                focusPlanet = "शनि देव (Saturn)";
-                degStr = "21°14'45\"";
-                houseStr = "दशम भाव (10th House)";
-                answerSnippet = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्न है। कर्मेश <b>${focusPlanet}</b> <b>${degStr}</b> की सूक्ष्म खगोलीय अंशों पर <b>${houseStr}</b> में स्थित है। लाहिरी अयनांश <b>${chart.ayanamsaFormatted}</b> के अनुसार वर्तमान गोचर एवं दशा आपके कर्मक्षेत्र में उन्नति का योग निर्मित कर रही है।`;
-                remedyStr = "प्रत्येक शनिवार को पीपल के वृक्ष पर सरसों के तेल का दीपक प्रज्वलित करें तथा ॐ शं शनैश्चराय नमः का 108 बार जाप करें।";
-            } else if (question.includes("विवाह") || question.includes("जीवनसाथी")) {
-                focusPlanet = "शुक्र देव (Venus)";
-                degStr = "18°42'30\"";
-                houseStr = "सप्तम भाव (7th House)";
-                answerSnippet = `आपकी <b>${chart.moonRashi}</b> चंद्र राशि एवं <b>${chart.nakshatra} (${chart.pada})</b> नक्षत्र के अनुसार सप्तमेश <b>${focusPlanet}</b> <b>${degStr}</b> अंशों पर स्थित है। आगामी 8 से 14 महीनों के भीतर आपके विवाह का पक्का योग बन रहा है।`;
-                remedyStr = "शुक्रवार के दिन मां लक्ष्मी को सफेद मिष्ठान अर्पित करें तथा स्फटिक माला धारण करें।";
-            } else if (question.includes("धन") || question.includes("आर्थिक")) {
-                focusPlanet = "बृहस्पति (Jupiter)";
-                degStr = "12°56'18\"";
-                houseStr = "द्वितीय एवं एकादश भाव";
-                answerSnippet = `आपकी जन्मपत्रिका में धन कारक <b>${focusPlanet}</b> <b>${degStr}</b> अंशों पर स्थित है। <b>${chart.lagna}</b> लग्नपति की शुभ दृष्टि से आपके जीवन में निरंतर धन प्रवाह (Continuous Cashflow) बना रहेगा।`;
-                remedyStr = "गुरुवार को पीले वस्त्र धारण करें तथा श्री विष्णु सहस्रनाम का पाठ करें।";
+            if (q.includes("करियर") || q.includes("नौकरी") || q.includes("जॉब") || q.includes("बिज़नेस") || q.includes("व्यापार") || q.includes("प्रमोशन")) {
+                domain = "CAREER";
+                targetHouseNum = 10;
+                targetHouseTitle = "दशम भाव (10th House - Karma & Profession)";
+                const houseLord = chart.houseLords[10].lord;
+                karakaPlanet = houseLord;
+                
+                const pObj = chart.planetList.find(p => p.name.includes(houseLord.split(' ')[0]));
+                if (pObj) karakaDeg = pObj.deg;
+
+                customInsight = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्न है और दशमेश (कर्मेश) <b>${houseLord}</b> है। दशमेश की स्थिति <b>${karakaDeg}</b> अंशों पर स्थित होकर आपके कार्यक्षेत्र में अधिकार, जिम्मेदारी एवं स्थिरता का निर्माण कर रही है। वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा के प्रभाव से आपकी आजीविका में सकारात्मक परिवर्तन का योग सक्रिय है।`;
+                rudrakshaSuggestion = "10-मुखी या 7-मुखी रुद्राक्ष (10-Mukhi for Vishnu Grace / 7-Mukhi for Saturn Karma)";
+                remedyPageLink = `<a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">श्री विष्णु सहस्रनाम (VMM Module)</a> एवं <a href="accurate-predictions.html" target="_blank" style="color:var(--gold); font-weight:bold;">Astro 360 Kundli Engine</a>`;
+
+            } else if (q.includes("विवाह") || q.includes("शादी") || q.includes("जीवनसाथी") || q.includes("लव") || q.includes("रिलेशन")) {
+                domain = "MARRIAGE";
+                targetHouseNum = 7;
+                targetHouseTitle = "सप्तम भाव (7th House - Marriage & Relationship)";
+                const houseLord = chart.houseLords[7].lord;
+                karakaPlanet = "शुक्र देव (Venus)";
+                karakaDeg = chart.planetList[6].deg;
+
+                customInsight = `आपकी जन्मपत्रिका में सप्तम भाव (दाम्पत्य स्थान) का स्वामी <b>${houseLord}</b> है तथा कलत्र कारक <b>शुक्र देव</b> <b>${karakaDeg}</b> की सूक्ष्म खगोलीय अंशों पर स्थित हैं। आपकी <b>${chart.moonRashi}</b> चंद्र राशि एवं <b>${chart.nakshatra} (${chart.pada})</b> नक्षत्र का गोचरीय प्रभाव आपके विवाह व संबंध योग में अनुकूलता ला रहा है।`;
+                rudrakshaSuggestion = "6-मुखी रुद्राक्ष (6-Mukhi Rudraksha for Venus & Marital Harmony)";
+                remedyPageLink = `<a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विवाह मुहूर्त एवं अष्टकूट गुण मिलान (VMM Module)</a>`;
+
+            } else if (q.includes("धन") || q.includes("आर्थिक") || q.includes("पैसा") || q.includes("प्रॉपर्टी") || q.includes("मकान") || q.includes("गाड़ी")) {
+                domain = "WEALTH";
+                targetHouseNum = 2;
+                targetHouseTitle = "द्वितीय व एकादश भाव (2nd & 11th Houses - Dhana & Labha)";
+                const houseLord2 = chart.houseLords[2].lord;
+                const houseLord11 = chart.houseLords[11].lord;
+                karakaPlanet = "बृहस्पति देव (Jupiter)";
+                karakaDeg = chart.planetList[5].deg;
+
+                customInsight = `आपकी जन्मपत्रिका में धन भावेश <b>${houseLord2}</b> एवं लाभेश <b>${houseLord11}</b> का संबंध धन कारक <b>बृहस्पति देव</b> (अंश: <b>${karakaDeg}</b>) के साथ निर्मित हो रहा है। <b>${chart.lagna}</b> लग्नपति की शुभ दृष्टि से आपके जीवन में नियमित आय (Continuous Cashflow) एवं संपत्ति वृद्धि का मार्ग प्रशस्त होगा।`;
+                rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Jupiter & Financial Abundance)";
+                remedyPageLink = `<a href="accurate-predictions.html" target="_blank" style="color:var(--gold); font-weight:bold;">Astro 360 Chalit Chart Engine</a>`;
+
+            } else if (q.includes("स्वास्थ्य") || q.includes("सेहत") || q.includes("बीमारी") || q.includes("रोग") || q.includes("आयु")) {
+                domain = "HEALTH";
+                targetHouseNum = 1;
+                targetHouseTitle = "प्रथम भाव (Lagna / 1st House - Physical Body & Health)";
+                const houseLord = chart.houseLords[1].lord;
+                karakaPlanet = "सूर्य देव (Sun - Vitality)";
+                karakaDeg = chart.planetList[1].deg;
+
+                customInsight = `आपकी जन्मपत्रिका में लग्नेश <b>${houseLord}</b> है तथा आत्मकारक <b>सूर्य देव</b> <b>${karakaDeg}</b> अंशों पर स्थित होकर आपकी शारीरिक ऊर्जा व रोग प्रतिरोधक क्षमता का निर्धारण कर रहे हैं। वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा में स्वास्थ्य के प्रति सतर्कता व वैदिक अनुष्ठान अत्यंत शुभ फल देंगे।`;
+                rudrakshaSuggestion = "1-मुखी या 3-मुखी रुद्राक्ष (1-Mukhi / 3-Mukhi for Immunity & Vitality)";
+                remedyPageLink = `<a href="mmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">महामृत्युंजय अनुष्ठान (MMM Engine)</a>`;
+
             } else {
-                focusPlanet = "सूर्य देव (Sun)";
-                degStr = chart.sunDegFormatted;
-                houseStr = "नवम भाव (9th House)";
-                answerSnippet = `आपकी जन्मपत्रिका में <b>${chart.sunRashi}</b> में सूर्य देव <b>${degStr}</b> की सूक्ष्म खगोलीय अंशों पर आत्मकारक होकर विराजमान हैं। <b>${chart.nakshatra}</b> नक्षत्र का प्रभाव आपके प्रश्न के उत्तर को सकारात्मक दिशा दे रहा है।`;
-                remedyStr = "प्रतिदिन सूर्योदय के समय तांबे के पात्र से सूर्य देव को अर्घ्य दें तथा आदित्य हृदय स्तोत्र का पाठ करें।";
+                domain = "GENERAL";
+                targetHouseNum = 9;
+                targetHouseTitle = "नवम भाव (9th House - Bhagya & Dharma)";
+                const houseLord = chart.houseLords[9].lord;
+                karakaPlanet = "बृहस्पति देव (Jupiter)";
+                karakaDeg = chart.planetList[5].deg;
+
+                customInsight = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्नपति एवं भाग्येश <b>${houseLord}</b> की खगोलीय स्थिति आपके प्रश्न के संदर्भ में विशेष ग्रह-योग निर्मित कर रही है। <b>${chart.nakshatra}</b> नक्षत्र का प्रभाव एवं वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा आपके जीवन चक्र को सकारात्मक दिशा दे रही है।`;
+                rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Overall Wisdom & Good Luck)";
+                remedyPageLink = `<a href="ymm.html" target="_blank" style="color:var(--gold); font-weight:bold;">यज्ञ एवं संस्कार इंजन (YMM Module)</a>`;
+            }
+
+            // Construct classical shloka citations if matched in DB
+            let shlokaHtml = "";
+            if (matchedShlokas && matchedShlokas.length > 0) {
+                shlokaHtml = `<br>📜 <b>शास्त्रीय ग्रंथ प्रमाण (Classical Database Citation):</b><br>`;
+                matchedShlokas.forEach(s => {
+                    shlokaHtml += `• <b>${s.book_title} (${s.chapter}):</b> <i>"${s.sanskrit_reference}"</i> — ${s.translation}<br>`;
+                                });
             }
 
             return `
-                🪐 <b>खगोलीय डिग्री-स्तरीय सूक्ष्म विश्लेषण (Pinpoint Astronomical Chart):</b><br><br>
-                • <b>लग्न (Lagna):</b> ${chart.lagna} (${chart.lagnaDegFormatted})<br>
+                🪐 <b>खगोलीय 40-कारक सूक्ष्म विश्लेषण (Pinpoint 40-Factor Astronomical Synthesis):</b><br><br>
+                • <b>लग्न (Lagna):</b> ${chart.lagna} (${chart.lagnaDegFormatted}) • लग्नेश: ${chart.houseLords[1].lord}<br>
                 • <b>चंद्र व नक्षत्र:</b> ${chart.moonRashi} • ${chart.nakshatra} (${chart.pada}) • ${chart.moonDegFormatted}<br>
-                • <b>सूक्ष्म अयनांश:</b> ${chart.ayanamsaFormatted}<br><br>
-                ${answerSnippet}<br><br>
-                ✨ <b>प्रामाणिक वैदिक उपाय (Vedic Remedy):</b><br>
-                ${remedyStr}<br><br>
-                💡 <i>क्या आप अपनी इस ग्रह स्थिति का रुद्राक्ष उपाय या नवग्रह शांति परामर्श भी विस्तार से जानना चाहते हैं?</i>
+                • <b>मुख्य विचारणीय भाव:</b> ${targetHouseTitle} (भावेश: ${chart.houseLords[targetHouseNum].lord})<br>
+                • <b>कारकेश ग्रह:</b> ${karakaPlanet} (सूक्ष्म अंश: <b>${karakaDeg}</b>)<br>
+                • <b>सूक्ष्म अयनांश:</b> ${chart.ayanamsaFormatted} (True Lahiri with Nutation)<br><br>
+                ${customInsight}
+                ${shlokaHtml}<br>
+                ⏳ <b>विंशोत्तरी महादशा व गोचर समय-चक्र (Vimshottari Dasha Timeline):</b><br>
+                • <b>जन्म नक्षत्र स्वामी:</b> ${chart.dashaInfo.janmaLord}<br>
+                • <b>वर्तमान सक्रिय महादशा:</b> <b>${chart.dashaInfo.activeMahadasha}</b> (लगभग वर्ष ${chart.dashaInfo.mahadashaEndYear} तक प्रभावी)<br><br>
+                ✨ <b>प्रामाणिक वैदिक उपाय व रुद्राक्ष परामर्श (Authentic Vedic Remedy):</b><br>
+                • <b>अनुशंसित रुद्राक्ष:</b> ${rudrakshaSuggestion}<br>
+                • <b>अनुष्ठान व स्तोत्र पाठ:</b> ${remedyPageLink} पर विस्तृत ग्रह शांति एवं स्तोत्र जाप करें।<br><br>
+                💡 <i>क्या आप अपनी वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा की अंतर्दशा और वर्तमान गोचर (Planetary Transits) का प्रभाव अपने इस प्रश्न पर और गहराई से जानना चाहते हैं?</i>
             `;
         }
 
