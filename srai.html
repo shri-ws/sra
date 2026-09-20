@@ -1270,8 +1270,42 @@
             return matched.slice(0, 2);
         }
 
+        // ASTROLOGY DOMAIN GUARDRAIL & POLITE NON-ASTROLOGY HANDLER
+        const ASTROLOGY_KEYWORDS = [
+            "कुंडली", "ग्रह", "दशा", "करियर", "नौकरी", "जॉब", "बिज़नेस", "व्यापार", "प्रमोशन", "विवाह", "शादी", "जीवनसाथी", "लव", "रिलेशन",
+            "स्वास्थ्य", "सेहत", "बीमारी", "रोग", "आयु", "धन", "आर्थिक", "पैसा", "प्रॉपर्टी", "मकान", "गाड़ी", "लग्न", "राशि", "नक्षत्र",
+            "उपाय", "रुद्राक्ष", "मंत्र", "पूजा", "मुहूर्त", "गोचर", "शनि", "गुरु", "सूर्य", "चंद्र", "मंगल", "बुध", "शुक्र", "राहु", "केतु",
+            "भाग्यांक", "भविष्य", "ज्योतिष", "astrology", "kundli", "horoscope", "marriage", "career", "job", "wealth", "health", "future",
+            "dasha", "transit", "सफलता", "समस्या", "समाधान", "अनुष्ठान", "यज्ञ", "संस्कार", "परामर्श"
+        ];
+
+        function isAstrologyOrSpiritualQuery(text) {
+            if (!text || text.trim().length === 0) return true;
+            const lower = text.toLowerCase();
+            for (let i = 0; i < ASTROLOGY_KEYWORDS.length; i++) {
+                if (lower.includes(ASTROLOGY_KEYWORDS[i])) return true;
+            }
+            if (lower.includes("क्या होगा") || lower.includes("कब होगी") || lower.includes("कब होगा") || lower.includes("कैसा") || lower.includes("कैसी") || lower.includes("बताएं") || lower.includes("बताओ")) {
+                return true;
+            }
+            return false;
+        }
+
+        function getPoliteNonAstrologyResponse() {
+            return `
+                🙏🏻 <b>सादर प्रणाम!</b><br><br>
+                मैं <b>'श्रीरामजी एस्ट्रो' (shriramjiastro.in)</b> का समर्पित <b>वैदिक ज्योतिषाचार्य AI</b> हूँ। 
+                मेरा संपूर्ण ज्ञान, क्षमता एवं सामर्थ्य केवल <b>वैदिक ज्योतिष, जन्मपत्रिका विश्लेषण, ग्रह शांति, शुभ मुहूर्त, रुद्राक्ष परामर्श एवं धर्म-अध्यात्म</b> के विषयों के लिए ही निर्मित किया गया है।<br><br>
+                यह विषय मेरे ज्योतिषीय अध्ययन क्षेत्र से बाहर का है। कृपया अपनी जन्मपत्रिका, करियर, विवाह, धन, स्वास्थ्य, ग्रह दशा या आध्यात्मिक उपाय से संबंधित कोई भी प्रश्न पूछें, मैं पूर्ण सूक्ष्मता एवं निष्ठा से आपका मार्गदर्शन करूँगा। 🌸
+            `;
+        }
+
         // GENERATIVE AI EXPERT ASTROLOGER PREDICTION ENGINE (40+ FACTORS EVALUATION)
         function generateDegreeLevelPrediction(question, bData) {
+            if (!isAstrologyOrSpiritualQuery(question)) {
+                return getPoliteNonAstrologyResponse();
+            }
+
             const chart = calculateFullAstrologicalChart(bData.dob, bData.tob, bData.lat, bData.lon);
             const matchedShlokas = queryClassicalShlokaDatabase(chart);
             
