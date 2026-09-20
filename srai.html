@@ -534,39 +534,23 @@
         <span class="ai-badge-header">✨ VEDIC AI 2.0</span>
     </nav>
 
-    <!-- FIREBASE PHONE OTP AUTH MODAL OVERLAY -->
+    <!-- STRICT ADMIN LOCK OVERLAY -->
     <div class="auth-overlay" id="authOverlay">
-        <div class="auth-card">
-            <div style="font-size:36px; margin-bottom:10px;">🚩 🤖</div>
-            <h2 class="auth-title">SRA AI में आपका स्वागत है</h2>
-            <p class="auth-desc">
-                वैदिक ज्योतिष एआई सहायक का अनुभव करने के लिए कृपया अपने फोन नंबर से सत्यापित करें:
-            </p>
-
-            <div id="recaptcha-container"></div>
-
-            <div id="phoneStep">
-                <div class="form-group-phone">
-                    <label>मोबाइल नंबर (Phone Number):</label>
-                    <input type="tel" id="userPhoneInput" class="input-phone" placeholder="+91 9876543210" value="+91 ">
-                </div>
-                <button class="btn-auth-primary" onclick="sendOtpRequest()">
-                    📲 OTP प्राप्त करें (Get OTP)
-                </button>
+        <div class="auth-card" style="border-color:var(--gold);">
+            <div style="font-size:42px; margin-bottom:10px;">🔐 🚩</div>
+            <h2 class="auth-title" style="color:var(--gold);">SRA AI - केवल एडमिन पहुँच</h2>
+            <div style="background:rgba(211,47,47,0.15); border:1px solid #d32f2f; color:#ff8a80; padding:10px; border-radius:10px; font-size:12px; margin-bottom:18px; line-height:1.5;">
+                <b>⚠️ आम जनता के लिए पहुँच लॉक्ड (Private Mode):</b><br>
+                SRA AI वर्तमान में केवल एस्ट्रो रामजी (Founder / Chief Astrologer) के लिए रिज़र्व्ड है। पहुँच अनलॉक करने के लिए एडमिन पासकोड दर्ज करें:
             </div>
 
-            <div id="otpStep" style="display:none; margin-top:14px;">
-                <div class="form-group-phone">
-                    <label>6-अंकों का OTP दर्ज करें:</label>
-                    <input type="text" id="userOtpInput" class="input-phone" placeholder="Enter 6-digit OTP..." maxlength="6">
-                </div>
-                <button class="btn-auth-primary" onclick="verifyOtpCode()">
-                    ✅ सत्यापित करें एवं चैट शुरू करें
-                </button>
+            <div class="form-group-phone">
+                <label>एडमिन पासकोड (Admin Secret Passcode):</label>
+                <input type="password" id="adminPasscodeInput" class="input-phone" placeholder="Enter Secret Admin Key..." onkeypress="if(event.key==='Enter') verifyAdminLock()">
             </div>
 
-            <button class="btn-quick-verify" onclick="quickDemoVerify()">
-                ⚡ त्वरित सत्यापन (Quick Demo Verify)
+            <button class="btn-auth-primary" onclick="verifyAdminLock()">
+                🔓 SRA AI अनलॉक करें (Unlock Admin Access)
             </button>
         </div>
     </div>
@@ -658,84 +642,40 @@
             { name: "न्यूयॉर्क (New York, USA)", lat: 40.7128, lon: -74.0060 }
         ];
 
-        // CHECK USER AUTH ON LOAD
+        // STRICT ADMIN LOCK VERIFICATION
         window.addEventListener('DOMContentLoaded', () => {
-            const savedUser = localStorage.getItem('sra_user_session');
-            if (savedUser) {
+            const isUnlocked = localStorage.getItem('sra_admin_ai_unlocked');
+            if (isUnlocked === 'true') {
                 document.getElementById('authOverlay').style.display = 'none';
                 initChatSequence();
             } else {
-                initRecaptcha();
+                document.getElementById('authOverlay').style.display = 'flex';
             }
         });
 
-        function initRecaptcha() {
-            if (typeof firebase !== 'undefined' && firebase.auth) {
-                try {
-                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                        'size': 'invisible'
-                    });
-                } catch(e) {}
+        function verifyAdminLock() {
+            const key = document.getElementById('adminPasscodeInput').value.trim();
+            if (key === "7775" || key === "95171" || key === "astroraamji") {
+                localStorage.setItem('sra_admin_ai_unlocked', 'true');
+                const session = {
+                    name: "एस्ट्रो रामजी (Founder)",
+                    email: "eshriee@gmail.com",
+                    picture: "logo.png",
+                    isVerified: true,
+                    isAdmin: true
+                };
+                localStorage.setItem('sra_user_session', JSON.stringify(session));
+
+                const overlay = document.getElementById('authOverlay');
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.4s';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    initChatSequence();
+                }, 400);
+            } else {
+                alert("❌ अमान्य एडमिन पासकोड! (Invalid Passcode)\n\nSRA AI वर्तमान में सर्वसाधारण हेतु लॉक्ड है।");
             }
-        }
-
-        async function sendOtpRequest() {
-            const phone = document.getElementById('userPhoneInput').value.trim();
-            if (!phone || phone.length < 10) {
-                alert("कृपया एक वैध मोबाइल नंबर (+91...) दर्ज करें!");
-                return;
-            }
-
-            try {
-                const appVerifier = window.recaptchaVerifier;
-                confirmationResultObj = await firebase.auth().signInWithPhoneNumber(phone, appVerifier);
-                document.getElementById('phoneStep').style.display = 'none';
-                document.getElementById('otpStep').style.display = 'block';
-                alert("📲 आपके मोबाइल नंबर पर OTP भेज दिया गया है!");
-            } catch(e) {
-                console.error("OTP error:", e);
-                alert("OTP भेजने में समस्या हुई। कृपया 'त्वरित सत्यापन (Quick Demo Verify)' बटन का उपयोग करें।");
-            }
-        }
-
-        async function verifyOtpCode() {
-            const code = document.getElementById('userOtpInput').value.trim();
-            if (!code || code.length !== 6) {
-                alert("कृपया 6-अंकों का OTP दर्ज करें!");
-                return;
-            }
-
-            try {
-                if (confirmationResultObj) {
-                    await confirmationResultObj.confirm(code);
-                }
-                saveUserSession();
-            } catch(e) {
-                alert("अमान्य OTP! कृपया पुन: प्रयास करें या Quick Demo Verify का उपयोग करें।");
-            }
-        }
-
-        function quickDemoVerify() {
-            saveUserSession();
-        }
-
-        function saveUserSession() {
-            const session = {
-                name: "सत्यापित साधक",
-                phone: document.getElementById('userPhoneInput').value || "+91 9876543210",
-                picture: "logo.png",
-                isVerified: true
-            };
-            localStorage.setItem('sra_user_session', JSON.stringify(session));
-            
-            // ANIMATED OVERLAY EXIT
-            const overlay = document.getElementById('authOverlay');
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.4s';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                initChatSequence();
-            }, 400);
         }
 
         // CHAT ENGINE
