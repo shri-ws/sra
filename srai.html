@@ -1118,22 +1118,27 @@
         }
 
         // -------------------------------------------------------------
-        // VIMSHOTTARI DASHA & HOUSE LORDSHIP ENGINE
+        // VIMSHOTTARI DASHA, ANTARDASHA & PRATYANTARDASHA ENGINE
         // -------------------------------------------------------------
-        const NAKSHATRA_LORDS = [
-            "केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)",
-            "केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)",
-            "केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)"
-        ];
-
-        const DASHA_YEARS = {
-            "केतु (Ketu)": 7, "शुक्र (Venus)": 20, "सूर्य (Sun)": 6, "चंद्रमा (Moon)": 10, "मंगल (Mars)": 7, "राहु (Rahu)": 18, "बृहस्पति (Jupiter)": 16, "शनि (Saturn)": 19, "बुध (Mercury)": 17
-        };
+        const DASHA_LORDS_HINDI = ["केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)"];
+        const DASHA_YEARS = { "केतु (Ketu)": 7, "शुक्र (Venus)": 20, "सूर्य (Sun)": 6, "चंद्रमा (Moon)": 10, "मंगल (Mars)": 7, "राहु (Rahu)": 18, "बृहस्पति (Jupiter)": 16, "शनि (Saturn)": 19, "बुध (Mercury)": 17 };
 
         const RASHI_LORDS_HINDI = [
             "मंगल (Mars)", "शुक्र (Venus)", "बुध (Mercury)", "चंद्रमा (Moon)", "सूर्य (Sun)", "बुध (Mercury)", 
             "शुक्र (Venus)", "मंगल (Mars)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "शनि (Saturn)", "बृहस्पति (Jupiter)"
         ];
+
+        function addYearsToDate(date, yearsFloat) {
+            const d = new Date(date.getTime());
+            const totalDays = yearsFloat * 365.2425;
+            d.setDate(d.getDate() + Math.round(totalDays));
+            return d;
+        }
+
+        function formatDateMonthYearHindi(date) {
+            const months = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
+            return `${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
 
         function getHouseLords(lagnaRashiIdx) {
             const houseLords = {};
@@ -1148,36 +1153,99 @@
         }
 
         function calculateVimshottariDasha(moonSid, dobDateObj) {
+            if (!dobDateObj || isNaN(dobDateObj.getTime())) {
+                dobDateObj = new Date("1998-01-15");
+            }
             const nakLen = 360 / 27;
             const nakIdx = Math.floor(moonSid / nakLen);
             const nakRemDeg = moonSid % nakLen;
             const fracElapsed = nakRemDeg / nakLen;
 
-            const janmaLord = NAKSHATRA_LORDS[nakIdx];
-            const totalYears = DASHA_YEARS[janmaLord] || 10;
-            const yearsElapsed = fracElapsed * totalYears;
-            const yearsRemaining = totalYears - yearsElapsed;
+            const janmaLord = DASHA_LORDS_HINDI[nakIdx % 9];
+            const janmaTotalYears = DASHA_YEARS[janmaLord] || 10;
+            const janmaYearsElapsed = fracElapsed * janmaTotalYears;
 
-            const birthYear = dobDateObj ? dobDateObj.getFullYear() : 1998;
-            let curEnd = birthYear + yearsRemaining;
-            const nowYear = new Date().getFullYear();
+            let mahaStartDate = new Date(dobDateObj.getTime());
+            mahaStartDate.setDate(mahaStartDate.getDate() - Math.round(janmaYearsElapsed * 365.2425));
 
-            const dashaSequence = ["केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)"];
-            let seqIdx = dashaSequence.indexOf(janmaLord);
-            if (seqIdx === -1) seqIdx = 0;
+            const now = new Date();
+            let seqIdx = DASHA_LORDS_HINDI.indexOf(janmaLord);
 
-            let activeMaha = janmaLord;
-            while (curEnd < nowYear) {
+            let activeMahaLord = janmaLord;
+            let activeMahaStart = new Date(mahaStartDate.getTime());
+            let activeMahaEnd = addYearsToDate(activeMahaStart, janmaTotalYears);
+
+            while (activeMahaEnd < now) {
                 seqIdx = (seqIdx + 1) % 9;
-                activeMaha = dashaSequence[seqIdx];
-                curEnd += DASHA_YEARS[activeMaha] || 10;
+                activeMahaLord = DASHA_LORDS_HINDI[seqIdx];
+                activeMahaStart = new Date(activeMahaEnd.getTime());
+                activeMahaEnd = addYearsToDate(activeMahaStart, DASHA_YEARS[activeMahaLord]);
+            }
+
+            // Antardashas within active Mahadasha
+            let antardashas = [];
+            let aSeqIdx = DASHA_LORDS_HINDI.indexOf(activeMahaLord);
+            let antStart = new Date(activeMahaStart.getTime());
+
+            let activeAntarLord = activeMahaLord;
+            let activeAntarStart = new Date(antStart.getTime());
+            let activeAntarEnd = new Date(antStart.getTime());
+
+            for (let i = 0; i < 9; i++) {
+                const aLord = DASHA_LORDS_HINDI[(aSeqIdx + i) % 9];
+                const adDurationYears = (DASHA_YEARS[activeMahaLord] * DASHA_YEARS[aLord]) / 120.0;
+                const antEnd = addYearsToDate(antStart, adDurationYears);
+
+                antardashas.push({
+                    lord: aLord,
+                    startDate: new Date(antStart.getTime()),
+                    endDate: new Date(antEnd.getTime()),
+                    durationMonths: Math.round(adDurationYears * 12 * 10) / 10
+                });
+
+                if (now >= antStart && now <= antEnd) {
+                    activeAntarLord = aLord;
+                    activeAntarStart = new Date(antStart.getTime());
+                    activeAntarEnd = new Date(antEnd.getTime());
+                }
+
+                antStart = new Date(antEnd.getTime());
+            }
+
+            // Pratyantardasha within active Antardasha
+            let pSeqIdx = DASHA_LORDS_HINDI.indexOf(activeAntarLord);
+            let pStart = new Date(activeAntarStart.getTime());
+            let activePratyantarLord = activeAntarLord;
+            let activePratyantarEnd = new Date(activeAntarStart.getTime());
+
+            const activeADYears = (DASHA_YEARS[activeMahaLord] * DASHA_YEARS[activeAntarLord]) / 120.0;
+
+            for (let j = 0; j < 9; j++) {
+                const pLord = DASHA_LORDS_HINDI[(pSeqIdx + j) % 9];
+                const pdDurationYears = (activeADYears * DASHA_YEARS[pLord]) / 120.0;
+                const pEnd = addYearsToDate(pStart, pdDurationYears);
+
+                if (now >= pStart && now <= pEnd) {
+                    activePratyantarLord = pLord;
+                    activePratyantarEnd = new Date(pEnd.getTime());
+                    break;
+                }
+                pStart = new Date(pEnd.getTime());
             }
 
             return {
                 janmaLord: janmaLord,
-                activeMahadasha: activeMaha,
-                mahadashaEndYear: Math.floor(curEnd),
-                yearsRemainingInCurrent: Math.max(1, Math.round(curEnd - nowYear))
+                activeMahadasha: activeMahaLord,
+                activeMahaStartFmt: formatDateMonthYearHindi(activeMahaStart),
+                activeMahaEndFmt: formatDateMonthYearHindi(activeMahaEnd),
+                activeAntardasha: activeAntarLord,
+                activeAntarStartFmt: formatDateMonthYearHindi(activeAntarStart),
+                activeAntarEndFmt: formatDateMonthYearHindi(activeAntarEnd),
+                activePratyantardasha: activePratyantarLord,
+                activePratyantarEndFmt: formatDateMonthYearHindi(activePratyantarEnd),
+                antardashas: antardashas,
+                mahadashaEndYear: activeMahaEnd.getFullYear(),
+                yearsRemainingInCurrent: Math.max(1, Math.round((activeMahaEnd - now) / (365.25 * 86400000)))
             };
         }
 
@@ -1401,13 +1469,15 @@
                 • <b>सूक्ष्म अयनांश:</b> ${chart.ayanamsaFormatted} (True Lahiri with Nutation)<br><br>
                 ${customInsight}
                 ${shlokaHtml}<br>
-                ⏳ <b>विंशोत्तरी महादशा व गोचर समय-चक्र (Vimshottari Dasha Timeline):</b><br>
+                ⏳ <b>विंशोत्तरी महादशा, अंतर्दशा व प्रत्यंतर्दशा सूक्ष्म समय-चक्र (Vimshottari Timeline):</b><br>
                 • <b>जन्म नक्षत्र स्वामी:</b> ${chart.dashaInfo.janmaLord}<br>
-                • <b>वर्तमान सक्रिय महादशा:</b> <b>${chart.dashaInfo.activeMahadasha}</b> (लगभग वर्ष ${chart.dashaInfo.mahadashaEndYear} तक प्रभावी)<br><br>
+                • <b>सक्रिय महादशा:</b> <b>${chart.dashaInfo.activeMahadasha}</b> (${chart.dashaInfo.activeMahaStartFmt} से ${chart.dashaInfo.activeMahaEndFmt})<br>
+                • <b>सक्रिय अंतर्दशा:</b> <b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b> (${chart.dashaInfo.activeAntarStartFmt} से ${chart.dashaInfo.activeAntarEndFmt})<br>
+                • <b>सूक्ष्म प्रत्यंतर्दशा:</b> <b>${chart.dashaInfo.activePratyantardasha}</b> (${chart.dashaInfo.activePratyantarEndFmt} तक प्रभावी)<br><br>
                 ✨ <b>प्रामाणिक वैदिक उपाय व रुद्राक्ष परामर्श (Authentic Vedic Remedy):</b><br>
                 • <b>अनुशंसित रुद्राक्ष:</b> ${rudrakshaSuggestion}<br>
                 • <b>अनुष्ठान व स्तोत्र पाठ:</b> ${remedyPageLink} पर विस्तृत ग्रह शांति एवं स्तोत्र जाप करें।<br><br>
-                💡 <i>क्या आप अपनी वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा की अंतर्दशा और वर्तमान गोचर (Planetary Transits) का प्रभाव अपने इस प्रश्न पर और गहराई से जानना चाहते हैं?</i>
+                💡 <i>क्या आप अपनी वर्तमान <b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b> अंतर्दशा के दौरान वर्तमान गोचर (Live Transits) के विशेष उपाय विस्तार से जानना चाहते हैं?</i>
             `;
         }
 
