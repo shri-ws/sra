@@ -891,6 +891,232 @@
             return `${deg}°${min < 10 ? '0' : ''}${min}'${sec < 10 ? '0' : ''}${sec}"`;
         }
 
+        function getJD(year, month, day, hourUTC) {
+            if (month <= 2) { year -= 1; month += 12; }
+            const A = Math.floor(year / 100);
+            const B = 2 - A + Math.floor(A / 4);
+            return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5 + hourUTC / 24.0;
+        }
+
+        function solveKepler(M, e) {
+            let E = M;
+            for (let i = 0; i < 15; i++) {
+                const dE = (E - e * Math.sin(E) - M) / (1.0 - e * Math.cos(E));
+                E -= dE;
+                if (Math.abs(dE) < 1e-7) break;
+            }
+            return E;
+        }
+
+        const ORBITAL_DATA = {
+            Earth: { a: [1.00000261, 0.00000562], e: [0.01671123, -0.00004392], I: [0.00001531, -0.01294668], L: [100.46457166, 35999.37244981], w: [102.93768193, 0.32327364], node: [0.0, 0.0] },
+            Mercury: { a: [0.38709927, 0.00000037], e: [0.20563593, 0.00001906], I: [7.00497902, -0.00594749], L: [252.25032350, 149472.67411175], w: [77.45779628, 0.16047689], node: [48.33076593, -0.12534081] },
+            Venus: { a: [0.72333566, 0.00000390], e: [0.00677672, -0.00004107], I: [3.39467605, -0.00078890], L: [181.97909950, 58517.81538729], w: [131.60246718, 0.00268329], node: [76.67984255, -0.27769418] },
+            Mars: { a: [1.52371034, 0.00001847], e: [0.09339410, 0.00007882], I: [1.84969142, -0.00813131], L: [-4.55343205, 19140.30268499], w: [-20.69234015, 0.44441088], node: [49.55953891, -0.29257343] },
+            Jupiter: { a: [5.20288700, -0.00011607], e: [0.04838624, -0.00013253], I: [1.30439695, -0.00183714], L: [34.39644051, 3034.74612775], w: [14.72847983, 0.21252668], node: [100.47390909, 0.20469106] },
+            Saturn: { a: [9.53667594, -0.00125060], e: [0.05386179, -0.00050991], I: [2.48599187, 0.00193609], L: [49.95424423, 1222.49362201], w: [92.59887831, -0.41897216], node: [113.66242448, -0.28867794] }
+        };
+
+        function getPlanetHeliocentric(elements, T) {
+            const a = elements.a[0] + elements.a[1] * T;
+            const e = elements.e[0] + elements.e[1] * T;
+            const I = (elements.I[0] + elements.I[1] * T) * DEG;
+            const L = norm360(elements.L[0] + elements.L[1] * T) * DEG;
+            const longPeri = norm360(elements.w[0] + elements.w[1] * T) * DEG;
+            const node = norm360(elements.node[0] + elements.node[1] * T) * DEG;
+
+            const M = norm360((L - longPeri) * RAD) * DEG;
+            const E = solveKepler(M, e);
+
+            const x_orb = a * (Math.cos(E) - e);
+            const y_orb = a * Math.sqrt(1.0 - e * e) * Math.sin(E);
+
+            const periNode = longPeri - node;
+            const cosNode = Math.cos(node), sinNode = Math.sin(node);
+            const cosPeri = Math.cos(periNode), sinPeri = Math.sin(periNode);
+            const cosI = Math.cos(I);
+
+            const Px = cosNode * cosPeri - sinNode * sinPeri * cosI;
+            const Py = sinNode * cosPeri + cosNode * sinPeri * cosI;
+            const Qx = -cosNode * sinPeri - sinNode * cosPeri * cosI;
+            const Qy = -sinNode * sinPeri + cosNode * cosPeri * cosI;
+
+            const x = x_orb * Px + y_orb * Qx;
+            const y = x_orb * Py + y_orb * Qy;
+            const z = (x_orb * sinPeri + y_orb * cosPeri) * Math.sin(I);
+
+            return { x, y, z };
+        }
+
+        function getTrueLahiriAyanamsa(T) {
+            const meanAyanamsa = 23.85307 + 1.396822 * T + 0.000308 * T * T;
+
+            const Omega  = (125.04452 - 1934.136261 * T + 0.0020708 * T * T) * DEG;
+            const L_sun  = (280.4665 + 36000.7698 * T) * DEG;
+            const L_moon = (218.3165 + 481267.8813 * T) * DEG;
+
+            const dPsi = -17.20 * Math.sin(Omega)
+                       -  1.32 * Math.sin(2 * L_sun)
+                       -  0.23 * Math.sin(2 * Omega)
+                       +  0.21 * Math.sin(2 * L_moon);
+
+            const eps = (23.439291 - 0.0130042 * T) * DEG;
+            const nutationCorrectionDeg = (dPsi / 3600.0) * Math.cos(eps);
+
+            return meanAyanamsa + nutationCorrectionDeg;
+        }
+
+        function computeMeeusMoonLongitude(T) {
+            const L_prime = 218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + (T * T * T) / 538841.0;
+            const D       = 297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + (T * T * T) / 545868.0;
+            const M       = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000.0;
+            const M_prime = 134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + (T * T * T) / 69699.0;
+            const F       = 93.2720950 + 483202.0175273 * T - 0.0036539 * T * T - (T * T * T) / 3526000.0;
+
+            const E = 1.0 - 0.002516 * T - 0.0000074 * T * T;
+
+            const moonTerms = [
+                [ 0,  0,  1,  0, 6288774, 0],
+                [ 2,  0, -1,  0, 1274027, 0],
+                [ 2,  0,  0,  0,  658314, 0],
+                [ 0,  0,  2,  0,  213618, 0],
+                [ 0,  1,  0,  0, -185116, 1],
+                [ 0,  0,  0,  2, -114332, 0],
+                [ 2,  0,  1,  0,   58793, 0],
+                [ 2, -1, -1,  0,   57066, 1],
+                [ 2,  0, -2,  0,   53322, 0],
+                [ 2,  1, -1,  0,   45758, 1],
+                [ 2, -1,  0,  0,  -40923, 1],
+                [ 0,  1,  1,  0,  -34720, 1],
+                [ 1,  0,  0,  0,  -30383, 0],
+                [ 0,  1, -1,  0,   15327, 1],
+                [ 2,  0,  0, -2,  -12528, 0],
+                [ 0,  0,  1,  2,   10980, 0],
+                [ 0,  0,  3,  0,   10675, 0],
+                [ 4,  0, -1,  0,   10075, 0],
+                [ 0,  0,  1, -2,    8548, 0],
+                [ 2,  1,  0,  0,   -7888, 1],
+                [ 2,  1,  1,  0,   -6766, 1],
+                [ 4,  0, -2,  0,   -5163, 0],
+                [ 2,  0, -3,  0,    4987, 0],
+                [ 2, -1,  1,  0,    4036, 1],
+                [ 2,  0,  2,  0,    3994, 0],
+                [ 4,  0,  0,  0,    3861, 0],
+                [ 2,  0, -1, -2,    3665, 0],
+                [ 0,  0,  0,  4,   -2689, 0],
+                [ 2, -1, -2,  0,   -2602, 1],
+                [ 1,  0,  1,  0,    2390, 0],
+                [ 3,  0, -1,  0,   -2348, 0],
+                [ 2,  1, -2,  0,    2236, 1],
+                [ 4,  0, -3,  0,   -2120, 0],
+                [ 2,  0, -1,  2,   -2069, 0],
+                [ 0,  2,  0,  0,    2048, 2],
+                [ 2, -2, -1,  0,   -1773, 2],
+                [ 2,  0,  1, -2,   -1595, 0],
+                [ 4, -1, -1,  0,    1215, 1],
+                [ 0,  0,  2, -2,   -1110, 0],
+                [ 3,  0,  1,  0,    -892, 0],
+                [ 2,  0,  0,  2,    -810, 0],
+                [ 4, -1, -2,  0,     761, 1],
+                [ 0,  2, -1,  0,    -713, 2],
+                [ 2,  2, -1,  0,    -700, 2],
+                [ 2,  1, -1, -2,     691, 1],
+                [ 2, -1, -1, -2,     596, 1],
+                [ 4,  0,  1,  0,     549, 0],
+                [ 0,  0,  4,  0,     537, 0],
+                [ 4, -1,  0,  0,     520, 1],
+                [ 1,  0, -1,  0,    -487, 0],
+                [ 1,  1,  1,  0,    -399, 1],
+                [ 2, -1,  0,  2,    -381, 1],
+                [ 1,  1, -1,  0,     351, 1],
+                [ 3,  0, -2,  0,    -340, 0],
+                [ 4,  0, -4,  0,     330, 0],
+                [ 2,  0,  3,  0,     327, 0],
+                [ 2, -1,  0, -2,    -323, 1],
+                [ 0,  1,  2,  0,     299, 1],
+                [ 6,  0, -2,  0,     294, 0]
+            ];
+
+            let sumSigmaL = 0;
+            for (let i = 0; i < moonTerms.length; i++) {
+                const t = moonTerms[i];
+                const arg = (t[0] * D + t[1] * M + t[2] * M_prime + t[3] * F) * DEG;
+                let factor = t[4];
+                if (t[5] === 1) factor *= E;
+                else if (t[5] === 2) factor *= (E * E);
+                sumSigmaL += factor * Math.sin(arg);
+            }
+
+            const A1 = (119.75 + 131.849 * T) * DEG;
+            const A2 = (53.09 + 479264.290 * T) * DEG;
+            const planetaryAdditions = 3958 * Math.sin(A1) + 1962 * Math.sin((L_prime - F) * DEG) + 318 * Math.sin(A2);
+
+            const totalPerturbationDeg = (sumSigmaL + planetaryAdditions) / 1000000.0;
+            return norm360(L_prime + totalPerturbationDeg);
+        }
+
+        function computeSiderealGeocentricLongitude(T, ayanamsa) {
+            const earth = getPlanetHeliocentric(ORBITAL_DATA.Earth, T);
+
+            const sunX = -earth.x;
+            const sunY = -earth.y;
+            const sunTrop = norm360(Math.atan2(sunY, sunX) * RAD);
+            const sunSid = norm360(sunTrop - ayanamsa);
+
+            const result = { Sun: sunSid };
+
+            ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'].forEach(pName => {
+                const pHelio = getPlanetHeliocentric(ORBITAL_DATA[pName], T);
+                let geoX = pHelio.x - earth.x;
+                let geoY = pHelio.y - earth.y;
+
+                if (pName === 'Jupiter' || pName === 'Saturn') {
+                    const M_jup = norm360(19.895 + 3034.9057 * T) * DEG;
+                    const M_sat = norm360(316.967 + 1222.1138 * T) * DEG;
+                    const deltaSat = (-0.812 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * DEG)
+                                      - 0.046 * Math.sin(2 * M_sat - 2 * M_jup)
+                                      + 0.171 * Math.sin(M_jup - M_sat - 4.4 * DEG)) * DEG;
+                    const deltaJup = (0.332 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * DEG)) * DEG;
+
+                    const r = Math.sqrt(geoX * geoX + geoY * geoY);
+                    if (pName === 'Saturn') {
+                        const curL = Math.atan2(geoY, geoX) + deltaSat;
+                        geoX = r * Math.cos(curL);
+                        geoY = r * Math.sin(curL);
+                    } else {
+                        const curL = Math.atan2(geoY, geoX) + deltaJup;
+                        geoX = r * Math.cos(curL);
+                        geoY = r * Math.sin(curL);
+                    }
+                }
+
+                const pTrop = norm360(Math.atan2(geoY, geoX) * RAD);
+                result[pName] = norm360(pTrop - ayanamsa);
+            });
+
+            const moonTrop = computeMeeusMoonLongitude(T);
+            result.Moon = norm360(moonTrop - ayanamsa);
+
+            const nodeTrop = 125.04452 - 1934.136261 * T + 0.0020708 * T * T;
+            result.Rahu = norm360(nodeTrop - ayanamsa);
+            result.Ketu = norm360(result.Rahu + 180);
+
+            return result;
+        }
+
+        function computeLagnaFromRAMC(RAMC, lat, eps, ayanamsa) {
+            const phi = lat * DEG;
+            const epsRad = eps * DEG;
+            const ramcRad = RAMC * DEG;
+
+            const ascRad = Math.atan2(
+                Math.cos(ramcRad),
+                -Math.sin(ramcRad) * Math.cos(epsRad) - Math.tan(phi) * Math.sin(epsRad)
+            );
+            const ascTrop = norm360(ascRad * RAD);
+            return norm360(ascTrop - ayanamsa);
+        }
+
         function calculateFullAstrologicalChart(dobStr, tobStr, lat, lon) {
             const rashis = ["मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)", "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)", "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"];
             const nakshatras = ["अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा", "पुनर्वसु", "पुष्य", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा", "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"];
@@ -900,62 +1126,28 @@
                 tobStr = "10:30";
             }
 
-            const dateParts = dobStr.split('-');
-            const timeParts = tobStr.split(':');
-            const year = parseInt(dateParts[0]) || 1998;
-            const month = parseInt(dateParts[1]) || 1;
-            const day = parseInt(dateParts[2]) || 15;
-            const hrs = parseInt(timeParts[0]) || 10;
-            const mins = parseInt(timeParts[1]) || 30;
+            const [year, month, day] = dobStr.split('-').map(Number);
+            const [hh, mm] = tobStr.split(':').map(Number);
+            const birthLocalHrs = hh + (mm || 0) / 60.0;
+            const tz = 5.5; // IST standard default
+            const utcHrs = birthLocalHrs - tz;
 
-            // Julian Date & Ephemeris Time
-            let y = year, m = month;
-            if (m <= 2) { y -= 1; m += 12; }
-            const A = Math.floor(y / 100);
-            const B = 2 - A + Math.floor(A / 4);
-            const decimalUT = hrs + mins / 60.0 - 5.5;
-            const JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + B - 1524.5 + decimalUT / 24.0;
+            const JD = getJD(year, month, day, utcHrs);
             const T = (JD - 2451545.0) / 36525.0;
 
-            // Lahiri Ayanamsha with Nutation
-            const meanAyanamsa = 23.85307 + 1.396822 * T + 0.000308 * T * T;
-            const Omega = (125.04452 - 1934.136261 * T) * DEG;
-            const dPsi = -17.20 * Math.sin(Omega);
-            const ayanamsa = meanAyanamsa + (dPsi / 3600.0) * Math.cos(23.439 * DEG);
+            const ayanamsa = getTrueLahiriAyanamsa(T);
+            const eps = 23.439291 - 0.0130042 * T;
 
-            // Sun & Moon Sidereal Longitudes
-            const L0_sun = norm360(280.4665 + 36000.7698 * T);
-            const M_sun = norm360(357.5291 + 35999.0503 * T) * DEG;
-            const sunTrop = L0_sun + 1.9146 * Math.sin(M_sun) + 0.02 * Math.sin(2 * M_sun);
-            const sunSid = norm360(sunTrop - ayanamsa);
+            const pos = computeSiderealGeocentricLongitude(T, ayanamsa);
 
-            const L_moon = norm360(218.3164 + 481267.8812 * T);
-            const M_moon = norm360(134.9634 + 477198.8675 * T) * DEG;
-            const moonTrop = L_moon + 6.2887 * Math.sin(M_moon);
-            const moonSid = norm360(moonTrop - ayanamsa);
+            const GMST = norm360(280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T);
+            const RAMC = norm360(GMST + (lon || 80.943));
+            const ascSid = computeLagnaFromRAMC(RAMC, lat || 26.875, eps, ayanamsa);
 
-            // RAMC & Sidereal Ascendant (Lagna)
-            const GMST0 = norm360(280.46061837 + 36000.770053608 * T);
-            const LST = norm360(GMST0 + decimalUT * 15.04107 + (lon || 82.9739));
-            const epsRad = 23.439 * DEG;
-            const phi = (lat || 25.3176) * DEG;
-            const ramcRad = LST * DEG;
-
-            const ascRad = Math.atan2(Math.cos(ramcRad), -Math.sin(ramcRad) * Math.cos(epsRad) - Math.tan(phi) * Math.sin(epsRad));
-            const ascSid = norm360(ascRad * RAD - ayanamsa);
-
-            // Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu Sidereal Longitudes
-            const marsSid = norm360(norm360(355.45 + 19140.30 * T) - ayanamsa);
-            const mercSid = norm360(norm360(252.25 + 149472.67 * T) - ayanamsa);
-            const jupSid  = norm360(norm360(34.40 + 3034.75 * T) - ayanamsa);
-            const venSid  = norm360(norm360(181.98 + 58517.82 * T) - ayanamsa);
-            const satSid  = norm360(norm360(49.95 + 1222.49 * T) - ayanamsa);
-            const rahuSid = norm360(125.04452 - 1934.136261 * T - ayanamsa);
-            const ketuSid = norm360(rahuSid + 180);
-
-            // Rashis & Nakshatras
             const lagnaRashiIdx = Math.floor(ascSid / 30);
+            const moonSid = pos.Moon;
             const moonRashiIdx = Math.floor(moonSid / 30);
+            const sunSid = pos.Sun;
             const sunRashiIdx = Math.floor(sunSid / 30);
 
             const nakIdx = Math.floor(moonSid / (360 / 27));
@@ -965,13 +1157,13 @@
                 { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid) },
                 { name: "☀️ सूर्य (Sun)", rashi: rashis[sunRashiIdx], deg: formatDegMinSec(sunSid) },
                 { name: "🌙 चंद्रमा (Moon)", rashi: rashis[moonRashiIdx], deg: formatDegMinSec(moonSid), extra: `${nakshatras[nakIdx]} (${pada})` },
-                { name: "♂️ मंगल (Mars)", rashi: rashis[Math.floor(marsSid / 30)], deg: formatDegMinSec(marsSid) },
-                { name: "☿ बुध (Mercury)", rashi: rashis[Math.floor(mercSid / 30)], deg: formatDegMinSec(mercSid) },
-                { name: "♃ बृहस्पति (Jupiter)", rashi: rashis[Math.floor(jupSid / 30)], deg: formatDegMinSec(jupSid) },
-                { name: "♀️ शुक्र (Venus)", rashi: rashis[Math.floor(venSid / 30)], deg: formatDegMinSec(venSid) },
-                { name: "♄ शनि (Saturn)", rashi: rashis[Math.floor(satSid / 30)], deg: formatDegMinSec(satSid) },
-                { name: "☊ राहु (Rahu)", rashi: rashis[Math.floor(rahuSid / 30)], deg: formatDegMinSec(rahuSid) },
-                { name: "☋ केतु (Ketu)", rashi: rashis[Math.floor(ketuSid / 30)], deg: formatDegMinSec(ketuSid) }
+                { name: "♂️ मंगल (Mars)", rashi: rashis[Math.floor(pos.Mars / 30)], deg: formatDegMinSec(pos.Mars) },
+                { name: "☿ बुध (Mercury)", rashi: rashis[Math.floor(pos.Mercury / 30)], deg: formatDegMinSec(pos.Mercury) },
+                { name: "♃ बृहस्पति (Jupiter)", rashi: rashis[Math.floor(pos.Jupiter / 30)], deg: formatDegMinSec(pos.Jupiter) },
+                { name: "♀️ शुक्र (Venus)", rashi: rashis[Math.floor(pos.Venus / 30)], deg: formatDegMinSec(pos.Venus) },
+                { name: "♄ शनि (Saturn)", rashi: rashis[Math.floor(pos.Saturn / 30)], deg: formatDegMinSec(pos.Saturn) },
+                { name: "☊ राहु (Rahu)", rashi: rashis[Math.floor(pos.Rahu / 30)], deg: formatDegMinSec(pos.Rahu) },
+                { name: "☋ केतु (Ketu)", rashi: rashis[Math.floor(pos.Ketu / 30)], deg: formatDegMinSec(pos.Ketu) }
             ];
 
             return {
