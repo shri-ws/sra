@@ -1931,11 +1931,18 @@ Answer the user's specific query in detail with degree level precision, classica
                 }
             }
 
-            if (lastError && (lastError.message.includes("not found") || lastError.message.includes("API_KEY_INVALID"))) {
-                throw new Error("Gemini API Key अमान्य है या चुना गया मॉडल समर्थित नहीं है। कृपया aistudio.google.com/app/apikey से नई मुफ़्त कुंजी प्राप्त करें।");
+            if (lastError) {
+                const msg = lastError.message || "";
+                if (msg.includes("disabled") || msg.includes("PERMISSION_DENIED") || msg.includes("has not been used")) {
+                    throw new Error("प्रोजेक्ट 'shriramjiastro-cee67' पर Gemini API इनेबल नहीं है। कृपया AI Studio पर 'Create API key in new project' चुनें या GCP Console से इनेबल करें।");
+                }
+                if (msg.includes("not found") || msg.includes("API_KEY_INVALID")) {
+                    throw new Error("Gemini API Key अमान्य है। कृपया aistudio.google.com/app/apikey पर 'Create API key in new project' चुनकर नई कुंजी बनाएं।");
+                }
+                throw lastError;
             }
 
-            throw lastError || new Error("Gemini API Connection Failed");
+            throw new Error("Gemini API Connection Failed");
         }
 
         // MULTI-DOMAIN SMART VISION ENGINE (KUNDLI SCREENSHOTS, PALMISTRY, VASTU & OCR)
