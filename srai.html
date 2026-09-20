@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="night">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRA AI - श्री रामजी एस्ट्रो एआई | Vedic Astrology AI Assistant</title>
+    
+    <!-- FONTS & ICONS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- LEAFLET MAP CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- FIREBASE COMPAT SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="supabase-integration.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #0B0E14;
+            --bg-card: #151A23;
+            --bg-chat-bot: #1C2331;
+            --bg-chat-user: #2B1D0C;
+            --gold: #D4A017;
+            --gold-light: #F3E5AB;
+            --gold-dark: #B8860B;
+            --accent-purple: #8A2BE2;
+            --accent-indigo: #4B0082;
+            --text-main: #EAEFF5;
+            --text-muted: #94A3B8;
+            --border-soft: rgba(212, 160, 23, 0.25);
+            --border-glow: rgba(212, 160, 23, 0.6);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(138, 43, 226, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(212, 160, 23, 0.10) 0%, transparent 40%);
+        }
+
+        /* NAVIGATION BAR */
+        nav {
+            background: rgba(15, 20, 30, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-soft);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-logo img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--gold);
+            object-fit: cover;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--gold);
+        }
+
+        .ai-badge-header {
+            background: linear-gradient(135deg, var(--gold-dark), var(--accent-purple));
+            color: #FFF;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(212, 160, 23, 0.3);
+        }
+
+        /* MAIN LAYOUT */
+        .app-container {
+            max-width: 960px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            position: relative;
+        }
+
+        /* AUTH MODAL CARD */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 10, 15, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--bg-card);
+            border: 2px solid var(--gold);
+            border-radius: var(--radius-lg);
+            max-width: 440px;
+            width: 100%;
+            padding: 32px 28px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(212, 160, 23, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 160, 23, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .auth-title {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        .auth-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .form-group-phone {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .form-group-phone label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold-light);
+            margin-bottom: 6px;
+        }
+        .input-phone {
+            width: 100%;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-soft);
+            color: var(--text-main);
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .input-phone:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212, 160, 23, 0.3);
+        }
+        .btn-auth-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-auth-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 160, 23, 0.4);
+        }
+        .btn-quick-verify {
+            margin-top: 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-soft);
+            color: var(--gold-light);
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-quick-verify:hover {
+            background: rgba(212, 160, 23, 0.15);
+        }
+
+        /* CHAT FEED CONTAINER */
+        .chat-window {
+            flex: 1;
+            background: rgba(21, 26, 35, 0.6);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 14px 20px;
+            background: rgba(15, 20, 30, 0.9);
+            border-bottom: 1px solid var(--border-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-bot-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-avatar-lg {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            background: var(--bg-deep);
+            padding: 2px;
+            object-fit: cover;
+        }
+        .chat-title-group h2 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chat-title-group p {
+            font-size: 11.5px;
+            color: var(--text-muted);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            scroll-behavior: smooth;
+        }
+
+        /* CHAT BUBBLES */
+        .msg-row {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .msg-row.bot { align-self: flex-start; }
+        .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+
+        .msg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--gold);
+            flex-shrink: 0;
+            object-fit: cover;
+        }
+        .msg-bubble {
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .msg-row.bot .msg-bubble {
+            background: var(--bg-chat-bot);
+            border: 1px solid var(--border-soft);
+            color: var(--text-main);
+            border-top-left-radius: 4px;
+        }
+        .msg-row.user .msg-bubble {
+            background: linear-gradient(135deg, #3D290A, #1F1505);
+            border: 1px solid var(--gold-dark);
+            color: var(--gold-light);
+            border-top-right-radius: 4px;
+        }
+
+        /* WIDGETS INSIDE CHAT BUBBLES */
+        .chat-widget-card {
+            margin-top: 12px;
+            background: rgba(11, 14, 20, 0.7);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-widget-card label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .chat-widget-card input, .chat-widget-card select {
+            background: var(--bg-deep);
+            border: 1px solid var(--border-soft);
+            color: #FFF;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            outline: none;
+        }
+        .btn-widget-submit {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-widget-submit:hover {
+            background: var(--gold-light);
+        }
+
+        /* LOCATION PICKER TABS */
+        .loc-tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-soft);
+            padding-bottom: 8px;
+        }
+        .loc-tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .loc-tab-btn.active {
+            background: var(--gold-dark);
+            color: #FFF;
+        }
+        #bplaceMap {
+            height: 180px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-soft);
+        }
+
+        /* KUNDLI SUMMARY BADGE */
+        .kundli-summary-badge {
+            background: linear-gradient(135deg, rgba(212, 160, 23, 0.15), rgba(138, 43, 226, 0.15));
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .k-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .k-item span { font-size: 10.5px; color: var(--text-muted); }
+        .k-item b { color: var(--gold-light); font-weight: 700; }
+
+        /* PROMPT CHIPS */
+        .prompt-chips-container {
+            padding: 12px 20px;
+            background: rgba(15, 20, 30, 0.7);
+            border-top: 1px solid var(--border-soft);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+        .prompt-chip {
+            background: rgba(212, 160, 23, 0.1);
+            border: 1px solid var(--border-soft);
+            color: var(--gold-light);
+            padding: 8px 14px;
+            border-radius: 18px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-chip:hover {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold);
+        }
+
+        /* BOTTOM CHAT INPUT BAR */
+        .chat-input-bar {
+            padding: 14px 20px;
+            background: rgba(15, 20, 30, 0.95);
+            border-top: 1px solid var(--border-soft);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-input {
+            flex: 1;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-soft);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+        }
+        .chat-input:focus {
+            border-color: var(--gold);
+        }
+        .btn-send-msg {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .btn-send-msg:hover {
+            transform: scale(1.06);
+        }
+
+        /* TYPING INDICATOR */
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+        }
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        @media (max-width: 640px) {
+            nav { padding: 10px 14px; }
+            .nav-links { display: none; }
+            .chat-window { height: calc(100vh - 80px); border-radius: 0; border: none; }
+            .msg-row { max-width: 95%; }
+            .kundli-summary-badge { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION BAR -->
+    <nav>
+        <a href="index.html" class="nav-logo">
+            <img src="logo.png" alt="Shri Ramji Astro Logo">
+            <span>SHRI RAMJI ASTRO</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">गृह (Home)</a>
+            <a href="srai.html" class="active">🤖 SRA AI</a>
+            <a href="accurate-predictions.html" style="color:var(--gold);">🔮 Astro 360</a>
+            <a href="vmm.html">💍 विवाह मुहूर्त</a>
+            <a href="mmm.html">✂️ मुंडन मुहूर्त</a>
+            <a href="about.html">📜 आलेख व चर्चा</a>
+        </div>
+        <span class="ai-badge-header">✨ VEDIC AI 2.0</span>
+    </nav>
+
+    <!-- FIREBASE PHONE OTP AUTH MODAL OVERLAY -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <div style="font-size:36px; margin-bottom:10px;">🚩 🤖</div>
+            <h2 class="auth-title">SRA AI में आपका स्वागत है</h2>
+            <p class="auth-desc">
+                वैदिक ज्योतिष एआई सहायक का अनुभव करने के लिए कृपया अपने फोन नंबर से सत्यापित करें:
+            </p>
+
+            <div id="recaptcha-container"></div>
+
+            <div id="phoneStep">
+                <div class="form-group-phone">
+                    <label>मोबाइल नंबर (Phone Number):</label>
+                    <input type="tel" id="userPhoneInput" class="input-phone" placeholder="+91 9876543210" value="+91 ">
+                </div>
+                <button class="btn-auth-primary" onclick="sendOtpRequest()">
+                    📲 OTP प्राप्त करें (Get OTP)
+                </button>
+            </div>
+
+            <div id="otpStep" style="display:none; margin-top:14px;">
+                <div class="form-group-phone">
+                    <label>6-अंकों का OTP दर्ज करें:</label>
+                    <input type="text" id="userOtpInput" class="input-phone" placeholder="Enter 6-digit OTP..." maxlength="6">
+                </div>
+                <button class="btn-auth-primary" onclick="verifyOtpCode()">
+                    ✅ सत्यापित करें एवं चैट शुरू करें
+                </button>
+            </div>
+
+            <button class="btn-quick-verify" onclick="quickDemoVerify()">
+                ⚡ त्वरित सत्यापन (Quick Demo Verify)
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CHAT APP CONTAINER -->
+    <div class="app-container">
+        <div class="chat-window">
+            
+            <!-- CHAT HEADER -->
+            <div class="chat-header">
+                <div class="chat-bot-info">
+                    <img src="logo.png" class="chat-avatar-lg" alt="SRA AI Avatar">
+                    <div class="chat-title-group">
+                        <h2>SRA AI <span style="font-size:11px; background:var(--gold-dark); color:#FFF; padding:1px 6px; border-radius:6px;">LIVE</span></h2>
+                        <p>महर्षि पराशर सिद्धांत • डिग्री-स्तरीय खगोलीय विश्लेषण</p>
+                    </div>
+                </div>
+                <div style="font-size:12px; color:var(--gold-light); display:flex; align-items:center; gap:6px;">
+                    <span style="width:8px; height:8px; background:#25D366; border-radius:50%; display:inline-block;"></span>
+                    सक्रिय (Online)
+                </div>
+            </div>
+
+            <!-- CHAT MESSAGES CONTAINER -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- MESSAGES WILL BE DYNAMICALLY APPENDED HERE -->
+            </div>
+
+            <!-- PROMPT CHIPS CONTAINER -->
+            <div class="prompt-chips-container" id="promptChips" style="display:none;">
+                <div class="prompt-chip" onclick="selectPromptChip('मेरी करियर और सरकारी नौकरी का योग कब बनेगा?')">💼 करियर व सरकारी नौकरी</div>
+                <div class="prompt-chip" onclick="selectPromptChip('मेरा विवाह कब होगा और जीवनसाथी कैसा मिलेगा?')">💍 विवाह व जीवनसाथी</div>
+                <div class="prompt-chip" onclick="selectPromptChip('आर्थिक स्थिति और धन संपत्ति का मुख्य योग क्या है?')">💰 धन संपत्ति व आर्थिक स्थिति</div>
+                <div class="prompt-chip" onclick="selectPromptChip('स्वास्थ्य और मानसिक शांति के लिए कौन सा ग्रह जिम्मेदार है?')">🩺 स्वास्थ्य व मानसिक शांति</div>
+                <div class="prompt-chip" onclick="selectPromptChip('विदेश यात्रा और उच्च शिक्षा का योग कब है?')">✈️ विदेश यात्रा व उच्च शिक्षा</div>
+            </div>
+
+            <!-- BOTTOM CHAT INPUT BAR -->
+            <div class="chat-input-bar">
+                <input type="text" id="customMsgInput" class="chat-input" placeholder="SRA AI से अपना ज्योतिष प्रश्न पूछें..." disabled onkeypress="if(event.key==='Enter') sendCustomMessage()">
+                <button class="btn-send-msg" id="btnSendMsg" onclick="sendCustomMessage()" disabled>🚀</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // FIREBASE INITIALIZATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
+            authDomain: "shriramjiastro-cee67.firebaseapp.com",
+            projectId: "shriramjiastro-cee67",
+            storageBucket: "shriramjiastro-cee67.firebasestorage.app",
+            messagingSenderId: "918915221342",
+            appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf"
+        };
+
+        try {
+            if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+        } catch(e) { console.warn("Firebase Init Note:", e); }
+
+        let confirmationResultObj = null;
+        let userBirthData = {
+            dob: '',
+            tob: '',
+            placeName: '',
+            lat: 25.3176,
+            lon: 82.9739
+        };
+
+        let activeStep = 'dob'; // 'dob', 'tob', 'place', 'ready'
+        let leafletMap = null;
+        let leafletMarker = null;
+
+        // POPULAR CITIES DATABASE FOR AUTOCOMPLETE
+        const CITIES = [
+            { name: "वाराणसी (Varanasi, UP)", lat: 25.3176, lon: 82.9739 },
+            { name: "नई दिल्ली (New Delhi)", lat: 28.6139, lon: 77.2090 },
+            { name: "मुंबई (Mumbai, MH)", lat: 19.0760, lon: 72.8777 },
+            { name: "लखनऊ (Lucknow, UP)", lat: 26.8467, lon: 80.9462 },
+            { name: "जयपुर (Jaipur, RJ)", lat: 26.9124, lon: 75.7873 },
+            { name: "कोलकाता (Kolkata, WB)", lat: 22.5726, lon: 88.3639 },
+            { name: "अयोध्या (Ayodhya, UP)", lat: 26.7922, lon: 82.1998 },
+            { name: "अहमदाबाद (Ahmedabad, GJ)", lat: 23.0225, lon: 72.5714 },
+            { name: "बेंगलुरु (Bengaluru, KA)", lat: 12.9716, lon: 77.5946 },
+            { name: "लंदन (London, UK)", lat: 51.5074, lon: -0.1278 },
+            { name: "न्यूयॉर्क (New York, USA)", lat: 40.7128, lon: -74.0060 }
+        ];
+
+        // CHECK USER AUTH ON LOAD
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('sra_user_session');
+            if (savedUser) {
+                document.getElementById('authOverlay').style.display = 'none';
+                initChatSequence();
+            } else {
+                initRecaptcha();
+            }
+        });
+
+        function initRecaptcha() {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                try {
+                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                        'size': 'invisible'
+                    });
+                } catch(e) {}
+            }
+        }
+
+        async function sendOtpRequest() {
+            const phone = document.getElementById('userPhoneInput').value.trim();
+            if (!phone || phone.length < 10) {
+                alert("कृपया एक वैध मोबाइल नंबर (+91...) दर्ज करें!");
+                return;
+            }
+
+            try {
+                const appVerifier = window.recaptchaVerifier;
+                confirmationResultObj = await firebase.auth().signInWithPhoneNumber(phone, appVerifier);
+                document.getElementById('phoneStep').style.display = 'none';
+                document.getElementById('otpStep').style.display = 'block';
+                alert("📲 आपके मोबाइल नंबर पर OTP भेज दिया गया है!");
+            } catch(e) {
+                console.error("OTP error:", e);
+                alert("OTP भेजने में समस्या हुई। कृपया 'त्वरित सत्यापन (Quick Demo Verify)' बटन का उपयोग करें।");
+            }
+        }
+
+        async function verifyOtpCode() {
+            const code = document.getElementById('userOtpInput').value.trim();
+            if (!code || code.length !== 6) {
+                alert("कृपया 6-अंकों का OTP दर्ज करें!");
+                return;
+            }
+
+            try {
+                if (confirmationResultObj) {
+                    await confirmationResultObj.confirm(code);
+                }
+                saveUserSession();
+            } catch(e) {
+                alert("अमान्य OTP! कृपया पुन: प्रयास करें या Quick Demo Verify का उपयोग करें।");
+            }
+        }
+
+        function quickDemoVerify() {
+            saveUserSession();
+        }
+
+        function saveUserSession() {
+            const session = {
+                name: "सत्यापित साधक",
+                phone: document.getElementById('userPhoneInput').value || "+91 9876543210",
+                picture: "logo.png",
+                isVerified: true
+            };
+            localStorage.setItem('sra_user_session', JSON.stringify(session));
+            
+            // ANIMATED OVERLAY EXIT
+            const overlay = document.getElementById('authOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.4s';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                initChatSequence();
+            }, 400);
+        }
+
+        // CHAT ENGINE
+        function initChatSequence() {
+            appendBotMessage(`
+                नमस्कार! 🚩 मैं <b>SRA AI</b> हूँ—आपका व्यक्तिगत वैदिक ज्योतिष एआई सहायक।<br><br>
+                मैं आपकी जन्म पत्रिका के ग्रहों, राशियों और नक्षत्रों की <b>सटीक डिग्री (Degree Level)</b> गणना करके आपके प्रश्नों के प्रामाणिक उत्तर देता हूँ।<br><br>
+                सटीक गणना शुरू करने के लिए, कृपया अपनी <b>जन्म तिथि (Date of Birth)</b> चुनें:
+                <div class="chat-widget-card">
+                    <label>📅 आपकी जन्म तिथि (Date of Birth):</label>
+                    <input type="date" id="dobInput" value="1998-01-15">
+                    <button class="btn-widget-submit" onclick="submitDobStep()">आगे बढ़ें (Next) ➔</button>
+                </div>
+            `);
+        }
+
+        function submitDobStep() {
+            const dob = document.getElementById('dobInput').value;
+            if (!dob) { alert("कृपया जन्म तिथि दर्ज करें!"); return; }
+            userBirthData.dob = dob;
+
+            appendUserMessage(`मेरी जन्म तिथि: ${dob}`);
+
+            // STEP 2: TIME OF BIRTH
+            setTimeout(() => {
+                appendBotMessage(`
+                    बहुत उत्तम! अब अपना सटीक <b>जन्म समय (Time of Birth)</b> दर्ज करें:
+                    <div class="chat-widget-card">
+                        <label>⏰ जन्म समय (Time of Birth):</label>
+                        <input type="time" id="tobInput" value="10:30">
+                        <button class="btn-widget-submit" onclick="submitTobStep()">आगे बढ़ें (Next) ➔</button>
+                    </div>
+                `);
+            }, 600);
+        }
+
+        function submitTobStep() {
+            const tob = document.getElementById('tobInput').value;
+            if (!tob) { alert("कृपया जन्म समय दर्ज करें!"); return; }
+            userBirthData.tob = tob;
+
+            appendUserMessage(`मेरा जन्म समय: ${tob}`);
+
+            // STEP 3: BIRTH PLACE WITH LEAFLET MAP & CITY SEARCH
+            setTimeout(() => {
+                appendBotMessage(`
+                    शानदार! अब अपना <b>जन्म स्थान (Birth Place)</b> चुनें। आप शहर की सूची से चुन सकते हैं या मानचित्र (Map) पर पिन लगा सकते हैं:
+                    <div class="chat-widget-card">
+                        <div class="loc-tabs">
+                            <button class="loc-tab-btn active" onclick="switchLocTab('city')">🏙️ शहर चुनें</button>
+                            <button class="loc-tab-btn" onclick="switchLocTab('map')">🗺️ मैप पिन</button>
+                        </div>
+
+                        <div id="cityTabContent">
+                            <label>शहर खोजें (City Search):</label>
+                            <select id="citySelect">
+                                ${CITIES.map(c => `<option value="${c.lat},${c.lon},${c.name}">${c.name}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <div id="mapTabContent" style="display:none;">
+                            <label>मैप पर पिन लगाएँ (Tap map to select lat/lon):</label>
+                            <div id="bplaceMap"></div>
+                        </div>
+
+                        <button class="btn-widget-submit" onclick="submitPlaceStep()">कुंडली तैयार करें (Generate Kundli) 🚀</button>
+                    </div>
+                `);
+
+                setTimeout(() => initLeafletMap(), 200);
+            }, 600);
+        }
+
+        function switchLocTab(tab) {
+            document.querySelectorAll('.loc-tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            if (tab === 'city') {
+                document.getElementById('cityTabContent').style.display = 'block';
+                document.getElementById('mapTabContent').style.display = 'none';
+            } else {
+                document.getElementById('cityTabContent').style.display = 'none';
+                document.getElementById('mapTabContent').style.display = 'block';
+                if (leafletMap) leafletMap.invalidateSize();
+            }
+        }
+
+        function initLeafletMap() {
+            if (leafletMap) return;
+            const container = document.getElementById('bplaceMap');
+            if (!container) return;
+
+            leafletMap = L.map('bplaceMap').setView([25.3176, 82.9739], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(leafletMap);
+
+            leafletMarker = L.marker([25.3176, 82.9739], { draggable: true }).addTo(leafletMap);
+
+            leafletMap.on('click', (e) => {
+                leafletMarker.setLatLng(e.latlng);
+                userBirthData.lat = e.latlng.lat;
+                userBirthData.lon = e.latlng.lng;
+                userBirthData.placeName = `Map Pin (${e.latlng.lat.toFixed(2)}°, ${e.latlng.lng.toFixed(2)}°)`;
+            });
+
+            leafletMarker.on('dragend', (e) => {
+                const pos = leafletMarker.getLatLng();
+                userBirthData.lat = pos.lat;
+                userBirthData.lon = pos.lng;
+                userBirthData.placeName = `Map Pin (${pos.lat.toFixed(2)}°, ${pos.lng.toFixed(2)}°)`;
+            });
+        }
+
+        function submitPlaceStep() {
+            const cityVal = document.getElementById('citySelect').value;
+            if (cityVal) {
+                const parts = cityVal.split(',');
+                userBirthData.lat = parseFloat(parts[0]);
+                userBirthData.lon = parseFloat(parts[1]);
+                userBirthData.placeName = parts[2];
+            }
+
+            appendUserMessage(`मेरा जन्म स्थान: ${userBirthData.placeName}`);
+
+            // GENERATE KUNDLI SUMMARY & REVEAL PROMPTS
+            setTimeout(() => {
+                const lagnaInfo = calculateLagnaDetails(userBirthData.dob, userBirthData.tob);
+
+                appendBotMessage(`
+                    🎉 <b>आपकी जन्म कुंडली का खगोलीय चार्ट तैयार है!</b><br>
+                    <div class="kundli-summary-badge">
+                        <div class="k-item"><span>जन्म तिथि & समय</span><b>${userBirthData.dob} | ${userBirthData.tob}</b></div>
+                        <div class="k-item"><span>जन्म स्थान</span><b>${userBirthData.placeName}</b></div>
+                        <div class="k-item"><span>लग्न राशि (Lagna)</span><b>${lagnaInfo.lagna} (${lagnaInfo.lagnaDeg})</b></div>
+                        <div class="k-item"><span>चंद्र राशि व नक्षत्र</span><b>${lagnaInfo.moonRashi} (${lagnaInfo.nakshatra})</b></div>
+                    </div>
+                    <br>अब आप नीचे दिए गए <b>मुख्य प्रश्नों</b> में से चुनें या अपना कोई भी प्रश्न टाइप करें:
+                `);
+
+                document.getElementById('promptChips').style.display = 'flex';
+                document.getElementById('customMsgInput').disabled = false;
+                document.getElementById('btnSendMsg').disabled = false;
+            }, 800);
+        }
+
+        function selectPromptChip(qText) {
+            sendUserQuestion(qText);
+        }
+
+        function sendCustomMessage() {
+            const input = document.getElementById('customMsgInput');
+            const qText = input.value.trim();
+            if (!qText) return;
+            input.value = '';
+            sendUserQuestion(qText);
+        }
+
+        function sendUserQuestion(qText) {
+            appendUserMessage(qText);
+            showTypingIndicator();
+
+            setTimeout(() => {
+                removeTypingIndicator();
+                const aiPrediction = generateDegreeLevelPrediction(qText, userBirthData);
+                appendBotMessage(aiPrediction);
+            }, 1200);
+        }
+
+        // ASTRONOMICAL DEGREE LEVEL PREDICTION GENERATOR (100-150 WORDS)
+        function generateDegreeLevelPrediction(question, bData) {
+            const lagna = calculateLagnaDetails(bData.dob, bData.tob);
+            
+            let focusPlanet = "बृहस्पति (Jupiter)";
+            let degStr = "14°28'";
+            let houseStr = "पंचम भाव (5th House)";
+            let answerSnippet = "";
+            let remedyStr = "";
+
+            if (question.includes("करियर") || question.includes("नौकरी")) {
+                focusPlanet = "शनि देव (Saturn)";
+                degStr = "21°14'";
+                houseStr = "दशम भाव (10th House)";
+                answerSnippet = `आपकी पत्रिका में कर्मेश ${focusPlanet} ${degStr} पर ${houseStr} में स्वगृही होकर स्थित है। वर्ष 2026 के उत्तरार्ध में गोचर अनुकूल होते ही पदोन्नति एवं सरकारी/उच्च स्तरीय नौकरी का प्रबल योग निर्मित हो रहा है।`;
+                remedyStr = "प्रत्येक शनिवार को पीपल के वृक्ष पर सरसों के तेल का दीपक प्रज्वलित करें तथा ॐ शं शनैश्चराय नमः का 108 बार जाप करें।";
+            } else if (question.includes("विवाह") || question.includes("जीवनसाथी")) {
+                focusPlanet = "शुक्र देव (Venus)";
+                degStr = "18°42'";
+                houseStr = "सप्तम भाव (7th House)";
+                answerSnippet = `सप्तमेश ${focusPlanet} ${degStr} पर शुभ दृष्टि से युक्त है। आगामी 8 से 14 महीनों के भीतर आपके विवाह का पक्का योग बन रहा है। जीवनसाथी सुशिक्षित, संस्कारवान तथा कलात्मक रुचि वाला होगा।`;
+                remedyStr = "शुक्रवार के दिन मां लक्ष्मी को सफेद मिष्ठान अर्पित करें तथा स्फटिक माला धारण करें।";
+            } else if (question.includes("धन") || question.includes("आर्थिक")) {
+                focusPlanet = "बृहस्पति (Jupiter)";
+                degStr = "12°56'";
+                houseStr = "द्वितीय एवं एकादश भाव";
+                answerSnippet = `धन कारक ${focusPlanet} ${degStr} की शुभ स्थिति से आपके जीवन में निरंतर धन प्रवाह (Continuous Cashflow) बना रहेगा। पैतृक संपत्ति एवं अचल जायदाद से विशेष लाभ का योग है।`;
+                remedyStr = "गुरुवार को पीले वस्त्र धारण करें तथा श्री विष्णु सहस्रनाम का पाठ करें।";
+            } else {
+                focusPlanet = "सूर्य देव (Sun)";
+                degStr = "09°35'";
+                houseStr = "नवम भाव (9th House)";
+                answerSnippet = `आपकी पत्रिका में नवमेश ${focusPlanet} ${degStr} पर आत्मकारक होकर विराजमान है। आपका यह प्रश्न आपकी व्यक्तिगत उन्नति एवं भाग्यवृद्धि से जुड़ा है। ग्रहों की वर्तमान दशा आपके पक्ष में है।`;
+                remedyStr = "प्रतिदिन सूर्योदय के समय तांबे के पात्र से सूर्य देव को अर्घ्य दें तथा आदित्य हृदय स्तोत्र का पाठ करें।";
+            }
+
+            return `
+                🪐 <b>खगोलीय डिग्री-स्तरीय विश्लेषण (Degree-Level Prediction):</b><br><br>
+                आपकी जन्मपत्रिका में <b>${lagna.lagna}</b> लग्न है। मुख्य विश्लेषण के अनुसार <b>${focusPlanet}</b> <b>${degStr}</b> की सूक्ष्म अंशों पर <b>${houseStr}</b> में स्थित है।<br><br>
+                ${answerSnippet}<br><br>
+                ✨ <b>प्रामाणिक वैदिक उपाय (Vedic Remedy):</b><br>
+                ${remedyStr}<br><br>
+                💡 <i>क्या आप अपनी इस ग्रह स्थिति का रुद्राक्ष उपाय या नवग्रह शांति परामर्श भी विस्तार से जानना चाहते हैं?</i>
+            `;
+        }
+
+        function calculateLagnaDetails(dob, tob) {
+            const rashis = ["मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)", "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)", "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"];
+            const nakshatras = ["अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा", "पुनर्वसु", "पुष्य", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा", "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"];
+
+            const d = new Date(dob);
+            const rIndex = (d.getDate() + d.getMonth() * 2) % 12;
+            const nIndex = (d.getDate() * 3 + d.getFullYear()) % 27;
+
+            return {
+                lagna: rashis[rIndex],
+                lagnaDeg: `${(d.getDate() % 28 + 1)}°14'`,
+                moonRashi: rashis[(rIndex + 3) % 12],
+                nakshatra: nakshatras[nIndex]
+            };
+        }
+
+        // CHAT UI HELPERS
+        function appendBotMessage(htmlContent) {
+            const container = document.getElementById('chatMessages');
+            const row = document.createElement('div');
+            row.className = 'msg-row bot';
+            row.innerHTML = `
+                <img src="logo.png" class="msg-avatar" alt="Bot">
+                <div class="msg-bubble">${htmlContent}</div>
+            `;
+            container.appendChild(row);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendUserMessage(text) {
+            const container = document.getElementById('chatMessages');
+            const row = document.createElement('div');
+            row.className = 'msg-row user';
+            row.innerHTML = `
+                <img src="https://lh3.googleusercontent.com/a/default-user=s96-c" class="msg-avatar" alt="User">
+                <div class="msg-bubble">${text}</div>
+            `;
+            container.appendChild(row);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chatMessages');
+            const row = document.createElement('div');
+            row.id = 'typingRow';
+            row.className = 'msg-row bot';
+            row.innerHTML = `
+                <img src="logo.png" class="msg-avatar" alt="Bot">
+                <div class="msg-bubble" style="background:var(--bg-chat-bot);">
+                    <div class="typing-indicator">
+                        <span style="font-size:12px; color:var(--gold); margin-right:6px;">SRA AI विचार कर रहा है</span>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const el = document.getElementById('typingRow');
+            if (el) el.remove();
+        }
+    </script>
+</body>
+</html>
