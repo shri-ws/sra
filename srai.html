@@ -568,9 +568,14 @@
                         <p>महर्षि पराशर सिद्धांत • डिग्री-स्तरीय खगोलीय विश्लेषण</p>
                     </div>
                 </div>
-                <div style="font-size:12px; color:var(--gold-light); display:flex; align-items:center; gap:6px;">
+                <div style="font-size:12px; color:var(--gold-light); display:flex; align-items:center; gap:8px;">
+                    <select id="langSelect" onchange="changeLangPreference()" style="background:var(--bg); border:1px solid var(--gold-border); color:var(--gold-light); border-radius:6px; padding:3px 8px; font-size:11px; font-weight:bold; cursor:pointer;">
+                        <option value="hi">🌐 हिंदी (Hindi)</option>
+                        <option value="en">🌐 English</option>
+                        <option value="mr">🌐 मराठी (Marathi)</option>
+                    </select>
+                    <button onclick="clearSavedChatHistory()" title="चैट इतिहास साफ़ करें (Clear History)" style="background:rgba(211,47,47,0.15); border:1px solid #d32f2f; color:#ff8a80; padding:2px 6px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold;">🗑️ Clear</button>
                     <span style="width:8px; height:8px; background:#25D366; border-radius:50%; display:inline-block;"></span>
-                    सक्रिय (Online)
                 </div>
             </div>
 
@@ -849,6 +854,7 @@
                 document.getElementById('btnSendMsg').disabled = false;
                 const micBtn = document.getElementById('btnMicMsg');
                 if (micBtn) micBtn.disabled = false;
+                restoreChatHistoryFromLocal();
             }, 800);
         }
 
@@ -1624,8 +1630,44 @@
             window.speechSynthesis.speak(utterance);
         }
 
+        // CHAT HISTORY LOCALSTORAGE PERSISTENCE & MULTI-LANGUAGE
+        function saveChatHistoryToLocal(type, content) {
+            try {
+                let history = JSON.parse(localStorage.getItem('sra_ai_chat_history') || '[]');
+                history.push({ type, content, time: new Date().toISOString() });
+                if (history.length > 50) history = history.slice(history.length - 50);
+                localStorage.setItem('sra_ai_chat_history', JSON.stringify(history));
+            } catch(e) {}
+        }
+
+        function restoreChatHistoryFromLocal() {
+            try {
+                const history = JSON.parse(localStorage.getItem('sra_ai_chat_history') || '[]');
+                if (Array.isArray(history) && history.length > 0) {
+                    history.forEach(item => {
+                        if (item.type === 'bot') appendBotMessageDOM(item.content);
+                        else if (item.type === 'user') appendUserMessageDOM(item.content);
+                    });
+                }
+            } catch(e) {}
+        }
+
+        function clearSavedChatHistory() {
+            if (confirm("क्या आप चैट इतिहास साफ़ करना चाहते हैं?")) {
+                localStorage.removeItem('sra_ai_chat_history');
+                const container = document.getElementById('chatMessages');
+                if (container) container.innerHTML = '';
+                alert("✓ चैट इतिहास साफ़ कर दिया गया है।");
+            }
+        }
+
+        function changeLangPreference() {
+            const lang = document.getElementById('langSelect').value;
+            localStorage.setItem('sra_ai_lang_pref', lang);
+        }
+
         // CHAT UI HELPERS
-        function appendBotMessage(htmlContent) {
+        function appendBotMessageDOM(htmlContent) {
             const container = document.getElementById('chatMessages');
             const row = document.createElement('div');
             row.className = 'msg-row bot';
@@ -1642,7 +1684,7 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function appendUserMessage(text) {
+        function appendUserMessageDOM(text) {
             const container = document.getElementById('chatMessages');
             const row = document.createElement('div');
             row.className = 'msg-row user';
@@ -1652,6 +1694,16 @@
             `;
             container.appendChild(row);
             container.scrollTop = container.scrollHeight;
+        }
+
+        function appendBotMessage(htmlContent) {
+            appendBotMessageDOM(htmlContent);
+            saveChatHistoryToLocal('bot', htmlContent);
+        }
+
+        function appendUserMessage(text) {
+            appendUserMessageDOM(text);
+            saveChatHistoryToLocal('user', text);
         }
 
         function showTypingIndicator() {
