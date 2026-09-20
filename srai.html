@@ -628,9 +628,9 @@
             <div class="form-group-phone" style="margin-bottom:16px;">
                 <label>Model Engine:</label>
                 <select id="geminiModelSelect" class="input-phone">
-                    <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ultra Fast & Precise - Recommended)</option>
-                    <option value="gemini-2.0-flash">Gemini 2.0 Flash (Next-Gen Neural)</option>
-                    <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash 8B (High-Speed Lightweight)</option>
+                    <option value="gemini-flash-latest">Gemini Flash (Latest Neural - Recommended)</option>
+                    <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+                    <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
                 </select>
             </div>
             <div id="geminiStatusBadge" style="margin-bottom:16px; padding:10px; border-radius:8px; font-size:12px; font-weight:bold; background:rgba(212,160,23,0.1); border:1px solid var(--border-soft); color:var(--gold-light);">
@@ -1888,8 +1888,8 @@ Answer the user's specific query in detail with degree level precision, classica
         }
 
         async function callGeminiNeuralApi(apiKey, preferredModel, systemPrompt, userQuery, base64ImageData) {
-            const defaultModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-exp'];
-            const modelsToTry = Array.from(new Set([preferredModel || 'gemini-1.5-flash', ...defaultModels]));
+            const defaultModels = ['gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+            const modelsToTry = Array.from(new Set([preferredModel || 'gemini-flash-latest', ...defaultModels]));
             let lastError = null;
 
             for (const model of modelsToTry) {
