@@ -18,6 +18,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
     <script src="supabase-integration.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <style>
         :root {
@@ -963,7 +964,7 @@ Answer the user's specific query in detail with degree level precision, classica
                         appendBotMessage(parseMarkdownToHTML(aiReply));
                     })
                     .catch(err => {
-                        console.warn("Gemini Fallback to Dynamic Synthesizer:", err);
+                        console.warn("Gemini Fallback to Deep Improviser:", err);
                         removeTypingIndicator();
                         const aiPrediction = generateDegreeLevelPrediction(qText, userBirthData);
                         appendBotMessage(aiPrediction);
@@ -1579,86 +1580,95 @@ Answer the user's specific query in detail with degree level precision, classica
             `;
         }
 
-        // GENERATIVE DYNAMIC LOCAL SYNTHESIZER
-        function generateDegreeLevelPrediction(question, bData) {
-            if (!isAstrologyOrSpiritualQuery(question)) {
+        // DEEP DYNAMIC GENERATIVE IMPROVISER ENGINE
+        function generateDegreeLevelPrediction(userQuery, bData) {
+            if (!isAstrologyOrSpiritualQuery(userQuery)) {
                 return getPoliteNonAstrologyResponse();
             }
 
             const chart = calculateFullAstrologicalChart(bData.dob, bData.tob, bData.lat, bData.lon);
             const matchedShlokas = queryClassicalShlokaDatabase(chart);
-            const q = (question || "").toLowerCase();
-
-            let isCareer = q.includes("करियर") || q.includes("नौकरी") || q.includes("जॉब") || q.includes("बिज़नेस") || q.includes("व्यापार") || q.includes("प्रमोशन");
-            let isMarriage = q.includes("विवाह") || q.includes("शादी") || q.includes("जीवनसाथी") || q.includes("लव") || q.includes("रिलेशन");
-            let isWealth = q.includes("धन") || q.includes("आर्थिक") || q.includes("पैसा") || q.includes("प्रॉपर्टी") || q.includes("मकान") || q.includes("गाड़ी");
-            let isHealth = q.includes("स्वास्थ्य") || q.includes("सेहत") || q.includes("बीमारी") || q.includes("रोग") || q.includes("आयु");
-            let isDetail = q.includes("detail") || q.includes("विस्तार") || q.includes("समझाए") || q.includes("समझाओ") || q.includes("और") || (!isCareer && !isMarriage && !isWealth && !isHealth);
+            const q = (userQuery || "").toLowerCase();
 
             const lagna = chart.lagna;
             const lagnaLord = chart.houseLords[1].lord;
             const moonRashi = chart.moonRashi;
             const nakshatra = chart.nakshatra;
             const pada = chart.pada;
-            const ak = chart.jaiminiKarakas.atmakaraka.name;
-            const amk = chart.jaiminiKarakas.sorted[1].name;
-            const dk = chart.jaiminiKarakas.darakaraka.name;
+
+            const ak = chart.jaiminiKarakas.atmakaraka;
+            const amk = chart.jaiminiKarakas.sorted[1];
+            const dk = chart.jaiminiKarakas.darakaraka;
 
             const dasha = chart.dashaInfo;
             const gochar = chart.gocharInfo;
             const sav = chart.savPoints;
+            const vargottama = chart.vargottamaPlanets;
 
-            let responseHtml = `🙏🏻 <b>सादर प्रणाम! आपकी जन्मपत्रिका एवं 40-कारक खगोलीय चक्र का सूक्ष्म जनरेटिव विश्लेषण:</b><br><br>`;
+            let isCareer = q.includes("करियर") || q.includes("नौकरी") || q.includes("जॉब") || q.includes("बिज़नेस") || q.includes("व्यापार") || q.includes("प्रमोशन");
+            let isMarriage = q.includes("विवाह") || q.includes("शादी") || q.includes("जीवनसाथी") || q.includes("लव") || q.includes("रिलेशन");
+            let isWealth = q.includes("धन") || q.includes("आर्थिक") || q.includes("पैसा") || q.includes("प्रॉपर्टी") || q.includes("मकान");
+            let isHealth = q.includes("स्वास्थ्य") || q.includes("सेहत") || q.includes("बीमारी") || q.includes("रोग");
+            let isDetail = q.includes("detail") || q.includes("विस्तार") || q.includes("समझाए") || q.includes("समझाओ") || q.includes("और") || (!isCareer && !isMarriage && !isWealth && !isHealth);
+
+            let responseHtml = `🙏🏻 <b>सादर प्रणाम! आपकी जन्मपत्रिका के 40 खगोलीय मापदंडों का सूक्ष्म जनरेटिव अध्ययन संपन्न हुआ।</b><br><br>`;
+
+            responseHtml += `
+                🔮 <b>1. खगोलीय संरचना व जैमिनी चर कारक (Astronomical Foundation & Karakas):</b><br>
+                • आपका <b>${lagna}</b> लग्न है और लग्नेश <b>${lagnaLord}</b> जीवन में आपकी मुख्य दिशा व आत्मबल का निर्धारण कर रहे हैं।<br>
+                • आपकी चंद्र राशि <b>${moonRashi}</b> एवं जन्म नक्षत्र <b>${nakshatra} (${pada})</b> है।<br>
+                • <b>जैमिनी चर कारक:</b> आत्माकारक (AK) <b>${ak.name}</b> (आत्मा का ध्येय), अमात्यकारक (AmK) <b>${amk.name}</b> (कर्म बल) एवं दाराकारक (DK) <b>${dk.name}</b> (संबंध)।<br>
+                • <b>वर्गोत्तम स्थिति:</b> ${vargottama.length > 0 ? vargottama.join(", ") + " (अत्यंत बलि व शुभ)" : "सामान्य वर्ग बल"}<br><br>
+            `;
 
             if (isDetail || (!isCareer && !isMarriage && !isWealth && !isHealth)) {
                 responseHtml += `
-                    🔮 <b>आपकी कुण्डली का 360° सर्व-पक्षीय खगोलीय विश्लेषण (Generative Synthesis):</b><br><br>
-                    • <b>मूल खगोलीय संरचना:</b> आपका <b>${lagna}</b> लग्न है और लग्नेश <b>${lagnaLord}</b> की स्थिति जीवन में आत्मबल का मुख्य आधार है। आपकी चंद्र राशि <b>${moonRashi}</b> एवं जन्म नक्षत्र <b>${nakshatra} (${pada})</b> है।<br><br>
-                    • <b>जैमिनी चर कारक व वर्ग कुण्डली:</b> आपकी आत्मा का मुख्य उद्देश्य आत्माकारक <b>${ak}</b> तथा D9 नवमांश (<b>${chart.d9Lagna}</b>) द्वारा नियंत्रित है। दाराकारक <b>${dk}</b> वैवाहिक संबंधों का संकेत दे रहा है।<br><br>
-                    • <b>कर्म व आजीविका (10th House):</b> दशम भाव का अष्टकवर्ग अंक <b>${sav[10]}/56</b> है। अमात्यकारक <b>${amk}</b> एवं D10 दशमांश (<b>${chart.d10Lagna}</b>) के प्रभाव से आपके कार्यक्षेत्र में उन्नति का योग निर्मित हो रहा है।<br><br>
-                    • <b>धन व लाभ (2nd & 11th House):</b> द्वितीय भाव (अंक: <b>${sav[2]}</b>) एवं एकादश भाव (अंक: <b>${sav[11]}</b>) का संबंध नियमित आय एवं संपत्ति संचय की क्षमता को दर्शाता है।<br><br>
-                    • <b>विवाह व दाम्पत्य सुख (7th House):</b> सप्तमेश <b>${chart.houseLords[7].lord}</b> एवं D9 नवमांश <b>${chart.d9Lagna}</b> की स्थिति जीवनसाथी के साथ सामंजस्य का निर्धारण कर रही है (7वें भाव का अष्टकवर्ग अंक: <b>${sav[7]}</b>)।
+                    🌌 <b>2. सर्व-पक्षीय कुण्डली फलादेश (360° Comprehensive Synthesis):</b><br>
+                    • <b>कर्म व आजीविका (10th House):</b> दशमेश <b>${chart.houseLords[10].lord}</b> व D10 (<b>${chart.d10Lagna}</b>) — अष्टकवर्ग अंक: <b>${sav[10]}/56</b> (कर्म बल)। अमात्यकारक <b>${amk.name}</b> व्यावसायिक सफलता को नियंत्रित कर रहा है।<br><br>
+                    • <b>विवाह व सम्बन्ध (7th House):</b> सप्तमेश <b>${chart.houseLords[7].lord}</b> व D9 (<b>${chart.d9Lagna}</b>) — अष्टकवर्ग अंक: <b>${sav[7]}/56</b> (दाम्पत्य सुख)। दाराकारक <b>${dk.name}</b> जीवनसाथी के समर्पण को दर्शाता है।<br><br>
+                    • <b>धन व लाभ (2nd & 11th House):</b> द्वितीय भाव (अंक: <b>${sav[2]}</b>) एवं एकादश भाव (अंक: <b>${sav[11]}</b>) का संबंध संपत्ति वृद्धि का सुंदर योग बना रहा है।<br><br>
                 `;
             } else if (isCareer) {
+                const score10 = sav[10];
+                const status10 = score10 >= 30 ? "अत्यंत उच्च व अधिकारप्रद" : "मध्यम व निरंतर प्रयासोपरांत सफलता";
                 responseHtml += `
-                    💼 <b>करियर, आजीविका व कर्मक्षेत्र सूक्ष्म विश्लेषण:</b><br><br>
-                    • <b>कर्मेश व दशम भाव:</b> आपकी <b>${lagna}</b> कुण्डली में दशमेश (कर्मेश) <b>${chart.houseLords[10].lord}</b> है। सर्वाष्टकवर्ग में 10वें भाव को <b>${sav[10]}/56 अंक</b> प्राप्त हैं, जो कार्यक्षेत्र में अधिकार व स्थायित्व का संकेत देता है।<br>
-                    • <b>D10 दशमांश कुण्डली:</b> D10 दशमांश में <b>${chart.d10Lagna}</b> राशि का प्रभाव है, तथा अमात्यकारक <b>${amk}</b> आपकी व्यावसायिक सफलता को नियंत्रित कर रहा है।<br>
-                    • <b>महादशा व समय चक्र:</b> वर्तमान <b>${dasha.activeMahadasha}-${dasha.activeAntardasha}</b> अंतर्दशा (${dasha.activeAntarEndFmt} तक) आपकी आजीविका में सकारात्मक मोड़ लाने हेतु अनुकूल है।
+                    💼 <b>2. कर्मक्षेत्र व करियर सूक्ष्म फलादेश (10th House Synthesis):</b><br>
+                    • दशमेश (कर्मेश) <b>${chart.houseLords[10].lord}</b> है तथा सर्वाष्टकवर्ग में 10वें भाव को <b>${score10}/56 अंक</b> प्राप्त हैं (${status10})।<br>
+                    • D10 दशमांश कुण्डली (<b>${chart.d10Lagna}</b>) एवं अमात्यकारक <b>${amk.name}</b> का प्रभाव आपके व्यवसाय/नौकरी में स्थायित्व व उन्नति का योग बना रहा है।<br><br>
                 `;
             } else if (isMarriage) {
+                const score7 = sav[7];
                 responseHtml += `
-                    💍 <b>विवाह, दाम्पत्य व सम्बन्ध सूक्ष्म विश्लेषण:</b><br><br>
-                    • <b>सप्तमेश व दाराकारक:</b> आपकी कुण्डली में सप्तमेश <b>${chart.houseLords[7].lord}</b> है तथा दाराकारक <b>${dk}</b> विवाह व पार्टनरशिप का निर्धारण कर रहा है। सप्तम भाव का अष्टकवर्ग अंक <b>${sav[7]}/56</b> है।<br>
-                    • <b>D9 नवमांश कुण्डली:</b> D9 नवमांश लग्न <b>${chart.d9Lagna}</b> है तथा कलत्र कारक शुक्र देव आपकी मैरिड लाइफ में सुख-शांति का मार्ग प्रशस्त कर रहे हैं।<br>
-                    • <b>गोचर प्रभाव:</b> वर्तमान में <b>${gochar.saturnStatus.split(' ')[0]}</b> एवं गुरु गोचर आपके विवाह योग में अनुकूल परिस्थितियाँ बना रहा है।
+                    💍 <b>2. विवाह व दाम्पत्य सुख सूक्ष्म फलादेश (7th House Synthesis):</b><br>
+                    • सप्तमेश <b>${chart.houseLords[7].lord}</b>, दाराकारक <b>${dk.name}</b> एवं D9 नवमांश (<b>${chart.d9Lagna}</b>) आपके वैवाहिक जीवन में सामंजस्य का निर्धारण कर रहे हैं।<br>
+                    • 7वें भाव का सर्वाष्टकवर्ग अंक <b>${score7}/56</b> है, जो जीवनसाथी के सहयोग व समर्पण को दर्शाता है।<br><br>
                 `;
             } else if (isWealth) {
                 responseHtml += `
-                    💰 <b>धन, आर्थिक स्थिति व संपत्ति सूक्ष्म विश्लेषण:</b><br><br>
-                    • <b>धनेश व लाभेश:</b> आपकी जन्मपत्रिका में धन भावेश <b>${chart.houseLords[2].lord}</b> एवं लाभेश <b>${chart.houseLords[11].lord}</b> का संबंध निर्मित हो रहा है। द्वितीय भाव का सर्वाष्टकवर्ग अंक <b>${sav[2]}</b> एवं एकादश भाव का अंक <b>${sav[11]}</b> है।<br>
-                    • <b>बृहस्पति देव व मातृकारक:</b> धन कारक बृहस्पति देव (Shadbala Score) एवं मातृकारक <b>${chart.jaiminiKarakas.sorted[3].name}</b> अचल संपत्ति (घर/गाड़ी) के संचय का योग दे रहे हैं।
+                    💰 <b>2. धन, आर्थिक स्थिति व संपत्ति सूक्ष्म फलादेश (Wealth Synthesis):</b><br>
+                    • धन भावेश <b>${chart.houseLords[2].lord}</b> (अंक: <b>${sav[2]}</b>) एवं लाभेश <b>${chart.houseLords[11].lord}</b> (अंक: <b>${sav[11]}</b>) का संबंध निरंतर धन प्रवाह का संकेत देता है।<br>
+                    • धन कारक बृहस्पति देव व मातृकारक आपकी अचल संपत्ति वृद्धि का मार्ग प्रशस्त कर रहे हैं।<br><br>
                 `;
             }
 
             if (matchedShlokas && matchedShlokas.length > 0) {
-                responseHtml += `<br><br>📜 <b>शास्त्रीय ग्रन्थ प्रमाण (Classical Citation):</b><br>`;
+                responseHtml += `📜 <b>3. शास्त्रीय ग्रंथ प्रमाण (Classical Database Citation):</b><br>`;
                 matchedShlokas.forEach(s => {
                     responseHtml += `• <b>${s.book_title} (${s.chapter}):</b> <i>"${s.sanskrit_reference}"</i> — ${s.translation}<br>`;
                 });
+                responseHtml += `<br>`;
             }
 
             responseHtml += `
-                <br>⏳ <b>विंशोत्तरी समय चक्र (Vimshottari Timeline):</b><br>
-                • <b>सक्रिय महादशा:</b> <b>${dasha.activeMahadasha}</b> (प्रभावी: ${dasha.activeMahaStartFmt} से ${dasha.activeMahaEndFmt})<br>
+                ⏳ <b>4. विंशोत्तरी महादशा व सूक्ष्म समय चक्र (Timeline & Transits):</b><br>
+                • <b>सक्रिय महादशा:</b> <b>${dasha.activeMahadasha}</b> (${dasha.activeMahaStartFmt} से ${dasha.activeMahaEndFmt})<br>
                 • <b>सक्रिय अंतर्दशा:</b> <b>${dasha.activeMahadasha}-${dasha.activeAntardasha}</b> (${dasha.activeAntarStartFmt} से ${dasha.activeAntarEndFmt})<br>
-                • <b>सूक्ष्म प्रत्यंतर्दशा:</b> <b>${dasha.activePratyantardasha}</b> (${dasha.activePratyantarEndFmt} तक)<br><br>
-                🌌 <b>आज का लाइव गोचर (Today's Live Transit):</b><br>
-                • <b>शनि गोचर:</b> ${gochar.saturnStatus}<br>
-                • <b>गुरु गोचर:</b> ${gochar.jupiterStatus}<br><br>
-                ✨ <b>प्रामाणिक वैदिक उपाय व रुद्राक्ष परामर्श:</b><br>
-                • <b>अनुशंसित रुद्राक्ष:</b> 5-मुखी या 7-मुखी रुद्राक्ष (5-Mukhi / 7-Mukhi Rudraksha)<br>
-                • <b>स्तोत्र जाप:</b> <a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विष्णु सहस्रनाम / ग्रह शांति पाठ (VMM Module)</a>
+                • <b>सूक्ष्म प्रत्यंतर्दशा:</b> <b>${dasha.activePratyantardasha}</b> (${dasha.activePratyantarEndFmt} तक प्रभावशील)<br>
+                • <b>शनि गोचर स्थिति:</b> ${gochar.saturnStatus}<br>
+                • <b>गुरु गोचर स्थिति:</b> ${gochar.jupiterStatus}<br><br>
+                ✨ <b>5. प्रामाणिक वैदिक उपाय व रुद्राक्ष परामर्श (Authentic Remedies):</b><br>
+                • <b>अनुशंसित रुद्राक्ष:</b> लग्नेश <b>${lagnaLord}</b> व आत्माकारक <b>${ak.name}</b> के संतुलन हेतु 5-मुखी या 7-मुखी रुद्राक्ष धारण करना सर्वोत्तम रहेगा।<br>
+                • <b>वैदिक अनुष्ठान:</b> <a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विष्णु सहस्रनाम / नवग्रह शांति जाप (VMM Module)</a> संपन्न कराएं।
             `;
 
             return responseHtml;
@@ -1871,7 +1881,7 @@ Answer the user's specific query in detail with degree level precision, classica
             return data.candidates[0].content.parts[0].text;
         }
 
-        // PALMISTRY & VASTU PHOTO UPLOAD VISION FEATURE
+        // MULTI-DOMAIN SMART VISION ENGINE (KUNDLI SCREENSHOTS, PALMISTRY, VASTU & OCR)
         function triggerPhotoUpload() {
             document.getElementById('photoUploadInput').click();
         }
@@ -1883,36 +1893,95 @@ Answer the user's specific query in detail with degree level precision, classica
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64Img = e.target.result;
-                appendUserMessageDOM(`<img src="${base64Img}" style="max-width:180px; border-radius:10px; border:1px solid var(--gold);" /><br>📸 फोटो अपलोड की गई: ${file.name}`);
+                appendUserMessageDOM(`<img src="${base64Img}" style="max-width:200px; border-radius:10px; border:1px solid var(--gold);" /><br>📸 फोटो अपलोड की गई: ${file.name}`);
                 showTypingIndicator();
 
                 const apiKey = localStorage.getItem('sra_gemini_api_key');
+                const model = localStorage.getItem('sra_gemini_model') || 'gemini-1.5-flash';
+
                 if (apiKey) {
-                    const systemPrompt = `आप श्री रामजी एस्ट्रो (shriramjiastro.in) के अत्यंत विद्वान वैदिक ज्योतिषाचार्य एवं हस्तरेखा / वास्तु विशेषज्ञ AI हैं। इस फोटो का निरीक्षण करके pure Hindi में विस्तृत हस्तरेखा (आयु रेखा, भाग्य रेखा, हृदय रेखा) या वास्तु (ईशान कोण, ब्रह्मस्थान) रिपोर्ट व वैदिक उपाय दें।`;
-                    callGeminiNeuralApi(apiKey, 'gemini-1.5-flash', systemPrompt, "इस फोटो का हस्तरेखा या वास्तु विश्लेषण करें", base64Img)
+                    const systemPrompt = `आप श्री रामजी एस्ट्रो (shriramjiastro.in) के अत्यंत विद्वान एवं प्रामाणिक वैदिक ज्योतिषाचार्य, कुण्डली वाचक, हस्तरेखा विशेषज्ञ एवं वास्तु AI हैं।
+अपलोड की गई फोटो का अत्यंत सूक्ष्म एवं सटीक निरीक्षण करें:
+1. यदि यह जन्मकुण्डली / जन्मविवरण / ग्रह स्थिति (Kundli / Birth Chart / Birth Details / Screenshot) का स्क्रीनशॉट है: तो इसमें अंकित जन्म विवरण (DOB, TOB, स्थान, लग्न, राशि, ग्रह स्थिति, दशा) को पढ़कर शुद्ध वैदिक कुण्डली फलादेश व ग्रह विश्लेषण प्रदान करें।
+2. यदि यह हस्तरेखा (Palmistry / Hand Photo) है: तो आयु रेखा, भाग्य रेखा, हृदय रेखा, गुरु/शनि/सूर्य/शुक्र पर्वतों का सूक्ष्म विश्लेषण प्रदान करें।
+3. यदि यह वास्तु नक्शा (Vastu Map / House Plan) है: तो ईशान, आग्नेय, नैऋत्य, वायव्य व ब्रह्मस्थान का वास्तु विश्लेषण व प्रामाणिक वैदिक उपाय प्रदान करें।
+4. यदि यह कोई अन्य धार्मिक या ज्योतिषीय फोटो है: तो उसका प्रामाणिक वैदिक संदर्भ व मार्गदर्शन दें।
+उत्तर केवल शुद्ध हिंदी (Devanagari) और स्पष्ट Markdown प्रारूप में दें।`;
+
+                    callGeminiNeuralApi(apiKey, model, systemPrompt, "इस फोटो का संपूर्ण प्रामाणिक विज़न विश्लेषण करें", base64Img)
                         .then(aiReply => {
                             removeTypingIndicator();
                             appendBotMessage(parseMarkdownToHTML(aiReply));
                         })
-                        .catch(() => {
-                            removeTypingIndicator();
-                            appendBotMessage(analyzeUploadedImageLocal(base64Img, file.name));
+                        .catch(err => {
+                            console.warn("Gemini Vision Error, falling back to local OCR vision engine:", err);
+                            processImageWithLocalAnalyzer(base64Img, file.name);
                         });
                 } else {
-                    setTimeout(() => {
-                        removeTypingIndicator();
-                        appendBotMessage(analyzeUploadedImageLocal(base64Img, file.name));
-                    }, 1200);
+                    processImageWithLocalAnalyzer(base64Img, file.name);
                 }
             };
             reader.readAsDataURL(file);
         }
 
-        function analyzeUploadedImageLocal(base64Img, fileName) {
-            const lower = fileName.toLowerCase();
-            const isVastu = lower.includes("vastu") || lower.includes("naksha") || lower.includes("map") || lower.includes("house");
+        function processImageWithLocalAnalyzer(base64Img, fileName) {
+            if (typeof Tesseract !== 'undefined') {
+                Tesseract.recognize(base64Img, 'hin+eng', { logger: m => {} })
+                    .then(({ data: { text } }) => {
+                        removeTypingIndicator();
+                        appendBotMessage(analyzeUploadedImageLocal(base64Img, fileName, text));
+                    })
+                    .catch(() => {
+                        removeTypingIndicator();
+                        appendBotMessage(analyzeUploadedImageLocal(base64Img, fileName, ""));
+                    });
+            } else {
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    appendBotMessage(analyzeUploadedImageLocal(base64Img, fileName, ""));
+                }, 1000);
+            }
+        }
+
+        function analyzeUploadedImageLocal(base64Img, fileName, extractedText) {
+            const combinedStr = (fileName + " " + (extractedText || "")).toLowerCase();
             
-            if (isVastu) {
+            const isKundli = combinedStr.includes("kundli") || combinedStr.includes("chart") || combinedStr.includes("dob") ||
+                             combinedStr.includes("tob") || combinedStr.includes("lagna") || combinedStr.includes("rashi") ||
+                             combinedStr.includes("nakshatra") || combinedStr.includes("nodal") || combinedStr.includes("screenshot") ||
+                             combinedStr.includes("screen") || combinedStr.includes("shot") || combinedStr.includes("कुण्डली") ||
+                             combinedStr.includes("जन्म") || combinedStr.includes("तिथि") || combinedStr.includes("स्थान") ||
+                             combinedStr.includes("ग्रह") || combinedStr.includes("सूर्य") || combinedStr.includes("चंद्र");
+
+            const isVastu = combinedStr.includes("vastu") || combinedStr.includes("naksha") || combinedStr.includes("map") ||
+                            combinedStr.includes("house") || combinedStr.includes("plan") || combinedStr.includes("वास्तु") ||
+                            combinedStr.includes("नक्शा");
+
+            const isPalmistry = combinedStr.includes("palm") || combinedStr.includes("hand") || combinedStr.includes("hast") ||
+                                combinedStr.includes("रेखा") || combinedStr.includes("हथेली") || combinedStr.includes("finger");
+
+            if (isKundli) {
+                let textSummary = "";
+                if (extractedText && extractedText.trim().length > 10) {
+                    textSummary = `<br>• <b>इमेज पाठ्य पहचान (OCR Detection):</b> <i>"${extractedText.substring(0, 100).replace(/\n/g, ' ')}..."</i><br>`;
+                }
+
+                if (userBirthData && userBirthData.dob) {
+                    const localChartPrediction = generateDegreeLevelPrediction("विस्तार से समझाएं", userBirthData);
+                    return `
+                        📜 <b>जन्मकुण्डली / विवरण स्क्रीनशॉट विज़न विश्लेषण (Kundli Screenshot Vision Analyzer):</b><br><br>
+                        • आपकी अपलोड की गई <b>जन्मकुण्डली/विवरण स्क्रीनशॉट</b> को सफलतापूर्वक पहचान लिया गया है।${textSummary}<br>
+                        ${localChartPrediction}
+                    `;
+                } else {
+                    return `
+                        📜 <b>जन्मकुण्डली / विवरण स्क्रीनशॉट पहचाना गया (Kundli Screenshot Vision Analyzer):</b><br><br>
+                        • आपकी अपलोड की गई फोटो <b>जन्मकुण्डली / विवरण स्क्रीनशॉट</b> के रूप में पहचानी गई है।${textSummary}<br>
+                        • <b>40-कारक सटीक खगोलीय फलादेश हेतु:</b> कृपया फॉर्म में अपनी जन्म तिथि (DOB), समय (TOB) व स्थान दर्ज करें, अथवा <b>[🔑 Gemini AI]</b> बटन से Gemini Neural Key कनेक्ट करें।<br><br>
+                        💡 <i>Gemini Neural Vision सीधे आपके स्क्रीनशॉट में लिखे प्रत्येक ग्रह व विवरण को पढ़ लेता है!</i>
+                    `;
+                }
+            } else if (isVastu) {
                 return `
                     🏠 <b>वास्तु नक्शा पैटर्न विश्लेषण रिपोर्ट (Vastu Vision Analyzer):</b><br><br>
                     • <b>ईशान कोण (North-East):</b> जल तत्त्व एवं देव स्थान हेतु अनुकूल। मुख्य क्षेत्र को स्वच्छ रखें।<br>
@@ -1921,7 +1990,7 @@ Answer the user's specific query in detail with degree level precision, classica
                     • <b>नैऋत्य कोण (South-West):</b> स्वामी का कक्ष या भारी सामान रखने हेतु शुभ।<br><br>
                     ✨ <b>वास्तु उपाय:</b> मुख्य द्वार पर स्वास्तिक एवं ईशान कोण में जलपात्र स्थापित करें।
                 `;
-            } else {
+            } else if (isPalmistry) {
                 return `
                     ✋ <b>हस्तरेखा पैटर्न विश्लेषण रिपोर्ट (Palmistry Vision Analyzer):</b><br><br>
                     • <b>आयु रेखा (Life Line):</b> स्पष्ट व अखण्डित — उत्तम स्वास्थ्य व दीर्घायु का सूचक।<br>
@@ -1929,6 +1998,14 @@ Answer the user's specific query in detail with degree level precision, classica
                     • <b>हृदय रेखा (Heart Line):</b> गुरु पर्वत को स्पर्श करती हुई — सात्विक भाव व करुणा।<br>
                     • <b>गुरु पर्वत (Jupiter Mount):</b> उन्नत — ज्ञान, नेतृत्व क्षमता व धर्म में निष्ठा।<br><br>
                     ✨ <b>हस्तरेखा उपाय:</b> प्रातः सूर्य अर्घ्य दें एवं 5-मुखी रुद्राक्ष धारण करना अत्यंत लाभकारी है।
+                `;
+            } else {
+                return `
+                    📸 <b>इमेज विज़न विश्लेषक (Smart Multi-Vision Analyzer):</b><br><br>
+                    आपकी अपलोड की गई फोटो प्राप्त हो गई है। फोटो के विषय अनुसार विश्लेषण चुनें:<br><br>
+                    • <b>📜 कुण्डली / विवरण स्क्रीनशॉट:</b> फॉर्म में अपनी जन्म तिथि व समय दर्ज करें, या <b>[🔑 Gemini AI]</b> कनेक्ट करें।<br>
+                    • <b>✋ हस्तरेखा फोटो:</b> हथेली की फोटो का गहन अध्ययन प्राप्त करने हेतु Gemini Neural AI कनेक्ट करें।<br>
+                    • <b>🏠 वास्तु नक्शा:</b> गृह निर्माण या वास्तु सुधार हेतु दिशाओं का विवरण लिखें।
                 `;
             }
         }
