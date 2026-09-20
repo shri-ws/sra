@@ -1343,7 +1343,19 @@ STRICT CONVERSATIONAL RULES:
             }
 
             const now = new Date();
-            let activeMaha = mahaSequence.find(m => now >= m.startDate && now <= m.endDate) || mahaSequence[1];
+            let activeMaha = mahaSequence.find(m => now >= m.startDate && now <= m.endDate);
+            if (!activeMaha) {
+                while (currentStartDate <= now) {
+                    for (let i = 0; i < 9; i++) {
+                        const nextLord = dashaOrder[(lordIndex + i) % 9];
+                        const yrs = dashaYears[nextLord];
+                        const nextEnd = addYearsToDate(currentStartDate, yrs);
+                        mahaSequence.push({ lord: nextLord, startDate: new Date(currentStartDate), endDate: new Date(nextEnd) });
+                        currentStartDate = new Date(nextEnd);
+                    }
+                }
+                activeMaha = mahaSequence.find(m => now >= m.startDate && now <= m.endDate) || mahaSequence[mahaSequence.length - 1];
+            }
             const activeMahaLord = activeMaha.lord;
             const activeMahaStart = activeMaha.startDate;
             const activeMahaEnd = activeMaha.endDate;
