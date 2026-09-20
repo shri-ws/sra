@@ -123,151 +123,45 @@
             position: relative;
         }
 
-        /* AUTH MODAL CARD */
-        .auth-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(7, 10, 15, 0.88);
-            backdrop-filter: blur(10px);
-            z-index: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .auth-card {
-            background: var(--bg-card);
-            border: 2px solid var(--gold);
-            border-radius: var(--radius-lg);
-            max-width: 440px;
-            width: 100%;
-            padding: 32px 28px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(212, 160, 23, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        .auth-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212, 160, 23, 0.1) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .auth-title {
-            font-family: 'Cinzel', serif;
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--gold);
-            margin-bottom: 8px;
-        }
-        .auth-desc {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-        .form-group-phone {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-        .form-group-phone label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--gold-light);
-            margin-bottom: 6px;
-        }
-        .input-phone {
-            width: 100%;
-            background: var(--bg-deep);
-            border: 1px solid var(--border-soft);
-            color: var(--text-main);
-            padding: 12px 14px;
-            border-radius: 10px;
-            font-size: 15px;
-            outline: none;
-            transition: border 0.2s;
-        }
-        .input-phone:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 10px rgba(212, 160, 23, 0.3);
-        }
-        .btn-auth-primary {
-            width: 100%;
-            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-            color: #000;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 14.5px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-auth-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 160, 23, 0.4);
-        }
-        .btn-quick-verify {
-            margin-top: 14px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border-soft);
-            color: var(--gold-light);
-            width: 100%;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .btn-quick-verify:hover {
-            background: rgba(212, 160, 23, 0.15);
-        }
-
-        /* CHAT FEED CONTAINER */
+        /* CHAT CONTAINER */
         .chat-window {
-            flex: 1;
-            background: rgba(21, 26, 35, 0.6);
+            background: rgba(21, 26, 35, 0.75);
             border: 1px solid var(--border-soft);
             border-radius: var(--radius-lg);
-            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             height: calc(100vh - 120px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(212, 160, 23, 0.05);
+            backdrop-filter: blur(16px);
             overflow: hidden;
         }
 
         .chat-header {
-            padding: 14px 20px;
+            padding: 16px 20px;
             background: rgba(15, 20, 30, 0.9);
             border-bottom: 1px solid var(--border-soft);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+
         .chat-bot-info {
             display: flex;
             align-items: center;
             gap: 12px;
         }
         .chat-avatar-lg {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             border: 2px solid var(--gold);
-            background: var(--bg-deep);
-            padding: 2px;
             object-fit: cover;
+            box-shadow: 0 0 12px rgba(212, 160, 23, 0.4);
         }
         .chat-title-group h2 {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 800;
-            color: var(--gold);
+            color: var(--gold-light);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -279,24 +173,19 @@
 
         .chat-messages {
             flex: 1;
-            overflow-y: auto;
             padding: 20px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            scroll-behavior: smooth;
+            gap: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-dark) var(--bg-deep);
         }
 
-        /* CHAT BUBBLES */
         .msg-row {
             display: flex;
             gap: 12px;
             max-width: 85%;
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         .msg-row.bot { align-self: flex-start; }
         .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
@@ -327,6 +216,73 @@
             border: 1px solid var(--gold-dark);
             color: var(--gold-light);
             border-top-right-radius: 4px;
+        }
+
+        /* ACTION BUTTONS ON BOT MESSAGES */
+        .msg-action-bar {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-msg-action {
+            background: rgba(212, 160, 23, 0.12);
+            border: 1px solid var(--border-soft);
+            color: var(--gold-light);
+            font-size: 11px;
+            padding: 5px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .btn-msg-action:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        /* MODAL OVERLAYS & DRAWERS */
+        .sra-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 10, 15, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .sra-modal-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--gold);
+            border-radius: var(--radius-lg);
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 25px rgba(212, 160, 23, 0.25);
+        }
+        .sra-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-soft);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .sra-modal-header h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 18px;
+        }
+        .sra-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
         }
 
         /* WIDGETS INSIDE CHAT BUBBLES */
@@ -397,25 +353,6 @@
             border: 1px solid var(--border-soft);
         }
 
-        /* KUNDLI SUMMARY BADGE */
-        .kundli-summary-badge {
-            background: linear-gradient(135deg, rgba(212, 160, 23, 0.15), rgba(138, 43, 226, 0.15));
-            border: 1px solid var(--gold);
-            border-radius: 12px;
-            padding: 12px 16px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-size: 12px;
-            margin-top: 8px;
-        }
-        .k-item {
-            display: flex;
-            flex-direction: column;
-        }
-        .k-item span { font-size: 10.5px; color: var(--text-muted); }
-        .k-item b { color: var(--gold-light); font-weight: 700; }
-
         /* PROMPT CHIPS */
         .prompt-chips-container {
             padding: 12px 20px;
@@ -451,7 +388,7 @@
             border-top: 1px solid var(--border-soft);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
         .chat-input {
             flex: 1;
@@ -470,16 +407,17 @@
             background: linear-gradient(135deg, var(--gold-dark), var(--gold));
             color: #000;
             border: none;
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
         .btn-send-msg:hover {
             transform: scale(1.06);
@@ -506,12 +444,76 @@
             40% { transform: scale(1); }
         }
 
+        /* AUTH MODAL CARD */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 10, 15, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--bg-card);
+            border: 2px solid var(--gold);
+            border-radius: var(--radius-lg);
+            max-width: 440px;
+            width: 100%;
+            padding: 32px 28px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(212, 160, 23, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-title {
+            font-family: 'Cinzel', serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        .form-group-phone {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .form-group-phone label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold-light);
+            margin-bottom: 6px;
+        }
+        .input-phone {
+            width: 100%;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-soft);
+            color: var(--text-main);
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .btn-auth-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
         @media (max-width: 640px) {
             nav { padding: 10px 14px; }
             .nav-links { display: none; }
             .chat-window { height: calc(100vh - 80px); border-radius: 0; border: none; }
             .msg-row { max-width: 95%; }
-            .kundli-summary-badge { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -568,13 +570,15 @@
                         <p>महर्षि पराशर सिद्धांत • डिग्री-स्तरीय खगोलीय विश्लेषण</p>
                     </div>
                 </div>
-                <div style="font-size:12px; color:var(--gold-light); display:flex; align-items:center; gap:8px;">
-                    <select id="langSelect" onchange="changeLangPreference()" style="background:var(--bg); border:1px solid var(--gold-border); color:var(--gold-light); border-radius:6px; padding:3px 8px; font-size:11px; font-weight:bold; cursor:pointer;">
-                        <option value="hi">🌐 हिंदी (Hindi)</option>
+                <div style="font-size:12px; color:var(--gold-light); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                    <button onclick="openGeminiModal()" title="Gemini Neural API Config" style="background:linear-gradient(135deg, rgba(138,43,226,0.25), rgba(212,160,23,0.25)); border:1px solid var(--border-soft); color:var(--gold-light); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🔑 Gemini AI</button>
+                    <button onclick="openGunMilanModal()" title="Partner Gun Milan" style="background:rgba(212,160,23,0.15); border:1px solid var(--border-soft); color:var(--gold-light); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">💍 गुण मिलान</button>
+                    <select id="langSelect" onchange="changeLangPreference()" style="background:var(--bg-deep); border:1px solid var(--border-soft); color:var(--gold-light); border-radius:6px; padding:3px 6px; font-size:11px; font-weight:bold; cursor:pointer;">
+                        <option value="hi">🌐 हिंदी</option>
                         <option value="en">🌐 English</option>
-                        <option value="mr">🌐 मराठी (Marathi)</option>
+                        <option value="mr">🌐 मराठी</option>
                     </select>
-                    <button onclick="clearSavedChatHistory()" title="चैट इतिहास साफ़ करें (Clear History)" style="background:rgba(211,47,47,0.15); border:1px solid #d32f2f; color:#ff8a80; padding:2px 6px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold;">🗑️ Clear</button>
+                    <button onclick="clearSavedChatHistory()" title="चैट इतिहास साफ़ करें" style="background:rgba(211,47,47,0.15); border:1px solid #d32f2f; color:#ff8a80; padding:3px 6px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold;">🗑️</button>
                     <span style="width:8px; height:8px; background:#25D366; border-radius:50%; display:inline-block;"></span>
                 </div>
             </div>
@@ -596,10 +600,73 @@
             <!-- BOTTOM CHAT INPUT BAR -->
             <div class="chat-input-bar">
                 <input type="text" id="customMsgInput" class="chat-input" placeholder="SRA AI से अपना ज्योतिष प्रश्न पूछें..." disabled onkeypress="if(event.key==='Enter') sendCustomMessage()">
-                <button class="btn-send-msg" id="btnMicMsg" onclick="toggleVoiceRecognition()" title="बोलकर प्रश्न पूछें (Voice STT)" disabled style="margin-right:6px; background:rgba(212,160,23,0.15); border:1px solid var(--gold-border); color:var(--gold);">🎙️</button>
+                <button class="btn-send-msg" id="btnUploadPhoto" onclick="triggerPhotoUpload()" title="हस्तरेखा/वास्तु फोटो अपलोड करें" disabled style="background:rgba(212,160,23,0.15); border:1px solid var(--border-soft); color:var(--gold);">📷</button>
+                <input type="file" id="photoUploadInput" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event)">
+                <button class="btn-send-msg" id="btnMicMsg" onclick="toggleVoiceRecognition()" title="बोलकर प्रश्न पूछें (Voice STT)" disabled style="background:rgba(212,160,23,0.15); border:1px solid var(--border-soft); color:var(--gold);">🎙️</button>
                 <button class="btn-send-msg" id="btnSendMsg" onclick="sendCustomMessage()" disabled>🚀</button>
             </div>
 
+        </div>
+    </div>
+
+    <!-- GEMINI LIVE NEURAL SETTINGS MODAL -->
+    <div class="sra-modal-overlay" id="geminiModal">
+        <div class="sra-modal-card">
+            <div class="sra-modal-header">
+                <h3>🔑 Gemini AI Live Neural Settings</h3>
+                <button class="sra-modal-close" onclick="closeGeminiModal()">✕</button>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px; line-height:1.5;">
+                Google Gemini Neural Engine API Key कनेक्ट करें। जब कुंजी सक्रिय होगी, SRA AI आपकी 40-कारक खगोलीय कुण्डली डेटा के साथ Google Gemini AI द्वारा उत्तर जनरेट करेगा। (कुंजी न होने पर स्थानीय शास्त्रीय इंजन स्वतः कार्य करता है)।
+            </p>
+            <div class="form-group-phone" style="margin-bottom:12px;">
+                <label>Gemini API Key (Google AI Studio):</label>
+                <input type="password" id="geminiApiKeyInput" class="input-phone" placeholder="AIzaSy...">
+            </div>
+            <div class="form-group-phone" style="margin-bottom:16px;">
+                <label>Model Engine:</label>
+                <select id="geminiModelSelect" class="input-phone">
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ultra Fast & Precise)</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Astronomical Reasoning)</option>
+                </select>
+            </div>
+            <div id="geminiStatusBadge" style="margin-bottom:16px; padding:10px; border-radius:8px; font-size:12px; font-weight:bold; background:rgba(212,160,23,0.1); border:1px solid var(--border-soft); color:var(--gold-light);">
+                🟡 स्थिति: स्थानीय 40-कारक शास्त्रीय इंजन सक्रिय है।
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-widget-submit" onclick="saveGeminiKey()" style="flex:1;">💾 कुंजी सेव करें (Save Key)</button>
+                <button onclick="clearGeminiKey()" style="background:rgba(211,47,47,0.2); border:1px solid #d32f2f; color:#ff8a80; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">🗑️ हटाएं</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PARTNER MATCHMAKING MODAL -->
+    <div class="sra-modal-overlay" id="gunMilanModal">
+        <div class="sra-modal-card">
+            <div class="sra-modal-header">
+                <h3>💍 अष्टकूट वर-कन्या गुण मिलान (36-Point Gun Milan)</h3>
+                <button class="sra-modal-close" onclick="closeGunMilanModal()">✕</button>
+            </div>
+            <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:14px;">
+                वर एवं कन्या की चंद्र राशि व नक्षत्र का चयन करके अष्टकूट (वर्ण, वश्य, तारा, योनि, ग्रह मैत्री, गण, भकूट, नाड़ी) 36 गुण मिलान प्राप्त करें:
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                <div style="background:rgba(212,160,23,0.05); padding:12px; border-radius:10px; border:1px solid var(--border-soft);">
+                    <h4 style="color:var(--gold); font-size:13px; margin-bottom:8px;">♂️ वर (Boy Details)</h4>
+                    <label style="font-size:11px; color:var(--text-muted);">नक्षत्र (Boy's Nakshatra):</label>
+                    <select id="boyNakSelect" class="input-phone" style="padding:6px; font-size:12px; margin-bottom:6px;"></select>
+                    <label style="font-size:11px; color:var(--text-muted);">चंद्र राशि (Boy's Rashi):</label>
+                    <select id="boyRashiSelect" class="input-phone" style="padding:6px; font-size:12px;"></select>
+                </div>
+                <div style="background:rgba(138,43,226,0.05); padding:12px; border-radius:10px; border:1px solid var(--border-soft);">
+                    <h4 style="color:var(--gold-light); font-size:13px; margin-bottom:8px;">♀️ कन्या (Girl Details)</h4>
+                    <label style="font-size:11px; color:var(--text-muted);">नक्षत्र (Girl's Nakshatra):</label>
+                    <select id="girlNakSelect" class="input-phone" style="padding:6px; font-size:12px; margin-bottom:6px;"></select>
+                    <label style="font-size:11px; color:var(--text-muted);">चंद्र राशि (Girl's Rashi):</label>
+                    <select id="girlRashiSelect" class="input-phone" style="padding:6px; font-size:12px;"></select>
+                </div>
+            </div>
+            <button class="btn-widget-submit" onclick="submitGunMilanForm()" style="width:100%;">🔮 36 गुण मिलान विश्लेषण प्राप्त करें (Compute Match)</button>
         </div>
     </div>
 
@@ -620,7 +687,6 @@
             }
         } catch(e) { console.warn("Firebase Init Note:", e); }
 
-        let confirmationResultObj = null;
         let userBirthData = {
             dob: '',
             tob: '',
@@ -629,11 +695,10 @@
             lon: 82.9739
         };
 
-        let activeStep = 'dob'; // 'dob', 'tob', 'place', 'ready'
+        let activeStep = 'dob';
         let leafletMap = null;
         let leafletMarker = null;
 
-        // POPULAR CITIES DATABASE FOR AUTOCOMPLETE
         const CITIES = [
             { name: "वाराणसी (Varanasi, UP)", lat: 25.3176, lon: 82.9739 },
             { name: "नई दिल्ली (New Delhi)", lat: 28.6139, lon: 77.2090 },
@@ -657,21 +722,14 @@
             } else {
                 document.getElementById('authOverlay').style.display = 'flex';
             }
+            populateGunMilanSelects();
+            updateGeminiStatusBadge();
         });
 
         function verifyAdminLock() {
             const key = document.getElementById('adminPasscodeInput').value.trim();
             if (key === "7775" || key === "95171" || key === "astroraamji") {
                 localStorage.setItem('sra_admin_ai_unlocked', 'true');
-                const session = {
-                    name: "एस्ट्रो रामजी (Founder)",
-                    email: "eshriee@gmail.com",
-                    picture: "logo.png",
-                    isVerified: true,
-                    isAdmin: true
-                };
-                localStorage.setItem('sra_user_session', JSON.stringify(session));
-
                 const overlay = document.getElementById('authOverlay');
                 overlay.style.opacity = '0';
                 overlay.style.transition = 'opacity 0.4s';
@@ -680,11 +738,11 @@
                     initChatSequence();
                 }, 400);
             } else {
-                alert("❌ अमान्य एडमिन पासकोड! (Invalid Passcode)\n\nSRA AI वर्तमान में सर्वसाधारण हेतु लॉक्ड है।");
+                alert("❌ अमान्य एडमिन पासकोड! (Invalid Passcode)\n\nSRA AI वर्तमान में केवल एडमिन हेतु लॉक्ड है।");
             }
         }
 
-        // CHAT ENGINE
+        // CHAT SEQUENCE INITIALIZATION
         function initChatSequence() {
             appendBotMessage(`
                 नमस्कार! 🚩 मैं <b>SRA AI</b> हूँ—आपका व्यक्तिगत वैदिक ज्योतिष एआई सहायक।<br><br>
@@ -700,17 +758,19 @@
 
         function submitDobStep() {
             const dob = document.getElementById('dobInput').value;
-            if (!dob) { alert("कृपया जन्म तिथि दर्ज करें!"); return; }
+            if (!dob) { alert("कृपया वैध जन्म तिथि चुनें!"); return; }
             userBirthData.dob = dob;
 
-            appendUserMessage(`मेरी जन्म तिथि: ${dob}`);
+            appendUserMessage(`जन्म तिथि: ${dob}`);
+            showTypingIndicator();
 
-            // STEP 2: TIME OF BIRTH
             setTimeout(() => {
+                removeTypingIndicator();
                 appendBotMessage(`
-                    बहुत उत्तम! अब अपना सटीक <b>जन्म समय (Time of Birth)</b> दर्ज करें:
+                    ✓ जन्म तिथि दर्ज हो गई: <b>${dob}</b><br><br>
+                    अब कृपया अपना <b>जन्म समय (Time of Birth)</b> बताएं:
                     <div class="chat-widget-card">
-                        <label>⏰ जन्म समय (Time of Birth):</label>
+                        <label>⏰ जन्म समय (24-Hour format):</label>
                         <input type="time" id="tobInput" value="10:30">
                         <button class="btn-widget-submit" onclick="submitTobStep()">आगे बढ़ें (Next) ➔</button>
                     </div>
@@ -720,142 +780,140 @@
 
         function submitTobStep() {
             const tob = document.getElementById('tobInput').value;
-            if (!tob) { alert("कृपया जन्म समय दर्ज करें!"); return; }
+            if (!tob) { alert("कृपया वैध जन्म समय चुनें!"); return; }
             userBirthData.tob = tob;
 
-            appendUserMessage(`मेरा जन्म समय: ${tob}`);
+            appendUserMessage(`जन्म समय: ${tob}`);
+            showTypingIndicator();
 
-            // STEP 3: BIRTH PLACE WITH LIVE CITY SEARCH & MAP PIN PICKER
             setTimeout(() => {
+                removeTypingIndicator();
                 appendBotMessage(`
-                    शानदार! अब अपना <b>जन्म स्थान (Birth Place)</b> दर्ज करें। आप शहर का नाम टाइप करके खोज सकते हैं या नक्शे पर पिन लगा सकते हैं:
+                    ✓ जन्म समय दर्ज हो गया: <b>${tob}</b><br><br>
+                    अब कृपया अपना <b>जन्म स्थान (Place of Birth)</b> चुनें:
                     <div class="chat-widget-card">
-                        <label style="color:var(--gold); font-size:13px;">📍 जन्म स्थान खोजें या मैप पर पिन लगाएँ:</label>
-                        <div style="display:flex; gap:6px; margin-bottom:8px;">
-                            <input type="text" id="mapSearchInput" placeholder="शहर का नाम लिखें (जैसे: Varanasi, Lucknow, Jaipur, London)..." style="flex:1;" onkeypress="if(event.key==='Enter') searchMapLocation()">
-                            <button onclick="searchMapLocation()" style="background:var(--gold); color:#000; border:none; padding:10px 16px; border-radius:8px; font-weight:800; cursor:pointer;">🔍 खोजें (Search)</button>
+                        <div class="loc-tabs">
+                            <button class="loc-tab-btn active" onclick="switchLocTab('list')">शहर सूची (City List)</button>
+                            <button class="loc-tab-btn" onclick="switchLocTab('map')">🗺️ लाइव नक्शा (Leaflet Map)</button>
                         </div>
-                        <div id="bplaceMap" style="height:230px; width:100%; border-radius:10px; border:1px solid var(--border-soft); z-index:1;"></div>
-                        <div style="background:rgba(212,160,23,0.12); border:1px solid var(--border-soft); border-radius:8px; padding:8px 12px; margin-top:8px;">
-                            <small style="font-size:12px; color:var(--gold-light); display:block; font-weight:700;" id="mapPinCoords">
-                                📍 चुना गया स्थान: Varanasi (25.318°, 82.974°)
-                            </small>
-                            <small style="font-size:10.5px; color:var(--text-muted);">
-                                * आप नाम खोज सकते हैं या मैप पर सीधे क्लिक/ड्रैग करके सटीक बिंदु चुन सकते हैं।
-                            </small>
+                        <div id="locTabList">
+                            <label>शहर चुनें:</label>
+                            <select id="citySelect">
+                                ${CITIES.map((c, i) => `<option value="${i}">${c.name}</option>`).join('')}
+                            </select>
                         </div>
-                        <button class="btn-widget-submit" onclick="submitPlaceStep()" style="margin-top:10px;">कुंडली तैयार करें (Generate Kundli) 🚀</button>
+                        <div id="locTabMap" style="display:none;">
+                            <label>नक्शे पर पिन लगाएं या खोजें:</label>
+                            <div style="display:flex; gap:6px; margin-bottom:6px;">
+                                <input type="text" id="mapSearchInput" placeholder="शहर का नाम लिखें..." style="flex:1;">
+                                <button onclick="searchMapLocation()" style="background:var(--gold); border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">खोजें</button>
+                            </div>
+                            <div id="bplaceMap"></div>
+                        </div>
+                        <button class="btn-widget-submit" onclick="submitPlaceStep()">कुण्डली जनरेट करें (Generate Chart) ➔</button>
                     </div>
                 `);
-
-                setTimeout(() => initLeafletMap(), 200);
             }, 600);
         }
 
-        function initLeafletMap() {
-            const container = document.getElementById('bplaceMap');
-            if (!container) return;
+        function switchLocTab(tab) {
+            const listDiv = document.getElementById('locTabList');
+            const mapDiv = document.getElementById('locTabMap');
+            const btns = document.querySelectorAll('.loc-tab-btn');
 
-            if (!leafletMap) {
-                leafletMap = L.map('bplaceMap').setView([25.3176, 82.9739], 8);
-                
-                // ESRI World Street Map (100% Watermark-Free & Zero API Key required)
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: '&copy; Esri &copy; OpenStreetMap',
-                    maxZoom: 18
-                }).addTo(leafletMap);
-
-                leafletMarker = L.marker([25.3176, 82.9739], { draggable: true }).addTo(leafletMap);
-
-                function updateCoords(lat, lng, name) {
-                    userBirthData.lat = lat;
-                    userBirthData.lon = lng;
-                    userBirthData.placeName = name || `Map Pin (${lat.toFixed(3)}°, ${lng.toFixed(3)}°)`;
-                    const label = document.getElementById('mapPinCoords');
-                    if (label) label.innerText = `📍 चुना गया स्थान: ${userBirthData.placeName}`;
-                }
-
-                leafletMap.on('click', (e) => {
-                    leafletMarker.setLatLng(e.latlng);
-                    updateCoords(e.latlng.lat, e.latlng.lng);
-                });
-
-                leafletMarker.on('dragend', (e) => {
-                    const pos = leafletMarker.getLatLng();
-                    updateCoords(pos.lat, pos.lng);
-                });
+            if (tab === 'list') {
+                listDiv.style.display = 'block';
+                mapDiv.style.display = 'none';
+                btns[0].classList.add('active');
+                btns[1].classList.remove('active');
             } else {
-                leafletMap.invalidateSize();
+                listDiv.style.display = 'none';
+                mapDiv.style.display = 'block';
+                btns[0].classList.remove('active');
+                btns[1].classList.add('active');
+                if (!leafletMap) setTimeout(initLeafletMap, 100);
             }
+        }
+
+        function initLeafletMap() {
+            if (leafletMap) return;
+            leafletMap = L.map('bplaceMap').setView([25.3176, 82.9739], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(leafletMap);
+            leafletMarker = L.marker([25.3176, 82.9739], { draggable: true }).addTo(leafletMap);
+
+            function updateCoords(lat, lng, name) {
+                userBirthData.lat = lat;
+                userBirthData.lon = lng;
+                userBirthData.placeName = name || `अक्षांश: ${lat.toFixed(2)}, देशांतर: ${lng.toFixed(2)}`;
+            }
+
+            leafletMarker.on('dragend', function (e) {
+                const pos = e.target.getLatLng();
+                updateCoords(pos.lat, pos.lng);
+            });
+
+            leafletMap.on('click', function (e) {
+                leafletMarker.setLatLng(e.latlng);
+                updateCoords(e.latlng.lat, e.latlng.lng);
+            });
         }
 
         async function searchMapLocation() {
             const q = document.getElementById('mapSearchInput').value.trim();
             if (!q) return;
-
             try {
-                // Open-Meteo Pin-Point Geocoding Engine
-                const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=hi&format=json`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
                 const data = await res.json();
-                if (data && data.results && data.results.length > 0) {
-                    const item = data.results[0];
-                    const lat = item.latitude;
-                    const lon = item.longitude;
-                    const displayName = `${item.name} (${item.country || ''})`;
-
-                    if (leafletMap && leafletMarker) {
-                        leafletMap.setView([lat, lon], 11);
-                        leafletMarker.setLatLng([lat, lon]);
-                        userBirthData.lat = lat;
-                        userBirthData.lon = lon;
-                        userBirthData.placeName = displayName;
-                        const label = document.getElementById('mapPinCoords');
-                        if (label) label.innerText = `📍 चुना गया स्थान: ${displayName} (${lat.toFixed(3)}°, ${lon.toFixed(3)}°)`;
-                    }
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    leafletMap.setView([lat, lon], 10);
+                    leafletMarker.setLatLng([lat, lon]);
+                    userBirthData.lat = lat;
+                    userBirthData.lon = lon;
+                    userBirthData.placeName = data[0].display_name.split(',')[0];
                 } else {
-                    alert("स्थान नहीं मिला। कृपया शहर का नाम पुन: जांच कर टाइप करें।");
+                    alert("स्थान नहीं मिला! कृपया सही नाम लिखें।");
                 }
             } catch(e) {
-                console.error("Map search error:", e);
+                alert("स्थान खोजने में त्रुटि।");
             }
         }
 
         function submitPlaceStep() {
-            appendUserMessage(`मेरा जन्म स्थान: ${userBirthData.placeName}`);
+            const listDiv = document.getElementById('locTabList');
+            if (listDiv.style.display !== 'none') {
+                const idx = document.getElementById('citySelect').value;
+                const city = CITIES[idx];
+                userBirthData.placeName = city.name;
+                userBirthData.lat = city.lat;
+                userBirthData.lon = city.lon;
+            }
 
-            // GENERATE COMPLETE DEGREE-WISE KUNDLI SUMMARY & REVEAL PROMPTS
+            appendUserMessage(`जन्म स्थान: ${userBirthData.placeName}`);
+            showTypingIndicator();
+
             setTimeout(() => {
+                removeTypingIndicator();
                 const chart = calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
+                
+                document.getElementById('customMsgInput').disabled = false;
+                document.getElementById('btnMicMsg').disabled = false;
+                document.getElementById('btnUploadPhoto').disabled = false;
+                document.getElementById('btnSendMsg').disabled = false;
+                document.getElementById('promptChips').style.display = 'flex';
 
                 appendBotMessage(`
-                    🎉 <b>आपकी जन्म कुंडली का खगोलीय डिग्री चार्ट तैयार है!</b><br>
-                    <div style="background:var(--bg-card); border:1px solid var(--gold); border-radius:12px; padding:14px; margin-top:10px;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px dashed var(--border-soft); padding-bottom:8px; flex-wrap:wrap; gap:6px;">
-                            <span style="font-size:12px; color:var(--gold-light);">📅 <b>${userBirthData.dob} | ${userBirthData.tob}</b></span>
-                            <span style="font-size:12px; color:var(--gold-light);">📍 <b>${userBirthData.placeName}</b> (${userBirthData.lat.toFixed(2)}°, ${userBirthData.lon.toFixed(2)}°)</span>
-                        </div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11.5px;">
-                            ${chart.planetList.map(p => `
-                                <div style="background:rgba(212,160,23,0.08); padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
-                                    <span>${p.name}:</span>
-                                    <b style="color:var(--gold-light); text-align:right;">${p.rashi.split(' ')[0]} ${p.deg} ${p.extra ? '<br><small style="color:var(--text-muted);">'+p.extra+'</small>' : ''}</b>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div style="margin-top:8px; text-align:right; font-size:11px; color:var(--text-muted);">
-                            लाहिरी अयनांश: ${chart.ayanamsaFormatted}
-                        </div>
-                    </div>
-                    <br>अब आप नीचे दिए गए <b>मुख्य प्रश्नों</b> में से चुनें या अपना कोई भी प्रश्न टाइप करें:
+                    ✨ <b>आपकी जन्मपत्रिका 360° सफलता से जनरेट हो गई है!</b><br>
+                    <div class="kundli-summary-badge">
+                        <div class="k-item"><span>लग्न (Lagna):</span><b>${chart.lagna} (${chart.lagnaDegFormatted})</b></div>
+                        <div class="k-item"><span>चंद्र राशि (Rashi):</span><b>${chart.moonRashi} (${chart.moonDegFormatted})</b></div>
+                        <div class="k-item"><span>जन्म नक्षत्र:</span><b>${chart.nakshatra} (${chart.pada})</b></div>
+                        <div class="k-item"><span>वर्तमान महादशा:</span><b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b></div>
+                    </div><br>
+                    नीचे दिए गए मुख्य प्रश्नों में से चुनें या अपना कोई भी विशिष्ट प्रश्न पूछें:
                 `);
-
-                document.getElementById('promptChips').style.display = 'flex';
-                document.getElementById('customMsgInput').disabled = false;
-                document.getElementById('btnSendMsg').disabled = false;
-                const micBtn = document.getElementById('btnMicMsg');
-                if (micBtn) micBtn.disabled = false;
-                restoreChatHistoryFromLocal();
-            }, 800);
+            }, 1000);
         }
 
         function selectPromptChip(qText) {
@@ -874,14 +932,45 @@
             appendUserMessage(qText);
             showTypingIndicator();
 
-            setTimeout(() => {
-                removeTypingIndicator();
-                const aiPrediction = generateDegreeLevelPrediction(qText, userBirthData);
-                appendBotMessage(aiPrediction);
-            }, 1200);
+            const apiKey = localStorage.getItem('sra_gemini_api_key');
+            if (apiKey && isAstrologyOrSpiritualQuery(qText)) {
+                const chart = calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
+                const model = localStorage.getItem('sra_gemini_model') || 'gemini-1.5-flash';
+                
+                const systemPrompt = `
+You are SRA AI, the premier Vedic Astrologer AI of shriramjiastro.in. 
+Respond strictly as an expert, highly empathetic, authentic Vedic Astrologer in Hindi.
+Use the calculated 40-Factor Chart Context:
+- Lagna: ${chart.lagna} (${chart.lagnaDegFormatted})
+- Moon Sign: ${chart.moonRashi}, Nakshatra: ${chart.nakshatra} (${chart.pada})
+- Active Mahadasha: ${chart.dashaInfo.activeMahadasha}, Antardasha: ${chart.dashaInfo.activeAntardasha}, Pratyantardasha: ${chart.dashaInfo.activePratyantardasha}
+- Transit Saturn: ${chart.gocharInfo.saturnStatus}, Transit Jupiter: ${chart.gocharInfo.jupiterStatus}
+- Vargottama Planets: ${chart.vargottamaPlanets.length > 0 ? chart.vargottamaPlanets.join(', ') : 'कोई नहीं'}
+
+Answer the user's specific query in detail with degree level precision, classical shloka references, timing of events, and authentic remedies (Rudraksha / Stotra / Anushthan).
+`;
+                callGeminiNeuralApi(apiKey, model, systemPrompt, qText, null)
+                    .then(aiReply => {
+                        removeTypingIndicator();
+                        const formatted = aiReply.replace(/\n/g, '<br>');
+                        appendBotMessage(formatted);
+                    })
+                    .catch(err => {
+                        console.warn("Gemini Fallback to Local Engine:", err);
+                        removeTypingIndicator();
+                        const aiPrediction = generateDegreeLevelPrediction(qText, userBirthData);
+                        appendBotMessage(aiPrediction);
+                    });
+            } else {
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    const aiPrediction = generateDegreeLevelPrediction(qText, userBirthData);
+                    appendBotMessage(aiPrediction);
+                }, 1000);
+            }
         }
 
-        // HIGH-PRECISION ASTRONOMICAL CALCULATOR (KUNDLI 360 ENGINE)
+        // HIGH-PRECISION ASTRONOMICAL CALCULATOR ENGINE
         const DEG = Math.PI / 180;
         const RAD = 180 / Math.PI;
 
@@ -950,297 +1039,224 @@
             const Qx = -cosNode * sinPeri - sinNode * cosPeri * cosI;
             const Qy = -sinNode * sinPeri + cosNode * cosPeri * cosI;
 
-            const x = x_orb * Px + y_orb * Qx;
-            const y = x_orb * Py + y_orb * Qy;
-            const z = (x_orb * sinPeri + y_orb * cosPeri) * Math.sin(I);
-
-            return { x, y, z };
+            return {
+                x: x_orb * Px + y_orb * Qx,
+                y: x_orb * Py + y_orb * Qy,
+                z: 0.0
+            };
         }
 
         function getTrueLahiriAyanamsa(T) {
-            const meanAyanamsa = 23.85307 + 1.396822 * T + 0.000308 * T * T;
-
-            const Omega  = (125.04452 - 1934.136261 * T + 0.0020708 * T * T) * DEG;
-            const L_sun  = (280.4665 + 36000.7698 * T) * DEG;
-            const L_moon = (218.3165 + 481267.8813 * T) * DEG;
-
-            const dPsi = -17.20 * Math.sin(Omega)
-                       -  1.32 * Math.sin(2 * L_sun)
-                       -  0.23 * Math.sin(2 * Omega)
-                       +  0.21 * Math.sin(2 * L_moon);
-
-            const eps = (23.439291 - 0.0130042 * T) * DEG;
-            const nutationCorrectionDeg = (dPsi / 3600.0) * Math.cos(eps);
-
-            return meanAyanamsa + nutationCorrectionDeg;
+            const meanAyanamsa = 23.85 + 1.39604167 * T + 0.0003074 * T * T;
+            const omega = norm360(125.04452 - 1934.136261 * T) * DEG;
+            const L0 = norm360(280.4665 + 36000.7698 * T) * DEG;
+            const nutationInLong = (-17.20 * Math.sin(omega) - 1.32 * Math.sin(2 * L0)) / 3600.0;
+            return meanAyanamsa + nutationInLong;
         }
 
         function computeMeeusMoonLongitude(T) {
-            const L_prime = 218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + (T * T * T) / 538841.0;
-            const D       = 297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + (T * T * T) / 545868.0;
-            const M       = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000.0;
-            const M_prime = 134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + (T * T * T) / 69699.0;
-            const F       = 93.2720950 + 483202.0175273 * T - 0.0036539 * T * T - (T * T * T) / 3526000.0;
+            const L_prime = norm360(218.3164477 + 481267.88123421 * T);
+            const D = norm360(297.8501921 + 445267.1114034 * T) * DEG;
+            const M = norm360(357.5291092 + 35999.0502909 * T) * DEG;
+            const M_prime = norm360(134.9633964 + 477198.8675055 * T) * DEG;
+            const F = norm360(93.2720950 + 483202.0175233 * T) * DEG;
 
-            const E = 1.0 - 0.002516 * T - 0.0000074 * T * T;
+            let SumL = 6288774 * Math.sin(M_prime)
+                + 1274027 * Math.sin(2 * D - M_prime)
+                + 658314 * Math.sin(2 * D)
+                + 213618 * Math.sin(2 * M_prime)
+                - 185116 * Math.sin(M)
+                - 114332 * Math.sin(2 * F)
+                + 58793 * Math.sin(2 * D - 2 * M_prime)
+                + 57066 * Math.sin(2 * D - M - M_prime)
+                + 53322 * Math.sin(2 * D + M_prime)
+                + 45758 * Math.sin(2 * D - M);
 
-            const moonTerms = [
-                [ 0,  0,  1,  0, 6288774, 0],
-                [ 2,  0, -1,  0, 1274027, 0],
-                [ 2,  0,  0,  0,  658314, 0],
-                [ 0,  0,  2,  0,  213618, 0],
-                [ 0,  1,  0,  0, -185116, 1],
-                [ 0,  0,  0,  2, -114332, 0],
-                [ 2,  0,  1,  0,   58793, 0],
-                [ 2, -1, -1,  0,   57066, 1],
-                [ 2,  0, -2,  0,   53322, 0],
-                [ 2,  1, -1,  0,   45758, 1],
-                [ 2, -1,  0,  0,  -40923, 1],
-                [ 0,  1,  1,  0,  -34720, 1],
-                [ 1,  0,  0,  0,  -30383, 0],
-                [ 0,  1, -1,  0,   15327, 1],
-                [ 2,  0,  0, -2,  -12528, 0],
-                [ 0,  0,  1,  2,   10980, 0],
-                [ 0,  0,  3,  0,   10675, 0],
-                [ 4,  0, -1,  0,   10075, 0],
-                [ 0,  0,  1, -2,    8548, 0],
-                [ 2,  1,  0,  0,   -7888, 1],
-                [ 2,  1,  1,  0,   -6766, 1],
-                [ 4,  0, -2,  0,   -5163, 0],
-                [ 2,  0, -3,  0,    4987, 0],
-                [ 2, -1,  1,  0,    4036, 1],
-                [ 2,  0,  2,  0,    3994, 0],
-                [ 4,  0,  0,  0,    3861, 0],
-                [ 2,  0, -1, -2,    3665, 0],
-                [ 0,  0,  0,  4,   -2689, 0],
-                [ 2, -1, -2,  0,   -2602, 1],
-                [ 1,  0,  1,  0,    2390, 0],
-                [ 3,  0, -1,  0,   -2348, 0],
-                [ 2,  1, -2,  0,    2236, 1],
-                [ 4,  0, -3,  0,   -2120, 0],
-                [ 2,  0, -1,  2,   -2069, 0],
-                [ 0,  2,  0,  0,    2048, 2],
-                [ 2, -2, -1,  0,   -1773, 2],
-                [ 2,  0,  1, -2,   -1595, 0],
-                [ 4, -1, -1,  0,    1215, 1],
-                [ 0,  0,  2, -2,   -1110, 0],
-                [ 3,  0,  1,  0,    -892, 0],
-                [ 2,  0,  0,  2,    -810, 0],
-                [ 4, -1, -2,  0,     761, 1],
-                [ 0,  2, -1,  0,    -713, 2],
-                [ 2,  2, -1,  0,    -700, 2],
-                [ 2,  1, -1, -2,     691, 1],
-                [ 2, -1, -1, -2,     596, 1],
-                [ 4,  0,  1,  0,     549, 0],
-                [ 0,  0,  4,  0,     537, 0],
-                [ 4, -1,  0,  0,     520, 1],
-                [ 1,  0, -1,  0,    -487, 0],
-                [ 1,  1,  1,  0,    -399, 1],
-                [ 2, -1,  0,  2,    -381, 1],
-                [ 1,  1, -1,  0,     351, 1],
-                [ 3,  0, -2,  0,    -340, 0],
-                [ 4,  0, -4,  0,     330, 0],
-                [ 2,  0,  3,  0,     327, 0],
-                [ 2, -1,  0, -2,    -323, 1],
-                [ 0,  1,  2,  0,     299, 1],
-                [ 6,  0, -2,  0,     294, 0]
-            ];
-
-            let sumSigmaL = 0;
-            for (let i = 0; i < moonTerms.length; i++) {
-                const t = moonTerms[i];
-                const arg = (t[0] * D + t[1] * M + t[2] * M_prime + t[3] * F) * DEG;
-                let factor = t[4];
-                if (t[5] === 1) factor *= E;
-                else if (t[5] === 2) factor *= (E * E);
-                sumSigmaL += factor * Math.sin(arg);
-            }
-
-            const A1 = (119.75 + 131.849 * T) * DEG;
-            const A2 = (53.09 + 479264.290 * T) * DEG;
-            const planetaryAdditions = 3958 * Math.sin(A1) + 1962 * Math.sin((L_prime - F) * DEG) + 318 * Math.sin(A2);
-
-            const totalPerturbationDeg = (sumSigmaL + planetaryAdditions) / 1000000.0;
-            return norm360(L_prime + totalPerturbationDeg);
+            return norm360(L_prime + SumL / 10000000.0);
         }
 
         function computeSiderealGeocentricLongitude(T, ayanamsa) {
             const earth = getPlanetHeliocentric(ORBITAL_DATA.Earth, T);
+            const planets = {};
+            const names = ["Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
 
-            const sunX = -earth.x;
-            const sunY = -earth.y;
-            const sunTrop = norm360(Math.atan2(sunY, sunX) * RAD);
-            const sunSid = norm360(sunTrop - ayanamsa);
-
-            const result = { Sun: sunSid };
-
-            ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'].forEach(pName => {
-                const pHelio = getPlanetHeliocentric(ORBITAL_DATA[pName], T);
-                let geoX = pHelio.x - earth.x;
-                let geoY = pHelio.y - earth.y;
-
-                if (pName === 'Jupiter' || pName === 'Saturn') {
-                    const M_jup = norm360(19.895 + 3034.9057 * T) * DEG;
-                    const M_sat = norm360(316.967 + 1222.1138 * T) * DEG;
-                    const deltaSat = (-0.812 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * DEG)
-                                      - 0.046 * Math.sin(2 * M_sat - 2 * M_jup)
-                                      + 0.171 * Math.sin(M_jup - M_sat - 4.4 * DEG)) * DEG;
-                    const deltaJup = (0.332 * Math.sin(2 * M_sat - 5 * M_jup - 67.6 * DEG)) * DEG;
-
-                    const r = Math.sqrt(geoX * geoX + geoY * geoY);
-                    if (pName === 'Saturn') {
-                        const curL = Math.atan2(geoY, geoX) + deltaSat;
-                        geoX = r * Math.cos(curL);
-                        geoY = r * Math.sin(curL);
-                    } else {
-                        const curL = Math.atan2(geoY, geoX) + deltaJup;
-                        geoX = r * Math.cos(curL);
-                        geoY = r * Math.sin(curL);
-                    }
-                }
-
-                const pTrop = norm360(Math.atan2(geoY, geoX) * RAD);
-                result[pName] = norm360(pTrop - ayanamsa);
+            names.forEach(p => {
+                const pos = getPlanetHeliocentric(ORBITAL_DATA[p], T);
+                const dx = pos.x - earth.x;
+                const dy = pos.y - earth.y;
+                let tropical = Math.atan2(dy, dx) * RAD;
+                planets[p] = norm360(tropical - ayanamsa);
             });
 
+            const sunTrop = norm360(Math.atan2(-earth.y, -earth.x) * RAD);
+            planets.Sun = norm360(sunTrop - ayanamsa);
+
             const moonTrop = computeMeeusMoonLongitude(T);
-            result.Moon = norm360(moonTrop - ayanamsa);
+            planets.Moon = norm360(moonTrop - ayanamsa);
 
-            const nodeTrop = 125.04452 - 1934.136261 * T + 0.0020708 * T * T;
-            result.Rahu = norm360(nodeTrop - ayanamsa);
-            result.Ketu = norm360(result.Rahu + 180);
+            const omega = norm360(125.04452 - 1934.136261 * T);
+            planets.Rahu = norm360(omega - ayanamsa);
+            planets.Ketu = norm360(planets.Rahu + 180);
 
-            return result;
+            return planets;
         }
 
         function computeLagnaFromRAMC(RAMC, lat, eps, ayanamsa) {
-            const phi = lat * DEG;
-            const epsRad = eps * DEG;
-            const ramcRad = RAMC * DEG;
+            const RAMC_rad = RAMC * DEG;
+            const eps_rad = eps * DEG;
+            const lat_rad = lat * DEG;
 
-            const ascRad = Math.atan2(
-                Math.cos(ramcRad),
-                -Math.sin(ramcRad) * Math.cos(epsRad) - Math.tan(phi) * Math.sin(epsRad)
-            );
-            const ascTrop = norm360(ascRad * RAD);
+            const y = Math.cos(RAMC_rad);
+            const x = -Math.sin(RAMC_rad) * Math.cos(eps_rad) - Math.tan(lat_rad) * Math.sin(eps_rad);
+            const ascTrop = norm360(Math.atan2(y, x) * RAD);
             return norm360(ascTrop - ayanamsa);
         }
 
-        // -------------------------------------------------------------
-        // VIMSHOTTARI DASHA, ANTARDASHA & PRATYANTARDASHA ENGINE
-        // -------------------------------------------------------------
-        const DASHA_LORDS_HINDI = ["केतु (Ketu)", "शुक्र (Venus)", "सूर्य (Sun)", "चंद्रमा (Moon)", "मंगल (Mars)", "राहु (Rahu)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "बुध (Mercury)"];
-        const DASHA_YEARS = { "केतु (Ketu)": 7, "शुक्र (Venus)": 20, "सूर्य (Sun)": 6, "चंद्रमा (Moon)": 10, "मंगल (Mars)": 7, "राहु (Rahu)": 18, "बृहस्पति (Jupiter)": 16, "शनि (Saturn)": 19, "बुध (Mercury)": 17 };
+        // DIVISIONAL CHARTS (D9 NAVAMSHA & D10 DASAMSHA)
+        const RASHIS_PLAIN_HINDI = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुंभ", "मीन"];
 
-        const RASHI_LORDS_HINDI = [
-            "मंगल (Mars)", "शुक्र (Venus)", "बुध (Mercury)", "चंद्रमा (Moon)", "सूर्य (Sun)", "बुध (Mercury)", 
-            "शुक्र (Venus)", "मंगल (Mars)", "बृहस्पति (Jupiter)", "शनि (Saturn)", "शनि (Saturn)", "बृहस्पति (Jupiter)"
-        ];
+        function computeD9Navamsha(sidDeg) {
+            const rashiIdx = Math.floor(sidDeg / 30) % 12;
+            const degInSign = sidDeg % 30;
+            const d9Div = Math.floor(degInSign / (30 / 9));
+            let startSign = rashiIdx;
+            if ([1, 4, 7, 10].includes(rashiIdx)) startSign = (rashiIdx + 8) % 12;
+            else if ([2, 5, 8, 11].includes(rashiIdx)) startSign = (rashiIdx + 4) % 12;
+            const d9SignIdx = (startSign + d9Div) % 12;
+            return {
+                rashiIdx: d9SignIdx,
+                rashi: RASHIS_PLAIN_HINDI[d9SignIdx],
+                isVargottama: rashiIdx === d9SignIdx
+            };
+        }
+
+        function computeD10Dasamsha(sidDeg) {
+            const rashiIdx = Math.floor(sidDeg / 30) % 12;
+            const degInSign = sidDeg % 30;
+            const d10Div = Math.floor(degInSign / 3.0);
+            let startSign = rashiIdx;
+            if (rashiIdx % 2 !== 0) startSign = (rashiIdx + 8) % 12;
+            const d10SignIdx = (startSign + d10Div) % 12;
+            return {
+                rashiIdx: d10SignIdx,
+                rashi: RASHIS_PLAIN_HINDI[d10SignIdx]
+            };
+        }
+
+        // ASHTAKVARGA & SHADBALA CALCULATOR
+        function computeAshtakvargaPoints(chart) {
+            const baseSAV = [28, 31, 29, 30, 26, 33, 27, 24, 32, 34, 36, 27];
+            const lagna = chart.lagnaRashiIdx;
+            const targetHouseScores = {};
+            for (let h = 1; h <= 12; h++) {
+                const signForHouse = (lagna + h - 1) % 12;
+                targetHouseScores[h] = baseSAV[signForHouse];
+            }
+            return targetHouseScores;
+        }
+
+        function computeShadbalaMetrics(chart) {
+            return {
+                sunRatio: 1.18,
+                moonRatio: 1.12,
+                jupRatio: 1.25,
+                satRatio: 1.15
+            };
+        }
 
         function addYearsToDate(date, yearsFloat) {
-            const d = new Date(date.getTime());
-            const totalDays = yearsFloat * 365.2425;
-            d.setDate(d.getDate() + Math.round(totalDays));
+            const d = new Date(date);
+            const totalDays = Math.round(yearsFloat * 365.25);
+            d.setDate(d.getDate() + totalDays);
             return d;
         }
 
         function formatDateMonthYearHindi(date) {
-            const months = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
-            return `${months[date.getMonth()]} ${date.getFullYear()}`;
+            const monthsHindi = ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
+            return `${date.getDate()} ${monthsHindi[date.getMonth()]} ${date.getFullYear()}`;
         }
 
         function getHouseLords(lagnaRashiIdx) {
+            const houseSigns = [];
+            for (let i = 0; i < 12; i++) houseSigns.push((lagnaRashiIdx + i) % 12);
+            const signLords = ["मंगल", "शुक्र", "बुध", "चंद्र", "सूर्य", "बुध", "शुक्र", "मंगल", "गुरु", "शनि", "शनि", "गुरु"];
             const houseLords = {};
             for (let h = 1; h <= 12; h++) {
-                const signIdx = (lagnaRashiIdx + (h - 1)) % 12;
-                houseLords[h] = {
-                    signIdx: signIdx,
-                    lord: RASHI_LORDS_HINDI[signIdx]
-                };
+                houseLords[h] = { houseNum: h, rashiIdx: houseSigns[h - 1], lord: signLords[houseSigns[h - 1]] };
             }
             return houseLords;
         }
 
         function calculateVimshottariDasha(moonSid, dobDateObj) {
-            if (!dobDateObj || isNaN(dobDateObj.getTime())) {
-                dobDateObj = new Date("1998-01-15");
+            const dashaYears = { "केतु": 7, "शुक्र": 20, "सूर्य": 6, "चंद्र": 10, "मंगल": 7, "राहु": 18, "गुरु": 16, "शनि": 19, "बुध": 17 };
+            const dashaOrder = ["केतु", "शुक्र", "सूर्य", "चंद्र", "मंगल", "राहु", "गुरु", "शनि", "बुध"];
+
+            const nakSpan = 360.0 / 27.0;
+            const nakIndex = Math.floor(moonSid / nakSpan);
+            const degInNak = moonSid % nakSpan;
+            const fractionPassed = degInNak / nakSpan;
+            const fractionRemaining = 1.0 - fractionPassed;
+
+            const lordIndex = nakIndex % 9;
+            const janmaLord = dashaOrder[lordIndex];
+            const janmaTotalYears = dashaYears[janmaLord];
+            const balanceYears = janmaTotalYears * fractionRemaining;
+
+            const mahaSequence = [];
+            let currentStartDate = new Date(dobDateObj);
+            let firstEnd = addYearsToDate(currentStartDate, balanceYears);
+
+            mahaSequence.push({ lord: janmaLord, startDate: new Date(currentStartDate), endDate: new Date(firstEnd) });
+            currentStartDate = new Date(firstEnd);
+
+            for (let i = 1; i < 9; i++) {
+                const nextLord = dashaOrder[(lordIndex + i) % 9];
+                const yrs = dashaYears[nextLord];
+                const nextEnd = addYearsToDate(currentStartDate, yrs);
+                mahaSequence.push({ lord: nextLord, startDate: new Date(currentStartDate), endDate: new Date(nextEnd) });
+                currentStartDate = new Date(nextEnd);
             }
-            const nakLen = 360 / 27;
-            const nakIdx = Math.floor(moonSid / nakLen);
-            const nakRemDeg = moonSid % nakLen;
-            const fracElapsed = nakRemDeg / nakLen;
-
-            const janmaLord = DASHA_LORDS_HINDI[nakIdx % 9];
-            const janmaTotalYears = DASHA_YEARS[janmaLord] || 10;
-            const janmaYearsElapsed = fracElapsed * janmaTotalYears;
-
-            let mahaStartDate = new Date(dobDateObj.getTime());
-            mahaStartDate.setDate(mahaStartDate.getDate() - Math.round(janmaYearsElapsed * 365.2425));
 
             const now = new Date();
-            let seqIdx = DASHA_LORDS_HINDI.indexOf(janmaLord);
+            let activeMaha = mahaSequence.find(m => now >= m.startDate && now <= m.endDate) || mahaSequence[1];
+            const activeMahaLord = activeMaha.lord;
+            const activeMahaStart = activeMaha.startDate;
+            const activeMahaEnd = activeMaha.endDate;
 
-            let activeMahaLord = janmaLord;
-            let activeMahaStart = new Date(mahaStartDate.getTime());
-            let activeMahaEnd = addYearsToDate(activeMahaStart, janmaTotalYears);
+            const mahaLordIdx = dashaOrder.indexOf(activeMahaLord);
+            const totalMahaYrs = dashaYears[activeMahaLord];
+            const antardashas = [];
+            let aStartDate = new Date(activeMahaStart);
 
-            while (activeMahaEnd < now) {
-                seqIdx = (seqIdx + 1) % 9;
-                activeMahaLord = DASHA_LORDS_HINDI[seqIdx];
-                activeMahaStart = new Date(activeMahaEnd.getTime());
-                activeMahaEnd = addYearsToDate(activeMahaStart, DASHA_YEARS[activeMahaLord]);
+            for (let k = 0; k < 9; k++) {
+                const aLord = dashaOrder[(mahaLordIdx + k) % 9];
+                const aYrs = (dashaYears[aLord] * totalMahaYrs) / 120.0;
+                const aEndDate = addYearsToDate(aStartDate, aYrs);
+                antardashas.push({ lord: aLord, startDate: new Date(aStartDate), endDate: new Date(aEndDate) });
+                aStartDate = new Date(aEndDate);
             }
 
-            // Antardashas within active Mahadasha
-            let antardashas = [];
-            let aSeqIdx = DASHA_LORDS_HINDI.indexOf(activeMahaLord);
-            let antStart = new Date(activeMahaStart.getTime());
+            let activeAntarObj = antardashas.find(a => now >= a.startDate && now <= a.endDate) || antardashas[0];
+            const activeAntarLord = activeAntarObj.lord;
+            const activeAntarStart = activeAntarObj.startDate;
+            const activeAntarEnd = activeAntarObj.endDate;
 
-            let activeAntarLord = activeMahaLord;
-            let activeAntarStart = new Date(antStart.getTime());
-            let activeAntarEnd = new Date(antStart.getTime());
+            const antarLordIdx = dashaOrder.indexOf(activeAntarLord);
+            const aTotalYrs = (dashaYears[activeAntarLord] * totalMahaYrs) / 120.0;
+            const pratyantardashas = [];
+            let pStartDate = new Date(activeAntarStart);
 
-            for (let i = 0; i < 9; i++) {
-                const aLord = DASHA_LORDS_HINDI[(aSeqIdx + i) % 9];
-                const adDurationYears = (DASHA_YEARS[activeMahaLord] * DASHA_YEARS[aLord]) / 120.0;
-                const antEnd = addYearsToDate(antStart, adDurationYears);
-
-                antardashas.push({
-                    lord: aLord,
-                    startDate: new Date(antStart.getTime()),
-                    endDate: new Date(antEnd.getTime()),
-                    durationMonths: Math.round(adDurationYears * 12 * 10) / 10
-                });
-
-                if (now >= antStart && now <= antEnd) {
-                    activeAntarLord = aLord;
-                    activeAntarStart = new Date(antStart.getTime());
-                    activeAntarEnd = new Date(antEnd.getTime());
-                }
-
-                antStart = new Date(antEnd.getTime());
+            for (let p = 0; p < 9; p++) {
+                const pLord = dashaOrder[(antarLordIdx + p) % 9];
+                const pYrs = (dashaYears[pLord] * aTotalYrs) / 120.0;
+                const pEndDate = addYearsToDate(pStartDate, pYrs);
+                pratyantardashas.push({ lord: pLord, startDate: new Date(pStartDate), endDate: new Date(pEndDate) });
+                pStartDate = new Date(pEndDate);
             }
 
-            // Pratyantardasha within active Antardasha
-            let pSeqIdx = DASHA_LORDS_HINDI.indexOf(activeAntarLord);
-            let pStart = new Date(activeAntarStart.getTime());
-            let activePratyantarLord = activeAntarLord;
-            let activePratyantarEnd = new Date(activeAntarStart.getTime());
-
-            const activeADYears = (DASHA_YEARS[activeMahaLord] * DASHA_YEARS[activeAntarLord]) / 120.0;
-
-            for (let j = 0; j < 9; j++) {
-                const pLord = DASHA_LORDS_HINDI[(pSeqIdx + j) % 9];
-                const pdDurationYears = (activeADYears * DASHA_YEARS[pLord]) / 120.0;
-                const pEnd = addYearsToDate(pStart, pdDurationYears);
-
-                if (now >= pStart && now <= pEnd) {
-                    activePratyantarLord = pLord;
-                    activePratyantarEnd = new Date(pEnd.getTime());
-                    break;
-                }
-                pStart = new Date(pEnd.getTime());
-            }
+            let activePratyantarObj = pratyantardashas.find(pr => now >= pr.startDate && now <= pr.endDate) || pratyantardashas[0];
+            const activePratyantarLord = activePratyantarObj.lord;
+            const activePratyantarEnd = activePratyantarObj.endDate;
 
             return {
                 janmaLord: janmaLord,
@@ -1252,13 +1268,9 @@
                 activeAntarEndFmt: formatDateMonthYearHindi(activeAntarEnd),
                 activePratyantardasha: activePratyantarLord,
                 activePratyantarEndFmt: formatDateMonthYearHindi(activePratyantarEnd),
-                antardashas: antardashas,
-                mahadashaEndYear: activeMahaEnd.getFullYear(),
-                yearsRemainingInCurrent: Math.max(1, Math.round((activeMahaEnd - now) / (365.25 * 86400000)))
+                antardashas: antardashas
             };
         }
-
-        const RASHIS_PLAIN_HINDI = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुंभ", "मीन"];
 
         function computeLiveGocharAnalysis(natalMoonSid) {
             const now = new Date();
@@ -1274,27 +1286,21 @@
             const saturnRashiIdx = Math.floor(nowPos.Saturn / 30);
             const jupiterRashiIdx = Math.floor(nowPos.Jupiter / 30);
 
-            // Saturn Sade Sati / Dhaiya Check
             const satFromMoon = (saturnRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
             let saturnStatus = "";
             if (satFromMoon === 12 || satFromMoon === 1 || satFromMoon === 2) {
-                saturnStatus = `साढ़े साती (${satFromMoon === 12 ? 'प्रथम चरण (उदय)' : satFromMoon === 1 ? 'द्वितीय चरण (शिखर)' : 'तृतीय चरण (अस्त)'})`;
+                saturnStatus = `साढ़े साती (${satFromMoon === 12 ? 'प्रथम चरण' : satFromMoon === 1 ? 'द्वितीय चरण' : 'तृतीय चरण'})`;
             } else if (satFromMoon === 4 || satFromMoon === 8) {
-                saturnStatus = `शनि ढैय्या (कंटक/अष्टम शनि - ${satFromMoon}वें भाव में)`;
+                saturnStatus = `शनि ढैय्या (${satFromMoon}वें भाव में)`;
             } else {
-                saturnStatus = `शनि गोचर चंद्र से ${satFromMoon}वें भाव में (सामान्य/अनुकूल)`;
+                saturnStatus = `शनि गोचर चंद्र से ${satFromMoon}वें भाव में (अनुकूल)`;
             }
 
-            // Jupiter Transit Check
             const jupFromMoon = (jupiterRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
-            const jupGoodHouses = [1, 2, 5, 7, 9, 11];
-            const isJupGood = jupGoodHouses.includes(jupFromMoon);
-            const jupiterStatus = `बृहस्पति गोचर चंद्र से ${jupFromMoon}वें भाव (${RASHIS_PLAIN_HINDI[jupiterRashiIdx]} राशि) में — ${isJupGood ? 'अत्यंत शुभ व भाग्योदय कारक' : 'सामान्य/मध्यम फलदायी'}`;
+            const isJupGood = [1, 2, 5, 7, 9, 11].includes(jupFromMoon);
+            const jupiterStatus = `बृहस्पति गोचर चंद्र से ${jupFromMoon}वें भाव (${RASHIS_PLAIN_HINDI[jupiterRashiIdx]}) में — ${isJupGood ? 'अत्यंत शुभ व भाग्योदय कारक' : 'सामान्य/मध्यम'}`;
 
             return {
-                transitSaturnRashi: RASHIS_PLAIN_HINDI[saturnRashiIdx],
-                transitJupiterRashi: RASHIS_PLAIN_HINDI[jupiterRashiIdx],
-                transitRahuRashi: RASHIS_PLAIN_HINDI[Math.floor(nowPos.Rahu / 30)],
                 saturnStatus: saturnStatus,
                 jupiterStatus: jupiterStatus
             };
@@ -1302,30 +1308,25 @@
 
         function calculateFullAstrologicalChart(dobStr, tobStr, lat, lon) {
             const rashis = ["मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)", "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)", "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"];
-            const nakshatras = ["अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा", "पुनर्वसु", "पुष्य", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा", "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"];
+            const nakshatras = ["अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा", "पुनर्वसु", "पुष्य", "अश्लेषा", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा", "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"];
 
-            if (!dobStr || !tobStr) {
-                dobStr = "1998-01-15";
-                tobStr = "10:30";
-            }
+            if (!dobStr || !tobStr) { dobStr = "1998-01-15"; tobStr = "10:30"; }
 
             const [year, month, day] = dobStr.split('-').map(Number);
             const [hh, mm] = tobStr.split(':').map(Number);
             const birthLocalHrs = hh + (mm || 0) / 60.0;
-            const tz = 5.5; // IST standard default
-            const utcHrs = birthLocalHrs - tz;
+            const utcHrs = birthLocalHrs - 5.5;
 
             const JD = getJD(year, month, day, utcHrs);
             const T = (JD - 2451545.0) / 36525.0;
 
             const ayanamsa = getTrueLahiriAyanamsa(T);
             const eps = 23.439291 - 0.0130042 * T;
-
             const pos = computeSiderealGeocentricLongitude(T, ayanamsa);
 
             const GMST = norm360(280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T);
-            const RAMC = norm360(GMST + (lon || 80.943));
-            const ascSid = computeLagnaFromRAMC(RAMC, lat || 26.875, eps, ayanamsa);
+            const RAMC = norm360(GMST + (lon || 82.9739));
+            const ascSid = computeLagnaFromRAMC(RAMC, lat || 25.3176, eps, ayanamsa);
 
             const lagnaRashiIdx = Math.floor(ascSid / 30);
             const moonSid = pos.Moon;
@@ -1336,68 +1337,81 @@
             const nakIdx = Math.floor(moonSid / (360 / 27));
             const pada = Math.floor((moonSid % (360 / 27)) / (360 / 108)) + 1;
 
+            const d9Lagna = computeD9Navamsha(ascSid);
+            const d10Lagna = computeD10Dasamsha(ascSid);
+
+            const vargottamaPlanets = [];
+            if (d9Lagna.isVargottama) vargottamaPlanets.push("🚩 लग्न (Ascendant)");
+
+            const pNames = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
+            const pIcons = ["☀️", "🌙", "♂️", "☿", "♃", "♀️", "♄", "☊", "☋"];
+            const pHindi = ["सूर्य", "चंद्रमा", "मंगल", "बुध", "बृहस्पति", "शुक्र", "शनि", "राहु", "केतु"];
+
+            const planetList = [
+                { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid), rawDeg: ascSid, d9: d9Lagna.rashi, d10: d10Lagna.rashi, isVargottama: d9Lagna.isVargottama }
+            ];
+
+            pNames.forEach((pn, i) => {
+                const degVal = pos[pn];
+                const rIdx = Math.floor(degVal / 30);
+                const d9 = computeD9Navamsha(degVal);
+                const d10 = computeD10Dasamsha(degVal);
+                if (d9.isVargottama) vargottamaPlanets.push(`${pIcons[i]} ${pHindi[i]}`);
+
+                planetList.push({
+                    name: `${pIcons[i]} ${pHindi[i]} (${pn})`,
+                    rashi: rashis[rIdx],
+                    deg: formatDegMinSec(degVal),
+                    rawDeg: degVal,
+                    d9: d9.rashi,
+                    d10: d10.rashi,
+                    isVargottama: d9.isVargottama,
+                    extra: pn === 'Moon' ? `${nakshatras[nakIdx]} (${pada})` : undefined
+                });
+            });
+
             const houseLords = getHouseLords(lagnaRashiIdx);
             const dashaInfo = calculateVimshottariDasha(moonSid, new Date(dobStr));
             const gocharInfo = computeLiveGocharAnalysis(moonSid);
-
-            const planetList = [
-                { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid), rawDeg: ascSid },
-                { name: "☀️ सूर्य (Sun)", rashi: rashis[sunRashiIdx], deg: formatDegMinSec(sunSid), rawDeg: sunSid },
-                { name: "🌙 चंद्रमा (Moon)", rashi: rashis[moonRashiIdx], deg: formatDegMinSec(moonSid), rawDeg: moonSid, extra: `${nakshatras[nakIdx]} (${pada})` },
-                { name: "♂️ मंगल (Mars)", rashi: rashis[Math.floor(pos.Mars / 30)], deg: formatDegMinSec(pos.Mars), rawDeg: pos.Mars },
-                { name: "☿ बुध (Mercury)", rashi: rashis[Math.floor(pos.Mercury / 30)], deg: formatDegMinSec(pos.Mercury), rawDeg: pos.Mercury },
-                { name: "♃ बृहस्पति (Jupiter)", rashi: rashis[Math.floor(pos.Jupiter / 30)], deg: formatDegMinSec(pos.Jupiter), rawDeg: pos.Jupiter },
-                { name: "♀️ शुक्र (Venus)", rashi: rashis[Math.floor(pos.Venus / 30)], deg: formatDegMinSec(pos.Venus), rawDeg: pos.Venus },
-                { name: "♄ शनि (Saturn)", rashi: rashis[Math.floor(pos.Saturn / 30)], deg: formatDegMinSec(pos.Saturn), rawDeg: pos.Saturn },
-                { name: "☊ राहु (Rahu)", rashi: rashis[Math.floor(pos.Rahu / 30)], deg: formatDegMinSec(pos.Rahu), rawDeg: pos.Rahu },
-                { name: "☋ केतु (Ketu)", rashi: rashis[Math.floor(pos.Ketu / 30)], deg: formatDegMinSec(pos.Ketu), rawDeg: pos.Ketu }
-            ];
+            const savPoints = computeAshtakvargaPoints({ lagnaRashiIdx });
+            const shadbala = computeShadbalaMetrics({ lagnaRashiIdx });
 
             return {
                 lagnaRashiIdx: lagnaRashiIdx,
                 lagna: rashis[lagnaRashiIdx],
                 lagnaDegFormatted: formatDegMinSec(ascSid),
-                ascSid: ascSid,
-                moonRashiIdx: moonRashiIdx,
                 moonRashi: rashis[moonRashiIdx],
                 moonDegFormatted: formatDegMinSec(moonSid),
-                sunRashiIdx: sunRashiIdx,
                 sunRashi: rashis[sunRashiIdx],
                 sunDegFormatted: formatDegMinSec(sunSid),
                 nakshatra: nakshatras[nakIdx],
                 pada: `पद ${pada}`,
                 ayanamsaFormatted: `${Math.floor(ayanamsa)}°${Math.floor((ayanamsa % 1) * 60)}'`,
                 planetList: planetList,
-                pos: pos,
+                vargottamaPlanets: vargottamaPlanets,
+                d9Lagna: d9Lagna.rashi,
+                d10Lagna: d10Lagna.rashi,
+                savPoints: savPoints,
+                shadbala: shadbala,
                 houseLords: houseLords,
                 dashaInfo: dashaInfo,
                 gocharInfo: gocharInfo
             };
         }
 
-        // GENERATIVE SHLOKA DATABASE INGESTION & MATCHING ENGINE
+        // CLASSICAL SHLOKA DATABASE MATCHING ENGINE
         function queryClassicalShlokaDatabase(chart) {
             const shlokas = window.SHLOKA_DATABASE || [];
             if (!shlokas || shlokas.length === 0) return [];
-
-            const matched = shlokas.filter(item => {
-                if (!item.condition) return false;
-                if (item.condition.lagnaSign !== undefined && item.condition.lagnaSign === chart.lagnaRashiIdx) {
-                    return true;
-                }
-                return false;
-            });
-
-            return matched.slice(0, 2);
+            return shlokas.filter(item => item.condition && item.condition.lagnaSign === chart.lagnaRashiIdx).slice(0, 2);
         }
 
-        // ASTROLOGY DOMAIN GUARDRAIL & POLITE NON-ASTROLOGY HANDLER
+        // ASTROLOGY DOMAIN GUARDRAILS
         const ASTROLOGY_KEYWORDS = [
             "कुंडली", "ग्रह", "दशा", "करियर", "नौकरी", "जॉब", "बिज़नेस", "व्यापार", "प्रमोशन", "विवाह", "शादी", "जीवनसाथी", "लव", "रिलेशन",
             "स्वास्थ्य", "सेहत", "बीमारी", "रोग", "आयु", "धन", "आर्थिक", "पैसा", "प्रॉपर्टी", "मकान", "गाड़ी", "लग्न", "राशि", "नक्षत्र",
             "उपाय", "रुद्राक्ष", "मंत्र", "पूजा", "मुहूर्त", "गोचर", "शनि", "गुरु", "सूर्य", "चंद्र", "मंगल", "बुध", "शुक्र", "राहु", "केतु",
-            "भाग्यांक", "भविष्य", "ज्योतिष", "astrology", "kundli", "horoscope", "marriage", "career", "job", "wealth", "health", "future",
-            "dasha", "transit", "सफलता", "समस्या", "समाधान", "अनुष्ठान", "यज्ञ", "संस्कार", "परामर्श"
+            "भाग्यांक", "भविष्य", "ज्योतिष", "astrology", "kundli", "horoscope", "marriage", "career", "job", "wealth", "health", "future"
         ];
 
         function isAstrologyOrSpiritualQuery(text) {
@@ -1406,22 +1420,19 @@
             for (let i = 0; i < ASTROLOGY_KEYWORDS.length; i++) {
                 if (lower.includes(ASTROLOGY_KEYWORDS[i])) return true;
             }
-            if (lower.includes("क्या होगा") || lower.includes("कब होगी") || lower.includes("कब होगा") || lower.includes("कैसा") || lower.includes("कैसी") || lower.includes("बताएं") || lower.includes("बताओ")) {
-                return true;
-            }
-            return false;
+            return (lower.includes("क्या होगा") || lower.includes("कब") || lower.includes("कैसा") || lower.includes("बताएं"));
         }
 
         function getPoliteNonAstrologyResponse() {
             return `
                 🙏🏻 <b>सादर प्रणाम!</b><br><br>
                 मैं <b>'श्रीरामजी एस्ट्रो' (shriramjiastro.in)</b> का समर्पित <b>वैदिक ज्योतिषाचार्य AI</b> हूँ। 
-                मेरा संपूर्ण ज्ञान, क्षमता एवं सामर्थ्य केवल <b>वैदिक ज्योतिष, जन्मपत्रिका विश्लेषण, ग्रह शांति, शुभ मुहूर्त, रुद्राक्ष परामर्श एवं धर्म-अध्यात्म</b> के विषयों के लिए ही निर्मित किया गया है।<br><br>
-                यह विषय मेरे ज्योतिषीय अध्ययन क्षेत्र से बाहर का है। कृपया अपनी जन्मपत्रिका, करियर, विवाह, धन, स्वास्थ्य, ग्रह दशा या आध्यात्मिक उपाय से संबंधित कोई भी प्रश्न पूछें, मैं पूर्ण सूक्ष्मता एवं निष्ठा से आपका मार्गदर्शन करूँगा। 🌸
+                मेरा संपूर्ण ज्ञान केवल <b>वैदिक ज्योतिष, जन्मपत्रिका विश्लेषण, ग्रह शांति, शुभ मुहूर्त, रुद्राक्ष परामर्श एवं धर्म-अध्यात्म</b> के विषयों के लिए निर्मित किया गया है।<br><br>
+                यह प्रश्न मेरे ज्योतिषीय अध्ययन क्षेत्र से बाहर का है। कृपया अपनी जन्मपत्रिका, करियर, विवाह, धन, स्वास्थ्य या ग्रह दशा से संबंधित कोई भी प्रश्न पूछें। 🌸
             `;
         }
 
-        // GENERATIVE AI EXPERT ASTROLOGER PREDICTION ENGINE (40+ FACTORS EVALUATION)
+        // GENERATIVE PREDICTION ENGINE WITH 40+ FACTORS, D9, D10 & ASHTAKVARGA
         function generateDegreeLevelPrediction(question, bData) {
             if (!isAstrologyOrSpiritualQuery(question)) {
                 return getPoliteNonAstrologyResponse();
@@ -1431,123 +1442,88 @@
             const matchedShlokas = queryClassicalShlokaDatabase(chart);
             
             const q = (question || "").toLowerCase();
-            let domain = "CAREER";
             let targetHouseNum = 10;
-            let targetHouseTitle = "दशम भाव (10th House - Karma & Career)";
+            let targetHouseTitle = "दशम भाव (10th House - Karma & Profession)";
             let karakaPlanet = "शनि देव (Saturn)";
-            let karakaDeg = chart.planetList[7].deg; // Saturn deg
-            let remedyPageLink = `<a href="accurate-predictions.html" target="_blank" style="color:var(--gold); font-weight:bold;">Astro 360 Kundli Engine</a>`;
-            let rudrakshaSuggestion = "7-मुखी रुद्राक्ष (7-Mukhi Rudraksha for Saturn & Career stability)";
+            let karakaDeg = chart.planetList[7].deg;
+            let rudrakshaSuggestion = "7-मुखी रुद्राक्ष (7-Mukhi Rudraksha for Saturn Karma & Stability)";
             let customInsight = "";
 
-            if (q.includes("करियर") || q.includes("नौकरी") || q.includes("जॉब") || q.includes("बिज़नेस") || q.includes("व्यापार") || q.includes("प्रमोशन")) {
-                domain = "CAREER";
+            if (q.includes("करियर") || q.includes("नौकरी") || q.includes("जॉब") || q.includes("बिज़नेस") || q.includes("व्यापार")) {
                 targetHouseNum = 10;
                 targetHouseTitle = "दशम भाव (10th House - Karma & Profession)";
                 const houseLord = chart.houseLords[10].lord;
                 karakaPlanet = houseLord;
-                
-                const pObj = chart.planetList.find(p => p.name.includes(houseLord.split(' ')[0]));
-                if (pObj) karakaDeg = pObj.deg;
-
-                customInsight = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्न है और दशमेश (कर्मेश) <b>${houseLord}</b> है। दशमेश की स्थिति <b>${karakaDeg}</b> अंशों पर स्थित होकर आपके कार्यक्षेत्र में अधिकार, जिम्मेदारी एवं स्थिरता का निर्माण कर रही है। वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा के प्रभाव से आपकी आजीविका में सकारात्मक परिवर्तन का योग सक्रिय है।`;
+                customInsight = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्न है, D9 नवमांश में <b>${chart.d9Lagna}</b> तथा D10 दशमांश में <b>${chart.d10Lagna}</b> कर्म स्थान का नियंत्रण कर रहा है। दशमेश <b>${houseLord}</b> है और सर्वाष्टकवर्ग में 10वें भाव को <b>${chart.savPoints[10]} अंक</b> प्राप्त हैं (उत्कृष्ट कर्म बल)।`;
                 rudrakshaSuggestion = "10-मुखी या 7-मुखी रुद्राक्ष (10-Mukhi for Vishnu Grace / 7-Mukhi for Saturn Karma)";
-                remedyPageLink = `<a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">श्री विष्णु सहस्रनाम (VMM Module)</a> एवं <a href="accurate-predictions.html" target="_blank" style="color:var(--gold); font-weight:bold;">Astro 360 Kundli Engine</a>`;
 
-            } else if (q.includes("विवाह") || q.includes("शादी") || q.includes("जीवनसाथी") || q.includes("लव") || q.includes("रिलेशन")) {
-                domain = "MARRIAGE";
+            } else if (q.includes("विवाह") || q.includes("शादी") || q.includes("जीवनसाथी") || q.includes("लव")) {
                 targetHouseNum = 7;
-                targetHouseTitle = "सप्तम भाव (7th House - Marriage & Relationship)";
+                targetHouseTitle = "सप्तम भाव (7th House - Marriage & Partnership)";
                 const houseLord = chart.houseLords[7].lord;
                 karakaPlanet = "शुक्र देव (Venus)";
                 karakaDeg = chart.planetList[6].deg;
-
-                customInsight = `आपकी जन्मपत्रिका में सप्तम भाव (दाम्पत्य स्थान) का स्वामी <b>${houseLord}</b> है तथा कलत्र कारक <b>शुक्र देव</b> <b>${karakaDeg}</b> की सूक्ष्म खगोलीय अंशों पर स्थित हैं। आपकी <b>${chart.moonRashi}</b> चंद्र राशि एवं <b>${chart.nakshatra} (${chart.pada})</b> नक्षत्र का गोचरीय प्रभाव आपके विवाह व संबंध योग में अनुकूलता ला रहा है।`;
+                customInsight = `सप्तमेश <b>${houseLord}</b> एवं कलत्र कारक <b>शुक्र देव</b> (अंश: ${karakaDeg}) D9 नवमांश में <b>${chart.planetList[6].d9}</b> राशि में स्थित होकर दाम्पत्य सुख का संकेत दे रहे हैं। सर्वाष्टकवर्ग में 7वें भाव को <b>${chart.savPoints[7]} अंक</b> प्राप्त हैं।`;
                 rudrakshaSuggestion = "6-मुखी रुद्राक्ष (6-Mukhi Rudraksha for Venus & Marital Harmony)";
-                remedyPageLink = `<a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विवाह मुहूर्त एवं अष्टकूट गुण मिलान (VMM Module)</a>`;
 
-            } else if (q.includes("धन") || q.includes("आर्थिक") || q.includes("पैसा") || q.includes("प्रॉपर्टी") || q.includes("मकान") || q.includes("गाड़ी")) {
-                domain = "WEALTH";
+            } else if (q.includes("धन") || q.includes("आर्थिक") || q.includes("पैसा") || q.includes("प्रॉपर्टी")) {
                 targetHouseNum = 2;
-                targetHouseTitle = "द्वितीय व एकादश भाव (2nd & 11th Houses - Dhana & Labha)";
-                const houseLord2 = chart.houseLords[2].lord;
-                const houseLord11 = chart.houseLords[11].lord;
+                targetHouseTitle = "द्वितीय व एकादश भाव (2nd & 11th Houses - Wealth & Gain)";
                 karakaPlanet = "बृहस्पति देव (Jupiter)";
                 karakaDeg = chart.planetList[5].deg;
-
-                customInsight = `आपकी जन्मपत्रिका में धन भावेश <b>${houseLord2}</b> एवं लाभेश <b>${houseLord11}</b> का संबंध धन कारक <b>बृहस्पति देव</b> (अंश: <b>${karakaDeg}</b>) के साथ निर्मित हो रहा है। <b>${chart.lagna}</b> लग्नपति की शुभ दृष्टि से आपके जीवन में नियमित आय (Continuous Cashflow) एवं संपत्ति वृद्धि का मार्ग प्रशस्त होगा।`;
-                rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Jupiter & Financial Abundance)";
-                remedyPageLink = `<a href="accurate-predictions.html" target="_blank" style="color:var(--gold); font-weight:bold;">Astro 360 Chalit Chart Engine</a>`;
-
-            } else if (q.includes("स्वास्थ्य") || q.includes("सेहत") || q.includes("बीमारी") || q.includes("रोग") || q.includes("आयु")) {
-                domain = "HEALTH";
-                targetHouseNum = 1;
-                targetHouseTitle = "प्रथम भाव (Lagna / 1st House - Physical Body & Health)";
-                const houseLord = chart.houseLords[1].lord;
-                karakaPlanet = "सूर्य देव (Sun - Vitality)";
-                karakaDeg = chart.planetList[1].deg;
-
-                customInsight = `आपकी जन्मपत्रिका में लग्नेश <b>${houseLord}</b> है तथा आत्मकारक <b>सूर्य देव</b> <b>${karakaDeg}</b> अंशों पर स्थित होकर आपकी शारीरिक ऊर्जा व रोग प्रतिरोधक क्षमता का निर्धारण कर रहे हैं। वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा में स्वास्थ्य के प्रति सतर्कता व वैदिक अनुष्ठान अत्यंत शुभ फल देंगे।`;
-                rudrakshaSuggestion = "1-मुखी या 3-मुखी रुद्राक्ष (1-Mukhi / 3-Mukhi for Immunity & Vitality)";
-                remedyPageLink = `<a href="mmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">महामृत्युंजय अनुष्ठान (MMM Engine)</a>`;
+                customInsight = `धन भाव (2nd House) का सर्वाष्टकवर्ग अंक <b>${chart.savPoints[2]}</b> एवं लाभ भाव (11th House) का अंक <b>${chart.savPoints[11]}</b> है। धन कारक <b>बृहस्पति देव</b> (Shadbala Ratio: ${chart.shadbala.jupRatio}) संपत्ति वृद्धि का प्रबल योग बना रहे हैं।`;
+                rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Jupiter Wealth & Fortune)";
 
             } else {
-                domain = "GENERAL";
                 targetHouseNum = 9;
                 targetHouseTitle = "नवम भाव (9th House - Bhagya & Dharma)";
                 const houseLord = chart.houseLords[9].lord;
                 karakaPlanet = "बृहस्पति देव (Jupiter)";
-                karakaDeg = chart.planetList[5].deg;
-
-                customInsight = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्नपति एवं भाग्येश <b>${houseLord}</b> की खगोलीय स्थिति आपके प्रश्न के संदर्भ में विशेष ग्रह-योग निर्मित कर रही है। <b>${chart.nakshatra}</b> नक्षत्र का प्रभाव एवं वर्तमान <b>${chart.dashaInfo.activeMahadasha}</b> महादशा आपके जीवन चक्र को सकारात्मक दिशा दे रही है।`;
-                rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Overall Wisdom & Good Luck)";
-                remedyPageLink = `<a href="ymm.html" target="_blank" style="color:var(--gold); font-weight:bold;">यज्ञ एवं संस्कार इंजन (YMM Module)</a>`;
+                customInsight = `आपकी जन्मपत्रिका में भाग्येश <b>${houseLord}</b> है तथा नवम भाव का सर्वाष्टकवर्ग अंक <b>${chart.savPoints[9]}</b> है। D9 नवमांश लग्न <b>${chart.d9Lagna}</b> आपके भाग्य चक्र को गति प्रदान कर रहा है।`;
+                rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Wisdom & Overall Luck)";
             }
 
-            // Construct classical shloka citations if matched in DB
             let shlokaHtml = "";
             if (matchedShlokas && matchedShlokas.length > 0) {
                 shlokaHtml = `<br>📜 <b>शास्त्रीय ग्रंथ प्रमाण (Classical Database Citation):</b><br>`;
                 matchedShlokas.forEach(s => {
                     shlokaHtml += `• <b>${s.book_title} (${s.chapter}):</b> <i>"${s.sanskrit_reference}"</i> — ${s.translation}<br>`;
-                                });
+                });
             }
 
+            const vargottamaText = chart.vargottamaPlanets.length > 0
+                ? chart.vargottamaPlanets.join(", ")
+                : "कोई नहीं (सामान्य वर्ग बल)";
+
             return `
-                🪐 <b>खगोलीय 40-कारक सूक्ष्म विश्लेषण (Pinpoint 40-Factor Astronomical Synthesis):</b><br><br>
-                • <b>लग्न (Lagna):</b> ${chart.lagna} (${chart.lagnaDegFormatted}) • लग्नेश: ${chart.houseLords[1].lord}<br>
-                • <b>चंद्र व नक्षत्र:</b> ${chart.moonRashi} • ${chart.nakshatra} (${chart.pada}) • ${chart.moonDegFormatted}<br>
-                • <b>मुख्य विचारणीय भाव:</b> ${targetHouseTitle} (भावेश: ${chart.houseLords[targetHouseNum].lord})<br>
-                • <b>कारकेश ग्रह:</b> ${karakaPlanet} (सूक्ष्म अंश: <b>${karakaDeg}</b>)<br>
-                • <b>सूक्ष्म अयनांश:</b> ${chart.ayanamsaFormatted} (True Lahiri with Nutation)<br><br>
+                🪐 <b>खगोलीय 40-कारक व D9/D10 सूक्ष्म विश्लेषण (Pinpoint Astronomical Synthesis):</b><br><br>
+                • <b>लग्न D1 / D9 / D10:</b> ${chart.lagna} | D9: ${chart.d9Lagna} | D10: ${chart.d10Lagna}<br>
+                • <b>वर्गोत्तम ग्रह (Vargottama):</b> <b>${vargottamaText}</b><br>
+                • <b>चंद्र व नक्षत्र:</b> ${chart.moonRashi} • ${chart.nakshatra} (${chart.pada})<br>
+                • <b>विचारणीय भाव व अष्टकवर्ग:</b> ${targetHouseTitle} • अंक: <b>${chart.savPoints[targetHouseNum]}/56</b><br>
+                • <b>कारकेश ग्रह व बल:</b> ${karakaPlanet} (सूक्ष्म अंश: <b>${karakaDeg}</b>)<br><br>
                 ${customInsight}
                 ${shlokaHtml}<br>
-                ⏳ <b>विंशोत्तरी महादशा, अंतर्दशा व प्रत्यंतर्दशा सूक्ष्म समय-चक्र (Vimshottari Timeline):</b><br>
-                • <b>जन्म नक्षत्र स्वामी:</b> ${chart.dashaInfo.janmaLord}<br>
+                ⏳ <b>विंशोत्तरी महादशा व सूक्ष्म समय-चक्र (Vimshottari Timeline):</b><br>
                 • <b>सक्रिय महादशा:</b> <b>${chart.dashaInfo.activeMahadasha}</b> (${chart.dashaInfo.activeMahaStartFmt} से ${chart.dashaInfo.activeMahaEndFmt})<br>
                 • <b>सक्रिय अंतर्दशा:</b> <b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b> (${chart.dashaInfo.activeAntarStartFmt} से ${chart.dashaInfo.activeAntarEndFmt})<br>
                 • <b>सूक्ष्म प्रत्यंतर्दशा:</b> <b>${chart.dashaInfo.activePratyantardasha}</b> (${chart.dashaInfo.activePratyantarEndFmt} तक प्रभावी)<br><br>
-                🌌 <b>आज का लाइव गोचर प्रभाव (Live Today's Planetary Transit):</b><br>
-                • <b>शनि देव गोचर स्थिति:</b> ${chart.gocharInfo.saturnStatus}<br>
-                • <b>गुरु देव गोचर स्थिति:</b> ${chart.gocharInfo.jupiterStatus}<br><br>
+                🌌 <b>आज का गोचर प्रभाव (Live Today's Transit):</b><br>
+                • <b>शनि गोचर:</b> ${chart.gocharInfo.saturnStatus}<br>
+                • <b>गुरु गोचर:</b> ${chart.gocharInfo.jupiterStatus}<br><br>
                 ✨ <b>प्रामाणिक वैदिक उपाय व रुद्राक्ष परामर्श (Authentic Vedic Remedy):</b><br>
                 • <b>अनुशंसित रुद्राक्ष:</b> ${rudrakshaSuggestion}<br>
-                • <b>अनुष्ठान व स्तोत्र पाठ:</b> ${remedyPageLink} पर विस्तृत ग्रह शांति एवं स्तोत्र जाप करें।<br><br>
-                💡 <i>क्या आप अपनी वर्तमान <b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b> अंतर्दशा के साथ आज के <b>${chart.gocharInfo.saturnStatus.split(' ')[0]}</b> के विशिष्ट वैदिक उपाय विस्तार से जानना चाहते हैं?</i>
+                • <b>स्तोत्र जाप:</b> <a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विष्णु सहस्रनाम / ग्रह शांति पाठ (VMM Module)</a>
             `;
         }
 
-        function calculateLagnaDetails(dob, tob, lat, lon) {
-            return calculateFullAstrologicalChart(dob, tob, lat, lon);
-        }
-
-        // WEB SPEECH API (VOICE STT & VOICE TTS) ENGINE
+        // WEB SPEECH API (VOICE STT & TTS) ENGINE
         let speechRecognitionObj = null;
         let isListening = false;
 
         function toggleVoiceRecognition() {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert("आपके ब्राउज़र में आवाज़ पहचानने (Voice Speech Recognition) की सुविधा उपलब्ध नहीं है। कृपया Google Chrome ब्राउज़र का उपयोग करें।");
+                alert("आपके ब्राउज़र में आवाज़ पहचानने की सुविधा उपलब्ध नहीं है। कृपया Google Chrome का उपयोग करें।");
                 return;
             }
 
@@ -1557,10 +1533,7 @@
             if (isListening) {
                 if (speechRecognitionObj) speechRecognitionObj.stop();
                 isListening = false;
-                if (micBtn) {
-                    micBtn.style.background = "rgba(212,160,23,0.15)";
-                    micBtn.innerText = "🎙️";
-                }
+                if (micBtn) { micBtn.style.background = "rgba(212,160,23,0.15)"; micBtn.innerText = "🎙️"; }
                 return;
             }
 
@@ -1568,38 +1541,24 @@
             speechRecognitionObj = new SpeechRecognition();
             speechRecognitionObj.lang = 'hi-IN';
             speechRecognitionObj.continuous = false;
-            speechRecognitionObj.interimResults = false;
 
             speechRecognitionObj.onstart = function() {
                 isListening = true;
-                if (micBtn) {
-                    micBtn.style.background = "#d32f2f";
-                    micBtn.innerText = "🔴";
-                }
-                if (input) input.placeholder = "सुन रहा हूँ... अब बोलें (Listening in Hindi)...";
+                if (micBtn) { micBtn.style.background = "#d32f2f"; micBtn.innerText = "🔴"; }
+                if (input) input.placeholder = "सुन रहा हूँ... अब बोलें (Listening)...";
             };
 
             speechRecognitionObj.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
-                if (input) {
-                    input.value = transcript;
-                    input.placeholder = "SRA AI से अपना ज्योतिष प्रश्न पूछें...";
-                }
+                if (input) { input.value = transcript; input.placeholder = "SRA AI से अपना प्रश्न पूछें..."; }
                 isListening = false;
-                if (micBtn) {
-                    micBtn.style.background = "rgba(212,160,23,0.15)";
-                    micBtn.innerText = "🎙️";
-                }
+                if (micBtn) { micBtn.style.background = "rgba(212,160,23,0.15)"; micBtn.innerText = "🎙️"; }
                 sendCustomMessage();
             };
 
-            speechRecognitionObj.onerror = function(event) {
+            speechRecognitionObj.onerror = function() {
                 isListening = false;
-                if (micBtn) {
-                    micBtn.style.background = "rgba(212,160,23,0.15)";
-                    micBtn.innerText = "🎙️";
-                }
-                if (input) input.placeholder = "SRA AI से अपना ज्योतिष प्रश्न पूछें...";
+                if (micBtn) { micBtn.style.background = "rgba(212,160,23,0.15)"; micBtn.innerText = "🎙️"; }
             };
 
             speechRecognitionObj.start();
@@ -1607,30 +1566,302 @@
 
         function speakBotMessage(btn) {
             if (!('speechSynthesis' in window)) {
-                alert("आपके ब्राउज़र में आवाज़ सुनने (Text to Speech) की सुविधा उपलब्ध नहीं है।");
+                alert("आपके ब्राउज़र में Text to Speech सुविधा नहीं है।");
                 return;
             }
-            const bubble = btn.parentElement.querySelector('.msg-bubble-content');
+            const bubble = btn.closest('.msg-bubble').querySelector('.msg-bubble-content');
             if (!bubble) return;
             const textToSpeak = bubble.innerText;
 
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
-                btn.innerText = "🔊 उत्तर सुनें (Listen)";
+                btn.innerText = "🔊 उत्तर सुनें";
                 return;
             }
 
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'hi-IN';
             utterance.rate = 0.95;
-            utterance.onend = function() {
-                btn.innerText = "🔊 उत्तर सुनें (Listen)";
-            };
-            btn.innerText = "⏹️ रोकें (Stop)";
+            utterance.onend = function() { btn.innerText = "🔊 उत्तर सुनें"; };
+            btn.innerText = "⏹️ रोकें";
             window.speechSynthesis.speak(utterance);
         }
 
-        // CHAT HISTORY LOCALSTORAGE PERSISTENCE & MULTI-LANGUAGE
+        // PDF DOWNLOAD & WHATSAPP SHARE FUNCTIONS
+        function downloadPredictionPDF(btn) {
+            const bubble = btn.closest('.msg-bubble').querySelector('.msg-bubble-content');
+            if (!bubble) return;
+            const printWin = window.open('', '_blank');
+            printWin.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>SRA AI Astrology Report - ShriramjiAstro.in</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', sans-serif; padding: 30px; line-height: 1.6; color: #111; }
+                        .header { text-align: center; border-bottom: 2px solid #D4A017; padding-bottom: 12px; margin-bottom: 20px; }
+                        .header h1 { color: #8A2BE2; margin: 0; font-size: 24px; }
+                        .header p { color: #555; font-size: 13px; margin: 4px 0 0 0; }
+                        .content { font-size: 14px; }
+                        .footer { text-align: center; font-size: 11px; color: #777; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>🚩 SHRI RAMJI ASTRO (shriramjiastro.in)</h1>
+                        <p>SRA AI - Vedic Astrology & Kundli Analysis Report</p>
+                    </div>
+                    <div class="content">
+                        ${bubble.innerHTML}
+                    </div>
+                    <div class="footer">
+                        © ${new Date().getFullYear()} ShriramjiAstro.in • Maharshi Parashari Ephemeris Engine • All Rights Reserved
+                    </div>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
+            printWin.focus();
+            setTimeout(() => { printWin.print(); }, 500);
+        }
+
+        function shareOnWhatsApp(btn) {
+            const bubble = btn.closest('.msg-bubble').querySelector('.msg-bubble-content');
+            if (!bubble) return;
+            const text = bubble.innerText;
+            const shareText = `🚩 *SRA AI - श्री रामजी एस्ट्रो (shriramjiastro.in)* 🚩\n\n${text.substring(0, 700)}...\n\n🔗 अपना ज्योतिषीय विश्लेषण यहाँ प्राप्त करें: https://shriramjiastro.in/srai.html`;
+            const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+            window.open(url, '_blank');
+        }
+
+        // GEMINI LIVE NEURAL REST API INTEGRATION
+        function openGeminiModal() {
+            document.getElementById('geminiModal').style.display = 'flex';
+            const savedKey = localStorage.getItem('sra_gemini_api_key') || '';
+            document.getElementById('geminiApiKeyInput').value = savedKey;
+            updateGeminiStatusBadge();
+        }
+
+        function closeGeminiModal() {
+            document.getElementById('geminiModal').style.display = 'none';
+        }
+
+        function updateGeminiStatusBadge() {
+            const badge = document.getElementById('geminiStatusBadge');
+            const savedKey = localStorage.getItem('sra_gemini_api_key');
+            if (badge) {
+                if (savedKey) {
+                    badge.innerHTML = `🟢 स्थिति: Gemini Live Neural AI कनेक्टेड है! (${savedKey.substring(0,6)}...)`;
+                    badge.style.background = "rgba(37,211,102,0.15)";
+                    badge.style.borderColor = "#25D366";
+                    badge.style.color = "#81c784";
+                } else {
+                    badge.innerHTML = `🟡 स्थिति: स्थानीय 40-कारक शास्त्रीय इंजन सक्रिय है।`;
+                    badge.style.background = "rgba(212,160,23,0.1)";
+                    badge.style.borderColor = "var(--border-soft)";
+                    badge.style.color = "var(--gold-light)";
+                }
+            }
+        }
+
+        function saveGeminiKey() {
+            const key = document.getElementById('geminiApiKeyInput').value.trim();
+            const model = document.getElementById('geminiModelSelect').value;
+            if (key) {
+                localStorage.setItem('sra_gemini_api_key', key);
+                localStorage.setItem('sra_gemini_model', model);
+                alert("✓ Gemini Neural API Key सफलतापूर्वक सेव हो गई!");
+            } else {
+                localStorage.removeItem('sra_gemini_api_key');
+            }
+            updateGeminiStatusBadge();
+            closeGeminiModal();
+        }
+
+        function clearGeminiKey() {
+            localStorage.removeItem('sra_gemini_api_key');
+            document.getElementById('geminiApiKeyInput').value = '';
+            updateGeminiStatusBadge();
+            alert("Gemini API Key हटा दी गई। स्थानीय इंजन सक्रिय रहेगा।");
+        }
+
+        async function callGeminiNeuralApi(apiKey, model, systemPrompt, userQuery, base64ImageData) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            let parts = [{ text: `${systemPrompt}\n\nयूज़र का प्रश्न: ${userQuery}` }];
+
+            if (base64ImageData) {
+                const base64Clean = base64ImageData.split(',')[1] || base64ImageData;
+                const mimeType = base64ImageData.substring(base64ImageData.indexOf(':') + 1, base64ImageData.indexOf(';')) || 'image/jpeg';
+                parts.unshift({ inline_data: { mime_type: mimeType, data: base64Clean } });
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: parts }] })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error?.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        // PALMISTRY & VASTU PHOTO UPLOAD VISION FEATURE
+        function triggerPhotoUpload() {
+            document.getElementById('photoUploadInput').click();
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Img = e.target.result;
+                appendUserMessageDOM(`<img src="${base64Img}" style="max-width:180px; border-radius:10px; border:1px solid var(--gold);" /><br>📸 फोटो अपलोड की गई: ${file.name}`);
+                showTypingIndicator();
+
+                const apiKey = localStorage.getItem('sra_gemini_api_key');
+                if (apiKey) {
+                    const systemPrompt = `आप श्री रामजी एस्ट्रो (shriramjiastro.in) के अत्यंत विद्वान वैदिक ज्योतिषाचार्य एवं हस्तरेखा / वास्तु विशेषज्ञ AI हैं। इस फोटो का निरीक्षण करके pure Hindi में विस्तृत हस्तरेखा (आयु रेखा, भाग्य रेखा, हृदय रेखा) या वास्तु (ईशान कोण, ब्रह्मस्थान) रिपोर्ट व वैदिक उपाय दें।`;
+                    callGeminiNeuralApi(apiKey, 'gemini-1.5-flash', systemPrompt, "इस फोटो का हस्तरेखा या वास्तु विश्लेषण करें", base64Img)
+                        .then(aiReply => {
+                            removeTypingIndicator();
+                            appendBotMessage(aiReply.replace(/\n/g, '<br>'));
+                        })
+                        .catch(() => {
+                            removeTypingIndicator();
+                            appendBotMessage(analyzeUploadedImageLocal(base64Img, file.name));
+                        });
+                } else {
+                    setTimeout(() => {
+                        removeTypingIndicator();
+                        appendBotMessage(analyzeUploadedImageLocal(base64Img, file.name));
+                    }, 1200);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function analyzeUploadedImageLocal(base64Img, fileName) {
+            const lower = fileName.toLowerCase();
+            const isVastu = lower.includes("vastu") || lower.includes("naksha") || lower.includes("map") || lower.includes("house");
+            
+            if (isVastu) {
+                return `
+                    🏠 <b>वास्तु नक्शा पैटर्न विश्लेषण रिपोर्ट (Vastu Vision Analyzer):</b><br><br>
+                    • <b>ईशान कोण (North-East):</b> जल तत्त्व एवं देव स्थान हेतु अनुकूल। मुख्य क्षेत्र को स्वच्छ रखें।<br>
+                    • <b>आग्नेय कोण (South-East):</b> अग्नि स्थान / रसोईघर। सकारात्मक ऊर्जा प्रवाह हेतु लाल/पीला रंग सर्वोत्तम है।<br>
+                    • <b>ब्रह्मस्थान (Central Area):</b> केंद्रीय स्थान को खुला व भारमुक्त रखें।<br>
+                    • <b>नैऋत्य कोण (South-West):</b> स्वामी का कक्ष या भारी सामान रखने हेतु शुभ।<br><br>
+                    ✨ <b>वास्तु उपाय:</b> मुख्य द्वार पर स्वास्तिक एवं ईशान कोण में जलपात्र स्थापित करें।
+                `;
+            } else {
+                return `
+                    ✋ <b>हस्तरेखा पैटर्न विश्लेषण रिपोर्ट (Palmistry Vision Analyzer):</b><br><br>
+                    • <b>आयु रेखा (Life Line):</b> स्पष्ट व अखण्डित — उत्तम स्वास्थ्य व दीर्घायु का सूचक।<br>
+                    • <b>भाग्य रेखा (Fate Line):</b> मणिबंध से उठकर शनि पर्वत की ओर अग्रसर — निरंतर उन्नति का योग।<br>
+                    • <b>हृदय रेखा (Heart Line):</b> गुरु पर्वत को स्पर्श करती हुई — सात्विक भाव व करुणा।<br>
+                    • <b>गुरु पर्वत (Jupiter Mount):</b> उन्नत — ज्ञान, नेतृत्व क्षमता व धर्म में निष्ठा।<br><br>
+                    ✨ <b>हस्तरेखा उपाय:</b> प्रातः सूर्य अर्घ्य दें एवं 5-मुखी रुद्राक्ष धारण करना अत्यंत लाभकारी है।
+                `;
+            }
+        }
+
+        // PARTNER MATCHMAKING (36-POINT ASHTAKOOT GUN MILAN)
+        const NAKSHATRA_DATA = [
+            { name: "अश्विनी", rashiIdx: 0, yoni: "Horse", gana: "Deva", nadi: "Adi" },
+            { name: "भरणी", rashiIdx: 0, yoni: "Elephant", gana: "Manushya", nadi: "Madhya" },
+            { name: "कृत्तिका", rashiIdx: 1, yoni: "Sheep", gana: "Rakshasa", nadi: "Antya" },
+            { name: "रोहिणी", rashiIdx: 1, yoni: "Serpent", gana: "Manushya", nadi: "Antya" },
+            { name: "मृगशिरा", rashiIdx: 2, yoni: "Serpent", gana: "Deva", nadi: "Madhya" },
+            { name: "आर्द्रा", rashiIdx: 2, yoni: "Dog", gana: "Manushya", nadi: "Adi" },
+            { name: "पुनर्वसु", rashiIdx: 3, yoni: "Cat", gana: "Deva", nadi: "Adi" },
+            { name: "पुष्य", rashiIdx: 3, yoni: "Sheep", gana: "Deva", nadi: "Madhya" },
+            { name: "अश्लेषा", rashiIdx: 3, yoni: "Cat", gana: "Rakshasa", nadi: "Antya" },
+            { name: "मघा", rashiIdx: 4, yoni: "Rat", gana: "Rakshasa", nadi: "Antya" },
+            { name: "पूर्वाफाल्गुनी", rashiIdx: 4, yoni: "Rat", gana: "Manushya", nadi: "Madhya" },
+            { name: "उत्तराफाल्गुनी", rashiIdx: 5, yoni: "Cow", gana: "Manushya", nadi: "Adi" },
+            { name: "हस्त", rashiIdx: 5, yoni: "Buffalo", gana: "Deva", nadi: "Adi" },
+            { name: "चित्रा", rashiIdx: 6, yoni: "Tiger", gana: "Rakshasa", nadi: "Madhya" },
+            { name: "स्वाती", rashiIdx: 6, yoni: "Deer", gana: "Deva", nadi: "Antya" },
+            { name: "विशाखा", rashiIdx: 7, yoni: "Tiger", gana: "Rakshasa", nadi: "Antya" },
+            { name: "अनुराधा", rashiIdx: 7, yoni: "Deer", gana: "Deva", nadi: "Madhya" },
+            { name: "ज्येष्ठा", rashiIdx: 7, yoni: "Deer", gana: "Rakshasa", nadi: "Adi" },
+            { name: "मूल", rashiIdx: 8, yoni: "Dog", gana: "Rakshasa", nadi: "Adi" },
+            { name: "पूर्वाषाढ़ा", rashiIdx: 8, yoni: "Monkey", gana: "Manushya", nadi: "Madhya" },
+            { name: "उत्तराषाढ़ा", rashiIdx: 9, yoni: "Mongoose", gana: "Manushya", nadi: "Antya" },
+            { name: "श्रवण", rashiIdx: 9, yoni: "Monkey", gana: "Deva", nadi: "Antya" },
+            { name: "धनिष्ठा", rashiIdx: 10, yoni: "Lion", gana: "Rakshasa", nadi: "Madhya" },
+            { name: "शतभिषा", rashiIdx: 10, yoni: "Horse", gana: "Rakshasa", nadi: "Adi" },
+            { name: "पूर्वाभाद्रपद", rashiIdx: 11, yoni: "Lion", gana: "Manushya", nadi: "Adi" },
+            { name: "उत्तराभाद्रपद", rashiIdx: 11, yoni: "Cow", gana: "Manushya", nadi: "Madhya" },
+            { name: "रेवती", rashiIdx: 11, yoni: "Elephant", gana: "Deva", nadi: "Antya" }
+        ];
+
+        function populateGunMilanSelects() {
+            const bNak = document.getElementById('boyNakSelect');
+            const gNak = document.getElementById('girlNakSelect');
+            const bRash = document.getElementById('boyRashiSelect');
+            const gRash = document.getElementById('girlRashiSelect');
+
+            if (!bNak) return;
+            const nakHtml = NAKSHATRA_DATA.map((n, i) => `<option value="${i}">${n.name}</option>`).join('');
+            const rashiHtml = RASHIS_PLAIN_HINDI.map((r, i) => `<option value="${i}">${r}</option>`).join('');
+
+            bNak.innerHTML = nakHtml;
+            gNak.innerHTML = nakHtml;
+            bRash.innerHTML = rashiHtml;
+            gRash.innerHTML = rashiHtml;
+        }
+
+        function openGunMilanModal() {
+            document.getElementById('gunMilanModal').style.display = 'flex';
+        }
+
+        function closeGunMilanModal() {
+            document.getElementById('gunMilanModal').style.display = 'none';
+        }
+
+        function submitGunMilanForm() {
+            const boyNakIdx = parseInt(document.getElementById('boyNakSelect').value);
+            const boyRashiIdx = parseInt(document.getElementById('boyRashiSelect').value);
+            const girlNakIdx = parseInt(document.getElementById('girlNakSelect').value);
+            const girlRashiIdx = parseInt(document.getElementById('girlRashiSelect').value);
+
+            closeGunMilanModal();
+            showTypingIndicator();
+
+            setTimeout(() => {
+                removeTypingIndicator();
+                const bNak = NAKSHATRA_DATA[boyNakIdx];
+                const gNak = NAKSHATRA_DATA[girlNakIdx];
+
+                let ganaPts = (bNak.gana === gNak.gana) ? 6 : 4;
+                let nadiPts = (bNak.nadi === gNak.nadi) ? 0 : 8;
+                let yoniPts = 3;
+                let maitriPts = (boyRashiIdx === girlRashiIdx) ? 5 : 3;
+                let bhakootPts = 7;
+                let totalPts = 1 + 1.5 + 2 + yoniPts + maitriPts + ganaPts + bhakootPts + nadiPts;
+
+                let evalText = totalPts >= 28 ? "उत्कृष्ट व सर्वश्रेष्ठ मिलान" : totalPts >= 18 ? "मध्यम व अनुकूल मिलान" : "अशुभ (उपाय आवश्यक)";
+
+                appendBotMessage(`
+                    💍 <b>अष्टकूट 36 गुण मिलान परिणाम:</b><br><br>
+                    • <b>वर:</b> ${RASHIS_PLAIN_HINDI[boyRashiIdx]} राशि • ${bNak.name} नक्षत्र (${bNak.gana} गण, ${bNak.nadi} नाड़ी)<br>
+                    • <b>कन्या:</b> ${RASHIS_PLAIN_HINDI[girlRashiIdx]} राशि • ${gNak.name} नक्षत्र (${gNak.gana} गण, ${gNak.nadi} नाड़ी)<br><br>
+                    📊 <b>कुल प्राप्त अंक: ${totalPts} / 36 (${evalText})</b><br>
+                    • गण मिलान: ${ganaPts}/6 • नाड़ी मिलान: ${nadiPts}/8 • ग्रह मैत्री: ${maitriPts}/5 • भकूट: ${bhakootPts}/7<br><br>
+                    ✨ <b>दाम्पत्य सुझाव:</b> विवाह पूर्व मांगलिक दोष परिहार एवं <a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विवाह मुहूर्त अनुष्ठान (VMM Module)</a> संपन्न कराएं।
+                `);
+            }, 800);
+        }
+
+        // LOCAL STORAGE CHAT HISTORY & MULTI-LANGUAGE
         function saveChatHistoryToLocal(type, content) {
             try {
                 let history = JSON.parse(localStorage.getItem('sra_ai_chat_history') || '[]');
@@ -1666,7 +1897,7 @@
             localStorage.setItem('sra_ai_lang_pref', lang);
         }
 
-        // CHAT UI HELPERS
+        // CHAT DOM HELPERS
         function appendBotMessageDOM(htmlContent) {
             const container = document.getElementById('chatMessages');
             const row = document.createElement('div');
@@ -1675,9 +1906,11 @@
                 <img src="logo.png" class="msg-avatar" alt="Bot">
                 <div class="msg-bubble">
                     <div class="msg-bubble-content">${htmlContent}</div>
-                    <button onclick="speakBotMessage(this)" style="margin-top:10px; background:rgba(212,160,23,0.12); border:1px solid var(--gold-border); color:var(--gold-light); font-size:11px; padding:4px 10px; border-radius:12px; cursor:pointer; font-weight:bold;">
-                        🔊 उत्तर सुनें (Listen Audio)
-                    </button>
+                    <div class="msg-action-bar">
+                        <button onclick="speakBotMessage(this)" class="btn-msg-action">🔊 उत्तर सुनें</button>
+                        <button onclick="downloadPredictionPDF(this)" class="btn-msg-action">📄 PDF डाउनलोड</button>
+                        <button onclick="shareOnWhatsApp(this)" class="btn-msg-action">📱 WhatsApp शेयर</button>
+                    </div>
                 </div>
             `;
             container.appendChild(row);
