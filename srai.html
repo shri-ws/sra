@@ -1249,6 +1249,48 @@
             };
         }
 
+        const RASHIS_PLAIN_HINDI = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुंभ", "मीन"];
+
+        function computeLiveGocharAnalysis(natalMoonSid) {
+            const now = new Date();
+            const y = now.getUTCFullYear(), m = now.getUTCMonth() + 1, d = now.getUTCDate();
+            const utcHrs = now.getUTCHours() + now.getUTCMinutes() / 60.0;
+
+            const JD = getJD(y, m, d, utcHrs);
+            const T = (JD - 2451545.0) / 36525.0;
+            const ayanamsa = getTrueLahiriAyanamsa(T);
+            const nowPos = computeSiderealGeocentricLongitude(T, ayanamsa);
+
+            const natalMoonRashiIdx = Math.floor(natalMoonSid / 30);
+            const saturnRashiIdx = Math.floor(nowPos.Saturn / 30);
+            const jupiterRashiIdx = Math.floor(nowPos.Jupiter / 30);
+
+            // Saturn Sade Sati / Dhaiya Check
+            const satFromMoon = (saturnRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
+            let saturnStatus = "";
+            if (satFromMoon === 12 || satFromMoon === 1 || satFromMoon === 2) {
+                saturnStatus = `साढ़े साती (${satFromMoon === 12 ? 'प्रथम चरण (उदय)' : satFromMoon === 1 ? 'द्वितीय चरण (शिखर)' : 'तृतीय चरण (अस्त)'})`;
+            } else if (satFromMoon === 4 || satFromMoon === 8) {
+                saturnStatus = `शनि ढैय्या (कंटक/अष्टम शनि - ${satFromMoon}वें भाव में)`;
+            } else {
+                saturnStatus = `शनि गोचर चंद्र से ${satFromMoon}वें भाव में (सामान्य/अनुकूल)`;
+            }
+
+            // Jupiter Transit Check
+            const jupFromMoon = (jupiterRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
+            const jupGoodHouses = [1, 2, 5, 7, 9, 11];
+            const isJupGood = jupGoodHouses.includes(jupFromMoon);
+            const jupiterStatus = `बृहस्पति गोचर चंद्र से ${jupFromMoon}वें भाव (${RASHIS_PLAIN_HINDI[jupiterRashiIdx]} राशि) में — ${isJupGood ? 'अत्यंत शुभ व भाग्योदय कारक' : 'सामान्य/मध्यम फलदायी'}`;
+
+            return {
+                transitSaturnRashi: RASHIS_PLAIN_HINDI[saturnRashiIdx],
+                transitJupiterRashi: RASHIS_PLAIN_HINDI[jupiterRashiIdx],
+                transitRahuRashi: RASHIS_PLAIN_HINDI[Math.floor(nowPos.Rahu / 30)],
+                saturnStatus: saturnStatus,
+                jupiterStatus: jupiterStatus
+            };
+        }
+
         function calculateFullAstrologicalChart(dobStr, tobStr, lat, lon) {
             const rashis = ["मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)", "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)", "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"];
             const nakshatras = ["अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा", "पुनर्वसु", "पुष्य", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा", "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"];
@@ -1287,6 +1329,7 @@
 
             const houseLords = getHouseLords(lagnaRashiIdx);
             const dashaInfo = calculateVimshottariDasha(moonSid, new Date(dobStr));
+            const gocharInfo = computeLiveGocharAnalysis(moonSid);
 
             const planetList = [
                 { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid), rawDeg: ascSid },
@@ -1318,7 +1361,8 @@
                 planetList: planetList,
                 pos: pos,
                 houseLords: houseLords,
-                dashaInfo: dashaInfo
+                dashaInfo: dashaInfo,
+                gocharInfo: gocharInfo
             };
         }
 
@@ -1474,10 +1518,13 @@
                 • <b>सक्रिय महादशा:</b> <b>${chart.dashaInfo.activeMahadasha}</b> (${chart.dashaInfo.activeMahaStartFmt} से ${chart.dashaInfo.activeMahaEndFmt})<br>
                 • <b>सक्रिय अंतर्दशा:</b> <b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b> (${chart.dashaInfo.activeAntarStartFmt} से ${chart.dashaInfo.activeAntarEndFmt})<br>
                 • <b>सूक्ष्म प्रत्यंतर्दशा:</b> <b>${chart.dashaInfo.activePratyantardasha}</b> (${chart.dashaInfo.activePratyantarEndFmt} तक प्रभावी)<br><br>
+                🌌 <b>आज का लाइव गोचर प्रभाव (Live Today's Planetary Transit):</b><br>
+                • <b>शनि देव गोचर स्थिति:</b> ${chart.gocharInfo.saturnStatus}<br>
+                • <b>गुरु देव गोचर स्थिति:</b> ${chart.gocharInfo.jupiterStatus}<br><br>
                 ✨ <b>प्रामाणिक वैदिक उपाय व रुद्राक्ष परामर्श (Authentic Vedic Remedy):</b><br>
                 • <b>अनुशंसित रुद्राक्ष:</b> ${rudrakshaSuggestion}<br>
                 • <b>अनुष्ठान व स्तोत्र पाठ:</b> ${remedyPageLink} पर विस्तृत ग्रह शांति एवं स्तोत्र जाप करें।<br><br>
-                💡 <i>क्या आप अपनी वर्तमान <b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b> अंतर्दशा के दौरान वर्तमान गोचर (Live Transits) के विशेष उपाय विस्तार से जानना चाहते हैं?</i>
+                💡 <i>क्या आप अपनी वर्तमान <b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b> अंतर्दशा के साथ आज के <b>${chart.gocharInfo.saturnStatus.split(' ')[0]}</b> के विशिष्ट वैदिक उपाय विस्तार से जानना चाहते हैं?</i>
             `;
         }
 
