@@ -636,9 +636,10 @@
             <div id="geminiStatusBadge" style="margin-bottom:16px; padding:10px; border-radius:8px; font-size:12px; font-weight:bold; background:rgba(212,160,23,0.1); border:1px solid var(--border-soft); color:var(--gold-light);">
                 🟡 स्थिति: स्थानीय 40-कारक डायनामिक एस्ट्रो AI इंजन सक्रिय है।
             </div>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-widget-submit" onclick="saveGeminiKey()" style="flex:1;">💾 कुंजी सेव करें (Save Key)</button>
-                <button onclick="clearGeminiKey()" style="background:rgba(211,47,47,0.2); border:1px solid #d32f2f; color:#ff8a80; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">🗑️ हटाएं</button>
+            <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                <button class="btn-widget-submit" onclick="saveGeminiKey()" style="flex:1;">💾 सेव करें (Save)</button>
+                <button onclick="testGeminiKeyLive()" style="background:rgba(138,43,226,0.2); border:1px solid var(--accent-purple); color:var(--gold-light); padding:10px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">🧪 टेस्ट करें (Test)</button>
+                <button onclick="clearGeminiKey()" style="background:rgba(211,47,47,0.2); border:1px solid #d32f2f; color:#ff8a80; padding:10px 14px; border-radius:8px; font-weight:bold; cursor:pointer;">🗑️ हटाएं</button>
             </div>
         </div>
     </div>
@@ -967,7 +968,8 @@ Answer the user's specific query in detail with degree level precision, classica
                         console.warn("Gemini Fallback to Deep Improviser:", err);
                         removeTypingIndicator();
                         const aiPrediction = generateDegreeLevelPrediction(qText, userBirthData);
-                        appendBotMessage(aiPrediction);
+                        const errNotice = `<div style="font-size:11.5px; padding:6px 10px; margin-bottom:8px; border-radius:6px; background:rgba(211,47,47,0.1); border:1px solid rgba(211,47,47,0.3); color:#ff8a80;">⚠️ <b>Gemini Live API सूचना:</b> ${err.message} <br><i>(स्थानीय 40-कारक डायनामिक एस्ट्रो AI फलादेश प्रस्तुत किया जा रहा है)</i></div>`;
+                        appendBotMessage(errNotice + aiPrediction);
                     });
             } else {
                 setTimeout(() => {
@@ -1856,29 +1858,72 @@ Answer the user's specific query in detail with degree level precision, classica
             alert("Gemini API Key हटा दी गई। स्थानीय इंजन सक्रिय रहेगा।");
         }
 
-        async function callGeminiNeuralApi(apiKey, model, systemPrompt, userQuery, base64ImageData) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-            let parts = [{ text: `${systemPrompt}\n\nयूज़र का प्रश्न: ${userQuery}` }];
+        async function testGeminiKeyLive() {
+            const key = document.getElementById('geminiApiKeyInput').value.trim();
+            const model = document.getElementById('geminiModelSelect').value;
+            const badge = document.getElementById('geminiStatusBadge');
 
-            if (base64ImageData) {
-                const base64Clean = base64ImageData.split(',')[1] || base64ImageData;
-                const mimeType = base64ImageData.substring(base64ImageData.indexOf(':') + 1, base64ImageData.indexOf(';')) || 'image/jpeg';
-                parts.unshift({ inline_data: { mime_type: mimeType, data: base64Clean } });
+            if (!key) {
+                alert("कृपया पहले Gemini API Key दर्ज करें!");
+                return;
             }
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: parts }] })
-            });
+            badge.innerHTML = "⏳ Gemini API कनेक्शन की जाँच हो रही है...";
+            badge.style.color = "var(--gold)";
 
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error?.message || `HTTP ${response.status}`);
+            try {
+                const testRes = await callGeminiNeuralApi(key, model, "You are a test assistant.", "Say Hello in 1 word", null);
+                badge.innerHTML = `🟢 कनेक्शन सफ़ल! Gemini Neural Response: "${testRes.trim()}"`;
+                badge.style.background = "rgba(37,211,102,0.15)";
+                badge.style.borderColor = "#25D366";
+                badge.style.color = "#81c784";
+                alert("✅ बधाई! आपकी Gemini API Key सफलतापूर्वक कनेक्ट हो गई है!");
+            } catch(err) {
+                badge.innerHTML = `🔴 कनेक्शन असफल: ${err.message}`;
+                badge.style.background = "rgba(211,47,47,0.15)";
+                badge.style.borderColor = "#d32f2f";
+                badge.style.color = "#ff8a80";
+                alert(`❌ Gemini API त्रुटि: ${err.message}\n\nकृपया aistudio.google.com/app/apikey से अपनी मुफ़्त API Key चेक करें।`);
+            }
+        }
+
+        async function callGeminiNeuralApi(apiKey, preferredModel, systemPrompt, userQuery, base64ImageData) {
+            const modelsToTry = Array.from(new Set([preferredModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']));
+            let lastError = null;
+
+            for (const model of modelsToTry) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                    let parts = [{ text: `${systemPrompt}\n\nयूज़र का प्रश्न: ${userQuery}` }];
+
+                    if (base64ImageData) {
+                        const base64Clean = base64ImageData.split(',')[1] || base64ImageData;
+                        const mimeType = base64ImageData.substring(base64ImageData.indexOf(':') + 1, base64ImageData.indexOf(';')) || 'image/jpeg';
+                        parts.unshift({ inline_data: { mime_type: mimeType, data: base64Clean } });
+                    }
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: parts }] })
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+                        return data.candidates[0].content.parts[0].text;
+                    }
+                } catch(err) {
+                    console.warn(`Gemini Model ${model} failed:`, err.message);
+                    lastError = err;
+                }
             }
 
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
+            throw lastError || new Error("Gemini API Request Failed");
         }
 
         // MULTI-DOMAIN SMART VISION ENGINE (KUNDLI SCREENSHOTS, PALMISTRY, VASTU & OCR)
