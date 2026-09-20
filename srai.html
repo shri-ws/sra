@@ -1534,21 +1534,42 @@ Answer the user's specific query in detail with degree level precision, classica
             return shlokas.filter(item => item.condition && item.condition.lagnaSign === chart.lagnaRashiIdx).slice(0, 2);
         }
 
-        // ASTROLOGY DOMAIN GUARDRAILS
+        // ASTROLOGY DOMAIN GUARDRAILS & INTENT CLASSIFIER
+        const NON_ASTROLOGY_BLOCKLIST = [
+            "python", "javascript", "html", "css", "code", "coding", "program", "recipe", "pizza", "burger", 
+            "cricket", "football", "score", "modi", "biden", "trump", "capital of", "weather", "forecast", 
+            "math", "equation", "calculator", "movie", "song", "cinema"
+        ];
+
         const ASTROLOGY_KEYWORDS = [
             "कुंडली", "ग्रह", "दशा", "करियर", "नौकरी", "जॉब", "बिज़नेस", "व्यापार", "प्रमोशन", "विवाह", "शादी", "जीवनसाथी", "लव", "रिलेशन",
             "स्वास्थ्य", "सेहत", "बीमारी", "रोग", "आयु", "धन", "आर्थिक", "पैसा", "प्रॉपर्टी", "मकान", "गाड़ी", "लग्न", "राशि", "नक्षत्र",
             "उपाय", "रुद्राक्ष", "मंत्र", "पूजा", "मुहूर्त", "गोचर", "शनि", "गुरु", "सूर्य", "चंद्र", "मंगल", "बुध", "शुक्र", "राहु", "केतु",
-            "भाग्यांक", "भविष्य", "ज्योतिष", "astrology", "kundli", "horoscope", "marriage", "career", "job", "wealth", "health", "future"
+            "भाग्यांक", "भविष्य", "ज्योतिष", "astrology", "kundli", "horoscope", "marriage", "career", "job", "wealth", "health", "future",
+            "detail", "details", "samjhaye", "samjhao", "samjhaen", "samjhaaiye", "batao", "bataiye", "bataen", "explain", "more", "expansion",
+            "विस्तार", "विस्तृत", "गहराई", "समझाइए", "समझायें", "बताओ", "और", "बताएं", "बताइए", "उपाय", "महत्व", "प्रभाव", "नक्शा", "हस्तरेखा",
+            "प्रणाम", "नमस्ते", "hello", "hi", "help"
         ];
 
         function isAstrologyOrSpiritualQuery(text) {
             if (!text || text.trim().length === 0) return true;
             const lower = text.toLowerCase();
+
+            // 1. Check against explicit non-astrology blocklist
+            for (let i = 0; i < NON_ASTROLOGY_BLOCKLIST.length; i++) {
+                if (lower.includes(NON_ASTROLOGY_BLOCKLIST[i])) return false;
+            }
+
+            // 2. Check if birth data is already provided - if so, treat questions as astrology follow-ups
+            if (userBirthData && userBirthData.dob) return true;
+
+            // 3. Check keywords
             for (let i = 0; i < ASTROLOGY_KEYWORDS.length; i++) {
                 if (lower.includes(ASTROLOGY_KEYWORDS[i])) return true;
             }
-            return (lower.includes("क्या होगा") || lower.includes("कब") || lower.includes("कैसा") || lower.includes("बताएं"));
+
+            // 4. Check common Hindi query phrasing
+            return (lower.includes("क्या होगा") || lower.includes("कब") || lower.includes("कैसा") || lower.includes("बताएं") || lower.includes("बताओ") || lower.includes("समझाए"));
         }
 
         function getPoliteNonAstrologyResponse() {
@@ -1577,7 +1598,18 @@ Answer the user's specific query in detail with degree level precision, classica
             let rudrakshaSuggestion = "7-मुखी रुद्राक्ष (7-Mukhi Rudraksha for Saturn Karma & Stability)";
             let customInsight = "";
 
-            if (q.includes("करियर") || q.includes("नौकरी") || q.includes("जॉब") || q.includes("बिज़नेस") || q.includes("व्यापार")) {
+            const isDetailRequest = q.includes("detail") || q.includes("विस्तार") || q.includes("समझाए") || q.includes("समझाओ") || q.includes("और") || q.includes("more");
+
+            if (isDetailRequest) {
+                targetHouseTitle = "360° सर्व-भाव व ग्रह विश्लेषण (360° Comprehensive Houses Analysis)";
+                customInsight = `
+                    <b>1. करियर व कर्मक्षेत्र (10th House):</b> दशमेश <b>${chart.houseLords[10].lord}</b> है एवं अमात्यकारक <b>${chart.jaiminiKarakas.sorted[1].name}</b> D10 दशमांश (<b>${chart.d10Lagna}</b>) में स्थित होकर आजीविका में अधिकार व प्रतिष्ठा का योग बना रहे हैं (अष्टकवर्ग अंक: <b>${chart.savPoints[10]}/56</b>)।<br><br>
+                    <b>2. विवाह व सम्बन्ध (7th House):</b> सप्तमेश <b>${chart.houseLords[7].lord}</b>, दाराकारक <b>${chart.jaiminiKarakas.darakaraka.name}</b> एवं D9 नवमांश (<b>${chart.d9Lagna}</b>) दाम्पत्य जीवन में अनुकूलता एवं आपसी समझ का निर्माण कर रहे हैं (अष्टकवर्ग अंक: <b>${chart.savPoints[7]}/56</b>)।<br><br>
+                    <b>3. धन व संपत्ति (2nd & 11th House):</b> धन भाव (2nd House) का अंक <b>${chart.savPoints[2]}</b> एवं लाभ भाव (11th House) का अंक <b>${chart.savPoints[11]}</b> है। धन कारक <b>बृहस्पति देव</b> निरंतर संपत्ति वृद्धि का योग दे रहे हैं।<br><br>
+                    <b>4. आत्मबल व स्वास्थ्य (1st House):</b> आत्माकारक <b>${chart.jaiminiKarakas.atmakaraka.name}</b> आपकी शारीरिक ऊर्जा एवं निर्णय क्षमता को नियंत्रित कर रहा है।
+                `;
+                rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Overall Harmony) एवं 7-मुखी रुद्राक्ष (for Karma Stability)";
+            } else if (q.includes("करियर") || q.includes("नौकरी") || q.includes("जॉब") || q.includes("बिज़नेस") || q.includes("व्यापार")) {
                 targetHouseNum = 10;
                 targetHouseTitle = "दशम भाव (10th House - Karma & Profession)";
                 const houseLord = chart.houseLords[10].lord;
@@ -1627,7 +1659,7 @@ Answer the user's specific query in detail with degree level precision, classica
                 • <b>जैमिनी चर कारक:</b> आत्माकारक (AK): <b>${chart.jaiminiKarakas.atmakaraka.name}</b> • दाराकारक (DK): <b>${chart.jaiminiKarakas.darakaraka.name}</b><br>
                 • <b>वर्गोत्तम ग्रह (Vargottama):</b> <b>${vargottamaText}</b><br>
                 • <b>चंद्र व नक्षत्र:</b> ${chart.moonRashi} • ${chart.nakshatra} (${chart.pada})<br>
-                • <b>विचारणीय भाव व अष्टकवर्ग:</b> ${targetHouseTitle} • अंक: <b>${chart.savPoints[targetHouseNum]}/56</b><br><br>
+                • <b>विचारणीय भाव व अष्टकवर्ग:</b> ${targetHouseTitle}<br><br>
                 ${customInsight}
                 ${shlokaHtml}<br>
                 ⏳ <b>विंशोत्तरी महादशा व सूक्ष्म समय-चक्र (Vimshottari Timeline):</b><br>
