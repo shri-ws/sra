@@ -1086,7 +1086,20 @@ STRICT CONVERSATIONAL RULES:
                 + 53322 * Math.sin(2 * D + M_prime)
                 + 45758 * Math.sin(2 * D - M);
 
-            return norm360(L_prime + SumL / 10000000.0);
+            return norm360(L_prime + SumL / 1000000.0);
+        }
+
+        function checkTrueRetrograde(planetName, T, ayanamsa) {
+            if (["Sun", "Moon", "Rahu", "Ketu"].includes(planetName)) return false;
+            const dt = 0.0001;
+            const T2 = T + dt;
+            const ayanamsa2 = getTrueLahiriAyanamsa(T2);
+            const pos1 = computeSiderealGeocentricLongitude(T, ayanamsa);
+            const pos2 = computeSiderealGeocentricLongitude(T2, ayanamsa2);
+            let diff = pos2[planetName] - pos1[planetName];
+            if (diff > 180) diff -= 360;
+            if (diff < -180) diff += 360;
+            return diff < 0;
         }
 
         function computeSiderealGeocentricLongitude(T, ayanamsa) {
@@ -1495,7 +1508,7 @@ STRICT CONVERSATIONAL RULES:
                 const d10 = computeD10Dasamsha(degVal);
                 const d12 = computeD12Dwadasamsha(degVal);
                 const isCombust = checkCombustion(pHindi[i], degVal, sunSid);
-                const isVaki = (pn === "Saturn" || pn === "Jupiter" || pn === "Mars" || pn === "Mercury" || pn === "Venus") && (degVal % 15 < 3);
+                const isVaki = checkTrueRetrograde(pn, T, ayanamsa);
 
                 if (d9.isVargottama) vargottamaPlanets.push(`${pIcons[i]} ${pHindi[i]}`);
 
