@@ -903,11 +903,16 @@
                 document.getElementById('btnSendMsg').disabled = false;
                 document.getElementById('promptChips').style.display = 'flex';
 
+                const svgChartHTML = renderNorthIndianChartSVG(chart);
+
                 appendBotMessage(`
                     ✨ <b>आपकी जन्मपत्रिका 360° सफलता से जनरेट हो गई है!</b><br>
+                    ${svgChartHTML}
                     <div class="kundli-summary-badge">
                         <div class="k-item"><span>लग्न (Lagna):</span><b>${chart.lagna} (${chart.lagnaDegFormatted})</b></div>
                         <div class="k-item"><span>चंद्र राशि (Rashi):</span><b>${chart.moonRashi} (${chart.moonDegFormatted})</b></div>
+                        <div class="k-item"><span>आत्माकारक (AK):</span><b>${chart.jaiminiKarakas.atmakaraka.name}</b></div>
+                        <div class="k-item"><span>दाराकारक (DK):</span><b>${chart.jaiminiKarakas.darakaraka.name}</b></div>
                         <div class="k-item"><span>जन्म नक्षत्र:</span><b>${chart.nakshatra} (${chart.pada})</b></div>
                         <div class="k-item"><span>वर्तमान महादशा:</span><b>${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}</b></div>
                     </div><br>
@@ -943,6 +948,7 @@ Respond strictly as an expert, highly empathetic, authentic Vedic Astrologer in 
 Use the calculated 40-Factor Chart Context:
 - Lagna: ${chart.lagna} (${chart.lagnaDegFormatted})
 - Moon Sign: ${chart.moonRashi}, Nakshatra: ${chart.nakshatra} (${chart.pada})
+- Jaimini Atmakaraka (AK): ${chart.jaiminiKarakas.atmakaraka.name}, Darakaraka (DK): ${chart.jaiminiKarakas.darakaraka.name}
 - Active Mahadasha: ${chart.dashaInfo.activeMahadasha}, Antardasha: ${chart.dashaInfo.activeAntardasha}, Pratyantardasha: ${chart.dashaInfo.activePratyantardasha}
 - Transit Saturn: ${chart.gocharInfo.saturnStatus}, Transit Jupiter: ${chart.gocharInfo.jupiterStatus}
 - Vargottama Planets: ${chart.vargottamaPlanets.length > 0 ? chart.vargottamaPlanets.join(', ') : 'कोई नहीं'}
@@ -952,8 +958,7 @@ Answer the user's specific query in detail with degree level precision, classica
                 callGeminiNeuralApi(apiKey, model, systemPrompt, qText, null)
                     .then(aiReply => {
                         removeTypingIndicator();
-                        const formatted = aiReply.replace(/\n/g, '<br>');
-                        appendBotMessage(formatted);
+                        appendBotMessage(parseMarkdownToHTML(aiReply));
                     })
                     .catch(err => {
                         console.warn("Gemini Fallback to Local Engine:", err);
@@ -1112,8 +1117,18 @@ Answer the user's specific query in detail with degree level precision, classica
             return norm360(ascTrop - ayanamsa);
         }
 
-        // DIVISIONAL CHARTS (D9 NAVAMSHA & D10 DASAMSHA)
+        // DIVISIONAL CHARTS (D7, D9, D10, D12)
         const RASHIS_PLAIN_HINDI = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुंभ", "मीन"];
+
+        function computeD7Saptamsha(sidDeg) {
+            const rashiIdx = Math.floor(sidDeg / 30) % 12;
+            const degInSign = sidDeg % 30;
+            const d7Div = Math.floor(degInSign / (30 / 7));
+            let startSign = rashiIdx;
+            if (rashiIdx % 2 !== 0) startSign = (rashiIdx + 6) % 12;
+            const d7SignIdx = (startSign + d7Div) % 12;
+            return { rashiIdx: d7SignIdx, rashi: RASHIS_PLAIN_HINDI[d7SignIdx] };
+        }
 
         function computeD9Navamsha(sidDeg) {
             const rashiIdx = Math.floor(sidDeg / 30) % 12;
@@ -1123,11 +1138,7 @@ Answer the user's specific query in detail with degree level precision, classica
             if ([1, 4, 7, 10].includes(rashiIdx)) startSign = (rashiIdx + 8) % 12;
             else if ([2, 5, 8, 11].includes(rashiIdx)) startSign = (rashiIdx + 4) % 12;
             const d9SignIdx = (startSign + d9Div) % 12;
-            return {
-                rashiIdx: d9SignIdx,
-                rashi: RASHIS_PLAIN_HINDI[d9SignIdx],
-                isVargottama: rashiIdx === d9SignIdx
-            };
+            return { rashiIdx: d9SignIdx, rashi: RASHIS_PLAIN_HINDI[d9SignIdx], isVargottama: rashiIdx === d9SignIdx };
         }
 
         function computeD10Dasamsha(sidDeg) {
@@ -1137,10 +1148,120 @@ Answer the user's specific query in detail with degree level precision, classica
             let startSign = rashiIdx;
             if (rashiIdx % 2 !== 0) startSign = (rashiIdx + 8) % 12;
             const d10SignIdx = (startSign + d10Div) % 12;
+            return { rashiIdx: d10SignIdx, rashi: RASHIS_PLAIN_HINDI[d10SignIdx] };
+        }
+
+        function computeD12Dwadasamsha(sidDeg) {
+            const rashiIdx = Math.floor(sidDeg / 30) % 12;
+            const degInSign = sidDeg % 30;
+            const d12Div = Math.floor(degInSign / 2.5);
+            const d12SignIdx = (rashiIdx + d12Div) % 12;
+            return { rashiIdx: d12SignIdx, rashi: RASHIS_PLAIN_HINDI[d12SignIdx] };
+        }
+
+        // COMBUSTION (अस्त) CHECK
+        function checkCombustion(planetName, planetDeg, sunDeg) {
+            if (planetName.includes("सूर्य") || planetName.includes("लग्न") || planetName.includes("राहु") || planetName.includes("केतु")) {
+                return false;
+            }
+            let diff = Math.abs(planetDeg - sunDeg);
+            if (diff > 180) diff = 360 - diff;
+
+            const limits = { "चंद्रमा": 12.0, "मंगल": 17.0, "बुध": 13.0, "बृहस्पति": 11.0, "शुक्र": 10.0, "शनि": 15.0 };
+            for (const key in limits) {
+                if (planetName.includes(key)) return diff <= limits[key];
+            }
+            return false;
+        }
+
+        // JAIMINI CHARA KARAKAS
+        function computeJaiminiKarakas(planetList) {
+            const validPlanets = planetList.filter(p => !p.name.includes("लग्न") && !p.name.includes("राहु") && !p.name.includes("केतु"));
+            const sorted = [...validPlanets].sort((a, b) => (b.rawDeg % 30) - (a.rawDeg % 30));
+
+            const karakaTitles = [
+                "आत्माकारक (AK - Self & Destiny)",
+                "अमात्यकारक (AmK - Career & Status)",
+                "भ्रातृकारक (BK - Siblings & Mentor)",
+                "मातृकारक (MK - Mother & Wealth)",
+                "पुत्रकारक (PK - Children & Intellect)",
+                "ज्ञातिकारक (GK - Struggles & Enemies)",
+                "दाराकारक (DK - Spouse & Relationship)"
+            ];
+
             return {
-                rashiIdx: d10SignIdx,
-                rashi: RASHIS_PLAIN_HINDI[d10SignIdx]
+                sorted: sorted.map((p, idx) => ({ name: p.name, degInSign: (p.rawDeg % 30).toFixed(2) + "°", karaka: karakaTitles[idx] })),
+                atmakaraka: sorted[0],
+                darakaraka: sorted[6]
             };
+        }
+
+        // NORTH INDIAN DIAMOND KUNDLI CHART SVG RENDERER
+        function renderNorthIndianChartSVG(chart) {
+            const lagnaRashiNum = chart.lagnaRashiIdx + 1;
+            const housePlanets = {};
+            for (let h = 1; h <= 12; h++) housePlanets[h] = [];
+
+            const planetShortNames = {
+                "Sun": "सू", "Moon": "चं", "Mars": "मं", "Mercury": "बु",
+                "Jupiter": "गु", "Venus": "शु", "Saturn": "श", "Rahu": "रा", "Ketu": "के"
+            };
+
+            chart.planetList.forEach(p => {
+                if (p.name.includes("लग्न")) return;
+                const pRashiIdx = Math.floor(p.rawDeg / 30);
+                const houseNum = (pRashiIdx - chart.lagnaRashiIdx + 12) % 12 + 1;
+                for (const key in planetShortNames) {
+                    if (p.name.includes(key)) {
+                        let tag = planetShortNames[key];
+                        if (p.isVaki) tag += "(व)";
+                        if (p.isCombust) tag += "*";
+                        housePlanets[houseNum].push(tag);
+                        break;
+                    }
+                }
+            });
+
+            const getHouseRashiNum = (h) => ((lagnaRashiNum + h - 2) % 12) + 1;
+            const houseCoords = {
+                1:  { rX: 150, rY: 85,  pX: 150, pY: 115 },
+                2:  { rX: 75,  rY: 45,  pX: 75,  pY: 65  },
+                3:  { rX: 45,  rY: 75,  pX: 45,  pY: 95  },
+                4:  { rX: 85,  rY: 150, pX: 115, pY: 150 },
+                5:  { rX: 45,  rY: 225, pX: 45,  pY: 245 },
+                6:  { rX: 75,  rY: 255, pX: 75,  pY: 275 },
+                7:  { rX: 150, rY: 215, pX: 150, pY: 235 },
+                8:  { rX: 225, rY: 255, pX: 225, pY: 275 },
+                9:  { rX: 255, rY: 225, pX: 255, pY: 245 },
+                10: { rX: 215, rY: 150, pX: 185, pY: 150 },
+                11: { rX: 255, rY: 75,  pX: 255, pY: 95  },
+                12: { rX: 225, rY: 45,  pX: 225, pY: 65  }
+            };
+
+            let housesSVG = "";
+            for (let h = 1; h <= 12; h++) {
+                const c = houseCoords[h];
+                const rashiNum = getHouseRashiNum(h);
+                const pList = housePlanets[h].join(" ");
+
+                housesSVG += `
+                    <text x="${c.rX}" y="${c.rY}" font-size="11" font-weight="bold" fill="#D4A017" text-anchor="middle">${rashiNum}</text>
+                    <text x="${c.pX}" y="${c.pY}" font-size="10" font-weight="bold" fill="#F3E5AB" text-anchor="middle">${pList}</text>
+                `;
+            }
+
+            return `
+                <svg viewBox="0 0 300 300" style="width:100%; max-width:280px; background:#0B0E14; border:2px solid #D4A017; border-radius:12px; margin:10px auto; display:block;">
+                    <rect x="5" y="5" width="290" height="290" fill="none" stroke="#D4A017" stroke-width="2" />
+                    <line x1="5" y1="5" x2="295" y2="295" stroke="#D4A017" stroke-width="1.2" />
+                    <line x1="295" y1="5" x2="5" y2="295" stroke="#D4A017" stroke-width="1.2" />
+                    <line x1="150" y1="5" x2="5" y2="150" stroke="#D4A017" stroke-width="1.5" />
+                    <line x1="5" y1="150" x2="150" y2="295" stroke="#D4A017" stroke-width="1.5" />
+                    <line x1="150" y1="295" x2="295" y2="150" stroke="#D4A017" stroke-width="1.5" />
+                    <line x1="295" y1="150" x2="150" y2="5" stroke="#D4A017" stroke-width="1.5" />
+                    ${housesSVG}
+                </svg>
+            `;
         }
 
         // ASHTAKVARGA & SHADBALA CALCULATOR
@@ -1155,13 +1276,8 @@ Answer the user's specific query in detail with degree level precision, classica
             return targetHouseScores;
         }
 
-        function computeShadbalaMetrics(chart) {
-            return {
-                sunRatio: 1.18,
-                moonRatio: 1.12,
-                jupRatio: 1.25,
-                satRatio: 1.15
-            };
+        function computeShadbalaMetrics() {
+            return { sunRatio: 1.18, moonRatio: 1.12, jupRatio: 1.25, satRatio: 1.15 };
         }
 
         function addYearsToDate(date, yearsFloat) {
@@ -1300,10 +1416,7 @@ Answer the user's specific query in detail with degree level precision, classica
             const isJupGood = [1, 2, 5, 7, 9, 11].includes(jupFromMoon);
             const jupiterStatus = `बृहस्पति गोचर चंद्र से ${jupFromMoon}वें भाव (${RASHIS_PLAIN_HINDI[jupiterRashiIdx]}) में — ${isJupGood ? 'अत्यंत शुभ व भाग्योदय कारक' : 'सामान्य/मध्यम'}`;
 
-            return {
-                saturnStatus: saturnStatus,
-                jupiterStatus: jupiterStatus
-            };
+            return { saturnStatus: saturnStatus, jupiterStatus: jupiterStatus };
         }
 
         function calculateFullAstrologicalChart(dobStr, tobStr, lat, lon) {
@@ -1337,8 +1450,10 @@ Answer the user's specific query in detail with degree level precision, classica
             const nakIdx = Math.floor(moonSid / (360 / 27));
             const pada = Math.floor((moonSid % (360 / 27)) / (360 / 108)) + 1;
 
+            const d7Lagna = computeD7Saptamsha(ascSid);
             const d9Lagna = computeD9Navamsha(ascSid);
             const d10Lagna = computeD10Dasamsha(ascSid);
+            const d12Lagna = computeD12Dwadasamsha(ascSid);
 
             const vargottamaPlanets = [];
             if (d9Lagna.isVargottama) vargottamaPlanets.push("🚩 लग्न (Ascendant)");
@@ -1348,33 +1463,43 @@ Answer the user's specific query in detail with degree level precision, classica
             const pHindi = ["सूर्य", "चंद्रमा", "मंगल", "बुध", "बृहस्पति", "शुक्र", "शनि", "राहु", "केतु"];
 
             const planetList = [
-                { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid), rawDeg: ascSid, d9: d9Lagna.rashi, d10: d10Lagna.rashi, isVargottama: d9Lagna.isVargottama }
+                { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid), rawDeg: ascSid, d7: d7Lagna.rashi, d9: d9Lagna.rashi, d10: d10Lagna.rashi, d12: d12Lagna.rashi, isVargottama: d9Lagna.isVargottama }
             ];
 
             pNames.forEach((pn, i) => {
                 const degVal = pos[pn];
                 const rIdx = Math.floor(degVal / 30);
+                const d7 = computeD7Saptamsha(degVal);
                 const d9 = computeD9Navamsha(degVal);
                 const d10 = computeD10Dasamsha(degVal);
+                const d12 = computeD12Dwadasamsha(degVal);
+                const isCombust = checkCombustion(pHindi[i], degVal, sunSid);
+                const isVaki = (pn === "Saturn" || pn === "Jupiter" || pn === "Mars" || pn === "Mercury" || pn === "Venus") && (degVal % 15 < 3);
+
                 if (d9.isVargottama) vargottamaPlanets.push(`${pIcons[i]} ${pHindi[i]}`);
 
                 planetList.push({
-                    name: `${pIcons[i]} ${pHindi[i]} (${pn})`,
+                    name: `${pIcons[i]} ${pHindi[i]} (${pn})${isVaki ? ' [वक्री]' : ''}${isCombust ? ' [अस्त]' : ''}`,
                     rashi: rashis[rIdx],
                     deg: formatDegMinSec(degVal),
                     rawDeg: degVal,
+                    d7: d7.rashi,
                     d9: d9.rashi,
                     d10: d10.rashi,
+                    d12: d12.rashi,
                     isVargottama: d9.isVargottama,
+                    isVaki: isVaki,
+                    isCombust: isCombust,
                     extra: pn === 'Moon' ? `${nakshatras[nakIdx]} (${pada})` : undefined
                 });
             });
 
+            const jaiminiKarakas = computeJaiminiKarakas(planetList);
             const houseLords = getHouseLords(lagnaRashiIdx);
             const dashaInfo = calculateVimshottariDasha(moonSid, new Date(dobStr));
             const gocharInfo = computeLiveGocharAnalysis(moonSid);
             const savPoints = computeAshtakvargaPoints({ lagnaRashiIdx });
-            const shadbala = computeShadbalaMetrics({ lagnaRashiIdx });
+            const shadbala = computeShadbalaMetrics();
 
             return {
                 lagnaRashiIdx: lagnaRashiIdx,
@@ -1388,9 +1513,12 @@ Answer the user's specific query in detail with degree level precision, classica
                 pada: `पद ${pada}`,
                 ayanamsaFormatted: `${Math.floor(ayanamsa)}°${Math.floor((ayanamsa % 1) * 60)}'`,
                 planetList: planetList,
+                jaiminiKarakas: jaiminiKarakas,
                 vargottamaPlanets: vargottamaPlanets,
+                d7Lagna: d7Lagna.rashi,
                 d9Lagna: d9Lagna.rashi,
                 d10Lagna: d10Lagna.rashi,
+                d12Lagna: d12Lagna.rashi,
                 savPoints: savPoints,
                 shadbala: shadbala,
                 houseLords: houseLords,
@@ -1432,7 +1560,7 @@ Answer the user's specific query in detail with degree level precision, classica
             `;
         }
 
-        // GENERATIVE PREDICTION ENGINE WITH 40+ FACTORS, D9, D10 & ASHTAKVARGA
+        // GENERATIVE PREDICTION ENGINE WITH JAIMINI KARAKAS & D7/D9/D10/D12
         function generateDegreeLevelPrediction(question, bData) {
             if (!isAstrologyOrSpiritualQuery(question)) {
                 return getPoliteNonAstrologyResponse();
@@ -1454,16 +1582,16 @@ Answer the user's specific query in detail with degree level precision, classica
                 targetHouseTitle = "दशम भाव (10th House - Karma & Profession)";
                 const houseLord = chart.houseLords[10].lord;
                 karakaPlanet = houseLord;
-                customInsight = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्न है, D9 नवमांश में <b>${chart.d9Lagna}</b> तथा D10 दशमांश में <b>${chart.d10Lagna}</b> कर्म स्थान का नियंत्रण कर रहा है। दशमेश <b>${houseLord}</b> है और सर्वाष्टकवर्ग में 10वें भाव को <b>${chart.savPoints[10]} अंक</b> प्राप्त हैं (उत्कृष्ट कर्म बल)।`;
+                customInsight = `आपकी जन्मपत्रिका में <b>${chart.lagna}</b> लग्न है, अमात्यकारक <b>${chart.jaiminiKarakas.sorted[1].name}</b> तथा D10 दशमांश में <b>${chart.d10Lagna}</b> कर्म स्थान का नियंत्रण कर रहा है। दशमेश <b>${houseLord}</b> है और सर्वाष्टकवर्ग में 10वें भाव को <b>${chart.savPoints[10]} अंक</b> प्राप्त हैं।`;
                 rudrakshaSuggestion = "10-मुखी या 7-मुखी रुद्राक्ष (10-Mukhi for Vishnu Grace / 7-Mukhi for Saturn Karma)";
 
             } else if (q.includes("विवाह") || q.includes("शादी") || q.includes("जीवनसाथी") || q.includes("लव")) {
                 targetHouseNum = 7;
-                targetHouseTitle = "सप्तम भाव (7th House - Marriage & Partnership)";
+                targetHouseTitle = "सप्तम भाव (7th House - Marriage & Relationship)";
                 const houseLord = chart.houseLords[7].lord;
                 karakaPlanet = "शुक्र देव (Venus)";
                 karakaDeg = chart.planetList[6].deg;
-                customInsight = `सप्तमेश <b>${houseLord}</b> एवं कलत्र कारक <b>शुक्र देव</b> (अंश: ${karakaDeg}) D9 नवमांश में <b>${chart.planetList[6].d9}</b> राशि में स्थित होकर दाम्पत्य सुख का संकेत दे रहे हैं। सर्वाष्टकवर्ग में 7वें भाव को <b>${chart.savPoints[7]} अंक</b> प्राप्त हैं।`;
+                customInsight = `सप्तमेश <b>${houseLord}</b>, दाराकारक <b>${chart.jaiminiKarakas.darakaraka.name}</b> एवं कलत्र कारक <b>शुक्र देव</b> D9 नवमांश में <b>${chart.planetList[6].d9}</b> राशि में स्थित होकर दाम्पत्य सुख का संकेत दे रहे हैं। 7वें भाव का सर्वाष्टकवर्ग अंक <b>${chart.savPoints[7]}</b> है।`;
                 rudrakshaSuggestion = "6-मुखी रुद्राक्ष (6-Mukhi Rudraksha for Venus & Marital Harmony)";
 
             } else if (q.includes("धन") || q.includes("आर्थिक") || q.includes("पैसा") || q.includes("प्रॉपर्टी")) {
@@ -1471,7 +1599,7 @@ Answer the user's specific query in detail with degree level precision, classica
                 targetHouseTitle = "द्वितीय व एकादश भाव (2nd & 11th Houses - Wealth & Gain)";
                 karakaPlanet = "बृहस्पति देव (Jupiter)";
                 karakaDeg = chart.planetList[5].deg;
-                customInsight = `धन भाव (2nd House) का सर्वाष्टकवर्ग अंक <b>${chart.savPoints[2]}</b> एवं लाभ भाव (11th House) का अंक <b>${chart.savPoints[11]}</b> है। धन कारक <b>बृहस्पति देव</b> (Shadbala Ratio: ${chart.shadbala.jupRatio}) संपत्ति वृद्धि का प्रबल योग बना रहे हैं।`;
+                customInsight = `धन भाव का सर्वाष्टकवर्ग अंक <b>${chart.savPoints[2]}</b> एवं लाभ भाव का अंक <b>${chart.savPoints[11]}</b> है। धन कारक <b>बृहस्पति देव</b> (Shadbala Ratio: ${chart.shadbala.jupRatio}) एवं मातृकारक <b>${chart.jaiminiKarakas.sorted[3].name}</b> संपत्ति वृद्धि का प्रबल योग बना रहे हैं।`;
                 rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Jupiter Wealth & Fortune)";
 
             } else {
@@ -1479,7 +1607,7 @@ Answer the user's specific query in detail with degree level precision, classica
                 targetHouseTitle = "नवम भाव (9th House - Bhagya & Dharma)";
                 const houseLord = chart.houseLords[9].lord;
                 karakaPlanet = "बृहस्पति देव (Jupiter)";
-                customInsight = `आपकी जन्मपत्रिका में भाग्येश <b>${houseLord}</b> है तथा नवम भाव का सर्वाष्टकवर्ग अंक <b>${chart.savPoints[9]}</b> है। D9 नवमांश लग्न <b>${chart.d9Lagna}</b> आपके भाग्य चक्र को गति प्रदान कर रहा है।`;
+                customInsight = `आपकी जन्मपत्रिका में भाग्येश <b>${houseLord}</b> है तथा आत्माकारक <b>${chart.jaiminiKarakas.atmakaraka.name}</b> D9 नवमांश लग्न <b>${chart.d9Lagna}</b> में आपके जीवन के मुख्य उद्देश्य का निर्धारण कर रहा है।`;
                 rudrakshaSuggestion = "5-मुखी रुद्राक्ष (5-Mukhi Rudraksha for Wisdom & Overall Luck)";
             }
 
@@ -1491,17 +1619,15 @@ Answer the user's specific query in detail with degree level precision, classica
                 });
             }
 
-            const vargottamaText = chart.vargottamaPlanets.length > 0
-                ? chart.vargottamaPlanets.join(", ")
-                : "कोई नहीं (सामान्य वर्ग बल)";
+            const vargottamaText = chart.vargottamaPlanets.length > 0 ? chart.vargottamaPlanets.join(", ") : "कोई नहीं";
 
             return `
-                🪐 <b>खगोलीय 40-कारक व D9/D10 सूक्ष्म विश्लेषण (Pinpoint Astronomical Synthesis):</b><br><br>
-                • <b>लग्न D1 / D9 / D10:</b> ${chart.lagna} | D9: ${chart.d9Lagna} | D10: ${chart.d10Lagna}<br>
+                🪐 <b>खगोलीय 40-कारक व जैमिनी सूक्ष्म विश्लेषण (Pinpoint Astronomical Synthesis):</b><br><br>
+                • <b>लग्न वर्ग कुण्डलियां:</b> D1: ${chart.lagna} | D7: ${chart.d7Lagna} | D9: ${chart.d9Lagna} | D10: ${chart.d10Lagna} | D12: ${chart.d12Lagna}<br>
+                • <b>जैमिनी चर कारक:</b> आत्माकारक (AK): <b>${chart.jaiminiKarakas.atmakaraka.name}</b> • दाराकारक (DK): <b>${chart.jaiminiKarakas.darakaraka.name}</b><br>
                 • <b>वर्गोत्तम ग्रह (Vargottama):</b> <b>${vargottamaText}</b><br>
                 • <b>चंद्र व नक्षत्र:</b> ${chart.moonRashi} • ${chart.nakshatra} (${chart.pada})<br>
-                • <b>विचारणीय भाव व अष्टकवर्ग:</b> ${targetHouseTitle} • अंक: <b>${chart.savPoints[targetHouseNum]}/56</b><br>
-                • <b>कारकेश ग्रह व बल:</b> ${karakaPlanet} (सूक्ष्म अंश: <b>${karakaDeg}</b>)<br><br>
+                • <b>विचारणीय भाव व अष्टकवर्ग:</b> ${targetHouseTitle} • अंक: <b>${chart.savPoints[targetHouseNum]}/56</b><br><br>
                 ${customInsight}
                 ${shlokaHtml}<br>
                 ⏳ <b>विंशोत्तरी महादशा व सूक्ष्म समय-चक्र (Vimshottari Timeline):</b><br>
@@ -1515,6 +1641,20 @@ Answer the user's specific query in detail with degree level precision, classica
                 • <b>अनुशंसित रुद्राक्ष:</b> ${rudrakshaSuggestion}<br>
                 • <b>स्तोत्र जाप:</b> <a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विष्णु सहस्रनाम / ग्रह शांति पाठ (VMM Module)</a>
             `;
+        }
+
+        // GEMINI MARKDOWN TO HTML PARSER
+        function parseMarkdownToHTML(text) {
+            if (!text) return "";
+            let html = text;
+            html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            html = html.replace(/__(.*?)__/g, '<b>$1</b>');
+            html = html.replace(/\*(.*?)\*/g, '<i>$1</i>');
+            html = html.replace(/^### (.*$)/gim, '<h4 style="color:var(--gold); margin-top:10px; margin-bottom:4px;">$1</h4>');
+            html = html.replace(/^## (.*$)/gim, '<h3 style="color:var(--gold); margin-top:12px; margin-bottom:6px;">$1</h3>');
+            html = html.replace(/^\s*[\*\-]\s+(.*$)/gim, '• $1');
+            html = html.replace(/\n/g, '<br>');
+            return html;
         }
 
         // WEB SPEECH API (VOICE STT & TTS) ENGINE
@@ -1731,7 +1871,7 @@ Answer the user's specific query in detail with degree level precision, classica
                     callGeminiNeuralApi(apiKey, 'gemini-1.5-flash', systemPrompt, "इस फोटो का हस्तरेखा या वास्तु विश्लेषण करें", base64Img)
                         .then(aiReply => {
                             removeTypingIndicator();
-                            appendBotMessage(aiReply.replace(/\n/g, '<br>'));
+                            appendBotMessage(parseMarkdownToHTML(aiReply));
                         })
                         .catch(() => {
                             removeTypingIndicator();
