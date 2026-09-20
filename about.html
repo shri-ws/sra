@@ -768,13 +768,55 @@
             `).join('');
         }
 
+        // PAYLOAD COMPRESSION ENGINE FOR UNIVERSAL SOCIAL SHARING ACROSS ALL DEVICES
+        function encodePostPayload(q) {
+            try {
+                const mini = {
+                    id: q.id,
+                    a: q.author,
+                    av: q.avatar,
+                    c: q.cred,
+                    t: q.title,
+                    b: q.body,
+                    cat: q.category,
+                    adm: q.isAdmin ? 1 : 0,
+                    ver: q.isVerified ? 1 : 0
+                };
+                return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(mini)))));
+            } catch(e) { return ''; }
+        }
+
+        function decodePostPayload(payloadStr) {
+            try {
+                const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(payloadStr))));
+                const mini = JSON.parse(jsonStr);
+                return {
+                    id: mini.id,
+                    author: mini.a || "सत्यापित लेखक",
+                    avatar: mini.av || "logo.png",
+                    cred: mini.c || "Shri Ramji Astro Member",
+                    title: mini.t,
+                    body: mini.b,
+                    category: mini.cat || "general",
+                    isAdmin: mini.adm === 1,
+                    isVerified: mini.ver === 1,
+                    isBlog: mini.adm === 1,
+                    upvotes: 1,
+                    answers: [],
+                    status: "approved",
+                    created_at: new Date().toISOString()
+                };
+            } catch(e) { return null; }
+        }
+
         // SOCIAL SHARE & DEEP LINKING ENGINE
         function openShareModal(id) {
             const q = Q_FEED.find(item => item.id == id);
             if (!q) return;
 
             const baseUrl = window.location.origin + window.location.pathname;
-            const shareUrl = `${baseUrl}?post=${id}#post-${id}`;
+            const payload = encodePostPayload(q);
+            const shareUrl = `${baseUrl}?post=${id}&data=${payload}#post-${id}`;
             const shareTitle = q.title;
             const shareText = `🚩 ${shareTitle}\n\nविस्तार से पढ़ें श्री रामजी एस्ट्रो पर:\n${shareUrl}`;
 
@@ -815,6 +857,20 @@
         function handleDeepLink() {
             const params = new URLSearchParams(window.location.search);
             const postId = params.get('post') || (window.location.hash ? window.location.hash.replace('#post-', '') : null);
+            const dataPayload = params.get('data');
+
+            if (dataPayload) {
+                const decoded = decodePostPayload(dataPayload);
+                if (decoded && decoded.id) {
+                    // Check if post already exists in feed
+                    const exists = Q_FEED.some(item => item.id == decoded.id);
+                    if (!exists) {
+                        Q_FEED.unshift(decoded);
+                        localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
+                        renderFeed('all');
+                    }
+                }
+            }
 
             if (postId) {
                 setTimeout(() => {
