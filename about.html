@@ -740,6 +740,9 @@
                                 <div class="q-author-cred">${q.cred || ''}</div>
                             </div>
                         </div>
+                        <button onclick="deletePost(${q.id})" style="background:rgba(211,47,47,0.08); border:1px solid rgba(211,47,47,0.3); color:#d32f2f; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:6px; cursor:pointer;" title="Delete Post (Admin Only)">
+                            🗑️ डिलीट
+                        </button>
                     </div>
 
                     <h2 class="q-title">${q.title}</h2>
@@ -884,6 +887,36 @@
                     }
                 }, 400);
             }
+        }
+
+        // ADMIN POST DELETION ENGINE
+        function deletePost(id) {
+            if (!currentUser || !currentUser.isAdmin) {
+                const pass = prompt("🔐 एडमिन सुरक्षा जांच: इस आलेख को डिलीट करने के लिए पासकोड (Admin Passcode) दर्ज करें:");
+                if (pass !== "7775" && pass !== "95171" && pass !== "astroraamji") {
+                    alert("❌ अमान्य एडमिन पासकोड! (Invalid Master Passcode)");
+                    return;
+                }
+            }
+
+            if (!confirm("क्या आप वाकई इस पोस्ट/आलेख को स्थायी रूप से हटाना चाहते हैं? (Confirm Permanent Delete)")) {
+                return;
+            }
+
+            // 1. Remove from in-memory feed
+            Q_FEED = Q_FEED.filter(q => q.id != id);
+
+            // 2. Save updated list to localStorage
+            localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
+
+            // 3. Delete from Supabase Cloud Database
+            if (window.deleteBlogFromSupabase) {
+                window.deleteBlogFromSupabase(id);
+            }
+
+            // 4. Re-render UI
+            renderFeed('all');
+            alert("✓ पोस्ट/आलेख सफलतापूर्वक डिलीट कर दिया गया है!");
         }
 
         function upvoteQ(id) {

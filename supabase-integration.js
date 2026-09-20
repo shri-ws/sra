@@ -112,6 +112,16 @@ window.fetchBlogsFromSupabase = async () => {
   return null;
 };
 
+window.deleteBlogFromSupabase = async (id) => {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/consultations?status=eq.published_blog&tob=eq.${id}`, {
+      method: 'DELETE',
+      headers: SUPA_HEADERS
+    });
+    if (res.ok) console.log('✅ Blog deleted from Supabase Cloud DB');
+  } catch (e) { console.error('Delete blog cloud error:', e); }
+};
+
 // 🔥 ADMIN FETCH FUNCTIONS
 window.fetchStudents = async () => {
   try {
