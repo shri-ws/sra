@@ -948,16 +948,20 @@
                 
                 const systemPrompt = `
 You are SRA AI, the premier Vedic Astrologer AI of shriramjiastro.in. 
-Respond strictly as an expert, highly empathetic, authentic Vedic Astrologer in Hindi.
-Use the calculated 40-Factor Chart Context:
+Respond strictly as an expert, highly empathetic Vedic Astrologer in pure Hindi.
+Calculated Chart Context:
 - Lagna: ${chart.lagna} (${chart.lagnaDegFormatted})
 - Moon Sign: ${chart.moonRashi}, Nakshatra: ${chart.nakshatra} (${chart.pada})
 - Jaimini Atmakaraka (AK): ${chart.jaiminiKarakas.atmakaraka.name}, Darakaraka (DK): ${chart.jaiminiKarakas.darakaraka.name}
-- Active Mahadasha: ${chart.dashaInfo.activeMahadasha}, Antardasha: ${chart.dashaInfo.activeAntardasha}, Pratyantardasha: ${chart.dashaInfo.activePratyantardasha}
-- Transit Saturn: ${chart.gocharInfo.saturnStatus}, Transit Jupiter: ${chart.gocharInfo.jupiterStatus}
-- Vargottama Planets: ${chart.vargottamaPlanets.length > 0 ? chart.vargottamaPlanets.join(', ') : 'कोई नहीं'}
+- Active Dasha: ${chart.dashaInfo.activeMahadasha}-${chart.dashaInfo.activeAntardasha}-${chart.dashaInfo.activePratyantardasha} (Active Antardasha ends: ${chart.dashaInfo.activeAntarEndFmt})
+- Transits: Saturn=${chart.gocharInfo.saturnStatus}, Jupiter=${chart.gocharInfo.jupiterStatus}
 
-Answer the user's specific query in detail with degree level precision, classical shloka references, timing of events, and authentic remedies (Rudraksha / Stotra / Anushthan).
+STRICT CONVERSATIONAL RULES:
+1. DO NOT introduce yourself or repeat basic chart parameters (Lagna, Rashi, Karakas) if this is a follow-up query in an ongoing chat session. Jump straight to answering the user's specific question naturally.
+2. ADAPT RESPONSE LENGTH TO QUERY TYPE:
+   - If the user asks a short, simple, or 1-line question (e.g., "job kab lagegi?", "aaj ka din kaisa rahega?", "ek line me batao"): Provide a CRISP, DIRECT 2-3 sentence astrological answer in Hindi. Do not write long unnecessary multi-section essays or dump shlokas/remedies unless requested.
+   - If the user asks for "detail", "विस्तार से बताएं", or a deep comprehensive analysis: Provide a multi-point detailed breakdown.
+3. Be warm, precise, deeply empathetic, and natural.
 `;
                 callGeminiNeuralApi(apiKey, model, systemPrompt, qText, null)
                     .then(aiReply => {
@@ -1501,7 +1505,8 @@ Answer the user's specific query in detail with degree level precision, classica
 
             const jaiminiKarakas = computeJaiminiKarakas(planetList);
             const houseLords = getHouseLords(lagnaRashiIdx);
-            const dashaInfo = calculateVimshottariDasha(moonSid, new Date(dobStr));
+            const birthDateObj = new Date(year, month - 1, day, hh || 12, mm || 0);
+            const dashaInfo = calculateVimshottariDasha(moonSid, birthDateObj);
             const gocharInfo = computeLiveGocharAnalysis(moonSid);
             const savPoints = computeAshtakvargaPoints({ lagnaRashiIdx });
             const shadbala = computeShadbalaMetrics();
@@ -1583,6 +1588,8 @@ Answer the user's specific query in detail with degree level precision, classica
         }
 
         // DEEP DYNAMIC GENERATIVE IMPROVISER ENGINE
+        let hasShownSessionOverview = false;
+
         function generateDegreeLevelPrediction(userQuery, bData) {
             if (!isAstrologyOrSpiritualQuery(userQuery)) {
                 return getPoliteNonAstrologyResponse();
@@ -1611,21 +1618,38 @@ Answer the user's specific query in detail with degree level precision, classica
             let isMarriage = q.includes("विवाह") || q.includes("शादी") || q.includes("जीवनसाथी") || q.includes("लव") || q.includes("रिलेशन");
             let isWealth = q.includes("धन") || q.includes("आर्थिक") || q.includes("पैसा") || q.includes("प्रॉपर्टी") || q.includes("मकान");
             let isHealth = q.includes("स्वास्थ्य") || q.includes("सेहत") || q.includes("बीमारी") || q.includes("रोग");
-            let isDetail = q.includes("detail") || q.includes("विस्तार") || q.includes("समझाए") || q.includes("समझाओ") || q.includes("और") || (!isCareer && !isMarriage && !isWealth && !isHealth);
+            let isDetail = q.includes("detail") || q.includes("विस्तार") || q.includes("समझाए") || q.includes("समझाओ") || q.includes("और") || q.includes("गहराई");
+            let isShortQuery = q.length < 40 && !isDetail;
 
-            let responseHtml = `🙏🏻 <b>सादर प्रणाम! आपकी जन्मपत्रिका के 40 खगोलीय मापदंडों का सूक्ष्म जनरेटिव अध्ययन संपन्न हुआ।</b><br><br>`;
+            // Adaptive Crisp 2-3 sentence answer for 1-line short queries
+            if (isShortQuery && hasShownSessionOverview) {
+                if (isCareer) {
+                    return `💼 <b>करियर उत्तर:</b> आपकी <b>${dasha.activeMahadasha}-${dasha.activeAntardasha}</b> दशा (${dasha.activeAntarEndFmt} तक) में दशमेश <b>${chart.houseLords[10].lord}</b> व अमात्यकारक <b>${amk.name}</b> कार्यक्षेत्र में प्रगति का योग बना रहे हैं। सर्वाष्टकवर्ग में 10वें भाव को <b>${sav[10]}/56 अंक</b> प्राप्त हैं।`;
+                } else if (isMarriage) {
+                    return `💍 <b>विवाह उत्तर:</b> आपकी वर्तमान <b>${dasha.activeMahadasha}-${dasha.activeAntardasha}</b> अंतर्दशा (${dasha.activeAntarEndFmt} तक) में सप्तमेश <b>${chart.houseLords[7].lord}</b> एवं दाराकारक <b>${dk.name}</b> के प्रभाव से विवाह व संबंधों में अनुकूलता का समय है।`;
+                } else if (isWealth) {
+                    return `💰 <b>धन उत्तर:</b> धन भावेश <b>${chart.houseLords[2].lord}</b> (अंक: <b>${sav[2]}</b>) एवं लाभेश <b>${chart.houseLords[11].lord}</b> (अंक: <b>${sav[11]}</b>) आपकी वर्तमान दशा में संपत्ति वृद्धि व धन प्रवाह का सुंदर संकेत देते हैं।`;
+                } else {
+                    return `🔮 <b>ज्योतिषीय उत्तर:</b> आपकी <b>${lagna}</b> लग्न पत्रिका में वर्तमान <b>${dasha.activeMahadasha}-${dasha.activeAntardasha}</b> अंतर्दशा (${dasha.activeAntarEndFmt} तक) सकारात्मक परिणाम प्रदर्शित कर रही है।`;
+                }
+            }
 
-            responseHtml += `
-                🔮 <b>1. खगोलीय संरचना व जैमिनी चर कारक (Astronomical Foundation & Karakas):</b><br>
-                • आपका <b>${lagna}</b> लग्न है और लग्नेश <b>${lagnaLord}</b> जीवन में आपकी मुख्य दिशा व आत्मबल का निर्धारण कर रहे हैं।<br>
-                • आपकी चंद्र राशि <b>${moonRashi}</b> एवं जन्म नक्षत्र <b>${nakshatra} (${pada})</b> है।<br>
-                • <b>जैमिनी चर कारक:</b> आत्माकारक (AK) <b>${ak.name}</b> (आत्मा का ध्येय), अमात्यकारक (AmK) <b>${amk.name}</b> (कर्म बल) एवं दाराकारक (DK) <b>${dk.name}</b> (संबंध)।<br>
-                • <b>वर्गोत्तम स्थिति:</b> ${vargottama.length > 0 ? vargottama.join(", ") + " (अत्यंत बलि व शुभ)" : "सामान्य वर्ग बल"}<br><br>
-            `;
+            let responseHtml = "";
+            if (!hasShownSessionOverview) {
+                responseHtml += `🙏🏻 <b>सादर प्रणाम! आपकी जन्मपत्रिका के 40 खगोलीय मापदंडों का सूक्ष्म जनरेटिव अध्ययन संपन्न हुआ।</b><br><br>`;
+                responseHtml += `
+                    🔮 <b>1. खगोलीय संरचना व जैमिनी चर कारक (Astronomical Foundation & Karakas):</b><br>
+                    • आपका <b>${lagna}</b> लग्न है और लग्नेश <b>${lagnaLord}</b> जीवन में आपकी मुख्य दिशा व आत्मबल का निर्धारण कर रहे हैं।<br>
+                    • आपकी चंद्र राशि <b>${moonRashi}</b> एवं जन्म नक्षत्र <b>${nakshatra} (${pada})</b> है।<br>
+                    • <b>जैमिनी चर कारक:</b> आत्माकारक (AK) <b>${ak.name}</b> (आत्मा का ध्येय), अमात्यकारक (AmK) <b>${amk.name}</b> (कर्म बल) एवं दाराकारक (DK) <b>${dk.name}</b> (संबंध)।<br>
+                    • <b>वर्गोत्तम स्थिति:</b> ${vargottama.length > 0 ? vargottama.join(", ") + " (अत्यंत बलि व शुभ)" : "सामान्य वर्ग बल"}<br><br>
+                `;
+                hasShownSessionOverview = true;
+            }
 
             if (isDetail || (!isCareer && !isMarriage && !isWealth && !isHealth)) {
                 responseHtml += `
-                    🌌 <b>2. सर्व-पक्षीय कुण्डली फलादेश (360° Comprehensive Synthesis):</b><br>
+                    🌌 <b>सर्व-पक्षीय कुण्डली फलादेश (360° Comprehensive Synthesis):</b><br>
                     • <b>कर्म व आजीविका (10th House):</b> दशमेश <b>${chart.houseLords[10].lord}</b> व D10 (<b>${chart.d10Lagna}</b>) — अष्टकवर्ग अंक: <b>${sav[10]}/56</b> (कर्म बल)। अमात्यकारक <b>${amk.name}</b> व्यावसायिक सफलता को नियंत्रित कर रहा है।<br><br>
                     • <b>विवाह व सम्बन्ध (7th House):</b> सप्तमेश <b>${chart.houseLords[7].lord}</b> व D9 (<b>${chart.d9Lagna}</b>) — अष्टकवर्ग अंक: <b>${sav[7]}/56</b> (दाम्पत्य सुख)। दाराकारक <b>${dk.name}</b> जीवनसाथी के समर्पण को दर्शाता है।<br><br>
                     • <b>धन व लाभ (2nd & 11th House):</b> द्वितीय भाव (अंक: <b>${sav[2]}</b>) एवं एकादश भाव (अंक: <b>${sav[11]}</b>) का संबंध संपत्ति वृद्धि का सुंदर योग बना रहा है।<br><br>
@@ -1634,27 +1658,27 @@ Answer the user's specific query in detail with degree level precision, classica
                 const score10 = sav[10];
                 const status10 = score10 >= 30 ? "अत्यंत उच्च व अधिकारप्रद" : "मध्यम व निरंतर प्रयासोपरांत सफलता";
                 responseHtml += `
-                    💼 <b>2. कर्मक्षेत्र व करियर सूक्ष्म फलादेश (10th House Synthesis):</b><br>
+                    💼 <b>कर्मक्षेत्र व करियर सूक्ष्म फलादेश (10th House Synthesis):</b><br>
                     • दशमेश (कर्मेश) <b>${chart.houseLords[10].lord}</b> है तथा सर्वाष्टकवर्ग में 10वें भाव को <b>${score10}/56 अंक</b> प्राप्त हैं (${status10})।<br>
                     • D10 दशमांश कुण्डली (<b>${chart.d10Lagna}</b>) एवं अमात्यकारक <b>${amk.name}</b> का प्रभाव आपके व्यवसाय/नौकरी में स्थायित्व व उन्नति का योग बना रहा है।<br><br>
                 `;
             } else if (isMarriage) {
                 const score7 = sav[7];
                 responseHtml += `
-                    💍 <b>2. विवाह व दाम्पत्य सुख सूक्ष्म फलादेश (7th House Synthesis):</b><br>
+                    💍 <b>विवाह व दाम्पत्य सुख सूक्ष्म फलादेश (7th House Synthesis):</b><br>
                     • सप्तमेश <b>${chart.houseLords[7].lord}</b>, दाराकारक <b>${dk.name}</b> एवं D9 नवमांश (<b>${chart.d9Lagna}</b>) आपके वैवाहिक जीवन में सामंजस्य का निर्धारण कर रहे हैं।<br>
                     • 7वें भाव का सर्वाष्टकवर्ग अंक <b>${score7}/56</b> है, जो जीवनसाथी के सहयोग व समर्पण को दर्शाता है।<br><br>
                 `;
             } else if (isWealth) {
                 responseHtml += `
-                    💰 <b>2. धन, आर्थिक स्थिति व संपत्ति सूक्ष्म फलादेश (Wealth Synthesis):</b><br>
+                    💰 <b>धन, आर्थिक स्थिति व संपत्ति सूक्ष्म फलादेश (Wealth Synthesis):</b><br>
                     • धन भावेश <b>${chart.houseLords[2].lord}</b> (अंक: <b>${sav[2]}</b>) एवं लाभेश <b>${chart.houseLords[11].lord}</b> (अंक: <b>${sav[11]}</b>) का संबंध निरंतर धन प्रवाह का संकेत देता है।<br>
                     • धन कारक बृहस्पति देव व मातृकारक आपकी अचल संपत्ति वृद्धि का मार्ग प्रशस्त कर रहे हैं।<br><br>
                 `;
             }
 
-            if (matchedShlokas && matchedShlokas.length > 0) {
-                responseHtml += `📜 <b>3. शास्त्रीय ग्रंथ प्रमाण (Classical Database Citation):</b><br>`;
+            if (matchedShlokas && matchedShlokas.length > 0 && isDetail) {
+                responseHtml += `📜 <b>शास्त्रीय ग्रंथ प्रमाण (Classical Database Citation):</b><br>`;
                 matchedShlokas.forEach(s => {
                     responseHtml += `• <b>${s.book_title} (${s.chapter}):</b> <i>"${s.sanskrit_reference}"</i> — ${s.translation}<br>`;
                 });
@@ -1662,15 +1686,10 @@ Answer the user's specific query in detail with degree level precision, classica
             }
 
             responseHtml += `
-                ⏳ <b>4. विंशोत्तरी महादशा व सूक्ष्म समय चक्र (Timeline & Transits):</b><br>
-                • <b>सक्रिय महादशा:</b> <b>${dasha.activeMahadasha}</b> (${dasha.activeMahaStartFmt} से ${dasha.activeMahaEndFmt})<br>
+                ⏳ <b>विंशोत्तरी महादशा व समय चक्र:</b><br>
                 • <b>सक्रिय अंतर्दशा:</b> <b>${dasha.activeMahadasha}-${dasha.activeAntardasha}</b> (${dasha.activeAntarStartFmt} से ${dasha.activeAntarEndFmt})<br>
-                • <b>सूक्ष्म प्रत्यंतर्दशा:</b> <b>${dasha.activePratyantardasha}</b> (${dasha.activePratyantarEndFmt} तक प्रभावशील)<br>
                 • <b>शनि गोचर स्थिति:</b> ${gochar.saturnStatus}<br>
-                • <b>गुरु गोचर स्थिति:</b> ${gochar.jupiterStatus}<br><br>
-                ✨ <b>5. प्रामाणिक वैदिक उपाय व रुद्राक्ष परामर्श (Authentic Remedies):</b><br>
-                • <b>अनुशंसित रुद्राक्ष:</b> लग्नेश <b>${lagnaLord}</b> व आत्माकारक <b>${ak.name}</b> के संतुलन हेतु 5-मुखी या 7-मुखी रुद्राक्ष धारण करना सर्वोत्तम रहेगा।<br>
-                • <b>वैदिक अनुष्ठान:</b> <a href="vmm.html" target="_blank" style="color:var(--gold); font-weight:bold;">विष्णु सहस्रनाम / नवग्रह शांति जाप (VMM Module)</a> संपन्न कराएं।
+                • <b>गुरु गोचर स्थिति:</b> ${gochar.jupiterStatus}<br>
             `;
 
             return responseHtml;
