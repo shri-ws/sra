@@ -719,55 +719,31 @@
 
             appendUserMessage(`मेरा जन्म समय: ${tob}`);
 
-            // STEP 3: BIRTH PLACE WITH LEAFLET MAP & CITY SEARCH
+            // STEP 3: BIRTH PLACE WITH LIVE CITY SEARCH & MAP PIN PICKER
             setTimeout(() => {
                 appendBotMessage(`
-                    शानदार! अब अपना <b>जन्म स्थान (Birth Place)</b> चुनें। आप शहर की सूची से चुन सकते हैं या मानचित्र (Map) पर लाइव खोज/पिन लगा सकते हैं:
+                    शानदार! अब अपना <b>जन्म स्थान (Birth Place)</b> दर्ज करें। आप शहर का नाम टाइप करके खोज सकते हैं या नक्शे पर पिन लगा सकते हैं:
                     <div class="chat-widget-card">
-                        <div class="loc-tabs">
-                            <button class="loc-tab-btn active" onclick="switchLocTab('city')">🏙️ मुख्य शहर सूची</button>
-                            <button class="loc-tab-btn" onclick="switchLocTab('map')">🗺️ लाइव नक्शा व खोज (Live Map)</button>
+                        <label style="color:var(--gold); font-size:13px;">📍 जन्म स्थान खोजें या मैप पर पिन लगाएँ:</label>
+                        <div style="display:flex; gap:6px; margin-bottom:8px;">
+                            <input type="text" id="mapSearchInput" placeholder="शहर का नाम लिखें (जैसे: Varanasi, Lucknow, Jaipur, London)..." style="flex:1;" onkeypress="if(event.key==='Enter') searchMapLocation()">
+                            <button onclick="searchMapLocation()" style="background:var(--gold); color:#000; border:none; padding:10px 16px; border-radius:8px; font-weight:800; cursor:pointer;">🔍 खोजें (Search)</button>
                         </div>
-
-                        <div id="cityTabContent">
-                            <label>प्रसिद्ध शहर चुनें (Select City):</label>
-                            <select id="citySelect">
-                                ${CITIES.map(c => `<option value="${c.lat},${c.lon},${c.name}">${c.name}</option>`).join('')}
-                            </select>
+                        <div id="bplaceMap" style="height:230px; width:100%; border-radius:10px; border:1px solid var(--border-soft); z-index:1;"></div>
+                        <div style="background:rgba(212,160,23,0.12); border:1px solid var(--border-soft); border-radius:8px; padding:8px 12px; margin-top:8px;">
+                            <small style="font-size:12px; color:var(--gold-light); display:block; font-weight:700;" id="mapPinCoords">
+                                📍 चुना गया स्थान: Varanasi (25.318°, 82.974°)
+                            </small>
+                            <small style="font-size:10.5px; color:var(--text-muted);">
+                                * आप नाम खोज सकते हैं या मैप पर सीधे क्लिक/ड्रैग करके सटीक बिंदु चुन सकते हैं।
+                            </small>
                         </div>
-
-                        <div id="mapTabContent" style="display:none;">
-                            <label>विश्व का कोई भी शहर खोजें (Search Location):</label>
-                            <div style="display:flex; gap:6px; margin-bottom:8px;">
-                                <input type="text" id="mapSearchInput" placeholder="जैसे: Varanasi, Lucknow, London..." style="flex:1;" onkeypress="if(event.key==='Enter') searchMapLocation()">
-                                <button onclick="searchMapLocation()" style="background:var(--gold); color:#000; border:none; padding:8px 14px; border-radius:8px; font-weight:800; cursor:pointer;">🔍 खोजें</button>
-                            </div>
-                            <div id="bplaceMap" style="height:220px; width:100%; border-radius:10px; border:1px solid var(--border-soft); z-index:1;"></div>
-                            <small style="font-size:11px; color:var(--gold-light); display:block; margin-top:6px;" id="mapPinCoords">📍 चुना गया स्थान: Varanasi (25.32°, 82.97°)</small>
-                        </div>
-
-                        <button class="btn-widget-submit" onclick="submitPlaceStep()">कुंडली तैयार करें (Generate Kundli) 🚀</button>
+                        <button class="btn-widget-submit" onclick="submitPlaceStep()" style="margin-top:10px;">कुंडली तैयार करें (Generate Kundli) 🚀</button>
                     </div>
                 `);
 
                 setTimeout(() => initLeafletMap(), 200);
             }, 600);
-        }
-
-        function switchLocTab(tab) {
-            document.querySelectorAll('.loc-tab-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            if (tab === 'city') {
-                document.getElementById('cityTabContent').style.display = 'block';
-                document.getElementById('mapTabContent').style.display = 'none';
-            } else {
-                document.getElementById('cityTabContent').style.display = 'none';
-                document.getElementById('mapTabContent').style.display = 'block';
-                setTimeout(() => {
-                    initLeafletMap();
-                    if (leafletMap) leafletMap.invalidateSize();
-                }, 100);
-            }
         }
 
         function initLeafletMap() {
@@ -839,27 +815,30 @@
         }
 
         function submitPlaceStep() {
-            const cityVal = document.getElementById('citySelect').value;
-            if (cityVal) {
-                const parts = cityVal.split(',');
-                userBirthData.lat = parseFloat(parts[0]);
-                userBirthData.lon = parseFloat(parts[1]);
-                userBirthData.placeName = parts[2];
-            }
-
             appendUserMessage(`मेरा जन्म स्थान: ${userBirthData.placeName}`);
 
-            // GENERATE KUNDLI SUMMARY & REVEAL PROMPTS
+            // GENERATE COMPLETE DEGREE-WISE KUNDLI SUMMARY & REVEAL PROMPTS
             setTimeout(() => {
-                const lagnaInfo = calculateLagnaDetails(userBirthData.dob, userBirthData.tob);
+                const chart = calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
 
                 appendBotMessage(`
-                    🎉 <b>आपकी जन्म कुंडली का खगोलीय चार्ट तैयार है!</b><br>
-                    <div class="kundli-summary-badge">
-                        <div class="k-item"><span>जन्म तिथि & समय</span><b>${userBirthData.dob} | ${userBirthData.tob}</b></div>
-                        <div class="k-item"><span>जन्म स्थान</span><b>${userBirthData.placeName}</b></div>
-                        <div class="k-item"><span>लग्न राशि (Lagna)</span><b>${lagnaInfo.lagna} (${lagnaInfo.lagnaDeg})</b></div>
-                        <div class="k-item"><span>चंद्र राशि व नक्षत्र</span><b>${lagnaInfo.moonRashi} (${lagnaInfo.nakshatra})</b></div>
+                    🎉 <b>आपकी जन्म कुंडली का खगोलीय डिग्री चार्ट तैयार है!</b><br>
+                    <div style="background:var(--bg-card); border:1px solid var(--gold); border-radius:12px; padding:14px; margin-top:10px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px dashed var(--border-soft); padding-bottom:8px; flex-wrap:wrap; gap:6px;">
+                            <span style="font-size:12px; color:var(--gold-light);">📅 <b>${userBirthData.dob} | ${userBirthData.tob}</b></span>
+                            <span style="font-size:12px; color:var(--gold-light);">📍 <b>${userBirthData.placeName}</b> (${userBirthData.lat.toFixed(2)}°, ${userBirthData.lon.toFixed(2)}°)</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11.5px;">
+                            ${chart.planetList.map(p => `
+                                <div style="background:rgba(212,160,23,0.08); padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                                    <span>${p.name}:</span>
+                                    <b style="color:var(--gold-light); text-align:right;">${p.rashi.split(' ')[0]} ${p.deg} ${p.extra ? '<br><small style="color:var(--text-muted);">'+p.extra+'</small>' : ''}</b>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top:8px; text-align:right; font-size:11px; color:var(--text-muted);">
+                            लाहिरी अयनांश: ${chart.ayanamsaFormatted}
+                        </div>
                     </div>
                     <br>अब आप नीचे दिए गए <b>मुख्य प्रश्नों</b> में से चुनें या अपना कोई भी प्रश्न टाइप करें:
                 `);
@@ -965,6 +944,15 @@
             const ascRad = Math.atan2(Math.cos(ramcRad), -Math.sin(ramcRad) * Math.cos(epsRad) - Math.tan(phi) * Math.sin(epsRad));
             const ascSid = norm360(ascRad * RAD - ayanamsa);
 
+            // Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu Sidereal Longitudes
+            const marsSid = norm360(norm360(355.45 + 19140.30 * T) - ayanamsa);
+            const mercSid = norm360(norm360(252.25 + 149472.67 * T) - ayanamsa);
+            const jupSid  = norm360(norm360(34.40 + 3034.75 * T) - ayanamsa);
+            const venSid  = norm360(norm360(181.98 + 58517.82 * T) - ayanamsa);
+            const satSid  = norm360(norm360(49.95 + 1222.49 * T) - ayanamsa);
+            const rahuSid = norm360(125.04452 - 1934.136261 * T - ayanamsa);
+            const ketuSid = norm360(rahuSid + 180);
+
             // Rashis & Nakshatras
             const lagnaRashiIdx = Math.floor(ascSid / 30);
             const moonRashiIdx = Math.floor(moonSid / 30);
@@ -972,6 +960,19 @@
 
             const nakIdx = Math.floor(moonSid / (360 / 27));
             const pada = Math.floor((moonSid % (360 / 27)) / (360 / 108)) + 1;
+
+            const planetList = [
+                { name: "🚩 लग्न (Ascendant)", rashi: rashis[lagnaRashiIdx], deg: formatDegMinSec(ascSid) },
+                { name: "☀️ सूर्य (Sun)", rashi: rashis[sunRashiIdx], deg: formatDegMinSec(sunSid) },
+                { name: "🌙 चंद्रमा (Moon)", rashi: rashis[moonRashiIdx], deg: formatDegMinSec(moonSid), extra: `${nakshatras[nakIdx]} (${pada})` },
+                { name: "♂️ मंगल (Mars)", rashi: rashis[Math.floor(marsSid / 30)], deg: formatDegMinSec(marsSid) },
+                { name: "☿ बुध (Mercury)", rashi: rashis[Math.floor(mercSid / 30)], deg: formatDegMinSec(mercSid) },
+                { name: "♃ बृहस्पति (Jupiter)", rashi: rashis[Math.floor(jupSid / 30)], deg: formatDegMinSec(jupSid) },
+                { name: "♀️ शुक्र (Venus)", rashi: rashis[Math.floor(venSid / 30)], deg: formatDegMinSec(venSid) },
+                { name: "♄ शनि (Saturn)", rashi: rashis[Math.floor(satSid / 30)], deg: formatDegMinSec(satSid) },
+                { name: "☊ राहु (Rahu)", rashi: rashis[Math.floor(rahuSid / 30)], deg: formatDegMinSec(rahuSid) },
+                { name: "☋ केतु (Ketu)", rashi: rashis[Math.floor(ketuSid / 30)], deg: formatDegMinSec(ketuSid) }
+            ];
 
             return {
                 lagna: rashis[lagnaRashiIdx],
@@ -982,7 +983,8 @@
                 sunDegFormatted: formatDegMinSec(sunSid),
                 nakshatra: nakshatras[nakIdx],
                 pada: `पद ${pada}`,
-                ayanamsaFormatted: `${Math.floor(ayanamsa)}°${Math.floor((ayanamsa % 1) * 60)}'`
+                ayanamsaFormatted: `${Math.floor(ayanamsa)}°${Math.floor((ayanamsa % 1) * 60)}'`,
+                planetList: planetList
             };
         }
 
