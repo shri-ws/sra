@@ -50,42 +50,65 @@ window.saveConsultation = async (name, phone, email, dob, tob, pob, q) => {
   } catch (e) { console.error('Consult error:', e); }
 };
 
-// 📚 BLOGS & DISCUSSIONS DATABASE ENGINE → blogs table
+// 📚 BLOGS & DISCUSSIONS PERMANENT CLOUD DATABASE ENGINE
 window.saveBlogToSupabase = async (blogObj) => {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/blogs`, {
+    const payload = {
+      full_name: blogObj.author || "एस्ट्रो रामजी (Founder)",
+      phone: blogObj.category || "blog",
+      email: blogObj.avatar || "logo.png",
+      dob: (blogObj.title || "").substring(0, 100),
+      tob: String(blogObj.id || Date.now()),
+      place_of_birth: blogObj.cred || "Shri Ramji Astro Member",
+      question: JSON.stringify(blogObj),
+      status: 'published_blog'
+    };
+
+    const res = await fetch(`${SUPA_URL}/rest/v1/consultations`, {
       method: 'POST',
       headers: SUPA_HEADERS,
-      body: JSON.stringify({
-        id: blogObj.id,
-        author: blogObj.author,
-        avatar: blogObj.avatar,
-        cred: blogObj.cred,
-        is_verified: blogObj.isVerified,
-        is_admin: blogObj.isAdmin,
-        is_blog: blogObj.isBlog,
-        category: blogObj.category,
-        title: blogObj.title,
-        body: blogObj.body,
-        upvotes: blogObj.upvotes || 1,
-        answers: blogObj.answers || [],
-        status: 'approved'
-      })
+      body: JSON.stringify(payload)
     });
-    if (res.ok) console.log('✅ Blog saved to Supabase Cloud DB');
-  } catch (e) { console.error('Blog save error:', e); }
+
+    if (res.ok) console.log('✅ Permanent Blog Post saved to Supabase Cloud DB!');
+    else console.error('❌ Supabase blog save failed:', await res.text());
+  } catch (e) { console.error('Blog cloud save error:', e); }
 };
 
 window.fetchBlogsFromSupabase = async () => {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/blogs?select=*&order=created_at.desc`, {
+    const res = await fetch(`${SUPA_URL}/rest/v1/consultations?status=eq.published_blog&order=created_at.desc`, {
       headers: SUPA_HEADERS
     });
     if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) return data;
+      const rows = await res.json();
+      if (Array.isArray(rows) && rows.length > 0) {
+        const blogs = rows.map(r => {
+          try {
+            return JSON.parse(r.question);
+          } catch(e) {
+            return {
+              id: r.tob || Date.now(),
+              author: r.full_name,
+              avatar: r.email || "logo.png",
+              cred: r.place_of_birth,
+              title: r.dob,
+              body: r.question,
+              category: r.phone || "general",
+              isVerified: true,
+              isAdmin: r.full_name.includes("रामजी") || r.full_name.includes("Founder"),
+              isBlog: true,
+              upvotes: 1,
+              answers: [],
+              status: "approved",
+              created_at: r.created_at
+            };
+          }
+        });
+        return blogs;
+      }
     }
-  } catch (e) { console.error('Fetch blogs error:', e); }
+  } catch (e) { console.error('Fetch blogs cloud error:', e); }
   return null;
 };
 

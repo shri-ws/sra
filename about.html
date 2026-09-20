@@ -472,34 +472,36 @@
 
         // PERMANENT BLOG DATABASE LOADER (SUPABASE CLOUD DB + JSON FILE + LOCALSTORAGE)
         async function loadBlogsDatabase() {
+            let masterBlogs = [];
             try {
-                // 1. Try Supabase Cloud Database first
-                if (window.fetchBlogsFromSupabase) {
-                    const supaBlogs = await window.fetchBlogsFromSupabase();
-                    if (supaBlogs && supaBlogs.length > 0) {
-                        Q_FEED = supaBlogs;
-                        renderFeed('all');
-                        return;
-                    }
-                }
-
-                // 2. Try LocalStorage
-                const localData = localStorage.getItem('sra_blogs_database');
-                if (localData) {
-                    Q_FEED = JSON.parse(localData);
-                    renderFeed('all');
-                    return;
-                }
-
-                // 3. Fallback to Master JSON File
                 const res = await fetch('data/blogs_database.json');
-                if (res.ok) {
-                    Q_FEED = await res.json();
-                    localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
+                if (res.ok) masterBlogs = await res.json();
+            } catch(e) {}
+
+            let cloudBlogs = [];
+            if (window.fetchBlogsFromSupabase) {
+                const supaBlogs = await window.fetchBlogsFromSupabase();
+                if (supaBlogs && supaBlogs.length > 0) {
+                    cloudBlogs = supaBlogs;
                 }
-            } catch(e) {
-                console.error("Database load error:", e);
             }
+
+            let localData = [];
+            const saved = localStorage.getItem('sra_blogs_database');
+            if (saved) {
+                try { localData = JSON.parse(saved); } catch(e) {}
+            }
+
+            // Merge all sources by unique ID to guarantee no loss
+            const map = new Map();
+            [...cloudBlogs, ...localData, ...masterBlogs].forEach(item => {
+                if (item && item.id && !map.has(String(item.id))) {
+                    map.set(String(item.id), item);
+                }
+            });
+
+            Q_FEED = Array.from(map.values());
+            localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
             renderFeed('all');
         }
 
