@@ -628,9 +628,9 @@
             <div class="form-group-phone" style="margin-bottom:16px;">
                 <label>Model Engine:</label>
                 <select id="geminiModelSelect" class="input-phone">
-                    <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ultra Fast & Precise)</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash (Ultra Fast & Precise - Recommended)</option>
                     <option value="gemini-2.0-flash">Gemini 2.0 Flash (Next-Gen Neural)</option>
-                    <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Astronomical Reasoning)</option>
+                    <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash 8B (High-Speed Lightweight)</option>
                 </select>
             </div>
             <div id="geminiStatusBadge" style="margin-bottom:16px; padding:10px; border-radius:8px; font-size:12px; font-weight:bold; background:rgba(212,160,23,0.1); border:1px solid var(--border-soft); color:var(--gold-light);">
@@ -1888,10 +1888,12 @@ Answer the user's specific query in detail with degree level precision, classica
         }
 
         async function callGeminiNeuralApi(apiKey, preferredModel, systemPrompt, userQuery, base64ImageData) {
-            const modelsToTry = Array.from(new Set([preferredModel, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']));
+            const defaultModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-8b', 'gemini-2.0-flash-exp'];
+            const modelsToTry = Array.from(new Set([preferredModel || 'gemini-1.5-flash', ...defaultModels]));
             let lastError = null;
 
             for (const model of modelsToTry) {
+                if (!model) continue;
                 try {
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                     let parts = [{ text: `${systemPrompt}\n\nयूज़र का प्रश्न: ${userQuery}` }];
@@ -1910,7 +1912,13 @@ Answer the user's specific query in detail with degree level precision, classica
 
                     if (!response.ok) {
                         const errData = await response.json();
-                        throw new Error(errData.error?.message || `HTTP ${response.status}`);
+                        const errMsg = errData.error?.message || `HTTP ${response.status}`;
+                        if (errMsg.includes("not found") || errMsg.includes("not supported")) {
+                            console.warn(`Model ${model} not supported, trying fallback model...`);
+                            lastError = new Error(errMsg);
+                            continue;
+                        }
+                        throw new Error(errMsg);
                     }
 
                     const data = await response.json();
@@ -1923,7 +1931,11 @@ Answer the user's specific query in detail with degree level precision, classica
                 }
             }
 
-            throw lastError || new Error("Gemini API Request Failed");
+            if (lastError && (lastError.message.includes("not found") || lastError.message.includes("API_KEY_INVALID"))) {
+                throw new Error("Gemini API Key अमान्य है या चुना गया मॉडल समर्थित नहीं है। कृपया aistudio.google.com/app/apikey से नई मुफ़्त कुंजी प्राप्त करें।");
+            }
+
+            throw lastError || new Error("Gemini API Connection Failed");
         }
 
         // MULTI-DOMAIN SMART VISION ENGINE (KUNDLI SCREENSHOTS, PALMISTRY, VASTU & OCR)
