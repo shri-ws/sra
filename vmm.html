@@ -1319,17 +1319,40 @@
         }
 
         function triggerRazorpayCheckout() {
-            // Expand QR code view if present
-            const qrView = document.getElementById('paymentQrView');
-            if (qrView) qrView.style.display = 'block';
-
-            // Launch mobile UPI app on mobile devices
-            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                window.location.href = "upi://pay?pa=9517117775@ptsbi&pn=Shri%20Ramji%20Astro&am=1111&cu=INR&tn=VIP%20Vivah%20Engine";
+            if (typeof Razorpay === 'undefined') {
+                alert('Razorpay gateway script loading failed. Please check your internet connection or use UPI QR / VIP Code.');
+                return;
             }
-
-            // Instantly unlock VIP 20-minute session
-            startVipSession(20, 'UPI_ONLINE_PAYMENT');
+            try {
+                const options = {
+                    key: RZP_KEY,
+                    amount: 111100, // ₹1,111 in paise
+                    currency: 'INR',
+                    name: 'Shri Ramji Astro',
+                    description: 'VIP Vivah Muhurt & Matchmaking (20 Min Session)',
+                    prefill: {
+                        name: 'VIP Client',
+                        email: 'user@shriramjiastro.in',
+                        contact: '9517117775'
+                    },
+                    theme: { color: '#C5A059' },
+                    handler: function(response) {
+                        const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_SUCCESS';
+                        startVipSession(20, payId);
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            console.log('Razorpay checkout modal closed by user');
+                        }
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch(e) {
+                console.error("Razorpay Checkout Error:", e);
+                alert('Razorpay gateway error. Please use UPI QR Code or VIP Code below.');
+                togglePaymentQrView();
+            }
         }
 
         function togglePaymentQrView() {
