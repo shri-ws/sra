@@ -42,6 +42,12 @@
   --nav-bg: rgba(255,255,255,0.96);
   --toggle-bg: #efe4d3;
   --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
+  --input-bg: #f7f3ec;
+  --input-border: rgba(124,19,5,0.22);
+  --placeholder: #9e8a7e;
+  --box-bg: #f7f3ec;
+  --dot-inner: #7c1305;
+  --support-bg: linear-gradient(135deg, rgba(124,19,5,0.04) 0%, rgba(253,251,247,0.95) 100%);
 }
 [data-theme="night"] {
   --gold: #c9a84c;
@@ -56,6 +62,12 @@
   --nav-bg: rgba(8,6,15,0.96);
   --toggle-bg: #1a0b36;
   --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
+  --input-bg: #0c0a16;
+  --input-border: rgba(201,168,76,0.18);
+  --placeholder: #4a4356;
+  --box-bg: #0c0a16;
+  --dot-inner: #000000;
+  --support-bg: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(16,14,26,0.9) 100%);
 }
 
 /* ELEGANT TOGGLE SWITCH STYLING (NO ICONS) */
@@ -110,7 +122,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
 .back-link:hover{color:var(--gold)}
 .page{max-width:660px;margin:36px auto;padding:0 20px 80px}
 .page-title{text-align:center;margin-bottom:32px}
-.page-title h1{font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:#fff;margin-bottom:6px}
+.page-title h1{font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:var(--heading-color);margin-bottom:6px}
 .page-title p{color:var(--muted);font-size:13px}
 .section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden}
 .section-label{padding:13px 20px;border-bottom:1px solid var(--border);font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,0.04)}
@@ -121,16 +133,16 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
 .plan.active{border-color:var(--gold);background:rgba(201,168,76,0.06)}
 .plan-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .plan.active .plan-dot{border-color:var(--gold);background:var(--gold)}
-.plan-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#000;opacity:0;transition:opacity .2s}
+.plan-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--dot-inner);opacity:0;transition:opacity .2s}
 .plan.active .plan-dot::after{opacity:1}
 .plan-text{flex:1}
-.plan-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+.plan-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--heading-color);margin-bottom:2px}
 .plan-sub{font-size:12px;color:var(--muted)}
 .plan-emi{font-size:11px;color:rgba(201,168,76,0.6);margin-top:2px}
 .plan-price{text-align:right;flex-shrink:0}
 .plan-amt{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--gold);display:block}
 .plan-orig{font-size:12px;color:var(--muted);text-decoration:line-through}
-.badge{position:absolute;top:-1px;right:14px;background:var(--gold);color:#000;font-family:'Cinzel',serif;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:0 0 6px 6px}
+.badge{position:absolute;top:-1px;right:14px;background:var(--gold);color:var(--bg);font-family:'Cinzel',serif;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:0 0 6px 6px}
 .emi-highlight{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:13px 16px;margin-top:14px;display:flex;align-items:center;gap:12px}
 .emi-highlight-icon{font-size:22px;flex-shrink:0}
 .emi-highlight-text{font-size:12px;color:var(--muted);line-height:1.5}
@@ -140,8 +152,8 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
 @media(max-width:480px){.fields{grid-template-columns:1fr}}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
-.field input{background:#0c0a16;border:1px solid rgba(201,168,76,0.18);border-radius:8px;color:var(--text);padding:11px 14px;font-family:'Lato',sans-serif;font-size:15px;outline:none;transition:border-color .2s;width:100%}
-.field input::placeholder{color:#3a3545}
+.field input{background:var(--input-bg);border:1px solid var(--input-border);border-radius:8px;color:var(--text);padding:11px 14px;font-family:'Lato',sans-serif;font-size:15px;outline:none;transition:border-color .2s;width:100%}
+.field input::placeholder{color:var(--placeholder)}
 .field input:focus{border-color:var(--gold)}
 .coupon-row{display:flex;gap:10px;align-items:flex-end}
 .coupon-row .field{flex:1}
@@ -162,13 +174,13 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
 
 
 /* Support Section */
-.support-section{background:linear-gradient(135deg,rgba(201,168,76,0.06) 0%,rgba(16,14,26,0.9) 100%);border:1px solid rgba(201,168,76,0.3);border-radius:14px;margin-bottom:16px;overflow:hidden;position:relative}
+.support-section{background:var(--support-bg);border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;position:relative}
 .support-section::before{content:'✦';position:absolute;top:14px;right:18px;font-size:22px;color:rgba(201,168,76,0.15)}
 .support-body{padding:22px 20px}
 .support-msg{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:18px;border-left:2px solid rgba(201,168,76,0.3);padding-left:14px}
 .support-msg em{color:var(--text);font-style:normal}
 .support-amounts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.support-chip{padding:8px 16px;background:#0c0a16;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-family:'Cinzel',serif;font-size:12px;cursor:pointer;transition:all .2s}
+.support-chip{padding:8px 16px;background:var(--box-bg);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-family:'Cinzel',serif;font-size:12px;cursor:pointer;transition:all .2s}
 .support-chip:hover,.support-chip.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.08)}
 .support-custom-row{display:flex;gap:10px;align-items:flex-end}
 .support-custom-row .field{flex:1}
@@ -183,7 +195,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
 .trust-strip{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:14px}
 .trust-item{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
 .pay-icons{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-.pay-icon{background:#0c0a16;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--muted)}
+.pay-icon{background:var(--box-bg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--muted)}
 /* ════ RESPONSIVE ════ */
 @media(max-width:600px){
   .page{padding:0 14px 60px;margin:24px auto}
@@ -248,7 +260,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
   <div class="success-box">
     <div class="icon">🙏</div>
     <h2 id="successTitle">Payment Successful!</h2>
-    <p id="successMsg">Your enrolment is confirmed.<br/>Shri Ramji Astro will contact you on WhatsApp within <strong style="color:#fff">16–24 hours.</strong></p>
+    <p id="successMsg">Your enrolment is confirmed.<br/>Shri Ramji Astro will contact you on WhatsApp within <strong style="color:var(--heading-color)">16–24 hours.</strong></p>
     <hr/>
     <div class="pay-ref">PAYMENT ID<strong id="payId">—</strong></div>
     <div class="pay-ref" style="margin-top:12px;">Urgent? WhatsApp Shri Ramji Astro<strong><a href="https://wa.me/919517117775" style="color:var(--gold);text-decoration:none;">+91 9517117775</a></strong></div>
@@ -348,14 +360,14 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
   <div class="section">
     <div class="section-label">⑤ Low EMI</div>
     <div class="section-body">
-      <div style="display:flex;align-items:center;gap:18px;background:#0c0a16;border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:18px 20px">
+      <div style="display:flex;align-items:center;gap:18px;background:var(--box-bg);border:1px solid var(--border);border-radius:10px;padding:18px 20px">
         <div style="text-align:center;flex-shrink:0">
           <div style="font-family:'Cinzel',serif;font-size:32px;font-weight:700;color:var(--gold)" id="emi12">—</div>
 
           <div style="font-size:11px;color:var(--muted);margin-top:2px">per month</div>
         </div>
         <div style="border-left:1px solid var(--border);padding-left:18px">
-          <div style="font-family:'Cinzel',serif;font-size:13px;color:#fff;margin-bottom:4px">Pay in 12 easy instalments</div>
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--heading-color);margin-bottom:4px">Pay in 12 easy instalments</div>
           <div style="font-size:12px;color:var(--muted);line-height:1.6">No hidden charges<br/>Available on HDFC, ICICI, SBI, Axis, Kotak &amp; more</div>
         </div>
       </div>
@@ -585,7 +597,7 @@ async function pay(){
       async handler(r){
         await dbPatch('payments','student_email=eq.'+encodeURIComponent(email)+'&status=eq.pending',{status:'completed',razorpay_payment_id:r.razorpay_payment_id});
         document.getElementById('successTitle').textContent = 'Payment Successful!';
-        document.getElementById('successMsg').innerHTML = 'Your enrolment is confirmed.<br/>Shri Ramji Astro will contact you on WhatsApp within <strong style="color:#fff">16–24 hours.</strong>';
+        document.getElementById('successMsg').innerHTML = 'Your enrolment is confirmed.<br/>Shri Ramji Astro will contact you on WhatsApp within <strong style="color:var(--heading-color)">16–24 hours.</strong>';
         document.getElementById('payId').textContent=r.razorpay_payment_id;
         document.getElementById('overlay').classList.add('show');
         const msg=encodeURIComponent('🙏 NEW PAYMENT\n\nName: '+fname+' '+lname+'\nEmail: '+email+'\nPhone: '+phone+'\nPlan: '+S.name+'\nAmount: '+fmt(S.total)+'\nPayment ID: '+r.razorpay_payment_id);
