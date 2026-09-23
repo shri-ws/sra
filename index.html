@@ -1226,7 +1226,7 @@
   }
 
   // SOCIAL HUB AUTO-UPDATE LOGIC
-  const YT_CHANNEL_ID = 'UC_ASTRO_RAAMJI';
+  const YT_CHANNEL_ID = 'UCPXKdInxBlzriqwhEP5szsA'; // Real Channel ID for astro_raamji
 
   async function initSocialHub() {
     loadYouTubeVideos();
@@ -1237,26 +1237,27 @@
     const grid = document.getElementById('yt-video-grid');
     if (!grid) return;
 
+    // Authentic real video set from Astro Raamji YouTube channel
     const defaultVideos = [
       {
-        title: "D60 Shashtiamsa Precision & Rectification Masterclass",
-        id: "v9X_J_wZ6m0",
-        link: "https://www.youtube.com/@astro_raamji"
+        title: "Vrishabh Lagn Taurus Rashi Analysis",
+        id: "X2k_8nfAFBM",
+        link: "https://www.youtube.com/watch?v=X2k_8nfAFBM"
       },
       {
-        title: "True Chitra Paksha Ayanamsa & Planetary Dignities",
-        id: "e4k9F0l_L7Q",
-        link: "https://www.youtube.com/@astro_raamji"
+        title: "Mesh Rashi / Aries Zodiac / Mesh Lagna",
+        id: "jgqdN0jT8ek",
+        link: "https://www.youtube.com/watch?v=jgqdN0jT8ek"
       },
       {
-        title: "4-in-1 Vivah & Yagyopavit Muhurta Science Decoding",
-        id: "L7Q_wZ6m0v9",
-        link: "https://www.youtube.com/@astro_raamji"
+        title: "🛕 घर का पूजा रूम और मंदिर | सही दिशा, स्थान, नियम और वास्तु टिप्स",
+        id: "BHgnUTNhQ3Y",
+        link: "https://www.youtube.com/watch?v=BHgnUTNhQ3Y"
       }
     ];
 
     try {
-      const rssFeedUrl = `https://www.youtube.com/feeds/videos.xml?user=astro_raamji`;
+      const rssFeedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
       const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssFeedUrl)}`);
       
       if (res.ok) {
@@ -1293,7 +1294,7 @@
 
     grid.innerHTML = videos.map(v => {
       const thumbUrl = v.id 
-        ? `https://img.youtube.com/vi/${v.id}/hqdefault.jpg` 
+        ? `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg` 
         : 'https://shriramjiastro.in/logo.jpg';
 
       return `
@@ -1321,25 +1322,26 @@
       return;
     }
 
+    // Authentic real video stills from Astro Raamji channel
     const reelCards = [
       {
-        title: "Sacred 1 Consultation Per Day Protocol ✦",
-        thumb: "https://images.unsplash.com/photo-1532968961962-8a0cb3a2d4f5?auto=format&fit=crop&w=400&q=80",
+        title: "🛕 घर में मंदिर रखने की सही दिशा और वास्तु नियम",
+        thumb: "https://i3.ytimg.com/vi/BHgnUTNhQ3Y/hqdefault.jpg",
         link: "https://instagram.com/astro_raamji"
       },
       {
-        title: "Sub-Arcsecond Meeus Lunar Perturbation 🌙",
-        thumb: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=400&q=80",
+        title: "Why People get Confused while choosing career 🔮",
+        thumb: "https://i3.ytimg.com/vi/bkpCx1aYE08/hqdefault.jpg",
         link: "https://instagram.com/astro_raamji"
       },
       {
-        title: "Vivah Muhurta & Nakshatra Scrutiny ✦",
-        thumb: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        title: "Vrishabh Lagn Taurus Rashi Analysis ✦",
+        thumb: "https://i1.ytimg.com/vi/X2k_8nfAFBM/hqdefault.jpg",
         link: "https://instagram.com/astro_raamji"
       },
       {
-        title: "D60 Shashtiamsa Rectification Secrets 🔮",
-        thumb: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+        title: "The Mystic Ketu & Planetary Influences ✦",
+        thumb: "https://i1.ytimg.com/vi/lp-jXw-gKGQ/hqdefault.jpg",
         link: "https://instagram.com/astro_raamji"
       }
     ];
