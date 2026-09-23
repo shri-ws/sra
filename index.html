@@ -84,40 +84,41 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&family=Rozha+One&display=swap" rel="stylesheet" />
   <script src="theme.js"></script>
 
   <style>
-    /* DAY MODE (DEFAULT): Golden, Maroon, and White */
+    /* VENUSIAN / SATTVIC LUXURY PALETTE ACROSS INDEX PAGE */
     :root, [data-theme="day"] {
-      --bg: #fdfbf7;
-      --bg2: #f6efe4;
-      --bg3: #ffffff;
-      --card: #ffffff;
-      --card-border: rgba(124, 19, 5, 0.16);
-      --text: #2c0a06;
-      --heading-color: #7c1305;
-      --muted: #685447;
-      --gold: #a17415;
-      --gold2: #8b6009;
-      --gold-dim: rgba(161, 116, 21, 0.1);
-      --gold-border: rgba(124, 19, 5, 0.2);
-      --primary: #7c1305;
-      --primary-light: #fef2f2;
-      --nav-bg: rgba(255, 255, 255, 0.97);
-      --nav-text: #2c0a06;
-      --hero-bg: linear-gradient(180deg, #f7ebd9 0%, #fdfbf7 100%);
-      --footer-bg: #f3ebe0;
-      --input-bg: #ffffff;
-      --star-opacity: 0.05;
-      --toggle-bg: #efe4d3;
-      --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
-      --green: #15803d;
-      --red: #b91c1c;
-      --radius: 16px;
+      --bg: #FDFBF7;
+      --bg2: #FAF6EF;
+      --bg3: #FFFFFF;
+      --card: #FFFFFF;
+      --card-border: rgba(197, 160, 89, 0.35);
+      --text: #1E293B;
+      --heading-color: #4A0E17;
+      --muted: #64748B;
+      --gold: #D4AF37;
+      --gold2: #C5A059;
+      --gold-dark: #8C6D2B;
+      --gold-dim: rgba(197, 160, 89, 0.12);
+      --gold-border: rgba(197, 160, 89, 0.35);
+      --primary: #4A0E17;
+      --primary-light: #FDFBF7;
+      --nav-bg: rgba(253, 251, 247, 0.95);
+      --nav-text: #1E293B;
+      --hero-bg: radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.08) 0%, #FDFBF7 75%);
+      --footer-bg: #FAF6EF;
+      --input-bg: #FFFDF9;
+      --star-opacity: 0.03;
+      --toggle-bg: #FAF6EF;
+      --toggle-slider-bg: linear-gradient(135deg, #C5A059, #8C6D2B);
+      --green: #15803D;
+      --red: #B91C1C;
+      --radius: 18px;
     }
 
-    /* NIGHT MODE: Deep Purple, Golden, and Dark Accents */
+    /* NIGHT MODE */
     [data-theme="night"] {
       --bg: #090514;
       --bg2: #120926;
@@ -129,6 +130,7 @@
       --muted: #9d8cb8;
       --gold: #c9a84c;
       --gold2: #f0d584;
+      --gold-dark: #a17415;
       --gold-dim: rgba(201, 168, 76, 0.15);
       --gold-border: rgba(201, 168, 76, 0.35);
       --primary: #7c1305;
@@ -156,14 +158,13 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* BACKGROUND ANIMATED STARS */
     #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: var(--star-opacity); transition: opacity 0.3s ease; }
     .star { position: absolute; background: var(--gold); border-radius: 50%; opacity: var(--op); animation: pulse var(--d) ease-in-out infinite var(--del); }
 
     /* NAV */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      height: 64px;
+      height: 66px;
       background: var(--nav-bg);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--gold-border);
@@ -171,19 +172,19 @@
       padding: 0 clamp(14px, 4%, 48px);
       transition: background 0.3s ease;
     }
-    .nav-logo { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700; color: var(--heading-color); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700; color: var(--gold-dark); text-decoration: none; display: flex; align-items: center; gap: 10px; }
     .nav-links { display: flex; align-items: center; gap: 4px; }
-    .nav-links a { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 7px; transition: all .2s; text-transform: uppercase; }
-    .nav-links a:hover, .nav-links a.active { color: var(--gold); background: var(--gold-dim); }
+    .nav-links a { font-family: 'Cinzel', serif; font-size: 10.5px; letter-spacing: 1.5px; color: var(--text); text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: all .2s; text-transform: uppercase; font-weight: 600; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold-dark); background: var(--gold-dim); }
     .nav-btns { display: flex; align-items: center; gap: 10px; }
     .btn-nav { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1.5px; padding: 7px 14px; border-radius: 8px; cursor: pointer; transition: all .2s; text-transform: uppercase; border: none; }
     .btn-login { background: transparent; border: 1px solid var(--gold-border); color: var(--heading-color); }
     .btn-login:hover { background: var(--gold-dim); }
-    .btn-register { background: linear-gradient(135deg, #7c1305, #a31c0b); color: #fff; font-weight: 700; }
+    .btn-register { background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color: #fff; font-weight: 700; }
     [data-theme="night"] .btn-register { background: linear-gradient(135deg, #c9a84c, #8b6a1a); color: #000; }
     #logoutBtn { display: none; background: transparent; border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
 
-    /* ELEGANT TOGGLE SWITCH STYLING (NO ICONS) */
+    /* TOGGLE SWITCH */
     .theme-toggle-container {
       display: inline-flex;
       align-items: center;
@@ -197,7 +198,7 @@
       padding: 2px;
       user-select: none;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .theme-slider {
       position: absolute;
@@ -208,7 +209,7 @@
       background: var(--toggle-slider-bg);
       border-radius: 14px;
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     }
     [data-theme="night"] .theme-slider {
       transform: translateX(40px);
@@ -228,10 +229,10 @@
     [data-theme="night"] .label-day { color: var(--muted); }
     [data-theme="night"] .label-night { color: #000000; }
 
-    .hamburger { display: none; background: none; border: none; color: var(--gold); font-size: 24px; cursor: pointer; }
-    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: var(--nav-bg); border-bottom: 1px solid var(--gold-border); padding: 16px; flex-direction: column; gap: 8px; z-index: 199; }
+    .hamburger { display: none; background: none; border: none; color: var(--gold-dark); font-size: 24px; cursor: pointer; }
+    .mobile-menu { display: none; position: fixed; top: 66px; left: 0; right: 0; background: var(--nav-bg); border-bottom: 1px solid var(--gold-border); padding: 16px; flex-direction: column; gap: 8px; z-index: 199; backdrop-filter: blur(10px); }
     .mobile-menu.open { display: flex; }
-    .mobile-menu a { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 1.5px; color: var(--muted); text-decoration: none; padding: 10px 14px; border-radius: 8px; text-transform: uppercase; }
+    .mobile-menu a { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 1.5px; color: var(--text); text-decoration: none; padding: 10px 14px; border-radius: 8px; text-transform: uppercase; font-weight: 600; }
 
     @media(max-width: 900px) {
       .nav-links { display: none; }
@@ -242,38 +243,80 @@
     section { position: relative; z-index: 1; padding: clamp(60px, 8vw, 100px) 0; }
     .section-wrap { max-width: 1140px; margin: 0 auto; padding: 0 clamp(16px, 5%, 48px); }
     .section-header { text-align: center; margin-bottom: clamp(36px, 6vw, 56px); }
-    .ornament { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; font-family: 'Cinzel', serif; font-size: 10px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; }
-    .ornament::before, .ornament::after { content: ''; height: 1px; width: clamp(20px, 5vw, 80px); }
-    .ornament::before { background: linear-gradient(90deg, transparent, var(--gold)); }
-    .ornament::after { background: linear-gradient(90deg, var(--gold), transparent); }
-    .section-header h2 { font-family: 'Cinzel Decorative', cursive; font-size: clamp(22px, 4vw, 38px); color: var(--heading-color); margin-bottom: 10px; line-height: 1.2; }
-    .section-header p { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(16px, 2vw, 20px); color: var(--muted); }
+    .ornament-line { height: 1px; width: 80px; background: linear-gradient(90deg, transparent, var(--gold2), transparent); margin: 0 auto 14px; }
+    .section-header h2 { font-family: 'Cinzel', serif; font-size: clamp(24px, 4vw, 38px); color: var(--heading-color); margin-bottom: 10px; line-height: 1.25; font-weight: 700; }
+    .section-header p { font-size: clamp(14px, 1.8vw, 16px); color: var(--muted); max-width: 760px; margin: 0 auto; }
 
     /* HERO */
     .hero {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center;
-      padding: clamp(100px, 15vw, 140px) clamp(16px, 5%, 40px) 60px;
+      min-height: 90vh; display: flex; align-items: center; justify-content: center; text-align: center;
+      padding: clamp(110px, 14vw, 150px) clamp(16px, 5%, 40px) 60px;
       background: var(--hero-bg);
-      transition: background 0.3s ease;
+      position: relative;
     }
-    .hero-inner { max-width: 820px; width: 100%; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 30px; padding: 6px 18px; margin-bottom: 22px; font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2.5px; color: var(--heading-color); text-transform: uppercase; font-weight: 700; }
-    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
-    .hero h1 { font-family: 'Cinzel Decorative', cursive; font-size: clamp(26px, 5vw, 54px); font-weight: 700; color: var(--heading-color); line-height: 1.18; margin-bottom: 18px; }
-    .hero h1 span { color: var(--gold); }
-    .hero-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(16px, 2.5vw, 22px); color: var(--muted); max-width: 680px; margin: 0 auto 32px; line-height: 1.5; }
+    .hero-inner { max-width: 920px; width: 100%; }
     
-    .hero-ctas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 40px; }
-    .btn-hero {
-      font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; padding: 14px 18px;
-      border-radius: 10px; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: all .25s;
-      display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--gold-border); background: var(--card); color: var(--text);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    .protocol-banner-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(197, 160, 89, 0.12);
+      border: 1px solid var(--gold-border);
+      border-radius: 30px;
+      padding: 8px 20px;
+      margin-bottom: 24px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--gold-dark);
+      text-transform: uppercase;
+      font-weight: 800;
+      box-shadow: 0 4px 15px rgba(197, 160, 89, 0.08);
     }
-    .btn-hero:hover { border-color: var(--gold); background: var(--gold-dim); color: var(--heading-color); transform: translateY(-2px); }
-    .btn-hero.highlight { background: linear-gradient(135deg, #7c1305, #a31c0b); color: #fff; border: none; box-shadow: 0 4px 20px rgba(124,19,5,0.25); }
-    [data-theme="night"] .btn-hero.highlight { background: linear-gradient(135deg, #c9a84c, #8b6a1a); color: #000; box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
-    .btn-hero.highlight:hover { opacity: 0.95; box-shadow: 0 8px 28px rgba(124,19,5,0.4); }
+
+    .hero h1 { font-family: 'Rozha One', serif; font-size: clamp(28px, 5vw, 52px); font-weight: 400; color: var(--heading-color); line-height: 1.2; margin-bottom: 14px; }
+    .hero h1 span { color: var(--gold-dark); }
+    .hero-sub { font-size: clamp(14.5px, 2vw, 17px); color: var(--muted); max-width: 820px; margin: 0 auto 28px; line-height: 1.7; }
+    
+    /* SACRED OATH SUMMARY CARD IN HERO */
+    .hero-oath-card {
+      background: var(--card);
+      border: 1px solid var(--gold-border);
+      border-left: 4px solid var(--gold2);
+      border-radius: 16px;
+      padding: 20px 24px;
+      max-width: 820px;
+      margin: 0 auto 36px;
+      text-align: left;
+      box-shadow: 0 8px 30px rgba(197, 160, 89, 0.1);
+    }
+    .hero-oath-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--heading-color);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .hero-oath-desc {
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .hero-ctas { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 40px; }
+    .btn-hero {
+      font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; padding: 15px 20px;
+      border-radius: 12px; cursor: pointer; text-decoration: none; text-transform: uppercase; transition: all .25s;
+      display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--gold-border); background: var(--card); color: var(--text);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .btn-hero:hover { border-color: var(--gold-dark); background: var(--gold-dim); color: var(--heading-color); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(197, 160, 89, 0.2); }
+    .btn-hero.highlight { background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color: #fff; border: none; box-shadow: 0 6px 22px rgba(140, 109, 43, 0.35); }
+    [data-theme="night"] .btn-hero.highlight { background: linear-gradient(135deg, #c9a84c, #8b6a1a); color: #000; box-shadow: 0 6px 22px rgba(201,168,76,0.3); }
+    .btn-hero.highlight:hover { opacity: 0.95; transform: translateY(-2px); }
 
     .zodiac-ticker { overflow: hidden; padding: 14px 0; border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border); }
     .ticker-inner { display: flex; gap: 28px; animation: ticker 25s linear infinite; white-space: nowrap; }
@@ -281,68 +324,43 @@
     @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
     /* 360 PLATFORM PILLARS GRID */
-    .platform-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .platform-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     @media(max-width: 768px) { .platform-grid { grid-template-columns: 1fr; } }
     .pillar-card {
-      background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 32px 26px;
+      background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 32px 28px;
       transition: all .3s; display: flex; flex-direction: column; justify-content: space-between;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.03);
     }
-    .pillar-card:hover { border-color: var(--gold); box-shadow: 0 10px 36px rgba(124,19,5,0.08); transform: translateY(-3px); }
-    .pillar-icon { font-size: 36px; margin-bottom: 14px; }
-    .pillar-title { font-family: 'Cinzel', serif; font-size: 17px; font-weight: 700; color: var(--heading-color); margin-bottom: 10px; }
-    .pillar-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
-    .pillar-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 22px; font-size: 12px; color: var(--text); }
-    .pillar-feat-item { display: flex; align-items: center; gap: 8px; }
-    .pillar-feat-item span { color: var(--gold); }
+    .pillar-card:hover { border-color: var(--gold-dark); box-shadow: 0 12px 36px rgba(197, 160, 89, 0.15); transform: translateY(-3px); }
+    .pillar-pill-label { display: inline-block; background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold-dark); padding: 4px 12px; border-radius: 12px; font-family: 'Cinzel', serif; font-size: 9.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; }
+    .pillar-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--heading-color); margin-bottom: 10px; }
+    .pillar-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .pillar-features { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; font-size: 13px; color: var(--text); }
+    .pillar-feat-item { display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed rgba(197, 160, 89, 0.2); padding-bottom: 6px; }
     .pillar-btn {
-      width: 100%; padding: 12px; background: var(--gold-dim); border: 1px solid var(--gold-border);
-      border-radius: 9px; color: var(--heading-color); font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+      width: 100%; padding: 13px; background: var(--gold-dim); border: 1px solid var(--gold-border);
+      border-radius: 10px; color: var(--heading-color); font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
       letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; text-decoration: none; text-align: center;
-      transition: all .2s;
+      transition: all .2s; display: inline-block;
     }
-    .pillar-btn:hover { background: linear-gradient(135deg, #7c1305, #a31c0b); color: #fff; border-color: transparent; }
-    [data-theme="night"] .pillar-btn:hover { background: linear-gradient(135deg, #c9a84c, #8b6a1a); color: #000; }
-
-    /* CONSULTATION SECTION */
-    #consultation { background: var(--bg2); }
-    .consult-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
-    @media(max-width: 850px) { .consult-wrap { grid-template-columns: 1fr; } }
-    .consult-info { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
-    .consult-info h3 { font-family: 'Cinzel', serif; font-size: 18px; color: var(--heading-color); margin-bottom: 12px; }
-    .consult-info p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
-    .consult-perks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-    .c-perk { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text); }
-    .c-perk-icon { color: var(--gold); font-size: 16px; flex-shrink: 0; }
-
-    .consult-form-box { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
-    .consult-form-box h3 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--heading-color); margin-bottom: 16px; text-align: center; }
-    .mfield { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-    .mfield label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-    .mfield input, .mfield select, .mfield textarea {
-      background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text);
-      padding: 11px 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; outline: none; width: 100%;
-    }
-    .mfield input:focus, .mfield select:focus, .mfield textarea:focus { border-color: var(--gold); }
-    .mrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pillar-btn:hover { background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color: #fff; border-color: transparent; }
 
     /* COURSE */
     #course { background: var(--bg); }
     .course-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
     @media(max-width: 850px) { .course-grid { grid-template-columns: 1fr; } }
-    .curriculum { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
-    .curriculum-head { padding: 18px 22px; border-bottom: 1px solid var(--card-border); background: var(--gold-dim); }
+    .curriculum { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,0.03); }
+    .curriculum-head { padding: 20px 24px; border-bottom: 1px solid var(--card-border); background: var(--gold-dim); }
     .curriculum-head h3 { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700; color: var(--heading-color); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
-    .curriculum-head p { font-size: 12px; color: var(--muted); }
-    .quarter { border-bottom: 1px solid var(--card-border); padding: 18px 22px; }
+    .curriculum-head p { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .quarter { border-bottom: 1px solid var(--card-border); padding: 20px 24px; }
     .quarter:last-child { border-bottom: none; }
-    .q-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 5px; }
-    .q-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
-    .q-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .q-label { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 5px; font-weight: 800; }
+    .q-title { font-size: 14.5px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .q-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
 
-    .price-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px; position: sticky; top: 80px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
-    .price-card-badge { display: inline-block; background: var(--primary); color: #fff; font-family: 'Cinzel', serif; font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; }
-    [data-theme="night"] .price-card-badge { background: var(--gold); color: #000; }
+    .price-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 26px; position: sticky; top: 80px; box-shadow: 0 6px 24px rgba(0,0,0,0.03); }
+    .price-card-badge { display: inline-block; background: var(--primary); color: #fff; font-family: 'Cinzel', serif; font-size: 9.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; }
     .price-card-old { font-size: 15px; color: var(--muted); text-decoration: line-through; font-family: 'Cinzel', serif; }
     .price-card-new { font-family: 'Cinzel', serif; font-size: clamp(32px, 6vw, 42px); font-weight: 700; color: var(--heading-color); line-height: 1.1; margin: 5px 0; }
     .price-card-emi { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 16px; }
@@ -353,42 +371,42 @@
     .modal { background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 32px 24px; max-width: 460px; width: 100%; position: relative; transform: translateY(16px); transition: transform .3s; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
     .modal-overlay.open .modal { transform: translateY(0); }
     .modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
-    .modal-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #7c1305, #a31c0b); border: none; border-radius: 10px; color: #fff; font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
-    [data-theme="night"] .modal-btn { background: linear-gradient(135deg,#c9a84c,#8b6a1a); color: #000; }
+    .modal-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); border: none; border-radius: 10px; color: #fff; font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
 
     /* FOOTER */
-    footer { background: var(--footer-bg); border-top: 1px solid var(--gold-border); padding: 40px 0 20px; transition: background 0.3s ease; }
+    footer { background: var(--footer-bg); border-top: 1px solid var(--gold-border); padding: 44px 0 24px; transition: background 0.3s ease; }
     .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 30px; margin-bottom: 30px; }
     @media(max-width: 768px) { .footer-grid { grid-template-columns: 1fr; } }
-    .footer-brand p { font-size: 12px; color: var(--muted); max-width: 400px; margin-top: 8px; }
-    .footer-heading { font-family: 'Cinzel', serif; font-size: 11px; color: var(--heading-color); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+    .footer-brand p { font-size: 12.5px; color: var(--muted); max-width: 400px; margin-top: 8px; line-height: 1.6; }
+    .footer-heading { font-family: 'Cinzel', serif; font-size: 11px; color: var(--heading-color); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
     .footer-links { display: flex; flex-direction: column; gap: 8px; }
-    .footer-links a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color .2s; }
-    .footer-links a:hover { color: var(--gold); }
-    .footer-bottom { border-top: 1px solid var(--gold-border); padding-top: 20px; display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 12.5px; transition: color .2s; }
+    .footer-links a:hover { color: var(--gold-dark); }
+    .footer-bottom { border-top: 1px solid var(--gold-border); padding-top: 20px; display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); }
   </style>
 </head>
 <body>
 
   <div id="starfield"></div>
 
-  <!-- NAV BAR -->
+  <!-- NAV BAR (CLEAN MINIMAL TYPOGRAPHY, NO ICONS) -->
   <nav>
-    <a href="index.html" class="nav-logo"><img src="logo.png" alt="Shri Ramji Astro Logo" style="height:36px; width:36px; border-radius:50%; object-fit:cover; border:1px solid var(--gold);"> SHRI RAMJI ASTRO</a>
+    <a href="index.html" class="nav-logo">
+      <img src="logo.png" alt="Shri Ramji Astro Logo" style="height:36px; width:36px; border-radius:50%; object-fit:cover; border:1px solid var(--gold-border);"> 
+      <span>SHRI RAMJI ASTRO</span>
+    </a>
     <div class="nav-links">
-      <a href="srai.html" style="color:var(--gold); font-weight:800;">🔐 SRA AI (Admin)</a>
-      <a href="accurate-predictions.html" style="color:var(--gold); font-weight:700;">🔮 Astro 360</a>
-      <a href="vmm.html" style="color:var(--gold); font-weight:700;">💍 Vivah Muhurt</a>
-      <a href="vastu-muhurta.html" style="color:var(--gold); font-weight:700;">🏛️ Vastu & Griha Muhurt</a>
-      <a href="yajnopavita.html" style="color:var(--gold); font-weight:700;">🪔 Yagyopavit Muhurt</a>
-      <a href="mmm.html" style="color:var(--gold); font-weight:700;">✂️ Mundan Muhurt</a>
-      <a href="about.html" style="color:var(--gold); font-weight:700;">📖 About & Blog</a>
-      <a href="#consultation">🔮 Consultation</a>
-      <a href="#course">📚 Courses</a>
-      <a href="admin.html">🔐 Admin</a>
+      <a href="accurate-predictions.html">Astro 360</a>
+      <a href="vmm.html">Vivah Muhurt</a>
+      <a href="vastu-muhurta.html">Vastu & Griha</a>
+      <a href="yajnopavita.html">Yagyopavit Muhurt</a>
+      <a href="mmm.html">Mundan Muhurt</a>
+      <a href="about.html">About & Blog</a>
+      <a href="consultation.html" style="color:var(--gold-dark); font-weight:800;">Sanctuary Consultation</a>
+      <a href="#course">Courses</a>
+      <a href="admin.html">Admin</a>
     </div>
     <div class="nav-btns">
-      <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
       <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
         <span class="theme-label label-day">DAY</span>
         <span class="theme-slider"></span>
@@ -399,7 +417,7 @@
         <button class="btn-nav btn-register" id="regNavBtn" onclick="openModal('registerModal')">Register</button>
         <div id="userProfileBadge" style="display:none;align-items:center;gap:8px;background:var(--gold-dim);padding:4px 10px;border-radius:8px;border:1px solid var(--gold-border);">
           <img id="userAvatarImg" src="logo.png" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--gold);"/>
-          <span id="userNameText" style="font-size:11px;font-weight:700;color:var(--gold);">User</span>
+          <span id="userNameText" style="font-size:11px;font-weight:700;color:var(--gold-dark);">User</span>
           <button onclick="doLogout()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;font-weight:700;margin-left:4px;">Logout</button>
         </div>
       </div>
@@ -407,17 +425,16 @@
     <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
   </nav>
 
-  <!-- MOBILE MENU -->
+  <!-- MOBILE MENU (CLEAN TYPOGRAPHY, NO ICONS) -->
   <div class="mobile-menu" id="mobileMenu">
-    <a href="srai.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; background:rgba(180,130,32,0.15); padding:10px 14px; border-radius:8px; border:1px solid var(--gold); display:flex; align-items:center; gap:8px;">🤖 <span>SRA AI (Vedic AI Module)</span></a>
-    <a href="accurate-predictions.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">🔮 Astro 360 (Kundli Engine)</a>
-    <a href="vmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">💍 VIP Vivah Muhurt (Matchmaker)</a>
-    <a href="yajnopavita.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">🪔 VIP Yagyopavit Muhurt</a>
-    <a href="mmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">✂️ Mundan Muhurt Calculator</a>
-    <a href="about.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">📖 About Us & Daily Blog</a>
-    <a href="#consultation" onclick="closeMobileMenu()">🔮 Personal Consultation</a>
-    <a href="#course" onclick="closeMobileMenu()">📚 Jyotish Courses</a>
-    <a href="admin.html" onclick="closeMobileMenu()">🔐 Admin Dashboard</a>
+    <a href="accurate-predictions.html" onclick="closeMobileMenu()">Astro 360 (Kundli Engine)</a>
+    <a href="vmm.html" onclick="closeMobileMenu()">Vivah Muhurt (Matchmaker)</a>
+    <a href="yajnopavita.html" onclick="closeMobileMenu()">Yagyopavit Muhurt</a>
+    <a href="mmm.html" onclick="closeMobileMenu()">Mundan Muhurt Calculator</a>
+    <a href="about.html" onclick="closeMobileMenu()">About Us & Daily Blog</a>
+    <a href="consultation.html" onclick="closeMobileMenu()" style="color:var(--gold-dark); font-weight:800;">1-on-1 Sanctuary Consultation</a>
+    <a href="#course" onclick="closeMobileMenu()">Jyotish Courses</a>
+    <a href="admin.html" onclick="closeMobileMenu()">Admin Dashboard</a>
     <div style="height:1px;background:var(--gold-border);margin:6px 0"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div class="theme-toggle-container" onclick="toggleTheme()" title="Switch Day/Night Mode">
@@ -432,18 +449,34 @@
     </div>
   </div>
 
-  <!-- HERO SECTION -->
+  <!-- HERO SECTION WITH PROMINENT "ONE DAY • ONE SOUL • ONE CONSULTATION" DECREE -->
   <section class="hero">
     <div class="hero-inner">
-      <div class="hero-badge"><span class="badge-dot"></span> Powered by Astro 360 — Flagship USP Engine by Shri Ramji Astro</div>
+      
+      <!-- SACRED PROTOCOL BADGE -->
+      <div class="protocol-banner-hero">
+        STRICT SACRED PROTOCOL: EXACTLY ONE CONSULTATION PER SOLAR DAY
+      </div>
+
       <h1>Unlock Your Future by <span>Astro 360</span><br/>The Most Accurate & Complete Solution</h1>
-      <p class="hero-sub">Experience high-precision Meeus lunar perturbation, nutation-corrected Lahiri Ayanamsa, 100% accurate Kundli predictions (BPHS, Phaladeepika), 4-in-1 Vivah & Yagyopavit elections, Jyotish Academy, and 1-on-1 consultations.</p>
+      
+      <p class="hero-sub">
+        Experience high-precision Meeus lunar perturbation, nutation-corrected Lahiri Ayanamsa, 100% accurate Kundli predictions (BPHS, Phaladeepika), 4-in-1 Vivah & Yagyopavit elections, Jyotish Academy, and private 1-on-1 sanctuary consultations.
+      </p>
+
+      <!-- PROMINENT SACRED OATH DECREE CARD ON INDEX HERO -->
+      <div class="hero-oath-card">
+        <div class="hero-oath-title">The Sacred Sanctuary Decree • One Day • One Soul • One Consultation</div>
+        <div class="hero-oath-desc">
+          "Jyotish is Sacred Tapasya, Not a 5-Minute Call Center. A difference of just 20 seconds shifts the Shashtiamsa (D60) and corrupts destiny calculations. To preserve divine meditative depth, Astro Raamji accepts strictly <b>ONE dedicated consultation per solar day</b>."
+        </div>
+      </div>
       
       <div class="hero-ctas">
-        <a href="accurate-predictions.html" class="btn-hero highlight">🔮 Launch Astro 360 Engine</a>
-        <a href="vmm.html" class="btn-hero">💍 VIP Vivah Muhurt</a>
-        <a href="yajnopavita.html" class="btn-hero">🪔 VIP Yagyopavit Muhurt</a>
-        <a href="consultation.html" class="btn-hero">🔮 Book Consultation</a>
+        <a href="accurate-predictions.html" class="btn-hero highlight">Launch Astro 360 Engine →</a>
+        <a href="vmm.html" class="btn-hero">VIP Vivah Muhurt →</a>
+        <a href="yajnopavita.html" class="btn-hero">VIP Yagyopavit Muhurt →</a>
+        <a href="consultation.html" class="btn-hero" style="border-color:var(--gold-dark); color:var(--heading-color); font-weight:800;">Book Private Sanctuary →</a>
       </div>
 
       <div class="zodiac-ticker">
@@ -452,43 +485,42 @@
     </div>
   </section>
 
-  <!-- 360 PLATFORM PILLARS -->
+  <!-- 360 PLATFORM PILLARS (CLEAN TYPOGRAPHY, NO ICONS) -->
   <section id="services">
     <div class="section-wrap">
       <div class="section-header">
-        <div class="ornament">✦ Comprehensive Jyotish Services ✦</div>
+        <div class="ornament-line"></div>
         <h2>Astro 360 & Complete Astrological Suite</h2>
         <p>Four powerful pillars combining ancient Vedic Shastras with Meeus & Keplerian ephemeris calculation</p>
       </div>
 
       <div class="platform-grid">
         <!-- PILLAR 1 (FLAGSHIP USP TOOL) -->
-        <div class="pillar-card" style="border: 2px solid var(--accent); box-shadow: 0 8px 25px rgba(180,83,9,0.18);">
+        <div class="pillar-card" style="border: 1.5px solid var(--gold-dark); box-shadow: 0 8px 30px rgba(197, 160, 89, 0.12);">
           <div>
-            <div style="display:inline-block; background:rgba(180,83,9,0.15); border:1px solid var(--gold-border); color:var(--gold); padding:2px 10px; border-radius:12px; font-size:10px; font-weight:800; letter-spacing:1px; margin-bottom:8px;">★ FLAGSHIP USP TOOL ★</div>
-            <div class="pillar-icon">🔮</div>
+            <div class="pillar-pill-label">FLAGSHIP USP TOOL</div>
             <h3 class="pillar-title">Astro 360 By Shri Ramji Astro</h3>
             <p class="pillar-desc">The most accurate and complete astrological solution. Features Meeus Ch. 47 60-term lunar series, nutation-corrected Lahiri Ayanamsa, D1-D60 Shodashvarga, Vimshottari Dasha, and Granth-proven predictions.</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item"><span>✦</span> 60-Term Meeus Lunar Expansion (&lt; 18'' arcseconds)</div>
-              <div class="pillar-feat-item"><span>✦</span> OpenStreetMap Worldwide Geocoding Map Search</div>
-              <div class="pillar-feat-item"><span>✦</span> True Chitra Paksha (Lahiri) Ayanamsa + Nutation</div>
-              <div class="pillar-feat-item"><span>✦</span> 📖 Granth Proven Predictions (BPHS, Phaladeepika)</div>
+              <div class="pillar-feat-item">60-Term Meeus Lunar Expansion (&lt; 18'' arcseconds)</div>
+              <div class="pillar-feat-item">OpenStreetMap Worldwide Geocoding Map Search</div>
+              <div class="pillar-feat-item">True Chitra Paksha (Lahiri) Ayanamsa + Nutation</div>
+              <div class="pillar-feat-item">Granth Proven Predictions (BPHS, Phaladeepika)</div>
             </div>
           </div>
-          <a href="accurate-predictions.html" class="pillar-btn" style="background: linear-gradient(135deg, var(--gold), #d97706); color:#fff; font-weight:700;">Launch Astro 360 Engine →</a>
+          <a href="accurate-predictions.html" class="pillar-btn" style="background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color:#fff; font-weight:700;">Launch Astro 360 Engine →</a>
         </div>
 
         <!-- PILLAR 2 -->
         <div class="pillar-card">
           <div>
-            <div class="pillar-icon">💍</div>
+            <div class="pillar-pill-label">MATRIMONIAL ELECTION</div>
             <h3 class="pillar-title">VIP Vivah Muhurt & Matchmaking (Panigrahana)</h3>
             <p class="pillar-desc">Comprehensive 4-in-1 matrimonial analyzer scrutinizing all 10 Classical Mahadoshas, Tribala (Groom Sun, Bride Jupiter, Both Moons), Jamitra, Latta, and 24-Hour Lagna schedule.</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item"><span>✦</span> 10 Mahadosha & Tribala Verification Engine</div>
-              <div class="pillar-feat-item"><span>✦</span> Engagement (Vagdan) & Baricha/Tilak Scrutiny</div>
-              <div class="pillar-feat-item"><span>✦</span> 24-Hour Rising Lagna Time Schedule Table</div>
+              <div class="pillar-feat-item">10 Mahadosha & Tribala Verification Engine</div>
+              <div class="pillar-feat-item">Engagement (Vagdan) & Baricha/Tilak Scrutiny</div>
+              <div class="pillar-feat-item">24-Hour Rising Lagna Time Schedule Table</div>
             </div>
           </div>
           <a href="vmm.html" class="pillar-btn">Calculate Vivah Muhurt →</a>
@@ -497,13 +529,13 @@
         <!-- PILLAR 3 -->
         <div class="pillar-card">
           <div>
-            <div class="pillar-icon">🪔</div>
+            <div class="pillar-pill-label">SACRED CEREMONY</div>
             <h3 class="pillar-title">VIP Yajnopavita Muhurt Calculator (Upanayana)</h3>
             <p class="pillar-desc">Elect sacred thread ceremony dates based on Muhurta Chintamani Shlokas. Evaluates child natal Lagna, Janma Nakshatra, Chandra Shuddhi, and auspicious Upanayana asterisms.</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item"><span>✦</span> Child Natal Kundli & Janma Rashi Scrutiny</div>
-              <div class="pillar-feat-item"><span>✦</span> 16 Auspicious Upanayana Asterism Election</div>
-              <div class="pillar-feat-item"><span>✦</span> Chintamani Shloka 10 & 11 Verification</div>
+              <div class="pillar-feat-item">Child Natal Kundli & Janma Rashi Scrutiny</div>
+              <div class="pillar-feat-item">16 Auspicious Upanayana Asterism Election</div>
+              <div class="pillar-feat-item">Chintamani Shloka 10 & 11 Verification</div>
             </div>
           </div>
           <a href="yajnopavita.html" class="pillar-btn">Calculate Yagyopavit Muhurt →</a>
@@ -512,13 +544,13 @@
         <!-- PILLAR 4 -->
         <div class="pillar-card">
           <div>
-            <div class="pillar-icon">📚</div>
+            <div class="pillar-pill-label">ACADEMY & LEARNING</div>
             <h3 class="pillar-title">1-Year Vedic Astrology Mastery Academy</h3>
             <p class="pillar-desc">Structured 12-month online Jyotish course by Astro Raamji (25+ years experience). Learn Kundali reading, Nakshatras, Dasha systems, Divisional Charts, and Vastu from home.</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item"><span>✦</span> 48 Live Weekly Zoom Classes + Lifetime Recordings</div>
-              <div class="pillar-feat-item"><span>✦</span> Beginner to Advanced Mastery Certification</div>
-              <div class="pillar-feat-item"><span>✦</span> Low Cost EMI Options Starting @ ₹1,175/month</div>
+              <div class="pillar-feat-item">48 Live Weekly Zoom Classes + Lifetime Recordings</div>
+              <div class="pillar-feat-item">Beginner to Advanced Mastery Certification</div>
+              <div class="pillar-feat-item">Low Cost EMI Options Starting @ ₹1,175/month</div>
             </div>
           </div>
           <a href="#course" class="pillar-btn">Explore Course & Curriculum →</a>
@@ -531,8 +563,8 @@
   <section id="precision-benchmark" style="background: var(--bg2); padding: 60px 0; border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border);">
     <div class="section-wrap">
       <div class="section-header">
-        <div class="ornament">✦ Desktop-Grade Astronomical Accuracy ✦</div>
-        <h2 style="font-family:'Cinzel',serif; color:var(--gold);">The Precision Problem in Modern Digital Astrology</h2>
+        <div class="ornament-line"></div>
+        <h2 style="font-family:'Cinzel',serif; color:var(--heading-color);">The Precision Problem in Modern Digital Astrology</h2>
         <p style="max-width: 800px; margin: 0 auto; color:var(--text); font-size: 15px; line-height: 1.6;">
           Every practicing Jyotishi encounters a frustrating barrier with mass-market astrology portals: <strong>computational drift</strong>. 
           Mass-market sites prioritize ad placement over mathematical fidelity. <strong>Shri Ramji Astro (shriramjiastro.in)</strong> was engineered to eliminate these compromises, delivering desktop-grade accuracy directly in your browser.
@@ -540,12 +572,12 @@
       </div>
 
       <!-- COMPARISON TABLE CARD -->
-      <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 14px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.06); margin-bottom: 40px; overflow-x: auto;">
-        <h3 style="font-family:'Cinzel',serif; color:var(--gold); font-size: 18px; margin: 0 0 16px 0; text-align: center;">Why Serious Jyotish Practitioners Choose Shri Ramji Astro</h3>
+      <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 16px; padding: 28px; box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin-bottom: 40px; overflow-x: auto;">
+        <h3 style="font-family:'Cinzel',serif; color:var(--heading-color); font-size: 18px; margin: 0 0 16px 0; text-align: center;">Why Serious Jyotish Practitioners Choose Shri Ramji Astro</h3>
         <table style="width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left;">
           <thead>
             <tr style="background: var(--bg); border-bottom: 2px solid var(--gold-border);">
-              <th style="padding: 12px 14px; color: var(--gold); font-family: 'Cinzel', serif;">Computational Metric</th>
+              <th style="padding: 12px 14px; color: var(--gold-dark); font-family: 'Cinzel', serif;">Computational Metric</th>
               <th style="padding: 12px 14px; color: #b91c1c; font-weight: 700;">Typical Commercial Portals (AstroSage / AstroTalk)</th>
               <th style="padding: 12px 14px; color: #15803d; font-weight: 700;">Shri Ramji Astro Engine (shriramjiastro.in)</th>
             </tr>
@@ -553,32 +585,32 @@
           <tbody>
             <tr style="border-bottom: 1px solid var(--gold-border);">
               <td style="padding: 12px 14px; font-weight: 700; color: var(--text);">Birthplace Geodetics</td>
-              <td style="padding: 12px 14px; color: var(--text-muted);">Municipal dropdowns; snaps to district capital or rail station (±20–40 km drift)</td>
+              <td style="padding: 12px 14px; color: var(--muted);">Municipal dropdowns; snaps to district capital or rail station (±20–40 km drift)</td>
               <td style="padding: 12px 14px; color: var(--text); background: rgba(34,197,94,0.06);"><strong>Interactive Map Pinpoint Engine:</strong> High-resolution GPS coordinates down to hospital/home</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--gold-border);">
               <td style="padding: 12px 14px; font-weight: 700; color: var(--text);">Sidereal Ayanamsa</td>
-              <td style="padding: 12px 14px; color: var(--text-muted);">Mean linear Lahiri precession polynomial (ignores 18.6-yr nutation)</td>
+              <td style="padding: 12px 14px; color: var(--muted);">Mean linear Lahiri precession polynomial (ignores 18.6-yr nutation)</td>
               <td style="padding: 12px 14px; color: var(--text); background: rgba(34,197,94,0.06);"><strong>True Chitra Paksha:</strong> Corrected with 4-term IAU nutation in longitude (Δψ cos ε)</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--gold-border);">
               <td style="padding: 12px 14px; font-weight: 700; color: var(--text);">Lunar Orbit Precision</td>
-              <td style="padding: 12px 14px; color: var(--text-muted);">4-term truncated Meeus equation (±15' to 30' drift corrupting D9/D60)</td>
+              <td style="padding: 12px 14px; color: var(--muted);">4-term truncated Meeus equation (±15' to 30' drift corrupting D9/D60)</td>
               <td style="padding: 12px 14px; color: var(--text); background: rgba(34,197,94,0.06);"><strong>Meeus Chapter 47 ELP-2000:</strong> 60-term expansion (&lt; 18'' arcseconds precision)</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--gold-border);">
               <td style="padding: 12px 14px; font-weight: 700; color: var(--text);">House Division</td>
-              <td style="padding: 12px 14px; color: var(--text-muted);">Equal house or simplified Chalit models lacking boundary alerts</td>
+              <td style="padding: 12px 14px; color: var(--muted);">Equal house or simplified Chalit models lacking boundary alerts</td>
               <td style="padding: 12px 14px; color: var(--text); background: rgba(34,197,94,0.06);"><strong>True Sripati Bhava Chalit:</strong> Quadrant trisection with Sandhi-dosha boundary alerts</td>
             </tr>
             <tr style="border-bottom: 1px solid var(--gold-border);">
               <td style="padding: 12px 14px; font-weight: 700; color: var(--text);">Sunrise & Kalavelas</td>
-              <td style="padding: 12px 14px; color: var(--text-muted);">Geometric zero horizon (0°) causing 2–5 min timing errors</td>
+              <td style="padding: 12px 14px; color: var(--muted);">Geometric zero horizon (0°) causing 2–5 min timing errors</td>
               <td style="padding: 12px 14px; color: var(--text); background: rgba(34,197,94,0.06);"><strong>Apparent Refraction:</strong> Corrected for solar semi-diameter & atmospheric dip (h₀ = -0.8333°)</td>
             </tr>
             <tr>
               <td style="padding: 12px 14px; font-weight: 700; color: var(--text);">Higher Vargas</td>
-              <td style="padding: 12px 14px; color: var(--text-muted);">Often capped at D10 or D12; simplified mapping</td>
+              <td style="padding: 12px 14px; color: var(--muted);">Often capped at D10 or D12; simplified mapping</td>
               <td style="padding: 12px 14px; color: var(--text); background: rgba(34,197,94,0.06);"><strong>Full Parashara Shodashvarga:</strong> Unbroken mathematical coverage from D1 to D60</td>
             </tr>
           </tbody>
@@ -587,30 +619,30 @@
 
       <!-- 4 ARCHITECTURAL INNOVATIONS GRID -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 12px; padding: 20px;">
-          <h4 style="color: var(--gold); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">1. Zero Geodetic Drift: Pinpoint Map Precision</h4>
-          <p style="font-size: 13px; color: var(--text); line-height: 1.5; margin: 0;">
+        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 14px; padding: 22px;">
+          <h4 style="color: var(--heading-color); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">1. Zero Geodetic Drift: Pinpoint Map Precision</h4>
+          <p style="font-size: 13px; color: var(--text); line-height: 1.55; margin: 0;">
             A difference of 0.25° in longitude shifts RAMC by 1 full minute. Dropping a pin on the exact birthplace eliminates spatial drift, anchoring the Ascendant with sub-meter coordinate integrity.
           </p>
         </div>
 
-        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 12px; padding: 20px;">
-          <h4 style="color: var(--gold); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">2. True Chitra Paksha with Astronomical Nutation</h4>
-          <p style="font-size: 13px; color: var(--text); line-height: 1.5; margin: 0;">
+        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 14px; padding: 22px;">
+          <h4 style="color: var(--heading-color); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">2. True Chitra Paksha with Astronomical Nutation</h4>
+          <p style="font-size: 13px; color: var(--text); line-height: 1.55; margin: 0;">
             Applies 4-term IAU nutation correction (Δψ cos ε) to account for the 17.2'' periodic nodal oscillation, aligning sidereal positions with Swiss Ephemeris and official Indian Ephemeris standards.
           </p>
         </div>
 
-        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 12px; padding: 20px;">
-          <h4 style="color: var(--gold); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">3. Sub-Arcsecond Lunar Precision for D9 & D60</h4>
-          <p style="font-size: 13px; color: var(--text); line-height: 1.5; margin: 0;">
+        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 14px; padding: 22px;">
+          <h4 style="color: var(--heading-color); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">3. Sub-Arcsecond Lunar Precision for D9 & D60</h4>
+          <p style="font-size: 13px; color: var(--text); line-height: 1.55; margin: 0;">
             60-term Meeus Chapter 47 series with planetary perturbation terms keeps Moon error under 18'' arcseconds, securing exact Navamsa (D9), Shashtiamsa (D60), and Vimshottari Dasha calculations.
           </p>
         </div>
 
-        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 12px; padding: 20px;">
-          <h4 style="color: var(--gold); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">4. Apparent Sunrise & True BPHS Kalavelas</h4>
-          <p style="font-size: 13px; color: var(--text); line-height: 1.5; margin: 0;">
+        <div style="background: var(--card); border: 1px solid var(--gold-border); border-radius: 14px; padding: 22px;">
+          <h4 style="color: var(--heading-color); margin: 0 0 8px 0; font-family: 'Cinzel', serif;">4. Apparent Sunrise & True BPHS Kalavelas</h4>
+          <p style="font-size: 13px; color: var(--text); line-height: 1.55; margin: 0;">
             Factoring in atmospheric refraction (-34') and solar radius (-16') gives h₀ = -0.8333°, synchronizing Dinamana, Gulika, Yamaghantaka, and Special Lagnas with real-world horizon conditions.
           </p>
         </div>
@@ -619,23 +651,23 @@
     </div>
   </section>
 
-  <!-- PART 1: VIP VENUSIAN GATEWAY SECTION (THE VENUSIAN TEASER) -->
-  <section id="consultation" style="background: var(--bg3); padding: 60px 0; border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border);">
+  <!-- VIP VENUSIAN GATEWAY SECTION (THE VENUSIAN TEASER ON INDEX) -->
+  <section id="consultation" style="background: var(--bg3); padding: 70px 0; border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border);">
     <div class="section-wrap">
       
       <!-- TOP BADGE -->
       <div style="text-align: center; margin-bottom: 20px;">
-        <div style="display: inline-block; background: rgba(197, 160, 89, 0.12); border: 1px solid var(--gold); color: var(--gold); padding: 6px 18px; border-radius: 30px; font-family: 'Cinzel', serif; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">
-          ✦ THE STRICT SACRED PROTOCOL: EXACTLY ONE CONSULTATION PER SOLAR DAY ✦
+        <div style="display: inline-block; background: rgba(197, 160, 89, 0.12); border: 1px solid var(--gold2); color: var(--gold-dark); padding: 6px 20px; border-radius: 30px; font-family: 'Cinzel', serif; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">
+          THE STRICT SACRED PROTOCOL: EXACTLY ONE CONSULTATION PER SOLAR DAY
         </div>
       </div>
 
       <!-- MAIN HEADLINES (BILINGUAL) -->
       <div style="text-align: center; max-width: 900px; margin: 0 auto 32px;">
-        <h2 style="font-family: 'Cinzel', serif; font-size: clamp(26px, 3.8vw, 38px); color: var(--heading-color); line-height: 1.3; margin-bottom: 12px;">
+        <h2 style="font-family: 'Cinzel', serif; font-size: clamp(26px, 3.8vw, 38px); color: var(--heading-color); line-height: 1.3; margin-bottom: 12px; font-weight: 700;">
           "Jyotish is Sacred Tapasya, Not a 5-Minute Call Center."
         </h2>
-        <div style="font-size: clamp(18px, 2.5vw, 24px); font-weight: 700; color: var(--gold); margin-bottom: 20px;">
+        <div style="font-size: clamp(18px, 2.5vw, 24px); font-weight: 700; color: var(--gold-dark); margin-bottom: 20px;">
           "फलित ज्योतिष एक अखंड साधना है, कोई 5-मिनट का कॉल सेंटर नहीं।"
         </div>
         <p style="font-size: 15px; color: var(--text); line-height: 1.7; max-width: 820px; margin: 0 auto;">
@@ -644,37 +676,37 @@
       </div>
 
       <!-- SCARCITY MATRIX CARD -->
-      <div style="background: var(--card); border: 1.5px solid var(--gold-border); border-radius: 20px; padding: 32px; max-width: 860px; margin: 0 auto 36px; box-shadow: 0 10px 35px rgba(0,0,0,0.04); text-align: center;">
-        <div style="font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 20px;">
-          ✦ SACRED SANCTUARY SCARCITY MATRIX ✦
+      <div style="background: var(--card); border: 1.5px solid var(--gold-border); border-radius: 20px; padding: 36px; max-width: 880px; margin: 0 auto 36px; box-shadow: 0 10px 35px rgba(197, 160, 89, 0.12); text-align: center;">
+        <div style="font-family: 'Cinzel', serif; font-size: 13px; font-weight: 800; letter-spacing: 2px; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 22px;">
+          SACRED SANCTUARY SCARCITY MATRIX
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px;">
-          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 16px;">
+          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
             <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Daily Cap</div>
             <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--heading-color); margin-top: 4px;">Strictly 1 Soul</div>
-            <div style="font-size: 11px; color: var(--gold); margin-top: 2px;">Per Solar Day</div>
+            <div style="font-size: 11px; color: var(--gold-dark); margin-top: 2px; font-weight: 600;">Per Solar Day</div>
           </div>
 
-          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 16px;">
+          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
             <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Reservations</div>
             <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--heading-color); margin-top: 4px;">Open Calendar</div>
-            <div style="font-size: 11px; color: var(--green); margin-top: 2px;">30 Open Solar Days</div>
+            <div style="font-size: 11px; color: var(--green); margin-top: 2px; font-weight: 700;">30 Open Solar Days</div>
           </div>
 
-          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 16px;">
+          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
             <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Sacred Honorarium</div>
-            <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--gold); margin-top: 4px;">₹5,100 / $99 USD</div>
-            <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">3-Hour Sacred Audit</div>
+            <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--gold-dark); margin-top: 4px;">₹5,100 / $99 USD</div>
+            <div style="font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600;">3-Hour Sacred Audit</div>
           </div>
         </div>
 
-        <p style="font-size: 12.5px; color: var(--muted); font-style: italic; max-width: 700px; margin: 0 auto 24px;">
+        <p style="font-size: 13px; color: var(--muted); font-style: italic; max-width: 740px; margin: 0 auto 26px; line-height: 1.6;">
           Includes: 90-Min Pre-Session Computational Audit (D1–D60) + 60-Min Private Sanctuary Session + Handcrafted Written PDF Remedies within 24 Hours.
         </p>
 
-        <!-- CTA BUTTON (LUMINOUS GOLD GLOW) -->
-        <a href="consultation.html" style="display: inline-block; background: linear-gradient(135deg, var(--gold) 0%, #8b6009 100%); color: #FFFFFF; font-family: 'Cinzel', serif; font-weight: 800; font-size: 15px; letter-spacing: 1px; padding: 16px 36px; border-radius: 12px; text-decoration: none; box-shadow: 0 8px 30px rgba(161, 116, 21, 0.4); transition: all 0.25s ease;">
+        <!-- CTA BUTTON -->
+        <a href="consultation.html" style="display: inline-block; background: linear-gradient(135deg, var(--gold2) 0%, var(--gold-dark) 100%); color: #FFFFFF; font-family: 'Cinzel', serif; font-weight: 800; font-size: 14.5px; letter-spacing: 1px; padding: 16px 38px; border-radius: 12px; text-decoration: none; box-shadow: 0 8px 30px rgba(140, 109, 43, 0.35); transition: all 0.25s ease;">
           ENTER THE PRIVATE SANCTUARY → (CHECK MONTHLY CALENDAR)
         </a>
       </div>
@@ -686,7 +718,7 @@
   <section id="course">
     <div class="section-wrap">
       <div class="section-header">
-        <div class="ornament">✦ World-Class Academy ✦</div>
+        <div class="ornament-line"></div>
         <h2>1-Year Vedic Astrology Mastery Program</h2>
         <p>From absolute beginner to confident practitioner — a structured 12-month sacred journey</p>
       </div>
@@ -695,7 +727,7 @@
         <div class="curriculum">
           <div class="curriculum-head">
             <h3>Course Curriculum & Structure</h3>
-            <p>📅 12 MONTHS · LIVE + RECORDED · CERTIFICATE</p>
+            <p>12 MONTHS · LIVE + RECORDED · CERTIFICATE</p>
           </div>
           <div class="quarter"><div class="q-label">Q1</div><div class="q-title">Foundations</div><div class="q-desc">History of Jyotish, 9 Planets, 12 Signs, 12 Houses, Basic Chart Reading, 27 Nakshatras & Panchanga</div></div>
           <div class="quarter"><div class="q-label">Q2</div><div class="q-title">Intermediate</div><div class="q-desc">Planetary Aspects, Yogas & Doshas, Divisional Charts (Navamsa, Dashamsa), Vimshottari Dasha, Ashtakavarga</div></div>
@@ -708,7 +740,7 @@
           <div class="price-card-old">₹32,000</div>
           <div class="price-card-new">₹24,000</div>
           <div class="price-card-emi">≈ USD 289 · EMI starting @ ₹1,175/month</div>
-          <button class="modal-btn" style="width:100%;margin-bottom:12px" onclick="window.location.href='payment.html'">✦ Enrol Now — ₹24,000</button>
+          <button class="modal-btn" style="width:100%;margin-bottom:12px" onclick="window.location.href='payment.html'">Enrol Now — ₹24,000</button>
           <div style="font-size:11px;color:var(--muted);text-align:center">Includes 48 Live Zoom Classes + Lifetime Recorded Access</div>
         </div>
       </div>
@@ -719,8 +751,7 @@
   <div class="modal-overlay" id="registerModal">
     <div class="modal">
       <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
-      <div style="font-size:32px;text-align:center;margin-bottom:8px">🌟</div>
-      <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--gold);text-align:center;margin-bottom:4px">Create Account</h2>
+      <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--heading-color);text-align:center;margin-bottom:4px">Create Account</h2>
       <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px">Access 360° Vedic Astrology Platform</p>
       
       <button class="modal-btn" type="button" onclick="loginWithGoogleGIS()" style="background:#ffffff;color:#374151;border:1px solid #d1d5db;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);width:100%;cursor:pointer;">
@@ -741,7 +772,7 @@
       <div class="mfield"><label>Email *</label><input type="email" id="reg_email" placeholder="arjun@email.com"/></div>
       <div class="mfield"><label>WhatsApp Number *</label><input type="tel" id="reg_phone" placeholder="+91 98765 43210"/></div>
       <div class="mfield"><label>Password *</label><input type="password" id="reg_pass" placeholder="Min 6 characters"/></div>
-      <button class="modal-btn" id="regBtn" onclick="doRegister()">✦ Create Account</button>
+      <button class="modal-btn" id="regBtn" onclick="doRegister()">Create Account</button>
       <div id="regErr" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px"></div>
     </div>
   </div>
@@ -750,8 +781,7 @@
   <div class="modal-overlay" id="loginModal">
     <div class="modal">
       <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
-      <div style="font-size:32px;text-align:center;margin-bottom:8px">🔐</div>
-      <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--gold);text-align:center;margin-bottom:4px">Welcome Back</h2>
+      <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--heading-color);text-align:center;margin-bottom:4px">Welcome Back</h2>
       <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px">Login to your account</p>
       
       <button class="modal-btn" type="button" onclick="loginWithGoogleGIS()" style="background:#ffffff;color:#374151;border:1px solid #d1d5db;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);width:100%;cursor:pointer;">
@@ -767,7 +797,7 @@
 
       <div class="mfield"><label>Email *</label><input type="email" id="login_email" placeholder="name@email.com"/></div>
       <div class="mfield"><label>Password *</label><input type="password" id="login_pass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-      <button class="modal-btn" id="loginBtn" onclick="doLogin()">✦ Login</button>
+      <button class="modal-btn" id="loginBtn" onclick="doLogin()">Login</button>
       <div id="loginErr" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px"></div>
     </div>
   </div>
@@ -777,30 +807,30 @@
     <div class="section-wrap">
       <div class="footer-grid">
         <div class="footer-brand">
-          <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold);font-weight:700">🪐 Shri Ramji Astro</div>
+          <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold-dark);font-weight:700">Shri Ramji Astro</div>
           <p>India's trusted 360° Vedic Astrological Platform. Founded by Astro Raamji with 25+ years of dedicated Jyotish practice.</p>
         </div>
         <div>
           <div class="footer-heading">Services & Tools</div>
           <div class="footer-links">
-            <a href="accurate-predictions.html">🔮 Astro 360 (Accurate Kundli Engine)</a>
-            <a href="vmm.html">💍 VIP Vivah Muhurt</a>
-            <a href="yajnopavita.html">🪔 VIP Yagyopavit Muhurt</a>
-            <a href="#consultation">🔮 Personal Consultation</a>
-            <a href="#course">📚 1-Year Jyotish Course</a>
+            <a href="accurate-predictions.html">Astro 360 (Accurate Kundli Engine)</a>
+            <a href="vmm.html">VIP Vivah Muhurt</a>
+            <a href="yajnopavita.html">VIP Yagyopavit Muhurt</a>
+            <a href="consultation.html">Personal Sanctuary Consultation</a>
+            <a href="#course">1-Year Jyotish Course</a>
           </div>
         </div>
         <div>
           <div class="footer-heading">Connect & Admin</div>
           <div class="footer-links">
-            <a href="admin.html">🔐 Admin Dashboard</a>
-            <a href="payment.html">💳 Online Payment</a>
-            <a href="https://wa.me/919517117775" target="_blank">📱 WhatsApp Helpline</a>
+            <a href="admin.html">Admin Dashboard</a>
+            <a href="payment.html">Online Payment</a>
+            <a href="https://wa.me/919517117775" target="_blank">WhatsApp Helpline</a>
           </div>
         </div>
       </div>
       <div class="footer-bottom">
-        <div>© 2025 Shri Ramji Astro · All Rights Reserved</div>
+        <div>© 2026 Shri Ramji Astro · All Rights Reserved</div>
         <div>360° Complete Vedic Astrological Platform</div>
       </div>
     </div>
@@ -810,249 +840,23 @@
   const SUPA_URL='https://jhnfrlgodpvdhvndpoam.supabase.co';
   const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
   const SH={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
-  
-  async function dbPost(table,data){
-    try {
-      const r = await fetch(SUPA_URL+'/rest/v1/'+table, {
-        method:'POST',
-        headers:{...SH,'Prefer':'return=representation'},
-        body:JSON.stringify(data)
-      });
-      return r.json();
-    } catch(e) {
-      console.log('Database post info:', e);
-    }
+
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('open');
   }
-
-  // DIRECT WHATSAPP DISPATCH + MAKE WEBHOOK + DB BACKUP FOR CONSULTATION FORM (+91 95171 17775)
-  async function submitConsultationRequest(e) {
-    e.preventDefault();
-    const btn = document.getElementById('c_btn');
-    const msg = document.getElementById('c_msg');
-    
-    const name = document.getElementById('c_name').value.trim();
-    const phone = document.getElementById('c_phone').value.trim();
-    const email = document.getElementById('c_email').value.trim();
-    const dob = document.getElementById('c_dob').value;
-    const tob = document.getElementById('c_tob').value;
-    const place = document.getElementById('c_place').value.trim();
-    const question = document.getElementById('c_question').value.trim();
-
-    btn.disabled = true;
-    btn.textContent = 'Opening WhatsApp...';
-
-    // 1. Format Professional WhatsApp Message
-    const waMessage = 
-      `🚩 *PERSONAL CONSULTATION REQUEST* 🚩\n` +
-      `*Shri Ramji Astro (shriramjiastro.in)*\n\n` +
-      `👤 *Full Name:* ${name}\n` +
-      `📱 *WhatsApp:* ${phone}\n` +
-      `📧 *Email:* ${email}\n` +
-      `📅 *Date of Birth:* ${dob}\n` +
-      `⏰ *Time of Birth:* ${tob}\n` +
-      `📍 *Place of Birth:* ${place}\n\n` +
-      `💬 *Primary Consultation Query:* \n` +
-      `"${question}"\n\n` +
-      `🙏🏻 Please confirm my 1-on-1 consultation session slot with Astro Raamji.`;
-
-    const targetPhone = '919517117775';
-    const waUrl = `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(waMessage)}`;
-
-    // 2. Save payload into Supabase Database as backup
-    const payload = {
-      full_name: name,
-      phone: phone,
-      email: email,
-      dob: dob,
-      tob: tob,
-      place_of_birth: place,
-      question: question,
-      status: 'pending',
-      created_at: new Date().toISOString()
-    };
-
-    try {
-      dbPost('consultations', payload);
-    } catch(err) {}
-
-    // 3. Send Webhook notification to Make.com
-    try {
-      fetch('https://hook.us2.make.com/ptf1fbzxqq0kmegfwiptjjp1xjuuaoup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'consultation_request',
-          title: `New Consultation Request from ${name}`,
-          content: waMessage,
-          full_name: name,
-          phone: phone,
-          email: email,
-          dob: dob,
-          tob: tob,
-          place_of_birth: place,
-          question: question,
-          submitted_at: new Date().toISOString()
-        })
-      }).catch(() => {});
-    } catch(e) {}
-
-    // 4. Render clear UI status with direct tap button
-    msg.innerHTML = `
-      <div style="background:rgba(37,211,102,0.12); border:1px solid #25D366; padding:12px; border-radius:10px; text-align:center; margin-top:12px;">
-        <p style="color:#25D366; font-weight:700; margin-bottom:8px; font-size:13px;">✅ Consultation Details Ready!</p>
-        <a href="${waUrl}" id="waDirectBtn" target="_blank" style="display:inline-block; background:#25D366; color:#ffffff; font-weight:800; padding:10px 18px; border-radius:8px; text-decoration:none; font-size:13px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
-          📱 Tap Here to Open WhatsApp & Send (+91 95171 17775)
-        </a>
-      </div>
-    `;
-    
-    // 5. Trigger immediate WhatsApp navigation
-    btn.disabled = false;
-    btn.textContent = '✦ Submit Consultation Request';
-    
-    window.location.href = waUrl;
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('open');
   }
-
-  // GOOGLE SIGN IN & DB USER PERSISTENCE
-  async function saveUserToDBAndSession(userObj) {
-    // Save locally
-    localStorage.setItem('sra_user_session', JSON.stringify(userObj));
-    
-    // Save to Database
-    try {
-      await dbPost('users', {
-        name: userObj.name,
-        email: userObj.email,
-        phone: userObj.phone || '',
-        avatar_url: userObj.picture || '',
-        created_at: new Date().toISOString()
-      });
-    } catch(e) {}
-
-    updateNavUserUI();
-    closeModal('loginModal');
-    closeModal('registerModal');
-    alert(`✓ Welcome ${userObj.name}! You are now signed in.`);
+  function toggleMobileMenu() {
+    const el = document.getElementById('mobileMenu');
+    if(el) el.classList.toggle('open');
   }
-
-  function loginWithGoogleGIS() {
-    const userEmail = prompt("Enter your Google Email Address to Sign In / Sign Up with Google:");
-    if (userEmail && userEmail.includes('@')) {
-      const namePart = userEmail.split('@')[0];
-      const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-      const googleUser = {
-        name: displayName,
-        email: userEmail.toLowerCase(),
-        picture: "https://lh3.googleusercontent.com/a/default-user=s96-c",
-        isVerified: true,
-        isAdmin: false,
-        created_at: new Date().toISOString()
-      };
-      saveUserToDBAndSession(googleUser);
-    }
+  function closeMobileMenu() {
+    const el = document.getElementById('mobileMenu');
+    if(el) el.classList.remove('open');
   }
-
-  function doRegister() {
-    const fname = document.getElementById('reg_fname').value.trim();
-    const lname = document.getElementById('reg_lname').value.trim();
-    const email = document.getElementById('reg_email').value.trim();
-    const phone = document.getElementById('reg_phone').value.trim();
-    const pass = document.getElementById('reg_pass').value;
-    const err = document.getElementById('regErr');
-
-    if (!fname || !email || !pass) {
-      err.textContent = "Please fill in all required fields.";
-      return;
-    }
-
-    const userObj = {
-      name: `${fname} ${lname}`.trim(),
-      email: email.toLowerCase(),
-      phone: phone,
-      picture: "logo.png",
-      isVerified: true,
-      isAdmin: false,
-      created_at: new Date().toISOString()
-    };
-
-    saveUserToDBAndSession(userObj);
-  }
-
-  function doLogin() {
-    const email = document.getElementById('login_email').value.trim();
-    const pass = document.getElementById('login_pass').value;
-    const err = document.getElementById('loginErr');
-
-    if (!email || !pass) {
-      err.textContent = "Please enter email and password.";
-      return;
-    }
-
-    const namePart = email.split('@')[0];
-    const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-    const userObj = {
-      name: displayName,
-      email: email.toLowerCase(),
-      picture: "logo.png",
-      isVerified: true,
-      isAdmin: (email.toLowerCase() === 'eshriee@gmail.com' || pass === '7775' || pass === '95171'),
-      created_at: new Date().toISOString()
-    };
-
-    saveUserToDBAndSession(userObj);
-  }
-
-  function updateNavUserUI() {
-    const saved = localStorage.getItem('sra_user_session');
-    const loginBtn = document.getElementById('loginNavBtn');
-    const regBtn = document.getElementById('regNavBtn');
-    const badge = document.getElementById('userProfileBadge');
-    const mobAuth = document.getElementById('mobAuthBtns');
-
-    if (saved) {
-      try {
-        const u = JSON.parse(saved);
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (regBtn) regBtn.style.display = 'none';
-        if (badge) {
-          badge.style.display = 'flex';
-          document.getElementById('userAvatarImg').src = u.picture || 'logo.png';
-          document.getElementById('userNameText').textContent = u.name.split(' ')[0];
-        }
-        if (mobAuth) {
-          mobAuth.innerHTML = `<div style="color:var(--gold);font-weight:700;font-size:12px;padding:6px;">👤 ${u.name.split(' ')[0]}</div><button class="btn-nav" onclick="doLogout()" style="color:var(--red);">Logout</button>`;
-        }
-      } catch(e) {}
-    } else {
-      if (loginBtn) loginBtn.style.display = 'inline-block';
-      if (regBtn) regBtn.style.display = 'inline-block';
-      if (badge) badge.style.display = 'none';
-    }
-  }
-
-  function doLogout() {
-    localStorage.removeItem('sra_user_session');
-    location.reload();
-  }
-
-  function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
-  function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
-  function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
-  function closeMobileMenu(){document.getElementById('mobileMenu').classList.remove('open')}
-
-  document.addEventListener('DOMContentLoaded', () => {
-    updateNavUserUI();
-  });
-
-  // Zodiac Ticker
-  (function(){
-    const signs=[['♈','Mesha'],['♉','Vrishabha'],['♊','Mithuna'],['♋','Karka'],['♌','Simha'],['♍','Kanya'],['♎','Tula'],['♏','Vrishchika'],['♐','Dhanu'],['♑','Makara'],['♒','Kumbha'],['♓','Meena']];
-    const t=document.getElementById('ticker');
-    if(t){
-      const items=[...signs,...signs].map(([sym,name])=>`<div class="ticker-item"><span style="color:var(--gold)">${sym}</span>${name}</div>`).join('');
-      t.innerHTML=items+items;
-    }
-  })();
   </script>
 </body>
 </html>
