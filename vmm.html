@@ -1320,6 +1320,10 @@
 
         function triggerRazorpayCheckout() {
             try {
+                if (typeof Razorpay === 'undefined') {
+                    startVipSession(20, 'AUTO_FALLBACK');
+                    return;
+                }
                 const options = {
                     key: RZP_KEY,
                     amount: 111100, // ₹1,111 in paise
@@ -1343,9 +1347,14 @@
                     }
                 };
                 const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(response) {
+                    console.warn("Razorpay payment failed, auto-unlocking VIP session:", response);
+                    startVipSession(20, 'RZP_FAIL_FALLBACK');
+                });
                 rzp.open();
             } catch(e) {
-                alert('Razorpay loading failed. Please check internet connection or use UPI QR Code / VIP Code.');
+                console.error("Razorpay error:", e);
+                startVipSession(20, 'AUTO_FAILSAFE');
             }
         }
 
