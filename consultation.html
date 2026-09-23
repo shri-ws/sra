@@ -331,22 +331,89 @@
             border-radius: 20px;
         }
 
+        .calendar-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #FFFDF9;
+            border: 1px solid var(--gold-border);
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .cal-nav-btn {
+            background: linear-gradient(135deg, var(--gold-base), var(--gold-dark));
+            color: #FFFFFF;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            outline: none;
+        }
+        .cal-nav-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(140, 109, 43, 0.3);
+        }
+        .cal-nav-btn:disabled {
+            background: #E2E8F0 !important;
+            color: #94A3B8 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+        }
+        .cal-month-display {
+            font-family: 'Cinzel', serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--maroon-deep);
+            letter-spacing: 0.5px;
+        }
+
+        .cal-weekdays-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .cal-weekday-hdr {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--gold-dark);
+            letter-spacing: 1px;
+            padding: 8px 0;
+            background: rgba(197, 160, 89, 0.08);
+            border-radius: 6px;
+        }
+
         .cal-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
         }
         .cal-slot {
             background: #FFFFFF;
             border: 1.5px solid var(--gold-champagne);
             border-radius: 12px;
-            padding: 14px 10px;
+            padding: 12px 4px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
             position: relative;
+            min-height: 82px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .cal-slot:hover {
+        .cal-slot:hover:not(.empty):not(.past):not(.restricted) {
             transform: scale(1.03);
             box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
             border-color: var(--gold-base);
@@ -362,6 +429,32 @@
         .cal-slot.selected .cal-day,
         .cal-slot.selected .cal-status {
             color: #FFFFFF !important;
+        }
+
+        .cal-slot.empty {
+            background: transparent !important;
+            border: none !important;
+            cursor: default !important;
+            pointer-events: none !important;
+            min-height: 82px;
+        }
+        .cal-slot.past {
+            background: #F8FAFC !important;
+            border: 1px solid #E2E8F0 !important;
+            cursor: not-allowed !important;
+            opacity: 0.55;
+        }
+        .cal-slot.past .cal-date-num {
+            color: #94A3B8 !important;
+        }
+        .cal-slot.past .cal-status {
+            color: #64748B !important;
+            background: #E2E8F0;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 8.5px;
+            font-weight: 600;
+            margin-top: 4px;
         }
 
         .cal-slot.restricted {
@@ -386,33 +479,76 @@
             background: #FEE2E2 !important;
             border-radius: 4px;
             padding: 2px 4px;
-            font-size: 9.5px;
+            font-size: 8.5px;
             font-weight: 700;
             margin-top: 4px;
         }
 
-
         .cal-day {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 700;
             text-transform: uppercase;
             color: var(--text-muted);
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .cal-date-num {
             font-family: 'Cinzel', serif;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--maroon-deep);
-            margin: 2px 0;
+            margin: 1px 0;
         }
         .cal-month {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--gold-dark);
         }
         .cal-status {
-            font-size: 9.5px;
+            font-size: 8.5px;
+            font-weight: 700;
+            color: var(--gold-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        @media (max-width: 650px) {
+            .calendar-controls {
+                padding: 8px 10px;
+            }
+            .cal-nav-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            .cal-month-display {
+                font-size: 14px;
+            }
+            .cal-weekdays-grid {
+                gap: 4px;
+            }
+            .cal-weekday-hdr {
+                font-size: 9px;
+                padding: 6px 0;
+            }
+            .cal-grid {
+                gap: 4px;
+            }
+            .cal-slot {
+                padding: 6px 2px;
+                border-radius: 8px;
+                min-height: 70px;
+            }
+            .cal-day {
+                font-size: 8.5px;
+            }
+            .cal-date-num {
+                font-size: 15px;
+            }
+            .cal-status {
+                font-size: 7.5px !important;
+                padding: 1px 2px !important;
+            }
+        }
+
             font-weight: 700;
             margin-top: 6px;
             color: var(--pass-green);
@@ -658,23 +794,45 @@
         <!-- MONTHLY CALENDAR GRID -->
         <div class="calendar-card" id="calendarSection">
             <div class="calendar-header">
-                <span class="calendar-title" id="txtCalTitle">Interactive Sanctuary Calendar (Next 30 Days)</span>
+                <span class="calendar-title" id="txtCalTitle">Sattvic Consultation Monthly Calendar</span>
                 <span class="calendar-scarcity" id="txtCalScarcity">Strict Cap Enforced: Exactly 1 Slot Available Daily</span>
             </div>
 
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;" id="txtCalInstruct">
-                Click on any available date below to select your reserved solar day slot.
+                Use the controls below to navigate months. Click on any available date to select your reserved solar day slot.
             </p>
 
-            <div style="font-size: 12.5px; color: #4A0E17; background: rgba(197, 160, 89, 0.12); border: 1px solid var(--gold-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; line-height: 1.5;" id="txtChandraRuleNotice">
+            <div style="font-size: 12.5px; color: #4A0E17; background: rgba(197, 160, 89, 0.12); border: 1px solid var(--gold-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; line-height: 1.5;" id="txtChandraRuleNotice">
                 🌙 <strong>Shastric Chandra Rashi Scrutiny:</strong> Consultations are strictly closed on dates when transiting Moon resides in Taurus (Vrishabha), Cancer (Kark), Virgo (Kanya), or Capricorn (Makar).
             </div>
 
+            <!-- MONTH NAVIGATION CONTROLS -->
+            <div class="calendar-controls">
+                <button type="button" class="cal-nav-btn" id="btnPrevMonth" onclick="changeMonth(-1)">
+                    <span id="txtPrevBtn">← Prev Month</span>
+                </button>
+                <div class="cal-month-display" id="txtCurrentMonthDisplay">September 2026</div>
+                <button type="button" class="cal-nav-btn" id="btnNextMonth" onclick="changeMonth(1)">
+                    <span id="txtNextBtn">Next Month →</span>
+                </button>
+            </div>
+
+            <!-- WEEKDAY HEADERS -->
+            <div class="cal-weekdays-grid">
+                <div class="cal-weekday-hdr">Sun</div>
+                <div class="cal-weekday-hdr">Mon</div>
+                <div class="cal-weekday-hdr">Tue</div>
+                <div class="cal-weekday-hdr">Wed</div>
+                <div class="cal-weekday-hdr">Thu</div>
+                <div class="cal-weekday-hdr">Fri</div>
+                <div class="cal-weekday-hdr">Sat</div>
+            </div>
 
             <div class="cal-grid" id="calGridContainer">
-                <!-- Dynamically generated open date slots -->
+                <!-- Dynamically generated month date slots -->
             </div>
         </div>
+
 
         <!-- INTAKE FORM SECTION -->
         <div class="intake-card" id="intakeSection">
@@ -822,6 +980,10 @@
         let currentLang = 'en';
         let selectedDateStr = '';
 
+        const todayDateObj = new Date();
+        let currentCalYear = todayDateObj.getFullYear();
+        let currentCalMonth = todayDateObj.getMonth();
+
         const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
         const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
 
@@ -846,10 +1008,13 @@
                 phase3Badge: "PHASE 3 • 30 MINUTES",
                 phase3Title: "Handcrafted Remedial Charter",
                 phase3Desc: "No generic gemstone marketing. You receive a personalized PDF detailing authentic Vedic mantras, directional daana (charity), lifestyle alignment, and protective timeframes within 24 hours.",
-                calTitle: "Interactive Sanctuary Calendar (Next 30 Days)",
+                calTitle: "Sattvic Consultation Monthly Calendar",
                 calScarcity: "Strict Cap Enforced: Exactly 1 Slot Available Daily",
-                calInstruct: "Click on any available date below to select your reserved solar day slot. Dates marked CLOSED are restricted under real-time Shastric Moon Sign scrutiny.",
+                calInstruct: "Use the controls below to navigate months. Click on any available date to select your reserved solar day slot.",
                 chandraRuleNotice: "🌙 <strong>Shastric Chandra Rashi Scrutiny:</strong> Consultations are strictly closed on dates when transiting Moon resides in Taurus (Vrishabha), Cancer (Kark), Virgo (Kanya), or Capricorn (Makar).",
+                prevBtn: "← Prev Month",
+                nextBtn: "Next Month →",
+                pastStatus: "Past Date",
                 honorariumLabel: "The Sacred Honorarium (दक्षिणा)",
                 honorariumAffirm: "This fee honors the 3 hours of focused intellectual and spiritual labor invested into your destiny roadmap. It guarantees uncompromised quality, complete confidentiality, and absolute adherence to classical Jyotish.",
                 formHeading: "Intake & Horoscope Verification Details",
@@ -889,10 +1054,13 @@
                 phase3Badge: "चरण 3 • 30 मिनट",
                 phase3Title: "शास्त्र-सम्मत उपचारात्मक आलेख (PDF)",
                 phase3Desc: "कोई भ्रामक रत्न व्यापार नहीं। आपको 24 घंटे के अंदर एक व्यक्तिगत लिखित PDF प्राप्त होता है, जिसमें प्रामाणिक वैदिक मंत्र, दान विधि और शुभ-अशुभ कालखंडों का स्पष्ट विवरण होता है।",
-                calTitle: "सात्त्विक परामर्श कैलेंडर (आगामी 30 दिन)",
+                calTitle: "सात्त्विक परामर्श मासिक कैलेंडर",
                 calScarcity: "सख्त मर्यादा: केवल 1 स्लॉट प्रतिदिन उपलब्ध",
-                calInstruct: "नीचे अपनी पसंदीदा उपलब्ध तिथि पर क्लिक करके अपना दिन आरक्षित करें। जिन दिनों पर 'बंद' अंकित है, वे शास्त्रीय चन्द्र राशि नियम के तहत स्वतः स्थगित हैं।",
+                calInstruct: "महीना बदलने के लिए नीचे दिए गए बटनों का उपयोग करें। अपनी पसंदीदा उपलब्ध तिथि पर क्लिक करके अपना दिन आरक्षित करें। जिन तिथियों पर 'बंद' अंकित है, वे शास्त्रीय चन्द्र राशि नियम के तहत स्वतः स्थगित हैं।",
                 chandraRuleNotice: "🌙 <strong>शास्त्र विधान (चन्द्र राशि वर्जन):</strong> चन्द्रमा के वृषभ, कर्क, कन्या या मकर राशि में गोचर के दौरान परामर्श पूर्णतः स्थगित रहता है।",
+                prevBtn: "← पिछला महीना",
+                nextBtn: "अगला महीना →",
+                pastStatus: "बीत चुका",
                 honorariumLabel: "पवित्र दक्षिणा विधान",
                 honorariumAffirm: "यह दक्षिणा आपके भाग्य चक्र पर समर्पित 3 घंटे के बौद्धिक, गणितीय और आध्यात्मिक श्रम का सम्मान है। यह गुणवत्ता, पूर्ण गोपनीयता और पराशर संहिता के नियमों की गारंटी है।",
                 formHeading: "जातक विवरण एवं जन्म विवरण",
@@ -948,6 +1116,17 @@
             document.getElementById('txtCalScarcity').textContent = d.calScarcity;
             document.getElementById('txtCalInstruct').textContent = d.calInstruct;
             document.getElementById('txtChandraRuleNotice').innerHTML = d.chandraRuleNotice;
+            document.getElementById('txtPrevBtn').textContent = d.prevBtn;
+            document.getElementById('txtNextBtn').textContent = d.nextBtn;
+
+            const weekHeaders = {
+                en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                hi: ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि']
+            };
+            const wList = weekHeaders[currentLang] || weekHeaders.en;
+            document.querySelectorAll('.cal-weekday-hdr').forEach((el, idx) => {
+                if (wList[idx]) el.textContent = wList[idx];
+            });
 
             document.getElementById('txtHonorariumLabel').textContent = d.honorariumLabel;
             document.getElementById('txtHonorariumAffirm').textContent = d.honorariumAffirm;
@@ -970,6 +1149,27 @@
             document.getElementById('txtTestimonialsSub').textContent = d.testimonialsSub;
             document.getElementById('txtFeedbackTitle').textContent = d.feedbackTitle;
             document.getElementById('txtFeedbackSub').textContent = d.feedbackSub;
+
+            renderDynamicCalendar();
+        }
+
+        function changeMonth(offset) {
+            currentCalMonth += offset;
+            if (currentCalMonth > 11) {
+                currentCalMonth = 0;
+                currentCalYear++;
+            } else if (currentCalMonth < 0) {
+                currentCalMonth = 11;
+                currentCalYear--;
+            }
+
+            const realYear = todayDateObj.getFullYear();
+            const realMonth = todayDateObj.getMonth();
+
+            if (currentCalYear < realYear || (currentCalYear === realYear && currentCalMonth < realMonth)) {
+                currentCalYear = realYear;
+                currentCalMonth = realMonth;
+            }
 
             renderDynamicCalendar();
         }
@@ -1072,95 +1272,130 @@
             return Math.floor(sidMoon / 30) + 1;
         }
 
-        // GENERATE DYNAMIC 30-DAY CALENDAR WITH AUTOMATIC CHANDRA RASHI SCRUTINY
+        // GENERATE DYNAMIC MONTHLY CALENDAR GRID WITH CHANDRA RASHI SCRUTINY
         function renderDynamicCalendar() {
             const container = document.getElementById('calGridContainer');
             if (!container) return;
             container.innerHTML = '';
 
-            const today = new Date();
+            const lang = currentLang || 'en';
+            const d = DICT[lang] || DICT.en;
+
+            const months = {
+                en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                hi: ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर']
+            };
             const daysOfWeek = {
                 en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
                 hi: ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि']
             };
-            const months = {
-                en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                hi: ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर']
-            };
 
-            const lang = currentLang || 'en';
-            const dayList = daysOfWeek[lang] || daysOfWeek.en;
             const monthList = months[lang] || months.en;
+            const dayList = daysOfWeek[lang] || daysOfWeek.en;
 
+            // Update Month Display Header
+            const monthDisplay = document.getElementById('txtCurrentMonthDisplay');
+            if (monthDisplay) {
+                monthDisplay.textContent = `${monthList[currentCalMonth]} ${currentCalYear}`;
+            }
+
+            // Disable Prev Month button if showing current real month
+            const realYear = todayDateObj.getFullYear();
+            const realMonth = todayDateObj.getMonth();
+            const btnPrev = document.getElementById('btnPrevMonth');
+            if (btnPrev) {
+                btnPrev.disabled = (currentCalYear === realYear && currentCalMonth === realMonth);
+            }
+
+            const firstDayIndex = new Date(currentCalYear, currentCalMonth, 1).getDay();
+            const totalDaysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+            // Render leading empty placeholder cells
+            for (let b = 0; b < firstDayIndex; b++) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'cal-slot empty';
+                container.appendChild(emptySlot);
+            }
+
+            const todayMidnight = new Date(todayDateObj.getFullYear(), todayDateObj.getMonth(), todayDateObj.getDate());
             let firstAvailableSlotFound = false;
 
-            for (let i = 0; i < 30; i++) {
-                const date = new Date();
-                date.setDate(today.getDate() + i);
-
+            for (let dayNum = 1; dayNum <= totalDaysInMonth; dayNum++) {
+                const date = new Date(currentCalYear, currentCalMonth, dayNum);
                 const dayName = dayList[date.getDay()];
-                const dateNum = date.getDate();
-                const monthName = monthList[date.getMonth()];
+                const monthNameShort = monthList[date.getMonth()].slice(0, 3);
                 const fullYear = date.getFullYear();
 
-                const isoDateStr = `${fullYear}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(dateNum).padStart(2, '0')}`;
-                const displayStr = `${dayName}, ${dateNum} ${monthName} ${fullYear}`;
-
-                const moonSignNum = getSiderealMoonSignForDate(date);
-                const isRestricted = RESTRICTED_MOON_SIGNS.includes(moonSignNum);
-                const rashiName = RASHI_NAMES[lang][moonSignNum] || RASHI_NAMES.en[moonSignNum];
+                const isoDateStr = `${fullYear}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                const displayStr = `${dayName}, ${dayNum} ${monthNameShort} ${fullYear}`;
 
                 const slot = document.createElement('div');
 
-                if (isRestricted) {
-                    slot.className = 'cal-slot restricted';
-                    slot.title = lang === 'hi' 
-                        ? `चन्द्रमा ${rashiName} राशि में है - परामर्श निषिद्ध` 
-                        : `Moon in ${rashiName} - Consultation Closed`;
-                    
-                    const statusText = lang === 'hi'
-                        ? `बंद • चंद्र: ${rashiName}`
-                        : `CLOSED • ${rashiName}`;
-
+                if (date < todayMidnight) {
+                    // PAST DATE
+                    slot.className = 'cal-slot past';
+                    const pastText = d.pastStatus || (lang === 'hi' ? 'बीत चुका' : 'Past Date');
                     slot.innerHTML = `
                         <div class="cal-day">${dayName}</div>
-                        <div class="cal-date-num">${dateNum}</div>
-                        <div class="cal-month">${monthName} ${fullYear}</div>
-                        <div class="cal-status" style="color: #991B1B; background: #FEE2E2;">${statusText}</div>
+                        <div class="cal-date-num">${dayNum}</div>
+                        <div class="cal-status">${pastText}</div>
                     `;
-                    slot.onclick = () => {
-                        alert(lang === 'hi' 
-                            ? `शास्त्रीय नियम: ${dateNum} ${monthName} को चन्द्रमा ${rashiName} राशि में रहने के कारण परामर्श स्थगित रहता है। कृपया किसी अन्य खुली तिथि का चयन करें।` 
-                            : `Shastric Rule: On ${dateNum} ${monthName}, transiting Moon is in ${rashiName}, so consultations are suspended. Please select an open date.`);
-                    };
                 } else {
-                    const isSelected = !firstAvailableSlotFound;
-                    if (isSelected) {
-                        firstAvailableSlotFound = true;
-                        selectedDateStr = displayStr;
-                        const resInput = document.getElementById('resDate');
-                        if (resInput) resInput.value = displayStr;
+                    // TODAY OR FUTURE DATE - CHANDRA RASHI CHECK
+                    const moonSignNum = getSiderealMoonSignForDate(date);
+                    const isRestricted = RESTRICTED_MOON_SIGNS.includes(moonSignNum);
+                    const rashiName = RASHI_NAMES[lang][moonSignNum] || RASHI_NAMES.en[moonSignNum];
+
+                    if (isRestricted) {
+                        slot.className = 'cal-slot restricted';
+                        slot.title = lang === 'hi' 
+                            ? `चन्द्रमा ${rashiName} राशि में है - परामर्श निषिद्ध` 
+                            : `Moon in ${rashiName} - Consultation Closed`;
+                        
+                        const statusText = lang === 'hi'
+                            ? `बंद • चंद्र: ${rashiName}`
+                            : `CLOSED • ${rashiName}`;
+
+                        slot.innerHTML = `
+                            <div class="cal-day">${dayName}</div>
+                            <div class="cal-date-num">${dayNum}</div>
+                            <div class="cal-status">${statusText}</div>
+                        `;
+                        slot.onclick = () => {
+                            alert(lang === 'hi' 
+                                ? `शास्त्रीय नियम: ${dayNum} ${monthList[currentCalMonth]} को चन्द्रमा ${rashiName} राशि में रहने के कारण परामर्श स्थगित रहता है। कृपया किसी अन्य खुली तिथि का चयन करें।` 
+                                : `Shastric Rule: On ${dayNum} ${monthList[currentCalMonth]}, transiting Moon is in ${rashiName}, so consultations are suspended. Please select an open date.`);
+                        };
+                    } else {
+                        // OPEN DATE
+                        const isSelected = (selectedDateStr === displayStr) || (!selectedDateStr && !firstAvailableSlotFound);
+                        if (isSelected && !firstAvailableSlotFound) {
+                            firstAvailableSlotFound = true;
+                            selectedDateStr = displayStr;
+                            const resInput = document.getElementById('resDate');
+                            if (resInput) resInput.value = displayStr;
+                        }
+
+                        slot.className = 'cal-slot' + (selectedDateStr === displayStr ? ' selected' : '');
+                        slot.dataset.date = displayStr;
+                        slot.dataset.isodate = isoDateStr;
+
+                        const openText = lang === 'hi' ? '1 सीट उपलब्ध' : '1 Seat Open';
+
+                        slot.innerHTML = `
+                            <div class="cal-day">${dayName}</div>
+                            <div class="cal-date-num">${dayNum}</div>
+                            <div class="cal-status">${openText}</div>
+                        `;
+
+                        slot.onclick = () => selectSlot(slot, displayStr);
                     }
-
-                    slot.className = 'cal-slot' + (isSelected ? ' selected' : '');
-                    slot.dataset.date = displayStr;
-                    slot.dataset.isodate = isoDateStr;
-
-                    const openText = lang === 'hi' ? '1 सीट उपलब्ध' : '1 Seat Open';
-
-                    slot.innerHTML = `
-                        <div class="cal-day">${dayName}</div>
-                        <div class="cal-date-num">${dateNum}</div>
-                        <div class="cal-month">${monthName} ${fullYear}</div>
-                        <div class="cal-status">${openText}</div>
-                    `;
-
-                    slot.onclick = () => selectSlot(slot, displayStr);
                 }
 
                 container.appendChild(slot);
             }
         }
+
 
         function selectSlot(el, dateStr) {
             document.querySelectorAll('.cal-slot').forEach(s => s.classList.remove('selected'));
