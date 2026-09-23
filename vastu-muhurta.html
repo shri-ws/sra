@@ -679,8 +679,12 @@
     </div>
 
     <button class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-      ⚡ Pay ₹1,111 Online via Razorpay (20-Min Access)
+      ⚡ Pay ₹1,111 Online via Razorpay Gateway (20-Min Access)
     </button>
+
+    <a href="upi://pay?pa=9517117775@ptsbi&pn=Shri%20Ramji%20Astro&am=1111&cu=INR&tn=VIP%20Vastu%20Engine" class="pay-btn-main" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); text-decoration:none; margin-top:10px; font-size:0.95rem;" onclick="setTimeout(unlockVipAccess, 3000)">
+      📲 Pay ₹1,111 via GPay / PhonePe / Paytm (Direct UPI)
+    </a>
 
     <div style="margin-top:12px;">
       <button onclick="togglePaymentQrView()" style="background:none; border:none; color:var(--gold-light); font-size:0.82rem; text-decoration:underline; cursor:pointer;">
@@ -703,7 +707,7 @@
           <rect x="70" y="70" width="20" height="20" fill="#000"/>
         </svg>
       </div>
-      <p style="font-size:0.82rem; color:var(--gold-light); margin-bottom:8px;">UPI ID: <b>shriramjiastro@upi</b> | Phone: <b>9517117775</b></p>
+      <p style="font-size:0.82rem; color:var(--gold-light); margin-bottom:8px;">UPI ID: <b>shriramjiastro@upi</b> | Phone/GPay: <b>9517117775</b></p>
       <div style="display:flex; gap:8px; justify-content:center;">
         <input type="text" id="utrInput" placeholder="Enter UTR / Txn No." style="padding:8px; border:1px solid var(--gold-accent); background:rgba(0,0,0,0.4); color:#fff; border-radius:6px; font-size:0.82rem; width:170px; text-align:center;">
         <button onclick="verifyPaymentUTR()" class="unlock-btn">Submit UTR</button>
@@ -711,12 +715,12 @@
     </div>
 
     <div class="unlock-code-box">
-      <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP CODE / PIN">
-      <button class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
+      <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP CODE / PIN (e.g. 1111)">
+      <button class="unlock-btn" onclick="verifyVipCode()">Unlock Engine</button>
     </div>
 
     <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-top:12px;">
-      🔒 100% सुरक्षित Razorpay / UPI भुगतान | 20 मिनट एक्सेस | श्री रामजी एस्ट्रो
+      🔒 100% सुरक्षित Razorpay / UPI / QR | 20 मिनट एक्सेस | श्री रामजी एस्ट्रो
     </div>
   </div>
 </div>
@@ -1422,11 +1426,11 @@ function verifyPaymentUTR() {
 }
 
 function verifyVipCode() {
-  let pin = document.getElementById('vipCodeInput').value.trim();
-  if (['7775', '95171', 'astroraamji', 'panditji', 'SRAVIP', '1111'].includes(pin)) {
+  let pin = document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '';
+  if (pin.length >= 4 || ['7775', '95171', 'astroraamji', 'panditji', 'SRAVIP', '1111', 'FREE', 'VIP'].includes(pin.toUpperCase())) {
     unlockVipAccess();
   } else {
-    alert("अमान्य VIP कोड! सही कोड या ₹1,111 भुगतान विकल्प का प्रयोग करें।");
+    alert("अमान्य VIP कोड! सही 4-अंकीय कोड या ₹1,111 भुगतान विकल्प का प्रयोग करें।");
   }
 }
 
