@@ -1319,43 +1319,17 @@
         }
 
         function triggerRazorpayCheckout() {
-            try {
-                if (typeof Razorpay === 'undefined') {
-                    startVipSession(20, 'AUTO_FALLBACK');
-                    return;
-                }
-                const options = {
-                    key: RZP_KEY,
-                    amount: 111100, // ₹1,111 in paise
-                    currency: 'INR',
-                    name: 'Shri Ramji Astro',
-                    description: 'VIP Vivah Muhurt & Matchmaking (20 Min Session)',
-                    prefill: {
-                        name: 'VIP User',
-                        email: 'user@shriramjiastro.in',
-                        contact: '9517117775'
-                    },
-                    theme: { color: '#C5A059' },
-                    handler: function(response) {
-                        const payId = response.razorpay_payment_id;
-                        startVipSession(20, payId);
-                    },
-                    modal: {
-                        ondismiss: function() {
-                            console.log('Payment modal dismissed');
-                        }
-                    }
-                };
-                const rzp = new Razorpay(options);
-                rzp.on('payment.failed', function(response) {
-                    console.warn("Razorpay payment failed, auto-unlocking VIP session:", response);
-                    startVipSession(20, 'RZP_FAIL_FALLBACK');
-                });
-                rzp.open();
-            } catch(e) {
-                console.error("Razorpay error:", e);
-                startVipSession(20, 'AUTO_FAILSAFE');
+            // Expand QR code view if present
+            const qrView = document.getElementById('paymentQrView');
+            if (qrView) qrView.style.display = 'block';
+
+            // Launch mobile UPI app on mobile devices
+            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                window.location.href = "upi://pay?pa=9517117775@ptsbi&pn=Shri%20Ramji%20Astro&am=1111&cu=INR&tn=VIP%20Vivah%20Engine";
             }
+
+            // Instantly unlock VIP 20-minute session
+            startVipSession(20, 'UPI_ONLINE_PAYMENT');
         }
 
         function togglePaymentQrView() {
