@@ -506,12 +506,39 @@
             renderFeed('all');
         }
 
+        function triggerSocialAutoPost(blogObj) {
+            const webhookUrl = 'https://hook.us2.make.com/ptf1fbzxqq0kmegfwiptjjp1xjuuaoup';
+            try {
+                const payload = {
+                    title: blogObj.title || 'Shri Ramji Astro New Update',
+                    content: blogObj.body || blogObj.text || '',
+                    category: blogObj.category || 'Astrology',
+                    author: blogObj.author || 'Astro Raamji',
+                    link: `https://shriramjiastro.in/about.html?post=${blogObj.id}`,
+                    image_url: 'https://shriramjiastro.in/logo.png',
+                    published_at: new Date().toISOString()
+                };
+                fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(() => {
+                    console.log('✓ Social Media Auto-Post Webhook dispatched successfully to Make.com');
+                }).catch(err => {
+                    console.log('Webhook dispatch completed:', err);
+                });
+            } catch (e) {
+                console.error('Webhook error:', e);
+            }
+        }
+
         function saveBlogToDatabase(blogObj) {
             Q_FEED.unshift(blogObj);
             localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
             if (window.saveBlogToSupabase) {
                 window.saveBlogToSupabase(blogObj);
             }
+            triggerSocialAutoPost(blogObj);
             renderFeed('all');
         }
 

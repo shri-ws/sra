@@ -10,11 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Hostinger DB Credentials (Update with your Hostinger DB details if needed)
-$db_host = "localhost";
-$db_user = "u928471928_sra_user";     // Hostinger MySQL Username
-$db_pass = "SraAstro360#2026";        // Hostinger MySQL Password
-$db_name = "u928471928_sra_db";       // Hostinger MySQL Database Name
+// Hostinger DB Credentials loaded securely from configuration file
+require_once __DIR__ . '/db_config.php';
 
 // Attempt DB Connection
 $conn = @new mysqli($db_host, $db_user, $db_pass, $db_name);

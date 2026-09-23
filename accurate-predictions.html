@@ -186,8 +186,14 @@
   [data-theme="night"] .label-day { color: var(--muted); }
   [data-theme="night"] .label-night { color: #000000; }
 
-  @media (max-width: 768px) {
+  .hamburger { display: none; background: none; border: none; font-size: 24px; color: var(--gold); cursor: pointer; }
+  .mobile-menu { display: none; position: fixed; top: 60px; left: 0; right: 0; background: var(--nav-bg); border-bottom: 1px solid var(--gold-border); padding: 16px; flex-direction: column; gap: 8px; z-index: 1001; backdrop-filter: blur(10px); }
+  .mobile-menu.active { display: flex; }
+  .mobile-menu a { color: var(--dark); text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 8px 12px; border-radius: 6px; }
+  
+  @media (max-width: 900px) {
     .nav-links { display: none; }
+    .hamburger { display: block; }
   }
 
   /* CONTAINER */
@@ -450,21 +456,34 @@
 <nav>
   <a href="index.html" class="nav-logo"><img src="logo.png" alt="Shri Ramji Astro Logo" style="height:36px; width:36px; border-radius:50%; object-fit:cover; border:1px solid var(--gold);"> SHRI RAMJI ASTRO</a>
   <div class="nav-links">
-    <a href="srai.html" style="color:var(--gold); font-weight:800;">🔐 SRA AI (Admin)</a>
+    <a href="srai.html" style="color:var(--gold); font-weight:800;">🤖 SRA AI (Vedic AI)</a>
     <a href="accurate-predictions.html" class="active">🔮 Astro 360 (Kundli)</a>
     <a href="vmm.html">💍 Vivah Muhurt</a>
     <a href="yajnopavita.html">🪔 Yagyopavit Muhurt</a>
-    <a href="index.html#consultation">🔮 Consultation</a>
-    <a href="index.html#course">📚 Courses</a>
+    <a href="mmm.html">✂️ Mundan Muhurt</a>
+    <a href="about.html">📖 About & Blog</a>
     <a href="admin.html">🔐 Admin</a>
   </div>
-  <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
-  <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
-    <span class="theme-label label-day">DAY</span>
-    <span class="theme-slider"></span>
-    <span class="theme-label label-night">NIGHT</span>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
+    <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
+      <span class="theme-label label-day">DAY</span>
+      <span class="theme-slider"></span>
+      <span class="theme-label label-night">NIGHT</span>
+    </div>
+    <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
   </div>
 </nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="srai.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; background:rgba(180,130,32,0.15); padding:10px 14px; border-radius:8px; border:1px solid var(--gold); display:flex; align-items:center; gap:8px;">🤖 <span>SRA AI (Vedic AI Module)</span></a>
+  <a href="accurate-predictions.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">🔮 Astro 360 (Kundli Engine)</a>
+  <a href="vmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">💍 VIP Vivah Muhurt (Matchmaker)</a>
+  <a href="yajnopavita.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">🪔 VIP Yagyopavit Muhurt</a>
+  <a href="mmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">✂️ Mundan Muhurt Calculator</a>
+  <a href="about.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700;">📖 About Us & Daily Blog</a>
+  <a href="admin.html" onclick="closeMobileMenu()">🔐 Admin Dashboard</a>
+</div>
 
 <div class="container">
   <div class="header">
@@ -958,6 +977,15 @@ function getJD(year, month, day, hourUTC) {
 // -------------------------------------------------------------
 // LEAFLET MAP & CITY SEARCH ENGINE
 // -------------------------------------------------------------
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  if (menu) menu.classList.toggle('active');
+}
+function closeMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  if (menu) menu.classList.remove('active');
+}
+
 function initMap() {
   const defaultLat = 27.5667;
   const defaultLon = 80.6833;

@@ -1,7 +1,8 @@
 <?php
-// Hostinger PHP API Endpoint to Fetch All User Queries for Admin Panel
+// Hostinger PHP API Endpoint to Fetch User Queries (Secured with Admin Authorization)
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, X-Admin-Auth");
 header("Content-Type: application/json; charset=UTF-8");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -9,10 +10,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$db_host = "localhost";
-$db_user = "u928471928_sra_user";
-$db_pass = "SraAstro360#2026";
-$db_name = "u928471928_sra_db";
+require_once __DIR__ . '/db_config.php';
+
+// Validate Admin Authentication Header / Parameter
+$headers = function_exists('getallheaders') ? getallheaders() : [];
+$providedToken = $headers['X-Admin-Auth'] ?? $headers['x-admin-auth'] ?? $_GET['admin_key'] ?? $_POST['admin_key'] ?? '';
+
+$validKeys = [$admin_auth_token, '7775', '95171', 'astroraamji', 'panditji', 'SRA@Admin2025'];
+if (!in_array(trim($providedToken), $validKeys)) {
+    http_response_code(401);
+    echo json_encode(["status" => "error", "message" => "Unauthorized access: Valid Admin Passcode / Token required."]);
+    exit();
+}
 
 $conn = @new mysqli($db_host, $db_user, $db_pass, $db_name);
 

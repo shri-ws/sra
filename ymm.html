@@ -466,13 +466,44 @@
             <img src="logo.png" alt="Shri Ramji Astro Logo" style="height:36px; width:36px; border-radius:50%; object-fit:cover; border:1px solid var(--gold);"> श्री रामजी एस्ट्रो
         </a>
         <div class="nav-links">
-            <a href="index.html">होम</a>
+            <a href="index.html">गृह (Home)</a>
             <a href="srai.html" style="color:var(--gold); font-weight:800;">🤖 SRA AI</a>
+            <a href="accurate-predictions.html" style="color:var(--gold); font-weight:700;">🔮 Astro 360</a>
             <a href="vmm.html">💍 विवाह मुहूर्त</a>
             <a href="yajnopavita.html" class="active">🪔 यज्ञोपवीत मुहूर्त</a>
             <button class="lang-switch" onclick="toggleLanguage()">English</button>
         </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu" style="background:none; border:none; font-size:24px; color:var(--gold); cursor:pointer;">☰</button>
+        </div>
     </nav>
+
+    <div class="mobile-menu" id="mobileMenu" style="display:none; position:fixed; top:60px; left:0; right:0; background:var(--nav-bg); border-bottom:1px solid var(--gold-border); padding:16px; flex-direction:column; gap:8px; z-index:999; backdrop-filter:blur(10px);">
+        <a href="srai.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; background:rgba(180,130,32,0.15); padding:10px 14px; border-radius:8px; border:1px solid var(--gold); text-decoration:none; display:flex; align-items:center; gap:8px;">🤖 <span>SRA AI (Vedic AI Module)</span></a>
+        <a href="accurate-predictions.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🔮 Astro 360 (Kundli Engine)</a>
+        <a href="vmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">💍 VIP Vivah Muhurt (Matchmaker)</a>
+        <a href="yajnopavita.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🪔 VIP Yagyopavit Muhurt</a>
+        <a href="mmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">✂️ Mundan Muhurt Calculator</a>
+        <a href="about.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">📖 About Us & Daily Blog</a>
+        <a href="admin.html" onclick="closeMobileMenu()" style="text-decoration:none; padding:8px 12px;">🔐 Admin Dashboard</a>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                if (menu.style.display === 'none' || !menu.style.display) {
+                    menu.style.display = 'flex';
+                } else {
+                    menu.style.display = 'none';
+                }
+            }
+        }
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.style.display = 'none';
+        }
+    </script>
 
     <!-- MAIN CONTAINER -->
     <div class="main-container">
@@ -1006,17 +1037,29 @@
                 };
             }
 
+            function getPlanetRetrograde(planetKey, T, ayanamsa) {
+                if (planetKey === 'sun' || planetKey === 'moon') return false;
+                if (planetKey === 'rahu' || planetKey === 'ketu') return true;
+                const dT = 0.05 / 36525.0;
+                const p1 = getGeocentricPlanet(planetKey, T - dT, ayanamsa);
+                const p2 = getGeocentricPlanet(planetKey, T + dT, ayanamsa);
+                let diff = p2.sidereal - p1.sidereal;
+                while (diff < -180) diff += 360;
+                while (diff > 180) diff -= 360;
+                return diff < 0;
+            }
+
             const planetsList = [
                 formatPlanetObj('Asc', 'Lagna', 'लग्न', ascNatal.deg, false),
                 formatPlanetObj('Sun', 'Sun', 'सूर्य', sunNatal.sidereal, false),
                 formatPlanetObj('Moon', 'Moon', 'चन्द्र', moonNatal.sidereal, false),
-                formatPlanetObj('Mars', 'Mars', 'मंगल', marsNatal.sidereal, false),
-                formatPlanetObj('Mercury', 'Mercury', 'बुध', mercNatal.sidereal, true),
-                formatPlanetObj('Jupiter', 'Jupiter', 'गुरु', jupNatal.sidereal, false),
-                formatPlanetObj('Venus', 'Venus', 'शुक्र', venNatal.sidereal, false),
-                formatPlanetObj('Saturn', 'Saturn', 'शनि', satNatal.sidereal, true),
-                formatPlanetObj('Rahu', 'Rahu', 'राहु', rahuSid, false),
-                formatPlanetObj('Ketu', 'Ketu', 'केतु', ketuSid, false)
+                formatPlanetObj('Mars', 'Mars', 'मंगल', marsNatal.sidereal, getPlanetRetrograde('mars', TNatal, ayanamsaNatal)),
+                formatPlanetObj('Mercury', 'Mercury', 'बुध', mercNatal.sidereal, getPlanetRetrograde('mercury', TNatal, ayanamsaNatal)),
+                formatPlanetObj('Jupiter', 'Jupiter', 'गुरु', jupNatal.sidereal, getPlanetRetrograde('jupiter', TNatal, ayanamsaNatal)),
+                formatPlanetObj('Venus', 'Venus', 'शुक्र', venNatal.sidereal, getPlanetRetrograde('venus', TNatal, ayanamsaNatal)),
+                formatPlanetObj('Saturn', 'Saturn', 'शनि', satNatal.sidereal, getPlanetRetrograde('saturn', TNatal, ayanamsaNatal)),
+                formatPlanetObj('Rahu', 'Rahu', 'राहु', rahuSid, true),
+                formatPlanetObj('Ketu', 'Ketu', 'केतु', ketuSid, true)
             ];
 
             renderNatalKundliCard(name, {

@@ -811,18 +811,48 @@
             <a href="index.html">गृह (Home)</a>
             <a href="srai.html" style="color:var(--gold); font-weight:800;">🤖 SRA AI</a>
             <a href="accurate-predictions.html" style="color:var(--gold); font-weight:700;">🔮 Astro 360</a>
-            <a href="course.html">पाठ्यक्रम (Courses)</a>
             <a href="vmm.html" class="active">कुण्डली मिलान (Matchmaking)</a>
-            <a href="payment.html">शुल्क भुगतान (Payment)</a>
+            <a href="yajnopavita.html">🪔 यज्ञोपवीत मुहूर्त</a>
+            <a href="mmm.html">✂️ मुंडन मुहूर्त</a>
             <a href="admin.html">एडमिन (Admin)</a>
         </div>
-        <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
-        <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
-            <span class="theme-label label-day">DAY</span>
-            <span class="theme-slider"></span>
-            <span class="theme-label label-night">NIGHT</span>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
+            <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
+                <span class="theme-label label-day">DAY</span>
+                <span class="theme-slider"></span>
+                <span class="theme-label label-night">NIGHT</span>
+            </div>
+            <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu" style="background:none; border:none; font-size:24px; color:var(--gold); cursor:pointer;">☰</button>
         </div>
     </nav>
+
+    <div class="mobile-menu" id="mobileMenu" style="display:none; position:fixed; top:60px; left:0; right:0; background:var(--nav-bg); border-bottom:1px solid var(--gold-border); padding:16px; flex-direction:column; gap:8px; z-index:999; backdrop-filter:blur(10px);">
+        <a href="srai.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; background:rgba(180,130,32,0.15); padding:10px 14px; border-radius:8px; border:1px solid var(--gold); text-decoration:none; display:flex; align-items:center; gap:8px;">🤖 <span>SRA AI (Vedic AI Module)</span></a>
+        <a href="accurate-predictions.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🔮 Astro 360 (Kundli Engine)</a>
+        <a href="vmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">💍 VIP Vivah Muhurt (Matchmaker)</a>
+        <a href="yajnopavita.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🪔 VIP Yagyopavit Muhurt</a>
+        <a href="mmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">✂️ Mundan Muhurt Calculator</a>
+        <a href="about.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">📖 About Us & Daily Blog</a>
+        <a href="admin.html" onclick="closeMobileMenu()" style="text-decoration:none; padding:8px 12px;">🔐 Admin Dashboard</a>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                if (menu.style.display === 'none' || !menu.style.display) {
+                    menu.style.display = 'flex';
+                } else {
+                    menu.style.display = 'none';
+                }
+            }
+        }
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.style.display = 'none';
+        }
+    </script>
 
     <!-- STICKY 20-MINUTE VIP SESSION TIMER BAR -->
     <div class="session-timer-bar" id="sessionTimerBar" style="display:none;">

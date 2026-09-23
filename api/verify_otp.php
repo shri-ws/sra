@@ -50,8 +50,8 @@ if (!$validOtp && file_exists($otpFile)) {
     }
 }
 
-// Universal bypass code for emergency admin testing (1234) or match real OTP
-if ($submittedOtp === $validOtp || $submittedOtp === "1234") {
+// Strictly verify against active generated OTP
+if ($validOtp && $submittedOtp === $validOtp) {
     // Clear used OTP
     unset($_SESSION[$sessionKey]);
 
@@ -64,10 +64,7 @@ if ($submittedOtp === $validOtp || $submittedOtp === "1234") {
     ];
 
     // Log to Hostinger DB
-    $db_host = "localhost";
-    $db_user = "u928471928_sra_user";
-    $db_pass = "SraAstro360#2026";
-    $db_name = "u928471928_sra_db";
+    require_once __DIR__ . '/db_config.php';
 
     $conn = @new mysqli($db_host, $db_user, $db_pass, $db_name);
     if (!$conn->connect_error) {

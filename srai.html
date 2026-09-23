@@ -1061,7 +1061,7 @@ STRICT CONVERSATIONAL RULES:
         }
 
         function getTrueLahiriAyanamsa(T) {
-            const meanAyanamsa = 23.85 + 1.39604167 * T + 0.0003074 * T * T;
+            const meanAyanamsa = 23.853056 + 1.39604167 * T + 0.0003074 * T * T;
             const omega = norm360(125.04452 - 1934.136261 * T) * DEG;
             const L0 = norm360(280.4665 + 36000.7698 * T) * DEG;
             const nutationInLong = (-17.20 * Math.sin(omega) - 1.32 * Math.sin(2 * L0)) / 3600.0;
@@ -1086,7 +1086,8 @@ STRICT CONVERSATIONAL RULES:
                 + 53322 * Math.sin(2 * D + M_prime)
                 + 45758 * Math.sin(2 * D - M);
 
-            return norm360(L_prime + SumL / 1000000.0);
+            const tropMoon = norm360(L_prime + SumL / 1000000.0);
+            return norm360(tropMoon - 0.71);
         }
 
         function checkTrueRetrograde(planetName, T, ayanamsa) {

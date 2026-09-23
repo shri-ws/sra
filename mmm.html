@@ -310,7 +310,7 @@
             <a href="vmm.html">Vivah Muhurt</a>
             <a href="ymm.html">Yajnopavita</a>
             <a href="mmm.html" class="active">Mundan Muhurt</a>
-            <a href="course.html">Courses</a>
+            <a href="about.html">About & Blog</a>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
             <div class="lang-switch">
@@ -322,8 +322,36 @@
                 <span class="theme-label label-day">DAY</span>
                 <span class="theme-label label-night">NIGHT</span>
             </div>
+            <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu" style="background:none; border:none; font-size:24px; color:var(--gold); cursor:pointer;">☰</button>
         </div>
     </nav>
+
+    <div class="mobile-menu" id="mobileMenu" style="display:none; position:fixed; top:60px; left:0; right:0; background:var(--nav-bg); border-bottom:1px solid var(--gold-border); padding:16px; flex-direction:column; gap:8px; z-index:999; backdrop-filter:blur(10px);">
+        <a href="srai.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; background:rgba(180,130,32,0.15); padding:10px 14px; border-radius:8px; border:1px solid var(--gold); text-decoration:none; display:flex; align-items:center; gap:8px;">🤖 <span>SRA AI (Vedic AI Module)</span></a>
+        <a href="accurate-predictions.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🔮 Astro 360 (Kundli Engine)</a>
+        <a href="vmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">💍 VIP Vivah Muhurt (Matchmaker)</a>
+        <a href="yajnopavita.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🪔 VIP Yagyopavit Muhurt</a>
+        <a href="mmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">✂️ Mundan Muhurt Calculator</a>
+        <a href="about.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">📖 About Us & Daily Blog</a>
+        <a href="admin.html" onclick="closeMobileMenu()" style="text-decoration:none; padding:8px 12px;">🔐 Admin Dashboard</a>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                if (menu.style.display === 'none' || !menu.style.display) {
+                    menu.style.display = 'flex';
+                } else {
+                    menu.style.display = 'none';
+                }
+            }
+        }
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.style.display = 'none';
+        }
+    </script>
 
     <div class="container">
         

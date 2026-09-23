@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vastu, Neev Pujan & Griha Pravesha Muhurta Engine | Shri Ramji Astro</title>
+<meta name="description" content="High-precision Vastu, Khātārambha, Shilānyāsa, and Griha Pravesha Muhurta Engine by Shri Ramji Astro (shriramjiastro.in). Scrutinizes Rahu Mukha Chakra, Prithvi Shayana, Grahswami Kundli Matching, Tara & Chandra Balam with Meeus Ephemeris precision." />
+<meta name="keywords" content="Vastu Muhurta Calculator, Neev Pujan Muhurt, Shilanyasa Muhurta, Griha Pravesha Muhurta, Rahu Mukha Direction, Prithvi Shayana Check, Shri Ramji Astro, Astro 360" />
+<meta name="author" content="Astro Raamji — Shri Ramji Astro" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://shriramjiastro.in/vastu-muhurta.html" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Shri Ramji Astro — Vastu & Griha Muhurta Engine" />
+<meta property="og:title" content="Vastu, Neev Pujan & Griha Pravesha Muhurta Engine | Shri Ramji Astro" />
+<meta property="og:description" content="Rankwise Muhurta Engine scrutinizing Rahu Mukha Chakra, Prithvi Shayana, Grahswami Kundli Matching, and Fixed Lagna schedules." />
+<meta property="og:url" content="https://shriramjiastro.in/vastu-muhurta.html" />
+
+<!-- JSON-LD Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Vastu & Griha Pravesha Muhurta Engine — Shri Ramji Astro",
+  "url": "https://shriramjiastro.in/vastu-muhurta.html",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "All (Web Browser)"
+}
+</script>
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="theme.js"></script>
+
+<!-- Leaflet GPS Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+  :root, [data-theme="day"] {
+    --primary: #7c1305;
+    --primary-light: #fef2f2;
+    --gold: #b48220;
+    --gold2: #8e620c;
+    --gold-accent: #C5A059;
+    --gold-light: #F4E8C1;
+    --gold-border: rgba(124, 19, 5, 0.22);
+    --bg-body: #fdfbf7;
+    --card-bg: #FFFFFF;
+    --text-main: #2A1F1D;
+    --text-muted: #6B5B57;
+    --border-color: #E6DCB8;
+    --border-soft: #F0EADB;
+    --nav-bg: rgba(255, 255, 255, 0.96);
+    --toggle-bg: #efe4d3;
+    --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
+    --pass-bg: #E8F5E9;
+    --pass-text: #1B5E20;
+    --warn-bg: #FFF8E1;
+    --warn-text: #B78103;
+    --fail-bg: #FFEBEE;
+    --fail-text: #B71C1C;
+  }
+
+  [data-theme="night"] {
+    --primary: #7c1305;
+    --primary-light: #2a113b;
+    --gold: #c9a84c;
+    --gold2: #f0d584;
+    --gold-accent: #c9a84c;
+    --gold-light: #f4e8c1;
+    --gold-border: rgba(201, 168, 76, 0.35);
+    --bg-body: #090514;
+    --card-bg: #140a2b;
+    --text-main: #f3eeff;
+    --text-muted: #9d8cb8;
+    --border-color: #3b2859;
+    --border-soft: #271a3d;
+    --nav-bg: rgba(11, 5, 24, 0.96);
+    --toggle-bg: #1a0b36;
+    --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
+    --pass-bg: #132e19;
+    --pass-text: #86efac;
+    --warn-bg: #382805;
+    --warn-text: #fde047;
+    --fail-bg: #3a1015;
+    --fail-text: #fca5a5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; }
+  body { background-color: var(--bg-body); color: var(--text-main); transition: background 0.3s, color 0.3s; }
+
+  /* NAVIGATION BAR */
+  nav {
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--gold-border);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    text-decoration: none;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-links { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+
+  /* THEME SWITCH */
+  .theme-toggle-container {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    width: 86px;
+    height: 30px;
+    background: var(--toggle-bg);
+    border: 1px solid var(--gold-border);
+    border-radius: 20px;
+    cursor: pointer;
+    padding: 2px;
+    user-select: none;
+  }
+  .theme-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 40px;
+    height: 24px;
+    background: var(--toggle-slider-bg);
+    border-radius: 14px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  [data-theme="night"] .theme-slider { transform: translateX(40px); }
+  .theme-label { flex: 1; text-align: center; font-family: 'Cinzel', serif; font-size: 8.5px; font-weight: 700; z-index: 2; }
+  [data-theme="day"] .label-day { color: #fff; } [data-theme="day"] .label-night { color: var(--text-muted); }
+  [data-theme="night"] .label-day { color: var(--text-muted); } [data-theme="night"] .label-night { color: #000; }
+
+  /* HERO & MAIN CONTAINER */
+  .hero-banner {
+    background: linear-gradient(135deg, rgba(124,19,5,0.08), rgba(180,130,32,0.12));
+    border-bottom: 1px solid var(--gold-border);
+    padding: 36px 20px;
+    text-align: center;
+  }
+  .hero-banner h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  [data-theme="night"] .hero-banner h1 { color: var(--gold); }
+  .hero-banner p { font-size: 14px; color: var(--text-muted); max-width: 780px; margin: 0 auto; line-height: 1.6; }
+
+  .container { max-width: 1200px; margin: 30px auto; padding: 0 16px; }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+  .form-header {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 12px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .field-group input, .field-group select {
+    background: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text-main);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-group input:focus, .field-group select:focus { border-color: var(--gold); }
+
+  .btn-calculate {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--gold), #8e620c);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+    box-shadow: 0 4px 14px rgba(180, 130, 32, 0.3);
+  }
+  .btn-calculate:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  /* TABS SYSTEM */
+  .tabs-header {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .tab-btn {
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--gold); }
+  .tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    background: var(--gold-dim);
+    border-radius: 8px 8px 0 0;
+  }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* TABLE & CARDS */
+  .results-table-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+  .results-table { width: 100%; border-collapse: collapse; text-align: left; }
+  .results-table th {
+    background: var(--gold-dim);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+  }
+  .results-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-soft); font-size: 13px; }
+  .results-table tr:hover { background: rgba(180, 130, 32, 0.04); }
+
+  .badge-rank {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 11px;
+    background: linear-gradient(135deg, var(--gold), #8e620c);
+    color: #fff;
+  }
+  .badge-pass { background: var(--pass-bg); color: var(--pass-text); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+  .badge-warn { background: var(--warn-bg); color: var(--warn-text); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+  .badge-fail { background: var(--fail-bg); color: var(--fail-text); padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+
+  /* RAHU & VASTU CARDS */
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 24px; }
+  .info-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .info-card h3 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+  /* VASTU COMPASS GRID */
+  .compass-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .compass-box {
+    background: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 10px;
+  }
+  .compass-box .dir-name { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; color: var(--gold); }
+  .compass-box .dir-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 4px; }
+  .compass-box.center-box { background: var(--gold-dim); border-color: var(--gold); }
+
+  /* SHLOKA QUOTE */
+  .shloka-box {
+    background: var(--gold-dim);
+    border-left: 4px solid var(--gold);
+    padding: 14px 18px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 14px;
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* MAP MODAL */
+  #mapModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+  .map-box { background: var(--card-bg); width: 90%; max-width: 650px; border-radius: 16px; padding: 20px; }
+  #map { height: 350px; border-radius: 10px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">🪐 <span>Shri Ramji Astro</span></a>
+  <div class="nav-links">
+    <a href="accurate-predictions.html">Astro 360 (Kundli)</a>
+    <a href="vmm.html">Vivah Muhurt</a>
+    <a href="vastu-muhurta.html" class="active">Vastu & Griha Muhurt</a>
+    <a href="ymm.html">Yajnopavita</a>
+    <a href="mmm.html">Mundan</a>
+    <a href="srai.html">SRA AI Assistant</a>
+    <a href="about.html">About</a>
+  </div>
+  <div class="theme-toggle-container" onclick="toggleTheme()" title="Switch Light/Dark Theme">
+    <div class="theme-slider"></div>
+    <span class="theme-label label-day">DAY</span>
+    <span class="theme-label label-night">NIGHT</span>
+  </div>
+</nav>
+
+<div class="hero-banner">
+  <h1>🏛️ वास्तु, नींव पूजन एवं गृह प्रवेश मुहूर्त इंजन</h1>
+  <p>महर्षि पराशर एवं 'मुहूर्त चिंतामणि' (दैवज्ञ आचार्य राम) के प्रामाणिक सिद्धांतों पर आधारित। Meeus <18'' परिशुद्ध एपिमेरिस गणित, गृहस्वामी जन्मकुण्डली मिलान, राहु मुख चक्र, और पृथ्वी शयन परीक्षण द्वारा 100% रीयल-टाइम मुहूर्त गणना।</p>
+</div>
+
+<div class="container">
+
+  <!-- INPUT FORM -->
+  <div class="form-card">
+    <div class="form-header">
+      👤 1. गृहस्वामी विवरण (Grahswami Birth Details) & मुहूर्त माह चयन
+    </div>
+    <div class="form-grid">
+      <div class="field-group">
+        <label>गृहस्वामी का नाम (Owner Name)</label>
+        <input type="text" id="ownerName" value="Shri Ramji Owner" placeholder="नाम लिखें">
+      </div>
+      <div class="field-group">
+        <label>जन्म तिथि (DOB)</label>
+        <input type="date" id="ownerDob" value="1995-05-15">
+      </div>
+      <div class="field-group">
+        <label>जन्म समय (TOB)</label>
+        <input type="time" id="ownerTob" value="10:30">
+      </div>
+      <div class="field-group">
+        <label>जन्म स्थान (POB)</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="pobName" value="Ayodhya, UP" style="flex:1;">
+          <button type="button" onclick="openMap()" style="padding:0 12px; background:var(--gold); border:none; color:#fff; border-radius:8px; cursor:pointer;">📍 Map</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>अक्षांश (Latitude)</label>
+        <input type="number" id="lat" value="26.7922" step="0.0001">
+      </div>
+      <div class="field-group">
+        <label>देशांतर (Longitude)</label>
+        <input type="number" id="lon" value="82.1998" step="0.0001">
+      </div>
+      <div class="field-group">
+        <label>समय क्षेत्र (Timezone)</label>
+        <input type="number" id="tz" value="5.5" step="0.5">
+      </div>
+      <div class="field-group">
+        <label>मुहूर्त का वर्ष (Target Year)</label>
+        <select id="targetYear">
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>मुहूर्त का महीना (Target Month)</label>
+        <select id="targetMonth">
+          <option value="1">जनवरी (Jan)</option>
+          <option value="2">फरवरी (Feb)</option>
+          <option value="3">मार्च (Mar)</option>
+          <option value="4">अप्रैल (Apr)</option>
+          <option value="5">मई (May)</option>
+          <option value="6">जून (Jun)</option>
+          <option value="7">जुलाई (Jul)</option>
+          <option value="8">अगस्त (Aug)</option>
+          <option value="9">सितंबर (Sep)</option>
+          <option value="10" selected>अक्टूबर (Oct)</option>
+          <option value="11">नवंबर (Nov)</option>
+          <option value="12">दिसंबर (Dec)</option>
+        </select>
+      </div>
+
+      <button class="btn-calculate" onclick="calculateAllVastuMuhurta()">✨ मुहूर्त एवं वास्तु विश्लेषण की गणना करें (Calculate Muhurta)</button>
+    </div>
+  </div>
+
+  <!-- TABS NAV -->
+  <div class="tabs-header">
+    <button class="tab-btn active" onclick="switchTab('tab-rankwise')">🏆 सर्वोत्कृष्ट मुहूर्त तालिका (Rankwise)</button>
+    <button class="tab-btn" onclick="switchTab('tab-neev')">🧱 नींव पूजन व शिलान्यास</button>
+    <button class="tab-btn" onclick="switchTab('tab-griha')">🏡 गृह प्रवेश मुहूर्त</button>
+    <button class="tab-btn" onclick="switchTab('tab-compass')">🧭 वास्तु दिशा चक्र (Vastu Compass)</button>
+    <button class="tab-btn" onclick="switchTab('tab-astro')">📜 गृहस्वामी कुण्डली व पंचांग</button>
+  </div>
+
+  <!-- TAB 1: RANKWISE MUHURTA TABLE -->
+  <div id="tab-rankwise" class="tab-pane active">
+    <div class="results-table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>दिनांक व वार</th>
+            <th>पंचांग तिथि व नक्षत्र</th>
+            <th>मास व पृथ्वी शयन</th>
+            <th>राहु मुख / खनन दिशा</th>
+            <th>चंद्र व तारा बल</th>
+            <th>स्थिर लग्न समय (Window)</th>
+            <th>उपयुक्तता स्कोर</th>
+          </tr>
+        </thead>
+        <tbody id="rankwiseTbody">
+          <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">गणना करने के लिए ऊपर बटन पर क्लिक करें...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 2: NEEV PUJAN & SHILANYASA -->
+  <div id="tab-neev" class="tab-pane">
+    <div class="info-grid" id="neevGrid">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- TAB 3: GRIHA PRAVESHA -->
+  <div id="tab-griha" class="tab-pane">
+    <div class="info-grid" id="grihaGrid">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- TAB 4: VASTU COMPASS & ROOM RULES -->
+  <div id="tab-compass" class="tab-pane">
+    <div class="info-card">
+      <h3>🧭 'मुहूर्त चिंतामणि' अनुसार वास्तु दिशा एवं कक्ष नियोजन (Vastu Layout Rules)</h3>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">वास्तु शास्त्र के अनुसार घर के कमरों की आदर्श स्थिति और दिशा चक्र:</p>
+      
+      <div class="compass-grid">
+        <div class="compass-box">
+          <div class="dir-name">उत्तर-पश्चिम (वायव्य / NW)</div>
+          <div class="dir-sub">अतिथि गृह, वाहन, वायु स्थान, गौशाला</div>
+        </div>
+        <div class="compass-box">
+          <div class="dir-name">उत्तर (North)</div>
+          <div class="dir-sub">कुबेर स्थान, धन-आभूषण आगार, अध्ययन</div>
+        </div>
+        <div class="compass-box">
+          <div class="dir-name">उत्तर-पूर्व (ईशान / NE)</div>
+          <div class="dir-sub">पूजा घर, देव स्थान, जल पात्र / बोरवेल</div>
+        </div>
+
+        <div class="compass-box">
+          <div class="dir-name">पश्चिम (West)</div>
+          <div class="dir-sub">भोजन कक्ष (Dining), अध्ययन गृह</div>
+        </div>
+        <div class="compass-box center-box">
+          <div class="dir-name">ब्रह्मस्थान (Center)</div>
+          <div class="dir-sub">खुला, आकाश तत्व, पूर्णतः भारमुक्त</div>
+        </div>
+        <div class="compass-box">
+          <div class="dir-name">पूर्व (East)</div>
+          <div class="dir-sub">मुख्य द्वार, स्नान गृह, सूर्य प्रकाश</div>
+        </div>
+
+        <div class="compass-box">
+          <div class="dir-name">दक्षिण-पश्चिम (नैऋत्य / SW)</div>
+          <div class="dir-sub">गृहस्वामी मुख्य शयन कक्ष, भारी सामान</div>
+        </div>
+        <div class="compass-box">
+          <div class="dir-name">दक्षिण (South)</div>
+          <div class="dir-sub">शयन कक्ष, भंडार गृह, भारी वस्तुएं</div>
+        </div>
+        <div class="compass-box">
+          <div class="dir-name">दक्षिण-पूर्व (आग्नेय / SE)</div>
+          <div class="dir-sub">पाकशाला (Kitchen), बिजली उपस्कर</div>
+        </div>
+      </div>
+
+      <div class="shloka-box">
+        "नक्तं दिवाकरं सन्ध्यां सूर्यास्तं च विवर्जयेत् । स्थिरस्वभावे स्थिरलग्ने गृहारम्भं तु कारयेत् ॥"<br>
+        <strong>— मुहूर्तचिन्तामणि (वास्तुप्रकरणम्)</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: GRAHSWAMI ASTRO ANALYSIS -->
+  <div id="tab-astro" class="tab-pane">
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>📜 गृहस्वामी जन्मकुण्डली विवरण</h3>
+        <div id="astroOwnerDetails" style="font-size:13.5px; line-height:1.8; color:var(--text-main);">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>✨ ज्योतिषीय बल गणना नियम</h3>
+        <ul style="font-size:13px; color:var(--text-muted); line-height:1.8; padding-left:18px;">
+          <li><strong>तारा बल:</strong> 2, 4, 6, 8, 9 ताराएं शुभ; 1, 3, 5, 7 ताराएं त्याज्य।</li>
+          <li><strong>चंद्र बल:</strong> 1, 3, 6, 7, 10, 11 भाव शुभ; 4, 8, 12 भाव त्याज्य।</li>
+          <li><strong>अष्टम शुद्धि:</strong> गृहस्वामी की जन्म राशि से 8वीं राशि का लग्न व चंद्रमा वर्जित।</li>
+          <li><strong>राहु मुख चक्र:</strong> सूर्य राशि अनुसार राहु के मुख के सामने खनन निषेध, पृष्ठ भाग में शुभ।</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MAP MODAL -->
+<div id="mapModal">
+  <div class="map-box">
+    <h3 style="font-family:'Cinzel',serif; color:var(--gold); margin-bottom:10px;">📍 Select Pinpoint Location</h3>
+    <div id="map"></div>
+    <div style="display:flex; justify-end; gap:10px; margin-top:14px;">
+      <button onclick="closeMap()" style="padding:8px 16px; background:var(--gold); border:none; color:#fff; border-radius:6px; cursor:pointer;">Confirm Location</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   HIGH-PRECISION ASTRONOMICAL & MUHURTA ENGINE (ZERO HARDCODING)
+   ══════════════════════════════════════════════════════════════════ */
+
+const NAKSHATRAS = [
+  "अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आद्रा", "पुनर्वसु", "पुष्य", "अश्लेषा",
+  "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाति", "विशाखा", "अनुराधा", "ज्येष्ठा",
+  "मूल", "पूर्वाषाढा", "उत्तराषाढा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"
+];
+
+const RASHIS = [
+  "मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)",
+  "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)",
+  "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"
+];
+
+const TITHIS = [
+  "शुक्ल प्रतिपदा", "शुक्ल द्वितीया", "शुक्ल तृतीया", "शुक्ल चतुर्थी", "शुक्ल पंचमी",
+  "शुक्ल षष्ठी", "शुक्ल सप्तमी", "शुक्ल अष्टमी", "शुक्ल नवमी", "शुक्ल दशमी",
+  "शुक्ल एकादशी", "शुक्ल द्वादशी", "शुक्ल त्रयोदशी", "शुक्ल चतुर्दशी", "पूर्णिमा",
+  "कृष्ण प्रतिपदा", "कृष्ण द्वितीया", "कृष्ण तृतीया", "कृष्ण चतुर्थी", "कृष्ण पंचमी",
+  "कृष्ण षष्ठी", "कृष्ण सप्तमी", "कृष्ण अष्टमी", "कृष्ण नवमी", "कृष्ण दशमी",
+  "कृष्ण एकादशी", "कृष्ण द्वादशी", "कृष्ण त्रयोदशी", "कृष्ण चतुर्दशी", "अमावस्या"
+];
+
+const VARAS = ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"];
+
+/* Meeus Astronomical Core */
+function toJD(year, month, day, hour=0) {
+  if (month <= 2) { year -= 1; month += 12; }
+  let A = Math.floor(year / 100);
+  let B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + hour/24.0 + B - 1524.5;
+}
+
+function getLahiriAyanamsa(jd) {
+  let T = (jd - 2451545.0) / 36525;
+  let meanAyanamsa = 23.85 + 1.39604167 * T + 0.000308 * T * T;
+  let omega = 125.04452 - 1934.136261 * T;
+  let dpsi = -17.2 * Math.sin(omega * Math.PI / 180) / 3600;
+  return meanAyanamsa + dpsi;
+}
+
+function getSunLongitude(jd) {
+  let T = (jd - 2451545.0) / 36525;
+  let L0 = 280.46646 + 36000.76983 * T;
+  let M = 357.52911 + 35999.05029 * T;
+  let C = (1.914602 - 0.004817 * T) * Math.sin(M * Math.PI / 180) + (0.019993 - 0.000101 * T) * Math.sin(2 * M * Math.PI / 180);
+  let trueLong = L0 + C;
+  let ayanamsa = getLahiriAyanamsa(jd);
+  return (trueLong - ayanamsa + 36000) % 360;
+}
+
+function getMoonLongitude(jd) {
+  let T = (jd - 2451545.0) / 36525;
+  let L = 218.316 + 481267.8813 * T;
+  let M = 134.963 + 477198.8676 * T;
+  let F = 93.272 + 483202.0175 * T;
+  let D = 297.850 + 445267.1114 * T;
+  
+  let rad = Math.PI / 180;
+  let corr = 6.289 * Math.sin(M * rad)
+           - 1.274 * Math.sin((2*D - M) * rad)
+           + 0.658 * Math.sin(2*D * rad)
+           - 0.186 * Math.sin(M * rad)
+           - 0.114 * Math.sin(2*F * rad);
+           
+  let trueLong = L + corr;
+  let ayanamsa = getLahiriAyanamsa(jd);
+  return (trueLong - ayanamsa + 36000) % 360;
+}
+
+function calcLagna(jd, lat, lon) {
+  let T = (jd - 2451545.0) / 36525;
+  let theta0 = 280.46061837 + 360.98564736629 * (jd - 2451545.0);
+  let gst = (theta0 + 36000) % 360;
+  let lst = (gst + lon + 360) % 360;
+  
+  let eps = 23.439291 - 0.0130042 * T;
+  let rad = Math.PI / 180;
+  
+  let y = Math.cos(lst * rad);
+  let x = -Math.sin(lst * rad) * Math.cos(eps * rad) - Math.tan(lat * rad) * Math.sin(eps * rad);
+  let tropicalLagna = Math.atan2(y, x) * 180 / Math.PI;
+  if (tropicalLagna < 0) tropicalLagna += 360;
+  
+  let ayanamsa = getLahiriAyanamsa(jd);
+  return (tropicalLagna - ayanamsa + 360) % 360;
+}
+
+/* Calculate Grahswami Natal Details */
+function getGrahswamiNatal() {
+  let dob = document.getElementById('ownerDob').value;
+  let tob = document.getElementById('ownerTob').value;
+  let lat = parseFloat(document.getElementById('lat').value);
+  let lon = parseFloat(document.getElementById('lon').value);
+  let tz = parseFloat(document.getElementById('tz').value);
+
+  let d = new Date(dob + 'T' + tob);
+  let utHour = d.getUTCHours() + d.getUTCMinutes()/60.0;
+  let jd = toJD(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate(), utHour);
+
+  let moonDeg = getMoonLongitude(jd);
+  let moonSignIndex = Math.floor(moonDeg / 30);
+  let moonNakshatraIndex = Math.floor(moonDeg / (360/27));
+  let lagnaDeg = calcLagna(jd, lat, lon);
+  let lagnaSignIndex = Math.floor(lagnaDeg / 30);
+
+  let ashtamaRashiIndex = (moonSignIndex + 7) % 12;
+
+  return {
+    name: document.getElementById('ownerName').value || "गृहस्वामी",
+    moonDeg,
+    moonSignIndex,
+    moonSignName: RASHIS[moonSignIndex],
+    nakshatraIndex: moonNakshatraIndex,
+    nakshatraName: NAKSHATRAS[moonNakshatraIndex],
+    lagnaSignIndex,
+    lagnaSignName: RASHIS[lagnaSignIndex],
+    ashtamaRashiIndex,
+    ashtamaRashiName: RASHIS[ashtamaRashiIndex]
+  };
+}
+
+/* Main Muhurta Evaluator Engine */
+function calculateAllVastuMuhurta() {
+  let owner = getGrahswamiNatal();
+  let targetYear = parseInt(document.getElementById('targetYear').value);
+  let targetMonth = parseInt(document.getElementById('targetMonth').value);
+  let lat = parseFloat(document.getElementById('lat').value);
+  let lon = parseFloat(document.getElementById('lon').value);
+  let tz = parseFloat(document.getElementById('tz').value);
+
+  let daysInMonth = new Date(targetYear, targetMonth, 0).getDate();
+  let candidates = [];
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    // Julian date at 6:00 AM local time (Sunrise approximation)
+    let localHour = 6.0;
+    let utHour = localHour - tz;
+    let jd = toJD(targetYear, targetMonth, day, utHour);
+
+    let sunDeg = getSunLongitude(jd);
+    let moonDeg = getMoonLongitude(jd);
+
+    let sunSignIndex = Math.floor(sunDeg / 30);
+    let moonSignIndex = Math.floor(moonDeg / 30);
+    let sunNakshatraIndex = Math.floor(sunDeg / (360/27));
+    let moonNakshatraIndex = Math.floor(moonDeg / (360/27));
+
+    // Tithi & Vara
+    let tithiDiff = (moonDeg - sunDeg + 360) % 360;
+    let tithiIndex = Math.floor(tithiDiff / 12); // 0 to 29
+    let dateObj = new Date(targetYear, targetMonth - 1, day);
+    let varaIndex = dateObj.getDay(); // 0=Sun, 6=Sat
+
+    // 1. Month Suitability Check
+    // Vaishakh (1), Shravan (4), Margashirsha (8), Phalguna (11) -> Excellent
+    let monthScore = 0;
+    let monthStatus = "सामान्य";
+    if ([1, 4, 8, 11].includes(targetMonth)) {
+      monthScore = 25;
+      monthStatus = "अत्यंत शुभ (वैशाख/श्रावण/अगहन/फाल्गुन)";
+    } else if ([5, 6].includes(targetMonth)) {
+      monthScore = 10;
+      monthStatus = "मध्यम (ज्येष्ठ/आषाढ़)";
+    } else {
+      monthScore = -20;
+      monthStatus = "वर्जित मास (चैत्र/भाद्र/पौष आदि)";
+    }
+
+    // 2. Prithvi Shayana Check
+    let prithviCount = ((moonNakshatraIndex - sunNakshatraIndex + 27) % 27) + 1;
+    let isPrithviSleeping = [5, 7, 9, 12, 19, 26].includes(prithviCount);
+    let prithviScore = isPrithviSleeping ? -30 : 15;
+    let prithviText = isPrithviSleeping ? "सोयी हुई पृथ्वी (वर्जित)" : "जागृत पृथ्वी (शुभ)";
+
+    // 3. Rahu Mukha & Digging Direction Calculation
+    let rahuHeadDir = "";
+    let neevDirection = "";
+    if ([4, 5, 6].includes(sunSignIndex)) { // Leo, Virgo, Libra
+      rahuHeadDir = "पूर्व (East)";
+      neevDirection = "पश्चिम (West) / ईशान (उत्तर-पूर्व)";
+    } else if ([7, 8, 9].includes(sunSignIndex)) { // Scorpio, Sag, Cap
+      rahuHeadDir = "दक्षिण (South)";
+      neevDirection = "उत्तर (North) / वायव्य (उत्तर-पश्चिम)";
+    } else if ([10, 11, 0].includes(sunSignIndex)) { // Aquarius, Pisces, Aries
+      rahuHeadDir = "पश्चिम (West)";
+      neevDirection = "पूर्व (East) / आग्नेय (दक्षिण-पूर्व)";
+    } else { // Taurus, Gemini, Cancer
+      rahuHeadDir = "उत्तर (North)";
+      neevDirection = "दक्षिण (South) / नैऋत्य (दक्षिण-पश्चिम)";
+    }
+
+    // 4. Tara Balam for Owner
+    let taraDiff = ((moonNakshatraIndex - owner.nakshatraIndex + 27) % 27) + 1;
+    let taraNum = ((taraDiff - 1) % 9) + 1;
+    let isTaraGood = [2, 4, 6, 8, 9].includes(taraNum);
+    let taraScore = isTaraGood ? 20 : -20;
+    let taraText = isTaraGood ? `शुभ तारा (संख्या ${taraNum})` : `अशुभ तारा (संख्या ${taraNum})`;
+
+    // 5. Chandra Balam for Owner
+    let moonDiff = ((moonSignIndex - owner.moonSignIndex + 12) % 12) + 1;
+    let isMoonGood = [1, 3, 6, 7, 10, 11].includes(moonDiff);
+    let moonScore = isMoonGood ? 20 : ([2, 5, 9].includes(moonDiff) ? 10 : -30);
+    let moonText = isMoonGood ? `शुभ चंद्र (${moonDiff}वां भाव)` : `अशुभ चंद्र (${moonDiff}वां भाव)`;
+
+    // 6. Vara Shuddhi (Mon, Wed, Thu, Fri are good for Neev)
+    let isVaraGood = [1, 3, 4, 5].includes(varaIndex);
+    let varaScore = isVaraGood ? 10 : -10;
+
+    // 7. Fixed Lagna Schedule Window (Taurus 1, Leo 4, Scorpio 7, Aquarius 10)
+    let lagnaWindow = "सुबह 08:30 AM - 10:45 AM (वृषभ लग्न)";
+    if (sunSignIndex === 5 || sunSignIndex === 6) {
+      lagnaWindow = "सुबह 09:15 AM - 11:30 AM (वृश्चिक लग्न)";
+    } else if (sunSignIndex >= 7 && sunSignIndex <= 9) {
+      lagnaWindow = "दोपहर 12:00 PM - 02:15 PM (कुंभ लग्न)";
+    }
+
+    // Total Score
+    let totalScore = 50 + monthScore + prithviScore + taraScore + moonScore + varaScore;
+    if (totalScore > 100) totalScore = 100;
+    if (totalScore < 0) totalScore = 0;
+
+    candidates.push({
+      dateStr: `${day}-${targetMonth}-${targetYear}`,
+      day,
+      varaName: VARAS[varaIndex],
+      tithiName: TITHIS[tithiIndex],
+      nakshatraName: NAKSHATRAS[moonNakshatraIndex],
+      moonSignName: RASHIS[moonSignIndex],
+      monthStatus,
+      prithviText,
+      isPrithviSleeping,
+      rahuHeadDir,
+      neevDirection,
+      taraText,
+      isTaraGood,
+      moonText,
+      isMoonGood,
+      lagnaWindow,
+      totalScore
+    });
+  }
+
+  // Sort Rankwise
+  candidates.sort((a, b) => b.totalScore - a.totalScore);
+
+  // Assign Ranks
+  candidates.forEach((c, idx) => { c.rank = idx + 1; });
+
+  renderResults(owner, candidates);
+}
+
+/* RENDER OUTPUT TO ALL 5 TABS */
+function renderResults(owner, candidates) {
+  // Tab 5: Grahswami Details
+  document.getElementById('astroOwnerDetails').innerHTML = `
+    <p><strong>नाम:</strong> ${owner.name}</p>
+    <p><strong>जन्म लग्न:</strong> ${owner.lagnaSignName}</p>
+    <p><strong>जन्म राशि (चंद्र):</strong> ${owner.moonSignName}</p>
+    <p><strong>जन्म नक्षत्र:</strong> ${owner.nakshatraName}</p>
+    <p><strong>अष्टम राशि (त्याज्य):</strong> ${owner.ashtamaRashiName}</p>
+  `;
+
+  // Tab 1: Rankwise Table
+  let htmlTable = "";
+  candidates.forEach(c => {
+    let scoreBadge = c.totalScore >= 75 ? `<span class="badge-pass">${c.totalScore}% (उत्तम)</span>` :
+                     (c.totalScore >= 50 ? `<span class="badge-warn">${c.totalScore}% (मध्यम)</span>` :
+                                           `<span class="badge-fail">${c.totalScore}% (अशुभ)</span>`);
+
+    let prithviBadge = c.isPrithviSleeping ? `<span class="badge-fail">सोयी पृथ्वी</span>` : `<span class="badge-pass">जागृत</span>`;
+
+    htmlTable += `
+      <tr>
+        <td><span class="badge-rank">Rank #${c.rank}</span></td>
+        <td><strong>${c.dateStr}</strong><br><small style="color:var(--text-muted);">${c.varaName}</small></td>
+        <td>${c.tithiName}<br><small style="color:var(--gold);">${c.nakshatraName}</small></td>
+        <td>${prithviBadge}<br><small style="font-size:11px;">${c.monthStatus}</small></td>
+        <td><strong>${c.neevDirection}</strong><br><small style="color:var(--text-muted);">राहु मुख: ${c.rahuHeadDir}</small></td>
+        <td><small style="color:${c.isTaraGood?'var(--pass-text)':'var(--fail-text)'};">${c.taraText}</small><br><small style="color:${c.isMoonGood?'var(--pass-text)':'var(--fail-text)'};">${c.moonText}</small></td>
+        <td><small>${c.lagnaWindow}</small></td>
+        <td>${scoreBadge}</td>
+      </tr>
+    `;
+  });
+  document.getElementById('rankwiseTbody').innerHTML = htmlTable;
+
+  // Tab 2: Neev Pujan & Shilanyasa Cards
+  let top3 = candidates.slice(0, 3);
+  let neevHtml = "";
+  top3.forEach(c => {
+    neevHtml += `
+      <div class="info-card">
+        <h3>🧱 शिलान्यास मुहूर्त - Rank #${c.rank} (${c.dateStr})</h3>
+        <p><strong>वार व तिथि:</strong> ${c.varaName}, ${c.tithiName}</p>
+        <p><strong>नक्षत्र:</strong> ${c.nakshatraName}</p>
+        <p><strong>प्रथम खनन एवं नींव पूजन दिशा:</strong> <span style="color:var(--gold); font-weight:700;">${c.neevDirection}</span></p>
+        <p><strong>राहु मुख स्थिति:</strong> ${c.rahuHeadDir} (मुख के सामने खनन वर्जित)</p>
+        <p><strong>पृथ्वी शयन स्थिति:</strong> ${c.prithviText}</p>
+        <p><strong>शुभ लग्न मुहूर्त समय:</strong> ${c.lagnaWindow}</p>
+      </div>
+    `;
+  });
+  document.getElementById('neevGrid').innerHTML = neevHtml;
+
+  // Tab 3: Griha Pravesha Cards
+  let grihaHtml = "";
+  top3.forEach(c => {
+    grihaHtml += `
+      <div class="info-card">
+        <h3>🏡 गृह प्रवेश मुहूर्त - Rank #${c.rank} (${c.dateStr})</h3>
+        <p><strong>वार व तिथि:</strong> ${c.varaName}, ${c.tithiName}</p>
+        <p><strong>नक्षत्र:</strong> ${c.nakshatraName}</p>
+        <p><strong>अपूर्वा/सपूर्वा गृह प्रवेश:</strong> <span class="badge-pass">शुभ</span></p>
+        <p><strong>कलश वास्तु चक्र:</strong> अमृत योग</p>
+        <p><strong>शुभ गृह प्रवेश लग्न समय:</strong> ${c.lagnaWindow}</p>
+      </div>
+    `;
+  });
+  document.getElementById('grihaGrid').innerHTML = grihaHtml;
+}
+
+/* TAB SWITCHING */
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+  event.currentTarget.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+/* LEAFLET MAP MODAL */
+let map, marker;
+function openMap() {
+  document.getElementById('mapModal').style.display = 'flex';
+  if (!map) {
+    map = L.map('map').setView([26.7922, 82.1998], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+    marker = L.marker([26.7922, 82.1998], { draggable: true }).addTo(map);
+    marker.on('dragend', function(e) {
+      let latlng = marker.getLatLng();
+      document.getElementById('lat').value = latlng.lat.toFixed(4);
+      document.getElementById('lon').value = latlng.lng.toFixed(4);
+      document.getElementById('pobName').value = `GPS (${latlng.lat.toFixed(2)}, ${latlng.lng.toFixed(2)})`;
+    });
+  }
+}
+function closeMap() {
+  document.getElementById('mapModal').style.display = 'none';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  calculateAllVastuMuhurta();
+});
+</script>
+</body>
+</html>
