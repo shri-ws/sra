@@ -192,6 +192,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item" onclick="showPanel('payments', this)">💰 &nbsp;Payments</div>
       <div class="nav-item" onclick="showPanel('consultations', this)">🔮 &nbsp;Consultations</div>
       <div class="nav-item" onclick="showPanel('forum', this)">💬 &nbsp;Forum Posts</div>
+      <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
     </div>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
@@ -323,6 +324,22 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
         <div style="overflow-x:auto"><table class="tbl">
           <thead><tr><th>Mobile Number / Email</th><th>Candidate Name</th><th>Date of Birth</th><th>Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th></tr></thead>
           <tbody id="users-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- CLIENT REVIEWS APPROVAL PANEL -->
+    <div class="panel" id="panel-reviews">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">⭐ Client Consultation Reviews (Pending & Approved)</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search Author / Review..." oninput="filterTable('reviews-tbody',this.value)"/>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Author Name</th><th>Role / Profession</th><th>Rating</th><th>Review Content</th><th>Status</th><th>Submitted Date</th><th>Admin Actions</th></tr></thead>
+          <tbody id="reviews-tbody"></tbody>
         </table></div>
       </div>
     </div>
@@ -464,6 +481,16 @@ async function fetchUserQueries(){
   return local ? JSON.parse(local) : [];
 }
 
+async function fetchReviews(){
+  try {
+    const data = await fetchTable('reviews');
+    if (data && data.length) return data;
+  } catch(e) {}
+  const pending = JSON.parse(localStorage.getItem('sra_pending_reviews_db') || '[]');
+  const approved = JSON.parse(localStorage.getItem('sra_approved_reviews_db') || '[]');
+  return [...pending, ...approved];
+}
+
 async function loadAll(){
   document.getElementById('debugBox').innerHTML='';
   document.getElementById('debugBox').classList.remove('show');
@@ -471,12 +498,13 @@ async function loadAll(){
 
   setLoading();
 
-  const [students, payments, consultations, forum, users] = await Promise.all([
+  const [students, payments, consultations, forum, users, reviews] = await Promise.all([
     fetchTable('students'),
     fetchTable('payments'),
     fetchTable('consultations'),
     fetchTable('forum_posts'),
     fetchUserQueries(),
+    fetchReviews()
   ]);
 
   D.students     = students;
@@ -484,6 +512,7 @@ async function loadAll(){
   D.consultations= consultations;
   D.forum        = forum;
   D.users        = users;
+  D.reviews      = reviews;
 
   renderAll();
 
@@ -493,7 +522,7 @@ async function loadAll(){
 }
 
 function setLoading(){
-  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-students'].forEach(id=>{
+  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-students','reviews-tbody'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML=`<tr><td colspan="10" class="loading-row"><span class="spin"></span> Loading...</td></tr>`;
   });
@@ -526,6 +555,61 @@ function renderAll(){
   renderForumRows('forum-tbody', D.forum);
   renderUserQueryRows('users-tbody', D.users);
   renderEmailRows('emails-tbody', D.users);
+  renderReviewRows('reviews-tbody', D.reviews);
+}
+
+function renderReviewRows(tbodyId, rows){
+  const el = document.getElementById(tbodyId);
+  if (!el) return;
+  if (!rows || !rows.length) { el.innerHTML = `<tr><td colspan="7" class="empty-row">No consultation reviews submitted yet</td></tr>`; return; }
+
+  el.innerHTML = rows.map((r, idx) => `<tr>
+    <td><div class="name-cell">${safe(r.author_name || r.name)}</div></td>
+    <td style="font-size:12px">${safe(r.role)}</td>
+    <td style="color:var(--gold);font-weight:bold">${'★'.repeat(r.rating||5)}</td>
+    <td style="font-size:12px;max-width:240px;color:var(--text)">"${safe(r.comment)}"</td>
+    <td>${badge(r.status||'pending')}</td>
+    <td class="date-cell">${fmtDate(r.created_at)}</td>
+    <td>
+      ${(r.status === 'approved') ? 
+        '<span style="color:var(--green);font-weight:bold;font-size:11px;">✓ Approved</span>' : 
+        `<button onclick="approveReview(${idx})" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">Approve</button>`}
+    </td>
+  </tr>`).join('');
+}
+
+async function approveReview(idx) {
+  const item = D.reviews[idx];
+  if (!item) return;
+
+  item.status = 'approved';
+
+  // Save to Supabase if ID exists
+  if (item.id) {
+    try {
+      await fetch(`${SUPA_URL}/rest/v1/reviews?id=eq.${item.id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'approved' })
+      });
+    } catch(e) {}
+  }
+
+  // Update LocalStorage queues
+  let approvedQueue = JSON.parse(localStorage.getItem('sra_approved_reviews_db') || '[]');
+  approvedQueue.push(item);
+  localStorage.setItem('sra_approved_reviews_db', JSON.stringify(approvedQueue));
+
+  let pendingQueue = JSON.parse(localStorage.getItem('sra_pending_reviews_db') || '[]');
+  pendingQueue = pendingQueue.filter(p => p.comment !== item.comment);
+  localStorage.setItem('sra_pending_reviews_db', JSON.stringify(pendingQueue));
+
+  renderReviewRows('reviews-tbody', D.reviews);
+  alert("Review approved successfully! It is now live on consultation.html");
 }
 
 function renderEmailRows(tbodyId, rows){

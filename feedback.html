@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Feedback Gateway — Shri Ramji Astro</title>
+    <meta name="description" content="Share your genuine reflection and feedback for your 1-on-1 private sanctuary consultation with Astro Raamji." />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="https://shriramjiastro.in/feedback.html" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #FDFBF7;
+            color: #1E293B;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            padding: 40px 20px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .feedback-box {
+            background: #FFFFFF;
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 540px;
+            width: 100%;
+            box-shadow: 0 10px 35px rgba(197, 160, 89, 0.12);
+            text-align: center;
+        }
+        .feedback-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #C5A059;
+            margin-bottom: 12px;
+        }
+        .feedback-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            color: #4A0E17;
+            margin-bottom: 6px;
+        }
+        .feedback-sub {
+            font-size: 13px;
+            color: #64748B;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+            margin-bottom: 14px;
+        }
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-control {
+            background: #FFFDF9;
+            border: 1px solid #E2E8F0;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1E293B;
+            outline: none;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #C5A059 0%, #8C6D2B 100%);
+            color: #FFFFFF;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(140, 109, 43, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="feedback-box">
+        <img src="logo.png" alt="Logo" class="feedback-logo">
+        <h1 class="feedback-title">Client Consultation Reflection</h1>
+        <p class="feedback-sub">
+            Authentic Vedic astrology thrives on truth, not flattery. Please share your genuine experience below. Your reflection will appear on the portal upon admin approval.
+        </p>
+
+        <form id="fbStandaloneForm" onsubmit="submitStandaloneFeedback(event)">
+            <div class="form-group">
+                <label class="form-label">Full Name (or Initials)</label>
+                <input type="text" id="fbName" class="form-control" placeholder="e.g. Siddharth R." required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Profession / Role / City</label>
+                <input type="text" id="fbRole" class="form-control" placeholder="e.g. Managing Director, Bengaluru" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Consultation Rating</label>
+                <select id="fbRating" class="form-control" required>
+                    <option value="5">★★★★★ (5 Stars - Transformative)</option>
+                    <option value="4">★★★★☆ (4 Stars - High Precision)</option>
+                    <option value="3">★★★☆☆ (3 Stars - Satisfactory)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Detailed Reflection / Review</label>
+                <textarea id="fbComment" class="form-control" rows="4" placeholder="Describe your experience during the 1-on-1 sanctuary session..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">SUBMIT REFLECTION FOR ADMIN APPROVAL</button>
+        </form>
+
+        <div id="fbStandaloneResult" style="margin-top: 16px; font-size: 13px; font-weight: 700;"></div>
+    </div>
+
+    <script>
+        const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
+        const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
+
+        async function submitStandaloneFeedback(e) {
+            e.preventDefault();
+            const name = document.getElementById('fbName').value.trim();
+            const role = document.getElementById('fbRole').value.trim();
+            const rating = parseInt(document.getElementById('fbRating').value);
+            const comment = document.getElementById('fbComment').value.trim();
+            const resEl = document.getElementById('fbStandaloneResult');
+
+            const payload = {
+                author_name: name,
+                role: role,
+                rating: rating,
+                comment: comment,
+                status: 'pending',
+                created_at: new Date().toISOString()
+            };
+
+            try {
+                await fetch(`${SUPA_URL}/rest/v1/reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPA_KEY,
+                        'Authorization': 'Bearer ' + SUPA_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {}
+
+            let pendingQueue = JSON.parse(localStorage.getItem('sra_pending_reviews_db') || '[]');
+            pendingQueue.push(payload);
+            localStorage.setItem('sra_pending_reviews_db', JSON.stringify(pendingQueue));
+
+            resEl.style.color = '#15803D';
+            resEl.innerHTML = '✅ Thank you! Your reflection has been submitted successfully for admin review.';
+            document.getElementById('fbStandaloneForm').reset();
+        }
+    </script>
+</body>
+</html>
