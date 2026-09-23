@@ -1011,7 +1011,7 @@
                 calTitle: "Sattvic Consultation Monthly Calendar",
                 calScarcity: "Strict Cap Enforced: Exactly 1 Slot Available Daily",
                 calInstruct: "Use the controls below to navigate months. Click on any available date to select your reserved solar day slot.",
-                chandraRuleNotice: "🌙 <strong>Shastric Chandra Rashi Scrutiny:</strong> Consultations are strictly closed on dates when transiting Moon resides in Taurus (Vrishabha), Cancer (Kark), Virgo (Kanya), or Capricorn (Makar).",
+                chandraRuleNotice: "🌙 <strong>Shastric Scrutiny:</strong> Consultations are strictly closed on <strong>Amavasya (New Moon)</strong> and on dates when transiting Moon resides in Taurus (Vrishabha), Cancer (Kark), Virgo (Kanya), or Capricorn (Makar).",
                 prevBtn: "← Prev Month",
                 nextBtn: "Next Month →",
                 pastStatus: "Past Date",
@@ -1056,8 +1056,8 @@
                 phase3Desc: "कोई भ्रामक रत्न व्यापार नहीं। आपको 24 घंटे के अंदर एक व्यक्तिगत लिखित PDF प्राप्त होता है, जिसमें प्रामाणिक वैदिक मंत्र, दान विधि और शुभ-अशुभ कालखंडों का स्पष्ट विवरण होता है।",
                 calTitle: "सात्त्विक परामर्श मासिक कैलेंडर",
                 calScarcity: "सख्त मर्यादा: केवल 1 स्लॉट प्रतिदिन उपलब्ध",
-                calInstruct: "महीना बदलने के लिए नीचे दिए गए बटनों का उपयोग करें। अपनी पसंदीदा उपलब्ध तिथि पर क्लिक करके अपना दिन आरक्षित करें। जिन तिथियों पर 'बंद' अंकित है, वे शास्त्रीय चन्द्र राशि नियम के तहत स्वतः स्थगित हैं।",
-                chandraRuleNotice: "🌙 <strong>शास्त्र विधान (चन्द्र राशि वर्जन):</strong> चन्द्रमा के वृषभ, कर्क, कन्या या मकर राशि में गोचर के दौरान परामर्श पूर्णतः स्थगित रहता है।",
+                calInstruct: "महीना बदलने के लिए नीचे दिए गए बटनों का उपयोग करें। अपनी पसंदीदा उपलब्ध तिथि पर क्लिक करके अपना दिन आरक्षित करें। जिन तिथियों पर 'बंद' अंकित है, वे शास्त्रीय नियम (अमावस्या व चन्द्र राशि) के तहत स्वतः स्थगित हैं।",
+                chandraRuleNotice: "🌙 <strong>शास्त्र विधान (अमावस्या एवं चन्द्र राशि वर्जित):</strong> <strong>अमावस्या तिथि</strong> तथा चन्द्रमा के वृषभ, कर्क, कन्या या मकर राशि में गोचर के दौरान परामर्श पूर्णतः स्थगित रहता है।",
                 prevBtn: "← पिछला महीना",
                 nextBtn: "अगला महीना →",
                 pastStatus: "बीत चुका",
@@ -1174,7 +1174,7 @@
             renderDynamicCalendar();
         }
 
-        // ASTRONOMICAL ENGINE FOR CHANDRA RASHI SCRUTINY (MEEUS ELP-2000 + TRUE LAHIRI AYANAMSA)
+        // ASTRONOMICAL ENGINE FOR CHANDRA RASHI & AMAVASYA SCRUTINY (MEEUS ELP-2000 + TRUE LAHIRI AYANAMSA)
         function normalizeDegrees(deg) {
             let d = deg % 360;
             if (d < 0) d += 360;
@@ -1205,6 +1205,16 @@
             const nutationCorrectionDeg = (dPsi / 3600.0) * Math.cos(eps);
 
             return meanAyanamsa + nutationCorrectionDeg;
+        }
+
+        function computeMeeusSunLongitude(T) {
+            const DEG = Math.PI / 180;
+            const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+            const M  = 357.52911 + 35999.05029 * T - 0.0001537 * T * T;
+            const C  = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M * DEG)
+                     + (0.019993 - 0.000101 * T) * Math.sin(2 * M * DEG)
+                     + 0.000289 * Math.sin(3 * M * DEG);
+            return normalizeDegrees(L0 + C);
         }
 
         function computeMeeusMoonLongitudeBPHS(T) {
@@ -1254,6 +1264,18 @@
             return normalizeDegrees(L_prime + totalPerturbationDeg);
         }
 
+        function getTithiNumberForDate(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = dateObj.getMonth() + 1;
+            const d = dateObj.getDate();
+            const jd = toJulianDay(y, m, d, 6.5); // 12:00 PM IST
+            const T = (jd - 2451545.0) / 36525.0;
+            const tropMoon = computeMeeusMoonLongitudeBPHS(T);
+            const tropSun = computeMeeusSunLongitude(T);
+            const diff = normalizeDegrees(tropMoon - tropSun);
+            return Math.floor(diff / 12) + 1; // 1 to 30 (30 = Amavasya)
+        }
+
         const RESTRICTED_MOON_SIGNS = [2, 4, 6, 10]; // Vrishabha (2), Kark (4), Kanya (6), Makar (10)
         const RASHI_NAMES = {
             en: ['', 'Mesha', 'Vrishabha', 'Mithuna', 'Kark', 'Simha', 'Kanya', 'Tula', 'Vrishchika', 'Dhanu', 'Makar', 'Kumbha', 'Meena'],
@@ -1272,7 +1294,7 @@
             return Math.floor(sidMoon / 30) + 1;
         }
 
-        // GENERATE DYNAMIC MONTHLY CALENDAR GRID WITH CHANDRA RASHI SCRUTINY
+        // GENERATE DYNAMIC MONTHLY CALENDAR GRID WITH CHANDRA RASHI & AMAVASYA SCRUTINY
         function renderDynamicCalendar() {
             const container = document.getElementById('calGridContainer');
             if (!container) return;
@@ -1341,12 +1363,28 @@
                         <div class="cal-status">${pastText}</div>
                     `;
                 } else {
-                    // TODAY OR FUTURE DATE - CHANDRA RASHI CHECK
+                    // TODAY OR FUTURE DATE - TITHI & CHANDRA RASHI CHECK
+                    const tithiNum = getTithiNumberForDate(date);
+                    const isAmavasya = (tithiNum === 30);
                     const moonSignNum = getSiderealMoonSignForDate(date);
-                    const isRestricted = RESTRICTED_MOON_SIGNS.includes(moonSignNum);
+                    const isRestrictedSign = RESTRICTED_MOON_SIGNS.includes(moonSignNum);
                     const rashiName = RASHI_NAMES[lang][moonSignNum] || RASHI_NAMES.en[moonSignNum];
 
-                    if (isRestricted) {
+                    if (isAmavasya) {
+                        slot.className = 'cal-slot restricted';
+                        slot.title = lang === 'hi' ? 'अमावस्या तिथि - परामर्श निषिद्ध' : 'Amavasya Tithi - Consultation Closed';
+                        const statusText = lang === 'hi' ? 'बंद • अमावस्या' : 'CLOSED • AMAVASYA';
+                        slot.innerHTML = `
+                            <div class="cal-day">${dayName}</div>
+                            <div class="cal-date-num">${dayNum}</div>
+                            <div class="cal-status">${statusText}</div>
+                        `;
+                        slot.onclick = () => {
+                            alert(lang === 'hi' 
+                                ? `शास्त्रीय नियम: ${dayNum} ${monthList[currentCalMonth]} को अमावस्या तिथि होने के कारण परामर्श पूर्णतः स्थगित रहता है। कृपया किसी अन्य शुभ तिथि का चयन करें।` 
+                                : `Shastric Rule: On ${dayNum} ${monthList[currentCalMonth]}, it is Amavasya (New Moon). Consultations are strictly closed on Amavasya. Please select an open date.`);
+                        };
+                    } else if (isRestrictedSign) {
                         slot.className = 'cal-slot restricted';
                         slot.title = lang === 'hi' 
                             ? `चन्द्रमा ${rashiName} राशि में है - परामर्श निषिद्ध` 
@@ -1395,6 +1433,7 @@
                 container.appendChild(slot);
             }
         }
+
 
 
         function selectSlot(el, dateStr) {
