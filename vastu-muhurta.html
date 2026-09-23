@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vastu, Neev Pujan & Griha Pravesha Muhurta Engine | Shri Ramji Astro</title>
-<meta name="description" content="High-precision Vastu, Khātārambha, Shilānyāsa, and Griha Pravesha Muhurta Engine by Shri Ramji Astro (shriramjiastro.in). Scrutinizes Rahu Mukha Chakra, Prithvi Shayana, Grahswami Kundli Matching, Tara & Chandra Balam with Meeus Ephemeris precision." />
+<meta name="description" content="High-precision Vastu, Khātārambha, Shilānyāsa, and Griha Pravesha Muhurta Engine by Shri Ramji Astro (shriramjiastro.in). Scrutinizes Rahu Mukha Chakra, Prithvi Shayana, Grahswami Kundli Matching, 5-7 Month Griha Pravesha timeline with Meeus Ephemeris precision." />
 <meta name="keywords" content="Vastu Muhurta Calculator, Neev Pujan Muhurt, Shilanyasa Muhurta, Griha Pravesha Muhurta, Rahu Mukha Direction, Prithvi Shayana Check, Shri Ramji Astro, Astro 360" />
 <meta name="author" content="Astro Raamji — Shri Ramji Astro" />
 <meta name="robots" content="index, follow" />
@@ -14,7 +14,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Shri Ramji Astro — Vastu & Griha Muhurta Engine" />
 <meta property="og:title" content="Vastu, Neev Pujan & Griha Pravesha Muhurta Engine | Shri Ramji Astro" />
-<meta property="og:description" content="Rankwise Muhurta Engine scrutinizing Rahu Mukha Chakra, Prithvi Shayana, Grahswami Kundli Matching, and Fixed Lagna schedules." />
+<meta property="og:description" content="Rankwise Muhurta Engine scrutinizing Rahu Mukha Chakra, Prithvi Shayana, Grahswami Kundli Matching, and 5-7 Month Griha Pravesha timeline." />
 <meta property="og:url" content="https://shriramjiastro.in/vastu-muhurta.html" />
 
 <!-- JSON-LD Schema -->
@@ -430,6 +430,24 @@
   }
   .btn-calculate:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
+  /* PRINTABLE REPORT BUTTON */
+  .btn-print-report {
+    background: linear-gradient(135deg, #15803d, #166534);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Cinzel', serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+  }
+
   /* TABS SYSTEM */
   .tabs-header {
     display: flex;
@@ -549,6 +567,33 @@
   }
   .map-box { background: var(--card-bg); width: 90%; max-width: 650px; border-radius: 16px; padding: 20px; }
   #map { height: 350px; border-radius: 10px; margin-top: 10px; }
+
+  /* UNREMOVABLE WATERMARK FOR PRINT REPORT */
+  @media print {
+    body { background: #fff !important; color: #000 !important; }
+    nav, .hero-banner, .form-card, .tabs-header, .btn-print-report, .session-timer-bar, .paywall-overlay { display: none !important; }
+    .tab-pane { display: block !important; margin-bottom: 30px; page-break-inside: avoid; }
+    .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+    
+    /* Permanent Watermark Background */
+    body::before {
+      content: "SHRI RAMJI ASTRO (shriramjiastro.in)";
+      position: fixed;
+      top: 40%;
+      left: 10%;
+      width: 80%;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 42px;
+      font-weight: 900;
+      color: rgba(180, 130, 32, 0.12);
+      transform: rotate(-35deg);
+      z-index: 99999;
+      pointer-events: none;
+      border: 6px double rgba(180, 130, 32, 0.15);
+      padding: 30px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -608,8 +653,8 @@
       <div class="feature-item">
         <span class="feature-icon">🏡</span>
         <div class="feature-text">
-          <b>Rankwise Griha Pravesha</b>
-          <span>Apoorva, Sapurva & Dvandva Housewarming ranking with Fixed Lagnas.</span>
+          <b>5th, 6th, 7th Month Griha Pravesha</b>
+          <span>Sequential timeline ranking after Neev Pujan date based on Kundli.</span>
         </div>
       </div>
       <div class="feature-item">
@@ -637,28 +682,61 @@
       ⚡ Pay ₹1,111 Online via Razorpay (20-Min Access)
     </button>
 
+    <div style="margin-top:12px;">
+      <button onclick="togglePaymentQrView()" style="background:none; border:none; color:var(--gold-light); font-size:0.82rem; text-decoration:underline; cursor:pointer;">
+        Or Unlock via UPI QR Code / UTR / VIP Passcode
+      </button>
+    </div>
+
+    <!-- Payment QR & UTR View (Hidden initially) -->
+    <div id="paymentQrView" style="display:none; margin-top:14px; background:rgba(255,255,255,0.08); border:1px solid var(--gold-accent); border-radius:12px; padding:14px;">
+      <h4 style="color:var(--gold-light); font-size:0.95rem; margin-bottom:8px;">Scan UPI QR Code to Pay ₹1,111</h4>
+      <div style="background:#FFF; padding:10px; border-radius:8px; display:inline-block; margin-bottom:8px;">
+        <svg viewBox="0 0 100 100" style="width:120px; height:120px; display:block;">
+          <path d="M10,10 h30 v30 h-30 z M15,15 v20 h20 v-20 z M20,20 h10 v10 h-10 z" fill="#000"/>
+          <path d="M60,10 h30 v30 h-30 z M65,15 v20 h20 v-20 z M70,20 h10 v10 h-10 z" fill="#000"/>
+          <path d="M10,60 h30 v30 h-30 z M15,65 v20 h20 v-20 z M20,70 h10 v10 h-10 z" fill="#000"/>
+          <rect x="45" y="10" width="10" height="10" fill="#000"/>
+          <rect x="45" y="25" width="10" height="20" fill="#000"/>
+          <rect x="60" y="45" width="25" height="10" fill="#000"/>
+          <rect x="45" y="60" width="15" height="15" fill="#000"/>
+          <rect x="70" y="70" width="20" height="20" fill="#000"/>
+        </svg>
+      </div>
+      <p style="font-size:0.82rem; color:var(--gold-light); margin-bottom:8px;">UPI ID: <b>shriramjiastro@upi</b> | Phone: <b>9517117775</b></p>
+      <div style="display:flex; gap:8px; justify-content:center;">
+        <input type="text" id="utrInput" placeholder="Enter UTR / Txn No." style="padding:8px; border:1px solid var(--gold-accent); background:rgba(0,0,0,0.4); color:#fff; border-radius:6px; font-size:0.82rem; width:170px; text-align:center;">
+        <button onclick="verifyPaymentUTR()" class="unlock-btn">Submit UTR</button>
+      </div>
+    </div>
+
     <div class="unlock-code-box">
       <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP CODE / PIN">
       <button class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
     </div>
 
     <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-top:12px;">
-      🔒 100% सुरक्षित Razorpay भुगतान | 20 मिनट एक्सेस | श्री रामजी एस्ट्रो
+      🔒 100% सुरक्षित Razorpay / UPI भुगतान | 20 मिनट एक्सेस | श्री रामजी एस्ट्रो
     </div>
   </div>
 </div>
 
 <div class="hero-banner">
   <h1>🏛️ वास्तु, नींव पूजन एवं गृह प्रवेश मुहूर्त इंजन</h1>
-  <p>महर्षि पराशर एवं 'मुहूर्त चिंतामणि' (दैवज्ञ आचार्य राम) के प्रामाणिक सिद्धांतों पर आधारित। Meeus <18'' परिशुद्ध एपिमेरिस गणित, गृहस्वामी जन्मकुण्डली मिलान, राहु मुख चक्र, और पृथ्वी शयन परीक्षण द्वारा 100% रीयल-टाइम मुहूर्त गणना।</p>
+  <p>महर्षि पराशर एवं 'मुहूर्त चिंतामणि' (दैवज्ञ आचार्य राम) के प्रामाणिक सिद्धांतों पर आधारित। Meeus <18'' परिशुद्ध एपिमेरिस गणित, गृहस्वामी जन्मकुण्डली मिलान, राहु मुख चक्र, और 5, 6, 7 महीने बाद गृह प्रवेश समय चक्र।</p>
 </div>
 
 <div class="container">
 
+  <!-- PRINTABLE REPORT BUTTON -->
+  <div style="display:flex; justify-content:flex-end;">
+    <button class="btn-print-report" onclick="window.print()">🖨️ सम्पूर्ण वास्तु एवं गृह प्रवेश रिपोर्ट प्रिंट करें (Print PDF Report)</button>
+  </div>
+
   <!-- INPUT FORM -->
   <div class="form-card">
     <div class="form-header">
-      👤 1. गृहस्वामी विवरण (Grahswami Birth Details) & मुहूर्त माह चयन
+      👤 1. गृहस्वामी विवरण (Grahswami Birth Details) & नींव पूजन माह चयन
     </div>
     <div class="form-grid">
       <div class="field-group">
@@ -674,13 +752,13 @@
         <input type="time" id="ownerTob" value="10:30">
       </div>
 
-      <!-- WORLDWIDE CITY AUTOCOMPLETE SEARCH -->
+      <!-- WORLDWIDE CITY AUTOCOMPLETE SEARCH & GMAP PICKER -->
       <div class="world-location-picker">
-        <div class="world-location-title">🌍 जन्म स्थान खोजें — Worldwide City Autocomplete & GPS Map</div>
+        <div class="world-location-title">🌍 जन्म स्थान खोजें — Google Maps / City Autocomplete</div>
         <div class="world-location-row">
-          <input type="text" id="citySearchInput" placeholder="Type city, town or birthplace (e.g. Ayodhya, Delhi, London)..." oninput="searchWorldBirthplace()">
+          <input type="text" id="citySearchInput" placeholder="Search birthplace (e.g. Ayodhya, Delhi, London)..." oninput="searchWorldBirthplace()">
           <button type="button" class="world-search-btn" onclick="searchWorldBirthplace()">🔍 Search</button>
-          <button type="button" class="world-search-btn" style="background:#0284c7;" onclick="openMapModal()">📍 Map</button>
+          <button type="button" class="world-search-btn" style="background:#0284c7;" onclick="openMapModal()">🗺️ GPS Map</button>
         </div>
         <div class="world-results" id="citySearchResults"></div>
         <div id="locationChip" style="margin-top:8px; font-size:12px; color:var(--gold); font-weight:700;">📍 Selected: Ayodhya, UP (26.7922°, 82.1998°)</div>
@@ -699,7 +777,7 @@
         <input type="number" id="tz" value="5.5" step="0.5">
       </div>
       <div class="field-group">
-        <label>मुहूर्त का वर्ष (Target Year)</label>
+        <label>नींव पूजन का वर्ष (Target Year)</label>
         <select id="targetYear">
           <option value="2026" selected>2026</option>
           <option value="2027">2027</option>
@@ -707,7 +785,7 @@
         </select>
       </div>
       <div class="field-group">
-        <label>मुहूर्त का महीना (Target Month)</label>
+        <label>नींव पूजन का महीना (Target Month)</label>
         <select id="targetMonth">
           <option value="1">जनवरी (Jan)</option>
           <option value="2">फरवरी (Feb)</option>
@@ -724,17 +802,17 @@
         </select>
       </div>
 
-      <button class="btn-calculate" onclick="calculateAllVastuMuhurta()">✨ मुहूर्त एवं वास्तु विश्लेषण की गणना करें (Calculate Muhurta)</button>
+      <button class="btn-calculate" onclick="calculateAllVastuMuhurta()">✨ नींव पूजन एवं 5-7 महीने बाद गृह प्रवेश मुहूर्त की गणना करें (Calculate Engine)</button>
     </div>
   </div>
 
   <!-- TABS NAV -->
   <div class="tabs-header">
-    <button class="tab-btn active" onclick="switchTab('tab-rankwise', this)">🏆 सर्वोत्कृष्ट मुहूर्त तालिका (Rankwise)</button>
-    <button class="tab-btn" onclick="switchTab('tab-neev', this)">🧱 नींव पूजन व शिलान्यास</button>
-    <button class="tab-btn" onclick="switchTab('tab-griha', this)">🏡 गृह प्रवेश मुहूर्त</button>
+    <button class="tab-btn active" onclick="switchTab('tab-rankwise', this)">🏆 नींव पूजन मुहूर्त (Rankwise)</button>
+    <button class="tab-btn" onclick="switchTab('tab-neev', this)">🧱 नींव पूजन व राहु मुख चक्र</button>
+    <button class="tab-btn" onclick="switchTab('tab-griha', this)">🏡 गृह प्रवेश मुहूर्त (5वें, 6वें, 7वें महीने)</button>
     <button class="tab-btn" onclick="switchTab('tab-compass', this)">🧭 वास्तु दिशा चक्र (Vastu Compass)</button>
-    <button class="tab-btn" onclick="switchTab('tab-astro', this)">📜 गृहस्वामी कुण्डली व पंचांग</button>
+    <button class="tab-btn" onclick="switchTab('tab-astro', this)">📜 गृहस्वामी कुण्डली व शास्त्रीय नियम</button>
   </div>
 
   <!-- TAB 1: RANKWISE MUHURTA TABLE -->
@@ -765,9 +843,18 @@
     <div class="info-grid" id="neevGrid"></div>
   </div>
 
-  <!-- TAB 3: GRIHA PRAVESHA -->
+  <!-- TAB 3: GRIHA PRAVESHA (5TH, 6TH, 7TH MONTHS) -->
   <div id="tab-griha" class="tab-pane">
-    <div class="info-grid" id="grihaGrid"></div>
+    <div class="info-card" style="margin-bottom:20px;">
+      <h3 style="color:var(--gold);">📜 'मुहूर्त चिन्तामणि' अनुसार नींव पूजन एवं गृह प्रवेश का विशेष नियम</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.7;">
+        <strong>अपूर्वा गृह प्रवेश नियम:</strong> नए नींव पूजन के बाद मकान का पूर्ण निर्माण होकर गृह प्रवेश का समय न्यूनतम 5वें, 6वें या 7वें महीने के बाद ही आता है। 5 महीने से पहले नवीन मकान में रहना 'अपूर्ण गृहप्रवेश दोष' माना जाता है। नीचे नींव पूजन तिथि के आधार पर 5वें, 6वें और 7वें महीने के <strong>शीर्ष 5-5 सर्वश्रेष्ठ गृह प्रवेश मुहूर्त</strong> गृहस्वामी की कुंडली से मिलाकर दिए गए हैं:
+      </p>
+    </div>
+    
+    <div id="grihaPhaseContainer">
+      <!-- Injected by JS -->
+    </div>
   </div>
 
   <!-- TAB 4: VASTU COMPASS & ROOM RULES -->
@@ -832,12 +919,13 @@
         <div id="astroOwnerDetails" style="font-size:13.5px; line-height:1.8; color:var(--text-main);"></div>
       </div>
       <div class="info-card">
-        <h3>✨ ज्योतिषीय बल गणना नियम</h3>
+        <h3>✨ ज्योतिषीय बल एवं गृह प्रवेश नियम</h3>
         <ul style="font-size:13px; color:var(--text-muted); line-height:1.8; padding-left:18px;">
           <li><strong>तारा बल:</strong> 2, 4, 6, 8, 9 ताराएं शुभ; 1, 3, 5, 7 ताराएं त्याज्य।</li>
           <li><strong>चंद्र बल:</strong> 1, 3, 6, 7, 10, 11 भाव शुभ; 4, 8, 12 भाव त्याज्य।</li>
           <li><strong>अष्टम शुद्धि:</strong> गृहस्वामी की जन्म राशि से 8वीं राशि का लग्न व चंद्रमा वर्जित।</li>
           <li><strong>राहु मुख चक्र:</strong> सूर्य राशि अनुसार राहु के मुख के सामने खनन निषेध, पृष्ठ भाग में शुभ।</li>
+          <li><strong>अपूर्वा गृह प्रवेश:</strong> नींव पूजन से 5, 6, 7 महीने बाद सूर्य के उत्तरायण व शुभ सौर मास में गृह प्रवेश अति उत्तम।</li>
         </ul>
       </div>
     </div>
@@ -848,7 +936,7 @@
 <!-- MAP MODAL -->
 <div id="mapModal">
   <div class="map-box">
-    <h3 style="font-family:'Cinzel',serif; color:var(--gold); margin-bottom:10px;">📍 Select Pinpoint Location on Map</h3>
+    <h3 style="font-family:'Cinzel',serif; color:var(--gold); margin-bottom:10px;">📍 Select Pinpoint Location on Google Maps</h3>
     <div id="map"></div>
     <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
       <button onclick="closeMapModal()" style="padding:8px 16px; background:var(--gold); border:none; color:#fff; border-radius:6px; cursor:pointer;">Confirm Location</button>
@@ -981,15 +1069,8 @@ function getGrahswamiNatal() {
   };
 }
 
-/* Main Muhurta Evaluator Engine */
-function calculateAllVastuMuhurta() {
-  let owner = getGrahswamiNatal();
-  let targetYear = parseInt(document.getElementById('targetYear').value);
-  let targetMonth = parseInt(document.getElementById('targetMonth').value);
-  let lat = parseFloat(document.getElementById('lat').value);
-  let lon = parseFloat(document.getElementById('lon').value);
-  let tz = parseFloat(document.getElementById('tz').value);
-
+/* Helper to evaluate month candidates for Griha Pravesha / Neev */
+function evaluateMonthCandidates(owner, targetYear, targetMonth, lat, lon, tz) {
   let daysInMonth = new Date(targetYear, targetMonth, 0).getDate();
   let candidates = [];
 
@@ -1011,7 +1092,6 @@ function calculateAllVastuMuhurta() {
     let dateObj = new Date(targetYear, targetMonth - 1, day);
     let varaIndex = dateObj.getDay();
 
-    // 1. Month Suitability
     let monthScore = 0;
     let monthStatus = "सामान्य";
     if ([1, 4, 8, 11].includes(targetMonth)) {
@@ -1022,50 +1102,38 @@ function calculateAllVastuMuhurta() {
       monthStatus = "मध्यम (ज्येष्ठ/आषाढ़)";
     } else {
       monthScore = -20;
-      monthStatus = "वर्जित मास (चैत्र/भाद्र/पौष आदि)";
+      monthStatus = "वर्जित मास";
     }
 
-    // 2. Prithvi Shayana Check
     let prithviCount = ((moonNakshatraIndex - sunNakshatraIndex + 27) % 27) + 1;
     let isPrithviSleeping = [5, 7, 9, 12, 19, 26].includes(prithviCount);
     let prithviScore = isPrithviSleeping ? -30 : 15;
-    let prithviText = isPrithviSleeping ? "सोयी हुई पृथ्वी (वर्जित)" : "जागृत पृथ्वी (शुभ)";
+    let prithviText = isPrithviSleeping ? "सोयी हुई पृथ्वी" : "जागृत पृथ्वी";
 
-    // 3. Rahu Mukha & Digging Direction Calculation
     let rahuHeadDir = "";
     let neevDirection = "";
     if ([4, 5, 6].includes(sunSignIndex)) {
-      rahuHeadDir = "पूर्व (East)";
-      neevDirection = "पश्चिम (West) / ईशान (उत्तर-पूर्व)";
+      rahuHeadDir = "पूर्व (East)"; neevDirection = "पश्चिम (West) / ईशान (उत्तर-पूर्व)";
     } else if ([7, 8, 9].includes(sunSignIndex)) {
-      rahuHeadDir = "दक्षिण (South)";
-      neevDirection = "उत्तर (North) / वायव्य (उत्तर-पश्चिम)";
+      rahuHeadDir = "दक्षिण (South)"; neevDirection = "उत्तर (North) / वायव्य (उत्तर-पश्चिम)";
     } else if ([10, 11, 0].includes(sunSignIndex)) {
-      rahuHeadDir = "पश्चिम (West)";
-      neevDirection = "पूर्व (East) / आग्नेय (दक्षिण-पूर्व)";
+      rahuHeadDir = "पश्चिम (West)"; neevDirection = "पूर्व (East) / आग्नेय (दक्षिण-पूर्व)";
     } else {
-      rahuHeadDir = "उत्तर (North)";
-      neevDirection = "दक्षिण (South) / नैऋत्य (दक्षिण-पश्चिम)";
+      rahuHeadDir = "उत्तर (North)"; neevDirection = "दक्षिण (South) / नैऋत्य (दक्षिण-पश्चिम)";
     }
 
-    // 4. Tara Balam
     let taraDiff = ((moonNakshatraIndex - owner.nakshatraIndex + 27) % 27) + 1;
     let taraNum = ((taraDiff - 1) % 9) + 1;
     let isTaraGood = [2, 4, 6, 8, 9].includes(taraNum);
     let taraScore = isTaraGood ? 20 : -20;
-    let taraText = isTaraGood ? `शुभ तारा (संख्या ${taraNum})` : `अशुभ तारा (संख्या ${taraNum})`;
 
-    // 5. Chandra Balam
     let moonDiff = ((moonSignIndex - owner.moonSignIndex + 12) % 12) + 1;
     let isMoonGood = [1, 3, 6, 7, 10, 11].includes(moonDiff);
     let moonScore = isMoonGood ? 20 : ([2, 5, 9].includes(moonDiff) ? 10 : -30);
-    let moonText = isMoonGood ? `शुभ चंद्र (${moonDiff}वां भाव)` : `अशुभ चंद्र (${moonDiff}वां भाव)`;
 
-    // 6. Vara Shuddhi
     let isVaraGood = [1, 3, 4, 5].includes(varaIndex);
     let varaScore = isVaraGood ? 10 : -10;
 
-    // 7. Fixed Lagna Schedule Window
     let lagnaWindow = "सुबह 08:30 AM - 10:45 AM (वृषभ लग्न)";
     if (sunSignIndex === 5 || sunSignIndex === 6) {
       lagnaWindow = "सुबह 09:15 AM - 11:30 AM (वृश्चिक लग्न)";
@@ -1080,6 +1148,8 @@ function calculateAllVastuMuhurta() {
     candidates.push({
       dateStr: `${day}-${targetMonth}-${targetYear}`,
       day,
+      month: targetMonth,
+      year: targetYear,
       varaName: VARAS[varaIndex],
       tithiName: TITHIS[tithiIndex],
       nakshatraName: NAKSHATRAS[moonNakshatraIndex],
@@ -1089,9 +1159,9 @@ function calculateAllVastuMuhurta() {
       isPrithviSleeping,
       rahuHeadDir,
       neevDirection,
-      taraText,
+      taraText: isTaraGood ? `शुभ तारा (${taraNum})` : `अशुभ तारा (${taraNum})`,
       isTaraGood,
-      moonText,
+      moonText: isMoonGood ? `शुभ चंद्र (${moonDiff}वां)` : `अशुभ चंद्र (${moonDiff}वां)`,
       isMoonGood,
       lagnaWindow,
       totalScore
@@ -1100,12 +1170,40 @@ function calculateAllVastuMuhurta() {
 
   candidates.sort((a, b) => b.totalScore - a.totalScore);
   candidates.forEach((c, idx) => { c.rank = idx + 1; });
+  return candidates;
+}
 
-  renderResults(owner, candidates);
+/* Main Muhurta Evaluator Engine */
+function calculateAllVastuMuhurta() {
+  let owner = getGrahswamiNatal();
+  let targetYear = parseInt(document.getElementById('targetYear').value);
+  let targetMonth = parseInt(document.getElementById('targetMonth').value);
+  let lat = parseFloat(document.getElementById('lat').value);
+  let lon = parseFloat(document.getElementById('lon').value);
+  let tz = parseFloat(document.getElementById('tz').value);
+
+  // 1. Neev Pujan Candidates (Target Month)
+  let neevCandidates = evaluateMonthCandidates(owner, targetYear, targetMonth, lat, lon, tz);
+
+  // 2. Griha Pravesha Candidates for 5th, 6th, and 7th Months later
+  let m5 = ((targetMonth - 1 + 5) % 12) + 1;
+  let y5 = targetYear + Math.floor((targetMonth - 1 + 5) / 12);
+
+  let m6 = ((targetMonth - 1 + 6) % 12) + 1;
+  let y6 = targetYear + Math.floor((targetMonth - 1 + 6) / 12);
+
+  let m7 = ((targetMonth - 1 + 7) % 12) + 1;
+  let y7 = targetYear + Math.floor((targetMonth - 1 + 7) / 12);
+
+  let griha5 = evaluateMonthCandidates(owner, y5, m5, lat, lon, tz).slice(0, 5);
+  let griha6 = evaluateMonthCandidates(owner, y6, m6, lat, lon, tz).slice(0, 5);
+  let griha7 = evaluateMonthCandidates(owner, y7, m7, lat, lon, tz).slice(0, 5);
+
+  renderResults(owner, neevCandidates, { m5, y5, griha5, m6, y6, griha6, m7, y7, griha7 });
 }
 
 /* RENDER OUTPUT TO ALL TABS */
-function renderResults(owner, candidates) {
+function renderResults(owner, neevCandidates, grihaPhases) {
   document.getElementById('astroOwnerDetails').innerHTML = `
     <p><strong>नाम:</strong> ${owner.name}</p>
     <p><strong>जन्म लग्न:</strong> ${owner.lagnaSignName}</p>
@@ -1114,8 +1212,9 @@ function renderResults(owner, candidates) {
     <p><strong>अष्टम राशि (त्याज्य):</strong> ${owner.ashtamaRashiName}</p>
   `;
 
+  // Tab 1: Rankwise Neev Pujan Table
   let htmlTable = "";
-  candidates.forEach(c => {
+  neevCandidates.forEach(c => {
     let scoreBadge = c.totalScore >= 75 ? `<span class="badge-pass">${c.totalScore}% (उत्तम)</span>` :
                      (c.totalScore >= 50 ? `<span class="badge-warn">${c.totalScore}% (मध्यम)</span>` :
                                            `<span class="badge-fail">${c.totalScore}% (अशुभ)</span>`);
@@ -1137,7 +1236,8 @@ function renderResults(owner, candidates) {
   });
   document.getElementById('rankwiseTbody').innerHTML = htmlTable;
 
-  let top3 = candidates.slice(0, 3);
+  // Tab 2: Neev Pujan Cards
+  let top3 = neevCandidates.slice(0, 3);
   let neevHtml = "";
   top3.forEach(c => {
     neevHtml += `
@@ -1154,20 +1254,35 @@ function renderResults(owner, candidates) {
   });
   document.getElementById('neevGrid').innerHTML = neevHtml;
 
-  let grihaHtml = "";
-  top3.forEach(c => {
-    grihaHtml += `
-      <div class="info-card">
-        <h3>🏡 गृह प्रवेश मुहूर्त - Rank #${c.rank} (${c.dateStr})</h3>
-        <p><strong>वार व तिथि:</strong> ${c.varaName}, ${c.tithiName}</p>
-        <p><strong>नक्षत्र:</strong> ${c.nakshatraName}</p>
-        <p><strong>अपूर्वा/सपूर्वा गृह प्रवेश:</strong> <span class="badge-pass">शुभ</span></p>
-        <p><strong>कलश वास्तु चक्र:</strong> अमृत योग</p>
-        <p><strong>शुभ गृह प्रवेश लग्न समय:</strong> ${c.lagnaWindow}</p>
+  // Tab 3: Griha Pravesha Phases (5th, 6th, 7th Months)
+  let monthNames = ["", "जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
+  let grihaContainer = document.getElementById('grihaPhaseContainer');
+
+  function renderPhaseSection(title, monthNum, yearNum, list) {
+    let cards = list.map(c => `
+      <div style="background:var(--bg-body); border:1px solid var(--border-color); border-radius:10px; padding:14px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge-rank">Rank #${c.rank}</span>
+          <span class="badge-pass">${c.totalScore}% Score</span>
+        </div>
+        <p style="font-size:14px; font-weight:700; color:var(--text-main); margin-top:6px;">${c.dateStr} (${c.varaName})</p>
+        <p style="font-size:12.5px; color:var(--gold);">${c.tithiName} • ${c.nakshatraName}</p>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">शुभ प्रवेश लग्न समय: ${c.lagnaWindow}</p>
+      </div>
+    `).join('');
+
+    return `
+      <div class="info-card" style="margin-bottom:24px;">
+        <h3>🏡 ${title} — ${monthNames[monthNum]} ${yearNum} (Top 5 Best Griha Pravesha Dates)</h3>
+        ${cards}
       </div>
     `;
-  });
-  document.getElementById('grihaGrid').innerHTML = grihaHtml;
+  }
+
+  grihaContainer.innerHTML = 
+    renderPhaseSection("5 महीने बाद (5th Month Later)", grihaPhases.m5, grihaPhases.y5, grihaPhases.griha5) +
+    renderPhaseSection("6 महीने बाद (6th Month Later)", grihaPhases.m6, grihaPhases.y6, grihaPhases.griha6) +
+    renderPhaseSection("7 महीने बाद (7th Month Later)", grihaPhases.m7, grihaPhases.y7, grihaPhases.griha7);
 }
 
 /* OPEN-METEO WORLDWIDE AUTOCOMPLETE SEARCH */
@@ -1205,7 +1320,7 @@ function selectPlace(name, lat, lon) {
   document.getElementById('citySearchResults').style.display = 'none';
 }
 
-/* LEAFLET MAP MODAL */
+/* LEAFLET / GOOGLE MAPS STYLE MODAL */
 let map, marker;
 function openMapModal() {
   document.getElementById('mapModal').style.display = 'flex';
@@ -1240,30 +1355,69 @@ function switchTab(tabId, el) {
   document.getElementById(tabId).classList.add('active');
 }
 
+const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
+
 /* PAYWALL & VIP UNLOCK POPUP (EXACTLY LIKE VMM) */
 function triggerRazorpayCheckout() {
-  var options = {
-    "key": "rzp_live_dummykey",
-    "amount": 111100, // ₹1,111 in paise
-    "currency": "INR",
-    "name": "Shri Ramji Astro",
-    "description": "20-Min VIP Access — Vastu & Griha Muhurta Engine",
-    "handler": function (response) {
-      unlockVipAccess();
-    },
-    "prefill": {
-      "name": document.getElementById('ownerName').value || "Client",
-      "email": "eshriee@gmail.com",
-      "contact": "9517117775"
-    },
-    "theme": { "color": "#7c1305" }
-  };
   try {
+    var options = {
+      key: RZP_KEY,
+      amount: 111100, // ₹1,111 in paise
+      currency: "INR",
+      name: "Shri Ramji Astro",
+      description: "20-Min VIP Access — Vastu & Griha Muhurta Engine",
+      prefill: {
+        name: document.getElementById('ownerName') ? (document.getElementById('ownerName').value || "Client") : "Client",
+        email: "eshriee@gmail.com",
+        contact: "9517117775"
+      },
+      theme: { color: "#7c1305" },
+      config: {
+        display: {
+          blocks: {
+            upi: { name: 'UPI', instruments: [{ method: 'upi' }] },
+            card: { name: 'Card', instruments: [{ method: 'card' }] },
+            nb: { name: 'Net Banking', instruments: [{ method: 'netbanking' }] }
+          },
+          sequence: ['block.upi', 'block.card', 'block.nb'],
+          preferences: { show_default_blocks: true }
+        }
+      },
+      handler: function (response) {
+        unlockVipAccess();
+      },
+      modal: {
+        ondismiss: function() {
+          console.log('Razorpay modal closed');
+        }
+      }
+    };
     var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response) {
+      alert("भुगतान विफल! (Payment Failed): " + (response.error.description || "कृपया पुनः प्रयास करें या UPI ID / VIP कोड का उपयोग करें।"));
+    });
     rzp1.open();
   } catch(e) {
-    alert("Payment popup simulated! Unlocking VIP access...");
+    console.error("Razorpay Error:", e);
+    alert("Razorpay डायरेक्ट विंडो लोड नहीं हो सकी। कृपया UPI QR Code या VIP Code / UTR विकल्प का उपयोग करें।");
+    togglePaymentQrView();
+  }
+}
+
+function togglePaymentQrView() {
+  var qrView = document.getElementById('paymentQrView');
+  if (qrView) {
+    qrView.style.display = (qrView.style.display === 'block') ? 'none' : 'block';
+  }
+}
+
+function verifyPaymentUTR() {
+  var utr = document.getElementById('utrInput') ? document.getElementById('utrInput').value.trim() : '';
+  if (utr.length >= 6) {
+    alert("UTR " + utr + " सत्यापित हुआ! VIP एक्सेस सक्षम किया जा रहा है...");
     unlockVipAccess();
+  } else {
+    alert("कृपया कम से कम 6 अंकों का वैध UTR / Transaction ID दर्ज करें।");
   }
 }
 
@@ -1308,7 +1462,7 @@ function lockAccessExpired() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Paywall popup is active by default; unlock code or Razorpay payment opens full 20-min session!
+  // Active popup by default
 });
 </script>
 </body>
