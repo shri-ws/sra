@@ -813,15 +813,21 @@
 
   <!-- TABS NAV -->
   <div class="tabs-header">
-    <button class="tab-btn active" onclick="switchTab('tab-rankwise', this)">🏆 नींव पूजन मुहूर्त (Rankwise)</button>
-    <button class="tab-btn" onclick="switchTab('tab-neev', this)">🧱 नींव पूजन व राहु मुख चक्र</button>
-    <button class="tab-btn" onclick="switchTab('tab-griha', this)">🏡 गृह प्रवेश मुहूर्त (5वें, 6वें, 7वें महीने)</button>
+    <button class="tab-btn active" onclick="switchTab('tab-neev-rank', this)">🧱 नींव पूजन मुहूर्त (Shilanyas Engine)</button>
+    <button class="tab-btn" onclick="switchTab('tab-griha-rank', this)">🏡 गृह प्रवेश मुहूर्त (Griha Pravesha Engine)</button>
+    <button class="tab-btn" onclick="switchTab('tab-griha-phases', this)">🗓️ 5वें, 6वें, 7वें महीने गृह प्रवेश</button>
     <button class="tab-btn" onclick="switchTab('tab-compass', this)">🧭 वास्तु दिशा चक्र (Vastu Compass)</button>
-    <button class="tab-btn" onclick="switchTab('tab-astro', this)">📜 गृहस्वामी कुण्डली व शास्त्रीय नियम</button>
+    <button class="tab-btn" onclick="switchTab('tab-shastra-rules', this)">📜 'मुहूर्त चिन्तामणि' भेद व नियम</button>
   </div>
 
-  <!-- TAB 1: RANKWISE MUHURTA TABLE -->
-  <div id="tab-rankwise" class="tab-pane active">
+  <!-- TAB 1: NEEV PUJAN MUHURTA TABLE -->
+  <div id="tab-neev-rank" class="tab-pane active">
+    <div class="info-card" style="margin-bottom:16px;">
+      <h3 style="color:var(--gold);">🧱 'मुहूर्त चिंतामणि' (वास्तु प्रकरणम्) — नींव पूजन व शिलान्यास मुहूर्त गणना</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+        नींव पूजन (खातारम्भ) खाली जमीन पर निर्माण शुरू करने से पूर्व किया जाता है। इसमें <strong>राहु मुख चक्र</strong> (राहु मुख के सामने खनन मना), <strong>पृथ्वी शयन</strong> (सोयी पृथ्वी के नक्षत्र त्याज्य), <strong>सौर स्थिर राशि</strong> (वृषभ, सिंह, वृश्चिक, कुंभ) तथा प्रथम खनन की दिशा (ईशान, आग्नेय, नैऋत्य, वायव्य) का विचार किया गया है।
+      </p>
+    </div>
     <div class="results-table-wrap">
       <table class="results-table">
         <thead>
@@ -830,28 +836,52 @@
             <th>दिनांक व वार</th>
             <th>पंचांग तिथि व नक्षत्र</th>
             <th>मास व पृथ्वी शयन</th>
-            <th>राहु मुख / खनन दिशा</th>
+            <th>राहु मुख व खनन दिशा</th>
             <th>चंद्र व तारा बल</th>
             <th>स्थिर लग्न समय (Window)</th>
             <th>उपयुक्तता स्कोर</th>
           </tr>
         </thead>
-        <tbody id="rankwiseTbody">
+        <tbody id="neevRankwiseTbody">
           <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">गणना करने के लिए ऊपर बटन पर क्लिक करें...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- TAB 2: NEEV PUJAN & SHILANYASA -->
-  <div id="tab-neev" class="tab-pane">
-    <div class="info-grid" id="neevGrid"></div>
+  <!-- TAB 2: GRIHA PRAVESHA MUHURTA TABLE -->
+  <div id="tab-griha-rank" class="tab-pane">
+    <div class="info-card" style="margin-bottom:16px;">
+      <h3 style="color:var(--gold);">🏡 'मुहूर्त चिंतामणि' (गृहप्रवेश प्रकरणम्) — अपूर्वा गृह प्रवेश मुहूर्त गणना</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+        गृह प्रवेश नया मकान पूर्ण निर्मित (छत ढलने व कपाट लगने) के बाद किया जाता है। इसमें <strong>सूर्य उत्तरायण अनिवार्य</strong> (मकर से मिथुन), <strong>शुभ सौर मास</strong> (माघ, फाल्गुन, वैशाख, ज्येष्ठ), <strong>गृहस्वामी अष्टम शुद्धि</strong> (8वीं राशि में चंद्र/लग्न न हो) तथा स्थिर/द्विस्वभाव लग्न का सूक्ष्म विचार किया जाता है।
+      </p>
+    </div>
+    <div class="results-table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>दिनांक व वार</th>
+            <th>पंचांग तिथि व नक्षत्र</th>
+            <th>सूर्य अयन व सौर मास</th>
+            <th>गृहस्वामी अष्टम शुद्धि</th>
+            <th>चंद्र व तारा बल</th>
+            <th>प्रवेश लग्न समय (Window)</th>
+            <th>उपयुक्तता स्कोर</th>
+          </tr>
+        </thead>
+        <tbody id="grihaRankwiseTbody">
+          <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">गणना करने के लिए ऊपर बटन पर क्लिक करें...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- TAB 3: GRIHA PRAVESHA (5TH, 6TH, 7TH MONTHS) -->
-  <div id="tab-griha" class="tab-pane">
+  <div id="tab-griha-phases" class="tab-pane">
     <div class="info-card" style="margin-bottom:20px;">
-      <h3 style="color:var(--gold);">📜 'मुहूर्त चिन्तामणि' अनुसार नींव पूजन एवं गृह प्रवेश का विशेष नियम</h3>
+      <h3 style="color:var(--gold);">🗓️ नींव पूजन से 5वें, 6वें और 7वें महीने का गृह प्रवेश समय चक्र</h3>
       <p style="font-size:13px; color:var(--text-muted); line-height:1.7;">
         <strong>अपूर्वा गृह प्रवेश नियम:</strong> नए नींव पूजन के बाद मकान का पूर्ण निर्माण होकर गृह प्रवेश का समय न्यूनतम 5वें, 6वें या 7वें महीने के बाद ही आता है। 5 महीने से पहले नवीन मकान में रहना 'अपूर्ण गृहप्रवेश दोष' माना जाता है। नीचे नींव पूजन तिथि के आधार पर 5वें, 6वें और 7वें महीने के <strong>शीर्ष 5-5 सर्वश्रेष्ठ गृह प्रवेश मुहूर्त</strong> गृहस्वामी की कुंडली से मिलाकर दिए गए हैं:
       </p>
@@ -916,23 +946,49 @@
     </div>
   </div>
 
-  <!-- TAB 5: GRAHSWAMI ASTRO ANALYSIS -->
-  <div id="tab-astro" class="tab-pane">
+  <!-- TAB 5: SHASTRA RULES & DIFFERENCES -->
+  <div id="tab-shastra-rules" class="tab-pane">
+    <div class="info-card" style="margin-bottom:20px;">
+      <h3 style="color:var(--gold);">📜 'मुहूर्त चिन्तामणि' अनुसार नींव पूजन एवं गृह प्रवेश में मौलिक अंतर</h3>
+      <p style="font-size:13.5px; color:var(--text-main); line-height:1.8;">
+        <strong>क्या नींव पूजन और गृह प्रवेश के मुहूर्त अलग-अलग होते हैं?</strong><br>
+        <strong>उत्तर: हाँ, दोनों के मुहूर्त पूर्णतः अलग और भिन्न-भिन्न नियमों पर आधारित होते हैं।</strong> नींव पूजन भूखंड पर निर्माण शुरू करने की प्रथम क्रिया है, जबकि गृह प्रवेश मकान पूर्ण बन जाने पर परिवार सहित निवास शुरू करने की क्रिया है।
+      </p>
+    </div>
+
     <div class="info-grid">
       <div class="info-card">
-        <h3>📜 गृहस्वामी जन्मकुण्डली विवरण</h3>
-        <div id="astroOwnerDetails" style="font-size:13.5px; line-height:1.8; color:var(--text-main);"></div>
-      </div>
-      <div class="info-card">
-        <h3>✨ ज्योतिषीय बल एवं गृह प्रवेश नियम</h3>
+        <h3 style="color:var(--gold);">🧱 1. नींव पूजन (शिलान्यास / खातारम्भ) नियम</h3>
         <ul style="font-size:13px; color:var(--text-muted); line-height:1.8; padding-left:18px;">
-          <li><strong>तारा बल:</strong> 2, 4, 6, 8, 9 ताराएं शुभ; 1, 3, 5, 7 ताराएं त्याज्य।</li>
-          <li><strong>चंद्र बल:</strong> 1, 3, 6, 7, 10, 11 भाव शुभ; 4, 8, 12 भाव त्याज्य।</li>
-          <li><strong>अष्टम शुद्धि:</strong> गृहस्वामी की जन्म राशि से 8वीं राशि का लग्न व चंद्रमा वर्जित।</li>
-          <li><strong>राहु मुख चक्र:</strong> सूर्य राशि अनुसार राहु के मुख के सामने खनन निषेध, पृष्ठ भाग में शुभ।</li>
-          <li><strong>अपूर्वा गृह प्रवेश:</strong> नींव पूजन से 5, 6, 7 महीने बाद सूर्य के उत्तरायण व शुभ सौर मास में गृह प्रवेश अति उत्तम।</li>
+          <li><strong>राहु मुख चक्र:</strong> सूर्य की राशि अनुसार राहु के मुख की दिशा निश्चित होती है। राहु के मुख के सामने पृथ्वी की खुदाई वर्जित है, पृष्ठ या बाहु भाग में खुदाई शुभ मानी जाती है।</li>
+          <li><strong>पृथ्वी शयन विचार:</strong> सूर्य नक्षत्र से चंद्र नक्षत्र की गणना करने पर 5, 7, 9, 12, 19, 26 नक्षत्रों में पृथ्वी सोयी (सुप्त) रहती है। सोयी पृथ्वी पर खुदाई निषेध है।</li>
+          <li><strong>शुभ मास:</strong> वैशाख, श्रावण, मार्गशीर्ष (अगहन), फाल्गुन तथा सौर स्थिर राशियाँ (वृषभ, सिंह, वृश्चिक, कुंभ)।</li>
+          <li><strong>प्रथम खनन कोण:</strong> राहु स्थिति अनुसार ईशान, आग्नेय, नैऋत्य या वायव्य कोण में प्रथम कुदाली चलाना।</li>
         </ul>
+        <div class="shloka-box" style="margin-top:14px;">
+          "नक्तं दिवाकरं सन्ध्यां सूर्यास्तं च विवर्जयेत् । स्थिरस्वभावे स्थिरलग्ने गृहारम्भं तु कारयेत् ॥"<br>
+          <strong>— मुहूर्तचिन्तामणि (वास्तुप्रकरणम्)</strong>
+        </div>
       </div>
+
+      <div class="info-card">
+        <h3 style="color:var(--gold);">🏡 2. गृह प्रवेश (अपूर्वा गृह प्रवेश) नियम</h3>
+        <ul style="font-size:13px; color:var(--text-muted); line-height:1.8; padding-left:18px;">
+          <li><strong>सूर्य उत्तरायण अनिवार्य:</strong> नए निर्मित मकान (अपूर्वा) में केवल सूर्य के उत्तरायण (मकर से मिथुन राशि / माघ से ज्येष्ठ) होने पर ही प्रवेश शुभ होता है। दक्षिणायन में अपूर्वा प्रवेश वर्जित है।</li>
+          <li><strong>श्रेष्ठ मास:</strong> माघ, फाल्गुन, वैशाख, ज्येष्ठ। (सौर आषाढ़, श्रावण, भाद्रपद, आश्विन, कार्तिक, पौष वर्जित)।</li>
+          <li><strong>गृहस्वामी अष्टम शुद्धि:</strong> गृह प्रवेश के दिन गोचर चंद्रमा व प्रवेश लग्न गृहस्वामी की जन्म राशि से 8वें भाव में नहीं होना चाहिए (अष्टम चंद्र/लग्न दोष वर्जित)।</li>
+          <li><strong>शुभ लग्न:</strong> स्थिर लग्न (वृषभ, सिंह, वृश्चिक, कुंभ) या द्विस्वभाव लग्न।</li>
+        </ul>
+        <div class="shloka-box" style="margin-top:14px;">
+          "माघे फाल्गुन वैशाखे ज्येष्ठे मासि सुशोभनः । अपूर्वसंज्ञो गेहेशे शुभदे सूर्य उत्तरायणे ॥"<br>
+          <strong>— मुहूर्तचिन्तामणि (गृहप्रवेशप्रकरणम्)</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card" style="margin-top:20px;">
+      <h3>👤 गृहस्वामी जन्मकुण्डली विवरण</h3>
+      <div id="astroOwnerDetails" style="font-size:13.5px; line-height:1.8; color:var(--text-main);"></div>
     </div>
   </div>
 
@@ -1075,8 +1131,8 @@ function getGrahswamiNatal() {
   };
 }
 
-/* Helper to evaluate month candidates for Griha Pravesha / Neev */
-function evaluateMonthCandidates(owner, targetYear, targetMonth, lat, lon, tz) {
+/* Helper: Dedicated Neev Pujan Candidate Evaluator (Shilanyas / Foundation Laying) */
+function evaluateNeevCandidates(owner, targetYear, targetMonth, lat, lon, tz) {
   let daysInMonth = new Date(targetYear, targetMonth, 0).getDate();
   let candidates = [];
 
@@ -1098,24 +1154,30 @@ function evaluateMonthCandidates(owner, targetYear, targetMonth, lat, lon, tz) {
     let dateObj = new Date(targetYear, targetMonth - 1, day);
     let varaIndex = dateObj.getDay();
 
+    // Neev Pujan Month Check (Fixed Solar Signs preferred)
     let monthScore = 0;
-    let monthStatus = "सामान्य";
-    if ([1, 4, 8, 11].includes(targetMonth)) {
+    let monthStatus = "सामान्य मास";
+    if ([1, 4, 7, 10].includes(sunSignIndex)) { // Fixed Solar Signs: Vrishabh, Simha, Vrishchik, Kumbha
+      monthScore = 35;
+      monthStatus = "स्थिर सौर राशि (अति शुभ)";
+    } else if ([1, 4, 8, 11].includes(targetMonth)) { // Vaishakh, Shravan, Agahan, Phalguna
       monthScore = 25;
-      monthStatus = "अत्यंत शुभ (वैशाख/श्रावण/अगहन/फाल्गुन)";
+      monthStatus = "शुभ मास (वैशाख/श्रावण/अगहन/फाल्गुन)";
     } else if ([5, 6].includes(targetMonth)) {
       monthScore = 10;
       monthStatus = "मध्यम (ज्येष्ठ/आषाढ़)";
     } else {
-      monthScore = -20;
+      monthScore = -25;
       monthStatus = "वर्जित मास";
     }
 
+    // Prithvi Shayana Check
     let prithviCount = ((moonNakshatraIndex - sunNakshatraIndex + 27) % 27) + 1;
     let isPrithviSleeping = [5, 7, 9, 12, 19, 26].includes(prithviCount);
-    let prithviScore = isPrithviSleeping ? -30 : 15;
-    let prithviText = isPrithviSleeping ? "सोयी हुई पृथ्वी" : "जागृत पृथ्वी";
+    let prithviScore = isPrithviSleeping ? -40 : 20;
+    let prithviText = isPrithviSleeping ? "सोयी हुई पृथ्वी (वर्जित)" : "जागृत पृथ्वी (शुभ)";
 
+    // Rahu Mukha & First Digging Corner
     let rahuHeadDir = "";
     let neevDirection = "";
     if ([4, 5, 6].includes(sunSignIndex)) {
@@ -1128,6 +1190,7 @@ function evaluateMonthCandidates(owner, targetYear, targetMonth, lat, lon, tz) {
       rahuHeadDir = "उत्तर (North)"; neevDirection = "दक्षिण (South) / नैऋत्य (दक्षिण-पश्चिम)";
     }
 
+    // Tara & Moon Strength for Grahswami
     let taraDiff = ((moonNakshatraIndex - owner.nakshatraIndex + 27) % 27) + 1;
     let taraNum = ((taraDiff - 1) % 9) + 1;
     let isTaraGood = [2, 4, 6, 8, 9].includes(taraNum);
@@ -1137,40 +1200,125 @@ function evaluateMonthCandidates(owner, targetYear, targetMonth, lat, lon, tz) {
     let isMoonGood = [1, 3, 6, 7, 10, 11].includes(moonDiff);
     let moonScore = isMoonGood ? 20 : ([2, 5, 9].includes(moonDiff) ? 10 : -30);
 
-    let isVaraGood = [1, 3, 4, 5].includes(varaIndex);
+    let isVaraGood = [1, 3, 4, 5].includes(varaIndex); // Mon, Wed, Thu, Fri
     let varaScore = isVaraGood ? 10 : -10;
 
-    let lagnaWindow = "सुबह 08:30 AM - 10:45 AM (वृषभ लग्न)";
+    let lagnaWindow = "सुबह 08:30 AM - 10:45 AM (वृषभ स्थिर लग्न)";
     if (sunSignIndex === 5 || sunSignIndex === 6) {
-      lagnaWindow = "सुबह 09:15 AM - 11:30 AM (वृश्चिक लग्न)";
+      lagnaWindow = "सुबह 09:15 AM - 11:30 AM (वृश्चिक स्थिर लग्न)";
     } else if (sunSignIndex >= 7 && sunSignIndex <= 9) {
-      lagnaWindow = "दोपहर 12:00 PM - 02:15 PM (कुंभ लग्न)";
+      lagnaWindow = "दोपहर 12:00 PM - 02:15 PM (कुंभ स्थिर लग्न)";
     }
 
-    let totalScore = 50 + monthScore + prithviScore + taraScore + moonScore + varaScore;
+    let totalScore = 40 + monthScore + prithviScore + taraScore + moonScore + varaScore;
     if (totalScore > 100) totalScore = 100;
     if (totalScore < 0) totalScore = 0;
 
     candidates.push({
       dateStr: `${day}-${targetMonth}-${targetYear}`,
-      day,
-      month: targetMonth,
-      year: targetYear,
+      day, month: targetMonth, year: targetYear,
       varaName: VARAS[varaIndex],
       tithiName: TITHIS[tithiIndex],
       nakshatraName: NAKSHATRAS[moonNakshatraIndex],
       moonSignName: RASHIS[moonSignIndex],
-      monthStatus,
-      prithviText,
-      isPrithviSleeping,
-      rahuHeadDir,
-      neevDirection,
-      taraText: isTaraGood ? `शुभ तारा (${taraNum})` : `अशुभ तारा (${taraNum})`,
-      isTaraGood,
-      moonText: isMoonGood ? `शुभ चंद्र (${moonDiff}वां)` : `अशुभ चंद्र (${moonDiff}वां)`,
-      isMoonGood,
-      lagnaWindow,
-      totalScore
+      monthStatus, prithviText, isPrithviSleeping,
+      rahuHeadDir, neevDirection,
+      taraText: isTaraGood ? `शुभ तारा (${taraNum})` : `अशुभ तारा (${taraNum})`, isTaraGood,
+      moonText: isMoonGood ? `शुभ चंद्र (${moonDiff}वां)` : `अशुभ चंद्र (${moonDiff}वां)`, isMoonGood,
+      lagnaWindow, totalScore
+    });
+  }
+
+  candidates.sort((a, b) => b.totalScore - a.totalScore);
+  candidates.forEach((c, idx) => { c.rank = idx + 1; });
+  return candidates;
+}
+
+/* Helper: Dedicated Griha Pravesha Candidate Evaluator (Apoorva Griha Pravesh) */
+function evaluateGrihaCandidates(owner, targetYear, targetMonth, lat, lon, tz) {
+  let daysInMonth = new Date(targetYear, targetMonth, 0).getDate();
+  let candidates = [];
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    let localHour = 6.0;
+    let utHour = localHour - tz;
+    let jd = toJD(targetYear, targetMonth, day, utHour);
+
+    let sunDeg = getSunLongitude(jd);
+    let moonDeg = getMoonLongitude(jd);
+
+    let sunSignIndex = Math.floor(sunDeg / 30);
+    let moonSignIndex = Math.floor(moonDeg / 30);
+    let sunNakshatraIndex = Math.floor(sunDeg / (360/27));
+    let moonNakshatraIndex = Math.floor(moonDeg / (360/27));
+
+    let tithiDiff = (moonDeg - sunDeg + 360) % 360;
+    let tithiIndex = Math.floor(tithiDiff / 12);
+    let dateObj = new Date(targetYear, targetMonth - 1, day);
+    let varaIndex = dateObj.getDay();
+
+    // 1. Uttarayana Check (Sun in Capricorn to Gemini: 270° to 90°)
+    let isUttarayana = (sunDeg >= 270 || sunDeg < 90);
+    let ayanaStatus = isUttarayana ? "सूर्य उत्तरायण (अति शुभ)" : "दक्षिणायन (अपूर्वा में वर्जित)";
+    let ayanaScore = isUttarayana ? 35 : -45;
+
+    // 2. Solar Month Check for Griha Pravesh (Magha, Phalguna, Vaishakha, Jyeshtha)
+    let grihaMonthScore = 0;
+    let grihaMonthStatus = "सामान्य मास";
+    if ([10, 11, 0, 1].includes(sunSignIndex)) { // Magha, Phalguna, Vaishakha, Jyeshtha Solar Months
+      grihaMonthScore = 35;
+      grihaMonthStatus = "उत्तम गृहप्रवेश मास (माघ/फाल्गुन/वैशाख/ज्येष्ठ)";
+    } else if (sunSignIndex === 11 || sunSignIndex === 2) {
+      grihaMonthScore = 10;
+      grihaMonthStatus = "मध्यम मास (चैत्र/आषाढ़)";
+    } else {
+      grihaMonthScore = -35;
+      grihaMonthStatus = "वर्जित मास (अपूर्वा गृहप्रवेश में निषेध)";
+    }
+
+    // 3. Grahswami Ashtama Shuddhi Check (8th House Moon from Birth Rashi)
+    let moonDiff = ((moonSignIndex - owner.moonSignIndex + 12) % 12) + 1;
+    let isAshtamaDosh = (moonDiff === 8);
+    let isMoonGood = [1, 3, 6, 7, 10, 11].includes(moonDiff);
+    let ashtamaScore = isAshtamaDosh ? -50 : (isMoonGood ? 25 : -20);
+    let ashtamaText = isAshtamaDosh ? "अष्टम चंद्र दोष (अत्यंत वर्जित)" : (isMoonGood ? `शुभ चंद्र बल (${moonDiff}वां)` : `मध्यम चंद्र (${moonDiff}वां)`);
+
+    // 4. Griha Pravesh Nakshatra Check
+    let isGrihaNakshatra = [3, 11, 12, 13, 14, 16, 20, 25, 26].includes(moonNakshatraIndex); // Rohini, Uttara Phalguni, Uttara Ashadha, Uttara Bhadrapada, Anuradha, Revati, Chitra, Swati, Shatabhisha
+    let nakshatraScore = isGrihaNakshatra ? 25 : -15;
+
+    // 5. Tara Strength
+    let taraDiff = ((moonNakshatraIndex - owner.nakshatraIndex + 27) % 27) + 1;
+    let taraNum = ((taraDiff - 1) % 9) + 1;
+    let isTaraGood = [2, 4, 6, 8, 9].includes(taraNum);
+    let taraScore = isTaraGood ? 15 : -20;
+
+    let isVaraGood = [1, 3, 4, 5].includes(varaIndex); // Mon, Wed, Thu, Fri
+    let varaScore = isVaraGood ? 10 : -15;
+
+    let lagnaWindow = "प्रातः 07:30 AM - 09:45 AM (स्थिर/द्विस्वभाव लग्न)";
+    if (sunSignIndex === 0 || sunSignIndex === 1) {
+      lagnaWindow = "प्रातः 06:15 AM - 08:30 AM (वृषभ/मिथुन लग्न)";
+    } else if (sunSignIndex >= 10) {
+      lagnaWindow = "प्रातः 08:00 AM - 10:15 AM (कुंभ/मीन लग्न)";
+    }
+
+    let totalScore = 30 + ayanaScore + grihaMonthScore + ashtamaScore + nakshatraScore + taraScore + varaScore;
+    if (totalScore > 100) totalScore = 100;
+    if (totalScore < 0) totalScore = 0;
+
+    candidates.push({
+      dateStr: `${day}-${targetMonth}-${targetYear}`,
+      day, month: targetMonth, year: targetYear,
+      varaName: VARAS[varaIndex],
+      tithiName: TITHIS[tithiIndex],
+      nakshatraName: NAKSHATRAS[moonNakshatraIndex],
+      moonSignName: RASHIS[moonSignIndex],
+      ayanaStatus, isUttarayana,
+      grihaMonthStatus,
+      ashtamaText, isAshtamaDosh, isMoonGood,
+      taraText: isTaraGood ? `शुभ तारा (${taraNum})` : `अशुभ तारा (${taraNum})`, isTaraGood,
+      lagnaWindow, totalScore
     });
   }
 
@@ -1189,9 +1337,12 @@ function calculateAllVastuMuhurta() {
   let tz = parseFloat(document.getElementById('tz').value);
 
   // 1. Neev Pujan Candidates (Target Month)
-  let neevCandidates = evaluateMonthCandidates(owner, targetYear, targetMonth, lat, lon, tz);
+  let neevCandidates = evaluateNeevCandidates(owner, targetYear, targetMonth, lat, lon, tz);
 
-  // 2. Griha Pravesha Candidates for 5th, 6th, and 7th Months later
+  // 2. Griha Pravesh Candidates (Target Month)
+  let grihaCandidates = evaluateGrihaCandidates(owner, targetYear, targetMonth, lat, lon, tz);
+
+  // 3. Griha Pravesha Candidates for 5th, 6th, and 7th Months later
   let m5 = ((targetMonth - 1 + 5) % 12) + 1;
   let y5 = targetYear + Math.floor((targetMonth - 1 + 5) / 12);
 
@@ -1201,25 +1352,28 @@ function calculateAllVastuMuhurta() {
   let m7 = ((targetMonth - 1 + 7) % 12) + 1;
   let y7 = targetYear + Math.floor((targetMonth - 1 + 7) / 12);
 
-  let griha5 = evaluateMonthCandidates(owner, y5, m5, lat, lon, tz).slice(0, 5);
-  let griha6 = evaluateMonthCandidates(owner, y6, m6, lat, lon, tz).slice(0, 5);
-  let griha7 = evaluateMonthCandidates(owner, y7, m7, lat, lon, tz).slice(0, 5);
+  let griha5 = evaluateGrihaCandidates(owner, y5, m5, lat, lon, tz).slice(0, 5);
+  let griha6 = evaluateGrihaCandidates(owner, y6, m6, lat, lon, tz).slice(0, 5);
+  let griha7 = evaluateGrihaCandidates(owner, y7, m7, lat, lon, tz).slice(0, 5);
 
-  renderResults(owner, neevCandidates, { m5, y5, griha5, m6, y6, griha6, m7, y7, griha7 });
+  renderResults(owner, neevCandidates, grihaCandidates, { m5, y5, griha5, m6, y6, griha6, m7, y7, griha7 });
 }
 
 /* RENDER OUTPUT TO ALL TABS */
-function renderResults(owner, neevCandidates, grihaPhases) {
-  document.getElementById('astroOwnerDetails').innerHTML = `
+function renderResults(owner, neevCandidates, grihaCandidates, grihaPhases) {
+  let astroDetailsHtml = `
     <p><strong>नाम:</strong> ${owner.name}</p>
     <p><strong>जन्म लग्न:</strong> ${owner.lagnaSignName}</p>
     <p><strong>जन्म राशि (चंद्र):</strong> ${owner.moonSignName}</p>
     <p><strong>जन्म नक्षत्र:</strong> ${owner.nakshatraName}</p>
-    <p><strong>अष्टम राशि (त्याज्य):</strong> ${owner.ashtamaRashiName}</p>
+    <p><strong>अष्टम राशि (गृहप्रवेश वर्जित):</strong> ${owner.ashtamaRashiName}</p>
   `;
+  if (document.getElementById('astroOwnerDetails')) {
+    document.getElementById('astroOwnerDetails').innerHTML = astroDetailsHtml;
+  }
 
   // Tab 1: Rankwise Neev Pujan Table
-  let htmlTable = "";
+  let neevHtml = "";
   neevCandidates.forEach(c => {
     let scoreBadge = c.totalScore >= 75 ? `<span class="badge-pass">${c.totalScore}% (उत्तम)</span>` :
                      (c.totalScore >= 50 ? `<span class="badge-warn">${c.totalScore}% (मध्यम)</span>` :
@@ -1227,7 +1381,7 @@ function renderResults(owner, neevCandidates, grihaPhases) {
 
     let prithviBadge = c.isPrithviSleeping ? `<span class="badge-fail">सोयी पृथ्वी</span>` : `<span class="badge-pass">जागृत</span>`;
 
-    htmlTable += `
+    neevHtml += `
       <tr>
         <td><span class="badge-rank">Rank #${c.rank}</span></td>
         <td><strong>${c.dateStr}</strong><br><small style="color:var(--text-muted);">${c.varaName}</small></td>
@@ -1240,25 +1394,35 @@ function renderResults(owner, neevCandidates, grihaPhases) {
       </tr>
     `;
   });
-  document.getElementById('rankwiseTbody').innerHTML = htmlTable;
+  if (document.getElementById('neevRankwiseTbody')) {
+    document.getElementById('neevRankwiseTbody').innerHTML = neevHtml;
+  }
 
-  // Tab 2: Neev Pujan Cards
-  let top3 = neevCandidates.slice(0, 3);
-  let neevHtml = "";
-  top3.forEach(c => {
-    neevHtml += `
-      <div class="info-card">
-        <h3>🧱 शिलान्यास मुहूर्त - Rank #${c.rank} (${c.dateStr})</h3>
-        <p><strong>वार व तिथि:</strong> ${c.varaName}, ${c.tithiName}</p>
-        <p><strong>नक्षत्र:</strong> ${c.nakshatraName}</p>
-        <p><strong>प्रथम खनन एवं नींव पूजन दिशा:</strong> <span style="color:var(--gold); font-weight:700;">${c.neevDirection}</span></p>
-        <p><strong>राहु मुख स्थिति:</strong> ${c.rahuHeadDir} (मुख के सामने खनन वर्जित)</p>
-        <p><strong>पृथ्वी शयन स्थिति:</strong> ${c.prithviText}</p>
-        <p><strong>शुभ लग्न मुहूर्त समय:</strong> ${c.lagnaWindow}</p>
-      </div>
+  // Tab 2: Rankwise Griha Pravesha Table
+  let grihaHtml = "";
+  grihaCandidates.forEach(c => {
+    let scoreBadge = c.totalScore >= 75 ? `<span class="badge-pass">${c.totalScore}% (उत्तम)</span>` :
+                     (c.totalScore >= 50 ? `<span class="badge-warn">${c.totalScore}% (मध्यम)</span>` :
+                                           `<span class="badge-fail">${c.totalScore}% (अशुभ)</span>`);
+
+    let ayanaBadge = c.isUttarayana ? `<span class="badge-pass">उत्तरायण</span>` : `<span class="badge-fail">दक्षिणायन</span>`;
+
+    grihaHtml += `
+      <tr>
+        <td><span class="badge-rank">Rank #${c.rank}</span></td>
+        <td><strong>${c.dateStr}</strong><br><small style="color:var(--text-muted);">${c.varaName}</small></td>
+        <td>${c.tithiName}<br><small style="color:var(--gold);">${c.nakshatraName}</small></td>
+        <td>${ayanaBadge}<br><small style="font-size:11px;">${c.grihaMonthStatus}</small></td>
+        <td><small style="color:${c.isAshtamaDosh?'var(--fail-text)':'var(--pass-text)'}; font-weight:700;">${c.ashtamaText}</small></td>
+        <td><small style="color:${c.isTaraGood?'var(--pass-text)':'var(--fail-text)'};">${c.taraText}</small></td>
+        <td><small>${c.lagnaWindow}</small></td>
+        <td>${scoreBadge}</td>
+      </tr>
     `;
   });
-  document.getElementById('neevGrid').innerHTML = neevHtml;
+  if (document.getElementById('grihaRankwiseTbody')) {
+    document.getElementById('grihaRankwiseTbody').innerHTML = grihaHtml;
+  }
 
   // Tab 3: Griha Pravesha Phases (5th, 6th, 7th Months)
   let monthNames = ["", "जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"];
@@ -1273,7 +1437,8 @@ function renderResults(owner, neevCandidates, grihaPhases) {
         </div>
         <p style="font-size:14px; font-weight:700; color:var(--text-main); margin-top:6px;">${c.dateStr} (${c.varaName})</p>
         <p style="font-size:12.5px; color:var(--gold);">${c.tithiName} • ${c.nakshatraName}</p>
-        <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">शुभ प्रवेश लग्न समय: ${c.lagnaWindow}</p>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">${c.ayanaStatus} | ${c.ashtamaText}</p>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">शुभ प्रवेश लग्न समय: ${c.lagnaWindow}</p>
       </div>
     `).join('');
 
@@ -1285,10 +1450,12 @@ function renderResults(owner, neevCandidates, grihaPhases) {
     `;
   }
 
-  grihaContainer.innerHTML = 
-    renderPhaseSection("5 महीने बाद (5th Month Later)", grihaPhases.m5, grihaPhases.y5, grihaPhases.griha5) +
-    renderPhaseSection("6 महीने बाद (6th Month Later)", grihaPhases.m6, grihaPhases.y6, grihaPhases.griha6) +
-    renderPhaseSection("7 महीने बाद (7th Month Later)", grihaPhases.m7, grihaPhases.y7, grihaPhases.griha7);
+  if (grihaContainer) {
+    grihaContainer.innerHTML = 
+      renderPhaseSection("5 महीने बाद (5th Month Later)", grihaPhases.m5, grihaPhases.y5, grihaPhases.griha5) +
+      renderPhaseSection("6 महीने बाद (6th Month Later)", grihaPhases.m6, grihaPhases.y6, grihaPhases.griha6) +
+      renderPhaseSection("7 महीने बाद (7th Month Later)", grihaPhases.m7, grihaPhases.y7, grihaPhases.griha7);
+  }
 }
 
 /* OPEN-METEO WORLDWIDE AUTOCOMPLETE SEARCH */
