@@ -296,15 +296,6 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
         </div>
         <div class="plan-price"><span class="plan-amt">₹4,999</span></div>
       </div>
-      <div class="plan" id="p-both" onclick="pick('both',26999,37000,'Course + Consultation Bundle')">
-        <div class="plan-dot"></div>
-        <div class="plan-text">
-          <div class="plan-name">💫 Course + Consultation Bundle</div>
-          <div class="plan-sub">Best value — Full program AND personal readings</div>
-          <div class="plan-emi">Low Cost EMI from ₹1,321/month</div>
-        </div>
-        <div class="plan-price"><span class="plan-amt">₹26,999</span><span class="plan-orig">₹37,000</span></div>
-      </div>
 
       <div class="emi-highlight">
         <div class="emi-highlight-icon">✨</div>
@@ -468,7 +459,7 @@ function pick(id,base,orig,name){
   S={id,name,base,orig,disc:0,total:0};
   document.getElementById('coupon').value='';
   document.getElementById('couponStatus').textContent='';
-  ['course','consult','both'].forEach(p=>document.getElementById('p-'+p).classList.toggle('active',p===id));
+  ['course','consult'].forEach(p=>{ const el=document.getElementById('p-'+p); if(el) el.classList.toggle('active',p===id); });
   updateSummary();
 }
 
