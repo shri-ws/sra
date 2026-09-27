@@ -613,6 +613,7 @@
                         <option value="mr">🌐 मराठी</option>
                     </select>
                     <button onclick="clearSavedChatHistory()" title="चैट इतिहास साफ़ करें" style="background:rgba(211,47,47,0.15); border:1px solid #d32f2f; color:#ff8a80; padding:3px 6px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold;">🗑️</button>
+                    <button onclick="lockAiModule()" title="SRA AI मॉड्यूल लॉक करें" style="background:rgba(211,47,47,0.25); border:1px solid #d32f2f; color:#ff8a80; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold;">🔒 Lock AI</button>
                     <span style="width:8px; height:8px; background:#25D366; border-radius:50%; display:inline-block;"></span>
                 </div>
             </div>
@@ -777,6 +778,16 @@
             } else {
                 alert("❌ अमान्य एडमिन पासकोड! (Invalid Passcode)\n\nSRA AI वर्तमान में केवल एडमिन हेतु लॉक्ड है।");
             }
+        }
+
+        function lockAiModule() {
+            localStorage.removeItem('sra_admin_ai_unlocked');
+            sessionStorage.removeItem('sra_admin_ai_unlocked');
+            const overlay = document.getElementById('authOverlay');
+            overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
+            const input = document.getElementById('adminPasscodeInput');
+            if (input) { input.value = ''; input.focus(); }
         }
 
         // CHAT SEQUENCE INITIALIZATION
