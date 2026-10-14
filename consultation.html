@@ -1001,6 +1001,16 @@
                     <textarea id="clientContext" class="form-control" rows="4" placeholder="Please share what brings you to this sanctuary today. The more honest your question, the deeper our examination." required></textarea>
                 </div>
 
+                <!-- PROMO CODE SECTION -->
+                <div class="form-group" style="margin-bottom: 22px;">
+                    <label class="form-label">Promo / Coupon Code (Optional)</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="promoCodeInput" class="form-control" placeholder="Enter Promo Code (e.g. SRAPROMO1)" style="text-transform:uppercase; letter-spacing:1px; flex:1;">
+                        <button type="button" onclick="applyConsultationPromo()" style="background:var(--gold-dark); color:#FFF; font-weight:700; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-family:'Cinzel',serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap; transition:all 0.2s;">Apply</button>
+                    </div>
+                    <div id="promoStatusMsg" style="font-size:12.5px; margin-top:6px; font-weight:600;"></div>
+                </div>
+
                 <button type="submit" class="btn-pay" id="btnSubmitPayment">
                     <span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>
                 </button>
@@ -1533,8 +1543,37 @@
             document.getElementById('intakeSection').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // RAZORPAY INTEGRATION FOR CONSULTATION BOOKING (₹5,100)
+        // PROMO CODE & RAZORPAY INTEGRATION FOR CONSULTATION BOOKING
         const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
+        let consultationAmountPaise = 510000; // Default ₹5,100
+        let appliedPromoCode = "";
+
+        function applyConsultationPromo() {
+            const input = document.getElementById('promoCodeInput');
+            const msg = document.getElementById('promoStatusMsg');
+            const btn = document.getElementById('btnSubmitPayment');
+            const code = (input.value || "").trim().toUpperCase();
+
+            if (!code) {
+                msg.style.color = "var(--fail-red, #b91c1c)";
+                msg.textContent = "कृपया प्रोमोकोड दर्ज करें (Please enter a promo code).";
+                return;
+            }
+
+            if (code === "SRAPROMO1") {
+                consultationAmountPaise = 100; // ₹1 in paise for testing
+                appliedPromoCode = "SRAPROMO1";
+                msg.style.color = "var(--pass-green, #15803d)";
+                msg.innerHTML = "✨ <b>SRAPROMO1 लागू हो गया!</b> टेस्ट शुल्क: <b>₹1</b> (Discount Applied).";
+                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹1 (TEST PROMO MODE)</span>";
+            } else {
+                consultationAmountPaise = 510000;
+                appliedPromoCode = "";
+                msg.style.color = "var(--fail-red, #b91c1c)";
+                msg.textContent = "❌ अमान्य प्रोमोकोड (Invalid Promo Code).";
+                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
+            }
+        }
 
         function handleRazorpayBooking(e) {
             e.preventDefault();
@@ -1554,12 +1593,14 @@
                 return;
             }
 
+            const actualAmt = consultationAmountPaise / 100;
+
             const options = {
                 "key": RZP_KEY,
-                "amount": "510000", // ₹5,100 in paise
+                "amount": consultationAmountPaise.toString(), // ₹5,100 or ₹1 in paise
                 "currency": "INR",
                 "name": "Shri Ramji Astro",
-                "description": `1-on-1 Sanctuary Consultation Session (${resDate})`,
+                "description": `1-on-1 Sanctuary Consultation Session (${resDate})` + (appliedPromoCode ? ` [Code: ${appliedPromoCode}]` : ''),
                 "image": "https://shriramjiastro.in/logo.jpg",
                 "handler": function (response) {
                     saveConsultationBooking({
@@ -1571,8 +1612,9 @@
                         tob: clientTob,
                         location: clientLocation,
                         inquiry: clientInquiry,
-                        context: clientContext,
-                        reserved_date: resDate
+                        context: clientContext + (appliedPromoCode ? ` [Promo Applied: ${appliedPromoCode} Paid ₹${actualAmt}]` : ''),
+                        reserved_date: resDate,
+                        amount_paid: actualAmt
                     });
                 },
                 "prefill": {
@@ -1630,6 +1672,8 @@
             localCon.push(payload);
             localStorage.setItem('sra_consultation_db', JSON.stringify(localCon));
 
+            const amtPaidStr = (data.amount_paid !== undefined) ? `₹${data.amount_paid}` : '₹5,100';
+
             // Format WhatsApp Confirmation Message
             const waMessage = 
                 `🚩 *SACRED CONSULTATION BOOKING CONFIRMED* 🚩\n` +
@@ -1642,7 +1686,7 @@
                 `📍 *Birth Location:* ${data.location}\n` +
                 `🎯 *Inquiry:* ${data.inquiry}\n` +
                 `💳 *Payment ID:* ${data.razorpay_payment_id}\n\n` +
-                `🙏🏻 Namaste Astro Raamji, my payment of ₹5,100 is complete. Please share session connection details.`;
+                `🙏🏻 Namaste Astro Raamji, my payment of ${amtPaidStr} is complete. Please share session connection details.`;
 
             const waUrl = `https://api.whatsapp.com/send?phone=919517117775&text=${encodeURIComponent(waMessage)}`;
 
@@ -1650,7 +1694,7 @@
                 <div style="background: rgba(21, 128, 61, 0.08); border: 1.5px solid var(--pass-green); padding: 20px; border-radius: 14px; text-align: center;">
                     <h3 style="color: var(--pass-green); font-family:'Cinzel',serif; margin-bottom: 8px;">✅ Booking & Payment Successful!</h3>
                     <p style="font-size: 13.5px; color: var(--charcoal); margin-bottom: 14px;">
-                        Payment Reference ID: <b>${data.razorpay_payment_id}</b><br>
+                        Payment Reference ID: <b>${data.razorpay_payment_id}</b> (${amtPaidStr})<br>
                         Reserved Session Date: <b>${data.reserved_date}</b>
                     </p>
                     <a href="${waUrl}" target="_blank" style="display:inline-block; background: #25D366; color: #FFF; font-weight: 800; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-size: 14px; box-shadow: 0 4px 15px rgba(37,211,102,0.3);">
