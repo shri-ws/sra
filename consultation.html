@@ -1005,7 +1005,7 @@
                 <div class="form-group" style="margin-bottom: 22px;">
                     <label class="form-label">Promo / Coupon Code (Optional)</label>
                     <div style="display:flex; gap:10px;">
-                        <input type="text" id="promoCodeInput" class="form-control" placeholder="Enter Promo Code (e.g. SRAPROMO1)" style="text-transform:uppercase; letter-spacing:1px; flex:1;">
+                        <input type="text" id="promoCodeInput" class="form-control" placeholder="Enter Promo Code" style="text-transform:uppercase; letter-spacing:1px; flex:1;">
                         <button type="button" onclick="applyConsultationPromo()" style="background:var(--gold-dark); color:#FFF; font-weight:700; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-family:'Cinzel',serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap; transition:all 0.2s;">Apply</button>
                     </div>
                     <div id="promoStatusMsg" style="font-size:12.5px; margin-top:6px; font-weight:600;"></div>
@@ -1560,12 +1560,18 @@
                 return;
             }
 
-            if (code === "SRAPROMO1") {
-                consultationAmountPaise = 100; // ₹1 in paise for testing
-                appliedPromoCode = "SRAPROMO1";
+            if (code === "SRAPROMO11") {
+                consultationAmountPaise = 110000; // ₹1,100 in paise
+                appliedPromoCode = "SRAPROMO11";
                 msg.style.color = "var(--pass-green, #15803d)";
-                msg.innerHTML = "✨ <b>SRAPROMO1 लागू हो गया!</b> टेस्ट शुल्क: <b>₹1</b> (Discount Applied).";
-                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹1 (TEST PROMO MODE)</span>";
+                msg.innerHTML = "✨ <b>प्रोमोकोड लागू हो गया!</b> विशेष परामर्श शुल्क: <b>₹1,100</b> (Promo Applied).";
+                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹1,100</span>";
+            } else if (code === "SRAPROMO21") {
+                consultationAmountPaise = 210000; // ₹2,100 in paise
+                appliedPromoCode = "SRAPROMO21";
+                msg.style.color = "var(--pass-green, #15803d)";
+                msg.innerHTML = "✨ <b>प्रोमोकोड लागू हो गया!</b> विशेष परामर्श शुल्क: <b>₹2,100</b> (Promo Applied).";
+                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹2,100</span>";
             } else {
                 consultationAmountPaise = 510000;
                 appliedPromoCode = "";
@@ -1672,7 +1678,7 @@
             localCon.push(payload);
             localStorage.setItem('sra_consultation_db', JSON.stringify(localCon));
 
-            const amtPaidStr = (data.amount_paid !== undefined) ? `₹${data.amount_paid}` : '₹5,100';
+            const amtPaidStr = (data.amount_paid !== undefined) ? `₹${Number(data.amount_paid).toLocaleString('en-IN')}` : '₹5,100';
 
             // Format WhatsApp Confirmation Message
             const waMessage = 
