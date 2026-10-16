@@ -512,50 +512,70 @@
         }
 
         @media (max-width: 650px) {
+            .calendar-card {
+                padding: 16px 8px !important;
+                border-radius: 16px !important;
+                margin-bottom: 24px !important;
+            }
+            .calendar-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+                margin-bottom: 14px !important;
+            }
+            .calendar-title {
+                font-size: 15px !important;
+            }
+            .calendar-scarcity {
+                font-size: 10px !important;
+                padding: 4px 10px !important;
+            }
             .calendar-controls {
-                padding: 8px 10px;
+                padding: 8px 10px !important;
+                margin-bottom: 12px !important;
             }
             .cal-nav-btn {
-                padding: 6px 10px;
-                font-size: 11px;
+                padding: 6px 10px !important;
+                font-size: 11px !important;
             }
             .cal-month-display {
-                font-size: 14px;
+                font-size: 13.5px !important;
             }
             .cal-weekdays-grid {
-                gap: 4px;
+                gap: 3px !important;
+                margin-bottom: 6px !important;
             }
             .cal-weekday-hdr {
-                font-size: 9px;
-                padding: 6px 0;
+                font-size: 8.5px !important;
+                padding: 5px 0 !important;
             }
             .cal-grid {
-                gap: 4px;
+                gap: 3px !important;
+                width: 100% !important;
             }
             .cal-slot {
-                padding: 6px 2px;
-                border-radius: 8px;
-                min-height: 70px;
+                padding: 6px 1px !important;
+                border-radius: 8px !important;
+                min-height: 52px !important;
+                min-width: 0 !important;
+                touch-action: manipulation !important;
+                box-sizing: border-box !important;
             }
             .cal-day {
-                font-size: 8.5px;
+                font-size: 7.5px !important;
             }
             .cal-date-num {
-                font-size: 15px;
+                font-size: 13.5px !important;
+                margin: 0 !important;
+            }
+            .cal-month {
+                font-size: 8px !important;
             }
             .cal-status {
-                font-size: 7.5px !important;
+                font-size: 7px !important;
                 padding: 1px 2px !important;
+                letter-spacing: 0 !important;
             }
-        }
-
-            font-weight: 700;
-            margin-top: 6px;
-            color: var(--pass-green);
-            background: rgba(21, 128, 61, 0.08);
-            padding: 2px 6px;
-            border-radius: 10px;
-            display: inline-block;
         }
 
         /* INTAKE FORM CARD */
@@ -1044,38 +1064,44 @@
         </div>
 
         <!-- POST-CONSULTATION CLIENT FEEDBACK GATEWAY (SHAREABLE LINK) -->
-        <div class="feedback-card" id="feedback">
-            <h3 class="feedback-title" id="txtFeedbackTitle">The Circle of Truth: Share Your Reflection</h3>
-            <p style="font-size: 13px; color: var(--charcoal-soft); max-width: 680px; margin: 0 auto 20px;" id="txtFeedbackSub">
-                Authentic Vedic astrology thrives on truth, not flattery. If you have completed your private sanctuary session, please submit your genuine review below to guide future seekers.
-            </p>
+        <div class="feedback-card" id="feedback" style="max-width: 680px; margin: 30px auto; padding: 20px; text-align: center;">
+            <details style="cursor: pointer;">
+                <summary style="font-family:'Cinzel',serif; font-size: 14px; font-weight: 700; color: var(--gold-dark); outline: none; list-style: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span>✦</span> <span id="txtFeedbackTitle">The Circle of Truth: Submit Confidential Reflection</span> <span>▾</span>
+                </summary>
+                <div style="margin-top: 18px; text-align: left;">
+                    <p style="font-size: 12.5px; color: var(--charcoal-soft); margin-bottom: 16px; text-align: center;" id="txtFeedbackSub">
+                        Authentic Vedic astrology thrives on truth, not flattery. If you have completed your private sanctuary session, please submit your genuine review below to guide future seekers.
+                    </p>
 
-            <form id="feedbackForm" onsubmit="submitClientFeedback(event)" style="max-width: 600px; margin: 0 auto; text-align: left;">
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label">Your Name (or Initials for Anonymity)</label>
-                    <input type="text" id="fbName" class="form-control" placeholder="e.g. Siddharth R." required>
+                    <form id="feedbackForm" onsubmit="submitClientFeedback(event)" style="max-width: 600px; margin: 0 auto; text-align: left;">
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label">Your Name (or Initials for Anonymity)</label>
+                            <input type="text" id="fbName" class="form-control" placeholder="e.g. Siddharth R." required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label">Profession / Role / Location</label>
+                            <input type="text" id="fbRole" class="form-control" placeholder="e.g. Managing Director, Bengaluru" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label">Session Rating</label>
+                            <select id="fbRating" class="form-control" required>
+                                <option value="5">★★★★★ (5 Stars - Transformative)</option>
+                                <option value="4">★★★★☆ (4 Stars - High Precision)</option>
+                                <option value="3">★★★☆☆ (3 Stars - Satisfactory)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label class="form-label">Detailed Reflection / Review</label>
+                            <textarea id="fbComment" class="form-control" rows="3" placeholder="Describe how the 1-on-1 sanctuary session helped resolve your query..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-lang" style="width: 100%; padding: 12px; background: var(--maroon-deep); color: #FFF; border: none; font-size: 13px; border-radius: 8px;">
+                            SUBMIT PRIVATE TESTIMONIAL
+                        </button>
+                    </form>
+                    <div id="fbResultMsg" style="margin-top: 14px; font-size: 13px; font-weight: 700; text-align: center;"></div>
                 </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label">Profession / Role / Location</label>
-                    <input type="text" id="fbRole" class="form-control" placeholder="e.g. Managing Director, Bengaluru" required>
-                </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label class="form-label">Session Rating</label>
-                    <select id="fbRating" class="form-control" required>
-                        <option value="5">★★★★★ (5 Stars - Transformative)</option>
-                        <option value="4">★★★★☆ (4 Stars - High Precision)</option>
-                        <option value="3">★★★☆☆ (3 Stars - Satisfactory)</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Detailed Reflection / Review</label>
-                    <textarea id="fbComment" class="form-control" rows="3" placeholder="Describe how the 1-on-1 sanctuary session helped resolve your query..." required></textarea>
-                </div>
-                <button type="submit" class="btn-lang" style="width: 100%; padding: 12px; background: var(--maroon-deep); color: #FFF; border: none; font-size: 13px;">
-                    SUBMIT PRIVATE TESTIMONIAL
-                </button>
-            </form>
-            <div id="fbResultMsg" style="margin-top: 14px; font-size: 13px; font-weight: 700;"></div>
+            </details>
         </div>
 
     </div>
@@ -1797,8 +1823,19 @@
 
             if (approvedReviews.length === 0) {
                 wrapper.innerHTML = `
-                    <div style="padding: 24px; color: var(--text-muted); font-size: 14px;">
-                        ✦ No client reflections published yet. Be the first to share your sanctuary experience below! ✦
+                    <div class="sanctuary-social-proof-card" style="background:var(--gold-dim, rgba(197, 160, 89, 0.08)); border:1px solid var(--gold-border); border-radius:16px; padding:24px 20px; text-align:center; max-width:640px; margin:0 auto; box-shadow:0 4px 18px rgba(0,0,0,0.03);">
+                        <div style="font-size:22px; margin-bottom:8px;">✦ ॐ ✦</div>
+                        <div style="font-family:'Cinzel',serif; font-size:16px; font-weight:700; color:var(--maroon-deep); margin-bottom:6px;">High-Integrity Private Sanctuary</div>
+                        <div style="font-size:12.5px; color:var(--charcoal-soft); line-height:1.6; max-width:540px; margin:0 auto 12px;">
+                            Strictly 1 Seeker Per Solar Day. Pure Vedic Tapasya & High-Precision Meeus Astronomical Scrutiny. All sessions are 100% confidential and non-commercial.
+                        </div>
+                        <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.7); border:1px solid var(--gold-border); padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700; color:var(--gold-dark); flex-wrap:wrap; justify-content:center;">
+                            <span>🛡️ 100% Confidential</span>
+                            <span>•</span>
+                            <span>📜 Shastra Authenticated</span>
+                            <span>•</span>
+                            <span>⏳ D60 Precision</span>
+                        </div>
                     </div>
                 `;
                 return;

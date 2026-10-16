@@ -301,36 +301,90 @@
         border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.3));
         flex-shrink: 0;
       }
-      @media (max-width: 480px) {
-        .brand-title { font-size: 13.5px; }
-        .brand-sub { font-size: 8px; }
-        nav { height: 60px; padding: 0 10px; }
+      @media (max-width: 767px) {
+        html, body {
+          width: 100% !important;
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+          position: relative !important;
+          -webkit-text-size-adjust: 100% !important;
+          box-sizing: border-box !important;
+        }
+        body {
+          padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+          width: 100% !important;
+        }
+
+        /* UNIFIED NATIVE MOBILE APP TOP BAR */
+        nav:not(.mobile-bottom-nav) {
+          height: 56px !important;
+          padding: 0 12px !important;
+          position: sticky !important;
+          top: 0 !important;
+          z-index: 9998 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          backdrop-filter: blur(16px) !important;
+          -webkit-backdrop-filter: blur(16px) !important;
+          background: var(--nav-bg, rgba(255, 255, 255, 0.95)) !important;
+          border-bottom: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+          overflow: hidden !important;
+        }
+        nav .nav-btns {
+          display: flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+        }
+        /* Hide bulky Day/Night slider and Register button from mobile top bar to avoid header overflow */
+        nav .theme-toggle-container,
+        nav #themeToggleBtn,
+        nav .btn-register,
+        nav #regNavBtn {
+          display: none !important;
+        }
+        /* Suppress duplicate secondary brand banners on tool pages */
+        .brand-banner {
+          display: none !important;
+        }
+        nav .btn-login,
+        nav #loginNavBtn {
+          padding: 5px 9px !important;
+          font-size: 10.5px !important;
+          border-radius: 8px !important;
+          background: var(--gold-dim, rgba(197, 160, 89, 0.1)) !important;
+          border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.3)) !important;
+          color: var(--gold-dark, #c5a059) !important;
+          font-weight: 700 !important;
+        }
+        nav .lang-pill-btn {
+          padding: 4px 7px !important;
+          font-size: 10px !important;
+        }
+        nav .hamburger {
+          font-size: 22px !important;
+          padding: 2px 4px !important;
+          color: var(--gold-dark, #c5a059) !important;
+          display: block !important;
+        }
+        nav .brand-title {
+          font-size: 14px !important;
+        }
+        nav .brand-sub {
+          font-size: 8px !important;
+        }
       }
 
-      /* LANGUAGE SWITCH PILL BUTTON */
-      .lang-pill-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        background: var(--gold-dim, rgba(197, 160, 89, 0.1));
-        border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.3));
-        border-radius: 20px;
-        padding: 5px 10px;
-        font-size: 11px;
-        font-weight: 700;
-        font-family: 'Cinzel', 'Noto Sans Devanagari', sans-serif;
-        color: var(--gold-dark, #c5a059);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        user-select: none;
-        white-space: nowrap;
+      /* TYPOGRAPHY & DEVANAGARI FONT HARMONY */
+      [data-i18n], :lang(hi), .devanagari {
+        font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        line-height: 1.55;
+        letter-spacing: 0.15px;
       }
-      .lang-pill-btn:hover {
-        background: rgba(197, 160, 89, 0.22);
-        border-color: var(--gold, #d4af37);
+      h1, h2, h3, h4 {
+        line-height: 1.3;
       }
-      .lang-pill-btn .lang-sep { opacity: 0.5; font-size: 10px; margin: 0 1px; }
-      .lang-pill-btn .active { color: var(--gold-dark, #c5a059); font-weight: 800; }
 
       /* ADAPTIVE BOTTOM-SHEET MODAL (< 768px) */
       .bottom-sheet-handle { display: none; }
@@ -344,10 +398,12 @@
           max-width: 100% !important;
           width: 100% !important;
           margin: 0 !important;
-          padding: 24px 20px calc(32px + env(safe-area-inset-bottom, 0px)) !important;
+          padding: 20px 20px calc(32px + env(safe-area-inset-bottom, 0px)) !important;
           transform: translateY(100%) !important;
           transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
           box-shadow: 0 -10px 40px rgba(0,0,0,0.3) !important;
+          max-height: 90vh !important;
+          overflow-y: auto !important;
         }
         .modal-overlay.open .modal {
           transform: translateY(0) !important;
@@ -869,6 +925,22 @@
       window.openReportPreOrderModal(reportName, price);
     } else {
       window.location.href = `index.html?preorder=${encodeURIComponent(reportName)}&price=${price}#upcoming-reports`;
+    }
+  };
+
+  window.openModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('open');
+      try { document.body.style.overflow = 'hidden'; } catch(e) {}
+    }
+  };
+
+  window.closeModal = function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.remove('open');
+      try { document.body.style.overflow = ''; } catch(e) {}
     }
   };
 

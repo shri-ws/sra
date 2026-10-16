@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Patrika Mobile App — Shri Ram Ji Astro (Native PWA Shell Simulator)</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-desktop: #0D0F12;
+      --gold-base: #C5A059;
+      --gold-dark: #8C6D2B;
+      --gold-light: #E5C07B;
+      --gold-dim: rgba(197, 160, 89, 0.12);
+      --gold-border: rgba(197, 160, 89, 0.3);
+      --phone-width: 393px;
+      --phone-height: 852px;
+      --frame-radius: 52px;
+      --screen-radius: 44px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1A1E24 0%, #0B0D10 100%);
+      color: #E2E8F0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      padding: 20px 10px 40px;
+    }
+
+    /* DESKTOP SIMULATOR TOP BAR */
+    .simulator-header {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 14px 20px;
+      background: rgba(25, 30, 38, 0.75);
+      border: 1px solid var(--gold-border);
+      border-radius: 18px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .sim-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sim-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid var(--gold-base);
+    }
+
+    .sim-title-group h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold-light);
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+
+    .sim-title-group p {
+      font-size: 11.5px;
+      color: #94A3B8;
+    }
+
+    /* CONTROLS (DEVICE SWITCHER & ROUTES) */
+    .sim-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .sim-pill-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #CBD5E1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sim-pill-btn:hover {
+      background: var(--gold-dim);
+      border-color: var(--gold-base);
+      color: var(--gold-light);
+    }
+
+    .sim-pill-btn.active {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-base));
+      border-color: transparent;
+      color: #0B0D10;
+      font-weight: 800;
+      box-shadow: 0 2px 10px rgba(197, 160, 89, 0.35);
+    }
+
+    .sim-direct-link {
+      background: transparent;
+      border: 1px solid var(--gold-base);
+      color: var(--gold-light);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sim-direct-link:hover {
+      background: var(--gold-dim);
+      color: #FFF;
+    }
+
+    /* ROUTE LAUNCHER TRAY */
+    .route-tray {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .route-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(197, 160, 89, 0.2);
+      color: #CBD5E1;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .route-chip:hover, .route-chip.active {
+      background: var(--gold-dim);
+      border-color: var(--gold-base);
+      color: var(--gold-light);
+    }
+
+    /* PHONE SHELL WRAPPER */
+    .device-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .phone-frame {
+      width: var(--phone-width);
+      height: var(--phone-height);
+      background: #1C1F26;
+      border-radius: var(--frame-radius);
+      padding: 11px;
+      box-shadow: 
+        0 0 0 3px #383D48,
+        0 0 0 5px #1C1F26,
+        0 25px 65px rgba(0, 0, 0, 0.8),
+        0 10px 30px rgba(197, 160, 89, 0.15);
+      position: relative;
+      transition: width 0.3s ease, height 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      border-radius: var(--screen-radius);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NATIVE STATUS BAR */
+    .phone-status-bar {
+      height: 44px;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      color: #FFFFFF;
+      font-size: 13.5px;
+      font-weight: 700;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* DYNAMIC ISLAND */
+    .dynamic-island {
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 30px;
+      background: #000000;
+      border-radius: 20px;
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      transition: width 0.25s ease;
+    }
+
+    .island-cam {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #11141A;
+      box-shadow: inset 0 0 2px rgba(66, 133, 244, 0.4);
+    }
+
+    .island-sensor {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #11141A;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+    }
+
+    /* INTERACTIVE APP IFRAME */
+    .app-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: var(--screen-radius);
+      background: #FFFFFF;
+      flex: 1;
+    }
+
+    /* HOME INDICATOR BAR */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 4.5px;
+      background: rgba(255, 255, 255, 0.45);
+      border-radius: 3px;
+      z-index: 10000;
+      pointer-events: none;
+    }
+
+    /* MOBILE NATIVE PASSTHROUGH (< 768px) */
+    @media (max-width: 767px) {
+      body {
+        padding: 0 !important;
+        background: #000 !important;
+      }
+      .simulator-header, .route-tray {
+        display: none !important;
+      }
+      .device-stage {
+        padding: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+      }
+      .phone-frame {
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+      .phone-screen {
+        border-radius: 0 !important;
+      }
+      .dynamic-island, .phone-status-bar, .home-indicator {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIMULATOR CONTROL TOP BAR (Visible on Desktop & Tablets) -->
+  <header class="simulator-header">
+    <div class="sim-brand">
+      <img src="logo.png" alt="Patrika Logo" class="sim-logo">
+      <div class="sim-title-group">
+        <h1>PATRIKA MOBILE APP PREVIEW</h1>
+        <p>Vedic Astrology Native PWA Mobile Shell</p>
+      </div>
+    </div>
+
+    <!-- DEVICE SWITCHER -->
+    <div class="sim-controls">
+      <button type="button" class="sim-pill-btn active" onclick="setDevice('iphone16')">
+        📱 iPhone 16 Pro (393px)
+      </button>
+      <button type="button" class="sim-pill-btn" onclick="setDevice('pixel8')">
+        📱 Pixel 8 (412px)
+      </button>
+      <button type="button" class="sim-pill-btn" onclick="setDevice('max')">
+        📱 Pro Max (430px)
+      </button>
+      <a href="index.html" class="sim-direct-link" title="Open directly in browser">
+        ↗ Direct Mobile View
+      </a>
+    </div>
+  </header>
+
+  <!-- QUICK ROUTE LAUNCHER TRAY -->
+  <nav class="route-tray">
+    <button type="button" class="route-chip active" onclick="loadRoute('index.html', this)">🏠 Main Screen</button>
+    <button type="button" class="route-chip" onclick="loadRoute('patrika.html', this)">📜 पत्रिका (Kundli)</button>
+    <button type="button" class="route-chip" onclick="loadRoute('vmm.html', this)">💍 Vivah & Matchmaking</button>
+    <button type="button" class="route-chip" onclick="loadRoute('vastu-muhurta.html', this)">🏡 Vastu Muhurt</button>
+    <button type="button" class="route-chip" onclick="loadRoute('yajnopavita.html', this)">🧵 Yajnopavita</button>
+    <button type="button" class="route-chip" onclick="loadRoute('consultation.html', this)">🔮 Sanctuary (1-on-1)</button>
+    <button type="button" class="route-chip" onclick="loadRoute('course.html', this)">🎓 Vedic Academy</button>
+  </nav>
+
+  <!-- SMARTPHONE DEVICE WRAPPER FRAME -->
+  <div class="device-stage">
+    <div class="phone-frame" id="phoneFrame">
+      <div class="phone-screen">
+        
+        <!-- STATUS BAR -->
+        <div class="phone-status-bar">
+          <span id="statusBarClock">9:41</span>
+          <div class="status-icons">
+            <span>5G</span>
+            <span>📶</span>
+            <span>🔋 100%</span>
+          </div>
+        </div>
+
+        <!-- DYNAMIC ISLAND -->
+        <div class="dynamic-island">
+          <div class="island-sensor"></div>
+          <div class="island-cam"></div>
+        </div>
+
+        <!-- LIVE INTERACTIVE IFRAME -->
+        <iframe src="index.html" class="app-iframe" id="appIframe" title="Patrika Mobile App Screen"></iframe>
+
+        <!-- HOME INDICATOR -->
+        <div class="home-indicator"></div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // LIVE CLOCK UPDATE FOR PHONE STATUS BAR
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      hours = hours % 12 || 12;
+      const timeStr = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+      const clockEl = document.getElementById('statusBarClock');
+      if (clockEl) clockEl.textContent = timeStr;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    // DEVICE RESIZING
+    function setDevice(device) {
+      document.querySelectorAll('.sim-pill-btn').forEach(btn => btn.classList.remove('active'));
+      const frame = document.getElementById('phoneFrame');
+      if (!frame) return;
+
+      if (device === 'iphone16') {
+        frame.style.width = '393px';
+        frame.style.height = '852px';
+        frame.style.borderRadius = '52px';
+      } else if (device === 'pixel8') {
+        frame.style.width = '412px';
+        frame.style.height = '892px';
+        frame.style.borderRadius = '42px';
+      } else if (device === 'max') {
+        frame.style.width = '430px';
+        frame.style.height = '932px';
+        frame.style.borderRadius = '54px';
+      }
+
+      const activeBtn = event.currentTarget || event.target;
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    // ROUTE NAVIGATION CONTROLLER
+    function loadRoute(url, btn) {
+      document.querySelectorAll('.route-chip').forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const iframe = document.getElementById('appIframe');
+      if (iframe) {
+        iframe.src = url;
+      }
+    }
+  </script>
+</body>
+</html>
