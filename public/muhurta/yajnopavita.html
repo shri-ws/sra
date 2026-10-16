@@ -474,11 +474,11 @@
             <button class="lang-switch" onclick="toggleLanguage()">English</button>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
-            <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu" style="background:none; border:none; font-size:24px; color:var(--gold); cursor:pointer;">☰</button>
+            <button class="hamburger" onclick="toggleNavDrawer()" aria-label="Menu" style="background:none; border:none; font-size:24px; color:var(--gold); cursor:pointer;">☰</button>
         </div>
     </nav>
 
-    <div class="mobile-menu" id="mobileMenu" style="display:none; position:fixed; top:60px; left:0; right:0; background:var(--nav-bg); border-bottom:1px solid var(--gold-border); padding:16px; flex-direction:column; gap:8px; z-index:999; backdrop-filter:blur(10px);">
+    <div class="mobile-menu" id="mobileMenu" style="display:none !important;">
         <a href="../../srai.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; background:rgba(180,130,32,0.15); padding:10px 14px; border-radius:8px; border:1px solid var(--gold); text-decoration:none; display:flex; align-items:center; gap:8px;">🤖 <span>SRA AI (Vedic AI Module)</span></a>
         <a href="../../patrika.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">Patrika Engine (Kundli Software)</a>
         <a href="../../vmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">💍 VIP Vivah Muhurt (Matchmaker)</a>
@@ -490,18 +490,14 @@
 
     <script>
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            if (menu) {
-                if (menu.style.display === 'none' || !menu.style.display) {
-                    menu.style.display = 'flex';
-                } else {
-                    menu.style.display = 'none';
-                }
+            if (typeof window.toggleNavDrawer === 'function') {
+                window.toggleNavDrawer();
             }
         }
         function closeMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            if (menu) menu.style.display = 'none';
+            if (typeof window.closeNavDrawer === 'function') {
+                window.closeNavDrawer();
+            }
         }
     </script>
 

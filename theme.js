@@ -21,6 +21,11 @@
   })() || 'day';
   applyTheme(savedTheme);
 
+  // Eagerly inject core navigation and drawer styles if document head is available
+  try {
+    if (document.head) injectBottomNavStyles();
+  } catch(e) {}
+
   // ══════════════════════════════════════════════════════════════════════════
   // 2. MULTI-LANGUAGE (I18N) ENGINE (HINDI / ENGLISH / REGIONAL)
   // ══════════════════════════════════════════════════════════════════════════
@@ -330,12 +335,13 @@
           background: var(--nav-bg, rgba(255, 255, 255, 0.95)) !important;
           border-bottom: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
-          overflow: hidden !important;
+          overflow: visible !important;
         }
-        nav .nav-btns {
+        nav .nav-btns, nav .nav-actions {
           display: flex !important;
           align-items: center !important;
           gap: 6px !important;
+          flex-shrink: 0 !important;
         }
         /* Hide bulky Day/Night slider and Register button from mobile top bar to avoid header overflow */
         nav .theme-toggle-container,
@@ -362,17 +368,31 @@
           padding: 4px 7px !important;
           font-size: 10px !important;
         }
-        nav .hamburger {
+        nav .hamburger, .hamburger {
           font-size: 22px !important;
-          padding: 2px 4px !important;
+          padding: 4px 6px !important;
           color: var(--gold-dark, #c5a059) !important;
-          display: block !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          min-width: 38px !important;
+          min-height: 38px !important;
+          cursor: pointer !important;
+          pointer-events: auto !important;
+          background: transparent !important;
+          border: none !important;
+          flex-shrink: 0 !important;
+          z-index: 10001 !important;
         }
         nav .brand-title {
           font-size: 14px !important;
         }
         nav .brand-sub {
           font-size: 8px !important;
+          max-width: 130px !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
         }
       }
 
@@ -513,63 +533,111 @@
         text-transform: uppercase;
       }
 
-      /* COLLAPSIBLE SLIDE-OUT NAVIGATION DRAWER (< 1024px) */
+      /* COLLAPSIBLE SLIDE-OUT NAVIGATION DRAWER */
       .nav-drawer-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(5, 3, 10, 0.65);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        z-index: 9998;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(5, 3, 10, 0.65) !important;
+        backdrop-filter: blur(6px) !important;
+        -webkit-backdrop-filter: blur(6px) !important;
+        z-index: 99999 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
       }
       .nav-drawer-backdrop.open {
-        opacity: 1;
-        pointer-events: auto;
+        opacity: 1 !important;
+        pointer-events: auto !important;
       }
       .nav-drawer {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 320px;
-        max-width: 88vw;
-        background: var(--nav-bg, #11141a);
-        border-left: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25));
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45);
-        transform: translateX(100%);
-        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-        box-sizing: border-box;
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 320px !important;
+        max-width: 88vw !important;
+        background: var(--nav-bg, #11141a) !important;
+        border-left: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
+        z-index: 100000 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
+        transform: translateX(100%) !important;
+        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-sizing: border-box !important;
       }
       .nav-drawer.open {
-        transform: translateX(0);
+        transform: translateX(0) !important;
       }
       .drawer-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--gold-border, rgba(212, 175, 55, 0.2));
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: var(--card, #14171f);
+        padding: 14px 18px !important;
+        border-bottom: 1px solid var(--gold-border, rgba(212, 175, 55, 0.2)) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: var(--card, #14171f) !important;
+        flex-shrink: 0 !important;
+        gap: 10px !important;
+      }
+      .drawer-brand {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+      }
+      .drawer-logo-img {
+        width: 36px !important;
+        height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.3)) !important;
+        flex-shrink: 0 !important;
+      }
+      .drawer-brand-text {
+        display: flex !important;
+        flex-direction: column !important;
+        line-height: 1.15 !important;
+        min-width: 0 !important;
+      }
+      .drawer-brand-title {
+        font-family: 'Cinzel', serif !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        color: var(--gold-dark, #c5a059) !important;
+        letter-spacing: 0.5px !important;
+        white-space: nowrap !important;
+      }
+      .drawer-brand-sub {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 9px !important;
+        font-weight: 600 !important;
+        color: var(--muted, #94a3b8) !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        white-space: nowrap !important;
       }
       .drawer-close-btn {
-        background: none;
-        border: none;
-        color: var(--gold-dark, #c5a059);
-        font-size: 20px;
-        cursor: pointer;
-        padding: 6px 10px;
-        line-height: 1;
-        border-radius: 8px;
-        transition: background 0.2s;
+        background: none !important;
+        border: none !important;
+        color: var(--gold-dark, #c5a059) !important;
+        font-size: 20px !important;
+        cursor: pointer !important;
+        padding: 6px 10px !important;
+        line-height: 1 !important;
+        border-radius: 8px !important;
+        transition: background 0.2s !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
       }
       .drawer-close-btn:hover {
-        background: var(--gold-dim, rgba(197, 160, 89, 0.15));
+        background: var(--gold-dim, rgba(197, 160, 89, 0.15)) !important;
       }
       .drawer-body {
         flex: 1;
@@ -879,8 +947,18 @@
   // 5. COLLAPSIBLE SLIDE-OUT NAVIGATION DRAWER & METHODS
   // ══════════════════════════════════════════════════════════════════════════
   window.openNavDrawer = function() {
-    const drawer = document.getElementById('navDrawer');
-    const backdrop = document.getElementById('navDrawerBackdrop');
+    let drawer = document.getElementById('navDrawer');
+    let backdrop = document.getElementById('navDrawerBackdrop');
+    if (!drawer || !backdrop) {
+      injectNavDrawer();
+      drawer = document.getElementById('navDrawer');
+      backdrop = document.getElementById('navDrawerBackdrop');
+    }
+    // Dismiss legacy menus if present
+    document.querySelectorAll('.mobile-menu').forEach(m => {
+      m.style.display = 'none';
+      m.classList.remove('active', 'open');
+    });
     if (drawer) drawer.classList.add('open');
     if (backdrop) backdrop.classList.add('open');
     try { document.body.style.overflow = 'hidden'; } catch(e) {}
@@ -891,6 +969,10 @@
     const backdrop = document.getElementById('navDrawerBackdrop');
     if (drawer) drawer.classList.remove('open');
     if (backdrop) backdrop.classList.remove('open');
+    document.querySelectorAll('.mobile-menu').forEach(m => {
+      m.style.display = 'none';
+      m.classList.remove('active', 'open');
+    });
     try { document.body.style.overflow = ''; } catch(e) {}
   };
 
@@ -904,6 +986,35 @@
   };
   window.toggleMobileMenu = window.toggleNavDrawer;
   window.closeMobileMenu = window.closeNavDrawer;
+
+  // GLOBAL CAPTURE-PHASE EVENT LISTENER FOR GUARANTEED HAMBURGER AND DRAWER CLICKS
+  if (!window._sraNavDelegated) {
+    window._sraNavDelegated = true;
+    document.addEventListener('click', function(e) {
+      // 1. Hamburger button click
+      const hamburgerBtn = e.target.closest('.hamburger, [data-action="toggle-drawer"], #hamburgerBtn');
+      if (hamburgerBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.toggleNavDrawer();
+        return;
+      }
+
+      // 2. Backdrop or Close Button click
+      if (e.target.closest('#navDrawerBackdrop, .drawer-close-btn, [data-action="close-drawer"]')) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.closeNavDrawer();
+        return;
+      }
+    }, true);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        window.closeNavDrawer();
+      }
+    });
+  }
 
   window.toggleDrawerAccordion = function(panelId) {
     const panel = document.getElementById(panelId);
@@ -1098,7 +1209,22 @@
       }
     });
 
-    // 2. Wire up hamburger button to toggleNavDrawer
+    // 2. Ensure every top navigation bar has a visible, functional hamburger button
+    document.querySelectorAll('nav:not(.mobile-bottom-nav)').forEach(nav => {
+      if (!nav.querySelector('.hamburger')) {
+        const target = nav.querySelector('.nav-btns') || nav.querySelector('.nav-actions') || nav;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'hamburger';
+        btn.setAttribute('aria-label', 'Menu');
+        btn.setAttribute('title', 'Navigation Menu');
+        btn.textContent = '☰';
+        btn.onclick = window.toggleNavDrawer;
+        target.appendChild(btn);
+      }
+    });
+
+    // Wire up all hamburger buttons to toggleNavDrawer
     document.querySelectorAll('.hamburger').forEach(btn => {
       btn.onclick = window.toggleNavDrawer;
     });
@@ -1195,6 +1321,7 @@
   // INITIALIZATION ON DOM READY
   // ══════════════════════════════════════════════════════════════════════════
   function initAll() {
+    injectBottomNavStyles();
     upgradeNavBrandAndLang();
     upgradeNavLinks();
     injectNavDrawer();

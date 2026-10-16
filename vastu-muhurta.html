@@ -657,11 +657,11 @@
       <span class="theme-slider"></span>
       <span class="theme-label label-night">NIGHT</span>
     </div>
-    <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu" style="background:none; border:none; font-size:24px; color:var(--gold); cursor:pointer;">☰</button>
+    <button class="hamburger" onclick="toggleNavDrawer()" aria-label="Menu" style="background:none; border:none; font-size:24px; color:var(--gold); cursor:pointer;">☰</button>
   </div>
 </nav>
 
-<div class="mobile-menu" id="mobileMenu" style="display:none; position:fixed; top:60px; left:0; right:0; background:var(--nav-bg); border-bottom:1px solid var(--gold-border); padding:16px; flex-direction:column; gap:8px; z-index:999; backdrop-filter:blur(10px);">
+<div class="mobile-menu" id="mobileMenu" style="display:none !important;">
   <a href="patrika.html" onclick="closeMobileMenu()" data-i18n="nav_patrika" style="color:var(--gold); font-weight:800; text-decoration:none; padding:8px 12px;">पत्रिका (Birth Chart / Kundli)</a>
   <a href="vmm.html" onclick="closeMobileMenu()" data-i18n="nav_vivah" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">💍 विवाह मुहूर्त व मिलान (Matchmaker)</a>
   <a href="vastu-muhurta.html" onclick="closeMobileMenu()" data-i18n="nav_vastu" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🏛️ वास्तु, नींव पूजन व गृह प्रवेश</a>
@@ -687,14 +687,14 @@
 
 <script>
   function toggleMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    if (menu) {
-      menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'flex' : 'none';
+    if (typeof window.toggleNavDrawer === 'function') {
+      window.toggleNavDrawer();
     }
   }
   function closeMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    if (menu) menu.style.display = 'none';
+    if (typeof window.closeNavDrawer === 'function') {
+      window.closeNavDrawer();
+    }
   }
 </script>
 
