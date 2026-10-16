@@ -38,7 +38,7 @@
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Shri Ramji Astro Patrika Engine",
+    "name": "Shri Ramji Astro Patrika",
     "operatingSystem": "All",
     "applicationCategory": "LifestyleApplication",
     "description": "High-precision Vedic astrology calculation software featuring True Chitra Paksha Ayanamsa, GPS Geocoding, and automated BPHS rules.",
@@ -372,6 +372,103 @@
     }
     .pillar-btn:hover { background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color: #fff; border-color: transparent; }
 
+    /* UPCOMING REPORTS LEAD-CAPTURE FUNNEL STYLES */
+    .upcoming-reports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      margin-top: 24px;
+    }
+    .report-card {
+      background: var(--card);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .report-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(197, 160, 89, 0.15);
+    }
+    .report-card-badge {
+      display: inline-block;
+      align-self: flex-start;
+      background: rgba(185, 28, 28, 0.1);
+      border: 1px solid rgba(185, 28, 28, 0.3);
+      color: var(--red);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    .report-card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--heading-color);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .report-card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .report-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .report-price-now {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--gold-dark);
+      font-family: 'Cinzel', serif;
+    }
+    .report-price-old {
+      font-size: 14px;
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .report-discount-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #15803d;
+      background: rgba(21, 128, 61, 0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .report-btn-preorder {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--gold2), var(--gold-dark));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .report-btn-preorder:hover {
+      box-shadow: 0 4px 18px rgba(197, 160, 89, 0.4);
+    }
+
     /* COURSE */
     #course { background: var(--bg); }
     .course-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
@@ -698,15 +795,14 @@
       <span>SHRI RAMJI ASTRO</span>
     </a>
     <div class="nav-links">
-      <a href="patrika.html" style="color:var(--gold-dark); font-weight:800; background:var(--gold-dim); border:1px solid var(--gold-border);">Patrika Engine</a>
-      <a href="vmm.html">Vivah Muhurt</a>
-      <a href="vastu-muhurta.html">Vastu & Griha</a>
-      <a href="yajnopavita.html">Yagyopavit Muhurt</a>
-      <a href="mmm.html">Mundan Muhurt</a>
-      <a href="about.html">About & Blog</a>
-      <a href="consultation.html" style="color:var(--gold-dark); font-weight:800;">Sanctuary Consultation</a>
-      <a href="#course">Courses</a>
-      <a href="admin.html">Admin</a>
+      <a href="patrika.html" style="color:var(--gold-dark); font-weight:800; background:var(--gold-dim); border:1px solid var(--gold-border);">पत्रिका (Birth Chart)</a>
+      <a href="vmm.html">विवाह व मिलान</a>
+      <a href="vastu-muhurta.html">वास्तु मुहूर्त</a>
+      <a href="yajnopavita.html">यज्ञोपवीत</a>
+      <a href="consultation.html" style="color:var(--gold-dark); font-weight:800;">परामर्श (Sanctuary)</a>
+      <a href="course.html">कोर्स (Academy)</a>
+      <a href="about.html">अबाउट व ब्लॉग</a>
+      <a href="admin.html">एडमिन</a>
     </div>
     <div class="nav-btns">
       <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
@@ -729,14 +825,14 @@
 
   <!-- MOBILE MENU (CLEAN TYPOGRAPHY, NO ICONS) -->
   <div class="mobile-menu" id="mobileMenu">
-    <a href="patrika.html" onclick="closeMobileMenu()" style="color:var(--gold-dark); font-weight:800;">Patrika Engine (Kundli Software)</a>
-    <a href="vmm.html" onclick="closeMobileMenu()">Vivah Muhurt (Matchmaker)</a>
-    <a href="yajnopavita.html" onclick="closeMobileMenu()">Yagyopavit Muhurt</a>
-    <a href="mmm.html" onclick="closeMobileMenu()">Mundan Muhurt Calculator</a>
-    <a href="about.html" onclick="closeMobileMenu()">About Us & Daily Blog</a>
+    <a href="patrika.html" onclick="closeMobileMenu()" style="color:var(--gold-dark); font-weight:800;">पत्रिका (Birth Chart / Kundli)</a>
+    <a href="vmm.html" onclick="closeMobileMenu()">विवाह मुहूर्त व मिलान (Matchmaker)</a>
+    <a href="vastu-muhurta.html" onclick="closeMobileMenu()">वास्तु, नींव पूजन व गृह प्रवेश</a>
+    <a href="yajnopavita.html" onclick="closeMobileMenu()">यज्ञोपवीत (उपनयन) मुहूर्त</a>
     <a href="consultation.html" onclick="closeMobileMenu()" style="color:var(--gold-dark); font-weight:800;">1-on-1 Sanctuary Consultation</a>
-    <a href="#course" onclick="closeMobileMenu()">Jyotish Courses</a>
-    <a href="admin.html" onclick="closeMobileMenu()">Admin Dashboard</a>
+    <a href="course.html" onclick="closeMobileMenu()">1-Year Vedic Astrology Course</a>
+    <a href="about.html" onclick="closeMobileMenu()">अबाउट अस व ज्योतिष ब्लॉग</a>
+    <a href="admin.html" onclick="closeMobileMenu()">एडमिन डैशबोर्ड</a>
     <div style="height:1px;background:var(--gold-border);margin:6px 0"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
       <div class="theme-toggle-container" onclick="toggleTheme()" title="Switch Day/Night Mode">
@@ -764,7 +860,7 @@
         <span style="display:block; font-size: clamp(22px, 3.5vw, 36px); font-family:'Cinzel', serif; font-weight:800; color:var(--heading-color); letter-spacing:1px; margin-bottom: 8px;">
           One Day • One Soul • One Horoscope
         </span>
-        High Astronomical Precision by <a href="patrika.html" style="color:var(--gold-dark); text-decoration:none; background:rgba(197, 160, 89, 0.2); border:1.5px solid var(--gold-dark); padding:3px 16px; border-radius:14px; display:inline-block; box-shadow:0 4px 15px rgba(197,160,89,0.2); transition:all 0.2s ease;">Patrika Engine</a>
+        High Astronomical Precision by <a href="patrika.html" style="color:var(--gold-dark); text-decoration:none; background:rgba(197, 160, 89, 0.2); border:1.5px solid var(--gold-dark); padding:3px 16px; border-radius:14px; display:inline-block; box-shadow:0 4px 15px rgba(197,160,89,0.2); transition:all 0.2s ease;">पत्रिका (Birth Chart)</a>
       </h1>
       
       <p class="hero-sub">
@@ -780,10 +876,10 @@
       </div>
       
       <div class="hero-ctas">
-        <a href="patrika.html" class="btn-hero highlight">Launch Patrika Engine →</a>
-        <a href="vmm.html" class="btn-hero">VIP Vivah Muhurt →</a>
-        <a href="yajnopavita.html" class="btn-hero">VIP Yagyopavit Muhurt →</a>
-        <a href="consultation.html" class="btn-hero" style="border-color:var(--gold-dark); color:var(--heading-color); font-weight:800;">Book Private Sanctuary →</a>
+        <a href="patrika.html" class="btn-hero highlight">पत्रिका बनाएँ ➔</a>
+        <a href="vmm.html" class="btn-hero">मुहूर्त जाँचें ➔</a>
+        <a href="consultation.html" class="btn-hero" style="border-color:var(--gold-dark); color:var(--heading-color); font-weight:800;">स्लॉट बुक करें (₹5,100) ➔</a>
+        <a href="course.html" class="btn-hero">कोर्स जॉइन करें (₹24,000) ➔</a>
       </div>
 
       <div class="zodiac-ticker">
@@ -792,75 +888,197 @@
     </div>
   </section>
 
-  <!-- 360 PLATFORM PILLARS (CLEAN TYPOGRAPHY, NO ICONS) -->
+  <!-- 360 PLATFORM PILLARS (ALL-IN-ONE FEATURE GRID) -->
   <section id="services">
     <div class="section-wrap">
       <div class="section-header">
         <div class="ornament-line"></div>
-        <h2>Astro 360 & Complete Astrological Suite</h2>
-        <p>Four powerful pillars combining ancient Vedic Shastras with Meeus & Keplerian ephemeris calculation</p>
+        <h2>अखिल भारतीय वैदिक ज्योतिष सेवाएं (All-In-One Feature Grid)</h2>
+        <p>शास्त्रीय ग्रंथ-प्रमाणित सटीकता, मियस खगोलीय गणना एवं तत्काल क्रियान्वित होने वाले प्रमुख ज्योतिषीय मॉड्यूल्स</p>
       </div>
 
       <div class="platform-grid">
-        <!-- PILLAR 1 (FLAGSHIP USP TOOL) -->
+        <!-- MODULE 1: PATRIKA (BIRTH CHART) -->
         <div class="pillar-card" style="border: 1.5px solid var(--gold-dark); box-shadow: 0 8px 30px rgba(197, 160, 89, 0.12);">
           <div>
             <div class="pillar-pill-label">FLAGSHIP USP TOOL</div>
-            <h3 class="pillar-title">Patrika Engine By Shri Ramji Astro</h3>
-            <p class="pillar-desc">The most accurate and complete astrological solution. Features Meeus Ch. 47 60-term lunar series, nutation-corrected Lahiri Ayanamsa, D1-D60 Shodashvarga, Vimshottari Dasha, and Granth-proven Kundli calculations.</p>
+            <h3 class="pillar-title">पत्रिका (Patrika / Birth Chart)</h3>
+            <p class="pillar-desc">True Chitra Paksha (Lahiri) Ayanamsa + Nutation एवं Meeus Ch. 47 60-term चंद्र विस्तार पर आधारित भारत का सबसे सटीक कुण्डली सॉफ्टवेयर। D1 से D60 षोडशवर्ग, विंशोत्तरी दशा व BPHS शास्त्रीय योग।</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item">60-Term Meeus Lunar Expansion (&lt; 18'' arcseconds)</div>
-              <div class="pillar-feat-item">OpenStreetMap Worldwide Geocoding Map Search</div>
-              <div class="pillar-feat-item">True Chitra Paksha (Lahiri) Ayanamsa + Nutation</div>
-              <div class="pillar-feat-item">Granth-Proven Kundli Calculator (BPHS, Phaladeepika)</div>
+              <div class="pillar-feat-item">✓ 60-Term Meeus Lunar Expansion (&lt; 18'' arcseconds)</div>
+              <div class="pillar-feat-item">✓ OpenStreetMap Worldwide Geocoding Map Search</div>
+              <div class="pillar-feat-item">✓ D1-D60 Shodashvarga & Vimshottari Mahadasha Timelines</div>
+              <div class="pillar-feat-item">✓ Granth-Proven Kundli Calculator (BPHS, Phaladeepika)</div>
             </div>
           </div>
-          <a href="patrika.html" class="pillar-btn" style="background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color:#fff; font-weight:700;">Launch Patrika Engine →</a>
+          <a href="patrika.html" class="pillar-btn" style="background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color:#fff; font-weight:700;">पत्रिका बनाएँ ➔</a>
         </div>
 
-        <!-- PILLAR 2 -->
+        <!-- MODULE 2: VIP VIVAH MUHURT ENGINE -->
         <div class="pillar-card">
           <div>
             <div class="pillar-pill-label">MATRIMONIAL ELECTION</div>
-            <h3 class="pillar-title">VIP Vivah Muhurt & Matchmaking (Panigrahana)</h3>
-            <p class="pillar-desc">Comprehensive 4-in-1 matrimonial analyzer scrutinizing all 10 Classical Mahadoshas, Tribala (Groom Sun, Bride Jupiter, Both Moons), Jamitra, Latta, and 24-Hour Lagna schedule.</p>
+            <h3 class="pillar-title">VIP Vivah Muhurt Engine (विवाह मुहूर्त)</h3>
+            <p class="pillar-desc">10 शास्त्रीय महादोषों (लत्ता, पाताल, वेध, जामित्र, एकार्गल, उपग्रह, बाण, दग्ध) का गहन परीक्षण, वर-कन्या त्रिबल (सूर्य, गुरु, चंद्र) शुद्धि एवं 24 घंटे की लग्न सारणी।</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item">10 Mahadosha & Tribala Verification Engine</div>
-              <div class="pillar-feat-item">Engagement (Vagdan) & Baricha/Tilak Scrutiny</div>
-              <div class="pillar-feat-item">24-Hour Rising Lagna Time Schedule Table</div>
+              <div class="pillar-feat-item">✓ 10 Mahadosha & Classical Tribala Verification</div>
+              <div class="pillar-feat-item">✓ Engagement (Vagdan) & Baricha/Tilak Scrutiny</div>
+              <div class="pillar-feat-item">✓ 24-Hour Rising Lagna Time Schedule Table</div>
+              <div class="pillar-feat-item">✓ Muhurta Chintamani Shloka Precision Engine</div>
             </div>
           </div>
-          <a href="vmm.html" class="pillar-btn">Calculate Vivah Muhurt →</a>
+          <a href="vmm.html" class="pillar-btn">मुहूर्त जाँचें ➔</a>
         </div>
 
-        <!-- PILLAR 3 -->
+        <!-- MODULE 3: VIP MATCHMAKING / GUN MILAN -->
+        <div class="pillar-card">
+          <div>
+            <div class="pillar-pill-label">36-POINT ASHTAKOOT MILAN</div>
+            <h3 class="pillar-title">VIP Matchmaking / गुण मिलान</h3>
+            <p class="pillar-desc">वर-कन्या की जन्म राशि एवं नक्षत्र आधारित 36-गुण अष्टकूट मिलान (वर्ण, वश्य, तारा, योनि, ग्रह मैत्री, गण, भकूट, नाड़ी)। शास्त्रीय दोष परिहार एवं दांपत्य सुख का समग्र विश्लेषण।</p>
+            <div class="pillar-features">
+              <div class="pillar-feat-item">✓ Authentic 36-Gun Score & Ashtakoot Breakdown</div>
+              <div class="pillar-feat-item">✓ Nadi & Bhakoot Dosha Parihara Shlokas</div>
+              <div class="pillar-feat-item">✓ Graha Maitri & Emotional Harmony Index</div>
+              <div class="pillar-feat-item">✓ Direct Marriage Compatibility Verdict</div>
+            </div>
+          </div>
+          <a href="vmm.html#matchmaking" class="pillar-btn">अभी मिलान करें ➔</a>
+        </div>
+
+        <!-- MODULE 4: VIP VASTU & GRIHA PRAVESH -->
+        <div class="pillar-card">
+          <div>
+            <div class="pillar-pill-label">SANCTIFIED RESIDENCE</div>
+            <h3 class="pillar-title">VIP Vastu, नींव पूजन एवं गृह प्रवेश</h3>
+            <p class="pillar-desc">मुहूर्त चिंतामणि के शास्त्रीय श्लोकों पर आधारित शिलान्यास (नींव पूजन) एवं अपूर्व, सपूर्व, द्वन्द्व गृह प्रवेश मुहूर्त। सूर्य राशि, स्थिर लग्न एवं वास्तु पुरुष संरेखण।</p>
+            <div class="pillar-features">
+              <div class="pillar-feat-item">✓ Neev Pujan (शिलान्यास) Shastra-Verified Muhurtas</div>
+              <div class="pillar-feat-item">✓ 3-Phase Griha Pravesh Calculations (5th, 6th, 7th Month)</div>
+              <div class="pillar-feat-item">✓ Sthira Lagna & Sthira Navamsha Election</div>
+              <div class="pillar-feat-item">✓ Vastu Purusha Shayan & Disha Shuddhi Engine</div>
+            </div>
+          </div>
+          <a href="vastu-muhurta.html" class="pillar-btn">वास्तु मुहूर्त देखें ➔</a>
+        </div>
+
+        <!-- MODULE 5: YAJNOPAVITA MUHURT -->
         <div class="pillar-card">
           <div>
             <div class="pillar-pill-label">SACRED CEREMONY</div>
-            <h3 class="pillar-title">VIP Yajnopavita Muhurt Calculator (Upanayana)</h3>
-            <p class="pillar-desc">Elect sacred thread ceremony dates based on Muhurta Chintamani Shlokas. Evaluates child natal Lagna, Janma Nakshatra, Chandra Shuddhi, and auspicious Upanayana asterisms.</p>
+            <h3 class="pillar-title">Yagyopavita Muhurt (उपनयन संस्कार)</h3>
+            <p class="pillar-desc">पवित्र यज्ञोपवीत संस्कार के लिए मुहूर्त चिंतामणि श्लोक 10-11 अनुसार 16 पवित्र नक्षत्रों, बालक जन्म लग्न व राशि अनुसार चंद्र शुद्धि एवं गुरु-शुक्र अस्त विचार।</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item">Child Natal Kundli & Janma Rashi Scrutiny</div>
-              <div class="pillar-feat-item">16 Auspicious Upanayana Asterism Election</div>
-              <div class="pillar-feat-item">Chintamani Shloka 10 & 11 Verification</div>
+              <div class="pillar-feat-item">✓ Child Natal Kundli & Janma Rashi Scrutiny</div>
+              <div class="pillar-feat-item">✓ 16 Auspicious Upanayana Asterism Election</div>
+              <div class="pillar-feat-item">✓ Guru-Shukra Astha & Chandra Shuddhi Filtration</div>
+              <div class="pillar-feat-item">✓ Shastra Rank Scoring & Top Auspicious Dates</div>
             </div>
           </div>
-          <a href="yajnopavita.html" class="pillar-btn">Calculate Yagyopavit Muhurt →</a>
+          <a href="yajnopavita.html" class="pillar-btn">मुहूर्त देखें ➔</a>
         </div>
 
-        <!-- PILLAR 4 -->
+        <!-- MODULE 6: 1-YEAR VEDIC ASTROLOGY MASTERY ACADEMY -->
         <div class="pillar-card">
           <div>
             <div class="pillar-pill-label">ACADEMY & LEARNING</div>
             <h3 class="pillar-title">1-Year Vedic Astrology Mastery Academy</h3>
-            <p class="pillar-desc">Structured 12-month online Jyotish course by Astro Raamji (10+ years experience). Learn Kundali reading, Nakshatras, Dasha systems, Divisional Charts, and Vastu from home.</p>
+            <p class="pillar-desc">एस्ट्रो रामजी (10+ वर्ष साधना अनुभव) द्वारा संचालित 12 महीने का सम्पूर्ण वैदिक ज्योतिष प्रशिक्षण। कुण्डली पढ़ना, नक्षत्र, दशाएं, वर्ग कुण्डलियां व वास्तविक केस स्टडीज।</p>
             <div class="pillar-features">
-              <div class="pillar-feat-item">48 Live Weekly Zoom Classes + Lifetime Recordings</div>
-              <div class="pillar-feat-item">Beginner to Advanced Mastery Certification</div>
-              <div class="pillar-feat-item">Low Cost EMI Options Starting @ ₹1,175/month</div>
+              <div class="pillar-feat-item">✓ 48 Live Weekly Zoom Classes + Lifetime Recordings</div>
+              <div class="pillar-feat-item">✓ Beginner to Advanced Mastery Certification</div>
+              <div class="pillar-feat-item">✓ Classical BPHS, Phaladeepika & Muhurta Texts</div>
+              <div class="pillar-feat-item">✓ EMI Option Starting @ ₹1,175/month</div>
             </div>
           </div>
-          <a href="#course" class="pillar-btn">Explore Course & Curriculum →</a>
+          <a href="course.html" class="pillar-btn" style="background: linear-gradient(135deg, var(--gold2), var(--gold-dark)); color:#fff; font-weight:700;">कोर्स जॉइन करें (₹24,000) ➔</a>
+        </div>
+
+        <!-- MODULE 7: PERSONAL SANCTUARY CONSULTATION -->
+        <div class="pillar-card" style="border: 1.5px solid var(--gold-dark); background: radial-gradient(circle at top right, rgba(197, 160, 89, 0.08), var(--card));">
+          <div>
+            <div class="pillar-pill-label" style="background: rgba(185, 28, 28, 0.12); color: var(--red); border-color: rgba(185, 28, 28, 0.3);">STRICT SACRED PROTOCOL</div>
+            <h3 class="pillar-title">Personal Sanctuary Consultation (1-on-1)</h3>
+            <p class="pillar-desc">प्रति सौर दिवस केवल 1 समर्पित परामर्श। ध्यानस्थ अवस्था में 20 सेकंड के सूक्ष्म अंतर वाले D60 (षष्ट्यंश) एवं विंशोत्तरी दशा का गहरा परीक्षण। कोई 5 मिनट का कॉल-सेंटर नहीं।</p>
+            <div class="pillar-features">
+              <div class="pillar-feat-item">✓ Strictly ONE Seeker Per Solar Day</div>
+              <div class="pillar-feat-item">✓ Deep Multi-Hour Pre-Session Ephemeris Calculations</div>
+              <div class="pillar-feat-item">✓ Direct 1-on-1 Video Session with Astro Raamji</div>
+              <div class="pillar-feat-item">✓ High-Precision BPHS Shlokic Solutions & Remedies</div>
+            </div>
+          </div>
+          <a href="consultation.html" class="pillar-btn" style="background: linear-gradient(135deg, #8C6D2B, #5E1420); color:#fff; font-weight:700;">स्लॉट बुक करें (₹5,100) ➔</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UPCOMING REPORTS LEAD-CAPTURE FUNNEL SECTION -->
+  <section id="upcoming-reports" style="padding: 60px 0; background: var(--bg2, #fbf8f2); border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border);">
+    <div class="section-wrap">
+      <div class="section-header" style="text-align: center; margin-bottom: 36px;">
+        <div class="ornament-line"></div>
+        <div style="display:inline-block; background:rgba(185,28,28,0.1); border:1px solid rgba(185,28,28,0.3); color:var(--red); font-size:11px; font-weight:800; letter-spacing:1.5px; padding:4px 14px; border-radius:20px; text-transform:uppercase; margin-bottom:12px;">
+          PRE-ORDER & LAUNCH OFFERS
+        </div>
+        <h2 style="font-family:'Cinzel',serif; font-size: clamp(24px, 4vw, 36px); color: var(--heading-color); margin-bottom: 10px;">
+          🔮 आगामी विशेष ज्योतिषीय रिपोर्ट्स (Upcoming Reports)
+        </h2>
+        <p style="font-size: 14.5px; color: var(--muted); max-width: 720px; margin: 0 auto;">
+          विशेष शास्त्रीय श्लोकों और सटीक उपायों से सुसज्जित। प्री-ऑर्डर करने और 80% तक लॉन्च ऑफर पाने के लिए अभी निःशुल्क नोटिफाई दर्ज करें।
+        </p>
+      </div>
+
+      <div class="upcoming-reports-grid">
+        <!-- REPORT 1: KAAL SARP DOSHA -->
+        <div class="report-card" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')">
+          <div>
+            <div class="report-card-badge">COMING SOON • PRE-ORDER</div>
+            <h3 class="report-card-title">🐍 कालसर्प दोष सम्पूर्ण विश्लेषण रिपोर्ट</h3>
+            <p class="report-card-desc">
+              12 प्रकार के कालसर्प योगों (अनंत, कुलिक, वासुकि, शंखपाल आदि) का सूक्ष्म चक्र परीक्षण, प्रभाव कालखंड, और अचूक शास्त्रीय निवारण विधान।
+            </p>
+            <div class="report-price-row">
+              <span class="report-price-now">₹199</span>
+              <span class="report-price-old">₹999</span>
+              <span class="report-discount-tag">80% OFF</span>
+            </div>
+          </div>
+          <button type="button" class="report-btn-preorder">🚀 प्री-ऑर्डर / नोटिफाई मी ➔</button>
+        </div>
+
+        <!-- REPORT 2: MANGAL DOSHA -->
+        <div class="report-card" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')">
+          <div>
+            <div class="report-card-badge">COMING SOON • PRE-ORDER</div>
+            <h3 class="report-card-title">🔥 मंगल दोष निवारण एवं जीवनसाथी रिपोर्ट</h3>
+            <p class="report-card-desc">
+              लग्न, चंद्र व शुक्र तीनों आधारों से 1/2/4/7/8/12 भावों में मंगल का सूक्ष्म गणितीय परीक्षण, 28 शास्त्रीय परिहार नियम एवं वैवाहिक सामंजस्य उपाय।
+            </p>
+            <div class="report-price-row">
+              <span class="report-price-now">₹199</span>
+              <span class="report-price-old">₹999</span>
+              <span class="report-discount-tag">80% OFF</span>
+            </div>
+          </div>
+          <button type="button" class="report-btn-preorder">🚀 प्री-ऑर्डर / नोटिफाई मी ➔</button>
+        </div>
+
+        <!-- REPORT 3: RATNA & REMEDIES -->
+        <div class="report-card" onclick="openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249')">
+          <div>
+            <div class="report-card-badge">COMING SOON • PRE-ORDER</div>
+            <h3 class="report-card-title">💎 व्यक्तिगत रत्न, धातु एवं वैदिक उपाय रिपोर्ट</h3>
+            <p class="report-card-desc">
+              लग्नेश, भाग्येश व पंचमेश की ग्रह-अवस्था अनुसार कौन सा रत्न जीवन बदल सकता है और कौन सा वर्जित है। सही वजन, धारण विधि, धातु व रुद्राक्ष विधान।
+            </p>
+            <div class="report-price-row">
+              <span class="report-price-now">₹249</span>
+              <span class="report-price-old">₹1,499</span>
+              <span class="report-discount-tag">83% OFF</span>
+            </div>
+          </div>
+          <button type="button" class="report-btn-preorder">🚀 प्री-ऑर्डर / नोटिफाई मी ➔</button>
         </div>
       </div>
     </div>
@@ -1192,6 +1410,47 @@
       <button class="modal-btn" id="loginBtn" onclick="doLogin()">Login</button>
       <div id="loginErr" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px"></div>
     </div>
+  <!-- PRE-ORDER LEAD CAPTURE MODAL (UPCOMING REPORTS) -->
+  <div class="modal-overlay" id="preOrderModal" onclick="if(event.target===this)closeModal('preOrderModal')">
+    <div class="modal" style="max-width:440px; text-align:center; padding:32px 24px;">
+      <button class="modal-close" onclick="closeModal('preOrderModal')">✕</button>
+      
+      <div style="width:54px; height:54px; background:rgba(197,160,89,0.15); border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px;">
+        📜
+      </div>
+      
+      <h3 style="font-family:'Cinzel',serif; color:var(--heading-color); font-size:1.35rem; margin-bottom:6px;">
+        यह रिपोर्ट जल्द आ रही है (Coming Soon)
+      </h3>
+      
+      <div id="preOrderSelectedPill" style="display:inline-block; background:var(--gold-dim); border:1px solid var(--gold-border); padding:5px 14px; border-radius:20px; font-size:12.5px; font-weight:700; color:var(--gold-dark); margin-bottom:12px;">
+        कालसर्प दोष रिपोर्ट (₹199)
+      </div>
+      
+      <p style="font-size:13px; line-height:1.6; color:var(--muted); margin-bottom:20px;">
+        विशेष शास्त्रीय श्लोकों और सटीक उपायों से सुसज्जित। प्री-ऑर्डर करने और लॉन्च ऑफर पाने के लिए अपना फोन नंबर दर्ज करें।
+      </p>
+      
+      <form id="preOrderForm" onsubmit="submitReportPreOrder(event)">
+        <div style="margin-bottom:16px; text-align:left;">
+          <label style="font-size:12px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">
+            WhatsApp / फोन नंबर *
+          </label>
+          <div style="display:flex; align-items:center; background:var(--input-bg, #fff); border:1.5px solid var(--gold-border); border-radius:10px; padding:0 12px;">
+            <span style="font-weight:700; font-size:14px; color:var(--gold-dark); padding-right:8px; border-right:1px solid var(--gold-border);">+91</span>
+            <input type="tel" id="preOrderPhoneInput" placeholder="9876543210" pattern="[6-9][0-9]{9}" maxlength="10" required style="width:100%; border:none; padding:12px; font-size:15px; background:transparent; color:var(--text); outline:none; font-weight:600; letter-spacing:1px;">
+          </div>
+        </div>
+        
+        <button type="submit" id="btnSubmitPreOrder" class="modal-btn" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>🚀 प्री-ऑर्डर / नोटिफाई मी (Notify Me)</span>
+        </button>
+      </form>
+      
+      <div id="preOrderSuccessMsg" style="display:none; margin-top:16px; padding:14px; background:rgba(21,128,61,0.1); border:1px solid #16a34a; border-radius:10px; color:#15803d; font-size:13.5px; font-weight:700; line-height:1.5;">
+        ✅ धन्यवाद! आपका प्री-ऑर्डर दर्ज हो गया है। रिपोर्ट लॉन्च होते ही आपको सूचित किया जाएगा।
+      </div>
+    </div>
   </div>
 
   <!-- SEO AUTHORITY BLOCK -->
@@ -1222,7 +1481,7 @@
         <div>
           <div class="footer-heading">Services & Tools</div>
           <div class="footer-links">
-            <a href="patrika.html">Patrika Engine (Accurate Kundli Software)</a>
+            <a href="patrika.html">पत्रिका (Birth Chart / Kundli Software)</a>
             <a href="vmm.html">VIP Vivah Muhurt & Matchmaking Engine</a>
             <a href="vastu-muhurta.html">VIP Vastu Muhurt (Neev & Griha Pravesh)</a>
             <a href="yajnopavita.html">VIP Yagyopavit (Upanayana) Scanner</a>
@@ -1266,6 +1525,90 @@
   function closeMobileMenu() {
     const el = document.getElementById('mobileMenu');
     if(el) el.classList.remove('open');
+  }
+
+  // UPCOMING REPORTS PRE-ORDER LEAD-CAPTURE HANDLER
+  let currentPreOrderReport = "कालसर्प दोष रिपोर्ट (₹199)";
+
+  function openReportPreOrderModal(reportName, price) {
+    currentPreOrderReport = `${reportName} (₹${price})`;
+    const pill = document.getElementById('preOrderSelectedPill');
+    if (pill) pill.textContent = currentPreOrderReport;
+    
+    const form = document.getElementById('preOrderForm');
+    const msg = document.getElementById('preOrderSuccessMsg');
+    if (form) form.style.display = 'block';
+    if (msg) msg.style.display = 'none';
+    
+    const input = document.getElementById('preOrderPhoneInput');
+    if (input) input.value = '';
+    
+    openModal('preOrderModal');
+  }
+
+  async function submitReportPreOrder(e) {
+    e.preventDefault();
+    const phoneInput = document.getElementById('preOrderPhoneInput');
+    const phone = (phoneInput ? phoneInput.value : '').trim();
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      alert("कृपया 10-अंकीय वैध भारतीय मोबाइल नंबर दर्ज करें।");
+      return;
+    }
+    
+    const btn = document.getElementById('btnSubmitPreOrder');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>दर्ज किया जा रहा है...</span>';
+    }
+    
+    const leadData = {
+      report: currentPreOrderReport,
+      phone: phone,
+      source: 'homepage_preorder_funnel',
+      created_at: new Date().toISOString()
+    };
+    
+    // Local backup
+    try {
+      let leads = JSON.parse(localStorage.getItem('sra_report_leads') || '[]');
+      leads.push(leadData);
+      localStorage.setItem('sra_report_leads', JSON.stringify(leads));
+    } catch(err) {}
+    
+    // Save to Supabase fallback
+    try {
+      await fetch(`${SUPA_URL}/rest/v1/consultations`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          full_name: `[PRE-ORDER] ${currentPreOrderReport}`,
+          phone: phone,
+          question: `Pre-Order Lead: ${currentPreOrderReport}`,
+          status: 'lead_captured',
+          created_at: new Date().toISOString()
+        })
+      });
+    } catch(err) {
+      console.log("Local lead logged");
+    }
+    
+    const form = document.getElementById('preOrderForm');
+    if (form) form.style.display = 'none';
+    
+    const successBox = document.getElementById('preOrderSuccessMsg');
+    if (successBox) {
+      successBox.style.display = 'block';
+      successBox.innerHTML = `✅ धन्यवाद! आपका प्री-ऑर्डर दर्ज हो गया है। <b>${currentPreOrderReport}</b> लॉन्च होते ही आपको सूचित किया जाएगा।`;
+    }
+    
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>🚀 प्री-ऑर्डर / नोटिफाई मी (Notify Me)</span>';
+    }
   }
 
   // SOCIAL HUB AUTO-UPDATE LOGIC
