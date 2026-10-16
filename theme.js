@@ -44,6 +44,8 @@
       sub_vastu_desc: "नींव पूजन व दिशा शुद्धि",
       sub_yajno_title: "यज्ञोपवीत (उपनयन) मुहूर्त",
       sub_yajno_desc: "16 नक्षत्र व चंद्र शुद्धि",
+      sub_mundan_title: "चूड़ाकर्म (मुंडन) मुहूर्त",
+      sub_mundan_desc: "शुभ सौर मास, वार व नक्षत्र शुद्धि",
       sub_patrika_title: "पत्रिका (Birth Chart)",
       sub_patrika_desc: "D1-D60, विंशोत्तरी व योग",
       sub_kaalsarp_title: "कालसर्प दोष रिपोर्ट",
@@ -56,6 +58,7 @@
       nav_vivah: "विवाह व मिलान",
       nav_vastu: "वास्तु मुहूर्त",
       nav_yajno: "यज्ञोपवीत",
+      nav_mundan: "चूड़ाकर्म (मुंडन)",
       nav_consult: "परामर्श (Sanctuary)",
       nav_course: "कोर्स (Academy)",
       nav_about: "अबाउट व ब्लॉग",
@@ -90,6 +93,8 @@
       sub_vastu_desc: "Neev Pujan & Disha Shuddhi",
       sub_yajno_title: "Yajnopavita Muhurta",
       sub_yajno_desc: "16 Asterisms & Moon Shuddhi",
+      sub_mundan_title: "Mundan (Chudakarma)",
+      sub_mundan_desc: "Solar Month, Vara & Star Shuddhi",
       sub_patrika_title: "Patrika (Birth Chart)",
       sub_patrika_desc: "D1-D60, Dashas & Yogas",
       sub_kaalsarp_title: "Kaal Sarp Dosh Report",
@@ -102,6 +107,7 @@
       nav_vivah: "Vivah & Match",
       nav_vastu: "Vastu Muhurta",
       nav_yajno: "Yajnopavita",
+      nav_mundan: "Mundan Muhurta",
       nav_consult: "Sanctuary",
       nav_course: "Academy Course",
       nav_about: "About & Blog",
@@ -915,6 +921,7 @@
         <li><a href="/vmm.html" style="color: #60a5fa; text-decoration: none;">Vivah Muhurt & Matchmaking Engine</a></li>
         <li><a href="/vastu-muhurta.html" style="color: #60a5fa; text-decoration: none;">Vastu (Neev & Griha Pravesh) Muhurta</a></li>
         <li><a href="/yajnopavita.html" style="color: #60a5fa; text-decoration: none;">Upanayana (Yajnopavita) Scanner</a></li>
+        <li><a href="/mmm.html" style="color: #60a5fa; text-decoration: none;">Mundan (Chudakarma) Scanner</a></li>
         <li><a href="/patrika.html" style="color: #60a5fa; text-decoration: none;">Astro 360 / Patrika (Birth Chart)</a></li>
         <li><a href="/consultation.html" style="color: #60a5fa; text-decoration: none;">VIP Sacred Consultations</a></li>
       </ul>
@@ -1099,6 +1106,13 @@
                   <span class="drawer-sub-hint" data-i18n="sub_yajno_desc">16 नक्षत्र व चंद्र शुद्धि</span>
                 </div>
               </a>
+              <a href="mmm.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+                <span class="drawer-sub-icon">✂️</span>
+                <div class="drawer-sub-text">
+                  <span class="drawer-sub-title" data-i18n="sub_mundan_title">चूड़ाकर्म (मुंडन) मुहूर्त</span>
+                  <span class="drawer-sub-hint" data-i18n="sub_mundan_desc">शुभ सौर मास, वार व नक्षत्र शुद्धि</span>
+                </div>
+              </a>
             </div>
           </div>
 
@@ -1279,6 +1293,9 @@
               </a>
               <a href="yajnopavita.html" class="nav-dropdown-item" role="menuitem">
                 <span>🧵 <span data-i18n="sub_yajno_title">यज्ञोपवीत (उपनयन)</span></span>
+              </a>
+              <a href="mmm.html" class="nav-dropdown-item" role="menuitem">
+                <span>✂️ <span data-i18n="sub_mundan_title">चूड़ाकर्म (मुंडन)</span></span>
               </a>
             </div>
           </div>

@@ -457,20 +457,22 @@
         }
         td { padding: 12px 14px; border-bottom: 1px solid var(--border-soft); }
 
-        /* ==================== PREMIUM PAYWALL MODAL ==================== */
+        /* ==================== PREMIUM PAYWALL MODAL (ULTRA-COMPACT PHONE OPTIMIZED) ==================== */
         .paywall-overlay {
             position: fixed;
             inset: 0;
             z-index: 9999;
-            background: rgba(15, 6, 10, 0.82);
-            backdrop-filter: blur(12px);
+            background: rgba(10, 4, 6, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px;
+            padding: 12px;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s ease;
+            box-sizing: border-box;
         }
 
         .paywall-overlay.active {
@@ -479,187 +481,205 @@
         }
 
         .paywall-modal {
-            background: linear-gradient(165deg, #1F070B 0%, #3B0B13 40%, #150307 100%);
-            border: 2px solid var(--gold-accent);
-            border-radius: 24px;
-            max-width: 620px;
+            background: linear-gradient(165deg, #1C0A0E 0%, #2D0B12 50%, #150307 100%);
+            border: 1.5px solid var(--gold-accent);
+            border-radius: 18px;
+            max-width: 380px;
             width: 100%;
-            padding: 36px 28px;
+            padding: 18px 16px 14px;
             color: #FFFFFF;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(197, 160, 89, 0.25);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 30px rgba(197, 160, 89, 0.25);
             position: relative;
             text-align: center;
-            overflow: hidden;
-            transform: scale(0.95);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.96);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .paywall-overlay.active .paywall-modal {
             transform: scale(1);
         }
 
-        .paywall-modal::before {
-            content: "👑";
+        .paywall-close-btn {
             position: absolute;
-            top: -20px;
-            right: -20px;
-            font-size: 140px;
-            opacity: 0.06;
+            top: 10px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .paywall-close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.08);
         }
 
         .paywall-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: rgba(197, 160, 89, 0.15);
             border: 1px solid var(--gold-accent);
             color: var(--gold-light);
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 16px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
         }
 
         .paywall-title {
             font-family: 'Rozha One', 'Cinzel', serif;
-            font-size: 1.85rem;
+            font-size: 1.15rem;
             color: #FFFFFF;
-            margin-bottom: 10px;
+            margin: 0 0 4px;
             line-height: 1.25;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
 
         .paywall-subtitle {
-            font-size: 0.95rem;
+            font-size: 0.78rem;
             color: var(--gold-light);
-            margin-bottom: 22px;
-            line-height: 1.5;
+            margin: 0 0 10px;
+            line-height: 1.35;
             opacity: 0.9;
         }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            text-align: left;
-            margin-bottom: 24px;
-        }
-
-        .feature-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(197, 160, 89, 0.2);
-            border-radius: 12px;
-            padding: 12px 14px;
+        .paywall-chips {
             display: flex;
-            align-items: flex-start;
-            gap: 10px;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
         }
 
-        .feature-icon {
-            font-size: 1.2rem;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .feature-text {
-            font-size: 0.82rem;
-            line-height: 1.35;
-            color: #EDE8DF;
-        }
-
-        .feature-text b {
-            color: var(--gold-light);
-            display: block;
-            font-size: 0.86rem;
-            margin-bottom: 2px;
+        .p-chip {
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 6px;
+            padding: 2px 7px;
+            color: #F4E8C1;
         }
 
         .pricing-box {
-            background: linear-gradient(135deg, rgba(197, 160, 89, 0.2), rgba(74, 14, 23, 0.4));
-            border: 1.5px dashed var(--gold-accent);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.16), rgba(74, 14, 23, 0.35));
+            border: 1px dashed var(--gold-accent);
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .price-details { text-align: left; }
-        .price-label { font-size: 0.78rem; text-transform: uppercase; color: var(--gold-light); letter-spacing: 1px; font-weight: 700; }
-        .price-amount { font-family: 'Rozha One', serif; font-size: 2.2rem; color: #FFFFFF; font-weight: 900; line-height: 1; }
-        .price-old { font-size: 0.9rem; text-decoration: line-through; color: rgba(255,255,255,0.4); margin-left: 8px; }
-        .price-tag { background: #2E7D32; color: #FFFFFF; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; }
+        .price-label { font-size: 9px; text-transform: uppercase; color: var(--gold-light); letter-spacing: 0.8px; font-weight: 700; margin-bottom: 2px; }
+        .price-row-flex { display: flex; align-items: baseline; gap: 8px; }
+        .price-amount { font-family: 'Rozha One', serif; font-size: 1.6rem; color: #FFFFFF; font-weight: 900; line-height: 1; }
+        .price-old { font-size: 0.85rem; text-decoration: line-through; color: rgba(255,255,255,0.45); }
+        .price-tag { background: #16a34a; color: #FFFFFF; font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 8px; }
 
         .pay-btn-main {
             background: linear-gradient(135deg, #F4E8C1 0%, #C5A059 50%, #8C6D2B 100%);
             color: #1A0D00;
             width: 100%;
-            padding: 16px 24px;
-            border-radius: 14px;
+            padding: 11px 16px;
+            border-radius: 10px;
             border: none;
             font-family: 'Rozha One', 'Plus Jakarta Sans', serif;
-            font-size: 1.15rem;
+            font-size: 0.92rem;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 6px 24px rgba(197, 160, 89, 0.4);
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .pay-btn-main:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.6);
-        }
-
-        .guarantee-note {
-            font-size: 0.78rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 12px;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.35);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            margin-bottom: 8px;
         }
 
-        /* VIP Unlock Input Row */
+        .pay-btn-main:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(197, 160, 89, 0.5);
+        }
+
         .unlock-code-box {
-            margin-top: 16px;
-            padding-top: 14px;
-            border-top: 1px stroke rgba(255,255,255,0.1);
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
+            margin-top: 6px;
         }
 
         .unlock-input {
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             border: 1px solid var(--gold-accent);
-            border-radius: 8px;
+            border-radius: 6px;
             color: #FFFFFF;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            width: 180px;
+            padding: 6px 8px;
+            font-size: 12px;
+            width: 140px;
             text-align: center;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
         }
 
         .unlock-btn {
-            background: rgba(197, 160, 89, 0.2);
+            background: rgba(197, 160, 89, 0.25);
             border: 1px solid var(--gold-accent);
             color: var(--gold-light);
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 11.5px;
             cursor: pointer;
+        }
+
+        .guarantee-note {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 8px;
+            line-height: 1.35;
+        }
+
+        .vip-floating-btn {
+            position: fixed;
+            bottom: 72px;
+            right: 14px;
+            z-index: 9980;
+            background: linear-gradient(135deg, #F4E8C1, #C5A059);
+            color: #1A0D00;
+            font-weight: 800;
+            font-size: 11.5px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid #8C6D2B;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s ease;
+        }
+        .vip-floating-btn:hover { transform: scale(1.05); }
+        @media (min-width: 768px) {
+            .vip-floating-btn { bottom: 20px; right: 20px; }
         }
 
         /* Payment QR Modal Sub-view */
@@ -898,89 +918,56 @@
     <!-- TOAST CONTAINER -->
     <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
 
-    <!-- PREMIUM PAYWALL MODAL OVERLAY -->
+    <!-- PREMIUM PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) -->
     <div class="paywall-overlay active" id="paywallOverlay">
         <div class="paywall-modal">
-            <div class="paywall-badge">👑 Rare & Ultra-Precise Vedic Feature</div>
+            <button type="button" class="paywall-close-btn" onclick="dismissPaywallPreview()" aria-label="Close VIP Pass Pop-up" title="Dismiss / Preview Mode">✕</button>
+            <div class="paywall-badge">👑 VIP Software Pass</div>
             
-            <h2 class="paywall-title" id="p_title">Accurate &amp; Authentic Vivah Related All Muhurts</h2>
+            <h2 class="paywall-title" id="p_title">Vivah Muhurt &amp; Matchmaking Engine</h2>
             <p class="paywall-subtitle" id="p_sub">
-                Complete Marriage Solution — Keplerian Ephemeris, Ashtakoot Guna Matching &amp; 10 Mahadosha Scrutiny
+                20-Min Algorithmic Engine Access • 10 Mahadoshas, Keplerian Precision &amp; Ashtakoot
             </p>
 
-            <div class="features-grid">
-                <div class="feature-item">
-                    <span class="feature-icon">🪐</span>
-                    <div class="feature-text">
-                        <b id="f1_title">Universal Keplerian Ephemeris</b>
-                        <span id="f1_desc">High-precision planetary &amp; ascendant (Lagna) calculations for any worldwide location.</span>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">📜</span>
-                    <div class="feature-text">
-                        <b id="f2_title">10 Mahadosha Scrutiny</b>
-                        <span id="f2_desc">Classical evaluation of Latta, Pata, Vedha, Jamitra, Ekargala, Upgraha, Baan &amp; Dagdha Tithis.</span>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">💍</span>
-                    <div class="feature-text">
-                        <b id="f3_title">4-in-1 Ceremony Engine</b>
-                        <span id="f3_desc">Wedding (Panigrahana), Engagement (Vagdan), Groom Blessing &amp; Bride Blessing.</span>
-                    </div>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">⏱️</span>
-                    <div class="feature-text">
-                        <b id="f4_title">20-Min VIP Muhurta & Matchmaking Engine Access</b>
-                        <span id="f4_desc" style="display:block; margin-top:4px; line-height:1.45;">
-                            • Instant 20-minute unmetered algorithmic access to calculate Vivah Muhurta, 10 Mahadosha Scrutiny & Ashta-Koota matching.<br>
-                            • Self-service high-precision automated calculation window (No human call — strictly computational).
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SOFTWARE PASS vs PERSONAL SANCTUARY CLARIFICATION CARD -->
-            <div class="engine-clarification-card" style="background:rgba(21, 128, 61, 0.08); border:1px solid rgba(21, 128, 61, 0.28); border-radius:12px; padding:12px 14px; margin:14px 0 18px 0; text-align:left; font-size:12px;">
-                <div style="font-weight:700; color:var(--pass-green, #16a34a); margin-bottom:5px; display:flex; align-items:center; gap:6px; letter-spacing:0.5px;">
-                    <span>⚡</span> <span>AUTOMATED SOFTWARE ENGINE PASS • NO HUMAN CALL</span>
-                </div>
-                <div style="color:var(--text); opacity:0.9; line-height:1.5;">
-                    This timed pass grants direct algorithmic usage of our classical Muhurta & Ashta-Koota calculators. Seeking a private 1-on-1 reading with Astro Ramji? 
-                    <a href="consultation.html" style="color:var(--gold-dark); font-weight:700; text-decoration:underline; display:inline-block; margin-top:2px;">Book Personal Sanctuary (₹5,100) ➔</a>
-                </div>
+            <div class="paywall-chips">
+                <span class="p-chip">🪐 यथार्थ केपलरियन</span>
+                <span class="p-chip">📜 १० महादोष शुद्धि</span>
+                <span class="p-chip">⏱️ २० मिनट एक्सेस</span>
             </div>
 
             <!-- Pricing Box -->
             <div class="pricing-box">
                 <div class="price-details">
-                    <div class="price-label" id="p_priceLabel">20-MINUTE VIP ENGINE ACCESS (SOFTWARE PASS)</div>
-                    <div>
+                    <div class="price-label" id="p_priceLabel">VIP SOFTWARE PASS (NO HUMAN CALL)</div>
+                    <div class="price-row-flex">
                         <span class="price-amount">₹1,111</span>
                         <span class="price-old">₹3,500</span>
                     </div>
                 </div>
-                <div class="price-tag">68% OFF (Limited Time)</div>
+                <div class="price-tag">68% OFF</div>
             </div>
 
             <!-- Main Pay Button (Razorpay Gateway) -->
-            <button class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-                ⚡ Pay ₹1,111 Online via Razorpay (20-Min Engine Access)
+            <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
+                ⚡ Pay ₹1,111 (Unlock 20-Min Pass)
             </button>
 
             <!-- VIP Passcode Unlock Option -->
             <div class="unlock-code-box">
                 <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP CODE / PIN">
-                <button class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
+                <button type="button" class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
             </div>
 
             <div class="guarantee-note">
-                🔒 100% सुरक्षित Razorpay भुगतान | 20 मिनट ऑटोमेटेड इंजन एक्सेस | श्री रामजी एस्ट्रो
+                🔒 100% सुरक्षित Razorpay • 20 मिनट ऑटोमेटेड इंजन • <a href="consultation.html" style="color:var(--gold-light); text-decoration:underline;">Sanctuary ₹5,100</a>
             </div>
         </div>
     </div>
+
+    <!-- FLOATING REOPEN PILL (SHOWN WHEN MINIMIZED / PREVIEW) -->
+    <button type="button" class="vip-floating-btn" id="vipFloatingBtn" onclick="openPaywallModal()">
+        👑 Unlock VIP Pass (₹1,111)
+    </button>
 
     <!-- MAIN APP CONTAINER (BLURRED UNTIL UNLOCKED) -->
     <div class="main-container locked" id="mainContainer">
@@ -1409,6 +1396,20 @@
             }, duration);
         }
 
+        function dismissPaywallPreview() {
+            const overlay = document.getElementById('paywallOverlay');
+            if (overlay) overlay.classList.remove('active');
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn && !isUnlocked) floatBtn.style.display = 'inline-flex';
+        }
+
+        function openPaywallModal() {
+            const overlay = document.getElementById('paywallOverlay');
+            if (overlay) overlay.classList.add('active');
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
+        }
+
         // Check Unlock & Expiry Status on Page Load
         function checkUnlockStatus() {
             const unlockedState = localStorage.getItem('sra_vmm_unlocked');
@@ -1421,6 +1422,8 @@
                 document.getElementById('mainContainer').classList.remove('locked');
                 document.getElementById('vipStatusBadge').style.display = 'inline-flex';
                 document.getElementById('sessionTimerBar').style.display = 'flex';
+                const floatBtn = document.getElementById('vipFloatingBtn');
+                if (floatBtn) floatBtn.style.display = 'none';
                 initSessionTimer();
             } else {
                 if (unlockedState === 'true') {
@@ -1456,6 +1459,8 @@
             document.getElementById('mainContainer').classList.remove('locked');
             document.getElementById('vipStatusBadge').style.display = 'inline-flex';
             document.getElementById('sessionTimerBar').style.display = 'flex';
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
             initSessionTimer();
         }
 
@@ -1514,6 +1519,8 @@
             document.getElementById('paywallOverlay').classList.add('active');
             document.getElementById('mainContainer').classList.add('locked');
             document.getElementById('vipStatusBadge').style.display = 'none';
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
 
             alert("⚠️ सत्र समाप्त (VIP Session Expired)!\n\nआपका 20 मिनट का VIP सत्र समाप्त हो गया है।\n\nनवीन सत्र प्रारम्भ करने हेतु कृपया पुनः भुगतान करें।");
         }

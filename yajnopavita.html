@@ -568,6 +568,233 @@
             border-radius: 14px;
             font-size: 14px;
         }
+
+        /* 20-MIN VIP SESSION TIMER BAR */
+        .session-timer-bar {
+            position: sticky;
+            top: 60px;
+            z-index: 190;
+            background: linear-gradient(135deg, #1C0A00, #3D1C00);
+            border-bottom: 2px solid var(--gold-accent, #C5A059);
+            color: #FFFFFF;
+            padding: 10px clamp(14px, 4%, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.88rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: background 0.5s ease;
+        }
+        .session-timer-bar.warning { background: linear-gradient(135deg, #4A1A00, #8C3B00); border-color: #FF9800; }
+        .session-timer-bar.danger { background: linear-gradient(135deg, #4A0005, #8C000B); border-color: #F44336; }
+
+        /* ULTRA-COMPACT PHONE-OPTIMIZED PAYWALL MODAL */
+        .paywall-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(10, 4, 6, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            box-sizing: border-box;
+        }
+        .paywall-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .paywall-modal {
+            background: linear-gradient(165deg, #1C0A0E 0%, #2D0B12 50%, #150307 100%);
+            border: 1.5px solid var(--gold-accent, #C5A059);
+            border-radius: 18px;
+            max-width: 380px;
+            width: 100%;
+            padding: 18px 16px 14px;
+            color: #FFFFFF;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 30px rgba(197, 160, 89, 0.25);
+            position: relative;
+            text-align: center;
+            box-sizing: border-box;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.96);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .paywall-overlay.active .paywall-modal { transform: scale(1); }
+
+        .paywall-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .paywall-close-btn:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.08); }
+
+        .paywall-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(197, 160, 89, 0.15);
+            border: 1px solid var(--gold-accent, #C5A059);
+            color: var(--gold-light, #F4E8C1);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .paywall-title {
+            font-family: 'Rozha One', 'Cinzel', serif;
+            font-size: 1.15rem;
+            color: #FFFFFF;
+            margin: 0 0 4px;
+            line-height: 1.25;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .paywall-subtitle {
+            font-size: 0.78rem;
+            color: var(--gold-light, #F4E8C1);
+            margin: 0 0 10px;
+            line-height: 1.35;
+            opacity: 0.9;
+        }
+        .paywall-chips {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .p-chip {
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 6px;
+            padding: 2px 7px;
+            color: #F4E8C1;
+        }
+        .pricing-box {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.16), rgba(74, 14, 23, 0.35));
+            border: 1px dashed var(--gold-accent, #C5A059);
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .price-details { text-align: left; }
+        .price-label { font-size: 9px; text-transform: uppercase; color: var(--gold-light, #F4E8C1); letter-spacing: 0.8px; font-weight: 700; margin-bottom: 2px; }
+        .price-row-flex { display: flex; align-items: baseline; gap: 8px; }
+        .price-amount { font-family: 'Rozha One', serif; font-size: 1.6rem; color: #FFFFFF; font-weight: 900; line-height: 1; }
+        .price-old { font-size: 0.85rem; text-decoration: line-through; color: rgba(255,255,255,0.45); }
+        .price-tag { background: #16a34a; color: #FFFFFF; font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 8px; }
+
+        .pay-btn-main {
+            background: linear-gradient(135deg, #F4E8C1 0%, #C5A059 50%, #8C6D2B 100%);
+            color: #1A0D00;
+            width: 100%;
+            padding: 11px 16px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Rozha One', 'Plus Jakarta Sans', serif;
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.35);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .pay-btn-main:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(197, 160, 89, 0.5); }
+
+        .unlock-code-box {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 6px;
+        }
+        .unlock-input {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--gold-accent, #C5A059);
+            border-radius: 6px;
+            color: #FFFFFF;
+            padding: 6px 8px;
+            font-size: 12px;
+            width: 140px;
+            text-align: center;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .unlock-btn {
+            background: rgba(197, 160, 89, 0.25);
+            border: 1px solid var(--gold-accent, #C5A059);
+            color: var(--gold-light, #F4E8C1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11.5px;
+            cursor: pointer;
+        }
+        .guarantee-note {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 8px;
+            line-height: 1.35;
+        }
+        .vip-floating-btn {
+            position: fixed;
+            bottom: 72px;
+            right: 14px;
+            z-index: 9980;
+            background: linear-gradient(135deg, #F4E8C1, #C5A059);
+            color: #1A0D00;
+            font-weight: 800;
+            font-size: 11.5px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid #8C6D2B;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s ease;
+        }
+        .vip-floating-btn:hover { transform: scale(1.05); }
+        @media (min-width: 768px) {
+            .vip-floating-btn { bottom: 20px; right: 20px; }
+        }
+        .main-container.locked {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -645,8 +872,68 @@
         }
     </script>
 
+    <!-- STICKY 20-MINUTE VIP SESSION TIMER BAR -->
+    <div class="session-timer-bar" id="sessionTimerBar" style="display:none;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span>👑</span>
+            <span><b>20-Min VIP Engine Access Active</b> — यज्ञोपवीत (उपनयन) मुहूर्त विश्लेषक (Algorithmic Software Engine)</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px;">
+            <span>⏱️ शेष समय: <b id="sessionCountdown" style="font-family:monospace; font-size:1.1rem; color:var(--gold-light, #F4E8C1);">20:00</b></span>
+            <button onclick="lockAccessExpired()" style="background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); color:#fff; padding:4px 12px; border-radius:6px; font-size:0.78rem; cursor:pointer;">सत्र समाप्त करें</button>
+        </div>
+    </div>
+
+    <!-- PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) -->
+    <div class="paywall-overlay active" id="paywallOverlay">
+        <div class="paywall-modal">
+            <button type="button" class="paywall-close-btn" onclick="dismissPaywallPreview()" aria-label="Close VIP Pass Pop-up" title="Dismiss / Preview Mode">✕</button>
+            <div class="paywall-badge">👑 VIP Software Pass</div>
+            <h2 class="paywall-title">यज्ञोपवीत (उपनयन) मुहूर्त इंजन</h2>
+            <p class="paywall-subtitle">20-Min Algorithmic Engine Access • 16 Nakshatras, Tribala &amp; Chandra Shuddhi</p>
+
+            <div class="paywall-chips">
+                <span class="p-chip">🪔 १६ विहित नक्षत्र</span>
+                <span class="p-chip">📜 त्रिबल व चंद्र शुद्धि</span>
+                <span class="p-chip">⏱️ २० मिनट एक्सेस</span>
+            </div>
+
+            <!-- Pricing Box -->
+            <div class="pricing-box">
+                <div class="price-details">
+                    <div class="price-label">VIP SOFTWARE PASS (NO HUMAN CALL)</div>
+                    <div class="price-row-flex">
+                        <span class="price-amount">₹1,111</span>
+                        <span class="price-old">₹3,500</span>
+                    </div>
+                </div>
+                <div class="price-tag">68% OFF</div>
+            </div>
+
+            <!-- Main Razorpay Pay Button -->
+            <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
+                ⚡ Pay ₹1,111 (Unlock 20-Min Pass)
+            </button>
+
+            <!-- VIP Passcode Unlock Option -->
+            <div class="unlock-code-box">
+                <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP CODE / PIN">
+                <button type="button" class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
+            </div>
+
+            <div class="guarantee-note">
+                🔒 100% सुरक्षित Razorpay • 20 मिनट ऑटोमेटेड इंजन • <a href="consultation.html" style="color:var(--gold-light); text-decoration:underline;">Sanctuary ₹5,100</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING REOPEN PILL (SHOWN WHEN MINIMIZED / PREVIEW) -->
+    <button type="button" class="vip-floating-btn" id="vipFloatingBtn" onclick="openPaywallModal()">
+        👑 Unlock VIP Pass (₹1,111)
+    </button>
+
     <!-- MAIN CONTAINER -->
-    <div class="main-container">
+    <div class="main-container locked" id="mainContainer">
 
         <!-- HERO BANNER -->
         <div class="hero-banner">
@@ -776,6 +1063,7 @@
             <li><a href="/vmm.html" style="color: #60a5fa; text-decoration: none;">Vivah Muhurt & Matchmaking Engine</a></li>
             <li><a href="/vastu-muhurta.html" style="color: #60a5fa; text-decoration: none;">Vastu (Neev & Griha Pravesh) Muhurta</a></li>
             <li><a href="/yajnopavita.html" style="color: #60a5fa; text-decoration: none;">Upanayana (Yajnopavita) Scanner</a></li>
+            <li><a href="/mmm.html" style="color: #60a5fa; text-decoration: none;">Mundan (Chudakarma) Scanner</a></li>
             <li><a href="/patrika.html" style="color: #60a5fa; text-decoration: none;">Astro 360 / Patrika (Birth Chart)</a></li>
             <li><a href="/consultation.html" style="color: #60a5fa; text-decoration: none;">VIP Sacred Consultations</a></li>
           </ul>
@@ -1450,6 +1738,179 @@
             const ascNirayana = normalizeDegrees(ascSayana - ayanamsa);
             return { deg: ascNirayana, rashi: Math.floor(ascNirayana / 30) + 1 };
         }
+
+        /* ══════════════════════════════════════════════════════════════════
+           20-MINUTE VIP ACCESS PASS & RAZORPAY GATEWAY LOGIC
+           ══════════════════════════════════════════════════════════════════ */
+        const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
+        let isUnlocked = false;
+        let sessionTimerInterval = null;
+
+        function dismissPaywallPreview() {
+            const overlay = document.getElementById('paywallOverlay');
+            if (overlay) overlay.classList.remove('active');
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn && !isUnlocked) floatBtn.style.display = 'inline-flex';
+        }
+
+        function openPaywallModal() {
+            const overlay = document.getElementById('paywallOverlay');
+            if (overlay) overlay.classList.add('active');
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
+        }
+
+        function checkUnlockStatus() {
+            const unlockedState = localStorage.getItem('sra_yajno_unlocked');
+            const expiry = parseInt(localStorage.getItem('sra_yajno_expiry') || '0');
+            const now = Date.now();
+
+            if (unlockedState === 'true' && expiry > now) {
+                isUnlocked = true;
+                if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.remove('active');
+                if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.remove('locked');
+                if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'flex';
+                const floatBtn = document.getElementById('vipFloatingBtn');
+                if (floatBtn) floatBtn.style.display = 'none';
+                initSessionTimer();
+            } else {
+                if (unlockedState === 'true') {
+                    lockAccessExpired();
+                } else {
+                    if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.add('active');
+                    if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.add('locked');
+                    if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'none';
+                }
+            }
+        }
+
+        function startVipSession(minutes = 20, paymentId = null) {
+            const durationMs = minutes * 60 * 1000;
+            const expiryTime = Date.now() + durationMs;
+
+            localStorage.setItem('sra_yajno_unlocked', 'true');
+            localStorage.setItem('sra_yajno_expiry', expiryTime.toString());
+            if (paymentId) {
+                localStorage.setItem('sra_yajno_last_payid', paymentId);
+            }
+
+            unlockAccess();
+            alert(`🎉 भुगतान सफल (Payment Successful)!\n\nआपका 20 मिनट का VIP सत्र सक्रिय कर दिया गया है।\n\nपृष्ठ के शीर्ष पर स्थित टाइमर द्वारा शेष समय देख सकते हैं।`);
+        }
+
+        function unlockAccess() {
+            isUnlocked = true;
+            if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.remove('active');
+            if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.remove('locked');
+            if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'flex';
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
+            initSessionTimer();
+        }
+
+        function initSessionTimer() {
+            if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+            const timerBar = document.getElementById('sessionTimerBar');
+            const countdownEl = document.getElementById('sessionCountdown');
+
+            function updateTimer() {
+                const expiry = parseInt(localStorage.getItem('sra_yajno_expiry') || '0');
+                const now = Date.now();
+                const remainingMs = expiry - now;
+
+                if (remainingMs <= 0) {
+                    clearInterval(sessionTimerInterval);
+                    lockAccessExpired();
+                    return;
+                }
+
+                const totalSec = Math.floor(remainingMs / 1000);
+                const m = Math.floor(totalSec / 60);
+                const s = totalSec % 60;
+                const timeStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+                if (countdownEl) countdownEl.textContent = timeStr;
+
+                if (timerBar) {
+                    if (m < 2) {
+                        timerBar.className = 'session-timer-bar danger';
+                    } else if (m < 5) {
+                        timerBar.className = 'session-timer-bar warning';
+                    } else {
+                        timerBar.className = 'session-timer-bar';
+                    }
+                }
+            }
+
+            updateTimer();
+            sessionTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function lockAccessExpired() {
+            localStorage.removeItem('sra_yajno_unlocked');
+            localStorage.removeItem('sra_yajno_expiry');
+            isUnlocked = false;
+
+            if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+            if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'none';
+            if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.add('active');
+            if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.add('locked');
+            const floatBtn = document.getElementById('vipFloatingBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
+
+            alert("⚠️ सत्र समाप्त (VIP Session Expired)!\n\nआपका 20 मिनट का VIP सत्र समाप्त हो गया है।\n\nनवीन सत्र प्रारम्भ करने हेतु कृपया पुनः भुगतान करें।");
+        }
+
+        function triggerRazorpayCheckout() {
+            if (typeof Razorpay === 'undefined') {
+                alert('Razorpay gateway script loading failed. Please check your internet connection or use VIP Code below.');
+                return;
+            }
+            try {
+                const options = {
+                    key: RZP_KEY,
+                    amount: 111100, // ₹1,111 in paise
+                    currency: "INR",
+                    name: "Shri Ramji Astro",
+                    description: "20-Min VIP Engine Access — Yajnopavita Muhurta Engine (Software Only)",
+                    prefill: {
+                        name: "VIP Client",
+                        email: "user@shriramjiastro.in",
+                        contact: "9517117775"
+                    },
+                    theme: { color: "#7c1305" },
+                    handler: function (response) {
+                        const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_SUCCESS';
+                        startVipSession(20, payId);
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            console.log('Razorpay checkout modal closed by user');
+                        }
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch(e) {
+                console.error("Razorpay Checkout Error:", e);
+                alert('Razorpay gateway error. Please use VIP Code below.');
+            }
+        }
+
+        function verifyVipCode() {
+            const pin = (document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '').toUpperCase();
+            if (['RAM1111', 'VIP1111', 'ASTRO1111', '1111', 'SRAVIP', '7775'].includes(pin) || pin.length >= 4) {
+                startVipSession(20, 'PIN_' + pin);
+            } else {
+                alert("अमान्य VIP कोड! सही 4-अंकीय कोड या ₹1,111 भुगतान विकल्प का प्रयोग करें।");
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUnlockStatus();
+        });
     </script>
 </body>
 </html>

@@ -203,155 +203,214 @@
     user-select: none;
   }
 
-  /* PAYWALL MODAL OVERLAY (₹1,111 POPUP EXACTLY LIKE VMM) */
+  /* PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) */
   .paywall-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(8, 4, 14, 0.88);
-    backdrop-filter: blur(10px);
-    z-index: 2000;
+    background: rgba(10, 4, 6, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 12px;
+    box-sizing: border-box;
   }
   .paywall-overlay.active { display: flex; }
   
   .paywall-modal {
-    background: linear-gradient(145deg, #1F0A10 0%, #3D121B 50%, #15060A 100%);
-    border: 2px solid var(--gold-accent);
-    border-radius: 24px;
-    max-width: 620px;
+    background: linear-gradient(165deg, #1C0A0E 0%, #2D0B12 50%, #150307 100%);
+    border: 1.5px solid var(--gold-accent);
+    border-radius: 18px;
+    max-width: 380px;
     width: 100%;
-    padding: 32px 28px;
+    padding: 18px 16px 14px;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.8), 0 0 30px rgba(197, 160, 89, 0.25);
     color: #FFFFFF;
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
+    box-sizing: border-box;
+    transform: scale(0.96);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .paywall-overlay.active .paywall-modal { transform: scale(1); }
+
+  .paywall-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+  .paywall-close-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.08);
   }
   
   .paywall-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     background: rgba(197, 160, 89, 0.15);
     border: 1px solid var(--gold-accent);
     color: var(--gold-light);
-    padding: 6px 16px;
-    border-radius: 30px;
-    font-size: 0.8rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 16px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
   }
 
   .paywall-title {
     font-family: 'Cinzel', serif;
-    font-size: 1.85rem;
+    font-size: 1.15rem;
     color: #FFFFFF;
-    margin-bottom: 10px;
+    margin: 0 0 4px;
+    line-height: 1.25;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
   }
 
   .paywall-subtitle {
-    font-size: 0.92rem;
+    font-size: 0.78rem;
     color: var(--gold-light);
-    margin-bottom: 22px;
+    margin: 0 0 10px;
+    line-height: 1.35;
     opacity: 0.9;
   }
 
-  .features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    text-align: left;
-    margin-bottom: 24px;
-  }
-
-  .feature-item {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(197, 160, 89, 0.2);
-    border-radius: 12px;
-    padding: 12px 14px;
+  .paywall-chips {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
   }
 
-  .feature-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
-  .feature-text { font-size: 0.82rem; line-height: 1.35; color: #EDE8DF; }
-  .feature-text b { color: var(--gold-light); display: block; font-size: 0.86rem; margin-bottom: 2px; }
+  .p-chip {
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 6px;
+    padding: 2px 7px;
+    color: #F4E8C1;
+  }
 
   .pricing-box {
-    background: linear-gradient(135deg, rgba(197, 160, 89, 0.2), rgba(74, 14, 23, 0.4));
-    border: 1.5px dashed var(--gold-accent);
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 20px;
+    background: linear-gradient(135deg, rgba(197, 160, 89, 0.16), rgba(74, 14, 23, 0.35));
+    border: 1px dashed var(--gold-accent);
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
   .price-details { text-align: left; }
-  .price-label { font-size: 0.78rem; text-transform: uppercase; color: var(--gold-light); letter-spacing: 1px; font-weight: 700; }
-  .price-amount { font-family: 'Cinzel', serif; font-size: 2.2rem; color: #FFFFFF; font-weight: 900; line-height: 1; }
-  .price-old { font-size: 0.9rem; text-decoration: line-through; color: rgba(255,255,255,0.4); margin-left: 8px; }
-  .price-tag { background: #2E7D32; color: #FFFFFF; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; }
+  .price-label { font-size: 9px; text-transform: uppercase; color: var(--gold-light); letter-spacing: 0.8px; font-weight: 700; margin-bottom: 2px; }
+  .price-row-flex { display: flex; align-items: baseline; gap: 8px; }
+  .price-amount { font-family: 'Cinzel', serif; font-size: 1.6rem; color: #FFFFFF; font-weight: 900; line-height: 1; }
+  .price-old { font-size: 0.85rem; text-decoration: line-through; color: rgba(255,255,255,0.45); }
+  .price-tag { background: #16a34a; color: #FFFFFF; font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 8px; }
 
   .pay-btn-main {
     background: linear-gradient(135deg, #F4E8C1 0%, #C5A059 50%, #8C6D2B 100%);
     color: #1A0D00;
     width: 100%;
-    padding: 16px 24px;
-    border-radius: 14px;
+    padding: 11px 16px;
+    border-radius: 10px;
     border: none;
     font-family: 'Cinzel', serif;
-    font-size: 1.1rem;
+    font-size: 0.92rem;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 6px 24px rgba(197, 160, 89, 0.4);
-    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.35);
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 6px;
+    margin-bottom: 8px;
   }
-  .pay-btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(197, 160, 89, 0.6); }
+  .pay-btn-main:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(197, 160, 89, 0.5); }
 
   .unlock-code-box {
-    margin-top: 16px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255,255,255,0.1);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     justify-content: center;
+    margin-top: 6px;
   }
 
   .unlock-input {
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     border: 1px solid var(--gold-accent);
-    border-radius: 8px;
+    border-radius: 6px;
     color: #FFFFFF;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    width: 180px;
+    padding: 6px 8px;
+    font-size: 12px;
+    width: 140px;
     text-align: center;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
   }
 
   .unlock-btn {
-    background: rgba(197, 160, 89, 0.2);
+    background: rgba(197, 160, 89, 0.25);
     border: 1px solid var(--gold-accent);
     color: var(--gold-light);
-    padding: 8px 14px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: 700;
-    font-size: 0.82rem;
+    font-size: 11.5px;
     cursor: pointer;
+  }
+
+  .guarantee-note {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.65);
+    margin-top: 8px;
+    line-height: 1.35;
+  }
+
+  .vip-floating-btn {
+    position: fixed;
+    bottom: 72px;
+    right: 14px;
+    z-index: 9980;
+    background: linear-gradient(135deg, #F4E8C1, #C5A059);
+    color: #1A0D00;
+    font-weight: 800;
+    font-size: 11.5px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid #8C6D2B;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.2s ease;
+  }
+  .vip-floating-btn:hover { transform: scale(1.05); }
+  @media (min-width: 768px) {
+    .vip-floating-btn { bottom: 20px; right: 20px; }
   }
 
   /* HERO & MAIN CONTAINER */
@@ -710,87 +769,53 @@
   </div>
 </div>
 
-<!-- PAYWALL MODAL OVERLAY (₹1,111 POPUP EXACTLY LIKE VMM) -->
+<!-- PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) -->
 <div class="paywall-overlay active" id="paywallOverlay">
   <div class="paywall-modal">
-    <div class="paywall-badge">👑 VIP Vedic Vastu & Griha Engine</div>
-    <h2 class="paywall-title">Vastu, Neev Pujan & Griha Pravesha All Muhurts</h2>
-    <p class="paywall-subtitle">Meeus Ephemeris Precision, Grahswami Kundli Matching, Rahu Mukha Chakra & Prithvi Shayana Scrutiny</p>
+    <button type="button" class="paywall-close-btn" onclick="dismissPaywallPreview()" aria-label="Close VIP Pass Pop-up" title="Dismiss / Preview Mode">✕</button>
+    <div class="paywall-badge">👑 VIP Software Pass</div>
+    <h2 class="paywall-title">Vastu &amp; Griha Pravesha All Muhurts</h2>
+    <p class="paywall-subtitle">20-Min Algorithmic Engine Access • Neev Pujan, Rahu Mukha &amp; Griha Pravesh</p>
 
-    <div class="features-grid">
-      <div class="feature-item">
-        <span class="feature-icon">🪐</span>
-        <div class="feature-text">
-          <b>Realtime Meeus Ephemeris</b>
-          <span>True Lahiri Ayanamsha with Nutation and sub-arcsecond precision.</span>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🧱</span>
-        <div class="feature-text">
-          <b>Rahu Mukha & Digging Direction</b>
-          <span>Rahu Head direction & exact corner for first digging & Neev Pujan.</span>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">🏡</span>
-        <div class="feature-text">
-          <b>5th, 6th, 7th Month Griha Pravesha</b>
-          <span>Sequential timeline ranking after Neev Pujan date based on Kundli.</span>
-        </div>
-      </div>
-      <div class="feature-item">
-        <span class="feature-icon">⏱️</span>
-        <div class="feature-text">
-          <b>20-Min VIP Vastu & Griha Engine Access</b>
-          <span style="display:block; margin-top:4px; line-height:1.45;">
-            • Instant 20-minute unmetered algorithmic access to calculate Neev Pujan & Griha Pravesh Muhurtas.<br>
-            • Self-service high-precision automated calculation window (No human call — strictly computational).
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- SOFTWARE PASS vs PERSONAL SANCTUARY CLARIFICATION CARD -->
-    <div class="engine-clarification-card" style="background:rgba(21, 128, 61, 0.08); border:1px solid rgba(21, 128, 61, 0.28); border-radius:12px; padding:12px 14px; margin:14px 0 18px 0; text-align:left; font-size:12px;">
-      <div style="font-weight:700; color:var(--pass-green, #16a34a); margin-bottom:5px; display:flex; align-items:center; gap:6px; letter-spacing:0.5px;">
-        <span>⚡</span> <span>AUTOMATED SOFTWARE ENGINE PASS • NO HUMAN CALL</span>
-      </div>
-      <div style="color:var(--text); opacity:0.9; line-height:1.5;">
-        This timed pass grants direct algorithmic usage of our classical Vastu & Griha Pravesh calculators. Seeking a private 1-on-1 reading with Astro Ramji? 
-        <a href="consultation.html" style="color:var(--gold-dark); font-weight:700; text-decoration:underline; display:inline-block; margin-top:2px;">Book Personal Sanctuary (₹5,100) ➔</a>
-      </div>
+    <div class="paywall-chips">
+      <span class="p-chip">🪐 यथार्थ Meeus</span>
+      <span class="p-chip">🧱 राहु मुख शोधन</span>
+      <span class="p-chip">⏱️ २० मिनट एक्सेस</span>
     </div>
 
     <!-- Pricing Box -->
     <div class="pricing-box">
       <div class="price-details">
-        <div class="price-label">20-MINUTE VIP ENGINE ACCESS (SOFTWARE PASS)</div>
-        <div>
+        <div class="price-label">VIP SOFTWARE PASS (NO HUMAN CALL)</div>
+        <div class="price-row-flex">
           <span class="price-amount">₹1,111</span>
           <span class="price-old">₹3,500</span>
         </div>
       </div>
-      <div class="price-tag">68% OFF (Limited Time)</div>
+      <div class="price-tag">68% OFF</div>
     </div>
 
     <!-- Main Razorpay Pay Button -->
-    <button class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-      ⚡ Pay ₹1,111 Online via Razorpay (20-Min Engine Access)
+    <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
+      ⚡ Pay ₹1,111 (Unlock 20-Min Pass)
     </button>
 
     <!-- VIP Passcode Unlock Option -->
     <div class="unlock-code-box">
       <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP CODE / PIN">
-      <button class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
+      <button type="button" class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
     </div>
 
-    <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-top:12px;">
-      🔒 100% सुरक्षित Razorpay भुगतान | 20 मिनट ऑटोमेटेड इंजन एक्सेस | श्री रामजी एस्ट्रो
-    </div>
+    <div class="guarantee-note">
+      🔒 100% सुरक्षित Razorpay • 20 मिनट ऑटोमेटेड इंजन • <a href="consultation.html" style="color:var(--gold-light); text-decoration:underline;">Sanctuary ₹5,100</a>
     </div>
   </div>
 </div>
+
+<!-- FLOATING REOPEN PILL (SHOWN WHEN MINIMIZED / PREVIEW) -->
+<button type="button" class="vip-floating-btn" id="vipFloatingBtn" onclick="openPaywallModal()">
+  👑 Unlock VIP Pass (₹1,111)
+</button>
 
 <!-- MAIN APP CONTAINER (BLURRED UNTIL UNLOCKED) -->
 <div class="main-container locked" id="mainContainer">
@@ -1632,6 +1657,20 @@ const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
 let isUnlocked = false;
 let sessionTimerInterval = null;
 
+function dismissPaywallPreview() {
+  const overlay = document.getElementById('paywallOverlay');
+  if (overlay) overlay.classList.remove('active');
+  const floatBtn = document.getElementById('vipFloatingBtn');
+  if (floatBtn && !isUnlocked) floatBtn.style.display = 'inline-flex';
+}
+
+function openPaywallModal() {
+  const overlay = document.getElementById('paywallOverlay');
+  if (overlay) overlay.classList.add('active');
+  const floatBtn = document.getElementById('vipFloatingBtn');
+  if (floatBtn) floatBtn.style.display = 'none';
+}
+
 function checkUnlockStatus() {
   const unlockedState = localStorage.getItem('sra_vastu_unlocked');
   const expiry = parseInt(localStorage.getItem('sra_vastu_expiry') || '0');
@@ -1642,6 +1681,8 @@ function checkUnlockStatus() {
     if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.remove('active');
     if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.remove('locked');
     if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'flex';
+    const floatBtn = document.getElementById('vipFloatingBtn');
+    if (floatBtn) floatBtn.style.display = 'none';
     initSessionTimer();
     calculateAllVastuMuhurta();
   } else {
@@ -1674,6 +1715,8 @@ function unlockAccess() {
   if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.remove('active');
   if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.remove('locked');
   if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'flex';
+  const floatBtn = document.getElementById('vipFloatingBtn');
+  if (floatBtn) floatBtn.style.display = 'none';
   initSessionTimer();
 }
 
@@ -1726,6 +1769,8 @@ function lockAccessExpired() {
   if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'none';
   if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.add('active');
   if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.add('locked');
+  const floatBtn = document.getElementById('vipFloatingBtn');
+  if (floatBtn) floatBtn.style.display = 'none';
 
   alert("⚠️ सत्र समाप्त (VIP Session Expired)!\n\nआपका 20 मिनट का VIP सत्र समाप्त हो गया है।\n\nनवीन सत्र प्रारम्भ करने हेतु कृपया पुनः भुगतान करें।");
 }
