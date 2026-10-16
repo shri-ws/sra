@@ -541,9 +541,16 @@
     .pillar-card:hover { border-color: var(--gold-dark); box-shadow: 0 12px 36px rgba(197, 160, 89, 0.15); transform: translateY(-3px); }
     .pillar-pill-label { display: inline-block; background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold-dark); padding: 4px 12px; border-radius: 12px; font-family: 'Cinzel', serif; font-size: 9.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; }
     .pillar-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--heading-color); margin-bottom: 10px; }
-    .pillar-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
-    .pillar-features { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; font-size: 13px; color: var(--text); }
-    .pillar-feat-item { display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed rgba(197, 160, 89, 0.2); padding-bottom: 6px; }
+    .pillar-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+    .pillar-features {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; font-size: 13px; color: var(--text);
+      background: var(--gold-dim, rgba(197, 160, 89, 0.05));
+      border: 1px solid var(--gold-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .pillar-feat-item { display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed rgba(197, 160, 89, 0.25); padding-bottom: 6px; }
+    .pillar-feat-item:last-child { border-bottom: none; padding-bottom: 0; }
     .pillar-btn {
       width: 100%; padding: 13px; background: var(--gold-dim); border: 1px solid var(--gold-border);
       border-radius: 10px; color: var(--heading-color); font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
@@ -606,9 +613,14 @@
     }
     .report-price-row {
       display: flex;
-      align-items: baseline;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
       margin-bottom: 16px;
+      background: var(--gold-dim, rgba(197, 160, 89, 0.06));
+      border: 1px solid var(--gold-border);
+      border-radius: 10px;
+      padding: 8px 14px;
     }
     .report-price-now {
       font-size: 24px;
@@ -978,10 +990,49 @@
       </div>
     </a>
     <div class="nav-links">
-      <a href="patrika.html" data-i18n="nav_patrika" style="color:var(--gold-dark); font-weight:800; background:var(--gold-dim); border:1px solid var(--gold-border);">पत्रिका (Birth Chart)</a>
-      <a href="vmm.html" data-i18n="nav_vivah">विवाह व मिलान</a>
-      <a href="vastu-muhurta.html" data-i18n="nav_vastu">वास्तु मुहूर्त</a>
-      <a href="yajnopavita.html" data-i18n="nav_yajno">यज्ञोपवीत</a>
+      <!-- MUHURT DROPDOWN -->
+      <div class="nav-dropdown" id="navDropdownMuhurt">
+        <button type="button" class="nav-dropdown-btn" aria-haspopup="true" aria-expanded="false">
+          <span>🪔</span> <span data-i18n="menu_muhurt">मुहूर्त</span> <span style="font-size:10px;">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" role="menu">
+          <a href="vmm.html" class="nav-dropdown-item" role="menuitem">
+            <span>💍 <span data-i18n="sub_vivah_title">विवाह मुहूर्त व मिलान</span></span>
+          </a>
+          <a href="vastu-muhurta.html" class="nav-dropdown-item" role="menuitem">
+            <span>🏡 <span data-i18n="sub_vastu_title">वास्तु, नींव व गृह प्रवेश</span></span>
+          </a>
+          <a href="yajnopavita.html" class="nav-dropdown-item" role="menuitem">
+            <span>🧵 <span data-i18n="sub_yajno_title">यज्ञोपवीत (उपनयन)</span></span>
+          </a>
+        </div>
+      </div>
+
+      <!-- REPORTS DROPDOWN -->
+      <div class="nav-dropdown" id="navDropdownReports">
+        <button type="button" class="nav-dropdown-btn" aria-haspopup="true" aria-expanded="false">
+          <span>📜</span> <span data-i18n="menu_reports">रिपोर्ट्स</span> <span style="font-size:10px;">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" role="menu">
+          <a href="patrika.html" class="nav-dropdown-item" role="menuitem" style="color:var(--gold-dark); font-weight:700;">
+            <span>✨ <span data-i18n="sub_patrika_title">पत्रिका (Birth Chart)</span></span>
+          </a>
+          <a href="javascript:void(0)" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')" class="nav-dropdown-item" role="menuitem">
+            <span>🐍 <span data-i18n="sub_kaalsarp_title">कालसर्प दोष रिपोर्ट</span></span>
+            <span class="drop-badge">₹199</span>
+          </a>
+          <a href="javascript:void(0)" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')" class="nav-dropdown-item" role="menuitem">
+            <span>🔥 <span data-i18n="sub_mangal_title">मंगल दोष निवारण</span></span>
+            <span class="drop-badge">₹199</span>
+          </a>
+          <a href="javascript:void(0)" onclick="openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249')" class="nav-dropdown-item" role="menuitem">
+            <span>💎 <span data-i18n="sub_ratna_title">रत्न और उपाय रिपोर्ट</span></span>
+            <span class="drop-badge">₹249</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- DIRECT LINKS -->
       <a href="consultation.html" data-i18n="nav_consult" style="color:var(--gold-dark); font-weight:800;">परामर्श (Sanctuary)</a>
       <a href="course.html" data-i18n="nav_course">कोर्स (Academy)</a>
       <a href="about.html" data-i18n="nav_about">अबाउट व ब्लॉग</a>
@@ -1011,35 +1062,130 @@
           <button onclick="doLogout()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;font-weight:700;margin-left:4px;">Logout</button>
         </div>
       </div>
-      <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
+      <button class="hamburger" onclick="toggleNavDrawer()" aria-label="Menu">☰</button>
     </div>
   </nav>
 
-  <!-- MOBILE MENU (CLEAN TYPOGRAPHY WITH I18N SUPPORT) -->
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="patrika.html" onclick="closeMobileMenu()" data-i18n="nav_patrika" style="color:var(--gold-dark); font-weight:800;">पत्रिका (Birth Chart / Kundli)</a>
-    <a href="vmm.html" onclick="closeMobileMenu()" data-i18n="nav_vivah">विवाह मुहूर्त व मिलान (Matchmaker)</a>
-    <a href="vastu-muhurta.html" onclick="closeMobileMenu()" data-i18n="nav_vastu">वास्तु, नींव पूजन व गृह प्रवेश</a>
-    <a href="yajnopavita.html" onclick="closeMobileMenu()" data-i18n="nav_yajno">यज्ञोपवीत (उपनयन) मुहूर्त</a>
-    <a href="consultation.html" onclick="closeMobileMenu()" data-i18n="nav_consult" style="color:var(--gold-dark); font-weight:800;">1-on-1 Sanctuary Consultation</a>
-    <a href="course.html" onclick="closeMobileMenu()" data-i18n="nav_course">1-Year Vedic Astrology Course</a>
-    <a href="about.html" onclick="closeMobileMenu()" data-i18n="nav_about">अबाउट अस व ज्योतिष ब्लॉग</a>
-    <a href="admin.html" onclick="closeMobileMenu()" data-i18n="nav_admin">एडमिन डैशबोर्ड</a>
-    <div style="height:1px;background:var(--gold-border);margin:6px 0"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-      <button type="button" class="lang-pill-btn" onclick="toggleLanguage()" style="flex:1; justify-content:center;">
-        <span class="lang-hi active">हिन्दी</span>
-        <span class="lang-sep">/</span>
-        <span class="lang-en">EN</span>
-      </button>
-      <div class="theme-toggle-container" onclick="toggleTheme()" title="Switch Day/Night Mode">
-        <span class="theme-label label-day">DAY</span>
-        <span class="theme-slider"></span>
-        <span class="theme-label label-night">NIGHT</span>
+  <!-- SLIDE-OUT NAVIGATION DRAWER (HAMBURGER ☰) -->
+  <div class="nav-drawer-backdrop" id="navDrawerBackdrop" onclick="closeNavDrawer()"></div>
+  <div class="nav-drawer" id="navDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <img src="logo.png" alt="Patrika Logo" class="drawer-logo-img">
+        <div class="drawer-brand-text">
+          <span class="drawer-brand-title">PATRIKA</span>
+          <span class="drawer-brand-sub" data-i18n="brand_sub">by Shri Ram Ji Astro</span>
+        </div>
       </div>
-      <div id="mobAuthBtns" style="display:flex;gap:6px;flex:1;">
-        <button class="btn-nav btn-login" style="flex:1" onclick="openModal('loginModal');closeMobileMenu()">Login</button>
-        <button class="btn-nav btn-register" style="flex:1" onclick="openModal('registerModal');closeMobileMenu()">Register</button>
+      <button type="button" class="drawer-close-btn" onclick="closeNavDrawer()" aria-label="Close Navigation">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- MUHURT ACCORDION -->
+      <div class="drawer-accordion-group">
+        <button type="button" class="drawer-accordion-btn" onclick="toggleDrawerAccordion('drawerMuhurtItems')" id="btnDrawerMuhurt">
+          <span class="drawer-acc-title"><span>🪔</span> <span data-i18n="menu_muhurt">मुहूर्त (Muhurt)</span></span>
+          <span class="drawer-acc-arrow">▾</span>
+        </button>
+        <div class="drawer-accordion-panel" id="drawerMuhurtItems">
+          <a href="vmm.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+            <span class="drawer-sub-icon">💍</span>
+            <div class="drawer-sub-text">
+              <span class="drawer-sub-title" data-i18n="sub_vivah_title">विवाह मुहूर्त व मिलान</span>
+              <span class="drawer-sub-hint" data-i18n="sub_vivah_desc">10 महादोष व 36-गुण अष्टकूट</span>
+            </div>
+          </a>
+          <a href="vastu-muhurta.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+            <span class="drawer-sub-icon">🏡</span>
+            <div class="drawer-sub-text">
+              <span class="drawer-sub-title" data-i18n="sub_vastu_title">वास्तु, नींव व गृह प्रवेश</span>
+              <span class="drawer-sub-hint" data-i18n="sub_vastu_desc">शिलान्यास व स्थिर लग्न</span>
+            </div>
+          </a>
+          <a href="yajnopavita.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+            <span class="drawer-sub-icon">🧵</span>
+            <div class="drawer-sub-text">
+              <span class="drawer-sub-title" data-i18n="sub_yajno_title">यज्ञोपवीत (उपनयन)</span>
+              <span class="drawer-sub-hint" data-i18n="sub_yajno_desc">16 नक्षत्र व चंद्र शुद्धि</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- REPORTS ACCORDION -->
+      <div class="drawer-accordion-group">
+        <button type="button" class="drawer-accordion-btn" onclick="toggleDrawerAccordion('drawerReportItems')" id="btnDrawerReports">
+          <span class="drawer-acc-title"><span>📊</span> <span data-i18n="menu_reports">रिपोर्ट्स (Reports)</span></span>
+          <span class="drawer-acc-arrow">▾</span>
+        </button>
+        <div class="drawer-accordion-panel" id="drawerReportItems">
+          <a href="patrika.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+            <span class="drawer-sub-icon">📜</span>
+            <div class="drawer-sub-text">
+              <span class="drawer-sub-title" data-i18n="sub_patrika_title">पत्रिका (Birth Chart)</span>
+              <span class="drawer-sub-hint" data-i18n="sub_patrika_desc">D1-D60, विंशोत्तरी व योग</span>
+            </div>
+          </a>
+          <a href="javascript:void(0)" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')" class="drawer-sub-item">
+            <span class="drawer-sub-icon">🐍</span>
+            <div class="drawer-sub-text">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="drawer-sub-title" data-i18n="sub_kaalsarp_title">कालसर्प दोष रिपोर्ट</span>
+                <span class="drop-badge">₹199</span>
+              </div>
+              <span class="drawer-sub-hint" data-i18n="sub_kaalsarp_desc">12 कालसर्प व अचूक उपाय</span>
+            </div>
+          </a>
+          <a href="javascript:void(0)" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')" class="drawer-sub-item">
+            <span class="drawer-sub-icon">🔥</span>
+            <div class="drawer-sub-text">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="drawer-sub-title" data-i18n="sub_mangal_title">मंगल दोष निवारण</span>
+                <span class="drop-badge">₹199</span>
+              </div>
+              <span class="drawer-sub-hint" data-i18n="sub_mangal_desc">28 शास्त्रीय परिहार नियम</span>
+            </div>
+          </a>
+          <a href="javascript:void(0)" onclick="openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249')" class="drawer-sub-item">
+            <span class="drawer-sub-icon">💎</span>
+            <div class="drawer-sub-text">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="drawer-sub-title" data-i18n="sub_ratna_title">रत्न और उपाय रिपोर्ट</span>
+                <span class="drop-badge">₹249</span>
+              </div>
+              <span class="drawer-sub-hint" data-i18n="sub_ratna_desc">लग्नेश-भाग्येश शोधन व रुद्राक्ष</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- DIRECT LINKS -->
+      <a href="consultation.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:800;">
+        <span>🔮</span> <span data-i18n="nav_consult">1-on-1 Sanctuary Consultation</span>
+      </a>
+      <a href="course.html" onclick="closeNavDrawer()" class="drawer-item">
+        <span>🎓</span> <span data-i18n="nav_course">1-Year Vedic Astrology Academy</span>
+      </a>
+      <a href="about.html" onclick="closeNavDrawer()" class="drawer-item">
+        <span>📖</span> <span data-i18n="nav_about">अबाउट अस व ज्योतिष ब्लॉग</span>
+      </a>
+      <a href="admin.html" onclick="closeNavDrawer()" class="drawer-item">
+        <span>🔐</span> <span data-i18n="nav_admin">एडमिन डैशबोर्ड</span>
+      </a>
+    </div>
+
+    <div class="drawer-footer">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+        <button type="button" class="lang-pill-btn" onclick="toggleLanguage()" style="flex:1; justify-content:center;">
+          <span class="lang-hi active">हिन्दी</span>
+          <span class="lang-sep">/</span>
+          <span class="lang-en">EN</span>
+        </button>
+        <div class="theme-toggle-container" onclick="toggleTheme()" title="Switch Day/Night Mode">
+          <span class="theme-label label-day">DAY</span>
+          <span class="theme-slider"></span>
+          <span class="theme-label label-night">NIGHT</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1063,6 +1209,52 @@
       <p class="hero-sub">
         Astrology is all about uncompromised precision. Experience sub-arcsecond Meeus lunar perturbation, nutation-corrected Lahiri Ayanamsa, Granth-authenticated, Shastra-verified Kundli calculator (BPHS, Phaladeepika), 4-in-1 Vivah & Yagyopavit elections, Jyotish Academy, and private 1-on-1 sanctuary consultations.
       </p>
+
+      <!-- MOBILE APP-LIKE QUICK FEATURE GRID (< 768px) -->
+      <div class="mobile-app-quick-grid">
+        <a href="patrika.html" class="app-quick-tile" style="border-color:var(--gold-dark); background:var(--gold-dim);">
+          <div class="app-quick-icon">📜</div>
+          <div class="app-quick-info">
+            <span class="app-quick-title">पत्रिका (Birth Chart)</span>
+            <span class="app-quick-sub">D1-D60 कुण्डली व योग</span>
+          </div>
+        </a>
+        <a href="vmm.html" class="app-quick-tile">
+          <div class="app-quick-icon">💍</div>
+          <div class="app-quick-info">
+            <span class="app-quick-title">विवाह मुहूर्त व मिलान</span>
+            <span class="app-quick-sub">10 महादोष व 36-गुण</span>
+          </div>
+        </a>
+        <a href="vastu-muhurta.html" class="app-quick-tile">
+          <div class="app-quick-icon">🏡</div>
+          <div class="app-quick-info">
+            <span class="app-quick-title">वास्तु व गृह प्रवेश</span>
+            <span class="app-quick-sub">नींव पूजन व स्थिर लग्न</span>
+          </div>
+        </a>
+        <a href="yajnopavita.html" class="app-quick-tile">
+          <div class="app-quick-icon">🧵</div>
+          <div class="app-quick-info">
+            <span class="app-quick-title">यज्ञोपवीत मुहूर्त</span>
+            <span class="app-quick-sub">16 शास्त्र नक्षत्र सारणी</span>
+          </div>
+        </a>
+        <a href="consultation.html" class="app-quick-tile" style="border-color:rgba(185,28,28,0.3);">
+          <div class="app-quick-icon" style="background:rgba(185,28,28,0.12);">🔮</div>
+          <div class="app-quick-info">
+            <span class="app-quick-title" style="color:var(--red,#b91c1c);">1-on-1 Sanctuary</span>
+            <span class="app-quick-sub">प्रति दिवस केवल 1 स्लॉट</span>
+          </div>
+        </a>
+        <a href="course.html" class="app-quick-tile">
+          <div class="app-quick-icon">🎓</div>
+          <div class="app-quick-info">
+            <span class="app-quick-title">Vedic Academy</span>
+            <span class="app-quick-sub">1-Year सम्पूर्ण ज्योतिष</span>
+          </div>
+        </a>
+      </div>
 
       <!-- PROMINENT SACRED OATH DECREE CARD ON INDEX HERO -->
       <div class="hero-oath-card">
@@ -1753,12 +1945,14 @@
     if(el) el.classList.remove('open');
   }
   function toggleMobileMenu() {
-    const el = document.getElementById('mobileMenu');
-    if(el) el.classList.toggle('open');
+    if (typeof window.toggleNavDrawer === 'function') {
+      window.toggleNavDrawer();
+    }
   }
   function closeMobileMenu() {
-    const el = document.getElementById('mobileMenu');
-    if(el) el.classList.remove('open');
+    if (typeof window.closeNavDrawer === 'function') {
+      window.closeNavDrawer();
+    }
   }
 
   // UPCOMING REPORTS PRE-ORDER LEAD-CAPTURE HANDLER
@@ -1779,6 +1973,19 @@
     
     openModal('preOrderModal');
   }
+  window.openReportPreOrderModal = openReportPreOrderModal;
+
+  // AUTO-OPEN PREORDER MODAL IF REDIRECTED WITH URL PARAM
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('preorder')) {
+      const report = params.get('preorder');
+      const price = params.get('price') || '199';
+      setTimeout(() => {
+        openReportPreOrderModal(report, price);
+      }, 400);
+    }
+  });
 
   async function submitReportPreOrder(e) {
     e.preventDefault();
