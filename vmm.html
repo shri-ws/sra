@@ -217,8 +217,9 @@
         }
 
         .main-container.locked {
-            filter: blur(8px) pointer-events-none;
-            user-select: none;
+            filter: blur(12px) !important;
+            pointer-events: none !important;
+            user-select: none !important;
         }
 
         /* Branding Banner */
@@ -502,28 +503,17 @@
             transform: scale(1);
         }
 
-        .paywall-close-btn {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #FFFFFF;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            z-index: 10;
+        .paywall-exit-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 11px;
+            text-decoration: none;
+            transition: color 0.2s ease;
         }
-
-        .paywall-close-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: scale(1.08);
+        .paywall-exit-link:hover {
+            color: var(--gold-light);
+            text-decoration: underline;
         }
 
         .paywall-badge {
@@ -921,53 +911,50 @@
     <!-- PREMIUM PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) -->
     <div class="paywall-overlay active" id="paywallOverlay">
         <div class="paywall-modal">
-            <button type="button" class="paywall-close-btn" onclick="dismissPaywallPreview()" aria-label="Close VIP Pass Pop-up" title="Dismiss / Preview Mode">✕</button>
-            <div class="paywall-badge">👑 VIP Software Pass</div>
+            <div class="paywall-badge">👑 VIP पास • विवाह मुहूर्त</div>
             
-            <h2 class="paywall-title" id="p_title">Vivah Muhurt &amp; Matchmaking Engine</h2>
+            <h2 class="paywall-title" id="p_title">विवाह मुहूर्त एवं गुण मिलान</h2>
             <p class="paywall-subtitle" id="p_sub">
-                20-Min Algorithmic Engine Access • 10 Mahadoshas, Keplerian Precision &amp; Ashtakoot
+                शुद्ध विवाह मुहूर्त • १० महादोष परिहार • अष्टकूट मिलान
             </p>
 
             <div class="paywall-chips">
-                <span class="p-chip">🪐 यथार्थ केपलरियन</span>
-                <span class="p-chip">📜 १० महादोष शुद्धि</span>
+                <span class="p-chip">💍 विवाह मुहूर्त शोधन</span>
+                <span class="p-chip">📜 १० महादोष परिहार</span>
+                <span class="p-chip">✨ गुण मिलान (३६ गुण)</span>
                 <span class="p-chip">⏱️ २० मिनट एक्सेस</span>
             </div>
 
             <!-- Pricing Box -->
             <div class="pricing-box">
                 <div class="price-details">
-                    <div class="price-label" id="p_priceLabel">VIP SOFTWARE PASS (NO HUMAN CALL)</div>
+                    <div class="price-label" id="p_priceLabel">सॉफ्टवेयर एक्सेस पास</div>
                     <div class="price-row-flex">
                         <span class="price-amount">₹1,111</span>
                         <span class="price-old">₹3,500</span>
                     </div>
                 </div>
-                <div class="price-tag">68% OFF</div>
+                <div class="price-tag">68% छूट</div>
             </div>
 
             <!-- Main Pay Button (Razorpay Gateway) -->
             <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-                ⚡ Pay ₹1,111 (Unlock 20-Min Pass)
+                ⚡ ₹1,111 भुगतान करें (Unlock Access)
             </button>
 
             <!-- VIP Passcode Unlock Option -->
             <div class="unlock-code-box">
-                <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP CODE / PIN">
-                <button type="button" class="unlock-btn" onclick="verifyVipCode()">Unlock</button>
+                <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP कोड / पिन">
+                <button type="button" class="unlock-btn" onclick="verifyVipCode()">अनलॉक</button>
             </div>
 
             <div class="guarantee-note">
-                🔒 100% सुरक्षित Razorpay • 20 मिनट ऑटोमेटेड इंजन • <a href="consultation.html" style="color:var(--gold-light); text-decoration:underline;">Sanctuary ₹5,100</a>
+                🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित एक्सेस
             </div>
+
+            <a href="index.html" class="paywall-exit-link">← मुख्य पृष्ठ पर वापस जाएं (Back to Home)</a>
         </div>
     </div>
-
-    <!-- FLOATING REOPEN PILL (SHOWN WHEN MINIMIZED / PREVIEW) -->
-    <button type="button" class="vip-floating-btn" id="vipFloatingBtn" onclick="openPaywallModal()">
-        👑 Unlock VIP Pass (₹1,111)
-    </button>
 
     <!-- MAIN APP CONTAINER (BLURRED UNTIL UNLOCKED) -->
     <div class="main-container locked" id="mainContainer">
@@ -983,7 +970,7 @@
             </div>
             <h1 class="brand-title" id="uiTitle">श्री रामजी एस्ट्रो</h1>
             <p class="brand-subtitle" id="uiSubtitle">
-                मुहूर्तचिन्तामणि एवं यथार्थ केपलरियन खगोलीय सिद्धान्तों पर आधारित ४-इन-१ संस्कार विश्लेषक
+                मुहूर्तचिन्तामणि के प्रामाणिक शास्त्रीय सिद्धांतों पर आधारित ४-इन-१ संस्कार विश्लेषक
             </p>
             <div class="vip-status-badge" id="vipStatusBadge" style="display:none;">
                 👑 VIP Access Unlocked (₹1111 Verified Pass)
@@ -1397,17 +1384,12 @@
         }
 
         function dismissPaywallPreview() {
-            const overlay = document.getElementById('paywallOverlay');
-            if (overlay) overlay.classList.remove('active');
-            const floatBtn = document.getElementById('vipFloatingBtn');
-            if (floatBtn && !isUnlocked) floatBtn.style.display = 'inline-flex';
+            window.location.href = 'index.html';
         }
 
         function openPaywallModal() {
             const overlay = document.getElementById('paywallOverlay');
             if (overlay) overlay.classList.add('active');
-            const floatBtn = document.getElementById('vipFloatingBtn');
-            if (floatBtn) floatBtn.style.display = 'none';
         }
 
         // Check Unlock & Expiry Status on Page Load
@@ -1418,12 +1400,10 @@
 
             if (unlockedState === 'true' && expiry > now) {
                 isUnlocked = true;
-                document.getElementById('paywallOverlay').classList.remove('active');
-                document.getElementById('mainContainer').classList.remove('locked');
-                document.getElementById('vipStatusBadge').style.display = 'inline-flex';
-                document.getElementById('sessionTimerBar').style.display = 'flex';
-                const floatBtn = document.getElementById('vipFloatingBtn');
-                if (floatBtn) floatBtn.style.display = 'none';
+                if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.remove('active');
+                if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.remove('locked');
+                if (document.getElementById('vipStatusBadge')) document.getElementById('vipStatusBadge').style.display = 'inline-flex';
+                if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'flex';
                 initSessionTimer();
             } else {
                 if (unlockedState === 'true') {
@@ -1588,7 +1568,7 @@
         const I18N = {
             hi: {
                 title: "श्री रामजी एस्ट्रो",
-                subtitle: "मुहूर्तचिन्तामणि एवं यथार्थ केपलरियन खगोलीय सिद्धान्तों पर आधारित ४-इन-१ संस्कार विश्लेषक",
+                subtitle: "मुहूर्तचिन्तामणि के प्रामाणिक शास्त्रीय सिद्धांतों पर आधारित ४-इन-१ संस्कार विश्लेषक",
                 tabVivah: "विवाह संस्कार (Panigrahana)",
                 subTabVivah: "१० महादोष, त्रिबल एवं लग्न शुद्धि",
                 tabSagai: "सगाई / वाग्दान (Engagement)",
