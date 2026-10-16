@@ -574,20 +574,30 @@
 
     <!-- TOP NAVIGATION -->
     <nav>
-        <a href="index.html" class="nav-logo">
-            <img src="logo.png" alt="Shri Ramji Astro Logo" style="height:36px; width:36px; border-radius:50%; object-fit:cover; border:1px solid var(--gold);"> SHRI RAMJI ASTRO
+        <a href="index.html" class="nav-logo" title="Patrika by Shri Ram Ji Astro">
+            <img src="logo.png" alt="Patrika Logo" class="nav-logo-img">
+            <div class="nav-brand-group">
+                <span class="brand-title">PATRIKA</span>
+                <span class="brand-sub" data-i18n="brand_sub">by Shri Ram Ji Astro</span>
+            </div>
         </a>
         <div class="nav-links">
-            <a href="patrika.html">पत्रिका (Birth Chart)</a>
-            <a href="vmm.html">विवाह व मिलान</a>
-            <a href="vastu-muhurta.html">वास्तु मुहूर्त</a>
-            <a href="yajnopavita.html" class="active">यज्ञोपवीत</a>
-            <a href="consultation.html">परामर्श (Sanctuary)</a>
-            <a href="course.html">कोर्स (Academy)</a>
-            <a href="about.html">अबाउट व ब्लॉग</a>
-            <a href="admin.html">एडमिन</a>
+            <a href="patrika.html" data-i18n="nav_patrika">पत्रिका (Birth Chart)</a>
+            <a href="vmm.html" data-i18n="nav_vivah">विवाह व मिलान</a>
+            <a href="vastu-muhurta.html" data-i18n="nav_vastu">वास्तु मुहूर्त</a>
+            <a href="yajnopavita.html" class="active" data-i18n="nav_yajno">यज्ञोपवीत</a>
+            <a href="consultation.html" data-i18n="nav_consult">परामर्श (Sanctuary)</a>
+            <a href="course.html" data-i18n="nav_course">कोर्स (Academy)</a>
+            <a href="about.html" data-i18n="nav_about">अबाउट व ब्लॉग</a>
+            <a href="admin.html" data-i18n="nav_admin">एडमिन</a>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <!-- LANGUAGE SWITCH PILL -->
+            <button type="button" class="lang-pill-btn" onclick="toggleLanguage()" id="globalLangBtn" title="Switch Language / भाषा बदलें">
+                <span class="lang-hi active">हिन्दी</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-en">EN</span>
+            </button>
             <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
             <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
                 <span class="theme-label label-day">DAY</span>
@@ -599,14 +609,27 @@
     </nav>
 
     <div class="mobile-menu" id="mobileMenu" style="display:none; position:fixed; top:60px; left:0; right:0; background:var(--nav-bg); border-bottom:1px solid var(--gold-border); padding:16px; flex-direction:column; gap:8px; z-index:999; backdrop-filter:blur(10px);">
-        <a href="patrika.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; text-decoration:none; padding:8px 12px;">पत्रिका (Birth Chart / Kundli)</a>
-        <a href="vmm.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">💍 विवाह मुहूर्त व मिलान (Matchmaker)</a>
-        <a href="vastu-muhurta.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🏛️ वास्तु, नींव पूजन व गृह प्रवेश</a>
-        <a href="yajnopavita.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🪔 यज्ञोपवीत (उपनयन) मुहूर्त</a>
-        <a href="consultation.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:800; text-decoration:none; padding:8px 12px;">🔮 1-on-1 Sanctuary Consultation</a>
-        <a href="course.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🎓 1-Year Vedic Astrology Course</a>
-        <a href="about.html" onclick="closeMobileMenu()" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">📖 अबाउट अस व ज्योतिष ब्लॉग</a>
-        <a href="admin.html" onclick="closeMobileMenu()" style="text-decoration:none; padding:8px 12px;">🔐 एडमिन डैशबोर्ड</a>
+        <a href="patrika.html" onclick="closeMobileMenu()" data-i18n="nav_patrika" style="color:var(--gold); font-weight:800; text-decoration:none; padding:8px 12px;">पत्रिका (Birth Chart / Kundli)</a>
+        <a href="vmm.html" onclick="closeMobileMenu()" data-i18n="nav_vivah" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">💍 विवाह मुहूर्त व मिलान (Matchmaker)</a>
+        <a href="vastu-muhurta.html" onclick="closeMobileMenu()" data-i18n="nav_vastu" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🏛️ वास्तु, नींव पूजन व गृह प्रवेश</a>
+        <a href="yajnopavita.html" onclick="closeMobileMenu()" data-i18n="nav_yajno" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🪔 यज्ञोपवीत (उपनयन) मुहूर्त</a>
+        <a href="consultation.html" onclick="closeMobileMenu()" data-i18n="nav_consult" style="color:var(--gold); font-weight:800; text-decoration:none; padding:8px 12px;">🔮 1-on-1 Sanctuary Consultation</a>
+        <a href="course.html" onclick="closeMobileMenu()" data-i18n="nav_course" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">🎓 1-Year Vedic Astrology Course</a>
+        <a href="about.html" onclick="closeMobileMenu()" data-i18n="nav_about" style="color:var(--gold); font-weight:700; text-decoration:none; padding:8px 12px;">📖 अबाउट अस व ज्योतिष ब्लॉग</a>
+        <a href="admin.html" onclick="closeMobileMenu()" data-i18n="nav_admin" style="text-decoration:none; padding:8px 12px;">🔐 एडमिन डैशबोर्ड</a>
+        <div style="height:1px;background:var(--gold-border);margin:6px 0"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <button type="button" class="lang-pill-btn" onclick="toggleLanguage()" style="flex:1; justify-content:center;">
+                <span class="lang-hi active">हिन्दी</span>
+                <span class="lang-sep">/</span>
+                <span class="lang-en">EN</span>
+            </button>
+            <div class="theme-toggle-container" onclick="toggleTheme()" title="Switch Day/Night Mode">
+                <span class="theme-label label-day">DAY</span>
+                <span class="theme-slider"></span>
+                <span class="theme-label label-night">NIGHT</span>
+            </div>
+        </div>
     </div>
 
     <script>
