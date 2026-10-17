@@ -1084,7 +1084,7 @@
         flex-direction: column;
         width: 100vw;
         max-width: 100vw;
-        height: calc(100dvh - 56px - 60px); /* 56px native top bar, 60px bottom nav */
+        height: calc(100dvh - 56px); /* 56px native top primary header */
         overflow: hidden;
         position: relative;
         background: var(--bg);
@@ -2956,53 +2956,7 @@
           behavior: 'smooth'
         });
       }
-
-      // Sync bottom nav if present on mobile
-      const bNavHome = document.getElementById('bnavHome');
-      const bNavPatrika = document.getElementById('bnavPatrika');
-      const bNavMuhurt = document.getElementById('bnavMuhurt');
-      const bNavSanctuary = document.getElementById('bnavSanctuary');
-
-      if (bNavHome) bNavHome.classList.toggle('active', index === 0);
-      if (bNavPatrika) bNavPatrika.classList.toggle('active', index === 1);
-      if (bNavMuhurt) bNavMuhurt.classList.toggle('active', index === 2);
-      if (bNavSanctuary) bNavSanctuary.classList.toggle('active', index === 3);
     }
-
-    // Scroll snap sync on touch swipe
-    let scrollDebounce;
-    pager.addEventListener('scroll', () => {
-      clearTimeout(scrollDebounce);
-      scrollDebounce = setTimeout(() => {
-        const width = pager.clientWidth;
-        if (width <= 0) return;
-        const index = Math.round(pager.scrollLeft / width);
-        if (index >= 0 && index < tabs.length) {
-          setActiveTab(index);
-        }
-      }, 50);
-    }, { passive: true });
-
-    // Hook bottom nav clicks to viewpager when on mobile
-    const navMapping = [
-      { id: 'bnavHome', index: 0 },
-      { id: 'bnavPatrika', index: 1 },
-      { id: 'bnavMuhurt', index: 2 },
-      { id: 'bnavSanctuary', index: 3 }
-    ];
-
-    navMapping.forEach(({ id, index }) => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('click', (e) => {
-          if (window.innerWidth <= 768) {
-            e.preventDefault();
-            window.switchMobileTab(index);
-          }
-        });
-      }
-    });
-  }
 
   function handleMobileKundliSubmit(e) {
     e.preventDefault();
@@ -3257,25 +3211,5 @@
   window.toggleBenchmarkAccordion = toggleBenchmarkAccordion;
   </script>
   <script src="https://w.behold.so/widget.js" type="module"></script>
-
-  <!-- FIXED MOBILE BOTTOM NAVIGATION BAR (< 768px) -->
-  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile Bottom Navigation">
-    <a href="index.html" class="bnav-item active" id="bnavHome" title="Home">
-      <span class="bnav-icon">🏠</span>
-      <span class="bnav-label" data-i18n="bnav_home">Home</span>
-    </a>
-    <a href="patrika.html" class="bnav-item" id="bnavPatrika" title="Patrika">
-      <span class="bnav-icon">📜</span>
-      <span class="bnav-label" data-i18n="bnav_patrika">Patrika</span>
-    </a>
-    <a href="vmm.html" class="bnav-item" id="bnavMuhurt" title="Muhurt">
-      <span class="bnav-icon">🪔</span>
-      <span class="bnav-label" data-i18n="bnav_muhurt">Muhurt</span>
-    </a>
-    <a href="consultation.html" class="bnav-item" id="bnavSanctuary" title="Sanctuary">
-      <span class="bnav-icon">📞</span>
-      <span class="bnav-label" data-i18n="bnav_sanctuary">Sanctuary</span>
-    </a>
-  </nav>
 </body>
 </html>

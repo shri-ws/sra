@@ -503,29 +503,7 @@
             transform: scale(1);
         }
 
-        .paywall-close-btn {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #FFFFFF;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10;
-        }
-        .paywall-close-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: var(--gold-light);
-        }
+
 
         .paywall-exit-link {
             display: inline-block;
@@ -935,7 +913,6 @@
     <!-- PREMIUM PAYWALL MODAL OVERLAY (SHASTRA-FIRST VIP SESSION) -->
     <div class="paywall-overlay active" id="paywallOverlay" onclick="if(event.target===this)closePaywallModal()">
         <div class="paywall-modal">
-            <button type="button" class="paywall-close-btn" onclick="closePaywallModal()" aria-label="Close">✕</button>
             <div class="paywall-badge">👑 VIP सत्र • २० मिनट</div>
             
             <h2 class="paywall-title" id="p_title">शास्त्रीय मुहूर्त शोध — VIP सत्र (20 मिनट)</h2>
@@ -1407,21 +1384,44 @@
             }, duration);
         }
 
-        function closePaywallModal() {
+        function closePaywallModal(popHistory = true) {
             const overlay = document.getElementById('paywallOverlay');
             if (overlay) overlay.classList.remove('active');
+            const main = document.getElementById('mainContainer');
+            if (main) {
+                main.classList.remove('locked');
+                main.style.filter = 'none';
+                main.style.pointerEvents = 'auto';
+                main.style.userSelect = 'auto';
+            }
+            if (popHistory && history.state && history.state.modal === 'paywall') {
+                history.back();
+            }
         }
         window.closePaywallModal = closePaywallModal;
-
-        function dismissPaywallPreview() {
-            closePaywallModal();
-        }
-        window.dismissPaywallPreview = dismissPaywallPreview;
+        window.dismissPaywallPreview = closePaywallModal;
 
         function openPaywallModal() {
             const overlay = document.getElementById('paywallOverlay');
-            if (overlay) overlay.classList.add('active');
+            if (overlay) {
+                overlay.classList.add('active');
+                const main = document.getElementById('mainContainer');
+                if (main && !isUnlocked) {
+                    main.classList.add('locked');
+                }
+                if (!history.state || history.state.modal !== 'paywall') {
+                    history.pushState({ modal: 'paywall' }, '');
+                }
+            }
         }
+        window.openPaywallModal = openPaywallModal;
+
+        window.addEventListener('popstate', () => {
+            const overlay = document.getElementById('paywallOverlay');
+            if (overlay && overlay.classList.contains('active')) {
+                closePaywallModal(false);
+            }
+        });
 
         // Check Unlock & Expiry Status on Page Load
         function checkUnlockStatus() {
@@ -1431,8 +1431,7 @@
 
             if (unlockedState === 'true' && expiry > now) {
                 isUnlocked = true;
-                if (document.getElementById('paywallOverlay')) document.getElementById('paywallOverlay').classList.remove('active');
-                if (document.getElementById('mainContainer')) document.getElementById('mainContainer').classList.remove('locked');
+                closePaywallModal(false);
                 if (document.getElementById('vipStatusBadge')) document.getElementById('vipStatusBadge').style.display = 'inline-flex';
                 if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'flex';
                 initSessionTimer();
@@ -1441,9 +1440,8 @@
                     // Session had expired while away
                     lockAccessExpired();
                 } else {
-                    document.getElementById('paywallOverlay').classList.add('active');
-                    document.getElementById('mainContainer').classList.add('locked');
-                    document.getElementById('sessionTimerBar').style.display = 'none';
+                    openPaywallModal();
+                    if (document.getElementById('sessionTimerBar')) document.getElementById('sessionTimerBar').style.display = 'none';
                 }
             }
         }

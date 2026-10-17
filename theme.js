@@ -525,79 +525,9 @@
     const style = document.createElement('style');
     style.id = 'sra-bottom-nav-styles';
     style.textContent = `
-      /* ADAPTIVE APP STICKY BOTTOM NAV (< 768px) */
+      /* SECONDARY FLOATING/BOTTOM NAVBAR PERMANENTLY DISABLED */
       .mobile-bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background: var(--nav-bg, #11141a);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-top: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25));
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        z-index: 9990;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
-        box-sizing: border-box;
-      }
-      @media (min-width: 768px) {
-        .mobile-bottom-nav {
-          display: none !important;
-        }
-      }
-      @media (max-width: 767px) {
-        body {
-          padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
-          overflow-x: hidden !important;
-          width: 100% !important;
-        }
-      }
-      .bnav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        flex: 1;
-        height: 100%;
-        color: var(--muted, #94a3b8);
-        transition: color 0.2s ease, transform 0.15s ease;
-        position: relative;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .bnav-item:hover, .bnav-item.active {
-        color: var(--gold-dark, #c5a059);
-      }
-      .bnav-item.active::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 22%;
-        right: 22%;
-        height: 2.5px;
-        background: linear-gradient(90deg, var(--gold2, #e5c07b), var(--gold-dark, #c5a059));
-        border-radius: 0 0 4px 4px;
-        box-shadow: 0 1px 6px rgba(197, 160, 89, 0.4);
-      }
-      .bnav-icon {
-        font-size: 19px;
-        line-height: 1.15;
-        margin-bottom: 2px;
-        transition: transform 0.2s ease;
-      }
-      .bnav-item.active .bnav-icon {
-        transform: scale(1.1);
-      }
-      .bnav-label {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.3px;
-        font-family: 'Cinzel', 'Noto Sans Devanagari', sans-serif;
-        text-transform: uppercase;
+        display: none !important;
       }
 
       /* UNIFIED RESPONSIVE BRANDING */
@@ -1173,51 +1103,9 @@
   }
 
   function injectBottomNav() {
-    if (window.location.pathname.includes('admin.html')) return;
-    injectBottomNavStyles();
-
-    let nav = document.querySelector('.mobile-bottom-nav');
-    const path = window.location.pathname.toLowerCase();
-
-    const isHome = path.endsWith('/') || path.endsWith('index.html') || path === '';
-    const isPatrika = path.includes('patrika.html');
-    const isMuhurt = path.includes('vmm.html') || path.includes('vastu') || path.includes('yajno') || path.includes('mmm');
-    const isSanctuary = path.includes('consultation.html');
-
-    if (!nav && document.body) {
-      nav = document.createElement('nav');
-      nav.className = 'mobile-bottom-nav';
-      nav.setAttribute('aria-label', 'Mobile Bottom Navigation');
-      nav.innerHTML = `
-        <a href="index.html" class="bnav-item ${isHome ? 'active' : ''}" id="bnavHome" title="Home">
-          <span class="bnav-icon">🏠</span>
-          <span class="bnav-label" data-i18n="bnav_home">Home</span>
-        </a>
-        <a href="patrika.html" class="bnav-item ${isPatrika ? 'active' : ''}" id="bnavPatrika" title="Patrika">
-          <span class="bnav-icon">📜</span>
-          <span class="bnav-label" data-i18n="bnav_patrika">Patrika</span>
-        </a>
-        <a href="vmm.html" class="bnav-item ${isMuhurt ? 'active' : ''}" id="bnavMuhurt" title="Muhurt">
-          <span class="bnav-icon">🪔</span>
-          <span class="bnav-label" data-i18n="bnav_muhurt">Muhurt</span>
-        </a>
-        <a href="consultation.html" class="bnav-item ${isSanctuary ? 'active' : ''}" id="bnavSanctuary" title="Sanctuary">
-          <span class="bnav-icon">📞</span>
-          <span class="bnav-label" data-i18n="bnav_sanctuary">Sanctuary</span>
-        </a>
-      `;
-      document.body.appendChild(nav);
-    } else if (nav) {
-      // Sync active state if statically rendered
-      const bHome = nav.querySelector('#bnavHome');
-      const bPatrika = nav.querySelector('#bnavPatrika');
-      const bMuhurt = nav.querySelector('#bnavMuhurt');
-      const bSanctuary = nav.querySelector('#bnavSanctuary');
-      if (bHome) bHome.classList.toggle('active', isHome);
-      if (bPatrika) bPatrika.classList.toggle('active', isPatrika);
-      if (bMuhurt) bMuhurt.classList.toggle('active', isMuhurt);
-      if (bSanctuary) bSanctuary.classList.toggle('active', isSanctuary);
-    }
+    // Secondary sticky scroll navbar completely disabled and removed
+    const navs = document.querySelectorAll('.mobile-bottom-nav');
+    navs.forEach(nav => nav.remove());
   }
 
   // ══════════════════════════════════════════════════════════════════════════
