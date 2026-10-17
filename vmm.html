@@ -503,6 +503,30 @@
             transform: scale(1);
         }
 
+        .paywall-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .paywall-close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: var(--gold-light);
+        }
+
         .paywall-exit-link {
             display: inline-block;
             margin-top: 10px;
@@ -908,27 +932,27 @@
     <!-- TOAST CONTAINER -->
     <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
 
-    <!-- PREMIUM PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) -->
-    <div class="paywall-overlay active" id="paywallOverlay">
+    <!-- PREMIUM PAYWALL MODAL OVERLAY (SHASTRA-FIRST VIP SESSION) -->
+    <div class="paywall-overlay active" id="paywallOverlay" onclick="if(event.target===this)closePaywallModal()">
         <div class="paywall-modal">
-            <div class="paywall-badge">👑 VIP पास • विवाह मुहूर्त</div>
+            <button type="button" class="paywall-close-btn" onclick="closePaywallModal()" aria-label="Close">✕</button>
+            <div class="paywall-badge">👑 VIP सत्र • २० मिनट</div>
             
-            <h2 class="paywall-title" id="p_title">विवाह मुहूर्त एवं गुण मिलान</h2>
+            <h2 class="paywall-title" id="p_title">शास्त्रीय मुहूर्त शोध — VIP सत्र (20 मिनट)</h2>
             <p class="paywall-subtitle" id="p_sub">
                 शुद्ध विवाह मुहूर्त • १० महादोष परिहार • अष्टकूट मिलान
             </p>
 
-            <div class="paywall-chips">
-                <span class="p-chip">💍 विवाह मुहूर्त शोधन</span>
-                <span class="p-chip">📜 १० महादोष परिहार</span>
-                <span class="p-chip">✨ गुण मिलान (३६ गुण)</span>
-                <span class="p-chip">⏱️ २० मिनट एक्सेस</span>
+            <div class="paywall-chips" style="flex-direction:column; align-items:flex-start; text-align:left; gap:6px; margin: 10px 0 12px;">
+                <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ मुहूर्त चिंतामणि अनुसार 10 महादोष एवं त्रिबल शुद्धि</span>
+                <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ प्रामाणिक अष्टकूट मिलान (36 गुण विचार)</span>
+                <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ 20 मिनट तक असीमित शास्त्रीय मुहूर्त शोध</span>
             </div>
 
             <!-- Pricing Box -->
             <div class="pricing-box">
                 <div class="price-details">
-                    <div class="price-label" id="p_priceLabel">सॉफ्टवेयर एक्सेस पास</div>
+                    <div class="price-label" id="p_priceLabel">शास्त्रीय मुहूर्त शोध सत्र</div>
                     <div class="price-row-flex">
                         <span class="price-amount">₹1,111</span>
                         <span class="price-old">₹3,500</span>
@@ -939,7 +963,7 @@
 
             <!-- Main Pay Button (Razorpay Gateway) -->
             <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-                ⚡ ₹1,111 भुगतान करें (Unlock Access)
+                ⚡ ₹1,111 का भुगतान करें (सुरक्षित माध्यम)
             </button>
 
             <!-- VIP Passcode Unlock Option -->
@@ -949,7 +973,7 @@
             </div>
 
             <div class="guarantee-note">
-                🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित एक्सेस
+                🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित सत्र
             </div>
 
             <a href="index.html" class="paywall-exit-link">← मुख्य पृष्ठ पर वापस जाएं (Back to Home)</a>
@@ -1383,9 +1407,16 @@
             }, duration);
         }
 
-        function dismissPaywallPreview() {
-            window.location.href = 'index.html';
+        function closePaywallModal() {
+            const overlay = document.getElementById('paywallOverlay');
+            if (overlay) overlay.classList.remove('active');
         }
+        window.closePaywallModal = closePaywallModal;
+
+        function dismissPaywallPreview() {
+            closePaywallModal();
+        }
+        window.dismissPaywallPreview = dismissPaywallPreview;
 
         function openPaywallModal() {
             const overlay = document.getElementById('paywallOverlay');

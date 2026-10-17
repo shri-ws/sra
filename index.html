@@ -1755,19 +1755,19 @@
     <!-- TOP SEGMENTED HORIZONTAL TAB BAR -->
     <div class="mobile-tab-bar" id="mobileTabBar" role="tablist" aria-label="App Navigation Tabs">
       <button type="button" class="app-tab-chip active" data-tab-index="0" role="tab" aria-selected="true" onclick="switchMobileTab(0)">
-        <span>🏠</span> <span>होम</span>
+        <span>🏠</span> <span data-i18n="tab_home">होम</span>
       </button>
       <button type="button" class="app-tab-chip" data-tab-index="1" role="tab" aria-selected="false" onclick="switchMobileTab(1)">
-        <span>📜</span> <span>कुण्डली</span>
+        <span>📜</span> <span data-i18n="tab_kundli">कुण्डली</span>
       </button>
       <button type="button" class="app-tab-chip" data-tab-index="2" role="tab" aria-selected="false" onclick="switchMobileTab(2)">
-        <span>💍</span> <span>मुहूर्त</span>
+        <span>💍</span> <span data-i18n="tab_muhurat">मुहूर्त</span>
       </button>
       <button type="button" class="app-tab-chip" data-tab-index="3" role="tab" aria-selected="false" onclick="switchMobileTab(3)">
-        <span>🪔</span> <span>परामर्श</span>
+        <span>🪔</span> <span data-i18n="tab_sanctuary">परामर्श</span>
       </button>
       <button type="button" class="app-tab-chip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
-        <span>📊</span> <span>रिपोर्ट्स</span>
+        <span>📊</span> <span data-i18n="tab_reports">रिपोर्ट्स</span>
       </button>
     </div>
 
@@ -1777,16 +1777,16 @@
       <!-- ─── TAB 0: HOME SCREEN (ELEGANT 2-COLUMN SERVICE GRID) ─── -->
       <section class="view-page" id="viewHome" role="tabpanel" aria-label="Home Services Grid">
         
-        <!-- COMPACT VEDIC STATUS / GREETING BAR -->
+        <!-- COMPACT VEDIC STATUS / GREETING BAR WITH DYNAMIC TITHI -->
         <div class="mobile-greeting-bar">
-          <div class="vedic-date-chip">
+          <div class="vedic-date-chip" id="dynamicPanchangChip">
             <span class="live-dot"></span>
-            <span>विक्रम संवत् २०८१ • श्री रामजी एस्ट्रो</span>
+            <span id="panchangText" data-i18n-panchang>विक्रम संवत् २०८३ • आश्विन शुक्ल सप्तमी • शनिवार</span>
           </div>
-          <div class="sacred-seal-badge">👑 One Soul Per Day</div>
+          <div class="sacred-seal-badge" data-i18n="sacred_seal">👑 प्रति दिवस केवल एक जातक</div>
         </div>
 
-        <!-- 2-COLUMN VISUAL FEATURE GRID -->
+        <!-- 2-COLUMN VISUAL FEATURE GRID (SHASTRA-FIRST TERMINOLOGY) -->
         <div class="mobile-service-grid">
 
           <!-- CARD 1: VIVAH MUHURT -->
@@ -1795,48 +1795,48 @@
               <div class="card-glyph">💍</div>
               <span class="card-badge vip">VIP</span>
             </div>
-            <div class="card-title">विवाह मुहूर्त</div>
-            <div class="card-sub">१० महादोष जांच</div>
+            <div class="card-title" data-i18n="card_vivah_title">विवाह मुहूर्त शोध</div>
+            <div class="card-sub" data-i18n="card_vivah_sub">१० महादोष व त्रिबल शुद्धि</div>
           </a>
 
           <!-- CARD 2: PATRIKA / KUNDLI -->
-          <a href="patrika.html" class="app-service-card" aria-label="पत्रिका D1-D60">
+          <a href="patrika.html" class="app-service-card" aria-label="पत्रिका (Patrika)">
             <div class="card-top-row">
               <div class="card-glyph">📜</div>
-              <span class="card-badge meeus">D1-D60</span>
+              <span class="card-badge meeus">षोडशवर्ग</span>
             </div>
-            <div class="card-title">पत्रिका D1-D60</div>
-            <div class="card-sub">संपूर्ण षोडशवर्ग</div>
+            <div class="card-title" data-i18n="card_patrika_title">पत्रिका (Patrika)</div>
+            <div class="card-sub" data-i18n="card_patrika_sub">सर्वाधिक सटीक शास्त्रीय जन्म चक्र</div>
           </a>
 
           <!-- CARD 3: VASTU MUHURT -->
-          <a href="vastu-muhurta.html" class="app-service-card" aria-label="वास्तु मुहूर्त">
+          <a href="vastu-muhurta.html" class="app-service-card" aria-label="वास्तु एवं गृह प्रवेश">
             <div class="card-top-row">
               <div class="card-glyph">🏡</div>
               <span class="card-badge vip">VIP</span>
             </div>
-            <div class="card-title">वास्तु मुहूर्त</div>
-            <div class="card-sub">नींव व गृह प्रवेश</div>
+            <div class="card-title" data-i18n="card_vastu_title">वास्तु एवं गृह प्रवेश</div>
+            <div class="card-sub" data-i18n="card_vastu_sub">विश्वकर्मा प्रकाश सम्मत शोध</div>
           </a>
 
           <!-- CARD 4: YAJNOPAVITA -->
-          <a href="yajnopavita.html" class="app-service-card" aria-label="यज्ञोपवीत">
+          <a href="yajnopavita.html" class="app-service-card" aria-label="यज्ञोपवीत (उपनयन)">
             <div class="card-top-row">
               <div class="card-glyph">🧵</div>
               <span class="card-badge vip">VIP</span>
             </div>
-            <div class="card-title">यज्ञोपवीत</div>
-            <div class="card-sub">त्रिबल व अष्टम शुद्धि</div>
+            <div class="card-title" data-i18n="card_yajno_title">यज्ञोपवीत (उपनयन)</div>
+            <div class="card-sub" data-i18n="card_yajno_sub">पारस्कर गृह्यसूत्र सम्मत</div>
           </a>
 
           <!-- CARD 5: MUNDAN MUHURT -->
-          <a href="mmm.html" class="app-service-card" aria-label="मुंडन मुहूर्त">
+          <a href="mmm.html" class="app-service-card" aria-label="चूड़ाकर्म (मुंडन)">
             <div class="card-top-row">
               <div class="card-glyph">✂️</div>
               <span class="card-badge vip">VIP</span>
             </div>
-            <div class="card-title">मुंडन मुहूर्त</div>
-            <div class="card-sub">ताराबल व चंद्रबल</div>
+            <div class="card-title" data-i18n="card_mundan_title">चूड़ाकर्म (मुंडन)</div>
+            <div class="card-sub" data-i18n="card_mundan_sub">शास्त्रोक्त मास व तिथि विचार</div>
           </a>
 
           <!-- CARD 6: SANCTUARY CONSULTATION -->
@@ -1845,8 +1845,8 @@
               <div class="card-glyph">🪔</div>
               <span class="card-badge price">₹5,100</span>
             </div>
-            <div class="card-title">परामर्श Sanctuary</div>
-            <div class="card-sub">१-ऑन-१ एस्ट्रो रामजी</div>
+            <div class="card-title" data-i18n="card_sanctuary_title">परामर्श Sanctuary</div>
+            <div class="card-sub" data-i18n="card_sanctuary_sub">१-ऑन-१ एस्ट्रो रामजी</div>
           </a>
 
           <!-- CARD 7: KAAL SARP DOSH REPORT -->
@@ -1855,8 +1855,8 @@
               <div class="card-glyph">🐍</div>
               <span class="card-badge preorder">₹199</span>
             </div>
-            <div class="card-title">कालसर्प दोष</div>
-            <div class="card-sub">निवारण व उपाय</div>
+            <div class="card-title" data-i18n="card_kaalsarp_title">कालसर्प दोष निवारण</div>
+            <div class="card-sub" data-i18n="card_kaalsarp_sub">१२ प्रकार के योग शांति</div>
           </div>
 
           <!-- CARD 8: MANGAL DOSH REPORT -->
@@ -1865,80 +1865,80 @@
               <div class="card-glyph">🔥</div>
               <span class="card-badge preorder">₹199</span>
             </div>
-            <div class="card-title">मंगल दोष</div>
-            <div class="card-sub">सामर्थ्य व परिहार</div>
+            <div class="card-title" data-i18n="card_mangal_title">मंगल दोष परिहार</div>
+            <div class="card-sub" data-i18n="card_mangal_sub">२८ शास्त्रीय नियम परीक्षण</div>
           </div>
 
         </div>
 
         <!-- BOTTOM MICRO TRUST SEAL -->
         <div style="text-align:center; padding:8px 6px; font-family:var(--font-devanagari-body); font-size:10.5px; color:var(--muted); opacity:0.85;">
-          🔒 True Chitra Paksha (Lahiri) • 60-Term Meeus &lt;18'' • Shastra Authenticated
+          🔒 True Chitra Paksha (Lahiri) • 60-Term Meeus Sub-Arcsecond • Shastra Authenticated
         </div>
       </section>
 
       <!-- ─── TAB 1: KUNDLI (PATRIKA) VIEW ─── -->
-      <section class="view-page" id="viewKundli" role="tabpanel" aria-label="Kundli Engine View">
+      <section class="view-page" id="viewKundli" role="tabpanel" aria-label="Kundli View">
         <div class="page-hero-header">
-          <h2 class="page-hero-title">📜 जन्मपत्रिका साधन (Patrika 360)</h2>
-          <p class="page-hero-sub">D1 से D60 षोडशवर्ग, विंशोत्तरी दशा व भाव चलित</p>
+          <h2 class="page-hero-title" data-i18n="kundli_page_title">📜 प्रामाणिक जन्म चक्र (Patrika 360)</h2>
+          <p class="page-hero-sub" data-i18n="kundli_page_sub">बृहत्पाराशर सम्मत षोडशवर्ग, विंशोत्तरी दशा व भाव चलित</p>
         </div>
 
         <div class="app-glass-panel">
           <form id="mobileKundliQuickForm" onsubmit="handleMobileKundliSubmit(event)" style="display:flex; flex-direction:column; gap:10px;">
             <div>
-              <label class="app-form-label">जातक का नाम (Full Name)</label>
-              <input type="text" id="mKundliName" class="app-form-input" placeholder="उदा: राहुल शर्मा" required>
+              <label class="app-form-label" data-i18n="lbl_name">जातक का नाम (Full Name)</label>
+              <input type="text" id="mKundliName" class="app-form-input" placeholder="उदा: राहुल शर्मा" data-i18n-placeholder="ph_name" required>
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div>
-                <label class="app-form-label">जन्म तिथि (DOB)</label>
+                <label class="app-form-label" data-i18n="lbl_dob">जन्म तिथि (DOB)</label>
                 <input type="date" id="mKundliDob" class="app-form-input" required>
               </div>
               <div>
-                <label class="app-form-label">जन्म समय (Time)</label>
+                <label class="app-form-label" data-i18n="lbl_tob">जन्म समय (Time)</label>
                 <input type="time" id="mKundliTob" class="app-form-input" required>
               </div>
             </div>
 
             <div>
-              <label class="app-form-label">जन्म स्थान (City / Place)</label>
-              <input type="text" id="mKundliCity" class="app-form-input" placeholder="उदा: Varanasi, Delhi, Mumbai" required>
+              <label class="app-form-label" data-i18n="lbl_city">जन्म स्थान (City / Place)</label>
+              <input type="text" id="mKundliCity" class="app-form-input" placeholder="उदा: Varanasi, Delhi, Mumbai" data-i18n-placeholder="ph_city" required>
             </div>
 
-            <button type="submit" class="app-primary-btn" style="margin-top:4px;">
-              ✨ कुण्डली तैयार करें (Open Patrika ➔)
+            <button type="submit" class="app-primary-btn" style="margin-top:4px;" data-i18n="btn_generate_kundli">
+              ✨ जन्म चक्र तैयार करें (Open Patrika ➔)
             </button>
           </form>
         </div>
 
         <!-- FEATURE BADGES -->
         <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_sripati">
             ☀️ श्रीपति भाव चलित
           </div>
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_vimsottari">
             🪐 विंशोत्तरी दशाएं
           </div>
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_ashtakvarga">
             🛡️ सर्वाष्टकवर्ग सारणी
           </div>
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
-            📜 D1 से D60 वर्ग
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_shodashvarga">
+            📜 षोडशवर्ग सूक्ष्म चक्र
           </div>
         </div>
 
-        <a href="patrika.html" class="app-secondary-btn" style="margin-top:12px;">
-          पूर्ण कुण्डली कैलकुलेटर पर जाएं ➔
+        <a href="patrika.html" class="app-secondary-btn" style="margin-top:12px;" data-i18n="btn_full_calculator">
+          पूर्ण शास्त्रीय पत्रिका पर जाएं ➔
         </a>
       </section>
 
       <!-- ─── TAB 2: MUHURAT HUB VIEW ─── -->
       <section class="view-page" id="viewMuhurat" role="tabpanel" aria-label="Muhurat Tools Hub">
         <div class="page-hero-header">
-          <h2 class="page-hero-title">💍 समस्त वैदिक मुहूर्त शोधन</h2>
-          <p class="page-hero-sub">मुहूर्त चिन्तामणि व निर्णयसिंधु अनुसार ४ महा-इंजन</p>
+          <h2 class="page-hero-title" data-i18n="muhurat_page_title">💍 समस्त शास्त्रीय मुहूर्त शोधन</h2>
+          <p class="page-hero-sub" data-i18n="muhurat_page_sub">मुहूर्त चिन्तामणि व निर्णयसिंधु अनुसार ४ महा-शोध साधन</p>
         </div>
 
         <div class="muhurat-stacked-list">
@@ -1948,8 +1948,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">💍</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">विवाह मुहूर्त एवं गुण मिलान</div>
-                <div class="card-sub">१० महादोष परिहार • ३६ गुण मिलान</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="muhurat_vivah_title">शास्त्रीय विवाह मुहूर्त शोध</div>
+                <div class="card-sub" data-i18n="muhurat_vivah_sub">१० महादोष परिहार • ३६ गुण मिलान</div>
               </div>
             </div>
             <span class="card-badge vip">VIP</span>
@@ -1960,8 +1960,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">🏡</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">वास्तु एवं गृह प्रवेश मुहूर्त</div>
-                <div class="card-sub">नींव पूजन • शिलान्यास • दिशा शुद्धि</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="muhurat_vastu_title">वास्तु एवं गृह प्रवेश मुहूर्त</div>
+                <div class="card-sub" data-i18n="muhurat_vastu_sub">विश्वकर्मा प्रकाश • नींव पूजन • शिलान्यास</div>
               </div>
             </div>
             <span class="card-badge vip">VIP</span>
@@ -1972,8 +1972,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">🧵</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">यज्ञोपवीत (उपनयन) मुहूर्त</div>
-                <div class="card-sub">त्रिबल शुद्धि • अष्टम रिक्त • १६ नक्षत्र</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="muhurat_yajno_title">यज्ञोपवीत (उपनयन) संस्कार</div>
+                <div class="card-sub" data-i18n="muhurat_yajno_sub">पारस्कर गृह्यसूत्र • त्रिबल शुद्धि • अष्टम रिक्त</div>
               </div>
             </div>
             <span class="card-badge vip">VIP</span>
@@ -1984,8 +1984,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">✂️</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">चूड़ाकर्म (मुंडन) संस्कार</div>
-                <div class="card-sub">१४ शास्त्रीय नियम • चंद्रबल • ताराबल</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="muhurat_mundan_title">चूड़ाकर्म (मुंडन) संस्कार</div>
+                <div class="card-sub" data-i18n="muhurat_mundan_sub">१४ शास्त्रीय नियम • चंद्रबल • ताराबल</div>
               </div>
             </div>
             <span class="card-badge vip">VIP</span>
@@ -1993,40 +1993,37 @@
 
         </div>
 
-        <div style="margin-top:14px; padding:10px 12px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; color:var(--muted); line-height:1.45;">
-          ℹ️ सभी मुहूर्त कैलकुलेटर ₹1,111 VIP सॉफ्टवेयर पास (20 मिनट पूर्ण अनमीटर एक्सेस) द्वारा संचालित हैं।
+        <div style="margin-top:14px; padding:10px 12px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; color:var(--muted); line-height:1.45;" data-i18n="muhurat_notice">
+          ℹ️ सभी मुहूर्त शोधन ₹1,111 VIP शास्त्रीय शोध सत्र (20 मिनट पूर्ण एक्सेस) द्वारा संचालित हैं।
         </div>
       </section>
 
       <!-- ─── TAB 3: SANCTUARY (CONSULTATION) VIEW ─── -->
       <section class="view-page" id="viewSanctuary" role="tabpanel" aria-label="Sanctuary Deep Consultation">
         <div class="page-hero-header">
-          <h2 class="page-hero-title">🪔 पर्सनल परामर्श (Sanctuary)</h2>
-          <p class="page-hero-sub">Strictly One Soul Per Solar Day • Astro Raamji</p>
+          <h2 class="page-hero-title" data-i18n="sanctuary_page_title">🪔 पर्सनल परामर्श (Sanctuary)</h2>
+          <p class="page-hero-sub" data-i18n="sanctuary_page_sub">Strictly One Soul Per Solar Day • Astro Raamji</p>
         </div>
 
         <div class="app-glass-panel" style="border-color:rgba(197, 160, 89, 0.45); background:linear-gradient(165deg, rgba(255,253,249,0.85) 0%, rgba(250,246,239,0.95) 100%);">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-family:var(--font-accent-serif); font-size:12px; font-weight:800; color:var(--gold-dark); letter-spacing:0.5px;">SACRED SANCTUARY</span>
+            <span style="font-family:var(--font-accent-serif); font-size:12px; font-weight:800; color:var(--gold-dark); letter-spacing:0.5px;" data-i18n="sanctuary_heading">SACRED SANCTUARY</span>
             <span class="card-badge price" style="font-size:11px; padding:3px 8px;">₹5,100</span>
           </div>
 
-          <p style="font-family:var(--font-devanagari-body); font-size:12px; line-height:1.6; color:var(--text); margin-bottom:12px;">
+          <p style="font-family:var(--font-devanagari-body); font-size:12px; line-height:1.6; color:var(--text); margin-bottom:12px;" data-i18n="sanctuary_p1">
             प्रति दिवस केवल एक जातक का गहन अध्ययन। सूर्योदय से सूर्यास्त तक आपकी सम्पूर्ण कुण्डली, सूक्ष्म वर्ग और ग्रह स्थितियों का व्यक्तिगत विश्लेषण।
           </p>
 
           <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px; font-family:var(--font-devanagari-body); font-size:11px; color:var(--muted);">
-            <div>✓ ९० मिनट विस्तृत 1-on-1 संवाद</div>
-            <div>✓ D1 से D60 सूक्ष्म वर्ग कुंडलियों का परीक्षण</div>
-            <div>✓ सटीक रत्न, रुद्राक्ष व वैदिक मंत्र अनुष्ठान उपाय</div>
-            <div>✓ कोई असिस्टेंट नहीं — सीधे आचार्य रामजी से चर्चा</div>
+            <div data-i18n="sanctuary_b1">✓ ९० मिनट विस्तृत 1-on-1 संवाद</div>
+            <div data-i18n="sanctuary_b2">✓ षोडशवर्ग सूक्ष्म कुंडलियों का गहन परीक्षण</div>
+            <div data-i18n="sanctuary_b3">✓ सटीक रत्न, रुद्राक्ष व वैदिक मंत्र अनुष्ठान उपाय</div>
+            <div data-i18n="sanctuary_b4">✓ कोई असिस्टेंट नहीं — सीधे आचार्य रामजी से चर्चा</div>
           </div>
 
-          <a href="https://wa.me/919517117775?text=Pranam%20Astro%20Ramji,%20I%20want%20to%20book%20the%20Personal%20Sanctuary%20Consultation%20(₹5,100)" target="_blank" rel="noopener" class="app-primary-btn" style="margin-bottom:8px;">
-            💬 WhatsApp पर स्लॉट बुक करें ➔
-          </a>
-
-          <a href="consultation.html" class="app-secondary-btn">
+          <!-- OFFICIAL SANCTUARY BOOKING CTA (RETAIN ONLY THIS) -->
+          <a href="consultation.html" class="app-primary-btn" data-i18n="btn_sanctuary_booking">
             पूर्ण विवरण व बुकिंग कैलेंडर देखें ➔
           </a>
         </div>
@@ -2035,8 +2032,8 @@
       <!-- ─── TAB 4: REPORTS VIEW ─── -->
       <section class="view-page" id="viewReports" role="tabpanel" aria-label="Specialized Reports">
         <div class="page-hero-header">
-          <h2 class="page-hero-title">📊 विशिष्ट जन्मपत्री रिपोर्ट्स</h2>
-          <p class="page-hero-sub">विस्तृत जीवन विश्लेषण एवं प्रामाणिक वैदिक उपाय</p>
+          <h2 class="page-hero-title" data-i18n="reports_page_title">📊 विशिष्ट जन्मपत्री रिपोर्ट्स</h2>
+          <p class="page-hero-sub" data-i18n="reports_page_sub">विस्तृत जीवन विश्लेषण एवं प्रामाणिक वैदिक उपाय</p>
         </div>
 
         <div class="reports-grid">
@@ -2046,8 +2043,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">🐍</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">कालसर्प दोष निवारण</div>
-                <div class="card-sub">१२ प्रकार के योग विश्लेषण व शांति</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="rep_kaalsarp_title">कालसर्प दोष निवारण</div>
+                <div class="card-sub" data-i18n="rep_kaalsarp_sub">१२ प्रकार के योग विश्लेषण व शांति</div>
               </div>
             </div>
             <span class="card-badge preorder">₹199 Pre-Order</span>
@@ -2058,8 +2055,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">🔥</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">मंगल दोष एवं सामर्थ्य</div>
-                <div class="card-sub">भौम दोष परिहार व दांपत्य जीवन समाधान</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="rep_mangal_title">मंगल दोष एवं सामर्थ्य</div>
+                <div class="card-sub" data-i18n="rep_mangal_sub">भौम दोष परिहार व दांपत्य जीवन समाधान</div>
               </div>
             </div>
             <span class="card-badge preorder">₹199 Pre-Order</span>
@@ -2070,8 +2067,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">🪐</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">साढ़ेसाती व शनि ढैय्या</div>
-                <div class="card-sub">शनि गोचर प्रभाव व अमोघ वैदिक शांति</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="rep_sadesati_title">साढ़ेसाती व शनि ढैय्या</div>
+                <div class="card-sub" data-i18n="rep_sadesati_sub">शनि गोचर प्रभाव व अमोघ वैदिक शांति</div>
               </div>
             </div>
             <span class="card-badge preorder">₹199 Pre-Order</span>
@@ -2082,8 +2079,8 @@
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="card-glyph">💎</div>
               <div>
-                <div class="card-title" style="margin-bottom:2px;">रत्न परामर्श व वैदिक उपाय</div>
-                <div class="card-sub">अनुकूल रत्न, धारण विधि व मंत्र शुद्धि</div>
+                <div class="card-title" style="margin-bottom:2px;" data-i18n="rep_ratna_title">रत्न परामर्श व वैदिक उपाय</div>
+                <div class="card-sub" data-i18n="rep_ratna_sub">अनुकूल रत्न, धारण विधि व मंत्र शुद्धि</div>
               </div>
             </div>
             <span class="card-badge preorder">₹249 Pre-Order</span>
@@ -2091,9 +2088,10 @@
 
         </div>
 
+        <!-- RESTORED SRA BLOGS SECTION LINK -->
         <div style="margin-top:14px; text-align:center;">
-          <a href="about.html" class="app-secondary-btn">
-            आचार्य रामजी एवं शोध पत्र (Research Papers) देखें ➔
+          <a href="about.html?tab=admin_blogs" class="app-secondary-btn" data-i18n="btn_sra_blogs">
+            📚 श्री रामजी एस्ट्रो ब्लॉग्स (Shri Ramji Astro Blogs) ➔
           </a>
         </div>
       </section>
@@ -2103,7 +2101,7 @@
 
   <!-- DESKTOP FULL-FEATURED PORTAL LAYOUT (>= 769px) -->
   <main class="desktop-main-layout">
-  <!-- HERO SECTION WITH VALUE-BASED & PRECISION HEADLINE -->
+  <!-- HERO SECTION WITH VALUE-BASED & SHASTRA PRECISION HEADLINE -->
   <section class="hero">
     <div class="hero-inner">
       
@@ -2116,11 +2114,11 @@
         <span style="display:block; font-size: clamp(22px, 3.5vw, 36px); font-family:'Cinzel', serif; font-weight:800; color:var(--heading-color); letter-spacing:1px; margin-bottom: 8px;">
           One Day • One Soul • One Horoscope
         </span>
-        High Astronomical Precision by <a href="patrika.html" style="color:var(--gold-dark); text-decoration:none; background:rgba(197, 160, 89, 0.2); border:1.5px solid var(--gold-dark); padding:3px 16px; border-radius:14px; display:inline-block; box-shadow:0 4px 15px rgba(197,160,89,0.2); transition:all 0.2s ease;">पत्रिका (Birth Chart)</a>
+        प्रामाणिक शास्त्रीय जन्म चक्र • <a href="patrika.html" style="color:var(--gold-dark); text-decoration:none; background:rgba(197, 160, 89, 0.2); border:1.5px solid var(--gold-dark); padding:3px 16px; border-radius:14px; display:inline-block; box-shadow:0 4px 15px rgba(197,160,89,0.2); transition:all 0.2s ease;">पत्रिका (Patrika)</a>
       </h1>
       
       <p class="hero-sub">
-        Astrology is all about uncompromised precision. Experience sub-arcsecond Meeus lunar perturbation, nutation-corrected Lahiri Ayanamsa, Granth-authenticated, Shastra-verified Kundli calculator (BPHS, Phaladeepika), 4-in-1 Vivah & Yagyopavit elections, Jyotish Academy, and private 1-on-1 sanctuary consultations.
+        बृहत्पाराशर होराशास्त्र, मुहूर्त चिंतामणि एवं फलदीपिका श्लोक-प्रमाणित ज्योतिषीय शोध। विशुद्ध ग्रह स्पष्ट, षोडशवर्ग सूक्ष्म चक्र, १० महादोष व त्रिबल शुद्धि विवाह मुहूर्त, एवं निजी 1-on-1 परामर्श।
       </p>
 
       <!-- MOBILE APP-LIKE QUICK FEATURE GRID (< 768px) -->
@@ -2128,36 +2126,36 @@
         <a href="patrika.html" class="app-quick-tile" style="border-color:var(--gold-dark); background:var(--gold-dim);">
           <div class="app-quick-icon">📜</div>
           <div class="app-quick-info">
-            <span class="app-quick-title">पत्रिका (Birth Chart)</span>
-            <span class="app-quick-sub">D1-D60 कुण्डली व योग</span>
+            <span class="app-quick-title" data-i18n="card_patrika_title">पत्रिका (Patrika)</span>
+            <span class="app-quick-sub" data-i18n="card_patrika_sub">सर्वाधिक सटीक शास्त्रीय जन्म चक्र</span>
           </div>
         </a>
         <a href="vmm.html" class="app-quick-tile">
           <div class="app-quick-icon">💍</div>
           <div class="app-quick-info">
-            <span class="app-quick-title">विवाह मुहूर्त व मिलान</span>
-            <span class="app-quick-sub">10 महादोष व 36-गुण</span>
+            <span class="app-quick-title" data-i18n="card_vivah_title">विवाह मुहूर्त शोध</span>
+            <span class="app-quick-sub" data-i18n="card_vivah_sub">१० महादोष व त्रिबल शुद्धि</span>
           </div>
         </a>
         <a href="vastu-muhurta.html" class="app-quick-tile">
           <div class="app-quick-icon">🏡</div>
           <div class="app-quick-info">
-            <span class="app-quick-title">वास्तु व गृह प्रवेश</span>
-            <span class="app-quick-sub">नींव पूजन व स्थिर लग्न</span>
+            <span class="app-quick-title" data-i18n="card_vastu_title">वास्तु एवं गृह प्रवेश</span>
+            <span class="app-quick-sub" data-i18n="card_vastu_sub">विश्वकर्मा प्रकाश सम्मत शोध</span>
           </div>
         </a>
         <a href="yajnopavita.html" class="app-quick-tile">
           <div class="app-quick-icon">🧵</div>
           <div class="app-quick-info">
-            <span class="app-quick-title">यज्ञोपवीत मुहूर्त</span>
-            <span class="app-quick-sub">16 शास्त्र नक्षत्र सारणी</span>
+            <span class="app-quick-title" data-i18n="card_yajno_title">यज्ञोपवीत (उपनयन)</span>
+            <span class="app-quick-sub" data-i18n="card_yajno_sub">पारस्कर गृह्यसूत्र सम्मत</span>
           </div>
         </a>
         <a href="consultation.html" class="app-quick-tile" style="border-color:rgba(185,28,28,0.3);">
           <div class="app-quick-icon" style="background:rgba(185,28,28,0.12);">🔮</div>
           <div class="app-quick-info">
-            <span class="app-quick-title" style="color:var(--red,#b91c1c);">1-on-1 Sanctuary</span>
-            <span class="app-quick-sub">प्रति दिवस केवल 1 स्लॉट</span>
+            <span class="app-quick-title" style="color:var(--red,#b91c1c);" data-i18n="card_sanctuary_title">परामर्श Sanctuary</span>
+            <span class="app-quick-sub" data-i18n="card_sanctuary_sub">१-ऑन-१ एस्ट्रो रामजी</span>
           </div>
         </a>
         <a href="course.html" class="app-quick-tile">

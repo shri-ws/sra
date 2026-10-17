@@ -238,6 +238,30 @@
   }
   .paywall-overlay.active .paywall-modal { transform: scale(1); }
 
+  .paywall-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+  .paywall-close-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: var(--gold-light);
+  }
+
   .paywall-exit-link {
     display: inline-block;
     margin-top: 10px;
@@ -751,7 +775,7 @@
 <div class="session-timer-bar" id="sessionTimerBar" style="display:none;">
   <div style="display:flex; align-items:center; gap:8px;">
     <span>👑</span>
-    <span><b>20-Min VIP Engine Access Active</b> — वास्तु, नींव पूजन एवं गृह प्रवेश मुहूर्त कैलकुलेटर (Algorithmic Software Engine)</span>
+    <span><b>20-मिनट शास्त्रीय मुहूर्त शोध सत्र सक्रिय</b> — वास्तु, नींव पूजन एवं गृह प्रवेश मुहूर्त शोधन</span>
   </div>
   <div style="display:flex; align-items:center; gap:14px;">
     <span>⏱️ शेष समय: <b id="sessionCountdown" style="font-family:monospace; font-size:1.1rem; color:var(--gold-light);">20:00</b></span>
@@ -759,24 +783,24 @@
   </div>
 </div>
 
-<!-- PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) -->
-<div class="paywall-overlay active" id="paywallOverlay">
+<!-- PAYWALL MODAL OVERLAY (SHASTRA-FIRST VIP SESSION) -->
+<div class="paywall-overlay active" id="paywallOverlay" onclick="if(event.target===this)closePaywallModal()">
   <div class="paywall-modal">
-    <div class="paywall-badge">👑 VIP पास • वास्तु मुहूर्त</div>
-    <h2 class="paywall-title">वास्तु एवं गृह प्रवेश मुहूर्त</h2>
-    <p class="paywall-subtitle">नींव पूजन, शिलान्यास एवं गृह प्रवेश मुहूर्त शोधन</p>
+    <button type="button" class="paywall-close-btn" onclick="closePaywallModal()" aria-label="Close">✕</button>
+    <div class="paywall-badge">👑 VIP सत्र • २० मिनट</div>
+    <h2 class="paywall-title">शास्त्रीय मुहूर्त शोध — VIP सत्र (20 मिनट)</h2>
+    <p class="paywall-subtitle">विश्वकर्मा प्रकाश सम्मत नींव, शिलान्यास एवं गृह प्रवेश मुहूर्त शोधन</p>
 
-    <div class="paywall-chips">
-      <span class="p-chip">🏡 गृह प्रवेश मुहूर्त</span>
-      <span class="p-chip">🧱 नींव व शिलान्यास</span>
-      <span class="p-chip">☀️ सूर्य-चंद्र शुद्धि</span>
-      <span class="p-chip">⏱️ २० मिनट एक्सेस</span>
+    <div class="paywall-chips" style="flex-direction:column; align-items:flex-start; text-align:left; gap:6px; margin: 10px 0 12px;">
+      <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ विश्वकर्मा प्रकाश अनुसार नींव, शिलान्यास व गृह प्रवेश</span>
+      <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ सूर्य-चंद्र शुद्धि एवं स्थिर लग्न शोधन</span>
+      <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ 20 मिनट तक असीमित शास्त्रीय मुहूर्त शोध</span>
     </div>
 
     <!-- Pricing Box -->
     <div class="pricing-box">
       <div class="price-details">
-        <div class="price-label">सॉफ्टवेयर एक्सेस पास</div>
+        <div class="price-label">शास्त्रीय मुहूर्त शोध सत्र</div>
         <div class="price-row-flex">
           <span class="price-amount">₹1,111</span>
           <span class="price-old">₹3,500</span>
@@ -787,7 +811,7 @@
 
     <!-- Main Razorpay Pay Button -->
     <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-      ⚡ ₹1,111 भुगतान करें (Unlock Access)
+      ⚡ ₹1,111 का भुगतान करें (सुरक्षित माध्यम)
     </button>
 
     <!-- VIP Passcode Unlock Option -->
@@ -797,7 +821,7 @@
     </div>
 
     <div class="guarantee-note">
-      🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित एक्सेस
+      🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित सत्र
     </div>
 
     <a href="index.html" class="paywall-exit-link">← मुख्य पृष्ठ पर वापस जाएं (Back to Home)</a>
@@ -808,7 +832,7 @@
 <div class="main-container locked" id="mainContainer">
 
 <div class="hero-banner">
-  <h1>🏛️ वास्तु, नींव पूजन एवं गृह प्रवेश मुहूर्त इंजन</h1>
+  <h1>🏛️ वास्तु, नींव पूजन एवं गृह प्रवेश मुहूर्त शोधन</h1>
   <p>महर्षि पराशर एवं 'मुहूर्त चिंतामणि' (दैवज्ञ आचार्य राम) के प्रामाणिक सिद्धांतों पर आधारित। Meeus <18'' परिशुद्ध एपिमेरिस गणित, गृहस्वामी जन्मकुण्डली मिलान, राहु मुख चक्र, और 5, 6, 7 महीने बाद गृह प्रवेश समय चक्र।</p>
 </div>
 
@@ -1644,9 +1668,16 @@ const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
 let isUnlocked = false;
 let sessionTimerInterval = null;
 
-function dismissPaywallPreview() {
-  window.location.href = 'index.html';
+function closePaywallModal() {
+  const overlay = document.getElementById('paywallOverlay');
+  if (overlay) overlay.classList.remove('active');
 }
+window.closePaywallModal = closePaywallModal;
+
+function dismissPaywallPreview() {
+  closePaywallModal();
+}
+window.dismissPaywallPreview = dismissPaywallPreview;
 
 function openPaywallModal() {
   const overlay = document.getElementById('paywallOverlay');

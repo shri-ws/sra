@@ -27,7 +27,8 @@
   } catch(e) {}
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 2. MULTI-LANGUAGE (I18N) ENGINE (HINDI / ENGLISH / REGIONAL)
+  // ══════════════════════════════════════════════════════════════════════════
+  // 2. MULTI-LANGUAGE (I18N) & SHASTRA-FIRST TERMINOLOGY ENGINE
   // ══════════════════════════════════════════════════════════════════════════
   const I18N_GLOBAL = {
     hi: {
@@ -38,24 +39,123 @@
       nav_home: "गृह",
       menu_muhurt: "मुहूर्त",
       menu_reports: "रिपोर्ट्स",
-      sub_vivah_title: "विवाह मुहूर्त व मिलान",
+      
+      // Mobile Tab Bar
+      tab_home: "होम",
+      tab_kundli: "कुण्डली",
+      tab_muhurat: "मुहूर्त",
+      tab_sanctuary: "परामर्श",
+      tab_reports: "रिपोर्ट्स",
+
+      // Sacred seal
+      sacred_seal: "👑 प्रति दिवस केवल एक जातक",
+
+      // 8 Home Grid Service Cards (Shastra-First Terminology)
+      card_vivah_title: "विवाह मुहूर्त शोध",
+      card_vivah_sub: "१० महादोष व त्रिबल शुद्धि",
+      card_patrika_title: "पत्रिका (Patrika)",
+      card_patrika_sub: "सर्वाधिक सटीक शास्त्रीय जन्म चक्र",
+      card_vastu_title: "वास्तु एवं गृह प्रवेश",
+      card_vastu_sub: "विश्वकर्मा प्रकाश सम्मत शोध",
+      card_yajno_title: "यज्ञोपवीत (उपनयन)",
+      card_yajno_sub: "पारस्कर गृह्यसूत्र सम्मत",
+      card_mundan_title: "चूड़ाकर्म (मुंडन)",
+      card_mundan_sub: "शास्त्रोक्त मास व तिथि विचार",
+      card_sanctuary_title: "परामर्श Sanctuary",
+      card_sanctuary_sub: "१-ऑन-१ एस्ट्रो रामजी",
+      card_kaalsarp_title: "कालसर्प दोष निवारण",
+      card_kaalsarp_sub: "१२ प्रकार के योग शांति",
+      card_mangal_title: "मंगल दोष परिहार",
+      card_mangal_sub: "२८ शास्त्रीय नियम परीक्षण",
+
+      // Shastra Description Tags
+      desc_vivah_shastra: "मुहूर्त चिंतामणि एवं शास्त्र सम्मत 10 महादोष व त्रिबल शुद्धि परीक्षण।",
+      desc_patrika_shastra: "बृहत्पाराशर होराशास्त्र सम्मत सूक्ष्म ग्रह स्थिति एवं षोडशवर्ग विश्लेषण।",
+      desc_vastu_shastra: "विश्वकर्मा प्रकाश एवं शास्त्रोक्त शिलान्यास/गृह प्रवेश मुहूर्त।",
+      desc_yajno_shastra: "पारस्कर गृह्यसूत्र एवं मुहूर्त ग्रंथों पर आधारित षोडश संस्कार निर्णय।",
+      desc_mundan_shastra: "शास्त्रोक्त मास, तिथि, नक्षत्र व लग्न शुद्धि विचार।",
+
+      // Tab 1: Kundli Quick Form
+      kundli_page_title: "📜 प्रामाणिक जन्म चक्र (Patrika 360)",
+      kundli_page_sub: "बृहत्पाराशर सम्मत षोडशवर्ग, विंशोत्तरी दशा व भाव चलित",
+      lbl_name: "जातक का नाम (Full Name)",
+      ph_name: "उदा: राहुल शर्मा",
+      lbl_dob: "जन्म तिथि (DOB)",
+      lbl_tob: "जन्म समय (Time)",
+      lbl_city: "जन्म स्थान (City / Place)",
+      ph_city: "उदा: Varanasi, Delhi, Mumbai",
+      btn_generate_kundli: "✨ जन्म चक्र तैयार करें (Open Patrika ➔)",
+      badge_sripati: "☀️ श्रीपति भाव चलित",
+      badge_vimsottari: "🪐 विंशोत्तरी दशाएं",
+      badge_ashtakvarga: "🛡️ सर्वाष्टकवर्ग सारणी",
+      badge_shodashvarga: "📜 षोडशवर्ग सूक्ष्म चक्र",
+      btn_full_calculator: "पूर्ण शास्त्रीय पत्रिका पर जाएं ➔",
+
+      // Tab 2: Muhurat Hub
+      muhurat_page_title: "💍 समस्त शास्त्रीय मुहूर्त शोधन",
+      muhurat_page_sub: "मुहूर्त चिन्तामणि व निर्णयसिंधु अनुसार ४ महा-शोध साधन",
+      muhurat_vivah_title: "शास्त्रीय विवाह मुहूर्त शोध",
+      muhurat_vivah_sub: "१० महादोष परिहार • ३६ गुण मिलान",
+      muhurat_vastu_title: "वास्तु एवं गृह प्रवेश मुहूर्त",
+      muhurat_vastu_sub: "विश्वकर्मा प्रकाश • नींव पूजन • शिलान्यास",
+      muhurat_yajno_title: "यज्ञोपवीत (उपनयन) संस्कार",
+      muhurat_yajno_sub: "पारस्कर गृह्यसूत्र • त्रिबल शुद्धि • अष्टम रिक्त",
+      muhurat_mundan_title: "चूड़ाकर्म (मुंडन) संस्कार",
+      muhurat_mundan_sub: "१४ शास्त्रीय नियम • चंद्रबल • ताराबल",
+      muhurat_notice: "ℹ️ सभी मुहूर्त शोधन ₹1,111 VIP शास्त्रीय शोध सत्र (20 मिनट पूर्ण एक्सेस) द्वारा संचालित हैं।",
+
+      // Tab 3: Sanctuary
+      sanctuary_page_title: "🪔 पर्सनल परामर्श (Sanctuary)",
+      sanctuary_page_sub: "Strictly One Soul Per Solar Day • Astro Raamji",
+      sanctuary_heading: "SACRED SANCTUARY",
+      sanctuary_p1: "प्रति दिवस केवल एक जातक का गहन अध्ययन। सूर्योदय से सूर्यास्त तक आपकी सम्पूर्ण कुण्डली, सूक्ष्म वर्ग और ग्रह स्थितियों का व्यक्तिगत विश्लेषण।",
+      sanctuary_b1: "✓ ९० मिनट विस्तृत 1-on-1 संवाद",
+      sanctuary_b2: "✓ षोडशवर्ग सूक्ष्म कुंडलियों का गहन परीक्षण",
+      sanctuary_b3: "✓ सटीक रत्न, रुद्राक्ष व वैदिक मंत्र अनुष्ठान उपाय",
+      sanctuary_b4: "✓ कोई असिस्टेंट नहीं — सीधे आचार्य रामजी से चर्चा",
+      btn_sanctuary_booking: "पूर्ण विवरण व बुकिंग कैलेंडर देखें ➔",
+
+      // Tab 4: Reports
+      reports_page_title: "📊 विशिष्ट जन्मपत्री रिपोर्ट्स",
+      reports_page_sub: "विस्तृत जीवन विश्लेषण एवं प्रामाणिक वैदिक उपाय",
+      rep_kaalsarp_title: "कालसर्प दोष निवारण",
+      rep_kaalsarp_sub: "१२ प्रकार के योग विश्लेषण व शांति",
+      rep_mangal_title: "मंगल दोष एवं सामर्थ्य",
+      rep_mangal_sub: "भौम दोष परिहार व दांपत्य जीवन समाधान",
+      rep_sadesati_title: "साढ़ेसाती व शनि ढैय्या",
+      rep_sadesati_sub: "शनि गोचर प्रभाव व अमोघ वैदिक शांति",
+      rep_ratna_title: "रत्न परामर्श व वैदिक उपाय",
+      rep_ratna_sub: "अनुकूल रत्न, धारण विधि व मंत्र शुद्धि",
+      btn_sra_blogs: "📚 श्री रामजी एस्ट्रो ब्लॉग्स (Shri Ramji Astro Blogs) ➔",
+
+      // VIP Modal Copy (Task 2)
+      vip_modal_header: "शास्त्रीय मुहूर्त शोध — VIP सत्र (20 मिनट)",
+      vip_hl_1: "✓ मुहूर्त चिंतामणि अनुसार 10 महादोष एवं त्रिबल शुद्धि",
+      vip_hl_2: "✓ प्रामाणिक अष्टकूट मिलान (36 गुण विचार)",
+      vip_hl_3: "✓ 20 मिनट तक असीमित शास्त्रीय मुहूर्त शोध",
+      vip_price_label: "शास्त्रीय मुहूर्त शोध सत्र",
+      vip_cta_btn: "⚡ ₹1,111 का भुगतान करें (सुरक्षित माध्यम)",
+      vip_lock_note: "🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित सत्र",
+
+      // Dropdown sub items & common
+      sub_vivah_title: "शास्त्रीय विवाह मुहूर्त शोध",
       sub_vivah_desc: "10 महादोष व त्रिबल शुद्धि",
       sub_vastu_title: "वास्तु व गृह प्रवेश",
-      sub_vastu_desc: "नींव पूजन व दिशा शुद्धि",
-      sub_yajno_title: "यज्ञोपवीत (उपनयन) मुहूर्त",
-      sub_yajno_desc: "16 नक्षत्र व चंद्र शुद्धि",
+      sub_vastu_desc: "विश्वकर्मा प्रकाश व नींव पूजन",
+      sub_yajno_title: "यज्ञोपवीत (उपनयन)",
+      sub_yajno_desc: "पारस्कर गृह्यसूत्र व चंद्र शुद्धि",
       sub_mundan_title: "चूड़ाकर्म (मुंडन) मुहूर्त",
       sub_mundan_desc: "शुभ सौर मास, वार व नक्षत्र शुद्धि",
-      sub_patrika_title: "पत्रिका (Birth Chart)",
-      sub_patrika_desc: "D1-D60, विंशोत्तरी व योग",
+      sub_patrika_title: "पत्रिका (Patrika)",
+      sub_patrika_desc: "षोडशवर्ग, विंशोत्तरी व योग",
       sub_kaalsarp_title: "कालसर्प दोष रिपोर्ट",
       sub_kaalsarp_desc: "12 कालसर्प व अचूक उपाय",
       sub_mangal_title: "मंगल दोष निवारण",
       sub_mangal_desc: "28 शास्त्रीय परिहार नियम",
       sub_ratna_title: "रत्न और वैदिक उपाय",
       sub_ratna_desc: "लग्नेश-भाग्येश शोधन व रुद्राक्ष",
-      nav_patrika: "पत्रिका (Birth Chart)",
-      nav_vivah: "विवाह व मिलान",
+      nav_patrika: "पत्रिका (Patrika)",
+      nav_vivah: "विवाह मुहूर्त",
       nav_vastu: "वास्तु मुहूर्त",
       nav_yajno: "यज्ञोपवीत",
       nav_mundan: "चूड़ाकर्म (मुंडन)",
@@ -67,7 +167,7 @@
       bnav_patrika: "Patrika",
       bnav_muhurt: "Muhurt",
       bnav_sanctuary: "Sanctuary",
-      cta_vivah: "मुहूर्त जाँचें ➔",
+      cta_vivah: "मुहूर्त शोधें ➔",
       cta_match: "अभी मिलान करें ➔",
       cta_yajno: "मुहूर्त देखें ➔",
       cta_vastu: "वास्तु मुहूर्त देखें ➔",
@@ -87,16 +187,115 @@
       nav_home: "Home",
       menu_muhurt: "Muhurts",
       menu_reports: "Reports",
-      sub_vivah_title: "Vivah & Matchmaking",
+
+      // Mobile Tab Bar
+      tab_home: "Home",
+      tab_kundli: "Kundli",
+      tab_muhurat: "Muhurat",
+      tab_sanctuary: "Sanctuary",
+      tab_reports: "Reports",
+
+      // Sacred seal
+      sacred_seal: "👑 Strictly One Soul Per Day",
+
+      // 8 Home Grid Service Cards (Shastra-First Terminology)
+      card_vivah_title: "Classical Vivah Muhurta",
+      card_vivah_sub: "10 Mahadosha & Tribala Test",
+      card_patrika_title: "Patrika (Birth Chart)",
+      card_patrika_sub: "Authentic Classical Birth Chart",
+      card_vastu_title: "Vastu & Griha Pravesh",
+      card_vastu_sub: "Vishwakarman Shastra Guidance",
+      card_yajno_title: "Yajnopavita (Upanayana)",
+      card_yajno_sub: "Paraskara Grihyasutra Guidance",
+      card_mundan_title: "Mundan (Chudakarma)",
+      card_mundan_sub: "Classical Tithi & Month Shuddhi",
+      card_sanctuary_title: "Sanctuary Consultation",
+      card_sanctuary_sub: "1-on-1 Astro Raamji",
+      card_kaalsarp_title: "Kaal Sarp Dosh Remedy",
+      card_kaalsarp_sub: "12 Yoga Parihar & Puja",
+      card_mangal_title: "Mangal Dosh Analysis",
+      card_mangal_sub: "28 Classical Parihar Rules",
+
+      // Shastra Description Tags
+      desc_vivah_shastra: "Muhurta Chintamani & Shastra authenticated 10 Mahadosha & Tribala verification.",
+      desc_patrika_shastra: "Brihat Parashara Hora Shastra verified micro-planetary positions and Shodashvarga.",
+      desc_vastu_shastra: "Vishwakarman Prakasha based foundation laying and Griha Pravesh auspicious timings.",
+      desc_yajno_shastra: "Paraskara Grihyasutra and classical scripture based sacred thread investiture.",
+      desc_mundan_shastra: "Scripture-backed solar month, lunar day, asterism and ascendant purity.",
+
+      // Tab 1: Kundli Quick Form
+      kundli_page_title: "📜 Classical Birth Chart (Patrika 360)",
+      kundli_page_sub: "Parashara Shodashvarga, Vimsottari Dasha & Bhava Chalita",
+      lbl_name: "Native Full Name",
+      ph_name: "e.g. Rahul Sharma",
+      lbl_dob: "Date of Birth (DOB)",
+      lbl_tob: "Time of Birth (Time)",
+      lbl_city: "Place of Birth (City / Place)",
+      ph_city: "e.g. Varanasi, Delhi, Mumbai",
+      btn_generate_kundli: "✨ Generate Birth Chart (Open Patrika ➔)",
+      badge_sripati: "☀️ Sripati Bhava Chalita",
+      badge_vimsottari: "🪐 Vimsottari Dashas",
+      badge_ashtakvarga: "🛡️ Sarvashtakavarga Table",
+      badge_shodashvarga: "📜 Shodashvarga Cycles",
+      btn_full_calculator: "Go to Full Classical Patrika ➔",
+
+      // Tab 2: Muhurat Hub
+      muhurat_page_title: "💍 All Classical Muhurta Elections",
+      muhurat_page_sub: "4 Master Systems as per Muhurta Chintamani & Nirnaya Sindhu",
+      muhurat_vivah_title: "Classical Vivah Muhurta Election",
+      muhurat_vivah_sub: "10 Mahadosha Parihar • 36 Guna Milan",
+      muhurat_vastu_title: "Vastu & Griha Pravesh Muhurta",
+      muhurat_vastu_sub: "Vishwakarman Shastra • Neev Pujan • Sthira Lagna",
+      muhurat_yajno_title: "Yajnopavita (Upanayana) Ceremony",
+      muhurat_yajno_sub: "Paraskara Grihyasutra • Tribala Shuddhi",
+      muhurat_mundan_title: "Chudakarma (Mundan) Ceremony",
+      muhurat_mundan_sub: "14 Classical Injunctions • Moon & Tara Bala",
+      muhurat_notice: "ℹ️ All Muhurta elections are backed by ₹1,111 VIP Classical Session (20 Mins unmetered access).",
+
+      // Tab 3: Sanctuary
+      sanctuary_page_title: "🪔 Personal Consultation (Sanctuary)",
+      sanctuary_page_sub: "Strictly One Soul Per Solar Day • Astro Raamji",
+      sanctuary_heading: "SACRED SANCTUARY",
+      sanctuary_p1: "Deep personalized analysis of strictly one soul per day. Detailed study of micro-divisional charts, yogas, and life destiny from dawn to dusk.",
+      sanctuary_b1: "✓ 90-Minute in-depth 1-on-1 dialogue",
+      sanctuary_b2: "✓ Examination of micro-divisional Shodashvarga charts",
+      sanctuary_b3: "✓ Precise gemstones, Rudraksha, and Vedic ritual remedies",
+      sanctuary_b4: "✓ No assistants — direct dialogue with Acharya Raamji",
+      btn_sanctuary_booking: "View Details & Booking Calendar ➔",
+
+      // Tab 4: Reports
+      reports_page_title: "📊 Specialized Horoscope Reports",
+      reports_page_sub: "In-depth life analysis and authentic Vedic remedial guidance",
+      rep_kaalsarp_title: "Kaal Sarp Dosh Remedy",
+      rep_kaalsarp_sub: "12 Yoga analysis and authentic remedial shanti",
+      rep_mangal_title: "Mangal Dosh Analysis",
+      rep_mangal_sub: "Bhauma dosha parihar and marital harmony solutions",
+      rep_sadesati_title: "Sade Sati & Shani Dhaiya",
+      rep_sadesati_sub: "Saturn transit impact and classical Vedic peace rituals",
+      rep_ratna_title: "Gemstones & Vedic Remedies",
+      rep_ratna_sub: "Auspicious gemstones, wearing rituals, and mantra purity",
+      btn_sra_blogs: "📚 Shri Ramji Astro Blogs ➔",
+
+      // VIP Modal Copy (Task 2)
+      vip_modal_header: "Classical Muhurta Election — VIP Session (20 Mins)",
+      vip_hl_1: "✓ 10 Mahadosha and Tribala test per Muhurta Chintamani",
+      vip_hl_2: "✓ Authentic Ashtakoota compatibility (36 Guna analysis)",
+      vip_hl_3: "✓ 20 minutes unmetered classical election session",
+      vip_price_label: "Classical Muhurta Session",
+      vip_cta_btn: "⚡ Pay ₹1,111 (Secure Gateway)",
+      vip_lock_note: "🔒 100% Secure Payment (Razorpay) • 20 Mins Session",
+
+      // Dropdown sub items & common
+      sub_vivah_title: "Classical Vivah Muhurta",
       sub_vivah_desc: "10 Mahadoshas & Tribala",
       sub_vastu_title: "Vastu & Griha Pravesh",
-      sub_vastu_desc: "Neev Pujan & Disha Shuddhi",
+      sub_vastu_desc: "Vishwakarman & Neev Pujan",
       sub_yajno_title: "Yajnopavita Muhurta",
-      sub_yajno_desc: "16 Asterisms & Moon Shuddhi",
+      sub_yajno_desc: "Paraskara Grihyasutra & Moon",
       sub_mundan_title: "Mundan (Chudakarma)",
       sub_mundan_desc: "Solar Month, Vara & Star Shuddhi",
       sub_patrika_title: "Patrika (Birth Chart)",
-      sub_patrika_desc: "D1-D60, Dashas & Yogas",
+      sub_patrika_desc: "Shodashvarga, Dashas & Yogas",
       sub_kaalsarp_title: "Kaal Sarp Dosh Report",
       sub_kaalsarp_desc: "12 Types & Shastra Remedies",
       sub_mangal_title: "Mangal Dosh Report",
@@ -104,7 +303,7 @@
       sub_ratna_title: "Gemstones & Remedies",
       sub_ratna_desc: "Ascendant/9th Lord Analysis",
       nav_patrika: "Patrika (Birth Chart)",
-      nav_vivah: "Vivah & Match",
+      nav_vivah: "Vivah Muhurta",
       nav_vastu: "Vastu Muhurta",
       nav_yajno: "Yajnopavita",
       nav_mundan: "Mundan Muhurta",
@@ -131,6 +330,125 @@
   };
 
   window.I18N_GLOBAL = I18N_GLOBAL;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // DYNAMIC TITHI & ASTRONOMICAL PANCHANG ENGINE
+  // ══════════════════════════════════════════════════════════════════════════
+  function norm360(d) {
+    d = d % 360;
+    return d < 0 ? d + 360 : d;
+  }
+
+  function toHindiDigits(num) {
+    const hindiDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    return String(num).split('').map(c => (c >= '0' && c <= '9') ? hindiDigits[parseInt(c, 10)] : c).join('');
+  }
+
+  function calculateLivePanchang(date, lang) {
+    if (!date) date = new Date();
+    if (!lang) lang = getCurrentLanguage();
+
+    const y = date.getUTCFullYear();
+    const m = date.getUTCMonth() + 1;
+    const d = date.getUTCDate();
+    const h = date.getUTCHours() + date.getUTCMinutes() / 60.0;
+
+    let year = y, month = m;
+    if (month <= 2) { year -= 1; month += 12; }
+    const A = Math.floor(year / 100);
+    const B = 2 - A + Math.floor(A / 4);
+    const jd = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + d + B - 1524.5 + h / 24.0;
+    const T = (jd - 2451545.0) / 36525.0;
+
+    // Sun True Longitude
+    const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+    const M = 357.52911 + 35999.05029 * T - 0.0001537 * T * T;
+    const C = (1.914602 - 0.004817 * T) * Math.sin(M * Math.PI / 180) + 0.02 * Math.sin(2 * M * Math.PI / 180);
+    const sunLon = norm360(L0 + C);
+
+    // Moon Longitude (Leading Meeus ELP Terms)
+    const L_prime = 218.3164477 + 481267.88123421 * T;
+    const D = 297.8501921 + 445267.1114034 * T;
+    const M_prime = 134.9633964 + 477198.8675055 * T;
+    const moonLon = norm360(L_prime + 6.288774 * Math.sin(M_prime * Math.PI / 180) + 1.274027 * Math.sin((2*D - M_prime) * Math.PI / 180) + 0.658314 * Math.sin(2*D * Math.PI / 180));
+
+    // Angular distance for Tithi
+    const diff = norm360(moonLon - sunLon);
+    const tithiIndex = Math.floor(diff / 12) + 1; // 1 to 30
+
+    const isShukla = tithiIndex <= 15;
+    const tithiNum = isShukla ? tithiIndex : (tithiIndex - 15);
+
+    const tithiNamesHi = [
+      '', 'प्रतिपदा', 'द्वितीया', 'तृतीया', 'चतुर्थी', 'पंचमी',
+      'षष्ठी', 'सप्तमी', 'अष्टमी', 'नवमी', 'दशमी',
+      'एकादशी', 'द्वादशी', 'त्रयोदशी', 'चतुर्दशी', 'पूर्णिमा'
+    ];
+    const tithiNamesEn = [
+      '', 'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+      'Shasthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
+      'Ekadashi', 'Dvadashi', 'Trayodashi', 'Chaturdashi', 'Purnima'
+    ];
+
+    let tithiNameHi = tithiNamesHi[tithiNum] || '';
+    let tithiNameEn = tithiNamesEn[tithiNum] || '';
+    if (!isShukla && tithiNum === 15) {
+      tithiNameHi = 'अमावस्या';
+      tithiNameEn = 'Amavasya';
+    }
+
+    const pakshaHi = isShukla ? 'शुक्ल' : 'कृष्ण';
+    const pakshaEn = isShukla ? 'Shukla' : 'Krishna';
+
+    // Solar month (Masa) from Sidereal Sun
+    const ayanamsa = 23.85 + 1.396 * T;
+    const sidSunLon = norm360(sunLon - ayanamsa);
+    const sunRashiIndex = Math.floor(sidSunLon / 30);
+
+    const masaNamesHi = [
+      'वैशाख', 'ज्येष्ठ', 'आषाढ़', 'श्रावण', 'भाद्रपद', 'आश्विन',
+      'कार्तिक', 'मार्गशीर्ष', 'पौष', 'माघ', 'फाल्गुन', 'चैत्र'
+    ];
+    const masaNamesEn = [
+      'Vaisakha', 'Jyeshtha', 'Ashadha', 'Shravana', 'Bhadrapada', 'Ashwina',
+      'Kartika', 'Margashirsha', 'Pausha', 'Magha', 'Phalguna', 'Chaitra'
+    ];
+
+    const masaHi = masaNamesHi[sunRashiIndex] || 'आश्विन';
+    const masaEn = masaNamesEn[sunRashiIndex] || 'Ashwina';
+
+    // Day of week
+    const dayOfWeek = date.getDay();
+    const varaNamesHi = ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];
+    const varaNamesEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    // Vikram Samvat: Chaitra Shukla Pratipada transition
+    const samvat = (m > 3 || (m === 3 && d >= 22)) ? (y + 57) : (y + 56);
+
+    if (lang === 'en') {
+      return `Vikram Samvat ${samvat} • ${masaEn} ${pakshaEn} ${tithiNameEn} • ${varaNamesEn[dayOfWeek]}`;
+    } else {
+      return `विक्रम संवत् ${toHindiDigits(samvat)} • ${masaHi} ${pakshaHi} ${tithiNameHi} • ${varaNamesHi[dayOfWeek]}`;
+    }
+  }
+  window.calculateLivePanchang = calculateLivePanchang;
+
+  function updateLivePanchangDisplay(lang) {
+    if (!lang) lang = getCurrentLanguage();
+    const panchangStr = calculateLivePanchang(new Date(), lang);
+
+    document.querySelectorAll('#panchangText, [data-i18n-panchang]').forEach(el => {
+      el.textContent = panchangStr;
+    });
+
+    document.querySelectorAll('.vedic-date-chip').forEach(chip => {
+      const lastSpan = chip.querySelector('span:last-child');
+      if (lastSpan && (!lastSpan.id || lastSpan.id === 'panchangText')) {
+        lastSpan.textContent = panchangStr;
+      }
+    });
+  }
+  window.updateLivePanchangDisplay = updateLivePanchangDisplay;
 
   function getCurrentLanguage() {
     try {
@@ -165,7 +483,7 @@
       if (dict[key]) el.setAttribute('placeholder', dict[key]);
     });
 
-    // 4. Update language toggle button labels
+    // 4. Update language toggle button labels and active pill state
     document.querySelectorAll('.lang-pill-btn, .lang-toggle-btn, #langToggleBtn, #globalLangBtn').forEach(btn => {
       const label = btn.querySelector('.lang-current, .lang-active-label, #langPillText');
       if (label) {
@@ -179,7 +497,10 @@
       }
     });
 
-    // 5. Trigger page-specific I18N if implemented (e.g., vmm.html, mmm.html)
+    // 5. Update Dynamic Panchang Header
+    updateLivePanchangDisplay(lang);
+
+    // 6. Trigger page-specific I18N if implemented (e.g., vmm.html, mmm.html)
     if (typeof window.setLanguage === 'function' && window.setLanguage !== applyLanguage && !window._langSyncing) {
       try {
         window._langSyncing = true;

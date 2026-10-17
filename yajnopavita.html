@@ -629,6 +629,30 @@
         }
         .paywall-overlay.active .paywall-modal { transform: scale(1); }
 
+        .paywall-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .paywall-close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: var(--gold-light, #F4E8C1);
+        }
+
         .paywall-exit-link {
             display: inline-block;
             margin-top: 10px;
@@ -877,24 +901,24 @@
         </div>
     </div>
 
-    <!-- PAYWALL MODAL OVERLAY (ULTRA-COMPACT PHONE OPTIMIZED) -->
-    <div class="paywall-overlay active" id="paywallOverlay">
+    <!-- PAYWALL MODAL OVERLAY (SHASTRA-FIRST VIP SESSION) -->
+    <div class="paywall-overlay active" id="paywallOverlay" onclick="if(event.target===this)closePaywallModal()">
         <div class="paywall-modal">
-            <div class="paywall-badge">👑 VIP पास • यज्ञोपवीत मुहूर्त</div>
-            <h2 class="paywall-title">यज्ञोपवीत (जनेऊ) संस्कार मुहूर्त</h2>
-            <p class="paywall-subtitle">उपनयन मुहूर्त, त्रिबल शुद्धि एवं अष्टम भाव शोधन</p>
+            <button type="button" class="paywall-close-btn" onclick="closePaywallModal()" aria-label="Close">✕</button>
+            <div class="paywall-badge">👑 VIP सत्र • २० मिनट</div>
+            <h2 class="paywall-title">शास्त्रीय मुहूर्त शोध — VIP सत्र (20 मिनट)</h2>
+            <p class="paywall-subtitle">पारस्कर गृह्यसूत्र सम्मत उपनयन संस्कार एवं त्रिबल शुद्धि शोधन</p>
 
-            <div class="paywall-chips">
-                <span class="p-chip">🪔 जनेऊ संस्कार मुहूर्त</span>
-                <span class="p-chip">☀️ त्रिबल शुद्धि (सूर्य/चंद्र/गुरु)</span>
-                <span class="p-chip">🛡️ अष्टम शुद्धि परिहार</span>
-                <span class="p-chip">⏱️ २० मिनट एक्सेस</span>
+            <div class="paywall-chips" style="flex-direction:column; align-items:flex-start; text-align:left; gap:6px; margin: 10px 0 12px;">
+                <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ पारस्कर गृह्यसूत्र अनुसार उपनयन संस्कार निर्णय</span>
+                <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ त्रिबल शुद्धि एवं अष्टम भाव रिक्त शोधन</span>
+                <span class="p-chip" style="width:100%; box-sizing:border-box;">✓ 20 मिनट तक असीमित शास्त्रीय मुहूर्त शोध</span>
             </div>
 
             <!-- Pricing Box -->
             <div class="pricing-box">
                 <div class="price-details">
-                    <div class="price-label">सॉफ्टवेयर एक्सेस पास</div>
+                    <div class="price-label">शास्त्रीय मुहूर्त शोध सत्र</div>
                     <div class="price-row-flex">
                         <span class="price-amount">₹1,111</span>
                         <span class="price-old">₹3,500</span>
@@ -905,7 +929,7 @@
 
             <!-- Main Razorpay Pay Button -->
             <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-                ⚡ ₹1,111 भुगतान करें (Unlock Access)
+                ⚡ ₹1,111 का भुगतान करें (सुरक्षित माध्यम)
             </button>
 
             <!-- VIP Passcode Unlock Option -->
@@ -915,7 +939,7 @@
             </div>
 
             <div class="guarantee-note">
-                🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित एक्सेस
+                🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित सत्र
             </div>
 
             <a href="index.html" class="paywall-exit-link">← मुख्य पृष्ठ पर वापस जाएं (Back to Home)</a>
@@ -1736,9 +1760,16 @@
         let isUnlocked = false;
         let sessionTimerInterval = null;
 
-        function dismissPaywallPreview() {
-            window.location.href = 'index.html';
+        function closePaywallModal() {
+            const overlay = document.getElementById('paywallOverlay');
+            if (overlay) overlay.classList.remove('active');
         }
+        window.closePaywallModal = closePaywallModal;
+
+        function dismissPaywallPreview() {
+            closePaywallModal();
+        }
+        window.dismissPaywallPreview = dismissPaywallPreview;
 
         function openPaywallModal() {
             const overlay = document.getElementById('paywallOverlay');
