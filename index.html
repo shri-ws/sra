@@ -152,7 +152,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&family=Rozha+One&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet" />
   <script src="theme.js"></script>
 
   <style>
@@ -184,6 +184,12 @@
       --green: #15803D;
       --red: #B91C1C;
       --radius: 18px;
+      --font-vedic-heading: 'Rozha One', 'Tiro Devanagari Hindi', serif;
+      --font-devanagari-body: 'Poppins', 'Noto Sans Devanagari', -apple-system, sans-serif;
+      --font-accent-serif: 'Cinzel', serif;
+      --font-modern-num: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+      --card-glass-bg: rgba(255, 253, 249, 0.75);
+      --card-glass-border: rgba(197, 160, 89, 0.28);
     }
 
     /* NIGHT MODE */
@@ -208,6 +214,8 @@
       --hero-bg: radial-gradient(ellipse 120% 90% at 50% 30%, #1a0b36 0%, #090514 75%);
       --footer-bg: #030206;
       --input-bg: #090514;
+      --card-glass-bg: rgba(24, 28, 36, 0.75);
+      --card-glass-border: rgba(197, 160, 89, 0.22);
       --star-opacity: 0.85;
       --toggle-bg: #1a0b36;
       --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
@@ -1053,6 +1061,466 @@
       color: #FFFFFF;
       box-shadow: 0 6px 20px rgba(214, 36, 159, 0.35);
     }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       MOBILE APP-FIRST HORIZONTAL CAROUSEL & TABBED ARCHITECTURE (< 768px)
+       ══════════════════════════════════════════════════════════════════════════ */
+    .mobile-app-shell {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      /* 1. HIDE ALL LEGACY LONG VERTICAL DESKTOP CONTENT ON MOBILE */
+      .desktop-main-layout {
+        display: none !important;
+      }
+      .site-global-footer {
+        display: none !important;
+      }
+
+      /* 2. ACTIVATE APP-FIRST MOBILE SHELL */
+      .mobile-app-shell {
+        display: flex !important;
+        flex-direction: column;
+        width: 100vw;
+        max-width: 100vw;
+        height: calc(100dvh - 56px - 60px); /* 56px native top bar, 60px bottom nav */
+        overflow: hidden;
+        position: relative;
+        background: var(--bg);
+      }
+
+      /* 3. TOP SEGMENTED HORIZONTAL CHIP BAR */
+      .mobile-tab-bar {
+        flex-shrink: 0;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        background: var(--bg2, #FAF6EF);
+        border-bottom: 1px solid var(--gold-border, rgba(197, 160, 89, 0.28));
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .mobile-tab-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .app-tab-chip {
+        flex-shrink: 0;
+        height: 32px;
+        padding: 0 14px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.55);
+        border: 1px solid var(--gold-border, rgba(197, 160, 89, 0.3));
+        color: var(--muted, #64748B);
+        font-family: var(--font-devanagari-body, 'Poppins', sans-serif);
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        text-decoration: none;
+        user-select: none;
+      }
+      .app-tab-chip:active {
+        transform: scale(0.96);
+      }
+      .app-tab-chip.active {
+        background: linear-gradient(135deg, rgba(197, 160, 89, 0.28), rgba(140, 109, 43, 0.35));
+        border: 1.5px solid var(--gold-dark, #8C6D2B);
+        color: var(--heading-color, #4A0E17);
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(197, 160, 89, 0.25);
+        transform: scale(1.02);
+      }
+      [data-theme="night"] .app-tab-chip {
+        background: rgba(25, 30, 38, 0.6);
+        border-color: rgba(197, 160, 89, 0.25);
+        color: #94A3B8;
+      }
+      [data-theme="night"] .app-tab-chip.active {
+        background: linear-gradient(135deg, rgba(197, 160, 89, 0.35), rgba(140, 109, 43, 0.45));
+        border-color: var(--gold, #D4AF37);
+        color: #F4E8C1;
+      }
+
+      /* 4. HORIZONTAL VIEW PAGER (CAROUSEL CONTAINER) */
+      .mobile-viewpager {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        height: calc(100% - 48px);
+        width: 100%;
+      }
+      .mobile-viewpager::-webkit-scrollbar {
+        display: none;
+      }
+
+      .view-page {
+        flex: 0 0 100%;
+        width: 100%;
+        min-width: 100%;
+        height: 100%;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
+        padding: 12px 12px 24px;
+      }
+
+      /* 5. GREETING BAR */
+      .mobile-greeting-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+        padding: 6px 10px;
+        background: rgba(197, 160, 89, 0.08);
+        border: 1px solid rgba(197, 160, 89, 0.25);
+        border-radius: 12px;
+      }
+      .vedic-date-chip {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-devanagari-body, 'Poppins', sans-serif);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gold-dark, #8C6D2B);
+      }
+      [data-theme="night"] .vedic-date-chip {
+        color: var(--gold-light, #E5C07B);
+      }
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #16A34A;
+        box-shadow: 0 0 6px #16A34A;
+        animation: pulseLive 2s infinite ease-in-out;
+      }
+      @keyframes pulseLive {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.6; }
+      }
+      .sacred-seal-badge {
+        font-family: var(--font-modern-num, 'Outfit', sans-serif);
+        font-size: 9.5px;
+        font-weight: 800;
+        color: #B91C1C;
+        background: rgba(185, 28, 28, 0.1);
+        border: 1px solid rgba(185, 28, 28, 0.3);
+        padding: 2px 7px;
+        border-radius: 6px;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+      }
+      [data-theme="night"] .sacred-seal-badge {
+        color: #F87171;
+        background: rgba(248, 113, 113, 0.12);
+        border-color: rgba(248, 113, 113, 0.3);
+      }
+
+      /* 6. ELEGANT 2-COLUMN SERVICE GRID */
+      .mobile-service-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .app-service-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: var(--card-glass-bg, rgba(255, 253, 249, 0.75));
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--card-glass-border, rgba(197, 160, 89, 0.28));
+        border-radius: 16px;
+        padding: 12px 10px 10px;
+        text-decoration: none;
+        color: var(--text, #1E293B);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        user-select: none;
+        min-height: 108px;
+        box-sizing: border-box;
+      }
+      .app-service-card:active {
+        transform: scale(0.96);
+        border-color: var(--gold-dark, #C5A059);
+        background: rgba(197, 160, 89, 0.12);
+      }
+
+      .card-top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .card-glyph {
+        font-size: 22px;
+        line-height: 1;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(197, 160, 89, 0.12);
+        border: 1px solid rgba(197, 160, 89, 0.25);
+      }
+      .card-badge {
+        font-family: var(--font-modern-num, 'Outfit', sans-serif);
+        font-size: 9px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .card-badge.vip {
+        background: rgba(197, 160, 89, 0.18);
+        border: 1px solid rgba(197, 160, 89, 0.45);
+        color: #B78103;
+      }
+      [data-theme="night"] .card-badge.vip { color: #F4E8C1; }
+      .card-badge.meeus {
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.35);
+        color: #059669;
+      }
+      [data-theme="night"] .card-badge.meeus { color: #6EE7B7; }
+      .card-badge.preorder {
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.35);
+        color: #4F46E5;
+      }
+      [data-theme="night"] .card-badge.preorder { color: #A5B4FC; }
+      .card-badge.price {
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        color: #DC2626;
+      }
+      [data-theme="night"] .card-badge.price { color: #FCA5A5; }
+
+      .card-title {
+        font-family: var(--font-vedic-heading, 'Rozha One', 'Tiro Devanagari Hindi', serif);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text, #1E293B);
+        line-height: 1.25;
+        margin-bottom: 2px;
+      }
+      [data-theme="night"] .card-title { color: #FFFFFF; }
+
+      .card-sub {
+        font-family: var(--font-devanagari-body, 'Poppins', 'Noto Sans Devanagari', sans-serif);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted, #64748B);
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* 7. VIEW PAGE HEADERS & SPECIALIZED CARDS */
+      .page-hero-header {
+        margin-bottom: 12px;
+        padding: 4px 2px;
+      }
+      .page-hero-title {
+        font-family: var(--font-vedic-heading, 'Rozha One', 'Tiro Devanagari Hindi', serif);
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--heading-color, #4A0E17);
+        margin: 0 0 2px 0;
+        line-height: 1.25;
+      }
+      [data-theme="night"] .page-hero-title { color: #F4E8C1; }
+      .page-hero-sub {
+        font-family: var(--font-devanagari-body, 'Poppins', sans-serif);
+        font-size: 11.5px;
+        color: var(--muted, #64748B);
+        margin: 0;
+        line-height: 1.35;
+      }
+
+      .app-glass-panel {
+        background: var(--card-glass-bg, rgba(255, 253, 249, 0.75));
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--card-glass-border, rgba(197, 160, 89, 0.28));
+        border-radius: 16px;
+        padding: 14px 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+      }
+      [data-theme="night"] .app-glass-panel {
+        background: rgba(24, 28, 36, 0.75);
+      }
+
+      .app-form-label {
+        display: block;
+        font-family: var(--font-devanagari-body, 'Poppins', sans-serif);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted, #64748B);
+        margin-bottom: 4px;
+      }
+      .app-form-input {
+        width: 100%;
+        padding: 9px 11px;
+        border: 1px solid var(--gold-border, rgba(197, 160, 89, 0.3));
+        border-radius: 10px;
+        background: var(--input-bg, #FFFDF9);
+        color: var(--text, #1E293B);
+        font-family: var(--font-devanagari-body, 'Poppins', sans-serif);
+        font-size: 12.5px;
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+      .app-form-input:focus {
+        border-color: var(--gold-dark, #8C6D2B);
+      }
+      [data-theme="night"] .app-form-input {
+        background: rgba(15, 18, 24, 0.85);
+        color: #F1F5F9;
+      }
+
+      .app-primary-btn {
+        width: 100%;
+        padding: 11px 16px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #F4E8C1 0%, #C5A059 50%, #8C6D2B 100%);
+        color: #1A0D00;
+        font-family: var(--font-vedic-heading, 'Rozha One', 'Tiro Devanagari Hindi', serif);
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(197, 160, 89, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+        transition: transform 0.15s ease;
+        box-sizing: border-box;
+      }
+      .app-primary-btn:active {
+        transform: scale(0.97);
+      }
+
+      .app-secondary-btn {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--gold-dark, #8C6D2B);
+        background: rgba(197, 160, 89, 0.12);
+        color: var(--gold-dark, #8C6D2B);
+        font-family: var(--font-devanagari-body, 'Poppins', sans-serif);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+        transition: transform 0.15s ease;
+        box-sizing: border-box;
+      }
+      .app-secondary-btn:active {
+        transform: scale(0.97);
+      }
+      [data-theme="night"] .app-secondary-btn {
+        color: #F4E8C1;
+        border-color: rgba(197, 160, 89, 0.4);
+      }
+
+      .muhurat-stacked-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .muhurat-stacked-card {
+        background: var(--card-glass-bg, rgba(255, 253, 249, 0.75));
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--card-glass-border, rgba(197, 160, 89, 0.28));
+        border-radius: 14px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--text, #1E293B);
+        transition: transform 0.15s ease, border-color 0.15s ease;
+      }
+      .muhurat-stacked-card:active {
+        transform: scale(0.98);
+        border-color: var(--gold-dark, #8C6D2B);
+      }
+      [data-theme="night"] .muhurat-stacked-card {
+        background: rgba(24, 28, 36, 0.75);
+        color: #F1F5F9;
+      }
+
+      .reports-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .report-app-card {
+        background: var(--card-glass-bg, rgba(255, 253, 249, 0.75));
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--card-glass-border, rgba(197, 160, 89, 0.28));
+        border-radius: 14px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        cursor: pointer;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+      }
+      .report-app-card:active {
+        transform: scale(0.98);
+        border-color: var(--gold-dark, #8C6D2B);
+      }
+      [data-theme="night"] .report-app-card {
+        background: rgba(24, 28, 36, 0.75);
+        color: #F1F5F9;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1279,6 +1747,362 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       MOBILE APP-FIRST SHELL: HORIZONTAL VIEW PAGER & 2-COLUMN SERVICE GRID (< 768px)
+       ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="mobile-app-shell" id="mobileAppShell">
+
+    <!-- TOP SEGMENTED HORIZONTAL TAB BAR -->
+    <div class="mobile-tab-bar" id="mobileTabBar" role="tablist" aria-label="App Navigation Tabs">
+      <button type="button" class="app-tab-chip active" data-tab-index="0" role="tab" aria-selected="true" onclick="switchMobileTab(0)">
+        <span>🏠</span> <span>होम</span>
+      </button>
+      <button type="button" class="app-tab-chip" data-tab-index="1" role="tab" aria-selected="false" onclick="switchMobileTab(1)">
+        <span>📜</span> <span>कुण्डली</span>
+      </button>
+      <button type="button" class="app-tab-chip" data-tab-index="2" role="tab" aria-selected="false" onclick="switchMobileTab(2)">
+        <span>💍</span> <span>मुहूर्त</span>
+      </button>
+      <button type="button" class="app-tab-chip" data-tab-index="3" role="tab" aria-selected="false" onclick="switchMobileTab(3)">
+        <span>🪔</span> <span>परामर्श</span>
+      </button>
+      <button type="button" class="app-tab-chip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
+        <span>📊</span> <span>रिपोर्ट्स</span>
+      </button>
+    </div>
+
+    <!-- HORIZONTAL SWIPE VIEWPAGER / CAROUSEL CONTAINER -->
+    <div class="mobile-viewpager" id="mobileViewpager">
+
+      <!-- ─── TAB 0: HOME SCREEN (ELEGANT 2-COLUMN SERVICE GRID) ─── -->
+      <section class="view-page" id="viewHome" role="tabpanel" aria-label="Home Services Grid">
+        
+        <!-- COMPACT VEDIC STATUS / GREETING BAR -->
+        <div class="mobile-greeting-bar">
+          <div class="vedic-date-chip">
+            <span class="live-dot"></span>
+            <span>विक्रम संवत् २०८१ • श्री रामजी एस्ट्रो</span>
+          </div>
+          <div class="sacred-seal-badge">👑 One Soul Per Day</div>
+        </div>
+
+        <!-- 2-COLUMN VISUAL FEATURE GRID -->
+        <div class="mobile-service-grid">
+
+          <!-- CARD 1: VIVAH MUHURT -->
+          <a href="vmm.html" class="app-service-card" aria-label="विवाह मुहूर्त">
+            <div class="card-top-row">
+              <div class="card-glyph">💍</div>
+              <span class="card-badge vip">VIP</span>
+            </div>
+            <div class="card-title">विवाह मुहूर्त</div>
+            <div class="card-sub">१० महादोष जांच</div>
+          </a>
+
+          <!-- CARD 2: PATRIKA / KUNDLI -->
+          <a href="patrika.html" class="app-service-card" aria-label="पत्रिका D1-D60">
+            <div class="card-top-row">
+              <div class="card-glyph">📜</div>
+              <span class="card-badge meeus">D1-D60</span>
+            </div>
+            <div class="card-title">पत्रिका D1-D60</div>
+            <div class="card-sub">संपूर्ण षोडशवर्ग</div>
+          </a>
+
+          <!-- CARD 3: VASTU MUHURT -->
+          <a href="vastu-muhurta.html" class="app-service-card" aria-label="वास्तु मुहूर्त">
+            <div class="card-top-row">
+              <div class="card-glyph">🏡</div>
+              <span class="card-badge vip">VIP</span>
+            </div>
+            <div class="card-title">वास्तु मुहूर्त</div>
+            <div class="card-sub">नींव व गृह प्रवेश</div>
+          </a>
+
+          <!-- CARD 4: YAJNOPAVITA -->
+          <a href="yajnopavita.html" class="app-service-card" aria-label="यज्ञोपवीत">
+            <div class="card-top-row">
+              <div class="card-glyph">🧵</div>
+              <span class="card-badge vip">VIP</span>
+            </div>
+            <div class="card-title">यज्ञोपवीत</div>
+            <div class="card-sub">त्रिबल व अष्टम शुद्धि</div>
+          </a>
+
+          <!-- CARD 5: MUNDAN MUHURT -->
+          <a href="mmm.html" class="app-service-card" aria-label="मुंडन मुहूर्त">
+            <div class="card-top-row">
+              <div class="card-glyph">✂️</div>
+              <span class="card-badge vip">VIP</span>
+            </div>
+            <div class="card-title">मुंडन मुहूर्त</div>
+            <div class="card-sub">ताराबल व चंद्रबल</div>
+          </a>
+
+          <!-- CARD 6: SANCTUARY CONSULTATION -->
+          <a href="consultation.html" class="app-service-card" aria-label="परामर्श Sanctuary">
+            <div class="card-top-row">
+              <div class="card-glyph">🪔</div>
+              <span class="card-badge price">₹5,100</span>
+            </div>
+            <div class="card-title">परामर्श Sanctuary</div>
+            <div class="card-sub">१-ऑन-१ एस्ट्रो रामजी</div>
+          </a>
+
+          <!-- CARD 7: KAAL SARP DOSH REPORT -->
+          <div class="app-service-card" style="cursor:pointer;" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')" role="button" tabindex="0" aria-label="कालसर्प दोष रिपोर्ट">
+            <div class="card-top-row">
+              <div class="card-glyph">🐍</div>
+              <span class="card-badge preorder">₹199</span>
+            </div>
+            <div class="card-title">कालसर्प दोष</div>
+            <div class="card-sub">निवारण व उपाय</div>
+          </div>
+
+          <!-- CARD 8: MANGAL DOSH REPORT -->
+          <div class="app-service-card" style="cursor:pointer;" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')" role="button" tabindex="0" aria-label="मंगल दोष रिपोर्ट">
+            <div class="card-top-row">
+              <div class="card-glyph">🔥</div>
+              <span class="card-badge preorder">₹199</span>
+            </div>
+            <div class="card-title">मंगल दोष</div>
+            <div class="card-sub">सामर्थ्य व परिहार</div>
+          </div>
+
+        </div>
+
+        <!-- BOTTOM MICRO TRUST SEAL -->
+        <div style="text-align:center; padding:8px 6px; font-family:var(--font-devanagari-body); font-size:10.5px; color:var(--muted); opacity:0.85;">
+          🔒 True Chitra Paksha (Lahiri) • 60-Term Meeus &lt;18'' • Shastra Authenticated
+        </div>
+      </section>
+
+      <!-- ─── TAB 1: KUNDLI (PATRIKA) VIEW ─── -->
+      <section class="view-page" id="viewKundli" role="tabpanel" aria-label="Kundli Engine View">
+        <div class="page-hero-header">
+          <h2 class="page-hero-title">📜 जन्मपत्रिका साधन (Patrika 360)</h2>
+          <p class="page-hero-sub">D1 से D60 षोडशवर्ग, विंशोत्तरी दशा व भाव चलित</p>
+        </div>
+
+        <div class="app-glass-panel">
+          <form id="mobileKundliQuickForm" onsubmit="handleMobileKundliSubmit(event)" style="display:flex; flex-direction:column; gap:10px;">
+            <div>
+              <label class="app-form-label">जातक का नाम (Full Name)</label>
+              <input type="text" id="mKundliName" class="app-form-input" placeholder="उदा: राहुल शर्मा" required>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div>
+                <label class="app-form-label">जन्म तिथि (DOB)</label>
+                <input type="date" id="mKundliDob" class="app-form-input" required>
+              </div>
+              <div>
+                <label class="app-form-label">जन्म समय (Time)</label>
+                <input type="time" id="mKundliTob" class="app-form-input" required>
+              </div>
+            </div>
+
+            <div>
+              <label class="app-form-label">जन्म स्थान (City / Place)</label>
+              <input type="text" id="mKundliCity" class="app-form-input" placeholder="उदा: Varanasi, Delhi, Mumbai" required>
+            </div>
+
+            <button type="submit" class="app-primary-btn" style="margin-top:4px;">
+              ✨ कुण्डली तैयार करें (Open Patrika ➔)
+            </button>
+          </form>
+        </div>
+
+        <!-- FEATURE BADGES -->
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
+            ☀️ श्रीपति भाव चलित
+          </div>
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
+            🪐 विंशोत्तरी दशाएं
+          </div>
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
+            🛡️ सर्वाष्टकवर्ग सारणी
+          </div>
+          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);">
+            📜 D1 से D60 वर्ग
+          </div>
+        </div>
+
+        <a href="patrika.html" class="app-secondary-btn" style="margin-top:12px;">
+          पूर्ण कुण्डली कैलकुलेटर पर जाएं ➔
+        </a>
+      </section>
+
+      <!-- ─── TAB 2: MUHURAT HUB VIEW ─── -->
+      <section class="view-page" id="viewMuhurat" role="tabpanel" aria-label="Muhurat Tools Hub">
+        <div class="page-hero-header">
+          <h2 class="page-hero-title">💍 समस्त वैदिक मुहूर्त शोधन</h2>
+          <p class="page-hero-sub">मुहूर्त चिन्तामणि व निर्णयसिंधु अनुसार ४ महा-इंजन</p>
+        </div>
+
+        <div class="muhurat-stacked-list">
+          
+          <!-- MUHURAT 1: VIVAH -->
+          <a href="vmm.html" class="muhurat-stacked-card">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">💍</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">विवाह मुहूर्त एवं गुण मिलान</div>
+                <div class="card-sub">१० महादोष परिहार • ३६ गुण मिलान</div>
+              </div>
+            </div>
+            <span class="card-badge vip">VIP</span>
+          </a>
+
+          <!-- MUHURAT 2: VASTU -->
+          <a href="vastu-muhurta.html" class="muhurat-stacked-card">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">🏡</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">वास्तु एवं गृह प्रवेश मुहूर्त</div>
+                <div class="card-sub">नींव पूजन • शिलान्यास • दिशा शुद्धि</div>
+              </div>
+            </div>
+            <span class="card-badge vip">VIP</span>
+          </a>
+
+          <!-- MUHURAT 3: YAJNOPAVITA -->
+          <a href="yajnopavita.html" class="muhurat-stacked-card">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">🧵</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">यज्ञोपवीत (उपनयन) मुहूर्त</div>
+                <div class="card-sub">त्रिबल शुद्धि • अष्टम रिक्त • १६ नक्षत्र</div>
+              </div>
+            </div>
+            <span class="card-badge vip">VIP</span>
+          </a>
+
+          <!-- MUHURAT 4: MUNDAN -->
+          <a href="mmm.html" class="muhurat-stacked-card">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">✂️</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">चूड़ाकर्म (मुंडन) संस्कार</div>
+                <div class="card-sub">१४ शास्त्रीय नियम • चंद्रबल • ताराबल</div>
+              </div>
+            </div>
+            <span class="card-badge vip">VIP</span>
+          </a>
+
+        </div>
+
+        <div style="margin-top:14px; padding:10px 12px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; color:var(--muted); line-height:1.45;">
+          ℹ️ सभी मुहूर्त कैलकुलेटर ₹1,111 VIP सॉफ्टवेयर पास (20 मिनट पूर्ण अनमीटर एक्सेस) द्वारा संचालित हैं।
+        </div>
+      </section>
+
+      <!-- ─── TAB 3: SANCTUARY (CONSULTATION) VIEW ─── -->
+      <section class="view-page" id="viewSanctuary" role="tabpanel" aria-label="Sanctuary Deep Consultation">
+        <div class="page-hero-header">
+          <h2 class="page-hero-title">🪔 पर्सनल परामर्श (Sanctuary)</h2>
+          <p class="page-hero-sub">Strictly One Soul Per Solar Day • Astro Raamji</p>
+        </div>
+
+        <div class="app-glass-panel" style="border-color:rgba(197, 160, 89, 0.45); background:linear-gradient(165deg, rgba(255,253,249,0.85) 0%, rgba(250,246,239,0.95) 100%);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-family:var(--font-accent-serif); font-size:12px; font-weight:800; color:var(--gold-dark); letter-spacing:0.5px;">SACRED SANCTUARY</span>
+            <span class="card-badge price" style="font-size:11px; padding:3px 8px;">₹5,100</span>
+          </div>
+
+          <p style="font-family:var(--font-devanagari-body); font-size:12px; line-height:1.6; color:var(--text); margin-bottom:12px;">
+            प्रति दिवस केवल एक जातक का गहन अध्ययन। सूर्योदय से सूर्यास्त तक आपकी सम्पूर्ण कुण्डली, सूक्ष्म वर्ग और ग्रह स्थितियों का व्यक्तिगत विश्लेषण।
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px; font-family:var(--font-devanagari-body); font-size:11px; color:var(--muted);">
+            <div>✓ ९० मिनट विस्तृत 1-on-1 संवाद</div>
+            <div>✓ D1 से D60 सूक्ष्म वर्ग कुंडलियों का परीक्षण</div>
+            <div>✓ सटीक रत्न, रुद्राक्ष व वैदिक मंत्र अनुष्ठान उपाय</div>
+            <div>✓ कोई असिस्टेंट नहीं — सीधे आचार्य रामजी से चर्चा</div>
+          </div>
+
+          <a href="https://wa.me/919517117775?text=Pranam%20Astro%20Ramji,%20I%20want%20to%20book%20the%20Personal%20Sanctuary%20Consultation%20(₹5,100)" target="_blank" rel="noopener" class="app-primary-btn" style="margin-bottom:8px;">
+            💬 WhatsApp पर स्लॉट बुक करें ➔
+          </a>
+
+          <a href="consultation.html" class="app-secondary-btn">
+            पूर्ण विवरण व बुकिंग कैलेंडर देखें ➔
+          </a>
+        </div>
+      </section>
+
+      <!-- ─── TAB 4: REPORTS VIEW ─── -->
+      <section class="view-page" id="viewReports" role="tabpanel" aria-label="Specialized Reports">
+        <div class="page-hero-header">
+          <h2 class="page-hero-title">📊 विशिष्ट जन्मपत्री रिपोर्ट्स</h2>
+          <p class="page-hero-sub">विस्तृत जीवन विश्लेषण एवं प्रामाणिक वैदिक उपाय</p>
+        </div>
+
+        <div class="reports-grid">
+          
+          <!-- REPORT 1 -->
+          <div class="report-app-card" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">🐍</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">कालसर्प दोष निवारण</div>
+                <div class="card-sub">१२ प्रकार के योग विश्लेषण व शांति</div>
+              </div>
+            </div>
+            <span class="card-badge preorder">₹199 Pre-Order</span>
+          </div>
+
+          <!-- REPORT 2 -->
+          <div class="report-app-card" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">🔥</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">मंगल दोष एवं सामर्थ्य</div>
+                <div class="card-sub">भौम दोष परिहार व दांपत्य जीवन समाधान</div>
+              </div>
+            </div>
+            <span class="card-badge preorder">₹199 Pre-Order</span>
+          </div>
+
+          <!-- REPORT 3 -->
+          <div class="report-app-card" onclick="openReportPreOrderModal('साढ़ेसाती व ढैय्या रिपोर्ट', '199')">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">🪐</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">साढ़ेसाती व शनि ढैय्या</div>
+                <div class="card-sub">शनि गोचर प्रभाव व अमोघ वैदिक शांति</div>
+              </div>
+            </div>
+            <span class="card-badge preorder">₹199 Pre-Order</span>
+          </div>
+
+          <!-- REPORT 4 -->
+          <div class="report-app-card" onclick="openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249')">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="card-glyph">💎</div>
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">रत्न परामर्श व वैदिक उपाय</div>
+                <div class="card-sub">अनुकूल रत्न, धारण विधि व मंत्र शुद्धि</div>
+              </div>
+            </div>
+            <span class="card-badge preorder">₹249 Pre-Order</span>
+          </div>
+
+        </div>
+
+        <div style="margin-top:14px; text-align:center;">
+          <a href="about.html" class="app-secondary-btn">
+            आचार्य रामजी एवं शोध पत्र (Research Papers) देखें ➔
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- DESKTOP FULL-FEATURED PORTAL LAYOUT (>= 769px) -->
+  <main class="desktop-main-layout">
   <!-- HERO SECTION WITH VALUE-BASED & PRECISION HEADLINE -->
   <section class="hero">
     <div class="hero-inner">
@@ -2052,6 +2876,7 @@
       </div>
     </div>
   </footer>
+  </main>
 
   <script>
   const SUPA_URL='https://jhnfrlgodpvdhvndpoam.supabase.co';
@@ -2097,8 +2922,104 @@
   }
   window.openReportPreOrderModal = openReportPreOrderModal;
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // MOBILE APPSHELL: HORIZONTAL VIEW PAGER & TAB SYNCHRONIZATION
+  // ══════════════════════════════════════════════════════════════════════════
+  function initMobileViewpager() {
+    const pager = document.getElementById('mobileViewpager');
+    const tabs = document.querySelectorAll('.app-tab-chip');
+    if (!pager || !tabs.length) return;
+
+    window.switchMobileTab = function(index) {
+      const width = pager.clientWidth;
+      pager.scrollTo({
+        left: index * width,
+        behavior: 'smooth'
+      });
+      setActiveTab(index);
+    };
+
+    function setActiveTab(index) {
+      tabs.forEach((t, i) => {
+        const isActive = i === index;
+        t.classList.toggle('active', isActive);
+        t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      // Auto-scroll the active chip into view inside the tab bar
+      const activeTab = tabs[index];
+      if (activeTab && activeTab.parentElement) {
+        const container = activeTab.parentElement;
+        const chipLeft = activeTab.offsetLeft;
+        const chipWidth = activeTab.offsetWidth;
+        const containerWidth = container.clientWidth;
+        container.scrollTo({
+          left: chipLeft - (containerWidth / 2) + (chipWidth / 2),
+          behavior: 'smooth'
+        });
+      }
+
+      // Sync bottom nav if present on mobile
+      const bNavHome = document.getElementById('bnavHome');
+      const bNavPatrika = document.getElementById('bnavPatrika');
+      const bNavMuhurt = document.getElementById('bnavMuhurt');
+      const bNavSanctuary = document.getElementById('bnavSanctuary');
+
+      if (bNavHome) bNavHome.classList.toggle('active', index === 0);
+      if (bNavPatrika) bNavPatrika.classList.toggle('active', index === 1);
+      if (bNavMuhurt) bNavMuhurt.classList.toggle('active', index === 2);
+      if (bNavSanctuary) bNavSanctuary.classList.toggle('active', index === 3);
+    }
+
+    // Scroll snap sync on touch swipe
+    let scrollDebounce;
+    pager.addEventListener('scroll', () => {
+      clearTimeout(scrollDebounce);
+      scrollDebounce = setTimeout(() => {
+        const width = pager.clientWidth;
+        if (width <= 0) return;
+        const index = Math.round(pager.scrollLeft / width);
+        if (index >= 0 && index < tabs.length) {
+          setActiveTab(index);
+        }
+      }, 50);
+    }, { passive: true });
+
+    // Hook bottom nav clicks to viewpager when on mobile
+    const navMapping = [
+      { id: 'bnavHome', index: 0 },
+      { id: 'bnavPatrika', index: 1 },
+      { id: 'bnavMuhurt', index: 2 },
+      { id: 'bnavSanctuary', index: 3 }
+    ];
+
+    navMapping.forEach(({ id, index }) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('click', (e) => {
+          if (window.innerWidth <= 768) {
+            e.preventDefault();
+            window.switchMobileTab(index);
+          }
+        });
+      }
+    });
+  }
+
+  function handleMobileKundliSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('mKundliName') ? document.getElementById('mKundliName').value.trim() : '';
+    const dob = document.getElementById('mKundliDob') ? document.getElementById('mKundliDob').value : '';
+    const tob = document.getElementById('mKundliTob') ? document.getElementById('mKundliTob').value : '';
+    const city = document.getElementById('mKundliCity') ? document.getElementById('mKundliCity').value.trim() : '';
+
+    const url = 'patrika.html?name=' + encodeURIComponent(name) + '&dob=' + dob + '&tob=' + tob + '&city=' + encodeURIComponent(city);
+    window.location.href = url;
+  }
+
   // AUTO-OPEN PREORDER MODAL IF REDIRECTED WITH URL PARAM
   window.addEventListener('DOMContentLoaded', () => {
+    initMobileViewpager();
     const params = new URLSearchParams(window.location.search);
     if (params.has('preorder')) {
       const report = params.get('preorder');
