@@ -126,7 +126,10 @@
       rep_sadesati_sub: "शनि गोचर प्रभाव व अमोघ वैदिक शांति",
       rep_ratna_title: "रत्न परामर्श व वैदिक उपाय",
       rep_ratna_sub: "अनुकूल रत्न, धारण विधि व मंत्र शुद्धि",
-      btn_sra_blogs: "📚 श्री रामजी एस्ट्रो ब्लॉग्स (Shri Ramji Astro Blogs) ➔",
+      blog_section_title: "📚 शास्त्रीय शोध व आलेख",
+      blog_section_sub: "महर्षि पराशर व मुहूर्त चिंतामणि सम्मत प्रामाणिक शोध",
+      btn_view_all_blogs: "सभी देखें ➔",
+      btn_sra_blogs: "📚 सभी 7 शास्त्रीय ब्लॉग्स व परिचर्चा देखें ➔",
 
       // VIP Modal Copy (Task 2)
       vip_modal_header: "शास्त्रीय मुहूर्त शोध — VIP सत्र (20 मिनट)",
@@ -274,7 +277,10 @@
       rep_sadesati_sub: "Saturn transit impact and classical Vedic peace rituals",
       rep_ratna_title: "Gemstones & Vedic Remedies",
       rep_ratna_sub: "Auspicious gemstones, wearing rituals, and mantra purity",
-      btn_sra_blogs: "📚 Shri Ramji Astro Blogs ➔",
+      blog_section_title: "📚 Classical Research & Articles",
+      blog_section_sub: "Authentic Research based on BPHS & Muhurta Chintamani",
+      btn_view_all_blogs: "View All ➔",
+      btn_sra_blogs: "📚 View All 7 Classical Blogs & Discussion ➔",
 
       // VIP Modal Copy (Task 2)
       vip_modal_header: "Classical Muhurta Election — VIP Session (20 Mins)",

@@ -556,10 +556,6 @@
     </footer>
 
     <script>
-        let Q_FEED = [];
-        let currentUser = null;
-        let generatedDemoOtp = null;
-
         const FALLBACK_BLOGS = [
             {
                 id: 1001,
@@ -714,26 +710,31 @@
             }
         ];
 
+        let Q_FEED = [...FALLBACK_BLOGS];
+        let currentUser = null;
+        let generatedDemoOtp = null;
+
         // PERMANENT BLOG DATABASE LOADER (SUPABASE CLOUD DB + JSON FILE + LOCALSTORAGE)
-        async function loadBlogsDatabase() {
+        async function loadBlogsDatabaseAsync(activeTab = 'all') {
             let masterBlogs = [];
             try {
                 const res = await fetch('data/blogs_database.json');
                 if (res.ok) masterBlogs = await res.json();
             } catch(e) {}
 
-            let cloudBlogs = [];
-            if (window.fetchBlogsFromSupabase) {
-                const supaBlogs = await window.fetchBlogsFromSupabase();
-                if (supaBlogs && supaBlogs.length > 0) {
-                    cloudBlogs = supaBlogs;
-                }
-            }
-
             let localData = [];
             const saved = localStorage.getItem('sra_blogs_database');
             if (saved) {
                 try { localData = JSON.parse(saved); } catch(e) {}
+            }
+
+            let cloudBlogs = [];
+            if (window.fetchBlogsFromSupabase) {
+                try {
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
+                    const supaBlogs = await Promise.race([window.fetchBlogsFromSupabase(), timeoutPromise]);
+                    if (supaBlogs && supaBlogs.length > 0) cloudBlogs = supaBlogs;
+                } catch(e) {}
             }
 
             // Purge any dummy generated/test data
@@ -742,7 +743,7 @@
 
             // Merge all sources by unique ID to guarantee no loss
             const map = new Map();
-            [...cleanCloud, ...cleanLocal, ...masterBlogs, ...FALLBACK_BLOGS].forEach(item => {
+            [...FALLBACK_BLOGS, ...masterBlogs, ...cleanLocal, ...cleanCloud].forEach(item => {
                 if (item && item.id && !map.has(String(item.id))) {
                     map.set(String(item.id), item);
                 }
@@ -750,7 +751,7 @@
 
             Q_FEED = Array.from(map.values());
             localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
-            renderFeed('all');
+            renderFeed(activeTab);
         }
 
         function triggerSocialAutoPost(blogObj) {
@@ -1189,15 +1190,20 @@
             renderFeed(tab);
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             checkActiveSession();
-            await loadBlogsDatabase();
+            // 1. Instant 0ms synchronous render: authentic blogs display immediately without waiting
             const urlParams = new URLSearchParams(window.location.search);
-            const tabParam = urlParams.get('tab');
+            const tabParam = urlParams.get('tab') || 'all';
             if (tabParam === 'admin_blogs' || tabParam === 'verified' || tabParam === 'my') {
                 switchTab(tabParam);
+            } else {
+                renderFeed('all');
             }
             handleDeepLink();
+
+            // 2. Non-blocking async background sync
+            loadBlogsDatabaseAsync(tabParam);
         });
     </script>
 </body>

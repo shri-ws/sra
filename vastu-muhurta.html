@@ -762,7 +762,7 @@
 </div>
 
 <!-- PAYWALL MODAL OVERLAY (SHASTRA-FIRST VIP SESSION) -->
-<div class="paywall-overlay active" id="paywallOverlay" onclick="if(event.target===this)closePaywallModal()">
+<div class="paywall-overlay active" id="paywallOverlay" onclick="if(event.target===this)dismissPaywallWithoutPayment()">
   <div class="paywall-modal">
     <div class="paywall-badge">👑 VIP सत्र • २० मिनट</div>
     <h2 class="paywall-title">शास्त्रीय मुहूर्त शोध — VIP सत्र (20 मिनट)</h2>
@@ -1645,7 +1645,20 @@ const RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
 let isUnlocked = false;
 let sessionTimerInterval = null;
 
+function dismissPaywallWithoutPayment() {
+  if (!isUnlocked) {
+    window.location.href = 'index.html';
+    return;
+  }
+  closePaywallModal();
+}
+window.dismissPaywallWithoutPayment = dismissPaywallWithoutPayment;
+
 function closePaywallModal(popHistory = true) {
+  if (!isUnlocked) {
+    window.location.href = 'index.html';
+    return;
+  }
   const overlay = document.getElementById('paywallOverlay');
   if (overlay) overlay.classList.remove('active');
   const main = document.getElementById('mainContainer');
@@ -1660,7 +1673,7 @@ function closePaywallModal(popHistory = true) {
   }
 }
 window.closePaywallModal = closePaywallModal;
-window.dismissPaywallPreview = closePaywallModal;
+window.dismissPaywallPreview = dismissPaywallWithoutPayment;
 
 function openPaywallModal() {
   const overlay = document.getElementById('paywallOverlay');
@@ -1680,7 +1693,11 @@ window.openPaywallModal = openPaywallModal;
 window.addEventListener('popstate', () => {
   const overlay = document.getElementById('paywallOverlay');
   if (overlay && overlay.classList.contains('active')) {
-    closePaywallModal(false);
+    if (!isUnlocked) {
+      window.location.href = 'index.html';
+    } else {
+      closePaywallModal(false);
+    }
   }
 });
 
