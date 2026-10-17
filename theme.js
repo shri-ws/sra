@@ -67,6 +67,10 @@
       card_kaalsarp_sub: "१२ प्रकार के योग शांति",
       card_mangal_title: "मंगल दोष परिहार",
       card_mangal_sub: "२८ शास्त्रीय नियम परीक्षण",
+      card_blogs_title: "ज्योतिष शोध व ब्लॉग",
+      card_blogs_sub: "पंचांग व महर्षि पराशर आलेख",
+      card_ratna_title: "रत्न परामर्श व उपाय",
+      card_ratna_sub: "अनुकूल रत्न व मंत्र शुद्धि",
 
       // Shastra Description Tags
       desc_vivah_shastra: "मुहूर्त चिंतामणि एवं शास्त्र सम्मत 10 महादोष व त्रिबल शुद्धि परीक्षण।",
@@ -218,6 +222,10 @@
       card_kaalsarp_sub: "12 Yoga Parihar & Puja",
       card_mangal_title: "Mangal Dosh Analysis",
       card_mangal_sub: "28 Classical Parihar Rules",
+      card_blogs_title: "Jyotish Blogs & Research",
+      card_blogs_sub: "BPHS & Ephemeris Articles",
+      card_ratna_title: "Gemstones & Remedies",
+      card_ratna_sub: "Planetary Gemstone Rituals",
 
       // Shastra Description Tags
       desc_vivah_shastra: "Muhurta Chintamani & Shastra authenticated 10 Mahadosha & Tribala verification.",

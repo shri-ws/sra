@@ -988,37 +988,43 @@
 
         function renderFeed(tab = 'all') {
             const container = document.getElementById('feedContainer');
-            let items = Q_FEED;
+            if (!container) return;
+            let items = (Array.isArray(Q_FEED) && Q_FEED.length > 0) ? Q_FEED : FALLBACK_BLOGS;
 
             if (tab === 'admin_blogs') {
-                items = Q_FEED.filter(q => q.isAdmin || q.isBlog);
+                const filtered = items.filter(q => q && (q.isAdmin || q.isBlog));
+                items = filtered.length > 0 ? filtered : items;
             } else if (tab === 'verified') {
-                items = Q_FEED.filter(q => q.answers && q.answers.some(a => a.isVerified));
+                const filtered = items.filter(q => q && q.answers && q.answers.some(a => a.isVerified));
+                items = filtered.length > 0 ? filtered : items;
             } else if (tab === 'my') {
-                items = currentUser ? Q_FEED.filter(q => q.author && q.author.includes(currentUser.name)) : [];
+                items = (currentUser && currentUser.name) ? items.filter(q => q.author && q.author.includes(currentUser.name)) : items;
             }
 
             if (!items || items.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);">कोई प्रश्न/आलेख उपलब्ध नहीं है।</div>`;
-                return;
+                items = FALLBACK_BLOGS;
             }
+
+            const isAdminSession = sessionStorage.getItem('sra_admin_auth') === 'true';
 
             container.innerHTML = items.map(q => `
                 <div class="q-card" id="post-${q.id}" style="${q.isAdmin ? 'border:2px solid var(--gold); background:var(--card-bg);' : ''}">
                     <div class="q-author-row">
                         <div class="q-author-info">
-                            <img src="${q.avatar}" class="user-avatar-md" style="width:34px; height:34px;" alt="Author">
+                            <img src="${q.avatar || 'logo.png'}" class="user-avatar-md" style="width:34px; height:34px;" alt="Author" onerror="this.src='logo.png'">
                             <div>
                                 <div class="q-author-name">
-                                    ${q.author}
+                                    ${q.author || 'एस्ट्रो रामजी (Founder)'}
                                     ${q.isAdmin ? '<span class="admin-badge">🚩 ASTROLOGER / FOUNDER</span>' : (q.isVerified ? '<span class="verif-badge">✓ VERIFIED</span>' : '')}
                                 </div>
-                                <div class="q-author-cred">${q.cred || ''}</div>
+                                <div class="q-author-cred">${q.cred || 'Chief Astrologer • Shri Ramji Astro'}</div>
                             </div>
                         </div>
-                        <button onclick="deletePost(${q.id})" style="background:rgba(211,47,47,0.08); border:1px solid rgba(211,47,47,0.3); color:#d32f2f; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:6px; cursor:pointer;" title="Delete Post (Admin Only)">
-                            🗑️ डिलीट
-                        </button>
+                        ${isAdminSession ? `
+                            <button onclick="deletePost(${q.id})" style="background:rgba(211,47,47,0.08); border:1px solid rgba(211,47,47,0.3); color:#d32f2f; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:6px; cursor:pointer;" title="Delete Post (Admin Only)">
+                                🗑️ डिलीट
+                            </button>
+                        ` : ''}
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; margin: 10px 0 6px;">
                         <span style="font-size:10.5px; font-weight:800; text-transform:uppercase; color:var(--gold-dark); background:var(--gold-dim); padding:2px 8px; border-radius:12px; border:1px solid var(--gold-border);">${q.categoryTitle || 'ज्योतिष शोध'}</span>
@@ -1179,13 +1185,14 @@
 
         function switchTab(tab, btnEl) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if (btnEl) {
+            if (btnEl && btnEl.classList) {
                 btnEl.classList.add('active');
-            } else if (typeof event !== 'undefined' && event && event.target && event.target.classList.contains('tab-btn')) {
-                event.target.classList.add('active');
             } else {
-                const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(tab));
-                if (targetBtn) targetBtn.classList.add('active');
+                const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => {
+                    const oc = b.getAttribute('onclick') || '';
+                    return oc.includes("'" + tab + "'") || oc.includes('"' + tab + '"') || oc.includes(tab);
+                });
+                if (targetBtn && targetBtn.classList) targetBtn.classList.add('active');
             }
             renderFeed(tab);
         }
