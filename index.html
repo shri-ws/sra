@@ -2017,19 +2017,19 @@
       <button type="button" class="app-tab-chip active" data-tab-index="0" role="tab" aria-selected="true" onclick="switchMobileTab(0)">
         <span>🏠</span> <span data-i18n="tab_home">होम</span>
       </button>
-      <button type="button" class="app-tab-chip" data-tab-index="1" role="tab" aria-selected="false" onclick="switchMobileTab(1)">
+      <a href="patrika.html" class="app-tab-chip" id="tabChipKundli" role="tab" aria-selected="false">
         <span>📜</span> <span data-i18n="tab_kundli">कुण्डली</span>
-      </button>
-      <button type="button" class="app-tab-chip" data-tab-index="2" role="tab" aria-selected="false" onclick="switchMobileTab(2)">
+      </a>
+      <button type="button" class="app-tab-chip" data-tab-index="1" role="tab" aria-selected="false" onclick="switchMobileTab(1)">
         <span>📿</span> <span data-i18n="tab_panchang">पञ्चाङ्ग</span>
       </button>
-      <button type="button" class="app-tab-chip" data-tab-index="3" role="tab" aria-selected="false" onclick="switchMobileTab(3)">
+      <button type="button" class="app-tab-chip" data-tab-index="2" role="tab" aria-selected="false" onclick="switchMobileTab(2)">
         <span>💍</span> <span data-i18n="tab_muhurat">मुहूर्त</span>
       </button>
-      <button type="button" class="app-tab-chip chip-highlight-vip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
+      <button type="button" class="app-tab-chip chip-highlight-vip" data-tab-index="3" role="tab" aria-selected="false" onclick="switchMobileTab(3)">
         <span>🌟</span> <span data-i18n="tab_sanctuary">1-on-1 परामर्श</span>
       </button>
-      <button type="button" class="app-tab-chip" data-tab-index="5" role="tab" aria-selected="false" onclick="switchMobileTab(5)">
+      <button type="button" class="app-tab-chip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
         <span>📊</span> <span data-i18n="tab_reports">रिपोर्ट्स</span>
       </button>
     </div>
@@ -2160,64 +2160,7 @@
         </div>
       </section>
 
-      <!-- ─── TAB 1: KUNDLI (PATRIKA) VIEW ─── -->
-      <section class="view-page" id="viewKundli" role="tabpanel" aria-label="Kundli View">
-        <div class="page-hero-header">
-          <h2 class="page-hero-title" data-i18n="kundli_page_title">📜 प्रामाणिक जन्म चक्र (Patrika 360)</h2>
-          <p class="page-hero-sub" data-i18n="kundli_page_sub">बृहत्पाराशर सम्मत षोडशवर्ग, विंशोत्तरी दशा व भाव चलित</p>
-        </div>
-
-        <div class="app-glass-panel">
-          <form id="mobileKundliQuickForm" onsubmit="handleMobileKundliSubmit(event)" style="display:flex; flex-direction:column; gap:10px;">
-            <div>
-              <label class="app-form-label" data-i18n="lbl_name">जातक का नाम (Full Name)</label>
-              <input type="text" id="mKundliName" class="app-form-input" placeholder="उदा: राहुल शर्मा" data-i18n-placeholder="ph_name" required>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-              <div>
-                <label class="app-form-label" data-i18n="lbl_dob">जन्म तिथि (DOB)</label>
-                <input type="date" id="mKundliDob" class="app-form-input" required>
-              </div>
-              <div>
-                <label class="app-form-label" data-i18n="lbl_tob">जन्म समय (Time)</label>
-                <input type="time" id="mKundliTob" class="app-form-input" required>
-              </div>
-            </div>
-
-            <div>
-              <label class="app-form-label" data-i18n="lbl_city">जन्म स्थान (City / Place)</label>
-              <input type="text" id="mKundliCity" class="app-form-input" placeholder="उदा: Varanasi, Delhi, Mumbai" data-i18n-placeholder="ph_city" required>
-            </div>
-
-            <button type="submit" class="app-primary-btn" style="margin-top:4px;" data-i18n="btn_generate_kundli">
-              ✨ जन्म चक्र तैयार करें (Open Patrika ➔)
-            </button>
-          </form>
-        </div>
-
-        <!-- FEATURE BADGES -->
-        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_sripati">
-            ☀️ श्रीपति भाव चलित
-          </div>
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_vimsottari">
-            🪐 विंशोत्तरी दशाएं
-          </div>
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_ashtakvarga">
-            🛡️ सर्वाष्टकवर्ग सारणी
-          </div>
-          <div style="padding:10px; background:rgba(197, 160, 89, 0.08); border:1px solid rgba(197, 160, 89, 0.25); border-radius:12px; font-size:11px; font-weight:600; color:var(--text);" data-i18n="badge_shodashvarga">
-            📜 षोडशवर्ग सूक्ष्म चक्र
-          </div>
-        </div>
-
-        <a href="patrika.html" class="app-secondary-btn" style="margin-top:12px;" data-i18n="btn_full_calculator">
-          पूर्ण शास्त्रीय पत्रिका पर जाएं ➔
-        </a>
-      </section>
-
-      <!-- ─── TAB 2: DAILY PANCHANG VIEW (CLASSICAL EPHEMERIS & CALENDAR) ─── -->
+      <!-- ─── TAB 1: DAILY PANCHANG VIEW (CLASSICAL EPHEMERIS & CALENDAR) ─── -->
       <section class="view-page" id="viewPanchang" role="tabpanel" aria-label="Daily Panchang View">
         <div class="page-hero-header">
           <h2 class="page-hero-title">📿 दैनिक शास्त्रीय पञ्चाङ्ग (Daily Panchang)</h2>
@@ -2390,7 +2333,7 @@
         </div>
       </section>
 
-      <!-- ─── TAB 4: 1-ON-1 VIP CONSULTATION VIEW ─── -->
+      <!-- ─── TAB 3: 1-ON-1 VIP CONSULTATION VIEW ─── -->
       <section class="view-page" id="viewSanctuary" role="tabpanel" aria-label="1-on-1 VIP Private Consultation">
         <div class="page-hero-header">
           <h2 class="page-hero-title" data-i18n="sanctuary_page_title">🌟 1-on-1 प्रीमियम परामर्श</h2>
@@ -2421,7 +2364,7 @@
         </div>
       </section>
 
-      <!-- ─── TAB 5: REPORTS VIEW ─── -->
+      <!-- ─── TAB 4: REPORTS VIEW ─── -->
       <section class="view-page" id="viewReports" role="tabpanel" aria-label="Specialized Reports">
         <div class="page-hero-header">
           <h2 class="page-hero-title" data-i18n="reports_page_title">📊 विशिष्ट जन्मपत्री रिपोर्ट्स</h2>
@@ -3446,7 +3389,7 @@
   // ══════════════════════════════════════════════════════════════════════════
   function initMobileViewpager() {
     const pager = document.getElementById('mobileViewpager');
-    const tabs = document.querySelectorAll('.app-tab-chip');
+    const tabs = document.querySelectorAll('.app-tab-chip[data-tab-index]');
     if (!pager || !tabs.length) return;
 
     window.switchMobileTab = function(index) {
@@ -3456,20 +3399,21 @@
         behavior: 'smooth'
       });
       setActiveTab(index);
-      if (index === 2) {
+      if (index === 1) {
         calculateLandingPanchang();
       }
     };
 
     function setActiveTab(index) {
-      tabs.forEach((t, i) => {
-        const isActive = i === index;
+      tabs.forEach((t) => {
+        const tabIdx = parseInt(t.getAttribute('data-tab-index'), 10);
+        const isActive = (tabIdx === index);
         t.classList.toggle('active', isActive);
         t.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
 
       // Auto-scroll the active chip into view inside the tab bar
-      const activeTab = tabs[index];
+      const activeTab = document.querySelector(`.app-tab-chip[data-tab-index="${index}"]`);
       if (activeTab && activeTab.parentElement) {
         const container = activeTab.parentElement;
         const chipLeft = activeTab.offsetLeft;
@@ -3492,7 +3436,7 @@
           const activeIndex = Math.round(pager.scrollLeft / width);
           if (activeIndex >= 0 && activeIndex < tabs.length) {
             setActiveTab(activeIndex);
-            if (activeIndex === 2) {
+            if (activeIndex === 1) {
               calculateLandingPanchang();
             }
           }
@@ -4283,7 +4227,7 @@
   function openLandingPanchang() {
     if (window.innerWidth <= 768) {
       if (typeof window.switchMobileTab === 'function') {
-        window.switchMobileTab(2);
+        window.switchMobileTab(1);
       }
     } else {
       const el = document.getElementById('desktopPanchangSection');
