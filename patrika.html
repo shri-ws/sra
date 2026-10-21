@@ -1013,6 +1013,7 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
     width: 100%;
+    touch-action: pan-y;
   }
 
   .carousel-slide-header {
@@ -1036,7 +1037,23 @@
 
   .carousel-arrows {
     display: flex;
+    align-items: center;
     gap: 8px;
+  }
+
+  .swipe-hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gold);
+    background: rgba(180, 83, 9, 0.08);
+    border: 1px dashed var(--gold-border);
+    padding: 4px 10px;
+    border-radius: 14px;
+    user-select: none;
+    letter-spacing: 0.3px;
   }
 
   .carousel-arrow-btn {
@@ -1072,9 +1089,27 @@
     display: block;
   }
 
+  .carousel-slide-card.slide-anim-right {
+    animation: slideInFromRight 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .carousel-slide-card.slide-anim-left {
+    animation: slideInFromLeft 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
   @keyframes fadeInSlide {
     from { opacity: 0; transform: scale(0.98); }
     to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes slideInFromRight {
+    from { opacity: 0; transform: translateX(35px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideInFromLeft {
+    from { opacity: 0; transform: translateX(-35px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   .carousel-chart-display {
@@ -1392,6 +1427,116 @@
       padding: 12px 8px !important;
       border-radius: 10px !important;
     }
+    .candidate-summary-bar {
+      padding: 8px 10px !important;
+      gap: 8px !important;
+    }
+    .candidate-summary-actions {
+      width: 100% !important;
+      justify-content: flex-start !important;
+      gap: 6px !important;
+    }
+    .btn-summary-action {
+      flex: 1 1 auto !important;
+      justify-content: center !important;
+      padding: 6px 8px !important;
+      font-size: 11.5px !important;
+    }
+  }
+
+  /* Candidate Active Profile Summary Bar */
+  .candidate-summary-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(124, 19, 5, 0.07) 0%, rgba(217, 119, 6, 0.09) 100%);
+    border: 1.5px solid var(--gold-border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .candidate-summary-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 220px;
+  }
+  .candidate-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1.5px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .candidate-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .candidate-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .candidate-name {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .candidate-tag {
+    font-size: 10.5px;
+    background: rgba(180, 83, 9, 0.15);
+    color: var(--gold);
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .candidate-sub-details {
+    font-size: 12px;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-weight: 500;
+  }
+  .candidate-sub-details .dot-sep {
+    color: var(--gold);
+  }
+  .candidate-summary-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-summary-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--gold-border);
+    border-radius: 8px;
+    color: var(--dark);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-summary-action:hover {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+    transform: translateY(-1px);
   }
 
   /* ========================================================= */
@@ -1709,14 +1854,14 @@
 </div>
 
 <div class="container">
-  <div class="header">
+  <div class="header" id="pageHeader">
     <div style="display:inline-block; background:rgba(180,83,9,0.12); border:1px solid var(--gold-border); color:var(--gold); padding:4px 14px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; margin-bottom:10px;">★ प्रामाणिक शास्त्रीय साधन ★</div>
     <h1>पत्रिका (Patrika) — सर्वाधिक सटीक शास्त्रीय जन्म चक्र</h1>
     <p>बृहत्पाराशर होराशास्त्र सम्मत पंचांग, षोडशवर्ग सूक्ष्म चक्र, श्रीपति भाव चलित एवं प्रामाणिक ग्रह स्पष्ट</p>
   </div>
 
   <!-- Universal Birth Input Form -->
-  <div class="input-panel">
+  <div class="input-panel" id="inputPanelWrapper">
     <!-- Progressive Disclosure Mode Switcher Header -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:12px; flex-wrap:wrap; gap:10px;">
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
@@ -1805,6 +1950,37 @@
   <!-- Dynamic Output Section (Hidden by Default) -->
   <div id="outputSection">
     
+    <!-- Active Profile Summary Bar (Displays when input form is collapsed) -->
+    <div id="candidateSummaryBar" class="candidate-summary-bar" style="display:none;">
+      <div class="candidate-summary-main">
+        <div class="candidate-avatar">👤</div>
+        <div class="candidate-meta">
+          <div class="candidate-name-row">
+            <span class="candidate-name" id="summaryCandidateName">जातक</span>
+            <span class="candidate-tag">सक्रिय कुण्डली</span>
+          </div>
+          <div class="candidate-sub-details" id="summaryCandidateDetails">
+            <span>📅 --/--/----</span>
+            <span class="dot-sep">•</span>
+            <span>⏰ --:--</span>
+            <span class="dot-sep">•</span>
+            <span>📍 --</span>
+          </div>
+        </div>
+      </div>
+      <div class="candidate-summary-actions">
+        <button type="button" class="btn-summary-action" onclick="toggleEditBirthDetails()" title="जन्म विवरण बदलें या पुनः देखें">
+          <span>✏️</span> विवरण बदलें
+        </button>
+        <button type="button" class="btn-summary-action" onclick="createNewKundaliEntry()" title="नया जातक फॉर्म भरें">
+          <span>➕</span> नया फॉर्म
+        </button>
+        <button type="button" class="btn-summary-action" onclick="openSavedKundaliModal()" title="सुरक्षित कुण्डलियां देखें">
+          <span>📂</span> कुण्डलियां (<span id="savedKundaliBadgeBar">0</span>)
+        </button>
+      </div>
+    </div>
+
     <!-- TOP HORIZONTAL DOMAIN NAVIGATOR BAR -->
     <div class="output-domain-nav" id="outputDomainNav">
       <button type="button" class="domain-tab active" onclick="switchOutputDomain('charts')" id="btnDomainCharts">
@@ -1852,6 +2028,7 @@
             <button type="button" class="style-toggle-btn" onclick="setChartStyle('both')" id="btnStyleBoth">🪞 दोनों शैली</button>
           </div>
           <div class="carousel-arrows">
+            <span class="swipe-hint-pill" title="उंगली से बाएँ या दाएँ स्वाइप करके चक्र बदलें">👆 स्वाइप ↔️</span>
             <button type="button" class="carousel-arrow-btn" onclick="prevChartSlide()" title="पिछला चक्र">❮</button>
             <button type="button" class="carousel-arrow-btn" onclick="nextChartSlide()" title="अगला चक्र">❯</button>
           </div>
@@ -4628,6 +4805,19 @@ function executeParasharaMaster() {
 
   checkGraphLockState();
 
+  // Hide input form and introductory header post-generation to prioritize charts
+  const pageHeader = document.getElementById("pageHeader") || document.querySelector(".header");
+  const inputPanel = document.getElementById("inputPanelWrapper") || document.querySelector(".input-panel");
+  if (pageHeader) pageHeader.style.display = "none";
+  if (inputPanel) inputPanel.style.display = "none";
+
+  if (typeof renderCandidateSummaryBar === 'function') {
+    renderCandidateSummaryBar(currentCalculation.birthDetails);
+  }
+
+  // Smooth scroll directly to the top so chart & tabs are in immediate view
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
   if (typeof switchOutputDomain === 'function') {
     switchOutputDomain(currentOutputDomain || 'charts');
   }
@@ -5038,7 +5228,7 @@ function setChartStyle(styleMode) {
   if (btnB) btnB.classList.toggle("active", styleMode === "both");
 }
 
-function goToChartSlide(idx) {
+function goToChartSlide(idx, direction) {
   currentChartSlide = idx;
   const totalSlides = 5;
 
@@ -5047,7 +5237,15 @@ function goToChartSlide(idx) {
     const chip = document.getElementById(`chipSlide${i}`);
     if (slide) {
       slide.style.display = (i === idx) ? "block" : "none";
-      slide.classList.toggle("active", i === idx);
+      slide.classList.remove("active", "slide-anim-right", "slide-anim-left");
+      if (i === idx) {
+        slide.classList.add("active");
+        if (direction === 'left') {
+          slide.classList.add("slide-anim-right");
+        } else if (direction === 'right') {
+          slide.classList.add("slide-anim-left");
+        }
+      }
     }
     if (chip) chip.classList.toggle("active", i === idx);
   }
@@ -5056,6 +5254,11 @@ function goToChartSlide(idx) {
   dots.forEach((dot, i) => {
     dot.classList.toggle("active", i === idx);
   });
+
+  const activeChip = document.getElementById(`chipSlide${idx}`);
+  if (activeChip && typeof activeChip.scrollIntoView === 'function') {
+    activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
 
   if (idx === 2) {
     drawSpecificVarga(9, "d9NorthSvg", "d9SouthSvg");
@@ -5067,11 +5270,145 @@ function goToChartSlide(idx) {
 }
 
 function nextChartSlide() {
-  goToChartSlide((currentChartSlide + 1) % 5);
+  goToChartSlide((currentChartSlide + 1) % 5, 'left');
 }
 
 function prevChartSlide() {
-  goToChartSlide((currentChartSlide - 1 + 5) % 5);
+  goToChartSlide((currentChartSlide - 1 + 5) % 5, 'right');
+}
+
+// -------------------------------------------------------------
+// TOUCH SWIPE & GESTURE CONTROLLER FOR CHART CAROUSEL
+// -------------------------------------------------------------
+function initChartCarouselSwipe() {
+  const wrapper = document.getElementById("chartCarouselWrapper");
+  if (!wrapper) return;
+
+  let startX = 0;
+  let startY = 0;
+  let distX = 0;
+  let distY = 0;
+  let isSwiping = false;
+  let isMouseDown = false;
+  const minSwipe = 35; // minimum horizontal px to trigger slide
+
+  // Mobile Touch Events
+  wrapper.addEventListener("touchstart", (e) => {
+    // Ignore swipe on interactive controls or horizontally scrolling varga strip
+    if (e.target.closest("#vargaStrip, button, a, select, input, textarea")) return;
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    distX = 0;
+    distY = 0;
+    isSwiping = true;
+  }, { passive: true });
+
+  wrapper.addEventListener("touchmove", (e) => {
+    if (!isSwiping) return;
+    const touch = e.touches[0];
+    distX = touch.clientX - startX;
+    distY = touch.clientY - startY;
+  }, { passive: true });
+
+  wrapper.addEventListener("touchend", () => {
+    if (!isSwiping) return;
+    isSwiping = false;
+    const absX = Math.abs(distX);
+    const absY = Math.abs(distY);
+
+    // Dominant horizontal gesture triggers slide change
+    if (absX >= minSwipe && absX > absY * 1.25) {
+      if (distX < 0) {
+        nextChartSlide(); // Finger swiped left -> next chart (D1 -> Chalit -> D9 -> D10 -> Varga)
+      } else {
+        prevChartSlide(); // Finger swiped right -> previous chart
+      }
+    }
+  });
+
+  wrapper.addEventListener("touchcancel", () => {
+    isSwiping = false;
+  });
+
+  // Desktop Mouse Drag Support
+  wrapper.addEventListener("mousedown", (e) => {
+    if (e.target.closest("#vargaStrip, button, a, select, input, textarea")) return;
+    isMouseDown = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    distX = 0;
+    distY = 0;
+  });
+
+  wrapper.addEventListener("mousemove", (e) => {
+    if (!isMouseDown) return;
+    distX = e.clientX - startX;
+    distY = e.clientY - startY;
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!isMouseDown) return;
+    isMouseDown = false;
+    const absX = Math.abs(distX);
+    const absY = Math.abs(distY);
+    if (absX >= minSwipe && absX > absY * 1.25) {
+      if (distX < 0) {
+        nextChartSlide();
+      } else {
+        prevChartSlide();
+      }
+    }
+  });
+}
+
+// -------------------------------------------------------------
+// ACTIVE CANDIDATE PROFILE SUMMARY & EDIT TOGGLE
+// -------------------------------------------------------------
+function renderCandidateSummaryBar(details) {
+  if (!details) return;
+  const nameEl = document.getElementById("summaryCandidateName");
+  const metaEl = document.getElementById("summaryCandidateDetails");
+  if (nameEl) {
+    nameEl.textContent = details.candidateName || "जातक";
+  }
+  if (metaEl) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const dStr = `${pad(details.day)}/${pad(details.month)}/${details.year}`;
+    const tStr = `${pad(details.hour)}:${pad(details.minute)}:${pad(details.second || 0)}`;
+    const placeStr = details.placeName || "जन्म स्थान";
+    const latLonStr = `(${details.lat.toFixed(2)}°, ${details.lon.toFixed(2)}°)`;
+    
+    metaEl.innerHTML = `
+      <span>📅 ${dStr}</span>
+      <span class="dot-sep">•</span>
+      <span>⏰ ${tStr}</span>
+      <span class="dot-sep">•</span>
+      <span>📍 ${placeStr} <span style="font-size:11px; opacity:0.8;">${latLonStr}</span></span>
+    `;
+  }
+  const bar = document.getElementById("candidateSummaryBar");
+  if (bar) bar.style.display = "flex";
+}
+
+function toggleEditBirthDetails() {
+  const pageHeader = document.getElementById("pageHeader") || document.querySelector(".header");
+  const inputPanel = document.getElementById("inputPanelWrapper") || document.querySelector(".input-panel");
+  if (!inputPanel) return;
+
+  const isHidden = (inputPanel.style.display === "none");
+  if (isHidden) {
+    inputPanel.style.display = "block";
+    if (pageHeader) pageHeader.style.display = "block";
+    inputPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (typeof showKundaliToast === 'function') {
+      showKundaliToast("✏️ आप जन्म विवरण बदल सकते हैं — बदलाव के बाद 'अपनी जन्म पत्रिका देखें' दबाएं");
+    }
+  } else {
+    inputPanel.style.display = "none";
+    if (pageHeader) pageHeader.style.display = "none";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 function switchAuxTable(tableId) {
@@ -6381,8 +6718,10 @@ function updateSavedKundaliBadge() {
   const count = list.length;
   const b1 = document.getElementById("savedKundaliBadge");
   const b2 = document.getElementById("savedKundaliBadgeBottom");
+  const b3 = document.getElementById("savedKundaliBadgeBar");
   if (b1) b1.textContent = count;
   if (b2) b2.textContent = count;
+  if (b3) b3.textContent = count;
   const totalCountEl = document.getElementById("savedModalTotalCount");
   if (totalCountEl) totalCountEl.textContent = count;
 }
@@ -6544,6 +6883,14 @@ function deleteSavedKundali(id, event) {
 
 function createNewKundaliEntry() {
   closeSavedKundaliModal();
+  const pageHeader = document.getElementById("pageHeader") || document.querySelector(".header");
+  const inputPanel = document.getElementById("inputPanelWrapper") || document.querySelector(".input-panel");
+  const summaryBar = document.getElementById("candidateSummaryBar");
+
+  if (pageHeader) pageHeader.style.display = "block";
+  if (inputPanel) inputPanel.style.display = "block";
+  if (summaryBar) summaryBar.style.display = "none";
+
   if (document.getElementById("inName")) document.getElementById("inName").value = "";
   if (document.getElementById("inDate")) document.getElementById("inDate").value = "";
   if (document.getElementById("inTime")) document.getElementById("inTime").value = "";
@@ -6555,9 +6902,10 @@ function createNewKundaliEntry() {
   const out = document.getElementById("outputSection");
   if (out) out.style.display = "none";
   
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   showKundaliToast("📝 नया फॉर्म तैयार है — कृपया जन्म विवरण भरें");
   const nameInp = document.getElementById("inName");
-  if (nameInp) nameInp.focus();
+  if (nameInp && typeof nameInp.focus === 'function') nameInp.focus();
 }
 
 // Auto-initialize map & session when DOM is loaded
@@ -6565,6 +6913,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initMap();
   checkMobileAuthStatus();
   switchDashaSystemTab('vim');
+  initChartCarouselSwipe();
   loadSessionState();
   if (typeof updateSavedKundaliBadge === 'function') {
     updateSavedKundaliBadge();
