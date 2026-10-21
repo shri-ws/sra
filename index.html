@@ -152,10 +152,27 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet" />
-  <script src="theme.js"></script>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" />
+  </noscript>
+  <script src="theme.js" defer></script>
 
   <style>
+    /* ACCESSIBILITY UTILITY */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     /* VENUSIAN / SATTVIC LUXURY PALETTE ACROSS INDEX PAGE */
     :root, [data-theme="day"] {
       --bg: #FDFBF7;
@@ -168,7 +185,7 @@
       --muted: #64748B;
       --gold: #D4AF37;
       --gold2: #C5A059;
-      --gold-dark: #8C6D2B;
+      --gold-dark: #784E10;
       --gold-dim: rgba(197, 160, 89, 0.12);
       --gold-border: rgba(197, 160, 89, 0.35);
       --primary: #4A0E17;
@@ -1548,8 +1565,8 @@
       color: #ffffff !important;
     }
     @keyframes pulseTabVip {
-      0%, 100% { box-shadow: 0 0 6px rgba(217, 119, 6, 0.2); }
-      50% { box-shadow: 0 0 14px rgba(217, 119, 6, 0.55); }
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.03); opacity: 0.95; }
     }
 
     .nav-vip-consult-pill {
@@ -1775,7 +1792,7 @@
   <!-- NAV BAR (ADAPTIVE APP-TO-DESKTOP LAYOUT) -->
   <nav>
     <a href="index.html" class="nav-logo" title="Patrika by Shri Ram Ji Astro">
-      <img src="logo.png" alt="Patrika Logo" class="nav-logo-img"> 
+      <img src="logo-nav.png" alt="Patrika Logo" class="nav-logo-img" width="36" height="36" fetchpriority="high" decoding="async"> 
       <div class="nav-brand-group">
         <span class="brand-title">PATRIKA</span>
         <span class="brand-sub" data-i18n="brand_sub">by Shri Ram Ji Astro</span>
@@ -1788,9 +1805,9 @@
       </a>
 
       <!-- PANCHANG LINK -->
-      <a href="javascript:void(0)" onclick="openLandingPanchang()" style="color:var(--text); font-weight:700;">
+      <button type="button" onclick="openLandingPanchang()" style="background:none; border:none; cursor:pointer; color:var(--text); font-weight:700; font-family:inherit; font-size:14px; padding:6px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
         <span>📿</span> <span data-i18n="tab_panchang">पञ्चाङ्ग</span>
-      </a>
+      </button>
 
       <!-- MUHURT DROPDOWN -->
       <div class="nav-dropdown" id="navDropdownMuhurt">
@@ -1822,18 +1839,18 @@
           <a href="patrika.html" class="nav-dropdown-item" role="menuitem" style="color:var(--gold-dark); font-weight:700;">
             <span>✨ <span data-i18n="sub_patrika_title">पत्रिका (Birth Chart)</span></span>
           </a>
-          <a href="javascript:void(0)" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')" class="nav-dropdown-item" role="menuitem">
+          <button type="button" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')" class="nav-dropdown-item" role="menuitem" style="width:100%; border:none; background:none; text-align:left; cursor:pointer; font-family:inherit; font-size:inherit;">
             <span>🐍 <span data-i18n="sub_kaalsarp_title">कालसर्प दोष रिपोर्ट</span></span>
             <span class="drop-badge">₹199</span>
-          </a>
-          <a href="javascript:void(0)" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')" class="nav-dropdown-item" role="menuitem">
+          </button>
+          <button type="button" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')" class="nav-dropdown-item" role="menuitem" style="width:100%; border:none; background:none; text-align:left; cursor:pointer; font-family:inherit; font-size:inherit;">
             <span>🔥 <span data-i18n="sub_mangal_title">मंगल दोष निवारण</span></span>
             <span class="drop-badge">₹199</span>
-          </a>
-          <a href="javascript:void(0)" onclick="openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249')" class="nav-dropdown-item" role="menuitem">
+          </button>
+          <button type="button" onclick="openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249')" class="nav-dropdown-item" role="menuitem" style="width:100%; border:none; background:none; text-align:left; cursor:pointer; font-family:inherit; font-size:inherit;">
             <span>💎 <span data-i18n="sub_ratna_title">रत्न और उपाय रिपोर्ट</span></span>
             <span class="drop-badge">₹249</span>
-          </a>
+          </button>
         </div>
       </div>
 
@@ -1864,9 +1881,9 @@
         <button class="btn-nav btn-login" id="loginNavBtn" onclick="openModal('loginModal')">Login</button>
         <button class="btn-nav btn-register" id="regNavBtn" onclick="openModal('registerModal')">Register</button>
         <div id="userProfileBadge" style="display:none;align-items:center;gap:6px;background:var(--gold-dim);padding:3px 8px;border-radius:8px;border:1px solid var(--gold-border);">
-          <img id="userAvatarImg" src="logo.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid var(--gold);"/>
+          <img id="userAvatarImg" src="logo-nav.png" width="22" height="22" alt="User Avatar" loading="lazy" decoding="async" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid var(--gold);"/>
           <span id="userNameText" style="font-size:11px;font-weight:700;color:var(--gold-dark);">User</span>
-          <button onclick="doLogout()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;font-weight:700;margin-left:4px;">Logout</button>
+          <button type="button" onclick="doLogout()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;font-weight:700;margin-left:4px;">Logout</button>
         </div>
       </div>
       <button class="hamburger" onclick="toggleNavDrawer()" aria-label="Menu">☰</button>
@@ -1878,7 +1895,7 @@
   <div class="nav-drawer" id="navDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
     <div class="drawer-header">
       <div class="drawer-brand">
-        <img src="logo.png" alt="Patrika Logo" class="drawer-logo-img">
+        <img src="logo-nav.png" alt="Patrika Logo" class="drawer-logo-img" width="40" height="40" loading="lazy" decoding="async">
         <div class="drawer-brand-text">
           <span class="drawer-brand-title">PATRIKA</span>
           <span class="drawer-brand-sub" data-i18n="brand_sub">by Shri Ram Ji Astro</span>
@@ -1940,43 +1957,43 @@
               <span class="drawer-sub-hint" data-i18n="sub_patrika_desc">D1-D60, विंशोत्तरी व योग</span>
             </div>
           </a>
-          <a href="javascript:void(0)" onclick="openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199')" class="drawer-sub-item">
+          <button type="button" onclick="closeNavDrawer(); openReportPreOrderModal('कालसर्प दोष रिपोर्ट', '199');" class="drawer-sub-item" style="width:100%; text-align:left; background:none; border:none; cursor:pointer; font-family:inherit;">
             <span class="drawer-sub-icon">🐍</span>
-            <div class="drawer-sub-text">
+            <div class="drawer-sub-text" style="width:100%;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span class="drawer-sub-title" data-i18n="sub_kaalsarp_title">कालसर्प दोष रिपोर्ट</span>
                 <span class="drop-badge">₹199</span>
               </div>
               <span class="drawer-sub-hint" data-i18n="sub_kaalsarp_desc">12 कालसर्प व अचूक उपाय</span>
             </div>
-          </a>
-          <a href="javascript:void(0)" onclick="openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199')" class="drawer-sub-item">
+          </button>
+          <button type="button" onclick="closeNavDrawer(); openReportPreOrderModal('मंगल दोष निवारण रिपोर्ट', '199');" class="drawer-sub-item" style="width:100%; text-align:left; background:none; border:none; cursor:pointer; font-family:inherit;">
             <span class="drawer-sub-icon">🔥</span>
-            <div class="drawer-sub-text">
+            <div class="drawer-sub-text" style="width:100%;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span class="drawer-sub-title" data-i18n="sub_mangal_title">मंगल दोष निवारण</span>
                 <span class="drop-badge">₹199</span>
               </div>
               <span class="drawer-sub-hint" data-i18n="sub_mangal_desc">28 शास्त्रीय परिहार नियम</span>
             </div>
-          </a>
-          <a href="javascript:void(0)" onclick="openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249')" class="drawer-sub-item">
+          </button>
+          <button type="button" onclick="closeNavDrawer(); openReportPreOrderModal('रत्न और उपाय रिपोर्ट', '249');" class="drawer-sub-item" style="width:100%; text-align:left; background:none; border:none; cursor:pointer; font-family:inherit;">
             <span class="drawer-sub-icon">💎</span>
-            <div class="drawer-sub-text">
+            <div class="drawer-sub-text" style="width:100%;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span class="drawer-sub-title" data-i18n="sub_ratna_title">रत्न और उपाय रिपोर्ट</span>
                 <span class="drop-badge">₹249</span>
               </div>
               <span class="drawer-sub-hint" data-i18n="sub_ratna_desc">लग्नेश-भाग्येश शोधन व रुद्राक्ष</span>
             </div>
-          </a>
+          </button>
         </div>
       </div>
 
       <!-- DIRECT LINKS -->
-      <a href="javascript:void(0)" onclick="closeNavDrawer(); openLandingPanchang();" class="drawer-item" style="color:var(--text); font-weight:700;">
+      <button type="button" onclick="closeNavDrawer(); openLandingPanchang();" class="drawer-item" style="width:100%; text-align:left; background:none; border:none; cursor:pointer; font-family:inherit; color:var(--text); font-weight:700;">
         <span>📿</span> <span data-i18n="tab_panchang">दैनिक पञ्चाङ्ग (Daily Panchang)</span>
-      </a>
+      </button>
       <a href="consultation.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:800; background:rgba(217, 119, 6, 0.1); border-radius:10px; border:1px solid rgba(217,119,6,0.3);">
         <span>🌟</span> <span data-i18n="nav_consult">1-on-1 प्रीमियम परामर्श (Private Consult)</span>
       </a>
@@ -2006,6 +2023,11 @@
       </div>
     </div>
   </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       MAIN CONTENT LANDMARK (ACCESSIBILITY & AGENTIC TREE COMPLIANT)
+       ══════════════════════════════════════════════════════════════════════════ -->
+  <main id="mainContent">
 
   <!-- ══════════════════════════════════════════════════════════════════════════
        MOBILE APP-FIRST SHELL: HORIZONTAL VIEW PAGER & 2-COLUMN SERVICE GRID (< 768px)
@@ -2040,6 +2062,8 @@
       <!-- ─── TAB 0: HOME SCREEN (ELEGANT 2-COLUMN SERVICE GRID) ─── -->
       <section class="view-page" id="viewHome" role="tabpanel" aria-label="Home Services Grid">
         
+        <h1 class="sr-only">श्री रामजी एस्ट्रो • उच्च-सटीक वैदिक जन्म पत्रिका, पञ्चाङ्ग एवं मुहूर्त</h1>
+
         <!-- COMPACT VEDIC STATUS / GREETING BAR WITH DYNAMIC TITHI -->
         <div class="mobile-greeting-bar">
           <div class="vedic-date-chip" id="dynamicPanchangChip">
@@ -2184,23 +2208,23 @@
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div>
-                <label class="app-form-label">तारीख (Date)</label>
-                <input type="date" id="inLandingPanchangDate" class="app-form-input" onchange="calculateLandingPanchang()" required>
+                <label for="inLandingPanchangDate" class="app-form-label">तारीख (Date)</label>
+                <input type="date" id="inLandingPanchangDate" class="app-form-input" aria-label="पञ्चाङ्ग दिनांक (Panchang Date)" onchange="calculateLandingPanchang()" required>
               </div>
               <div>
-                <label class="app-form-label">समय (Time - Default Sunrise)</label>
-                <input type="time" id="inLandingPanchangTime" class="app-form-input" value="06:00" onchange="calculateLandingPanchang()">
+                <label for="inLandingPanchangTime" class="app-form-label">समय (Time - Default Sunrise)</label>
+                <input type="time" id="inLandingPanchangTime" class="app-form-input" value="06:00" aria-label="पञ्चाङ्ग समय (Panchang Time)" onchange="calculateLandingPanchang()">
               </div>
             </div>
 
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <label class="app-form-label" style="margin:0;">स्थान (City / Location)</label>
+                <label for="inLandingPanchangCity" class="app-form-label" style="margin:0;">स्थान (City / Location)</label>
                 <span id="panchangCityCoords" style="font-size:11px; color:var(--muted);">28.6139° N, 77.2090° E</span>
               </div>
               <div style="display:flex; gap:8px;">
-                <input type="text" id="inLandingPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" placeholder="स्थान दर्ज करें..." onchange="onLandingPanchangCityChange()" style="flex:1;">
-                <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" title="वर्तमान स्थान उपयोग करें">📍</button>
+                <input type="text" id="inLandingPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" placeholder="स्थान दर्ज करें..." aria-label="स्थान अथवा शहर (Location/City)" onchange="onLandingPanchangCityChange()" style="flex:1;">
+                <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" title="वर्तमान स्थान उपयोग करें" aria-label="वर्तमान स्थान उपयोग करें">📍</button>
               </div>
               <!-- QUICK CITY CHIPS -->
               <div style="display:flex; gap:5px; margin-top:8px; overflow-x:auto; padding-bottom:2px;">
@@ -2233,25 +2257,25 @@
           </div>
 
           <!-- 1. 5 CORE LIMBS (पञ्चाङ्ग के ५ प्रधान अंग) -->
-          <h4 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h4>
+          <h3 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h3>
           <div class="panchang-grid-5" id="landingPanchangLimbs">
             <!-- Dynamically populated -->
           </div>
 
           <!-- 2. SOLAR & LUNAR DAY DYNAMICS (सौर व चान्द्र मान) -->
-          <h4 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h4>
+          <h3 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h3>
           <div class="muhurta-grid" id="landingPanchangSolar">
             <!-- Dynamically populated -->
           </div>
 
           <!-- 3. AUSPICIOUS & INAUSPICIOUS TIMINGS (शुभ व अशुभ मुहूर्त) -->
-          <h4 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h4>
+          <h3 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h3>
           <div class="muhurta-grid" id="landingPanchangMuhurta">
             <!-- Dynamically populated -->
           </div>
 
           <!-- 4. AVAKAHADA ATTRIBUTES (अवकहड़ा चक्र) -->
-          <h4 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h4>
+          <h3 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h3>
           <div style="overflow-x:auto;">
             <table class="avakahada-table" id="landingAvakahadaTbl">
               <tbody>
@@ -2458,7 +2482,7 @@
                 महर्षि पराशर व मुहूर्त चिंतामणि सम्मत प्रामाणिक शोध
               </p>
             </div>
-            <a href="about.html?tab=admin_blogs" style="font-size:11.5px; font-weight:800; color:var(--gold); text-decoration:none;" data-i18n="btn_view_all_blogs">
+            <a href="about.html?tab=admin_blogs" style="font-size:11.5px; font-weight:800; color:var(--gold-dark); text-decoration:none;" data-i18n="btn_view_all_blogs">
               सभी देखें ➔
             </a>
           </div>
@@ -2534,7 +2558,7 @@
   </div>
 
   <!-- DESKTOP FULL-FEATURED PORTAL LAYOUT (>= 769px) -->
-  <main class="desktop-main-layout">
+  <div class="desktop-main-layout">
   <!-- HERO SECTION WITH VALUE-BASED & SHASTRA PRECISION HEADLINE -->
   <section class="hero">
     <div class="hero-inner">
@@ -2635,26 +2659,26 @@
       <div class="app-glass-panel" style="padding: 20px; border-radius: 14px; margin-bottom: 24px; background: var(--card-bg, #ffffff); border: 1.5px solid var(--gold-border, rgba(197, 160, 89, 0.35));">
         <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between;">
           <div style="flex: 1; min-width: 240px;">
-            <label class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">📅 पञ्चाङ्ग तिथि चयन (Select Date)</label>
+            <label for="inDesktopPanchangDate" class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">📅 पञ्चाङ्ग तिथि चयन (Select Date)</label>
             <div style="display: flex; gap: 8px;">
-              <input type="date" id="inDesktopPanchangDate" class="app-form-input" onchange="syncAndCalculatePanchang('desktop')" style="flex: 1;">
+              <input type="date" id="inDesktopPanchangDate" class="app-form-input" aria-label="पञ्चाङ्ग दिनांक (Panchang Date)" onchange="syncAndCalculatePanchang('desktop')" style="flex: 1;">
               <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(-1)">◀ पिछला</button>
               <button type="button" class="quick-chip-btn active" onclick="setLandingPanchangToday()">आज</button>
               <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(1)">अगला ▶</button>
             </div>
           </div>
           <div style="flex: 1; min-width: 180px;">
-            <label class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">⏰ समय (Time - Default Sunrise)</label>
-            <input type="time" id="inDesktopPanchangTime" class="app-form-input" value="06:00" onchange="syncAndCalculatePanchang('desktop')">
+            <label for="inDesktopPanchangTime" class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">⏰ समय (Time - Default Sunrise)</label>
+            <input type="time" id="inDesktopPanchangTime" class="app-form-input" value="06:00" aria-label="पञ्चाङ्ग समय (Panchang Time)" onchange="syncAndCalculatePanchang('desktop')">
           </div>
           <div style="flex: 1.2; min-width: 260px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-              <label class="app-form-label" style="font-weight: 700; margin:0;">📍 स्थान (Location / City)</label>
+              <label for="inDesktopPanchangCity" class="app-form-label" style="font-weight: 700; margin:0;">📍 स्थान (Location / City)</label>
               <span id="panchangDesktopCoords" style="font-size:11px; color:var(--muted);">28.6139° N, 77.2090° E</span>
             </div>
             <div style="display: flex; gap: 8px;">
-              <input type="text" id="inDesktopPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" onchange="onDesktopCityChange()" style="flex: 1;">
-              <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()">📍 जीपीएस</button>
+              <input type="text" id="inDesktopPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" aria-label="स्थान अथवा शहर (Location/City)" onchange="onDesktopCityChange()" style="flex: 1;">
+              <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" aria-label="वर्तमान जीपीएस स्थान">📍 जीपीएस</button>
             </div>
           </div>
         </div>
@@ -3003,10 +3027,8 @@
               </div>
             </div>
 
-            <!-- INSTAGRAM REELS CONTAINER (BEHOLD WIDGET READY) -->
-            <div id="insta-reels-container" class="insta-reels-container">
-              <figure data-behold-id="YOUR_WIDGET_ID" class="behold-widget-fig"></figure>
-            </div>
+            <!-- INSTAGRAM REELS CONTAINER -->
+            <div id="insta-reels-container" class="insta-reels-container"></div>
           </div>
 
           <a href="https://instagram.com/astro_raamji" target="_blank" rel="noopener" class="social-btn insta-btn">
@@ -3270,12 +3292,12 @@
       </div>
 
       <div class="mrow">
-        <div class="mfield"><label>First Name *</label><input type="text" id="reg_fname" placeholder="Arjun"/></div>
-        <div class="mfield"><label>Last Name *</label><input type="text" id="reg_lname" placeholder="Sharma"/></div>
+        <div class="mfield"><label for="reg_fname">First Name *</label><input type="text" id="reg_fname" aria-label="First Name" placeholder="Arjun"/></div>
+        <div class="mfield"><label for="reg_lname">Last Name *</label><input type="text" id="reg_lname" aria-label="Last Name" placeholder="Sharma"/></div>
       </div>
-      <div class="mfield"><label>Email *</label><input type="email" id="reg_email" placeholder="arjun@email.com"/></div>
-      <div class="mfield"><label>WhatsApp Number *</label><input type="tel" id="reg_phone" placeholder="+91 98765 43210"/></div>
-      <div class="mfield"><label>Password *</label><input type="password" id="reg_pass" placeholder="Min 6 characters"/></div>
+      <div class="mfield"><label for="reg_email">Email *</label><input type="email" id="reg_email" aria-label="Email Address" placeholder="arjun@email.com"/></div>
+      <div class="mfield"><label for="reg_phone">WhatsApp Number *</label><input type="tel" id="reg_phone" aria-label="WhatsApp Number" placeholder="+91 98765 43210"/></div>
+      <div class="mfield"><label for="reg_pass">Password *</label><input type="password" id="reg_pass" aria-label="Password" placeholder="Min 6 characters"/></div>
       <button class="modal-btn" id="regBtn" onclick="doRegister()">Create Account</button>
       <div id="regErr" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px"></div>
     </div>
@@ -3307,8 +3329,8 @@
         <div style="flex:1;height:1px;background:var(--gold-border);"></div>
       </div>
 
-      <div class="mfield"><label>Email *</label><input type="email" id="login_email" placeholder="name@email.com"/></div>
-      <div class="mfield"><label>Password *</label><input type="password" id="login_pass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="mfield"><label for="login_email">Email *</label><input type="email" id="login_email" aria-label="Email Address" placeholder="name@email.com"/></div>
+      <div class="mfield"><label for="login_pass">Password *</label><input type="password" id="login_pass" aria-label="Password" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <button class="modal-btn" id="loginBtn" onclick="doLogin()">Login</button>
       <div id="loginErr" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px"></div>
     </div>
@@ -3317,7 +3339,7 @@
   <div class="modal-overlay" id="preOrderModal" onclick="if(event.target===this)closeModal('preOrderModal')">
     <div class="modal" style="max-width:440px; text-align:center; padding:32px 24px;">
       <div class="bottom-sheet-handle"></div>
-      <button class="modal-close" onclick="closeModal('preOrderModal')">✕</button>
+      <button class="modal-close" onclick="closeModal('preOrderModal')" aria-label="Close">✕</button>
       
       <div style="width:54px; height:54px; background:rgba(197,160,89,0.15); border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px;">
         📜
@@ -3337,12 +3359,12 @@
       
       <form id="preOrderForm" onsubmit="submitReportPreOrder(event)">
         <div style="margin-bottom:16px; text-align:left;">
-          <label style="font-size:12px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">
+          <label for="preOrderPhoneInput" style="font-size:12px; font-weight:700; color:var(--text); display:block; margin-bottom:6px;">
             WhatsApp / फोन नंबर *
           </label>
           <div style="display:flex; align-items:center; background:var(--input-bg, #fff); border:1.5px solid var(--gold-border); border-radius:10px; padding:0 12px;">
             <span style="font-weight:700; font-size:14px; color:var(--gold-dark); padding-right:8px; border-right:1px solid var(--gold-border);">+91</span>
-            <input type="tel" id="preOrderPhoneInput" placeholder="9876543210" pattern="[6-9][0-9]{9}" maxlength="10" required style="width:100%; border:none; padding:12px; font-size:15px; background:transparent; color:var(--text); outline:none; font-weight:600; letter-spacing:1px;">
+            <input type="tel" id="preOrderPhoneInput" aria-label="WhatsApp / फोन नंबर" placeholder="9876543210" pattern="[6-9][0-9]{9}" maxlength="10" required style="width:100%; border:none; padding:12px; font-size:15px; background:transparent; color:var(--text); outline:none; font-weight:600; letter-spacing:1px;">
           </div>
         </div>
         
@@ -3373,6 +3395,8 @@
       </ul>
     </div>
   </section>
+  </div>
+  </main>
 
   <!-- FOOTER -->
   <footer class="site-global-footer">
@@ -3390,7 +3414,7 @@
             <a href="vastu-muhurta.html">VIP Vastu Muhurt (Neev & Griha Pravesh)</a>
             <a href="yajnopavita.html">VIP Yagyopavit (Upanayana) Scanner</a>
             <a href="consultation.html">Personal Sanctuary Consultation</a>
-            <a href="#course">1-Year Jyotish Course</a>
+            <a href="course.html">1-Year Jyotish Course</a>
           </div>
         </div>
         <div>
@@ -3408,7 +3432,6 @@
       </div>
     </div>
   </footer>
-  </main>
 
   <script>
   const SUPA_URL='https://jhnfrlgodpvdhvndpoam.supabase.co';
@@ -4158,22 +4181,22 @@
             </div>
           </div>
 
-          <h4 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h4>
+          <h3 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h3>
           <div class="panchang-grid-5">
             ${limbsHtml}
           </div>
 
-          <h4 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h4>
+          <h3 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h3>
           <div class="muhurta-grid">
             ${solarHtml}
           </div>
 
-          <h4 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h4>
+          <h3 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h3>
           <div class="muhurta-grid">
             ${muhurtaHtml}
           </div>
 
-          <h4 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h4>
+          <h3 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h3>
           <div style="overflow-x:auto;">
             <table class="avakahada-table">
               <tbody>
@@ -4569,6 +4592,5 @@
   }
   window.toggleBenchmarkAccordion = toggleBenchmarkAccordion;
   </script>
-  <script src="https://w.behold.so/widget.js" type="module"></script>
 </body>
 </html>
