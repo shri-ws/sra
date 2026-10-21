@@ -53,6 +53,7 @@
 <script src="theme.js"></script>
 <script src="data/shloka_database.js"></script>
 <script src="rashmiReportsService.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- Google Identity Services (GIS) API & Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
@@ -2012,6 +2013,322 @@
     font-style: italic;
     color: var(--dark);
     margin-top: 14px;
+  }
+
+  /* PARASHARA REPORTS PAYWALL & 199 UNLOCK STYLES */
+  .parashara-paywall-banner {
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.1), rgba(217, 119, 6, 0.16));
+    border: 1.5px solid var(--gold);
+    border-radius: 16px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 24px rgba(180, 83, 9, 0.12);
+  }
+  .paywall-banner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .paywall-banner-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .paywall-banner-text {
+    flex: 1;
+    min-width: 280px;
+  }
+  .paywall-banner-title {
+    font-family: 'Cinzel', serif;
+    font-size: 19px;
+    color: var(--primary);
+    margin: 0 0 6px 0;
+    font-weight: 800;
+  }
+  .paywall-banner-desc {
+    font-size: 13px;
+    color: var(--dark);
+    margin: 0 0 10px 0;
+    line-height: 1.55;
+    opacity: 0.95;
+  }
+  .paywall-banner-highlights {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .paywall-banner-highlights span {
+    background: var(--bg);
+    padding: 3px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--gold-border);
+  }
+  .paywall-banner-cta-box {
+    background: var(--card-bg);
+    border: 1.5px solid var(--gold);
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: center;
+    min-width: 230px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    flex-shrink: 0;
+  }
+  .paywall-price-wrap {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .paywall-old-price {
+    font-size: 13.5px;
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .paywall-current-price {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--primary);
+  }
+  .paywall-discount-tag {
+    background: #10b981;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .btn-paywall-primary {
+    display: inline-block;
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #b45309, #d97706);
+    color: #fff;
+    font-weight: 800;
+    font-size: 13.5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180, 83, 9, 0.35);
+    transition: all 0.2s ease;
+  }
+  .btn-paywall-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(180, 83, 9, 0.5);
+  }
+  .paywall-sublink {
+    margin-top: 8px;
+  }
+  .paywall-sublink a {
+    font-size: 11.5px;
+    color: var(--gold);
+    text-decoration: underline;
+    font-weight: 600;
+  }
+  .parashara-locked-card {
+    position: relative;
+    border-color: rgba(180, 83, 9, 0.35) !important;
+  }
+  .parashara-lock-overlay-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #b45309, #d97706);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(180, 83, 9, 0.35);
+    transition: transform 0.2s ease;
+  }
+  .parashara-lock-overlay-btn:hover {
+    transform: scale(1.03);
+  }
+
+  /* MODAL PAYWALL 199 OVERLAY */
+  .parashara-paywall-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: rgba(9, 5, 20, 0.88);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .parashara-paywall-overlay.active {
+    display: flex;
+  }
+  .parashara-paywall-modal {
+    background: var(--card-bg);
+    border: 2px solid var(--gold);
+    border-radius: 20px;
+    max-width: 440px;
+    width: 100%;
+    padding: 26px 22px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    position: relative;
+    max-height: 92vh;
+    overflow-y: auto;
+    animation: pModalIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-sizing: border-box;
+  }
+  @keyframes pModalIn {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .parashara-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 26px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .parashara-modal-close:hover {
+    color: var(--primary);
+  }
+  .parashara-deal-table {
+    background: var(--bg);
+    border: 1px dashed var(--gold-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .deal-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 3px 0;
+    color: var(--dark);
+  }
+  .deal-row.total {
+    border-top: 1.5px solid var(--border);
+    margin-top: 6px;
+    padding-top: 8px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .btn-rzp-submit {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #b45309, #d97706);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(180, 83, 9, 0.35);
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+  }
+  .btn-rzp-submit:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 8px 24px rgba(180, 83, 9, 0.5);
+  }
+  .upi-expand-section {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    text-align: center;
+  }
+  .upi-link-btn {
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .upi-pane-box {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--gold-border);
+    text-align: center;
+  }
+  .vip-code-flex {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .vip-code-inp {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--gold-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--dark);
+    outline: none;
+  }
+  .btn-vip-submit {
+    background: rgba(180, 83, 9, 0.15);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-vip-submit:hover {
+    background: var(--gold);
+    color: #fff;
+  }
+  .sra-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10002;
+    background: #10b981;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13.5px;
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastUp 0.3s ease;
+  }
+  @keyframes toastUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 </style>
 </head>
@@ -5487,6 +5804,10 @@ function switchOutputDomain(domainId) {
     }
   });
 
+  if (domainId === 'reports' && typeof renderParasharaReports === 'function') {
+    renderParasharaReports();
+  }
+
   const navEl = document.getElementById("outputDomainNav");
   if (navEl && window.scrollY > navEl.offsetTop) {
     navEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -5768,6 +6089,151 @@ function extractKundaliContract(calc) {
   };
 }
 
+const PARASHARA_RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
+const PARASHARA_PRICE_INR = 199;
+const PARASHARA_PRICE_PAISE = 19900;
+
+function isParasharaReportsUnlocked() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('unlock_parashara') === '1' || urlParams.get('vip') === 'parashara199') {
+      return true;
+    }
+    return localStorage.getItem('sra_unlocked_parashara_reports_199') === 'true';
+  } catch(e) {
+    return false;
+  }
+}
+
+function openParasharaPaymentModal(focusField) {
+  const modal = document.getElementById('modalParasharaPayment199');
+  if (modal) {
+    modal.classList.add('active');
+    const errBox = document.getElementById('parasharaVipErrMsg');
+    if (errBox) errBox.style.display = 'none';
+    if (focusField === 'passcode') {
+      const input = document.getElementById('parasharaVipCodeInput');
+      if (input) {
+        setTimeout(() => input.focus(), 200);
+      }
+    }
+  }
+}
+
+function closeParasharaPaymentModal() {
+  const modal = document.getElementById('modalParasharaPayment199');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+function unlockParasharaReports(paymentId) {
+  try {
+    localStorage.setItem('sra_unlocked_parashara_reports_199', 'true');
+    localStorage.setItem('sra_parashara_unlock_time', new Date().toISOString());
+    if (paymentId) {
+      localStorage.setItem('sra_parashara_pay_id', paymentId);
+    }
+  } catch(e) {
+    console.error("Storage error:", e);
+  }
+  closeParasharaPaymentModal();
+  renderParasharaReports();
+  showParasharaToast("🎉 बधाई! दोनों पाराशर फलित रिपोर्ट्स सफलतापूर्वक अनलॉक हो चुकी हैं।");
+}
+
+function triggerParasharaRazorpayCheckout() {
+  if (typeof Razorpay === 'undefined') {
+    alert('Razorpay gateway script loading failed. कृपया सीधे UPI QR कोड या VIP कोड का प्रयोग करें।');
+    toggleParasharaPaymentQrView();
+    return;
+  }
+
+  const clientName = (document.getElementById('inName') && document.getElementById('inName').value.trim()) 
+    ? document.getElementById('inName').value.trim() 
+    : "पाराशर VIP जातक";
+  const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
+
+  const options = {
+    key: PARASHARA_RZP_KEY,
+    amount: PARASHARA_PRICE_PAISE,
+    currency: "INR",
+    name: "Shri Ramji Astro",
+    description: "पाराशर रश्मि-बल एवं गोमूत्रिका वाहन-जनबल रिपोर्ट्स (₹199 आजीवन एक्सेस)",
+    prefill: {
+      name: clientName,
+      contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
+    },
+    theme: {
+      color: "#b45309"
+    },
+    handler: function (response) {
+      const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_PARASHARA_SUCCESS';
+      unlockParasharaReports(payId);
+    },
+    modal: {
+      ondismiss: function() {
+        console.log('Razorpay modal closed by user');
+      }
+    }
+  };
+
+  try {
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch(e) {
+    console.error("Razorpay Checkout Error:", e);
+    alert('Razorpay gateway error. कृपया UPI QR कोड या VIP कोड का प्रयोग करें।');
+    toggleParasharaPaymentQrView();
+  }
+}
+
+function toggleParasharaPaymentQrView() {
+  const pane = document.getElementById('parasharaUpiPane');
+  if (pane) {
+    pane.style.display = (pane.style.display === 'block') ? 'none' : 'block';
+  }
+}
+
+function verifyParasharaPasscode() {
+  const input = document.getElementById('parasharaVipCodeInput');
+  const errBox = document.getElementById('parasharaVipErrMsg');
+  if (!input) return;
+  const val = input.value.trim().toUpperCase();
+
+  const validCodes = ['PARASHAR199', 'PARASHAR', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199', 'GOMUTRIKA199'];
+
+  if (validCodes.includes(val)) {
+    if (errBox) errBox.style.display = 'none';
+    unlockParasharaReports('VIP_CODE_' + val);
+  } else {
+    if (errBox) {
+      errBox.textContent = '❌ अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।';
+      errBox.style.display = 'block';
+    } else {
+      alert('अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।');
+    }
+  }
+}
+
+function showParasharaToast(msg) {
+  const existing = document.getElementById('parasharaToastEl');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'parasharaToastEl';
+  toast.className = 'sra-toast';
+  toast.innerHTML = `<span>👑</span><span>${msg}</span>`;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(20px)';
+    setTimeout(() => toast.remove(), 500);
+  }, 4000);
+}
+
 function renderParasharaReports() {
   const container = document.getElementById("parasharaReportsContent");
   if (!container || !currentCalculation) return;
@@ -5783,12 +6249,13 @@ function renderParasharaReports() {
   const reports = generateKundaliReports(inputContract);
   const rep1 = reports.report_rajyoga_daridrayoga;
   const rep2 = reports.report_vahan_janbal;
+  const isUnlocked = isParasharaReportsUnlocked();
 
   // Max score for bar normalization
   const maxScore = Math.max(...Object.values(rep1.planet_rashmi_scores), 10);
+  const planetKeys = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
 
   // Generate 7-Planet Rashmi Rows
-  const planetKeys = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
   const planetRowsHtml = planetKeys.map(k => {
     const d = rep1.planet_details[k];
     if (!d) return '';
@@ -5859,159 +6326,383 @@ function renderParasharaReports() {
     shodhanHtml += `<br>• केन्द्र या त्रिकोण भाव (१, ४, ५, ७, ९, १०) में कोई भी शुद्ध राजयोगकारक रश्मि शेष न होने के कारण किसी ग्रह को चतुर्गुण (४×) संस्कार नहीं मिला।`;
   }
 
-  container.innerHTML = `
-    <div class="parashara-reports-wrapper">
-      <!-- Hero Banner -->
-      <div class="reports-hero-banner">
-        <div>
-          <div style="display:inline-block; background:rgba(180,83,9,0.12); border:1px solid var(--gold-border); color:var(--gold); padding:3px 12px; border-radius:16px; font-size:11px; font-weight:700; letter-spacing:0.8px; margin-bottom:6px;">
-            ★ बृहत्पाराशरहोराशास्त्र फलित विधान ★
-          </div>
-          <h2 class="reports-hero-title">📊 विशिष्ट पाराशर फलित रिपोर्ट्स</h2>
-          <p class="reports-hero-sub">अध्याय ८ (रश्मि फल वर्णन) एवं श्लोक ३४–४० (गोमूत्रिका विधान) अनुसार शुद्ध फलित विश्लेषण</p>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <button type="button" class="btn-summary-action" onclick="window.print()" style="padding:8px 14px;">
-            <span>🖨️</span> रिपोर्ट प्रिंट करें
-          </button>
-        </div>
-      </div>
-
-      <!-- Two Primary Parashara Report Cards -->
-      <div class="parashara-reports-grid">
-
-        <!-- REPORT CARD 1: RAJYOGA - DARIDRAYOGA REPORT -->
-        <div class="parashara-report-card" id="cardReportRajyoga">
+  // --- UNLOCKED FULL VIEW ---
+  if (isUnlocked) {
+    container.innerHTML = `
+      <div class="parashara-reports-wrapper">
+        <!-- Hero Banner Unlocked -->
+        <div class="reports-hero-banner">
           <div>
-            <!-- Card Header -->
-            <div class="report-header-row">
-              <div class="report-title-group">
-                <div class="report-icon-box">🏛️</div>
-                <div>
-                  <h3 class="report-card-title">${rep1.title}</h3>
-                  <p class="report-card-subtitle">${rep1.subtitle}</p>
+            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#059669; padding:4px 12px; border-radius:16px; font-size:11px; font-weight:800; letter-spacing:0.8px; margin-bottom:6px;">
+              <span>✓</span> VIP सक्रिय • दोनों पाराशर फलित रिपोर्ट्स अनलॉक (आजीवन एक्सेस)
+            </div>
+            <h2 class="reports-hero-title">📊 विशिष्ट पाराशर फलित रिपोर्ट्स</h2>
+            <p class="reports-hero-sub">अध्याय ८ (रश्मि फल वर्णन) एवं श्लोक ३४–४० (गोमूत्रिका विधान) अनुसार शुद्ध फलित विश्लेषण</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-summary-action" onclick="window.print()" style="padding:8px 14px;">
+              <span>🖨️</span> रिपोर्ट प्रिंट करें
+            </button>
+          </div>
+        </div>
+
+        <!-- Two Primary Parashara Report Cards -->
+        <div class="parashara-reports-grid">
+
+          <!-- REPORT CARD 1: RAJYOGA - DARIDRAYOGA REPORT -->
+          <div class="parashara-report-card" id="cardReportRajyoga">
+            <div>
+              <div class="report-header-row">
+                <div class="report-title-group">
+                  <div class="report-icon-box">🏛️</div>
+                  <div>
+                    <h3 class="report-card-title">${rep1.title}</h3>
+                    <p class="report-card-subtitle">${rep1.subtitle}</p>
+                  </div>
+                </div>
+                <div class="score-badge-box">
+                  <div class="score-badge-val" id="repTotalRashmi">${rep1.total_score}</div>
+                  <div class="score-badge-lbl">कुल रश्मि बल</div>
                 </div>
               </div>
-              <div class="score-badge-box">
-                <div class="score-badge-val" id="repTotalRashmi">${rep1.total_score}</div>
-                <div class="score-badge-lbl">कुल रश्मि बल</div>
-              </div>
-            </div>
 
-            <!-- Category Pill -->
-            <div class="category-pill">
-              <span>👑</span>
-              <span id="repCategoryTitle">${rep1.category}</span>
-            </div>
-
-            <!-- Classical Prediction Textbox -->
-            <div class="prediction-textbox">
-              <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px; display:flex; align-items:center; gap:5px;">
-                <span>📜</span> शास्त्रीय फलादेश (BPHS श्लोक २३–३९ स्लैब अनुसार):
+              <div class="category-pill">
+                <span>👑</span>
+                <span id="repCategoryTitle">${rep1.category}</span>
               </div>
-              <div id="repCategoryPrediction">${rep1.prediction}</div>
-            </div>
 
-            <!-- 7-Planet Rashmi Visual Bar Chart -->
-            <div class="rashmi-chart-container">
-              <div class="rashmi-chart-title">
-                <span>🪐 सप्तग्रह रश्मि-बल तालिका व बार-चार्ट</span>
-                <span style="font-size:11px; color:var(--muted); font-weight:normal;">मूल ➔ शुद्ध रश्मि</span>
+              <div class="prediction-textbox">
+                <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px; display:flex; align-items:center; gap:5px;">
+                  <span>📜</span> शास्त्रीय फलादेश (BPHS श्लोक २३–३९ स्लैब अनुसार):
+                </div>
+                <div id="repCategoryPrediction">${rep1.prediction}</div>
               </div>
-              ${planetRowsHtml}
-            </div>
 
-            <!-- Shodhan & Chaturguna Samskara Details -->
-            <div class="shodhan-info-box">
-              <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px;">
-                ⚖️ ग्रह शोधन एवं चतुर्गुण संस्कार (श्लोक १८–२०):
+              <div class="rashmi-chart-container">
+                <div class="rashmi-chart-title">
+                  <span>🪐 सप्तग्रह रश्मि-बल तालिका व बार-चार्ट</span>
+                  <span style="font-size:11px; color:var(--muted); font-weight:normal;">मूल ➔ शुद्ध रश्मि</span>
+                </div>
+                ${planetRowsHtml}
               </div>
-              <div style="font-size:11.5px; color:var(--dark); line-height:1.6;">${shodhanHtml}</div>
+
+              <div class="shodhan-info-box">
+                <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px;">
+                  ⚖️ ग्रह शोधन एवं चतुर्गुण संस्कार (श्लोक १८–२०):
+                </div>
+                <div style="font-size:11.5px; color:var(--dark); line-height:1.6;">${shodhanHtml}</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- REPORT CARD 2: VAHAN & JANBAL REPORT -->
-        <div class="parashara-report-card" id="cardReportVahan">
-          <div>
-            <!-- Card Header -->
-            <div class="report-header-row">
-              <div class="report-title-group">
-                <div class="report-icon-box">🚗</div>
-                <div>
-                  <h3 class="report-card-title">${rep2.title}</h3>
-                  <p class="report-card-subtitle">${rep2.subtitle}</p>
+          <!-- REPORT CARD 2: VAHAN & JANBAL REPORT -->
+          <div class="parashara-report-card" id="cardReportVahan">
+            <div>
+              <div class="report-header-row">
+                <div class="report-title-group">
+                  <div class="report-icon-box">🚗</div>
+                  <div>
+                    <h3 class="report-card-title">${rep2.title}</h3>
+                    <p class="report-card-subtitle">${rep2.subtitle}</p>
+                  </div>
+                </div>
+                <div class="score-badge-box" style="border-color:#10b981;">
+                  <div class="score-badge-val" style="color:#10b981;" id="repVahanIndex">${rep2.vahan_sevak_index}</div>
+                  <div class="score-badge-lbl" style="color:#10b981;">वाहन-सेवक सूचकांक</div>
                 </div>
               </div>
-              <div class="score-badge-box" style="border-color:#10b981;">
-                <div class="score-badge-val" style="color:#10b981;" id="repVahanIndex">${rep2.vahan_sevak_index}</div>
-                <div class="score-badge-lbl" style="color:#10b981;">वाहन-सेवक सूचकांक</div>
+
+              <div class="vahan-metric-grid">
+                <div class="vahan-metric-box">
+                  <div class="vahan-metric-num">${rep2.vahan_sevak_index}</div>
+                  <div class="vahan-metric-label">🚗 भौतिक साधन व वाहन सामर्थ्य</div>
+                  <div class="vahan-metric-sub">निजी वाहन, परिचारक व भौतिक सुख-साधनों की प्रचुरता</div>
+                </div>
+                <div class="vahan-metric-box">
+                  <div class="vahan-metric-num" style="font-size:22px; padding-top:4px;">👥</div>
+                  <div class="vahan-metric-label" style="color:var(--gold);">${rep2.janbal_capacity}</div>
+                  <div class="vahan-metric-sub">आश्रितों, कर्मियों व संगठन का भरण-पोषण सामर्थ्य</div>
+                </div>
+              </div>
+
+              <div class="prediction-textbox">
+                <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px; display:flex; align-items:center; gap:5px;">
+                  <span>🐎</span> गोमूत्रिका फल व्याख्या (श्लोक ३४–४०):
+                </div>
+                <div>${rep2.prediction}</div>
+                <div style="margin-top:8px; font-size:12px; color:var(--muted); line-height:1.6;">
+                  जातक के पास अपने उद्यम व दायित्वों के संचालन हेतु अनुकूल भौतिक साधन व जनबल उपलब्ध रहेगा।
+                </div>
+              </div>
+
+              <div class="gomutrika-steps-box">
+                <div style="font-weight:700; color:var(--primary); margin-bottom:8px; font-size:12px;">
+                  📐 गोमूत्रिका न्याय गणितीय साधन (Mathematical Steps):
+                </div>
+                <div class="gomutrika-step-row">
+                  <span>१. सप्तग्रह मूल उच्चरश्मि योग (Σ Uccharashmi):</span>
+                  <span><b>${rep1.total_uccha}</b></span>
+                </div>
+                <div class="gomutrika-step-row">
+                  <span>२. सप्तग्रह चेष्टा रश्मि योग (Σ Chestarashmi):</span>
+                  <span><b>${rep1.total_chesta}</b></span>
+                </div>
+                <div class="gomutrika-step-row">
+                  <span>३. उच्च-चेष्टा संयुक्त योग (Combined Sum):</span>
+                  <span><b>${rep2.combined_rashmi}</b></span>
+                </div>
+                <div class="gomutrika-step-row">
+                  <span>४. संयुक्त योग का अर्ध (Half Combined):</span>
+                  <span><b>${rep2.half_combined}</b></span>
+                </div>
+                <div class="gomutrika-step-row">
+                  <span>५. षष्टि भाजित गोमूत्रिका सूत्र ⌊(Combined × HalfCombined) / 60⌋:</span>
+                  <span><b style="color:#10b981; font-size:14px;">${rep2.vahan_sevak_index} सूचकांक</b></span>
+                </div>
+              </div>
+
+              <div class="shloka-quote-box">
+                <strong>बृहत्पाराशरहोराशास्त्र श्लोक ४०:</strong><br>
+                <em>"उच्चचेष्टोत्थयोगार्धगुणिताः षष्टिभाजिताः। नरादीनां तु संख्याः स्युर्वाहनानां च सर्वथा॥"</em>
               </div>
             </div>
+          </div>
 
-            <!-- Metric Dual Grid -->
-            <div class="vahan-metric-grid">
-              <div class="vahan-metric-box">
-                <div class="vahan-metric-num">${rep2.vahan_sevak_index}</div>
-                <div class="vahan-metric-label">🚗 भौतिक साधन व वाहन सामर्थ्य</div>
-                <div class="vahan-metric-sub">निजी वाहन, परिचारक व भौतिक सुख-साधनों की प्रचुरता</div>
-              </div>
-              <div class="vahan-metric-box">
-                <div class="vahan-metric-num" style="font-size:22px; padding-top:4px;">👥</div>
-                <div class="vahan-metric-label" style="color:var(--gold);">${rep2.janbal_capacity}</div>
-                <div class="vahan-metric-sub">आश्रितों, कर्मियों व संगठन का भरण-पोषण सामर्थ्य</div>
+        </div>
+      </div>
+    `;
+  } else {
+    // --- LOCKED PAYWALL VIEW (₹199 Offer Teaser) ---
+    const lockedPlanetRowsHtml = planetKeys.map(k => {
+      const d = rep1.planet_details[k];
+      if (!d) return '';
+      return `
+        <div class="planet-rashmi-row">
+          <div class="planet-rashmi-meta">
+            <div class="planet-rashmi-name">
+              <span style="font-size:15px;">${d.meta.glyph}</span>
+              <span>${d.meta.name}</span>
+              <span style="font-size:11px; color:var(--muted); font-weight:normal;">(भाव ${d.house} • ${SIGNS[d.rashi]})</span>
+            </div>
+            <div class="planet-rashmi-val">
+              <span style="font-size:11.5px; color:var(--gold); font-weight:bold;">🔒 VIP अनलॉक</span>
+            </div>
+          </div>
+          <div class="rashmi-bar-track">
+            <div class="rashmi-bar-fill" style="width:45%; background:rgba(180,83,9,0.25);"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="parashara-reports-wrapper">
+        <!-- Hero Banner Locked -->
+        <div class="reports-hero-banner">
+          <div>
+            <div style="display:inline-block; background:rgba(180,83,9,0.12); border:1px solid var(--gold-border); color:var(--gold); padding:3px 12px; border-radius:16px; font-size:11px; font-weight:700; letter-spacing:0.8px; margin-bottom:6px;">
+              ★ बृहत्पाराशरहोराशास्त्र फलित विधान ★
+            </div>
+            <h2 class="reports-hero-title">📊 विशिष्ट पाराशर फलित रिपोर्ट्स</h2>
+            <p class="reports-hero-sub">अध्याय ८ (रश्मि फल वर्णन) एवं श्लोक ३४–४० (गोमूत्रिका विधान) अनुसार शुद्ध फलित विश्लेषण</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="parashara-lock-overlay-btn" onclick="openParasharaPaymentModal()">
+              ⚡ ₹199 में दोनों रिपोर्ट्स अनलॉक करें ➔
+            </button>
+          </div>
+        </div>
+
+        <!-- Featured Paywall Offer Banner -->
+        <div class="parashara-paywall-banner">
+          <div class="paywall-banner-badge">👑 एक्सक्लूसिव प्रीमियम फलित विधान</div>
+          <div class="paywall-banner-content">
+            <div class="paywall-banner-text">
+              <h3 class="paywall-banner-title">पाराशर रश्मि-बल एवं गोमूत्रिका वाहन-जनबल रिपोर्ट्स</h3>
+              <p class="paywall-banner-desc">
+                बृहत्पाराशरहोराशास्त्र (BPHS) के दुर्लभ फलित सूत्रों पर आधारित दोनों रिपोर्ट्स अनलॉक करें। अपने सम्पूर्ण राजयोग/दरिद्रता का गणितीय रश्मि स्कोर, 7 ग्रहों का व्यक्तिगत रश्मि-बल, श्लोक 18 युति शोधन, श्लोक 20 चतुर्गुण संस्कार एवं श्लोक 34-40 अनुसार वाहन व जनबल सूचकांक प्राप्त करें।
+              </p>
+              <div class="paywall-banner-highlights">
+                <span>⚡ आजीवन एक्सेस (Lifetime Access)</span>
+                <span>📜 श्लोक प्रमाण सहित शुद्ध गणना</span>
+                <span>🖨️ फुल रिपोर्ट प्रिंट/PDF सुविधा</span>
               </div>
             </div>
-
-            <!-- Prediction Textbox -->
-            <div class="prediction-textbox">
-              <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px; display:flex; align-items:center; gap:5px;">
-                <span>🐎</span> गोमूत्रिका फल व्याख्या (श्लोक ३४–४०):
+            <div class="paywall-banner-cta-box">
+              <div class="paywall-price-wrap">
+                <span class="paywall-old-price">₹1,999</span>
+                <span class="paywall-current-price">₹199</span>
+                <span class="paywall-discount-tag">90% छूट</span>
               </div>
-              <div>${rep2.prediction}</div>
-              <div style="margin-top:8px; font-size:12px; color:var(--muted); line-height:1.6;">
-                जातक के पास अपने उद्यम व दायित्वों के संचालन हेतु अनुकूल भौतिक साधन व जनबल उपलब्ध रहेगा।
+              <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal()">
+                ⚡ मात्र ₹199 में अनलॉक करें ➔
+              </button>
+              <div class="paywall-sublink">
+                <a href="javascript:void(0)" onclick="openParasharaPaymentModal('passcode')">VIP प्रोमो कोड दर्ज करें</a>
               </div>
-            </div>
-
-            <!-- Step-by-Step Gomutrika Breakdown Box -->
-            <div class="gomutrika-steps-box">
-              <div style="font-weight:700; color:var(--primary); margin-bottom:8px; font-size:12px;">
-                📐 गोमूत्रिका न्याय गणितीय साधन (Mathematical Steps):
-              </div>
-              <div class="gomutrika-step-row">
-                <span>१. सप्तग्रह मूल उच्चरश्मि योग (Σ Uccharashmi):</span>
-                <span><b>${rep1.total_uccha}</b></span>
-              </div>
-              <div class="gomutrika-step-row">
-                <span>२. सप्तग्रह चेष्टा रश्मि योग (Σ Chestarashmi):</span>
-                <span><b>${rep1.total_chesta}</b></span>
-              </div>
-              <div class="gomutrika-step-row">
-                <span>३. उच्च-चेष्टा संयुक्त योग (Combined Sum):</span>
-                <span><b>${rep2.combined_rashmi}</b></span>
-              </div>
-              <div class="gomutrika-step-row">
-                <span>४. संयुक्त योग का अर्ध (Half Combined):</span>
-                <span><b>${rep2.half_combined}</b></span>
-              </div>
-              <div class="gomutrika-step-row">
-                <span>५. षष्टि भाजित गोमूत्रिका सूत्र ⌊(Combined × HalfCombined) / 60⌋:</span>
-                <span><b style="color:#10b981; font-size:14px;">${rep2.vahan_sevak_index} सूचकांक</b></span>
-              </div>
-            </div>
-
-            <!-- Sanskrit Shloka Reference -->
-            <div class="shloka-quote-box">
-              <strong>बृहत्पाराशरहोराशास्त्र श्लोक ४०:</strong><br>
-              <em>"उच्चचेष्टोत्थयोगार्धगुणिताः षष्टिभाजिताः। नरादीनां तु संख्याः स्युर्वाहनानां च सर्वथा॥"</em>
             </div>
           </div>
         </div>
 
+        <!-- Two Primary Parashara Report Cards (Locked Teasers) -->
+        <div class="parashara-reports-grid">
+
+          <!-- REPORT CARD 1: RAJYOGA - DARIDRAYOGA REPORT (LOCKED) -->
+          <div class="parashara-report-card parashara-locked-card" id="cardReportRajyoga">
+            <div>
+              <div class="report-header-row">
+                <div class="report-title-group">
+                  <div class="report-icon-box">🏛️</div>
+                  <div>
+                    <h3 class="report-card-title">${rep1.title}</h3>
+                    <p class="report-card-subtitle">${rep1.subtitle}</p>
+                  </div>
+                </div>
+                <div class="score-badge-box">
+                  <div class="score-badge-val" style="color:var(--gold); font-size:16px; padding-top:4px;">🔒 VIP</div>
+                  <div class="score-badge-lbl">कुल रश्मि बल</div>
+                </div>
+              </div>
+
+              <div class="category-pill" style="background:rgba(180,83,9,0.08);">
+                <span>👑</span>
+                <span>पाराशर रश्मि श्रेणी: 🔒 (अनलॉक करने पर दृश्य)</span>
+              </div>
+
+              <div class="prediction-textbox" style="position:relative; overflow:hidden;">
+                <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px; display:flex; align-items:center; gap:5px;">
+                  <span>📜</span> शास्त्रीय फलादेश (BPHS श्लोक २३–३९ स्लैब अनुसार):
+                </div>
+                <div style="filter:blur(3.5px); opacity:0.6; user-select:none;">
+                  जातक की कुण्डली में लग्न एवं केन्द्र-त्रिकोण भावों के आधार पर पाराशर रश्मि-बल की गणना की गई है। समस्त शुभ व अशुभ ग्रहों की रश्मियों के परस्पर शोधन के उपरांत प्राप्त कुल रश्मि मान के आधार पर शास्त्रीय फलादेश...
+                </div>
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.25);">
+                  <button type="button" class="btn-summary-action" onclick="openParasharaPaymentModal()" style="font-size:12px; padding:6px 14px; background:var(--primary); color:#fff; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+                    🔒 पूर्ण फलादेश अनलॉक करें
+                  </button>
+                </div>
+              </div>
+
+              <div class="rashmi-chart-container" style="position:relative;">
+                <div class="rashmi-chart-title">
+                  <span>🪐 सप्तग्रह रश्मि-बल तालिका व बार-चार्ट</span>
+                  <span style="font-size:11px; color:var(--gold); font-weight:bold;">🔒 VIP एक्सेस</span>
+                </div>
+                <div style="filter:blur(3px); opacity:0.5; pointer-events:none; user-select:none;">
+                  ${lockedPlanetRowsHtml}
+                </div>
+                <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.03);">
+                  <div style="font-size:24px; margin-bottom:4px;">🔒</div>
+                  <div style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:8px;">७ ग्रहों का शुद्ध रश्मि-बल सुरक्षित है</div>
+                  <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal()" style="width:auto; padding:8px 18px; font-size:12px;">
+                    ⚡ ₹199 में दोनों रिपोर्ट्स अनलॉक करें ➔
+                  </button>
+                </div>
+              </div>
+
+              <div class="shodhan-info-box">
+                <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px;">
+                  ⚖️ ग्रह शोधन एवं चतुर्गुण संस्कार (श्लोक १८–२०):
+                </div>
+                <div style="font-size:11.5px; color:var(--muted); line-height:1.6;">
+                  🔒 भावगत युति शोधन (श्लोक १८) एवं केन्द्र/त्रिकोण स्थित ग्रहों के ४× चतुर्गुण संस्कार (श्लोक २०) का गणितीय विवरण अनलॉक करने पर दिखाई देगा।
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- REPORT CARD 2: VAHAN & JANBAL REPORT (LOCKED) -->
+          <div class="parashara-report-card parashara-locked-card" id="cardReportVahan">
+            <div>
+              <div class="report-header-row">
+                <div class="report-title-group">
+                  <div class="report-icon-box">🚗</div>
+                  <div>
+                    <h3 class="report-card-title">${rep2.title}</h3>
+                    <p class="report-card-subtitle">${rep2.subtitle}</p>
+                  </div>
+                </div>
+                <div class="score-badge-box" style="border-color:var(--gold-border);">
+                  <div class="score-badge-val" style="color:var(--gold); font-size:16px; padding-top:4px;">🔒 VIP</div>
+                  <div class="score-badge-lbl">वाहन-सेवक सूचकांक</div>
+                </div>
+              </div>
+
+              <div class="vahan-metric-grid" style="position:relative;">
+                <div class="vahan-metric-box">
+                  <div class="vahan-metric-num" style="font-size:24px; filter:blur(4px);">42</div>
+                  <div class="vahan-metric-label">🚗 भौतिक साधन व वाहन सामर्थ्य</div>
+                  <div class="vahan-metric-sub">🔒 निजी वाहन, परिचारक व भौतिक सुख-साधन</div>
+                </div>
+                <div class="vahan-metric-box">
+                  <div class="vahan-metric-num" style="font-size:24px; filter:blur(4px);">उत्कृष्ट</div>
+                  <div class="vahan-metric-label" style="color:var(--gold);">👥 जनबल क्षमता</div>
+                  <div class="vahan-metric-sub">🔒 आश्रितों, कर्मियों व संगठन का पोषण</div>
+                </div>
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.2);">
+                  <button type="button" class="btn-summary-action" onclick="openParasharaPaymentModal()" style="font-size:12px; padding:6px 14px; background:var(--primary); color:#fff; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+                    🔒 सूचकांक अनलॉक करें
+                  </button>
+                </div>
+              </div>
+
+              <div class="prediction-textbox" style="position:relative; overflow:hidden;">
+                <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12px; display:flex; align-items:center; gap:5px;">
+                  <span>🐎</span> गोमूत्रिका फल व्याख्या (श्लोक ३४–४०):
+                </div>
+                <div style="filter:blur(3.5px); opacity:0.6; user-select:none;">
+                  जातक के पास अपने उद्यम व दायित्वों के संचालन हेतु अनुकूल भौतिक साधन, वाहन व जनबल उपलब्ध रहेगा। बृहत्पाराशरहोराशास्त्र के श्लोक ४० के अनुसार गोमूत्रिका विधान द्वारा प्राप्त संख्या...
+                </div>
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.25);">
+                  <button type="button" class="btn-summary-action" onclick="openParasharaPaymentModal()" style="font-size:12px; padding:6px 14px; background:var(--primary); color:#fff; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+                    🔒 पूर्ण फल व्याख्या अनलॉक करें
+                  </button>
+                </div>
+              </div>
+
+              <div class="gomutrika-steps-box" style="position:relative;">
+                <div style="font-weight:700; color:var(--primary); margin-bottom:8px; font-size:12px;">
+                  📐 गोमूत्रिका न्याय गणितीय साधन (Mathematical Steps):
+                </div>
+                <div style="filter:blur(4px); opacity:0.4; user-select:none;">
+                  <div class="gomutrika-step-row"><span>१. सप्तग्रह मूल उच्चरश्मि योग:</span><span><b>•••</b></span></div>
+                  <div class="gomutrika-step-row"><span>२. सप्तग्रह चेष्टा रश्मि योग:</span><span><b>•••</b></span></div>
+                  <div class="gomutrika-step-row"><span>३. संयुक्त योग:</span><span><b>•••</b></span></div>
+                  <div class="gomutrika-step-row"><span>४. संयुक्त योग का अर्ध:</span><span><b>•••</b></span></div>
+                  <div class="gomutrika-step-row"><span>५. षष्टि भाजित गोमूत्रिका सूत्र:</span><span><b>•••</b></span></div>
+                </div>
+                <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <div style="font-size:12px; font-weight:700; color:var(--gold); margin-bottom:6px;">🔒 ५-चरणीय गणितीय साधन सुरक्षित है</div>
+                  <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal()" style="width:auto; padding:8px 18px; font-size:12px;">
+                    ⚡ ₹199 में दोनों रिपोर्ट्स अनलॉक करें ➔
+                  </button>
+                </div>
+              </div>
+
+              <div class="shloka-quote-box">
+                <strong>बृहत्पाराशरहोराशास्त्र श्लोक ४०:</strong><br>
+                <em>"उच्चचेष्टोत्थयोगार्धगुणिताः षष्टिभाजिताः। नरादीनां तु संख्याः स्युर्वाहनानां च सर्वथा॥"</em>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
-    </div>
-  `;
+    `;
+  }
+
+  // Smooth scroll to focused report card if URL param present
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const focusTarget = urlParams.get('focus');
+    if (focusTarget === 'rajyoga') {
+      const el = document.getElementById('cardReportRajyoga');
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+    } else if (focusTarget === 'vahan') {
+      const el = document.getElementById('cardReportVahan');
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+    }
+  } catch(e) {}
 }
 
 function switchAuxTable(tableId) {
@@ -7592,5 +8283,90 @@ window.addEventListener('DOMContentLoaded', () => {
 
 <!-- FLOATING KUNDALI TOAST -->
 <div id="kundaliToast" class="kundali-toast"></div>
+
+<!-- PARASHARA REPORTS 199 PAYWALL MODAL -->
+<div id="modalParasharaPayment199" class="parashara-paywall-overlay" onclick="if(event.target===this)closeParasharaPaymentModal()">
+  <div class="parashara-paywall-modal">
+    <button type="button" class="parashara-modal-close" onclick="closeParasharaPaymentModal()" aria-label="बंद करें">&times;</button>
+    
+    <div style="text-align:center; margin-bottom:16px;">
+      <div style="font-size:36px; margin-bottom:6px;">👑</div>
+      <div style="display:inline-block; background:rgba(180,83,9,0.12); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; font-weight:800; padding:2px 10px; border-radius:12px; margin-bottom:6px; letter-spacing:0.6px;">
+        ★ बृहत्पाराशरहोराशास्त्र फलित विधान ★
+      </div>
+      <h3 style="font-family:'Cinzel', serif; font-size:20px; color:var(--primary); margin:0 0 4px 0; font-weight:800;">
+        दोनों पाराशर फलित रिपोर्ट्स अनलॉक करें
+      </h3>
+      <p style="font-size:12px; color:var(--muted); margin:0;">
+        राजयोग-दरिद्रयोग रिपोर्ट + वाहन व जनबल रिपोर्ट (आजीवन एक्सेस)
+      </p>
+    </div>
+
+    <!-- Pricing Summary Table -->
+    <div class="parashara-deal-table">
+      <div class="deal-row">
+        <span>१. राजयोग-दरिद्रयोग रश्मि-बल रिपोर्ट:</span>
+        <span style="text-decoration:line-through; color:var(--muted);">₹999</span>
+      </div>
+      <div class="deal-row">
+        <span>२. गोमूत्रिका वाहन एवं जनबल रिपोर्ट:</span>
+        <span style="text-decoration:line-through; color:var(--muted);">₹1,000</span>
+      </div>
+      <div class="deal-row" style="color:#10b981; font-weight:700;">
+        <span>विशेष कॉम्बो छूट (90% OFF):</span>
+        <span>-₹1,800</span>
+      </div>
+      <div class="deal-row total">
+        <span>देय कुल राशि (Net Payable):</span>
+        <span style="font-size:20px; color:var(--primary); font-family:'Cinzel',serif;">₹199</span>
+      </div>
+    </div>
+
+    <!-- Primary Razorpay Checkout Button -->
+    <button type="button" class="btn-rzp-submit" onclick="triggerParasharaRazorpayCheckout()">
+      💳 ₹199 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
+    </button>
+    <div style="font-size:11px; text-align:center; color:var(--muted); margin-bottom:12px;">
+      🔒 सुरक्षित 256-bit Razorpay गेटवे • तत्काल ऑटो-अनलॉक
+    </div>
+
+    <!-- Direct UPI QR / WhatsApp Toggle -->
+    <div class="upi-expand-section">
+      <button type="button" class="upi-link-btn" onclick="toggleParasharaPaymentQrView()">
+        📱 या सीधे UPI QR कोड स्कैन करके ₹199 पे करें ➔
+      </button>
+
+      <div class="upi-pane-box" id="parasharaUpiPane">
+        <div style="font-size:12px; font-weight:700; color:var(--dark); margin-bottom:8px;">
+          PhonePe / Google Pay / Paytm से QR स्कैन करें:
+        </div>
+        <div style="display:flex; justify-content:center; margin-bottom:8px;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D9517117775%40upi%26pn%3DShriRamjiAstro%26am%3D199%26cu%3DINR%26tn%3DParasharaReports" alt="UPI QR Code ₹199" style="width:160px; height:160px; border-radius:10px; border:1px solid var(--gold-border); background:#fff; padding:6px;">
+        </div>
+        <div style="font-size:12px; font-weight:800; color:var(--gold); margin-bottom:8px;">
+          UPI ID: <span style="user-select:all;">9517117775@upi</span>
+        </div>
+        <div style="font-size:11.5px; color:var(--muted); margin-bottom:10px; line-height:1.4;">
+          भुगतान के उपरांत स्क्रीनशॉट WhatsApp पर भेजें या नीचे VIP कोड दर्ज करें:
+        </div>
+        <a href="https://wa.me/919517117775?text=%F0%9F%99%8F%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%BE%E0%A4%B6%E0%A4%B0%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%E0%A5%8D%E0%A4%B8%20(%E2%82%B9199)%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%20%E0%A4%A6%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4%20%E0%A4%95%E0%A5%83%E0%A4%AA%E0%A4%AF%E0%A4%BE%20%E0%A4%85%E0%A4%A8%E0%A4%B2%E0%A5%89%E0%A4%95%20%E0%A4%95%E0%A5%8B%E0%A4%A1%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A6%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%E0%A5%87%E0%A4%82%E0%A5%A4" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#25d366; color:#fff; padding:6px 14px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700;">
+          <span>💬</span> WhatsApp पर पुष्टि भेजें (+91 9517117775)
+        </a>
+      </div>
+    </div>
+
+    <!-- VIP Promo Code Section -->
+    <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
+      <div style="font-size:12px; font-weight:700; color:var(--gold); margin-bottom:4px;">
+        🔑 VIP / प्रोमो कोड है?
+      </div>
+      <div class="vip-code-flex">
+        <input type="text" id="parasharaVipCodeInput" class="vip-code-inp" placeholder="उदा. PARASHAR199" onkeydown="if(event.key==='Enter')verifyParasharaPasscode()">
+        <button type="button" class="btn-vip-submit" onclick="verifyParasharaPasscode()">लागू करें</button>
+      </div>
+      <div id="parasharaVipErrMsg" style="display:none; color:#ef4444; font-size:11.5px; margin-top:6px; font-weight:600;"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
