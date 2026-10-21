@@ -43,8 +43,9 @@
       // Mobile Tab Bar
       tab_home: "होम",
       tab_kundli: "कुण्डली",
+      tab_panchang: "पञ्चाङ्ग",
       tab_muhurat: "मुहूर्त",
-      tab_sanctuary: "परामर्श",
+      tab_sanctuary: "1-on-1 परामर्श",
       tab_reports: "रिपोर्ट्स",
 
       // Sacred seal
@@ -108,10 +109,10 @@
       muhurat_mundan_sub: "१४ शास्त्रीय नियम • चंद्रबल • ताराबल",
       muhurat_notice: "ℹ️ सभी मुहूर्त शोधन ₹1,111 VIP शास्त्रीय शोध सत्र (20 मिनट पूर्ण एक्सेस) द्वारा संचालित हैं।",
 
-      // Tab 3: Sanctuary
-      sanctuary_page_title: "🪔 पर्सनल परामर्श (Sanctuary)",
+      // Tab 4: 1-on-1 Consultation
+      sanctuary_page_title: "🌟 1-on-1 प्रीमियम परामर्श",
       sanctuary_page_sub: "Strictly One Soul Per Solar Day • Astro Raamji",
-      sanctuary_heading: "SACRED SANCTUARY",
+      sanctuary_heading: "SACRED 1-ON-1 CONSULTATION",
       sanctuary_p1: "प्रति दिवस केवल एक जातक का गहन अध्ययन। सूर्योदय से सूर्यास्त तक आपकी सम्पूर्ण कुण्डली, सूक्ष्म वर्ग और ग्रह स्थितियों का व्यक्तिगत विश्लेषण।",
       sanctuary_b1: "✓ ९० मिनट विस्तृत 1-on-1 संवाद",
       sanctuary_b2: "✓ षोडशवर्ग सूक्ष्म कुंडलियों का गहन परीक्षण",
@@ -166,7 +167,7 @@
       nav_vastu: "वास्तु मुहूर्त",
       nav_yajno: "यज्ञोपवीत",
       nav_mundan: "चूड़ाकर्म (मुंडन)",
-      nav_consult: "परामर्श (Sanctuary)",
+      nav_consult: "1-on-1 परामर्श",
       nav_course: "कोर्स (Academy)",
       nav_about: "अबाउट व ब्लॉग",
       nav_admin: "एडमिन",
@@ -198,8 +199,9 @@
       // Mobile Tab Bar
       tab_home: "Home",
       tab_kundli: "Kundli",
+      tab_panchang: "Panchang",
       tab_muhurat: "Muhurat",
-      tab_sanctuary: "Sanctuary",
+      tab_sanctuary: "1-on-1 Consult",
       tab_reports: "Reports",
 
       // Sacred seal
@@ -263,10 +265,10 @@
       muhurat_mundan_sub: "14 Classical Injunctions • Moon & Tara Bala",
       muhurat_notice: "ℹ️ All Muhurta elections are backed by ₹1,111 VIP Classical Session (20 Mins unmetered access).",
 
-      // Tab 3: Sanctuary
-      sanctuary_page_title: "🪔 Personal Consultation (Sanctuary)",
+      // Tab 4: 1-on-1 Consultation
+      sanctuary_page_title: "🌟 1-on-1 Private Consultation",
       sanctuary_page_sub: "Strictly One Soul Per Solar Day • Astro Raamji",
-      sanctuary_heading: "SACRED SANCTUARY",
+      sanctuary_heading: "SACRED 1-ON-1 CONSULTATION",
       sanctuary_p1: "Deep personalized analysis of strictly one soul per day. Detailed study of micro-divisional charts, yogas, and life destiny from dawn to dusk.",
       sanctuary_b1: "✓ 90-Minute in-depth 1-on-1 dialogue",
       sanctuary_b2: "✓ Examination of micro-divisional Shodashvarga charts",
@@ -321,7 +323,7 @@
       nav_vastu: "Vastu Muhurta",
       nav_yajno: "Yajnopavita",
       nav_mundan: "Mundan Muhurta",
-      nav_consult: "Sanctuary",
+      nav_consult: "1-on-1 Consult",
       nav_course: "Academy Course",
       nav_about: "About & Blog",
       nav_admin: "Admin",
@@ -1388,7 +1390,7 @@
 
           <!-- DIRECT LINKS -->
           <a href="consultation.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:800;">
-            <span>🔮</span> <span data-i18n="nav_consult">1-on-1 Sanctuary Consultation</span>
+            <span>🌟</span> <span data-i18n="nav_consult">1-on-1 प्रीमियम परामर्श</span>
           </a>
           <a href="course.html" onclick="closeNavDrawer()" class="drawer-item">
             <span>🎓</span> <span data-i18n="nav_course">1-Year Vedic Astrology Academy</span>
@@ -1548,7 +1550,7 @@
           </div>
 
           <!-- DIRECT LINKS -->
-          <a href="consultation.html" data-i18n="nav_consult" style="color:var(--gold-dark); font-weight:800;">परामर्श (Sanctuary)</a>
+          <a href="consultation.html" data-i18n="nav_consult" style="color:var(--gold-dark); font-weight:800;">1-on-1 प्रीमियम परामर्श</a>
           <a href="course.html" data-i18n="nav_course">कोर्स (Academy)</a>
           <a href="about.html" data-i18n="nav_about">अबाउट व ब्लॉग</a>
           <a href="admin.html" data-i18n="nav_admin">एडमिन</a>

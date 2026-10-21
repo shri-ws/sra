@@ -1521,6 +1521,251 @@
         color: #F1F5F9;
       }
     }
+
+    /* VIP Tab Highlight for 1-on-1 Consultation */
+    .app-tab-chip.chip-highlight-vip {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.18), rgba(217, 119, 6, 0.28)) !important;
+      border: 1.5px solid #d97706 !important;
+      color: #92400e !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 10px rgba(217, 119, 6, 0.25) !important;
+      animation: pulseTabVip 3s infinite ease-in-out;
+    }
+    .app-tab-chip.chip-highlight-vip.active {
+      background: linear-gradient(135deg, #b45309, #d97706) !important;
+      border-color: #f59e0b !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45) !important;
+    }
+    [data-theme="night"] .app-tab-chip.chip-highlight-vip {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(180, 83, 9, 0.35)) !important;
+      border-color: #f59e0b !important;
+      color: #fef08a !important;
+    }
+    [data-theme="night"] .app-tab-chip.chip-highlight-vip.active {
+      background: linear-gradient(135deg, #d97706, #b45309) !important;
+      border-color: #fef08a !important;
+      color: #ffffff !important;
+    }
+    @keyframes pulseTabVip {
+      0%, 100% { box-shadow: 0 0 6px rgba(217, 119, 6, 0.2); }
+      50% { box-shadow: 0 0 14px rgba(217, 119, 6, 0.55); }
+    }
+
+    .nav-vip-consult-pill {
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(180, 83, 9, 0.25));
+      border: 1.5px solid var(--gold, #C5A059);
+      color: var(--heading-color, #7C1305) !important;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 800 !important;
+      box-shadow: 0 2px 10px rgba(197, 160, 89, 0.25);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .nav-vip-consult-pill:hover {
+      background: linear-gradient(135deg, #7C1305, #a31d0d);
+      color: #ffffff !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(124, 19, 5, 0.35);
+    }
+
+    /* Panchang Component Styles */
+    .panchang-card {
+      background: var(--card-bg, #ffffff);
+      border: 1.5px solid var(--gold-border, rgba(197, 160, 89, 0.35));
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
+    }
+    .panchang-header {
+      border-bottom: 1.5px solid var(--gold-border, rgba(197, 160, 89, 0.35));
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .panchang-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .panchang-limb-box {
+      background: var(--bg, #fbf8f2);
+      border: 1px solid var(--gold-border, rgba(197, 160, 89, 0.35));
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .panchang-limb-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      border-color: var(--gold, #C5A059);
+    }
+    .limb-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--gold-dark, #8C6D2B);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .limb-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--heading-color, #7C1305);
+      margin-bottom: 4px;
+      font-family: var(--font-accent-serif, 'Cinzel', serif);
+    }
+    .limb-sub {
+      font-size: 11.5px;
+      color: var(--text, #334155);
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+    .badge-vishti-alert {
+      display: inline-block;
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1.5px solid #ef4444;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .badge-limb-good {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #10b981;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .badge-limb-warn {
+      display: inline-block;
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .panchang-section-title {
+      font-family: var(--font-accent-serif, 'Cinzel', serif);
+      font-size: 14px;
+      color: var(--gold-dark, #8C6D2B);
+      font-weight: 700;
+      border-bottom: 1px dashed var(--gold-border, rgba(197, 160, 89, 0.35));
+      padding-bottom: 6px;
+      margin: 18px 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .muhurta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .muhurta-item {
+      background: var(--bg, #fbf8f2);
+      border: 1px solid var(--border, rgba(197, 160, 89, 0.25));
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .muhurta-item-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text, #334155);
+    }
+    .muhurta-item-time {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--heading-color, #7C1305);
+      font-family: var(--font-accent-serif, 'Cinzel', serif);
+      text-align: right;
+    }
+    .avakahada-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: var(--bg, #fbf8f2);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--gold-border, rgba(197, 160, 89, 0.35));
+    }
+    .avakahada-table td {
+      padding: 8px 12px;
+      border: 1px solid var(--border, rgba(197, 160, 89, 0.25));
+      color: var(--text, #334155);
+    }
+    .avakahada-table td:nth-child(odd) {
+      font-weight: 700;
+      color: var(--gold-dark, #8C6D2B);
+      width: 22%;
+      background: rgba(180, 83, 9, 0.05);
+    }
+    .avakahada-table td:nth-child(even) {
+      width: 28%;
+      font-weight: 600;
+    }
+    .quick-chip-btn {
+      padding: 4px 10px;
+      background: var(--bg, #fbf8f2);
+      border: 1px solid var(--gold-border, rgba(197, 160, 89, 0.35));
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text, #334155);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .quick-chip-btn:hover, .quick-chip-btn.active {
+      background: var(--primary, #7C1305);
+      color: #fff;
+      border-color: var(--primary, #7C1305);
+    }
+    .city-quick-chip {
+      padding: 3px 9px;
+      background: rgba(197, 160, 89, 0.1);
+      border: 1px solid rgba(197, 160, 89, 0.3);
+      border-radius: 12px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--gold-dark, #8C6D2B);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .city-quick-chip:hover {
+      background: var(--gold, #C5A059);
+      color: #fff;
+    }
+    @media (max-width: 768px) {
+      .panchang-grid-5 {
+        grid-template-columns: 1fr !important;
+      }
+      .muhurta-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1537,6 +1782,16 @@
       </div>
     </a>
     <div class="nav-links">
+      <!-- KUNDLI LINK -->
+      <a href="patrika.html" style="color:var(--text); font-weight:700;">
+        <span>📜</span> <span data-i18n="tab_kundli">कुण्डली</span>
+      </a>
+
+      <!-- PANCHANG LINK -->
+      <a href="javascript:void(0)" onclick="openLandingPanchang()" style="color:var(--text); font-weight:700;">
+        <span>📿</span> <span data-i18n="tab_panchang">पञ्चाङ्ग</span>
+      </a>
+
       <!-- MUHURT DROPDOWN -->
       <div class="nav-dropdown" id="navDropdownMuhurt">
         <button type="button" class="nav-dropdown-btn" aria-haspopup="true" aria-expanded="false">
@@ -1583,7 +1838,9 @@
       </div>
 
       <!-- DIRECT LINKS -->
-      <a href="consultation.html" data-i18n="nav_consult" style="color:var(--gold-dark); font-weight:800;">परामर्श (Sanctuary)</a>
+      <a href="consultation.html" class="nav-vip-consult-pill" data-i18n="nav_consult">
+        <span>🌟</span> 1-on-1 प्रीमियम परामर्श
+      </a>
       <a href="course.html" data-i18n="nav_course">कोर्स (Academy)</a>
       <a href="about.html" data-i18n="nav_about">अबाउट व ब्लॉग</a>
       <a href="admin.html" data-i18n="nav_admin">एडमिन</a>
@@ -1717,8 +1974,11 @@
       </div>
 
       <!-- DIRECT LINKS -->
-      <a href="consultation.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:800;">
-        <span>🔮</span> <span data-i18n="nav_consult">1-on-1 Sanctuary Consultation</span>
+      <a href="javascript:void(0)" onclick="closeNavDrawer(); openLandingPanchang();" class="drawer-item" style="color:var(--text); font-weight:700;">
+        <span>📿</span> <span data-i18n="tab_panchang">दैनिक पञ्चाङ्ग (Daily Panchang)</span>
+      </a>
+      <a href="consultation.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:800; background:rgba(217, 119, 6, 0.1); border-radius:10px; border:1px solid rgba(217,119,6,0.3);">
+        <span>🌟</span> <span data-i18n="nav_consult">1-on-1 प्रीमियम परामर्श (Private Consult)</span>
       </a>
       <a href="course.html" onclick="closeNavDrawer()" class="drawer-item">
         <span>🎓</span> <span data-i18n="nav_course">1-Year Vedic Astrology Academy</span>
@@ -1761,12 +2021,15 @@
         <span>📜</span> <span data-i18n="tab_kundli">कुण्डली</span>
       </button>
       <button type="button" class="app-tab-chip" data-tab-index="2" role="tab" aria-selected="false" onclick="switchMobileTab(2)">
-        <span>💍</span> <span data-i18n="tab_muhurat">मुहूर्त</span>
+        <span>📿</span> <span data-i18n="tab_panchang">पञ्चाङ्ग</span>
       </button>
       <button type="button" class="app-tab-chip" data-tab-index="3" role="tab" aria-selected="false" onclick="switchMobileTab(3)">
-        <span>🪔</span> <span data-i18n="tab_sanctuary">परामर्श</span>
+        <span>💍</span> <span data-i18n="tab_muhurat">मुहूर्त</span>
       </button>
-      <button type="button" class="app-tab-chip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
+      <button type="button" class="app-tab-chip chip-highlight-vip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
+        <span>🌟</span> <span data-i18n="tab_sanctuary">1-on-1 परामर्श</span>
+      </button>
+      <button type="button" class="app-tab-chip" data-tab-index="5" role="tab" aria-selected="false" onclick="switchMobileTab(5)">
         <span>📊</span> <span data-i18n="tab_reports">रिपोर्ट्स</span>
       </button>
     </div>
@@ -1954,7 +2217,116 @@
         </a>
       </section>
 
-      <!-- ─── TAB 2: MUHURAT HUB VIEW ─── -->
+      <!-- ─── TAB 2: DAILY PANCHANG VIEW (CLASSICAL EPHEMERIS & CALENDAR) ─── -->
+      <section class="view-page" id="viewPanchang" role="tabpanel" aria-label="Daily Panchang View">
+        <div class="page-hero-header">
+          <h2 class="page-hero-title">📿 दैनिक शास्त्रीय पञ्चाङ्ग (Daily Panchang)</h2>
+          <p class="page-hero-sub">तिथि, वार, नक्षत्र, योग, करण (विष्टि/भद्रा), सूर्योदय व तात्कालिक मुहूर्त</p>
+        </div>
+
+        <!-- DATE & CALENDAR PICKER CARD -->
+        <div class="app-glass-panel" style="padding:14px; margin-bottom:14px;">
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <label class="app-form-label" style="margin:0; font-weight:700;">
+                📅 पञ्चाङ्ग तिथि चयन (Select Date):
+              </label>
+              <!-- QUICK CHIPS -->
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(-1)">◀ पिछला</button>
+                <button type="button" class="quick-chip-btn active" onclick="setLandingPanchangToday()">आज</button>
+                <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(1)">अगला ▶</button>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div>
+                <label class="app-form-label">तारीख (Date)</label>
+                <input type="date" id="inLandingPanchangDate" class="app-form-input" onchange="calculateLandingPanchang()" required>
+              </div>
+              <div>
+                <label class="app-form-label">समय (Time - Default Sunrise)</label>
+                <input type="time" id="inLandingPanchangTime" class="app-form-input" value="06:00" onchange="calculateLandingPanchang()">
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <label class="app-form-label" style="margin:0;">स्थान (City / Location)</label>
+                <span id="panchangCityCoords" style="font-size:11px; color:var(--muted);">28.6139° N, 77.2090° E</span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inLandingPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" placeholder="स्थान दर्ज करें..." onchange="onLandingPanchangCityChange()" style="flex:1;">
+                <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" title="वर्तमान स्थान उपयोग करें">📍</button>
+              </div>
+              <!-- QUICK CITY CHIPS -->
+              <div style="display:flex; gap:5px; margin-top:8px; overflow-x:auto; padding-bottom:2px;">
+                <button type="button" class="city-quick-chip" onclick="setLandingCity('नई दिल्ली', 28.6139, 77.2090, 5.5)">नई दिल्ली</button>
+                <button type="button" class="city-quick-chip" onclick="setLandingCity('वाराणसी', 25.3176, 82.9739, 5.5)">वाराणसी</button>
+                <button type="button" class="city-quick-chip" onclick="setLandingCity('अयोध्या', 26.7922, 82.1998, 5.5)">अयोध्या</button>
+                <button type="button" class="city-quick-chip" onclick="setLandingCity('मुंबई', 19.0760, 72.8777, 5.5)">मुंबई</button>
+                <button type="button" class="city-quick-chip" onclick="setLandingCity('उज्जैन', 23.1765, 75.7885, 5.5)">उज्जैन</button>
+                <button type="button" class="city-quick-chip" onclick="setLandingCity('कोलकाता', 22.5726, 88.3639, 5.5)">कोलकाता</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN PANCHANG CARD -->
+        <div class="panchang-card">
+          <!-- TOP HEADER WITH SAMVAT & VISHTI BADGE -->
+          <div class="panchang-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+              <div id="landingPanchangTitleDate" style="font-size:16px; font-weight:800; color:var(--heading-color); font-family:var(--font-heading-serif);">
+                --
+              </div>
+              <div id="landingPanchangSamvat" style="font-size:12px; color:var(--gold-dark); font-weight:600; margin-top:3px;">
+                --
+              </div>
+            </div>
+            <div id="landingPanchangVishtiBadge">
+              <!-- Vishti / Bhadra Alert -->
+            </div>
+          </div>
+
+          <!-- 1. 5 CORE LIMBS (पञ्चाङ्ग के ५ प्रधान अंग) -->
+          <h4 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h4>
+          <div class="panchang-grid-5" id="landingPanchangLimbs">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- 2. SOLAR & LUNAR DAY DYNAMICS (सौर व चान्द्र मान) -->
+          <h4 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h4>
+          <div class="muhurta-grid" id="landingPanchangSolar">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- 3. AUSPICIOUS & INAUSPICIOUS TIMINGS (शुभ व अशुभ मुहूर्त) -->
+          <h4 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h4>
+          <div class="muhurta-grid" id="landingPanchangMuhurta">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- 4. AVAKAHADA ATTRIBUTES (अवकहड़ा चक्र) -->
+          <h4 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h4>
+          <div style="overflow-x:auto;">
+            <table class="avakahada-table" id="landingAvakahadaTbl">
+              <tbody>
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- CTA BUTTON TO OPEN PATRIKA WITH THIS DATE -->
+          <div style="margin-top:16px; text-align:center;">
+            <button type="button" class="app-primary-btn" onclick="openPatrikaFromPanchang()">
+              ✨ इस तिथि का पूर्ण जन्म चक्र / पत्रिका देखें ➔
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── TAB 3: MUHURAT HUB VIEW ─── -->
       <section class="view-page" id="viewMuhurat" role="tabpanel" aria-label="Muhurat Tools Hub">
         <div class="page-hero-header">
           <h2 class="page-hero-title" data-i18n="muhurat_page_title">💍 समस्त शास्त्रीय मुहूर्त शोधन</h2>
@@ -2018,17 +2390,17 @@
         </div>
       </section>
 
-      <!-- ─── TAB 3: SANCTUARY (CONSULTATION) VIEW ─── -->
-      <section class="view-page" id="viewSanctuary" role="tabpanel" aria-label="Sanctuary Deep Consultation">
+      <!-- ─── TAB 4: 1-ON-1 VIP CONSULTATION VIEW ─── -->
+      <section class="view-page" id="viewSanctuary" role="tabpanel" aria-label="1-on-1 VIP Private Consultation">
         <div class="page-hero-header">
-          <h2 class="page-hero-title" data-i18n="sanctuary_page_title">🪔 पर्सनल परामर्श (Sanctuary)</h2>
+          <h2 class="page-hero-title" data-i18n="sanctuary_page_title">🌟 1-on-1 प्रीमियम परामर्श</h2>
           <p class="page-hero-sub" data-i18n="sanctuary_page_sub">Strictly One Soul Per Solar Day • Astro Raamji</p>
         </div>
 
-        <div class="app-glass-panel" style="border-color:rgba(197, 160, 89, 0.45); background:linear-gradient(165deg, rgba(255,253,249,0.85) 0%, rgba(250,246,239,0.95) 100%);">
+        <div class="app-glass-panel" style="border-color:rgba(217, 119, 6, 0.45); background:linear-gradient(165deg, rgba(255,253,249,0.85) 0%, rgba(254,243,199,0.5) 100%);">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-family:var(--font-accent-serif); font-size:12px; font-weight:800; color:var(--gold-dark); letter-spacing:0.5px;" data-i18n="sanctuary_heading">SACRED SANCTUARY</span>
-            <span class="card-badge price" style="font-size:11px; padding:3px 8px;">₹5,100</span>
+            <span style="font-family:var(--font-accent-serif); font-size:12px; font-weight:800; color:var(--gold-dark); letter-spacing:0.5px;" data-i18n="sanctuary_heading">SACRED 1-ON-1 CONSULTATION</span>
+            <span class="card-badge price" style="font-size:11px; padding:3px 8px; background:linear-gradient(135deg, #b45309, #d97706); color:#fff;">₹5,100</span>
           </div>
 
           <p style="font-family:var(--font-devanagari-body); font-size:12px; line-height:1.6; color:var(--text); margin-bottom:12px;" data-i18n="sanctuary_p1">
@@ -2043,13 +2415,13 @@
           </div>
 
           <!-- OFFICIAL SANCTUARY BOOKING CTA (RETAIN ONLY THIS) -->
-          <a href="consultation.html" class="app-primary-btn" data-i18n="btn_sanctuary_booking">
-            पूर्ण विवरण व बुकिंग कैलेंडर देखें ➔
+          <a href="consultation.html" class="app-primary-btn" data-i18n="btn_sanctuary_booking" style="background:linear-gradient(135deg, #b45309, #d97706); box-shadow:0 4px 14px rgba(217,119,6,0.35);">
+            🌟 1-on-1 प्रीमियम परामर्श बुक करें ➔
           </a>
         </div>
       </section>
 
-      <!-- ─── TAB 4: REPORTS VIEW ─── -->
+      <!-- ─── TAB 5: REPORTS VIEW ─── -->
       <section class="view-page" id="viewReports" role="tabpanel" aria-label="Specialized Reports">
         <div class="page-hero-header">
           <h2 class="page-hero-title" data-i18n="reports_page_title">📊 विशिष्ट जन्मपत्री रिपोर्ट्स</h2>
@@ -2279,6 +2651,60 @@
 
       <div class="zodiac-ticker">
         <div class="ticker-inner" id="ticker"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESKTOP DEDICATED PANCHANG SECTION -->
+  <section id="desktopPanchangSection" style="padding: 50px 0; background: var(--bg2, #fbf8f2); border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border);">
+    <div class="section-wrap" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+      <div class="section-header" style="text-align: center; margin-bottom: 28px;">
+        <div class="ornament-line"></div>
+        <h2 style="font-family: 'Rozha One', serif; font-size: 32px; color: var(--heading-color); margin-bottom: 8px;">📿 दैनिक शास्त्रीय पञ्चाङ्ग (Vedic Panchang)</h2>
+        <p style="color: var(--muted); font-size: 15px;">पञ्चाङ्ग के ५ प्रधान अंग (तिथि, वार, नक्षत्र, योग, करण), सूर्योदय-सूर्यास्त, चौघड़िया, होरा, विष्टि (भद्रा) व अवकहड़ा चक्र</p>
+      </div>
+
+      <!-- DESKTOP DATE & LOCATION CONTROLS -->
+      <div class="app-glass-panel" style="padding: 20px; border-radius: 14px; margin-bottom: 24px; background: var(--card-bg, #ffffff); border: 1.5px solid var(--gold-border, rgba(197, 160, 89, 0.35));">
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between;">
+          <div style="flex: 1; min-width: 240px;">
+            <label class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">📅 पञ्चाङ्ग तिथि चयन (Select Date)</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="date" id="inDesktopPanchangDate" class="app-form-input" onchange="syncAndCalculatePanchang('desktop')" style="flex: 1;">
+              <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(-1)">◀ पिछला</button>
+              <button type="button" class="quick-chip-btn active" onclick="setLandingPanchangToday()">आज</button>
+              <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(1)">अगला ▶</button>
+            </div>
+          </div>
+          <div style="flex: 1; min-width: 180px;">
+            <label class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">⏰ समय (Time - Default Sunrise)</label>
+            <input type="time" id="inDesktopPanchangTime" class="app-form-input" value="06:00" onchange="syncAndCalculatePanchang('desktop')">
+          </div>
+          <div style="flex: 1.2; min-width: 260px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <label class="app-form-label" style="font-weight: 700; margin:0;">📍 स्थान (Location / City)</label>
+              <span id="panchangDesktopCoords" style="font-size:11px; color:var(--muted);">28.6139° N, 77.2090° E</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="inDesktopPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" onchange="onDesktopCityChange()" style="flex: 1;">
+              <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()">📍 जीपीएस</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+          <button type="button" class="city-quick-chip" onclick="setLandingCity('नई दिल्ली', 28.6139, 77.2090, 5.5)">नई दिल्ली</button>
+          <button type="button" class="city-quick-chip" onclick="setLandingCity('वाराणसी', 25.3176, 82.9739, 5.5)">वाराणसी</button>
+          <button type="button" class="city-quick-chip" onclick="setLandingCity('अयोध्या', 26.7922, 82.1998, 5.5)">अयोध्या</button>
+          <button type="button" class="city-quick-chip" onclick="setLandingCity('मुंबई', 19.0760, 72.8777, 5.5)">मुंबई</button>
+          <button type="button" class="city-quick-chip" onclick="setLandingCity('उज्जैन', 23.1765, 75.7885, 5.5)">उज्जैन</button>
+          <button type="button" class="city-quick-chip" onclick="setLandingCity('कोलकाता', 22.5726, 88.3639, 5.5)">कोलकाता</button>
+        </div>
+      </div>
+
+      <!-- DESKTOP PANCHANG CARD RENDER TARGET -->
+      <div id="desktopPanchangDisplayWrap">
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </section>
@@ -3030,6 +3456,9 @@
         behavior: 'smooth'
       });
       setActiveTab(index);
+      if (index === 2) {
+        calculateLandingPanchang();
+      }
     };
 
     function setActiveTab(index) {
@@ -3053,6 +3482,25 @@
       }
     }
 
+    // Scroll listener for horizontal swipe
+    let scrollTimeout;
+    pager.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const width = pager.clientWidth;
+        if (width > 0) {
+          const activeIndex = Math.round(pager.scrollLeft / width);
+          if (activeIndex >= 0 && activeIndex < tabs.length) {
+            setActiveTab(activeIndex);
+            if (activeIndex === 2) {
+              calculateLandingPanchang();
+            }
+          }
+        }
+      }, 50);
+    }, { passive: true });
+  }
+
   function handleMobileKundliSubmit(e) {
     e.preventDefault();
     const name = document.getElementById('mKundliName') ? document.getElementById('mKundliName').value.trim() : '';
@@ -3064,9 +3512,811 @@
     window.location.href = url;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // CLASSICAL VEDIC PANCHANG & EPHEMERIS ENGINE (CALENDAR & DAILY PANCHANG)
+  // ══════════════════════════════════════════════════════════════════════════
+  const DEG = Math.PI / 180.0;
+  const RAD = 180.0 / Math.PI;
+
+  function norm360(d) {
+    return ((d % 360) + 360) % 360;
+  }
+
+  function formatDMS(deg) {
+    deg = (deg % 30 + 30) % 30;
+    const d = Math.floor(deg);
+    const m = Math.floor((deg - d) * 60);
+    const s = Math.round(((deg - d) * 60 - m) * 60);
+    return `${d}° ${m}' ${s}"`;
+  }
+
+  function formatTimeDecimalToAMPM(hrs) {
+    hrs = ((hrs % 24) + 24) % 24;
+    const h = Math.floor(hrs);
+    const remM = (hrs - h) * 60;
+    const m = Math.floor(remM);
+    const s = Math.round((remM - m) * 60);
+    const pad = n => String(n).padStart(2, '0');
+    const period = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${pad(h12)}:${pad(m)}:${pad(s)} ${period}`;
+  }
+
+  function formatGhatisAndPalas(ghatis) {
+    const g = Math.floor(ghatis);
+    const p = Math.floor((ghatis - g) * 60);
+    const v = Math.round(((ghatis - g) * 60 - p) * 60);
+    return `${g} घटी ${p} पल ${v} विपल`;
+  }
+
+  function toDevanagariNumerals(num) {
+    const devDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+    return String(num).replace(/[0-9]/g, d => devDigits[d]);
+  }
+
+  function getJD(year, month, day, hourUTC) {
+    if (month <= 2) { year -= 1; month += 12; }
+    const A = Math.floor(year / 100);
+    const B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5 + hourUTC / 24.0;
+  }
+
+  function getTrueLahiriAyanamsa(T) {
+    const meanAyanamsa = 23.85307 + 1.396822 * T + 0.000308 * T * T;
+    const Omega  = (125.04452 - 1934.136261 * T + 0.0020708 * T * T) * DEG;
+    const L_sun  = (280.4665 + 36000.7698 * T) * DEG;
+    const L_moon = (218.3165 + 481267.8813 * T) * DEG;
+
+    const dPsi = -17.20 * Math.sin(Omega)
+               -  1.32 * Math.sin(2 * L_sun)
+               -  0.23 * Math.sin(2 * Omega)
+               +  0.21 * Math.sin(2 * L_moon);
+
+    const eps = (23.439291 - 0.0130042 * T) * DEG;
+    const nutationCorrectionDeg = (dPsi / 3600.0) * Math.cos(eps);
+    return meanAyanamsa + nutationCorrectionDeg;
+  }
+
+  function computeMeeusMoonLongitude(T) {
+    const L_prime = 218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + (T * T * T) / 538841.0;
+    const D       = 297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + (T * T * T) / 545868.0;
+    const M       = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000.0;
+    const M_prime = 134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + (T * T * T) / 69699.0;
+    const F       = 93.2720950 + 483202.0175273 * T - 0.0036539 * T * T - (T * T * T) / 3526000.0;
+    const E = 1.0 - 0.002516 * T - 0.0000074 * T * T;
+
+    const moonTerms = [
+      [ 0,  0,  1,  0, 6288774, 0],
+      [ 2,  0, -1,  0, 1274027, 0],
+      [ 2,  0,  0,  0,  658314, 0],
+      [ 0,  0,  2,  0,  213618, 0],
+      [ 0,  1,  0,  0, -185116, 1],
+      [ 0,  0,  0,  2, -114332, 0],
+      [ 2,  0,  1,  0,   58793, 0],
+      [ 2, -1, -1,  0,   57066, 1],
+      [ 2,  0, -2,  0,   53322, 0],
+      [ 2,  1, -1,  0,   45758, 1],
+      [ 2, -1,  0,  0,  -40923, 1],
+      [ 0,  1,  1,  0,  -34720, 1],
+      [ 1,  0,  0,  0,  -30383, 0],
+      [ 0,  1, -1,  0,   15327, 1],
+      [ 2,  0,  0, -2,  -12528, 0],
+      [ 0,  0,  1,  2,   10980, 0],
+      [ 0,  0,  3,  0,   10675, 0],
+      [ 4,  0, -1,  0,   10075, 0],
+      [ 0,  0,  1, -2,    8548, 0],
+      [ 2,  1,  0,  0,   -7888, 1],
+      [ 2,  1,  1,  0,   -6766, 1],
+      [ 4,  0, -2,  0,   -5163, 0],
+      [ 2,  0, -3,  0,    4987, 0],
+      [ 2, -1,  1,  0,    4036, 1],
+      [ 2,  0,  2,  0,    3994, 0],
+      [ 4,  0,  0,  0,    3861, 0],
+      [ 2,  0, -1, -2,    3665, 0],
+      [ 0,  0,  0,  4,   -2689, 0],
+      [ 2, -1, -2,  0,   -2602, 1],
+      [ 1,  0,  1,  0,    2390, 0]
+    ];
+
+    let sumSigmaL = 0;
+    for (let i = 0; i < moonTerms.length; i++) {
+      const t = moonTerms[i];
+      const arg = (t[0] * D + t[1] * M + t[2] * M_prime + t[3] * F) * DEG;
+      let factor = t[4];
+      if (t[5] === 1) factor *= E;
+      else if (t[5] === 2) factor *= (E * E);
+      sumSigmaL += factor * Math.sin(arg);
+    }
+    const A1 = (119.75 + 131.849 * T) * DEG;
+    const A2 = (53.09 + 479264.290 * T) * DEG;
+    const planetaryAdditions = 3958 * Math.sin(A1) + 1962 * Math.sin((L_prime - F) * DEG) + 318 * Math.sin(A2);
+    const totalPerturbationDeg = (sumSigmaL + planetaryAdditions) / 1000000.0;
+    return norm360(L_prime + totalPerturbationDeg);
+  }
+
+  function computeSunLongitude(T) {
+    const L0 = norm360(280.46646 + 36000.76983 * T);
+    const M = norm360(357.52911 + 35999.05029 * T) * DEG;
+    const C = (1.914602 - 0.004817 * T) * Math.sin(M) + (0.019993 - 0.000101 * T) * Math.sin(2 * M) + 0.000289 * Math.sin(3 * M);
+    return norm360(L0 + C);
+  }
+
+  function calculateClassicalSunrise(JD_midnight, lat, lon, tz) {
+    const T_noon = (JD_midnight + 0.5 - 2451545.0) / 36525.0;
+    const M_sun = norm360(357.5291 + 35999.0503 * T_noon) * DEG;
+    const L0 = norm360(280.4665 + 36000.7698 * T_noon) * DEG;
+    const sunTrop = L0 + (1.9146 * Math.sin(M_sun) + 0.02 * Math.sin(2 * M_sun)) * DEG;
+    const eps = (23.439291 - 0.0130042 * T_noon) * DEG;
+
+    const sinDelta = Math.sin(eps) * Math.sin(sunTrop);
+    const delta = Math.asin(sinDelta);
+
+    const phi = lat * DEG;
+    const h0 = -0.833333 * DEG;
+    let cosH0 = (Math.sin(h0) - Math.sin(phi) * Math.sin(delta)) / (Math.cos(phi) * Math.cos(delta));
+    cosH0 = Math.max(-1.0, Math.min(1.0, cosH0));
+    const H0 = Math.acos(cosH0) * RAD;
+
+    const alpha = Math.atan2(Math.cos(eps) * Math.sin(sunTrop), Math.cos(sunTrop)) * RAD;
+    const EOT = (L0 * RAD - alpha);
+
+    const solarNoonLMT = 12.0 - (EOT / 15.0);
+    const tzCorrection = tz - (lon / 15.0);
+    const solarNoonStandard = solarNoonLMT + tzCorrection;
+
+    const halfDayHours = H0 / 15.0;
+    const sunriseHrs = solarNoonStandard - halfDayHours;
+    const sunsetHrs = solarNoonStandard + halfDayHours;
+    const dinamanaHrs = 2 * halfDayHours;
+
+    return { sunriseHrs, sunsetHrs, dinamanaHrs };
+  }
+
+  const PANCHANG_TITHI_NAMES = [
+    "प्रतिपदा (Pratipada)", "द्वितीया (Dvitiya)", "तृतीया (Tritiya)", "चतुर्थी (Chaturthi)",
+    "पञ्चमी (Panchami)", "षष्ठी (Shashthi)", "सप्तमी (Saptami)", "अष्टमी (Ashtami)",
+    "नवमी (Navami)", "दशमी (Dashami)", "एकादशी (Ekadashi)", "द्वादशी (Dvadashi)",
+    "त्रयोदशी (Trayodashi)", "चतुर्दशी (Chaturdashi)", "पूर्णिमा (Purnima)"
+  ];
+  const PANCHANG_TITHI_LORDS = [
+    "अग्नि (Agni)", "ब्रह्मा (Brahma)", "गौरी (Gauri)", "यम / गणेश (Yama/Ganesh)",
+    "सर्प / नाग (Sarpa)", "कार्तिकेय (Kartikeya)", "सूर्य (Surya)", "शिव / रुद्र (Shiva)",
+    "दुर्गा (Durga)", "यम (Yama)", "विश्वेदेव (Vishvedeva)", "विष्णु (Vishnu)",
+    "कामदेव (Kamadeva)", "शिव (Shiva)", "चन्द्र / पितर (Pitris)"
+  ];
+  const PANCHANG_TITHI_TYPES = ["पूर्णा", "नन्दा", "भद्रा", "जया", "रिक्ता"];
+
+  const PANCHANG_NITYA_YOGAS = [
+    { name: "विष्कम्भ (Vishkambha)", shubh: false, lord: "यम" },
+    { name: "प्रीति (Priti)", shubh: true, lord: "विष्णु" },
+    { name: "आयुष्मान् (Ayushman)", shubh: true, lord: "चन्द्र" },
+    { name: "सौभाग्य (Saubhagya)", shubh: true, lord: "ब्रह्मा" },
+    { name: "शोभन (Shobhana)", shubh: true, lord: "बृहस्पति" },
+    { name: "अतिगण्ड (Atiganda)", shubh: false, lord: "चन्द्र" },
+    { name: "सुकर्मा (Sukarma)", shubh: true, lord: "इन्द्र" },
+    { name: "धृति (Dhriti)", shubh: true, lord: "जल" },
+    { name: "शूल (Shula)", shubh: false, lord: "सर्प" },
+    { name: "गण्ड (Ganda)", shubh: false, lord: "अग्नि" },
+    { name: "वृद्धि (Vriddhi)", shubh: true, lord: "सूर्य" },
+    { name: "ध्रुव (Dhruva)", shubh: true, lord: "पृथ्वी" },
+    { name: "व्याघात (Vyaghata)", shubh: false, lord: "वायु" },
+    { name: "हर्षण (Harshana)", shubh: true, lord: "भग" },
+    { name: "वज्र (Vajra)", shubh: false, lord: "वरुण" },
+    { name: "सिद्धि (Siddhi)", shubh: true, lord: "गणेश" },
+    { name: "व्यतीपात (Vyatipata)", shubh: false, lord: "रुद्र" },
+    { name: "वरीयान् (Variyan)", shubh: true, lord: "कुबेर" },
+    { name: "परिघ (Parigha)", shubh: false, lord: "विश्वकर्मा" },
+    { name: "शिव (Shiva)", shubh: true, lord: "मित्र" },
+    { name: "सिद्ध (Siddha)", shubh: true, lord: "कार्तिकेय" },
+    { name: "साध्य (Sadhya)", shubh: true, lord: "सावित्री" },
+    { name: "शुभ (Shubha)", shubh: true, lord: "लक्ष्मी" },
+    { name: "शुक्ल (Shukla)", shubh: true, lord: "पार्वती" },
+    { name: "ब्रह्म (Brahma)", shubh: true, lord: "अश्विनीकुमार" },
+    { name: "ऐन्द्र (Aindra)", shubh: true, lord: "पितर" },
+    { name: "वैधृति (Vaidhriti)", shubh: false, lord: "दिति" }
+  ];
+
+  const PANCHANG_CHARA_KARANAS = [
+    { name: "बव (Bava)", lord: "इन्द्र", type: "चर", shubh: true, isVishti: false },
+    { name: "बालव (Balava)", lord: "ब्रह्मा", type: "चर", shubh: true, isVishti: false },
+    { name: "कौलव (Kaulava)", lord: "मित्र", type: "चर", shubh: true, isVishti: false },
+    { name: "तैतिल (Taitila)", lord: "अर्यमा", type: "चर", shubh: true, isVishti: false },
+    { name: "गर (Gara)", lord: "पृथ्वी", type: "चर", shubh: true, isVishti: false },
+    { name: "वणिज (Vanija)", lord: "श्री (लक्ष्मी)", type: "चर", shubh: true, isVishti: false },
+    { name: "विष्टि (भद्रा - Vishti Bhadra)", lord: "यम", type: "चर (अशुभ)", shubh: false, isVishti: true }
+  ];
+
+  const PANCHANG_STHIRA_KARANAS = {
+    0: { name: "किंस्तुघ्न (Kinstughna)", lord: "वायु", type: "स्थिर", shubh: true, isVishti: false },
+    57: { name: "शकुनि (Shakuni)", lord: "कलियुग", type: "स्थिर (अशुभ)", shubh: false, isVishti: false },
+    58: { name: "चतुष्पाद (Chatushpada)", lord: "ईश्वर / वृषभ", type: "स्थिर (अशुभ)", shubh: false, isVishti: false },
+    59: { name: "नाग (Naga)", lord: "नाग / सर्प", type: "स्थिर (अशुभ)", shubh: false, isVishti: false }
+  };
+
+  const PANCHANG_NAKSHATRA_DETAILS = [
+    { name: "अश्विनी", lord: "केतु", deity: "अश्विनीकुमार", gana: "देव", nadi: "आदि", yoni: "अश्व", vashya: "चतुष्पद", letters: ["चू", "चे", "चो", "ला"] },
+    { name: "भरणी", lord: "शुक्र", deity: "यम", gana: "मनुष्य", nadi: "मध्य", yoni: "गज", vashya: "द्विपद", letters: ["ली", "लू", "ले", "लो"] },
+    { name: "कृत्तिका", lord: "सूर्य", deity: "अग्नि", gana: "राक्षस", nadi: "अन्त्य", yoni: "मेष", vashya: "चतुष्पद", letters: ["अ", "ई", "उ", "ए"] },
+    { name: "रोहिणी", lord: "चन्द्र", deity: "ब्रह्मा", gana: "मनुष्य", nadi: "अन्त्य", yoni: "सर्प", vashya: "चतुष्पद", letters: ["ओ", "वा", "वी", "वू"] },
+    { name: "मृगशिरा", lord: "मंगल", deity: "चन्द्र", gana: "देव", nadi: "मध्य", yoni: "सर्प", vashya: "द्विपद", letters: ["वे", "वो", "का", "की"] },
+    { name: "आर्द्रा", lord: "राहु", deity: "रुद्र", gana: "मनुष्य", nadi: "आदि", yoni: "श्वान", vashya: "द्विपद", letters: ["कु", "घ", "ङ", "छ"] },
+    { name: "पुनर्वसु", lord: "गुरु", deity: "अदिति", gana: "देव", nadi: "आदि", yoni: "मार्जार", vashya: "द्विपद", letters: ["के", "को", "हा", "ही"] },
+    { name: "पुष्य", lord: "शनि", deity: "बृहस्पति", gana: "देव", nadi: "मध्य", yoni: "मेष", vashya: "जलचर", letters: ["हू", "हे", "हो", "डा"] },
+    { name: "आश्लेषा", lord: "बुध", deity: "सर्प", gana: "राक्षस", nadi: "अन्त्य", yoni: "मार्जार", vashya: "जलचर", letters: ["डी", "डू", "डे", "डो"] },
+    { name: "मघा", lord: "केतु", deity: "पितर", gana: "राक्षस", nadi: "अन्त्य", yoni: "मूषक", vashya: "चतुष्पद", letters: ["मा", "मी", "मू", "मे"] },
+    { name: "पूर्वाफाल्गुनी", lord: "शुक्र", deity: "भग", gana: "मनुष्य", nadi: "मध्य", yoni: "मूषक", vashya: "चतुष्पद", letters: ["मो", "टा", "टी", "टू"] },
+    { name: "उत्तराफाल्गुनी", lord: "सूर्य", deity: "अर्यमा", gana: "मनुष्य", nadi: "आदि", yoni: "गौ", vashya: "द्विपद", letters: ["टे", "टो", "पा", "पी"] },
+    { name: "हस्त", lord: "चन्द्र", deity: "सूर्य / सविता", gana: "देव", nadi: "आदि", yoni: "महिष", vashya: "द्विपद", letters: ["पू", "ष", "ण", "ठ"] },
+    { name: "चित्रा", lord: "मंगल", deity: "विश्वकर्मा", gana: "राक्षस", nadi: "मध्य", yoni: "व्याघ्र", vashya: "द्विपद", letters: ["पे", "पो", "रा", "री"] },
+    { name: "स्वाति", lord: "राहु", deity: "वायु", gana: "देव", nadi: "अन्त्य", yoni: "महिष", vashya: "द्विपद", letters: ["रू", "रे", "रो", "ता"] },
+    { name: "विशाखा", lord: "गुरु", deity: "इन्द्राग्नि", gana: "राक्षस", nadi: "अन्त्य", yoni: "व्याघ्र", vashya: "द्विपद", letters: ["ती", "तू", "ते", "तो"] },
+    { name: "अनुराधा", lord: "शनि", deity: "मित्र", gana: "देव", nadi: "मध्य", yoni: "मृग", vashya: "कीट", letters: ["ना", "नी", "नू", "ने"] },
+    { name: "ज्येष्ठा", lord: "बुध", deity: "इन्द्र", gana: "राक्षस", nadi: "आदि", yoni: "मृग", vashya: "कीट", letters: ["नो", "या", "यी", "यू"] },
+    { name: "मूल", lord: "केतु", deity: "निरृति", gana: "राक्षस", nadi: "आदि", yoni: "श्वान", vashya: "द्विपद", letters: ["ये", "यो", "भा", "भी"] },
+    { name: "पूर्वाषाढ़ा", lord: "शुक्र", deity: "आपः (जल)", gana: "मनुष्य", nadi: "मध्य", yoni: "वानर", vashya: "द्विपद", letters: ["भू", "धा", "फा", "ढा"] },
+    { name: "उत्तराषाढ़ा", lord: "सूर्य", deity: "विश्वेदेव", gana: "मनुष्य", nadi: "अन्त्य", yoni: "नकुल", vashya: "द्विपद", letters: ["भे", "भो", "जा", "जी"] },
+    { name: "श्रवण", lord: "चन्द्र", deity: "विष्णु", gana: "देव", nadi: "अन्त्य", yoni: "वानर", vashya: "जलचर", letters: ["खी", "खू", "खे", "खो"] },
+    { name: "धनिष्ठा", lord: "मंगल", deity: "अष्टवसु", gana: "राक्षस", nadi: "मध्य", yoni: "सिंह", vashya: "जलचर", letters: ["गा", "गी", "गु", "गे"] },
+    { name: "शतभिषा", lord: "राहु", deity: "वरुण", gana: "राक्षस", nadi: "आदि", yoni: "अश्व", vashya: "द्विपद", letters: ["गो", "सा", "सी", "सू"] },
+    { name: "पूर्वाभाद्रपद", lord: "गुरु", deity: "अजैकपाद", gana: "मनुष्य", nadi: "आदि", yoni: "सिंह", vashya: "द्विपद", letters: ["से", "सो", "दा", "दी"] },
+    { name: "उत्तराभाद्रपद", lord: "शनि", deity: "अहिर्बुध्न्य", gana: "मनुष्य", nadi: "मध्य", yoni: "गौ", vashya: "जलचर", letters: ["दू", "थ", "झ", "ञ"] },
+    { name: "रेवती", lord: "बुध", deity: "पूषा", gana: "देव", nadi: "अन्त्य", yoni: "गज", vashya: "जलचर", letters: ["दे", "दो", "चा", "ची"] }
+  ];
+
+  const SIGNS = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुम्भ", "मीन"];
+  const VARNAS = ["क्षत्रिय", "वैश्य", "शूद्र", "ब्राह्मण", "क्षत्रिय", "वैश्य", "शूद्र", "ब्राह्मण", "क्षत्रिय", "वैश्य", "शूद्र", "ब्राह्मण"];
+  const RITU_NAMES = ["वसन्त (Spring)", "ग्रीष्म (Summer)", "वर्षा (Monsoon)", "शरद् (Autumn)", "हेमन्त (Pre-Winter)", "शिशिर (Winter)"];
+  const CHANDRA_MASA = ["चैत्र", "वैशाख", "ज्येष्ठ", "आषाढ़", "श्रावण", "भाद्रपद", "अश्विन", "कार्तिक", "मार्गशीर्ष", "पौष", "माघ", "फाल्गुन"];
+  const WEEKDAYS = ["रविवार (Sunday)", "सोमवार (Monday)", "मंगलवार (Tuesday)", "बुधवार (Wednesday)", "गुरुवार (Thursday)", "शुक्रवार (Friday)", "शनिवार (Saturday)"];
+  const DAY_LORDS = ["सूर्य (Surya)", "चन्द्र (Chandra)", "मंगल (Mangal)", "बुध (Budha)", "गुरु (Brihaspati)", "शुक्र (Shukra)", "शनि (Shani)"];
+  const HORA_GRAHAS = ["सूर्य", "चन्द्र", "मंगल", "बुध", "बृहस्पति (गुरु)", "शुक्र", "शनि"];
+
+  const CHOGHADIYA_TYPES = {
+    Amrit: { name: "अमृत", nature: "अति शुभ", isGood: true },
+    Shubh: { name: "शुभ", nature: "शुभ फलद", isGood: true },
+    Labh:  { name: "लाभ", nature: "उत्तम लाभ", isGood: true },
+    Char:  { name: "चर", nature: "सामान्य/चंचल", isGood: true },
+    Udveg: { name: "उद्वेग", nature: "अशुभ (सूर्य)", isGood: false },
+    Kaal:  { name: "काल", nature: "हानिकारक (शनि)", isGood: false },
+    Rog:   { name: "रोग", nature: "कष्टकारी (मंगल)", isGood: false }
+  };
+  const DAY_CHOGHADIYA_TABLE = [
+    ["Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg"],
+    ["Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit"],
+    ["Rog", "Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog"],
+    ["Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh"],
+    ["Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh"],
+    ["Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char"],
+    ["Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit", "Kaal"]
+  ];
+  const NIGHT_CHOGHADIYA_TABLE = [
+    ["Shubh", "Amrit", "Char", "Rog", "Kaal", "Labh", "Udveg", "Shubh"],
+    ["Char", "Rog", "Kaal", "Labh", "Udveg", "Shubh", "Amrit", "Char"],
+    ["Kaal", "Labh", "Udveg", "Shubh", "Amrit", "Char", "Rog", "Kaal"],
+    ["Udveg", "Shubh", "Amrit", "Char", "Rog", "Kaal", "Labh", "Udveg"],
+    ["Amrit", "Char", "Rog", "Kaal", "Labh", "Udveg", "Shubh", "Amrit"],
+    ["Rog", "Kaal", "Labh", "Udveg", "Shubh", "Amrit", "Char", "Rog"],
+    ["Labh", "Udveg", "Shubh", "Amrit", "Char", "Rog", "Kaal", "Labh"]
+  ];
+
+  let landingPanchangState = {
+    date: new Date().toISOString().split('T')[0],
+    time: "06:00",
+    city: "नई दिल्ली (New Delhi)",
+    lat: 28.6139,
+    lon: 77.2090,
+    tz: 5.5
+  };
+
+  function calculateLandingPanchang() {
+    const dateStr = landingPanchangState.date || new Date().toISOString().split('T')[0];
+    const timeStr = landingPanchangState.time || "06:00";
+    const lat = landingPanchangState.lat || 28.6139;
+    const lon = landingPanchangState.lon || 77.2090;
+    const tz = landingPanchangState.tz || 5.5;
+
+    const parts = dateStr.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+
+    const tParts = timeStr.split(':');
+    const hours = parseInt(tParts[0], 10) + parseInt(tParts[1] || '0', 10) / 60.0;
+    const hourUTC = hours - tz;
+
+    const jd = getJD(year, month, day, hourUTC);
+    const T = (jd - 2451545.0) / 36525.0;
+    const ayanamsa = getTrueLahiriAyanamsa(T);
+
+    const sunTrop = computeSunLongitude(T);
+    const sunSid = norm360(sunTrop - ayanamsa);
+
+    const moonTrop = computeMeeusMoonLongitude(T);
+    const moonSid = norm360(moonTrop - ayanamsa);
+
+    const jdMid = getJD(year, month, day, 0);
+    const sunTimes = calculateClassicalSunrise(jdMid, lat, lon, tz);
+    const sunriseHrs = sunTimes.sunriseHrs;
+    const sunsetHrs = sunTimes.sunsetHrs;
+    const dinamanaHrs = sunTimes.dinamanaHrs;
+    const ratrimanaHrs = 24.0 - dinamanaHrs;
+
+    const isDay = (hours >= sunriseHrs && hours < sunsetHrs);
+    let ishtaGhati = 0;
+    if (hours >= sunriseHrs) {
+      ishtaGhati = (hours - sunriseHrs) * 2.5;
+    } else {
+      ishtaGhati = (hours + 24.0 - sunriseHrs) * 2.5;
+    }
+
+    // 1. TITHI
+    const tithiDiff = norm360(moonSid - sunSid);
+    const tithiVal = tithiDiff / 12.0;
+    const tithiIndex = Math.floor(tithiVal);
+    const isShukla = (tithiIndex < 15);
+    const tithiOrdinal = tithiIndex % 15;
+    const tithiName = (tithiOrdinal === 14) ? (isShukla ? "पूर्णिमा (Purnima)" : "अमावस्या (Amavasya)") : PANCHANG_TITHI_NAMES[tithiOrdinal];
+    const tithiLord = PANCHANG_TITHI_LORDS[tithiOrdinal];
+    const tithiType = PANCHANG_TITHI_TYPES[(tithiOrdinal + 1) % 5];
+    const tithiElapsedPercent = ((tithiVal - tithiIndex) * 100).toFixed(1);
+
+    // 2. VAAR
+    const calDate = new Date(year, month - 1, day);
+    const weekday = calDate.getDay();
+    const isBeforeSunrise = (hours < sunriseHrs);
+    const vedicDayIdx = isBeforeSunrise ? (weekday + 6) % 7 : weekday;
+    const vedicDayName = WEEKDAYS[vedicDayIdx];
+    const vedicDayLord = DAY_LORDS[vedicDayIdx];
+
+    // 3. NAKSHATRA & PADA
+    const nakFloat = moonSid / (13 + 20/60);
+    const nakIndex = Math.floor(nakFloat);
+    const nakDeg = moonSid % (13 + 20/60);
+    const pada = Math.floor(nakDeg / (3 + 20/60)) + 1;
+    const nakElapsedPercent = ((nakDeg / (13 + 20/60)) * 100).toFixed(1);
+    const nakInfo = PANCHANG_NAKSHATRA_DETAILS[nakIndex] || PANCHANG_NAKSHATRA_DETAILS[0];
+    const birthLetter = nakInfo.letters[pada - 1] || "—";
+
+    // 4. NITYA YOGA
+    const yogaSum = norm360(sunSid + moonSid);
+    const yogaIndex = Math.floor(yogaSum / (13 + 20/60));
+    const yogaElapsedPercent = (((yogaSum % (13 + 20/60)) / (13 + 20/60)) * 100).toFixed(1);
+    const yogaInfo = PANCHANG_NITYA_YOGAS[yogaIndex] || PANCHANG_NITYA_YOGAS[0];
+
+    // 5. KARANA & VISHTI
+    const kVal = Math.floor(tithiDiff / 6.0);
+    let karanaInfo;
+    if (kVal === 0) {
+      karanaInfo = PANCHANG_STHIRA_KARANAS[0];
+    } else if (kVal >= 57) {
+      karanaInfo = PANCHANG_STHIRA_KARANAS[kVal];
+    } else {
+      karanaInfo = PANCHANG_CHARA_KARANAS[(kVal - 1) % 7];
+    }
+
+    // Solar metrics
+    const sunSign = Math.floor(sunSid / 30);
+    const moonSign = Math.floor(moonSid / 30);
+    const isUttarayan = (sunSid >= 270 || sunSid < 90);
+    const rituIdx = (sunSign === 11 || sunSign === 0) ? 0 : Math.floor((sunSign - 1) / 2) + 1;
+
+    // Muhurtas
+    const abhijitStart = sunriseHrs + 7 * (dinamanaHrs / 15.0);
+    const abhijitEnd = sunriseHrs + 8 * (dinamanaHrs / 15.0);
+    const brahmaStart = sunriseHrs - 1.6;
+    const brahmaEnd = sunriseHrs - 0.8;
+
+    const RAHU_SLOTS = [7, 1, 6, 4, 5, 3, 2];
+    const rahuStart = sunriseHrs + RAHU_SLOTS[vedicDayIdx] * (dinamanaHrs / 8.0);
+    const rahuEnd = rahuStart + (dinamanaHrs / 8.0);
+
+    const YAMA_SLOTS = [4, 3, 2, 1, 0, 6, 5];
+    const yamaStart = sunriseHrs + YAMA_SLOTS[vedicDayIdx] * (dinamanaHrs / 8.0);
+    const yamaEnd = yamaStart + (dinamanaHrs / 8.0);
+
+    const GULIKA_SLOTS = [6, 5, 4, 3, 2, 1, 0];
+    const gulikaStart = sunriseHrs + GULIKA_SLOTS[vedicDayIdx] * (dinamanaHrs / 8.0);
+    const gulikaEnd = gulikaStart + (dinamanaHrs / 8.0);
+
+    // Current Hora
+    let horaPortion;
+    if (isDay) {
+      horaPortion = Math.floor((hours - sunriseHrs) / (dinamanaHrs / 12.0));
+    } else {
+      let el = hours - sunsetHrs;
+      if (el < 0) el += 24.0;
+      horaPortion = 12 + Math.floor(el / (ratrimanaHrs / 12.0));
+    }
+    const horaLordIdx = (vedicDayIdx + horaPortion * 5) % 7;
+    const currentHoraName = `${HORA_GRAHAS[horaLordIdx]} होरा`;
+
+    // Choghadiya
+    let choghadiyaKey;
+    if (isDay) {
+      const slotIdx = Math.min(7, Math.max(0, Math.floor((hours - sunriseHrs) / (dinamanaHrs / 8.0))));
+      choghadiyaKey = DAY_CHOGHADIYA_TABLE[vedicDayIdx][slotIdx];
+    } else {
+      let el = hours - sunsetHrs;
+      if (el < 0) el += 24.0;
+      const slotIdx = Math.min(7, Math.max(0, Math.floor(el / (ratrimanaHrs / 8.0))));
+      choghadiyaKey = NIGHT_CHOGHADIYA_TABLE[vedicDayIdx][slotIdx];
+    }
+    const choghadiyaObj = CHOGHADIYA_TYPES[choghadiyaKey] || CHOGHADIYA_TYPES.Amrit;
+
+    // Samvat
+    const vikramSamvat = (month < 4 || (month === 4 && day < 10)) ? year + 56 : year + 57;
+    const sakaSamvat = year - 78;
+
+    // Date formatted
+    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateFormatted = calDate.toLocaleDateString('hi-IN', optionsDate);
+
+    // Build 5 Limbs HTML
+    const limbsHtml = `
+      <div class="panchang-limb-box">
+        <div class="limb-label"><span>🌙</span> तिथि (Tithi)</div>
+        <div class="limb-value">${isShukla ? 'शुक्ल' : 'कृष्ण'} ${tithiName}</div>
+        <div class="limb-sub">
+          पक्ष: <strong>${isShukla ? 'शुक्ल पक्ष' : 'कृष्ण पक्ष'}</strong> (${tithiElapsedPercent}% व्यतीत)<br>
+          संज्ञा: <strong>${tithiType}</strong> • स्वामी: <strong>${tithiLord}</strong>
+        </div>
+      </div>
+      <div class="panchang-limb-box">
+        <div class="limb-label"><span>📅</span> वार (Vedic Vara)</div>
+        <div class="limb-value">${vedicDayName.split(' ')[0]}</div>
+        <div class="limb-sub">
+          वारेश: <strong>${vedicDayLord}</strong><br>
+          ${isBeforeSunrise ? '<span class="badge-limb-warn">सूर्योदय पूर्व (अहोरात्र पूर्व वार)</span>' : '<span class="badge-limb-good">सूर्योदय उपरान्त</span>'}
+        </div>
+      </div>
+      <div class="panchang-limb-box">
+        <div class="limb-label"><span>✨</span> नक्षत्र (Nakshatra)</div>
+        <div class="limb-value">${nakInfo.name} (चरण ${pada})</div>
+        <div class="limb-sub">
+          स्वामी: <strong>${nakInfo.lord}</strong> • देवता: <strong>${nakInfo.deity}</strong><br>
+          नामाक्षर: <strong style="color:var(--primary,#7C1305); font-size:14px;">"${birthLetter}"</strong> (${nakElapsedPercent}% भुक्त)
+        </div>
+      </div>
+      <div class="panchang-limb-box">
+        <div class="limb-label"><span>🔯</span> नित्य योग (Yoga)</div>
+        <div class="limb-value">${yogaInfo.name}</div>
+        <div class="limb-sub">
+          प्रकृति: <strong>${yogaInfo.shubh ? 'शुभ फलप्रद' : 'अशुभ / सावधानी'}</strong> • स्वामी: ${yogaInfo.lord}<br>
+          ${yogaInfo.shubh ? '<span class="badge-limb-good">✓ शुभ योग</span>' : '<span class="badge-vishti-alert">⚠️ अशुभ योग</span>'}
+        </div>
+      </div>
+      <div class="panchang-limb-box" style="${karanaInfo.isVishti ? 'border: 2px solid #ef4444; background: #fff5f5;' : ''}">
+        <div class="limb-label" style="${karanaInfo.isVishti ? 'color:#b91c1c;' : ''}"><span>⚙️</span> करण (Karana)</div>
+        <div class="limb-value" style="${karanaInfo.isVishti ? 'color:#b91c1c;' : ''}">${karanaInfo.name}</div>
+        <div class="limb-sub">
+          प्रकार: <strong>${karanaInfo.type}</strong> • स्वामी: <strong>${karanaInfo.lord}</strong><br>
+          ${karanaInfo.isVishti 
+            ? '<span class="badge-vishti-alert">⚠️ विष्टि (भद्रा) सक्रिय</span>' 
+            : '<span class="badge-limb-good">✓ शुभ व सौम्य करण</span>'}
+        </div>
+      </div>
+    `;
+
+    // Solar Dynamics HTML
+    const solarHtml = `
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🌅 सूर्योदय (Sunrise)</span>
+        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(sunriseHrs)}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🌇 सूर्यास्त (Sunset)</span>
+        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(sunsetHrs)}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">⏱️ दिनमान (Dinamana)</span>
+        <span class="muhurta-item-time">${dinamanaHrs.toFixed(2)}h (${formatGhatisAndPalas(dinamanaHrs * 2.5).split(' ')[0]} घटी)</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🌌 रात्रिमान (Ratrimana)</span>
+        <span class="muhurta-item-time">${ratrimanaHrs.toFixed(2)}h (${formatGhatisAndPalas(ratrimanaHrs * 2.5).split(' ')[0]} घटी)</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🕯️ इष्टकाल (Ishta Kala)</span>
+        <span class="muhurta-item-time">${formatGhatisAndPalas(ishtaGhati)}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🧭 अयन (Ayana)</span>
+        <span class="muhurta-item-time">${isUttarayan ? 'उत्तरायण (Uttarayan)' : 'दक्षिणायन (Dakshinayan)'}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🌸 वैदिक ऋतु (Season)</span>
+        <span class="muhurta-item-time">${RITU_NAMES[rituIdx]}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🌕 चान्द्र मास (Lunar Month)</span>
+        <span class="muhurta-item-time">${CHANDRA_MASA[sunSign]} मास (${isShukla ? 'शुक्ल' : 'कृष्ण'})</span>
+      </div>
+    `;
+
+    // Muhurtas HTML
+    const muhurtaHtml = `
+      <div class="muhurta-item" style="border:1.5px solid #10b981; background:rgba(16,185,129,0.06);">
+        <span class="muhurta-item-name">🌟 अभिजित मुहूर्त (Abhijit)</span>
+        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(abhijitStart)} – ${formatTimeDecimalToAMPM(abhijitEnd)}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🪔 ब्रह्म मुहूर्त (Brahma Muhurta)</span>
+        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(brahmaStart)} – ${formatTimeDecimalToAMPM(brahmaEnd)}</span>
+      </div>
+      <div class="muhurta-item" style="${choghadiyaObj.isGood ? 'border:1px solid #10b981; background:rgba(16,185,129,0.06);' : 'border:1px solid #ef4444; background:rgba(239,68,68,0.06);'}">
+        <span class="muhurta-item-name">⌛ चौघड़िया (Choghadiya)</span>
+        <span class="muhurta-item-time"><strong>${choghadiyaObj.name}</strong> (${choghadiyaObj.nature})</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">⏳ तात्कालिक होरा (Hora)</span>
+        <span class="muhurta-item-time"><strong>${currentHoraName}</strong></span>
+      </div>
+      <div class="muhurta-item" style="border:1px solid #ef4444; background:rgba(239,68,68,0.06);">
+        <span class="muhurta-item-name">⚠️ राहु काल (Rahu Kalam)</span>
+        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(rahuStart)} – ${formatTimeDecimalToAMPM(rahuEnd)}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">⚡ यमघण्ट काल (Yamaghanta)</span>
+        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(yamaStart)} – ${formatTimeDecimalToAMPM(yamaEnd)}</span>
+      </div>
+      <div class="muhurta-item">
+        <span class="muhurta-item-name">🛡️ गुलिक काल (Gulika Kalam)</span>
+        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(gulikaStart)} – ${formatTimeDecimalToAMPM(gulikaEnd)}</span>
+      </div>
+    `;
+
+    // Avakahada Table HTML
+    const moonVarna = VARNAS[moonSign] || "—";
+    const avakahadaHtml = `
+      <tr>
+        <td>वर्ण (Varna)</td>
+        <td><strong>${moonVarna}</strong></td>
+        <td>वश्य (Vashya)</td>
+        <td><strong>${nakInfo.vashya}</strong></td>
+      </tr>
+      <tr>
+        <td>योनि (Yoni)</td>
+        <td><strong>${nakInfo.yoni}</strong></td>
+        <td>गण (Gana)</td>
+        <td><strong>${nakInfo.gana} गण</strong></td>
+      </tr>
+      <tr>
+        <td>नाड़ी (Nadi)</td>
+        <td><strong>${nakInfo.nadi} नाड़ी</strong></td>
+        <td>चन्द्र राशि (Moon)</td>
+        <td><strong>${SIGNS[moonSign]} (${formatDMS(moonSid % 30)})</strong></td>
+      </tr>
+      <tr>
+        <td>सूर्य राशि (Sun)</td>
+        <td><strong>${SIGNS[sunSign]} (${formatDMS(sunSid % 30)})</strong></td>
+        <td>नक्षत्र व नामाक्षर</td>
+        <td><strong style="color:var(--primary,#7C1305);">${nakInfo.name} चरण ${pada} — अक्षर "${birthLetter}"</strong></td>
+      </tr>
+    `;
+
+    // Vishti Badge
+    const vishtiBadgeHtml = karanaInfo.isVishti
+      ? `<span class="badge-vishti-alert">⚠️ विष्टि (भद्रा) सक्रिय</span>`
+      : `<span class="badge-limb-good">✓ शुभ भद्रारहित काल</span>`;
+
+    const samvatHtml = `विक्रम संवत् ${toDevanagariNumerals(vikramSamvat)} • शक संवत् ${toDevanagariNumerals(sakaSamvat)} • ${CHANDRA_MASA[sunSign]} मास (${isShukla ? 'शुक्ल' : 'कृष्ण'}) • ${RITU_NAMES[rituIdx]}`;
+
+    const cityClean = (landingPanchangState.city || '').replace(/\s*\(.*\)/, '').trim();
+
+    // Update Mobile Paneling
+    const mTitleDate = document.getElementById('landingPanchangTitleDate');
+    if (mTitleDate) mTitleDate.textContent = `${dateFormatted} (${cityClean})`;
+
+    const mSamvat = document.getElementById('landingPanchangSamvat');
+    if (mSamvat) mSamvat.textContent = samvatHtml;
+
+    const mVishti = document.getElementById('landingPanchangVishtiBadge');
+    if (mVishti) mVishti.innerHTML = vishtiBadgeHtml;
+
+    const mLimbs = document.getElementById('landingPanchangLimbs');
+    if (mLimbs) mLimbs.innerHTML = limbsHtml;
+
+    const mSolar = document.getElementById('landingPanchangSolar');
+    if (mSolar) mSolar.innerHTML = solarHtml;
+
+    const mMuhurta = document.getElementById('landingPanchangMuhurta');
+    if (mMuhurta) mMuhurta.innerHTML = muhurtaHtml;
+
+    const mAvakahada = document.getElementById('landingAvakahadaTbl');
+    if (mAvakahada) mAvakahada.innerHTML = `<tbody>${avakahadaHtml}</tbody>`;
+
+    // Update Desktop Paneling
+    const deskWrap = document.getElementById('desktopPanchangDisplayWrap');
+    if (deskWrap) {
+      deskWrap.innerHTML = `
+        <div class="panchang-card">
+          <div class="panchang-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <div style="font-size:19px; font-weight:800; color:var(--heading-color); font-family:var(--font-heading-serif);">
+                ${dateFormatted} — ${landingPanchangState.city}
+              </div>
+              <div style="font-size:13px; color:var(--gold-dark); font-weight:600; margin-top:4px;">
+                ${samvatHtml}
+              </div>
+            </div>
+            <div>
+              ${vishtiBadgeHtml}
+            </div>
+          </div>
+
+          <h4 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h4>
+          <div class="panchang-grid-5">
+            ${limbsHtml}
+          </div>
+
+          <h4 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h4>
+          <div class="muhurta-grid">
+            ${solarHtml}
+          </div>
+
+          <h4 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h4>
+          <div class="muhurta-grid">
+            ${muhurtaHtml}
+          </div>
+
+          <h4 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h4>
+          <div style="overflow-x:auto;">
+            <table class="avakahada-table">
+              <tbody>
+                ${avakahadaHtml}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:24px; text-align:center;">
+            <button type="button" class="app-primary-btn" onclick="openPatrikaFromPanchang()" style="max-width:380px; margin:0 auto; padding:12px 24px; font-size:15px;">
+              ✨ इस तिथि का पूर्ण जन्म चक्र / पत्रिका देखें ➔
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Update Greeting chip on Home
+    const panchangTextEl = document.getElementById('panchangText');
+    if (panchangTextEl) {
+      panchangTextEl.textContent = `विक्रम संवत् ${toDevanagariNumerals(vikramSamvat)} • ${CHANDRA_MASA[sunSign]} ${isShukla ? 'शुक्ल' : 'कृष्ण'} ${tithiName.split(' ')[0]} • ${vedicDayName.split(' ')[0]}`;
+    }
+  }
+
+  function setLandingPanchangToday() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    landingPanchangState.date = todayStr;
+    const mDateIn = document.getElementById('inLandingPanchangDate');
+    if (mDateIn) mDateIn.value = todayStr;
+    const dDateIn = document.getElementById('inDesktopPanchangDate');
+    if (dDateIn) dDateIn.value = todayStr;
+    calculateLandingPanchang();
+  }
+
+  function changeLandingPanchangDateOffset(offset) {
+    const curDate = new Date(landingPanchangState.date || new Date());
+    curDate.setDate(curDate.getDate() + offset);
+    const newDateStr = curDate.toISOString().split('T')[0];
+    landingPanchangState.date = newDateStr;
+    const mDateIn = document.getElementById('inLandingPanchangDate');
+    if (mDateIn) mDateIn.value = newDateStr;
+    const dDateIn = document.getElementById('inDesktopPanchangDate');
+    if (dDateIn) dDateIn.value = newDateStr;
+    calculateLandingPanchang();
+  }
+
+  function syncAndCalculatePanchang(source) {
+    if (source === 'desktop') {
+      const dDateIn = document.getElementById('inDesktopPanchangDate');
+      const dTimeIn = document.getElementById('inDesktopPanchangTime');
+      if (dDateIn && dDateIn.value) landingPanchangState.date = dDateIn.value;
+      if (dTimeIn && dTimeIn.value) landingPanchangState.time = dTimeIn.value;
+      const mDateIn = document.getElementById('inLandingPanchangDate');
+      const mTimeIn = document.getElementById('inLandingPanchangTime');
+      if (mDateIn && dDateIn) mDateIn.value = dDateIn.value;
+      if (mTimeIn && dTimeIn) mTimeIn.value = dTimeIn.value;
+    } else {
+      const mDateIn = document.getElementById('inLandingPanchangDate');
+      const mTimeIn = document.getElementById('inLandingPanchangTime');
+      if (mDateIn && mDateIn.value) landingPanchangState.date = mDateIn.value;
+      if (mTimeIn && mTimeIn.value) landingPanchangState.time = mTimeIn.value;
+      const dDateIn = document.getElementById('inDesktopPanchangDate');
+      const dTimeIn = document.getElementById('inDesktopPanchangTime');
+      if (dDateIn && mDateIn) dDateIn.value = mDateIn.value;
+      if (dTimeIn && mTimeIn) dTimeIn.value = mTimeIn.value;
+    }
+    calculateLandingPanchang();
+  }
+
+  function setLandingCity(name, lat, lon, tz) {
+    landingPanchangState.city = name;
+    landingPanchangState.lat = lat;
+    landingPanchangState.lon = lon;
+    landingPanchangState.tz = tz;
+    const mCity = document.getElementById('inLandingPanchangCity');
+    if (mCity) mCity.value = name;
+    const dCity = document.getElementById('inDesktopPanchangCity');
+    if (dCity) dCity.value = name;
+    const mCoords = document.getElementById('panchangCityCoords');
+    if (mCoords) mCoords.textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+    const dCoords = document.getElementById('panchangDesktopCoords');
+    if (dCoords) dCoords.textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+    calculateLandingPanchang();
+  }
+
+  function onLandingPanchangCityChange() {
+    const el = document.getElementById('inLandingPanchangCity');
+    if (el) landingPanchangState.city = el.value.trim();
+    calculateLandingPanchang();
+  }
+
+  function onDesktopCityChange() {
+    const el = document.getElementById('inDesktopPanchangCity');
+    if (el) {
+      landingPanchangState.city = el.value.trim();
+      const mEl = document.getElementById('inLandingPanchangCity');
+      if (mEl) mEl.value = el.value.trim();
+    }
+    calculateLandingPanchang();
+  }
+
+  function useCurrentLocationPanchang() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        setLandingCity("वर्तमान स्थान (GPS)", pos.coords.latitude, pos.coords.longitude, 5.5);
+      }, err => {
+        alert("स्थान प्राप्त नहीं हो सका। कृपया सूची से नगर चुनें।");
+      });
+    } else {
+      alert("आपके ब्राउज़र में जीपीएस सुविधा समर्थित नहीं है।");
+    }
+  }
+
+  function openPatrikaFromPanchang() {
+    const d = landingPanchangState.date;
+    const t = landingPanchangState.time || "06:00";
+    const c = landingPanchangState.city;
+    window.location.href = `patrika.html?dob=${d}&tob=${t}&city=${encodeURIComponent(c)}&tab=panchang`;
+  }
+
+  function openLandingPanchang() {
+    if (window.innerWidth <= 768) {
+      if (typeof window.switchMobileTab === 'function') {
+        window.switchMobileTab(2);
+      }
+    } else {
+      const el = document.getElementById('desktopPanchangSection');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    calculateLandingPanchang();
+  }
+  window.openLandingPanchang = openLandingPanchang;
+  window.openPatrikaFromPanchang = openPatrikaFromPanchang;
+  window.setLandingPanchangToday = setLandingPanchangToday;
+  window.changeLandingPanchangDateOffset = changeLandingPanchangDateOffset;
+  window.syncAndCalculatePanchang = syncAndCalculatePanchang;
+  window.setLandingCity = setLandingCity;
+  window.onLandingPanchangCityChange = onLandingPanchangCityChange;
+  window.onDesktopCityChange = onDesktopCityChange;
+  window.useCurrentLocationPanchang = useCurrentLocationPanchang;
+  window.calculateLandingPanchang = calculateLandingPanchang;
+
   // AUTO-OPEN PREORDER MODAL IF REDIRECTED WITH URL PARAM
   window.addEventListener('DOMContentLoaded', () => {
     initMobileViewpager();
+
+    // Initialize landing Panchang date inputs
+    const todayStr = new Date().toISOString().split('T')[0];
+    landingPanchangState.date = todayStr;
+    const mDateIn = document.getElementById('inLandingPanchangDate');
+    if (mDateIn) mDateIn.value = todayStr;
+    const dDateIn = document.getElementById('inDesktopPanchangDate');
+    if (dDateIn) dDateIn.value = todayStr;
+    calculateLandingPanchang();
+
     const params = new URLSearchParams(window.location.search);
     if (params.has('preorder')) {
       const report = params.get('preorder');
