@@ -1783,6 +1783,19 @@
   // ══════════════════════════════════════════════════════════════════════════
   // APP DOWNLOAD & PWA / APK SUITE (UNIVERSAL)
   // ══════════════════════════════════════════════════════════════════════════
+  // Service Worker Registration for PWA / WebAPK installability
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(function(reg) {
+          console.log('[SRA PWA] Service Worker registered:', reg.scope);
+        })
+        .catch(function(err) {
+          console.warn('[SRA PWA] Service Worker registration failed:', err);
+        });
+    });
+  }
+
   let deferredPwaPrompt = null;
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
@@ -1841,7 +1854,7 @@
       });
     } else {
       const a = document.createElement("a");
-      a.href = "downloads/patrika-astro.apk";
+      a.href = "/downloads/patrika-astro.apk";
       a.download = "patrika-astro.apk";
       document.body.appendChild(a);
       a.click();
@@ -1895,12 +1908,12 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <div>
                 <div style="font-weight:700; font-size:13.5px; color:var(--dark, #0f172a);" data-i18n-hi="सीधा APK पैकेज डाउनलोड" data-i18n-en="Direct APK Package Download">${isHi ? "सीधा APK पैकेज डाउनलोड" : "Direct APK Package Download"}</div>
-                <div style="font-size:11.5px; color:var(--muted, #64748b);" data-i18n-hi="संस्करण v2.4 • आकार: 85 KB • सभी एंड्रॉइड फोन पर समर्थित" data-i18n-en="Version v2.4 • Size: 85 KB • All Android Devices">${isHi ? "संस्करण v2.4 • आकार: 85 KB • सभी एंड्रॉइड फोन पर समर्थित" : "Version v2.4 • Size: 85 KB • All Android Devices"}</div>
+                <div style="font-size:11.5px; color:var(--muted, #64748b);" data-i18n-hi="संस्करण v2.4 • नेटिव एंड्रॉइड पैकेज • सभी एंड्रॉइड फोन पर समर्थित" data-i18n-en="Version v2.4 • Native Android Package • All Android Devices">${isHi ? "संस्करण v2.4 • नेटिव एंड्रॉइड पैकेज • सभी एंड्रॉइड फोन पर समर्थित" : "Version v2.4 • Native Android Package • All Android Devices"}</div>
               </div>
               <span class="app-verified-tag" data-i18n-hi="सुरक्षित" data-i18n-en="Verified">${isHi ? "✓ सुरक्षित" : "✓ Verified"}</span>
             </div>
-            <a href="downloads/patrika-astro.apk" download="patrika-astro.apk" class="btn-app-action-primary">
-              <span data-i18n-hi="APK फ़ाइल डाउनलोड करें (85 KB)" data-i18n-en="Download APK File (85 KB)">${isHi ? "APK फ़ाइल डाउनलोड करें (85 KB)" : "Download APK File (85 KB)"}</span>
+            <a href="/downloads/patrika-astro.apk" download="patrika-astro.apk" class="btn-app-action-primary">
+              <span data-i18n-hi="APK फ़ाइल डाउनलोड करें" data-i18n-en="Download APK File">${isHi ? "APK फ़ाइल डाउनलोड करें" : "Download APK File"}</span>
             </a>
           </div>
 
