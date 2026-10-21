@@ -777,14 +777,15 @@
           box-sizing: border-box !important;
         }
         body {
-          padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
           width: 100% !important;
         }
 
         /* UNIFIED NATIVE MOBILE APP TOP BAR */
         nav:not(.mobile-bottom-nav) {
           height: 56px !important;
-          padding: 0 12px !important;
+          min-height: 56px !important;
+          max-height: 56px !important;
+          padding: 0 10px !important;
           position: sticky !important;
           top: 0 !important;
           z-index: 9998 !important;
@@ -796,7 +797,8 @@
           background: var(--nav-bg, rgba(255, 255, 255, 0.95)) !important;
           border-bottom: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
-          overflow: visible !important;
+          overflow: hidden !important;
+          box-sizing: border-box !important;
         }
         nav .nav-btns, nav .nav-actions {
           display: flex !important;
@@ -1356,8 +1358,11 @@
     const newFooter = placeholder.firstElementChild;
 
     const existingFooter = document.querySelector('footer');
-    if (existingFooter && !existingFooter.classList.contains('site-global-footer')) {
-      existingFooter.replaceWith(newFooter);
+    if (existingFooter) {
+      if (!existingFooter.classList.contains('site-global-footer')) {
+        existingFooter.replaceWith(newFooter);
+      }
+      return;
     } else if (document.body) {
       document.body.appendChild(newFooter);
     }
