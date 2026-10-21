@@ -45,6 +45,22 @@ const LAGNA_RULES = {
   11: { yogakaraka: ['moon', 'jupiter', 'mars'], malefic: ['venus', 'saturn', 'mercury'] }// Meen
 };
 
+// Classical Parashara True Yogakaraka (Single Planet simultaneously owning Kendra and Trikona)
+const TRUE_YOGAKARAKAS = {
+  0: [],            // Mesh: None
+  1: ['saturn'],    // Vrishabh: Saturn (Lord of 9 & 10)
+  2: [],            // Mithun: None
+  3: ['mars'],      // Kark: Mars (Lord of 5 & 10)
+  4: ['mars'],      // Simha: Mars (Lord of 4 & 9)
+  5: [],            // Kanya: None
+  6: ['saturn'],    // Tula: Saturn (Lord of 4 & 5)
+  7: [],            // Vrishchik: None (Sun 10th lord, Moon 9th lord, Jupiter 2nd & 5th lord)
+  8: [],            // Dhanu: None
+  9: ['venus'],     // Makar: Venus (Lord of 5 & 10)
+  10: ['venus'],    // Kumbh: Venus (Lord of 4 & 9)
+  11: []            // Meen: None
+};
+
 const KENDRA_TRIKONA_HOUSES = [1, 4, 5, 7, 9, 10];
 
 function generateKundaliReports(inputData) {
@@ -101,6 +117,7 @@ function generateKundaliReports(inputData) {
       is_retrograde: !!pl.is_retrograde,
       is_vakri_doubled: isVakriDoubled,
       is_yogakaraka: false,
+      is_true_yogakaraka: false,
       is_malefic: false,
       is_chaturguna: false,
       shodhanAdjustment: 0
@@ -117,11 +134,13 @@ function generateKundaliReports(inputData) {
 
   const lagnaIndex = Number(lagna.rashi) % 12;
   const roles = LAGNA_RULES[lagnaIndex] || { yogakaraka: [], malefic: [] };
+  const trueYogakarakas = TRUE_YOGAKARAKAS[lagnaIndex] || [];
 
   // Mark roles in planetDetails
   for (const p of Object.keys(planets)) {
     if (roles.yogakaraka.includes(p)) planetDetails[p].is_yogakaraka = true;
     if (roles.malefic.includes(p)) planetDetails[p].is_malefic = true;
+    if (trueYogakarakas.includes(p)) planetDetails[p].is_true_yogakaraka = true;
   }
 
   const shodhanEvents = [];
@@ -174,9 +193,10 @@ function generateKundaliReports(inputData) {
   }
 
   // STEP 3: Rajyoga 4x Multiplier (Shloka 20)
-  // Strictly applies ONLY to surviving yogakarakas placed in Kendra (1,4,7,10) or Trikona (1,5,9)
+  // Strictly applies ONLY to surviving single True Yogakarakas (simultaneous Kendra + Trikona lords)
+  // placed in Kendra (1, 4, 7, 10) or Trikona (1, 5, 9)
   const chaturgunaEvents = [];
-  for (const p of roles.yogakaraka) {
+  for (const p of trueYogakarakas) {
     const plHouse = planets[p]?.house;
     if (rectified[p] > 0 && KENDRA_TRIKONA_HOUSES.includes(plHouse)) {
       const before = rectified[p];
@@ -217,7 +237,8 @@ function generateKundaliReports(inputData) {
       prediction: getCategoryPrediction(totalRashmi),
       shodhan_events: shodhanEvents,
       chaturguna_events: chaturgunaEvents,
-      roles: roles
+      roles: roles,
+      true_yogakarakas: trueYogakarakas
     },
     report_vahan_janbal: {
       title: "पाराशर वाहन एवं जनबल रिपोर्ट (गोमूत्रिका विधान)",
@@ -293,12 +314,14 @@ function getJanbalText(score) {
 if (typeof window !== 'undefined') {
   window.generateKundaliReports = generateKundaliReports;
   window.LAGNA_RULES = LAGNA_RULES;
+  window.TRUE_YOGAKARAKAS = TRUE_YOGAKARAKAS;
   window.KENDRA_TRIKONA_HOUSES = KENDRA_TRIKONA_HOUSES;
 }
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     generateKundaliReports,
     LAGNA_RULES,
+    TRUE_YOGAKARAKAS,
     KENDRA_TRIKONA_HOUSES,
     NEECHA_POINTS,
     DHRUWANKS,

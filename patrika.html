@@ -6640,7 +6640,11 @@ function renderParasharaReports() {
 
     let samskaraText = 'सामान्य';
     if (d.is_combust) {
-      samskaraText = d.is_combust_zeroed ? 'अस्त (०.००)' : 'अस्त (अपवाद: सुरक्षित)';
+      if (d.is_combust_zeroed) {
+        samskaraText = 'अस्त (०.००)';
+      } else {
+        samskaraText = 'अस्त (श्लोक १४ अपवाद: रश्मि सुरक्षित)';
+      }
     } else if (d.is_retrograde) {
       samskaraText = 'वक्री (२× गुणित)';
     }
@@ -6648,13 +6652,18 @@ function renderParasharaReports() {
     let shodhanText = '—';
     if (d.shodhanAdjustment !== 0) {
       shodhanText = d.shodhanAdjustment > 0 ? `+${d.shodhanAdjustment}` : `${d.shodhanAdjustment}`;
+      if (k === 'venus' && d.is_combust && !d.is_combust_zeroed && score === 0) {
+        shodhanText += ` <span style="font-size:11px; color:#b45309;">(शोधन में प्रयुक्त)</span>`;
+      }
     }
 
     let chaturgunaText = d.is_chaturguna ? '<span style="color:#b45309; font-weight:800;">४× गुणित</span>' : '—';
 
     let functionalBadge = '';
-    if (d.is_yogakaraka) {
-      functionalBadge = `<span class="p-tag tag-raj" style="margin-left:4px;">योगकारक</span>`;
+    if (d.is_true_yogakaraka) {
+      functionalBadge = `<span class="p-tag tag-raj" style="margin-left:4px;" title="केन्द्रेश + त्रिकोणेश">अखण्ड राजयोगकारक</span>`;
+    } else if (d.is_yogakaraka) {
+      functionalBadge = `<span class="p-tag tag-raj" style="margin-left:4px;">शुभ/योगकारक</span>`;
     } else if (d.is_malefic) {
       functionalBadge = `<span class="p-tag" style="margin-left:4px; background:rgba(239,68,68,0.12); color:#dc2626;">कष्टकारक</span>`;
     }
@@ -6684,9 +6693,21 @@ function renderParasharaReports() {
     const barWidth = Math.min(100, Math.max(6, (score / maxScore) * 100));
 
     let tagsHtml = '';
-    if (d.is_yogakaraka) tagsHtml += `<span class="p-tag tag-raj">राजयोगकारक</span>`;
+    if (d.is_true_yogakaraka) {
+      tagsHtml += `<span class="p-tag tag-raj">अखण्ड राजयोगकारक</span>`;
+    } else if (d.is_yogakaraka) {
+      tagsHtml += `<span class="p-tag tag-raj">शुभकारक</span>`;
+    }
     if (d.is_malefic) tagsHtml += `<span class="p-tag" style="background:rgba(239,68,68,0.12); color:#dc2626;">कष्टकारक</span>`;
-    if (d.is_combust) tagsHtml += d.is_combust_zeroed ? `<span class="p-tag tag-ast">अस्त (०.००)</span>` : `<span class="p-tag tag-ast">अस्त (अपवाद)</span>`;
+    if (d.is_combust) {
+      if (d.is_combust_zeroed) {
+        tagsHtml += `<span class="p-tag tag-ast">अस्त (०.००)</span>`;
+      } else if (score === 0 && d.shodhanAdjustment < 0) {
+        tagsHtml += `<span class="p-tag tag-ast" style="background:rgba(236,72,153,0.15); color:#be185d;" title="श्लोक १४: अस्त दोष से रश्मि सुरक्षित; भाव ९ युति शोधन में प्रयुक्त होकर शून्य">अस्त सुरक्षित (शोधन में प्रयुक्त)</span>`;
+      } else {
+        tagsHtml += `<span class="p-tag tag-ast" title="श्लोक १४ अनुसार अस्त होने पर भी रश्मि सुरक्षित">अस्त (अपवाद: सुरक्षित)</span>`;
+      }
+    }
     if (d.is_retrograde) tagsHtml += `<span class="p-tag tag-vak">वक्री (२×)</span>`;
     if (d.is_chaturguna) tagsHtml += `<span class="p-tag tag-mul">४× गुणित</span>`;
 
@@ -6719,7 +6740,11 @@ function renderParasharaReports() {
       const mNames = ev.malefics.map(p => PLANET_META[p]?.name || p).join(', ');
       const yResults = Object.entries(ev.finalYValues).map(([p, v]) => `${PLANET_META[p]?.name || p}: ${v}`).join(', ');
       const mResults = Object.entries(ev.finalMValues).map(([p, v]) => `${PLANET_META[p]?.name || p}: ${v}`).join(', ');
-      return `• <strong>भाव ${ev.house} युति शोधन (श्लोक १८):</strong> राजयोगकारक [${yNames}] एवं कष्टकारक [${mNames}] (कष्ट पूल: ${ev.initialMaleficPool}) की युति में शोधन हुआ। अंतिम मान ➔ [${yResults}], [${mResults}]।`;
+      let venusClarification = '';
+      if (ev.malefics.includes('venus')) {
+        venusClarification = ` <em>(विशेष ध्यातव्य: श्लोक १४ अनुसार शुक्र अस्त दोष से रश्मि-रहित नहीं हुआ, अपितु यहाँ भाव ${ev.house} युति शोधन में राजयोग शमन हेतु प्रयुक्त होने से इसका अंतिम मान ०.०० रहा।)</em>`;
+      }
+      return `• <strong>भाव ${ev.house} युति शोधन (श्लोक १८):</strong> शुभ/राजयोगकारक [${yNames}] एवं कष्टकारक [${mNames}] (कष्ट पूल: ${ev.initialMaleficPool}) की युति में शोधन हुआ। अंतिम मान ➔ [${yResults}], [${mResults}]।${venusClarification}`;
     }).join('<br>');
   } else {
     shodhanHtml = `• किसी भी भाव में राजयोगकारक एवं कष्टकारक ग्रह की प्रत्यक्ष युति नहीं होने के कारण रश्मियां निर्बाध रहीं।`;
@@ -6728,11 +6753,11 @@ function renderParasharaReports() {
   if (rep1.chaturguna_events && rep1.chaturguna_events.length > 0) {
     const chEventsText = rep1.chaturguna_events.map(ev => {
       const pName = PLANET_META[ev.planet]?.name || ev.planet;
-      return `• <strong>चतुर्गुण संस्कार (श्लोक २०):</strong> ${pName} (भाव ${ev.house}) केन्द्र/त्रिकोण (१, ४, ५, ७, ९, १०) में स्थित होने के कारण इसकी शुद्ध रश्मि ४ गुना की गई (${ev.before} ➔ <strong>${ev.after}</strong>)।`;
+      return `• <strong>चतुर्गुण संस्कार (श्लोक २०):</strong> ${pName} (भाव ${ev.house}) केन्द्र/त्रिकोण में स्थित होने तथा एकल अखण्ड राजयोगकारक (केन्द्रेश+त्रिकोणेश) होने के कारण इसकी शुद्ध रश्मि ४ गुना की गई (${ev.before} ➔ <strong>${ev.after}</strong>)।`;
     }).join('<br>');
     shodhanHtml += `<br>${chEventsText}`;
   } else {
-    shodhanHtml += `<br>• केन्द्र या त्रिकोण भाव (१, ४, ५, ७, ९, १०) में कोई भी शुद्ध राजयोगकारक रश्मि शेष न होने के कारण किसी ग्रह को चतुर्गुण (४×) संस्कार नहीं मिला।`;
+    shodhanHtml += `<br>• <strong>चतुर्गुण संस्कार (श्लोक २०):</strong> श्लोक २० अनुसार ४× गुणित संस्कार केवल विशिष्ट राजयोगकारक (केन्द्रेश+त्रिकोणेश) को मिलता है। इस लग्न में कोई एकल ग्रह केन्द्र व त्रिकोण दोनों का स्वामी नहीं होने के कारण सभी ग्रह अपने शुद्ध मान पर रहे।`;
   }
 
   // --- HTML FOR REPORT 1: RAAJYOGA STRENGTH / RASHMI BAL ---
