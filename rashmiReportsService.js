@@ -20,13 +20,13 @@ const DHRUWANKS = {
 };
 
 const PLANET_META = {
-  sun: { name: "सूर्य (Sun)", glyph: "☀️", color: "#f59e0b" },
-  moon: { name: "चन्द्र (Moon)", glyph: "🌙", color: "#38bdf8" },
-  mars: { name: "मंगल (Mars)", glyph: "♂️", color: "#ef4444" },
-  mercury: { name: "बुध (Mercury)", glyph: "☿️", color: "#10b981" },
-  jupiter: { name: "गुरु (Jupiter)", glyph: "♃", color: "#eab308" },
-  venus: { name: "शुक्र (Venus)", glyph: "♀️", color: "#ec4899" },
-  saturn: { name: "शनि (Saturn)", glyph: "♄", color: "#8b5cf6" }
+  sun: { name: "सूर्य", nameHindi: "सूर्य", nameEn: "Sun", glyph: "☀️", color: "#f59e0b" },
+  moon: { name: "चन्द्र", nameHindi: "चन्द्र", nameEn: "Moon", glyph: "🌙", color: "#38bdf8" },
+  mars: { name: "मंगल", nameHindi: "मंगल", nameEn: "Mars", glyph: "♂️", color: "#ef4444" },
+  mercury: { name: "बुध", nameHindi: "बुध", nameEn: "Mercury", glyph: "☿️", color: "#10b981" },
+  jupiter: { name: "गुरु", nameHindi: "गुरु", nameEn: "Jupiter", glyph: "♃", color: "#eab308" },
+  venus: { name: "शुक्र", nameHindi: "शुक्र", nameEn: "Venus", glyph: "♀️", color: "#ec4899" },
+  saturn: { name: "शनि", nameHindi: "शनि", nameEn: "Saturn", glyph: "♄", color: "#8b5cf6" }
 };
 
 // Shastra-sammat All 12 Lagnas Functional Classification
@@ -224,17 +224,34 @@ function generateKundaliReports(inputData) {
   const vahanSevakIndex = Math.floor((combined * (combined / 2.0)) / 60.0);
 
   // Return Standard JSON Payload for UI
+  const categoryHi = getCategoryTitle(totalRashmi);
+  const categoryEn = getCategoryTitleEn(totalRashmi);
+  const predictionHi = getCategoryPrediction(totalRashmi);
+  const predictionEn = getCategoryPredictionEn(totalRashmi);
+  const janbalHi = getJanbalText(totalRashmi);
+  const janbalEn = getJanbalTextEn(totalRashmi);
+  const vahanPredHi = `बृहत्पाराशरहोराशास्त्र श्लोक ४० अनुसार आपके सप्तग्रहों की उच्चरश्मि (${parseFloat(totalUccha.toFixed(2))}) एवं चेष्टारश्मि (${parseFloat(totalChesta.toFixed(2))}) के गोमूत्रिका न्याय से प्राप्त वाहन-सेवक सूचकांक ${vahanSevakIndex} है। यह जातक के जीवन में निजी वाहन, भौतिक साधन, परिचारक व संगठनात्मक भरण-पोषण सामर्थ्य को दर्शाता है।`;
+  const vahanPredEn = `According to BPHS Shloka 40, your 7 planets have a combined Uccharashmi of ${parseFloat(totalUccha.toFixed(2))} and Chestarashmi of ${parseFloat(totalChesta.toFixed(2))}, yielding a Gomutrika Vehicle-Manpower Index of ${vahanSevakIndex}. This signifies the native's capacity for personal conveyances, material amenities, attendants, and organizational sustenance.`;
+
   return {
     report_rajyoga_daridrayoga: {
       title: "Raajyoga Strength / Rashmi Bal",
+      title_hi: "राजयोग सामर्थ्य / रश्मि-बल रिपोर्ट",
+      title_en: "Raajyoga Strength / Rashmi Bal Report",
       subtitle: "बृहत्पाराशरहोराशास्त्र (अध्याय ८: रश्मि फल वर्णन) अनुसार रश्मि-बल एवं राजयोग-दरिद्रयोग सामर्थ्य",
+      subtitle_hi: "बृहत्पाराशरहोराशास्त्र (अध्याय ८: रश्मि फल वर्णन) अनुसार रश्मि-बल एवं राजयोग-दरिद्रयोग सामर्थ्य",
+      subtitle_en: "Rashmi Bal & Raajyoga/Daridrayoga Capacity per Brihat Parashara Hora Shastra Ch. 8",
       planet_rashmi_scores: rectified,
       planet_details: planetDetails,
       total_score: totalRashmi,
       total_uccha: parseFloat(totalUccha.toFixed(2)),
       total_chesta: parseFloat(totalChesta.toFixed(2)),
-      category: getCategoryTitle(totalRashmi),
-      prediction: getCategoryPrediction(totalRashmi),
+      category: categoryHi,
+      category_hi: categoryHi,
+      category_en: categoryEn,
+      prediction: predictionHi,
+      prediction_hi: predictionHi,
+      prediction_en: predictionEn,
       shodhan_events: shodhanEvents,
       chaturguna_events: chaturgunaEvents,
       roles: roles,
@@ -242,14 +259,22 @@ function generateKundaliReports(inputData) {
     },
     report_vahan_janbal: {
       title: "पाराशर वाहन एवं जनबल रिपोर्ट (गोमूत्रिका विधान)",
+      title_hi: "पाराशर गोमूत्रिका वाहन एवं जनबल रिपोर्ट",
+      title_en: "Parashara Gomutrika Vehicle & Manpower Report",
       subtitle: "बृहत्पाराशरहोराशास्त्र (श्लोक ३४–४०) अनुसार भौतिक सुख, वाहन एवं आश्रित सामर्थ्य",
+      subtitle_hi: "बृहत्पाराशरहोराशास्त्र (श्लोक ३४–४०) अनुसार भौतिक सुख, वाहन एवं आश्रित सामर्थ्य",
+      subtitle_en: "Material Conveniences, Vehicles & Attendants Capacity per BPHS Shlokas 34–40",
       vahan_sevak_index: vahanSevakIndex,
       combined_rashmi: parseFloat(combined.toFixed(2)),
       half_combined: parseFloat((combined / 2.0).toFixed(2)),
       total_uccha: parseFloat(totalUccha.toFixed(2)),
       total_chesta: parseFloat(totalChesta.toFixed(2)),
-      janbal_capacity: getJanbalText(totalRashmi),
-      prediction: `बृहत्पाराशरहोराशास्त्र श्लोक ४० अनुसार आपके सप्तग्रहों की उच्चरश्मि (${parseFloat(totalUccha.toFixed(2))}) एवं चेष्टारश्मि (${parseFloat(totalChesta.toFixed(2))}) के गोमूत्रिका न्याय से प्राप्त वाहन-सेवक सूचकांक ${vahanSevakIndex} है। यह जातक के जीवन में निजी वाहन, भौतिक साधन, परिचारक व संगठनात्मक भरण-पोषण सामर्थ्य को दर्शाता है।`
+      janbal_capacity: janbalHi,
+      janbal_capacity_hi: janbalHi,
+      janbal_capacity_en: janbalEn,
+      prediction: vahanPredHi,
+      prediction_hi: vahanPredHi,
+      prediction_en: vahanPredEn
     }
   };
 }
@@ -265,6 +290,19 @@ function getCategoryTitle(score) {
   if (score <= 35.99) return "मंत्री, सेनापति एवं उच्चाधिकारी वर्ग (श्लोक ३३–३६)";
   if (score <= 40.99) return "देशाधिपत्य एवं संस्थान प्रमुख वर्ग (श्लोक ३७)";
   return "नृप एवं सार्वभौम शासक वर्ग (श्लोक ३८–३९)";
+}
+
+function getCategoryTitleEn(score) {
+  if (score <= 5.0) return "Impoverished & Dependent Class (Shloka 23)";
+  if (score <= 10.0) return "Subsistence & Labor Class (Shloka 24)";
+  if (score <= 13.0) return "Limited Wealth & Struggle Class (Shlokas 25–26)";
+  if (score < 16.0) return "Virtuous, Erudite & Family Protector Class (Shlokas 27–28)";
+  if (score <= 20.99) return "Pillar of Dynasty, Renowned & Revered Class (Shloka 29)";
+  if (score <= 23.99) return "Distinguished, Affluent & 50+ Dependents Benefactor (Shlokas 30–31)";
+  if (score <= 30.99) return "Opulent, Valiant & Royal Favor Class (Shloka 32)";
+  if (score <= 35.99) return "Ministerial, High Command & Executive Directorate (Shlokas 33–36)";
+  if (score <= 40.99) return "Territorial Ruler & Institutional Head Class (Shloka 37)";
+  return "Sovereign Monarch & Supreme Leader Class (Shlokas 38–39)";
 }
 
 function getCategoryPrediction(score) {
@@ -298,12 +336,51 @@ function getCategoryPrediction(score) {
   return "बृहत्पाराशरहोराशास्त्र श्लोक ३८–३९ अनुसार: रश्मि बल ४१ से अधिक होने पर जातक राष्ट्र अथवा शीर्ष स्तर का नेतृत्व, सार्वभौम शासक तुल्य विशेषाधिकार, अद्वितीय प्रतिष्ठा एवं अतुल्य कीर्ति से संपन्न होता है।";
 }
 
+function getCategoryPredictionEn(score) {
+  if (score <= 5.0) {
+    return "According to BPHS Shloka 23: With Rashmi Bal between 1 and 5, native faces extreme poverty, dependence on others, minimal returns relative to hard labor, and reliance on outside support.";
+  }
+  if (score <= 10.0) {
+    return "According to BPHS Shloka 24: With Rashmi Bal between 5.01 and 10, indicates subsistence-level income, financial volatility, and continuous strenuous effort to sustain livelihood.";
+  }
+  if (score <= 13.0) {
+    return "According to BPHS Shlokas 25–26: With Rashmi Bal between 10.01 and 13, indicates constrained financial reserves, hurdles in fulfilling domestic obligations, and oscillating fortunes.";
+  }
+  if (score < 16.0) {
+    return "According to BPHS Shlokas 27–28: With Rashmi Bal between 13.01 and 16, native is righteous, intelligent, devout, successfully sustains family and dependents, and earns an honorable livelihood.";
+  }
+  if (score <= 20.99) {
+    return "According to BPHS Shloka 29: With Rashmi Bal between 16.01 and 20.99, native becomes the central pillar (Kulesha) of the lineage, able protector of relatives, widely respected, and enjoys an illustrious reputation.";
+  }
+  if (score <= 23.99) {
+    return "According to BPHS Shlokas 30–31: With Rashmi Bal between 21 and 23.99, native is famous, generous, philanthropic, capable of providing livelihood to 50+ dependents or personnel, and financially secure.";
+  }
+  if (score <= 30.99) {
+    return "According to BPHS Shloka 32: With Rashmi Bal between 24 and 30.99, native is Shriman (endowed with great wealth), valorous, highly esteemed among authorities and rulers, and popular among the masses.";
+  }
+  if (score <= 35.99) {
+    return "According to BPHS Shlokas 33–36: With Rashmi Bal between 31 and 35.99, native commands high executive authority, serves as a policy maker, administrator, or oversees substantial institutional frameworks.";
+  }
+  if (score <= 40.99) {
+    return "According to BPHS Shloka 37: With Rashmi Bal between 36 and 40.99, native heads a large enterprise, territory, or multi-branch establishment with sovereign administrative jurisdiction.";
+  }
+  return "According to BPHS Shlokas 38–39: With Rashmi Bal exceeding 41, native attains national or supreme echelon leadership, sovereign-level prerogatives, extraordinary status, and peerless renown.";
+}
+
 function getJanbalText(score) {
   if (score < 16.0) return "सीमित पारिवारिक आश्रित (३ से ५ व्यक्ति)";
   if (score < 21.0) return "पारिवारिक व निकट आश्रितों का पूर्ण पोषण (१० से १५ व्यक्ति)";
   if (score < 32.0) return "मध्यम जनबल (५० व्यक्तियों/कर्मियों का भरण-पोषण व नेतृत्व सामर्थ्य)";
   if (score < 40.0) return "व्यापक जनबल (१०० से ५०० व्यक्तियों का नियंत्रण व मार्गदर्शन)";
   return "विशाल जनसमुदाय (५०० से १०००+ व्यक्तियों/संस्थान का पोषण व सर्वाधिकार)";
+}
+
+function getJanbalTextEn(score) {
+  if (score < 16.0) return "Limited Domestic Dependents (3 to 5 persons)";
+  if (score < 21.0) return "Full Sustenance of Family & Immediate Dependents (10 to 15 persons)";
+  if (score < 32.0) return "Medium Manpower Capability (Sustenance & Leadership of 50+ personnel)";
+  if (score < 40.0) return "Extensive Manpower Command (Direction of 100 to 500 personnel)";
+  return "Vast Community / Enterprise Leadership (Sustenance of 500 to 1000+ personnel)";
 }
 
 // UMD / Global Window Export for browser and node environments
