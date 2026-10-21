@@ -437,6 +437,36 @@
     color: var(--primary);
   }
 
+  .btn-nav-saved-kundali {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(180, 83, 9, 0.12);
+    border: 1px solid var(--gold-border);
+    color: var(--gold);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .btn-nav-saved-kundali:hover {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+  .btn-nav-saved-kundali:hover .saved-kundali-badge {
+    background: #fff;
+    color: var(--primary);
+  }
+  @media (max-width: 820px) {
+    .btn-nav-saved-kundali .nav-saved-label {
+      display: none;
+    }
+  }
+
   .saved-kundali-badge {
     background: var(--gold);
     color: #fff;
@@ -648,12 +678,12 @@
     gap: 14px;
     transition: all 0.2s ease;
     position: relative;
-    overflow: hidden;
+    cursor: pointer;
   }
 
   .saved-kundali-card:hover {
     border-color: var(--gold);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     transform: translateY(-1px);
   }
 
@@ -706,17 +736,20 @@
   }
 
   .btn-load-kundali {
-    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background: linear-gradient(135deg, var(--primary), var(--gold));
     color: #fff;
-    border: none;
-    padding: 8px 14px;
+    border: 1px solid var(--gold);
+    padding: 9px 18px;
     border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 800;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(180, 83, 9, 0.25);
     transition: all 0.15s ease;
   }
 
@@ -2052,11 +2085,11 @@
   .parashara-report-pane {
     display: none;
     background: var(--card-bg);
-    border: 1.5px solid var(--gold-border);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
-    margin-bottom: 28px;
+    border: 1px solid var(--gold-border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
   }
   .parashara-report-pane.active {
     display: block;
@@ -2067,45 +2100,36 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* JATAKA FORMAL REPORT HEADER */
+  /* STREAMLINED JATAKA FORMAL REPORT HEADER */
   .jataka-formal-header {
-    background: linear-gradient(135deg, rgba(180, 83, 9, 0.06), rgba(124, 19, 5, 0.08));
-    border: 1.5px solid var(--gold-border);
-    border-radius: 12px;
-    padding: 18px 22px;
-    margin-bottom: 22px;
+    background: rgba(180, 83, 9, 0.04);
+    border: 1px solid var(--gold-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
   }
-  .jataka-formal-emblem {
-    font-family: 'Cinzel', serif;
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--primary);
-    text-align: center;
-    letter-spacing: 1.5px;
-  }
-  .jataka-formal-org {
-    font-size: 11px;
-    color: var(--gold);
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  .jataka-formal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gold-border);
     margin-bottom: 8px;
   }
   .jataka-formal-report-title {
     font-family: 'Cinzel', serif;
-    font-size: 21px;
+    font-size: 17px;
     font-weight: 800;
-    color: var(--dark);
-    text-align: center;
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--gold-border);
+    color: var(--primary);
+    margin: 0;
   }
   .jataka-formal-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 10px 16px;
-    font-size: 12.5px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 6px 14px;
+    font-size: 12px;
   }
   .jataka-field {
     color: var(--muted);
@@ -2115,13 +2139,31 @@
     margin-left: 4px;
   }
 
+  /* STREAMLINED HERO SCORE & PREDICTION ROW */
+  .hero-score-prediction-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    background: rgba(180, 83, 9, 0.03);
+    border: 1px solid var(--gold-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    align-items: center;
+  }
+  @media (max-width: 768px) {
+    .hero-score-prediction-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* 7-PLANET DETAILED MATHEMATICAL TABLE */
   .parashara-table-wrap {
     width: 100%;
     overflow-x: auto;
-    margin: 16px 0 20px 0;
+    margin: 10px 0 14px 0;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     background: var(--bg);
   }
   .parashara-table {
@@ -2132,15 +2174,15 @@
     min-width: 720px;
   }
   .parashara-table th {
-    background: rgba(180, 83, 9, 0.1);
+    background: rgba(180, 83, 9, 0.08);
     color: var(--primary);
     font-weight: 700;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border-bottom: 1.5px solid var(--gold-border);
     white-space: nowrap;
   }
   .parashara-table td {
-    padding: 9px 12px;
+    padding: 8px 10px;
     border-bottom: 1px solid var(--border);
     color: var(--dark);
     vertical-align: middle;
@@ -2152,14 +2194,6 @@
     background: rgba(180, 83, 9, 0.03);
   }
 
-  .pane-action-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
   .btn-print-report-pane {
     display: inline-flex;
     align-items: center;
@@ -2167,12 +2201,12 @@
     background: var(--primary);
     color: #ffffff !important;
     border: none;
-    padding: 8px 16px;
+    padding: 7px 14px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(124, 19, 5, 0.25);
+    box-shadow: 0 3px 10px rgba(124, 19, 5, 0.2);
     transition: transform 0.15s ease;
   }
   .btn-print-report-pane:hover {
@@ -2182,10 +2216,10 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(180, 83, 9, 0.1);
+    background: rgba(180, 83, 9, 0.09);
     border: 1px solid var(--gold-border);
     color: var(--gold);
-    padding: 8px 14px;
+    padding: 7px 12px;
     border-radius: 8px;
     font-size: 12px;
     font-weight: 700;
@@ -2195,6 +2229,41 @@
   }
   .btn-switch-report-pill:hover {
     background: var(--gold);
+    color: #fff;
+  }
+
+  /* CROSS-SELL BANNER BETWEEN INDEPENDENT REPORTS */
+  .parashara-cross-sell-banner {
+    margin-top: 14px;
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.05), rgba(16, 185, 129, 0.08));
+    border: 1.5px solid var(--gold-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .btn-cross-sell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff !important;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transition: transform 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-cross-sell:hover {
+    transform: translateY(-1.5px);
+  }
     color: #fff;
   }
 
@@ -2696,6 +2765,12 @@
     <a href="admin.html" data-i18n="nav_admin">एडमिन</a>
   </div>
   <div style="display:flex; align-items:center; gap:8px;">
+    <!-- PERSISTENT SAVED KUNDALIS BUTTON -->
+    <button type="button" class="btn-nav-saved-kundali" onclick="openSavedKundaliModal()" title="सुरक्षित कुण्डलियां खोलें">
+      <span>📂</span>
+      <span class="nav-saved-label">कुण्डलियां</span>
+      <span id="savedKundaliBadgeNav" class="saved-kundali-badge">0</span>
+    </button>
     <!-- LANGUAGE SWITCH PILL -->
     <button type="button" class="lang-pill-btn" onclick="toggleLanguage()" id="globalLangBtn" title="Switch Language / भाषा बदलें">
       <span class="lang-hi active">हिन्दी</span>
@@ -2713,6 +2788,10 @@
 </nav>
 
 <div class="mobile-menu" id="mobileMenu" style="display:none !important;">
+  <a href="javascript:void(0)" onclick="closeMobileMenu(); openSavedKundaliModal();" style="color:var(--gold); font-weight:800; display:flex; justify-content:space-between; align-items:center; background:rgba(180,83,9,0.08); padding:10px 14px; border-radius:8px;">
+    <span>📂 सुरक्षित कुण्डलियां (Saved Kundali)</span>
+    <span id="savedKundaliBadgeMobile" class="saved-kundali-badge">0</span>
+  </a>
   <a href="patrika.html" onclick="closeMobileMenu()" data-i18n="nav_patrika" style="color:var(--gold); font-weight:800;">पत्रिका (Birth Chart / Kundli)</a>
   <a href="vmm.html" onclick="closeMobileMenu()" data-i18n="nav_vivah">विवाह मुहूर्त व मिलान (Matchmaker)</a>
   <a href="vastu-muhurta.html" onclick="closeMobileMenu()" data-i18n="nav_vastu">वास्तु, नींव पूजन व गृह प्रवेश</a>
@@ -3407,31 +3486,6 @@
         </div>
         <div id="uploadedBooksModalBody" style="padding:20px; max-height:75vh; overflow-y:auto;">
           <!-- Populated dynamically by JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- Technical Ephemeris & Precision Standards (SEO Article Card) -->
-    <div style="margin-top: 28px; background: var(--card-bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 22px;">
-      <h3 style="color: var(--gold); font-family: 'Cinzel', serif; margin-top: 0; font-size: 17px; border-bottom: 2px solid var(--gold-border); padding-bottom: 8px;">
-        🔬 Technical Ephemeris & Astronomical Precision Standards — Astro 360
-      </h3>
-      <p style="font-size: 13.5px; line-height: 1.6; color: var(--dark); margin-bottom: 16px;">
-        Designed around classical <em>Brihat Parashara Hora Shastra</em> (BPHS) standards and modern orbital mechanics, <strong>Astro 360 By Shri Ramji Astro (shriramjiastro.in)</strong> delivers desktop-grade astronomical precision directly to your browser without computational drift.
-      </p>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; font-size: 13px;">
-        <div style="background: var(--bg); border: 1px solid var(--border); padding: 14px; border-radius: 8px;">
-          <strong style="color: var(--primary);">🌐 Pinpoint Geodetic Map:</strong> Dropping a pin on the exact birthplace eliminates spatial drift (±20-40km city snapping errors), anchoring the Ascendant with sub-meter coordinate integrity.
-        </div>
-        <div style="background: var(--bg); border: 1px solid var(--border); padding: 14px; border-radius: 8px;">
-          <strong style="color: var(--primary);">🌌 True Nutation Lahiri Ayanamsa:</strong> Applies 4-term IAU nutation correction (Δψ cos ε) to account for the 17.2'' periodic nodal wobble, matching Swiss Ephemeris and official Indian Ephemeris.
-        </div>
-        <div style="background: var(--bg); border: 1px solid var(--border); padding: 14px; border-radius: 8px;">
-          <strong style="color: var(--primary);">🌙 Meeus Ch. 47 60-Term Lunar Series:</strong> 60-term ELP-2000 periodic expansion keeps Moon coordinate error under 18'' arcseconds, securing exact Navamsha (D9), Shashtiamsa (D60), & Dasha balance.
-        </div>
-        <div style="background: var(--bg); border: 1px solid var(--border); padding: 14px; border-radius: 8px;">
-          <strong style="color: var(--primary);">🌅 Apparent Sunrise (h₀ = -0.8333°):</strong> Factoring in atmospheric refraction (-34') and solar semi-radius (-16') aligns Dinamana, Gulika, Yamaghantaka, & Special Lagnas with actual horizon conditions.
         </div>
       </div>
     </div>
@@ -6377,29 +6431,77 @@ const PARASHARA_RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
 const PARASHARA_PRICE_INR = 199;
 const PARASHARA_PRICE_PAISE = 19900;
 
-function isParasharaReportsUnlocked() {
+let currentPayingReport = 'rajyoga';
+
+function isParasharaReportUnlocked(reportKey) {
   try {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('unlock_parashara') === '1' || urlParams.get('vip') === 'parashara199') {
+    if (urlParams.get('unlock_all') === '1' || urlParams.get('vip') === 'admin199') {
       return true;
     }
-    return localStorage.getItem('sra_unlocked_parashara_reports_199') === 'true';
+    if (reportKey === 'rajyoga') {
+      if (urlParams.get('unlock_rajyoga') === '1' || urlParams.get('vip') === 'rajyoga199' || urlParams.get('vip') === 'parashar199') return true;
+      return localStorage.getItem('sra_unlocked_report_rajyoga_199') === 'true' || localStorage.getItem('sra_unlocked_parashara_reports_199') === 'true';
+    }
+    if (reportKey === 'vahan') {
+      if (urlParams.get('unlock_vahan') === '1' || urlParams.get('vip') === 'vahan199' || urlParams.get('vip') === 'gomutrika199') return true;
+      return localStorage.getItem('sra_unlocked_report_vahan_199') === 'true';
+    }
+    return false;
   } catch(e) {
     return false;
   }
 }
 
-function openParasharaPaymentModal(focusField) {
+function openParasharaPaymentModal(reportType, focusField) {
+  currentPayingReport = reportType || activeParasharaReport || 'rajyoga';
   const modal = document.getElementById('modalParasharaPayment199');
-  if (modal) {
-    modal.classList.add('active');
-    const errBox = document.getElementById('parasharaVipErrMsg');
-    if (errBox) errBox.style.display = 'none';
-    if (focusField === 'passcode') {
-      const input = document.getElementById('parasharaVipCodeInput');
-      if (input) {
-        setTimeout(() => input.focus(), 200);
-      }
+  if (!modal) return;
+
+  const isRaj = (currentPayingReport === 'rajyoga');
+  const modalTitle = document.getElementById('parasharaModalTitle');
+  const modalSubtitle = document.getElementById('parasharaModalSubtitle');
+  const modalBadge = document.getElementById('parasharaModalBadge');
+  const dealRow1Lbl = document.getElementById('dealRow1Lbl');
+  const rzpBtn = document.getElementById('btnRzpSubmit');
+  const upiQrImg = document.getElementById('parasharaUpiQrImg');
+  const upiWaLink = document.getElementById('parasharaUpiWaLink');
+
+  if (modalBadge) {
+    modalBadge.textContent = isRaj ? '★ बृहत्पाराशरहोराशास्त्र फलित विधान ★' : '★ बृहत्पाराशरहोराशास्त्र गोमूत्रिका विधान ★';
+  }
+  if (modalTitle) {
+    modalTitle.textContent = isRaj ? '👑 Raajyoga Strength / Rashmi Bal अनलॉक करें' : '🚗 पाराशर वाहन एवं जनबल रिपोर्ट अनलॉक करें';
+  }
+  if (modalSubtitle) {
+    modalSubtitle.textContent = isRaj 
+      ? 'सप्तग्रह रश्मि-बल, श्लोक १८ युति शोधन एवं श्लोक २३–३९ स्लैब फलादेश (आजीवन एक्सेस)'
+      : 'श्लोक ३४–४० अनुसार भौतिक सुख, वाहन एवं आश्रित जनबल सामर्थ्य (आजीवन एक्सेस)';
+  }
+  if (dealRow1Lbl) {
+    dealRow1Lbl.textContent = isRaj ? '१. Raajyoga Strength / Rashmi Bal रिपोर्ट:' : '१. पाराशर गोमूत्रिका वाहन एवं जनबल रिपोर्ट:';
+  }
+  if (rzpBtn) {
+    rzpBtn.innerHTML = `💳 ₹199 ऑनलाइन भुगतान करें (${isRaj ? 'राजयोग रिपोर्ट' : 'वाहन रिपोर्ट'})`;
+  }
+  if (upiQrImg) {
+    const tn = isRaj ? 'RajyogaReport' : 'VahanReport';
+    upiQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D9517117775%40upi%26pn%3DShriRamjiAstro%26am%3D199%26cu%3DINR%26tn%3D${tn}`;
+  }
+  if (upiWaLink) {
+    const text = isRaj 
+      ? encodeURIComponent("🙏 मैंने Raajyoga Strength / Rashmi Bal रिपोर्ट (₹199) का भुगतान कर दिया है। कृपया अनलॉक कोड प्रदान करें।")
+      : encodeURIComponent("🙏 मैंने पाराशर वाहन एवं जनबल रिपोर्ट (₹199) का भुगतान कर दिया है। कृपया अनलॉक कोड प्रदान करें।");
+    upiWaLink.href = `https://wa.me/919517117775?text=${text}`;
+  }
+
+  modal.classList.add('active');
+  const errBox = document.getElementById('parasharaVipErrMsg');
+  if (errBox) errBox.style.display = 'none';
+  if (focusField === 'passcode') {
+    const input = document.getElementById('parasharaVipCodeInput');
+    if (input) {
+      setTimeout(() => input.focus(), 200);
     }
   }
 }
@@ -6411,19 +6513,21 @@ function closeParasharaPaymentModal() {
   }
 }
 
-function unlockParasharaReports(paymentId) {
+function unlockParasharaReport(reportType, paymentId) {
   try {
-    localStorage.setItem('sra_unlocked_parashara_reports_199', 'true');
-    localStorage.setItem('sra_parashara_unlock_time', new Date().toISOString());
+    const key = (reportType === 'vahan') ? 'sra_unlocked_report_vahan_199' : 'sra_unlocked_report_rajyoga_199';
+    localStorage.setItem(key, 'true');
+    localStorage.setItem('sra_parashara_' + reportType + '_unlock_time', new Date().toISOString());
     if (paymentId) {
-      localStorage.setItem('sra_parashara_pay_id', paymentId);
+      localStorage.setItem('sra_parashara_' + reportType + '_pay_id', paymentId);
     }
   } catch(e) {
     console.error("Storage error:", e);
   }
   closeParasharaPaymentModal();
   renderParasharaReports();
-  showParasharaToast("🎉 बधाई! दोनों पाराशर फलित रिपोर्ट्स सफलतापूर्वक अनलॉक हो चुकी हैं।");
+  const title = (reportType === 'vahan') ? '🚗 पाराशर वाहन एवं जनबल रिपोर्ट' : '👑 Raajyoga Strength / Rashmi Bal रिपोर्ट';
+  showParasharaToast(`🎉 बधाई! ${title} सफलतापूर्वक अनलॉक हो चुकी है।`);
 }
 
 function triggerParasharaRazorpayCheckout() {
@@ -6433,6 +6537,8 @@ function triggerParasharaRazorpayCheckout() {
     return;
   }
 
+  const isRaj = (currentPayingReport === 'rajyoga');
+  const reportTitle = isRaj ? 'Raajyoga Strength / Rashmi Bal Report' : 'Parashara Vahan & Janbal Report';
   const clientName = (document.getElementById('inName') && document.getElementById('inName').value.trim()) 
     ? document.getElementById('inName').value.trim() 
     : "पाराशर VIP जातक";
@@ -6443,7 +6549,7 @@ function triggerParasharaRazorpayCheckout() {
     amount: PARASHARA_PRICE_PAISE,
     currency: "INR",
     name: "Shri Ramji Astro",
-    description: "पाराशर रश्मि-बल एवं गोमूत्रिका वाहन-जनबल रिपोर्ट्स (₹199 आजीवन एक्सेस)",
+    description: `${reportTitle} (₹199 आजीवन एक्सेस)`,
     prefill: {
       name: clientName,
       contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
@@ -6451,9 +6557,13 @@ function triggerParasharaRazorpayCheckout() {
     theme: {
       color: "#b45309"
     },
+    notes: {
+      report_type: currentPayingReport,
+      report_title: reportTitle
+    },
     handler: function (response) {
       const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_PARASHARA_SUCCESS';
-      unlockParasharaReports(payId);
+      unlockParasharaReport(currentPayingReport, payId);
     },
     modal: {
       ondismiss: function() {
@@ -6485,11 +6595,14 @@ function verifyParasharaPasscode() {
   if (!input) return;
   const val = input.value.trim().toUpperCase();
 
-  const validCodes = ['PARASHAR199', 'PARASHAR', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199', 'GOMUTRIKA199'];
+  const rajyogaCodes = ['RAJYOGA199', 'RAJYOGA', 'PARASHAR199', 'PARASHAR', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
+  const vahanCodes = ['VAHAN199', 'VAHAN', 'GOMUTRIKA199', 'GOMUTRIKA', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
+
+  const validCodes = (currentPayingReport === 'vahan') ? vahanCodes : rajyogaCodes;
 
   if (validCodes.includes(val)) {
     if (errBox) errBox.style.display = 'none';
-    unlockParasharaReports('VIP_CODE_' + val);
+    unlockParasharaReport(currentPayingReport, 'VIP_CODE_' + val);
   } else {
     if (errBox) {
       errBox.textContent = '❌ अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।';
@@ -6567,7 +6680,8 @@ function renderParasharaReports() {
   const reports = generateKundaliReports(inputContract);
   const rep1 = reports.report_rajyoga_daridrayoga;
   const rep2 = reports.report_vahan_janbal;
-  const isUnlocked = isParasharaReportsUnlocked();
+  const isRajyogaUnlocked = isParasharaReportUnlocked('rajyoga');
+  const isVahanUnlocked = isParasharaReportUnlocked('vahan');
 
   // Extract Jataka details for formal certificate header
   let candidateName = "जातक";
@@ -6762,76 +6876,63 @@ function renderParasharaReports() {
 
   // --- HTML FOR REPORT 1: RAAJYOGA STRENGTH / RASHMI BAL ---
   let pane1Content = '';
-  if (isUnlocked) {
+  if (isRajyogaUnlocked) {
     pane1Content = `
-      <div class="pane-action-bar">
-        <div>
-          <span style="font-size:11px; background:rgba(180,83,9,0.12); color:var(--primary); font-weight:800; padding:3px 10px; border-radius:12px; border:1px solid var(--gold-border);">
-            ★ बृहत्पाराशरहोराशास्त्र उत्तराखण्ड अध्याय ८ (रश्मि फल वर्णन) ★
-          </span>
-          <h2 style="font-family:'Cinzel',serif; color:var(--primary); margin:6px 0 2px 0; font-size:22px;">
-            👑 ${rep1.title}
-          </h2>
-          <p style="margin:0; font-size:12.5px; color:var(--muted);">${rep1.subtitle}</p>
-        </div>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <button type="button" class="btn-print-report-pane" onclick="printParasharaReport('rajyoga')">
-            <span>🖨️</span> PDF / प्रिंट यह रिपोर्ट
-          </button>
-          <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('vahan')">
-            🚗 गोमूत्रिका वाहन रिपोर्ट ➔
-          </button>
-        </div>
-      </div>
-
-      <!-- Formal Certified Header -->
+      <!-- Streamlined Certified Header -->
       <div class="jataka-formal-header">
-        <div class="jataka-formal-emblem">ॐ श्री रामजी ज्योतिष संस्थान ॐ</div>
-        <div class="jataka-formal-org">Shri Ramji Astro Vedic Research Division • Certified Horoscope Report</div>
-        <div class="jataka-formal-report-title">Raajyoga Strength / Rashmi Bal Report</div>
+        <div class="jataka-formal-top">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:11px; background:rgba(180,83,9,0.12); color:var(--primary); font-weight:800; padding:2px 8px; border-radius:10px; border:1px solid var(--gold-border);">
+              ★ BPHS Ch. 8 ★
+            </span>
+            <h2 class="jataka-formal-report-title">
+              👑 ${rep1.title}
+            </h2>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn-print-report-pane" onclick="printParasharaReport('rajyoga')">
+              <span>🖨️</span> PDF / प्रिंट
+            </button>
+            ${isVahanUnlocked ? `
+              <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('vahan')">
+                🚗 वाहन रिपोर्ट देखें ➔
+              </button>
+            ` : `
+              <button type="button" class="btn-switch-report-pill" onclick="openParasharaPaymentModal('vahan')" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; font-weight:800;">
+                🚗 वाहन रिपोर्ट अनलॉक (₹199) ➔
+              </button>
+            `}
+          </div>
+        </div>
         <div class="jataka-formal-grid">
-          <div class="jataka-field"><span>जातक का नाम:</span> <strong>${candidateName}</strong></div>
-          <div class="jataka-field"><span>जन्म तिथि:</span> <strong>${birthDateStr}</strong></div>
-          <div class="jataka-field"><span>जन्म समय:</span> <strong>${birthTimeStr}</strong></div>
-          <div class="jataka-field"><span>जन्म स्थान:</span> <strong>${birthPlaceStr}</strong></div>
-          <div class="jataka-field"><span>लग्न राशि:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
-          <div class="jataka-field"><span>चन्द्र राशि:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
-          <div class="jataka-field"><span>अयनांश:</span> <strong>चित्रपक्ष लाहिरी (${ayanamsaStr})</strong></div>
-          <div class="jataka-field"><span>विश्लेषण तिथि:</span> <strong>${todayStr}</strong></div>
+          <div class="jataka-field"><span>जातक:</span> <strong>${candidateName}</strong></div>
+          <div class="jataka-field"><span>जन्म:</span> <strong>${birthDateStr} ${birthTimeStr}</strong></div>
+          <div class="jataka-field"><span>स्थान:</span> <strong>${birthPlaceStr}</strong></div>
+          <div class="jataka-field"><span>लग्न:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
+          <div class="jataka-field"><span>चन्द्र:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
+          <div class="jataka-field"><span>अयनांश:</span> <strong>चित्रपक्ष (${ayanamsaStr})</strong></div>
         </div>
       </div>
 
-      <!-- Hero Score Box -->
-      <div style="background:linear-gradient(135deg, rgba(180,83,9,0.08), rgba(217,119,6,0.12)); border:1.5px solid var(--gold); border-radius:14px; padding:18px 22px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <!-- Single-Level Hero Score & Classical Prediction Box -->
+      <div class="hero-score-prediction-row">
+        <div class="score-badge-box" style="text-align:center; min-width:130px; border:1.5px solid var(--gold); border-radius:10px; padding:10px 14px; background:var(--bg);">
+          <div style="font-size:30px; font-weight:800; color:var(--primary); font-family:'Cinzel',serif; line-height:1;">${rep1.total_score}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase; margin-top:2px;">कुल रश्मि बल</div>
+        </div>
         <div>
-          <div style="font-size:12px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">
-            शास्त्रीय रश्मि श्रेणी (BPHS Shloka Slab)
+          <div style="font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.8px;">शास्त्रीय रश्मि श्रेणी (BPHS Shloka Slab)</div>
+          <div style="font-size:16px; font-weight:800; color:var(--dark); font-family:'Cinzel',serif; margin:2px 0 6px 0;">👑 ${rep1.category}</div>
+          <div style="font-size:13px; line-height:1.6; color:var(--dark); border-left:3px solid var(--gold); padding-left:10px;">
+            ${rep1.prediction}
           </div>
-          <div style="font-size:18px; font-weight:800; color:var(--dark); font-family:'Cinzel',serif;">
-            👑 ${rep1.category}
-          </div>
-          <div style="font-size:12px; color:var(--muted); margin-top:4px;">
-            सप्तग्रहों की नीच-केन्द्र दूरी, ध्रुवांक, युति शोधन (श्लोक १८) एवं चतुर्गुण संस्कार (श्लोक २०) के उपरांत प्राप्त शुद्ध मान
-          </div>
-        </div>
-        <div class="score-badge-box" style="text-align:center; min-width:140px; border:2px solid var(--gold);">
-          <div class="score-badge-val" style="font-size:30px;">${rep1.total_score}</div>
-          <div class="score-badge-lbl">कुल शुद्ध रश्मि बल</div>
         </div>
       </div>
 
-      <!-- Classical BPHS Prediction -->
-      <div class="prediction-textbox">
-        <div style="font-weight:700; color:var(--gold); margin-bottom:6px; font-size:13px; display:flex; align-items:center; gap:6px;">
-          <span>📜</span> बृहत्पाराशरहोराशास्त्र फलित व्याख्या (श्लोक २३–३९ स्लैब अनुसार):
-        </div>
-        <div style="font-size:14px; line-height:1.7; color:var(--dark);">${rep1.prediction}</div>
-      </div>
-
-      <!-- 7-Planet Complete Mathematical Table -->
-      <div style="margin-top:22px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3 style="font-family:'Cinzel',serif; font-size:15px; color:var(--primary); margin:0;">
+      <!-- 7-Planet Mathematical Table -->
+      <div style="margin-top:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h3 style="font-family:'Cinzel',serif; font-size:14px; color:var(--primary); margin:0;">
             📐 सप्तग्रह शुद्ध रश्मि गणितीय तालिका (Mathematical Audit)
           </h3>
           <span style="font-size:11px; color:var(--muted);">श्लोक ६, ७, १४, १८ व २० अनुसार</span>
@@ -6844,10 +6945,10 @@ function renderParasharaReports() {
                 <th>भाव</th>
                 <th>स्थिति (Sign & Deg)</th>
                 <th>परम नीच बिंदु</th>
-                <th>नीच-दूरी (Kendra)</th>
+                <th>नीच-दूरी</th>
                 <th>ध्रुवांक</th>
                 <th>मूल रश्मि</th>
-                <th>अवस्था (Ast/Vakri)</th>
+                <th>अवस्था</th>
                 <th>युति शोधन</th>
                 <th>चतुर्गुण (४×)</th>
                 <th>शुद्ध रश्मि</th>
@@ -6861,87 +6962,94 @@ function renderParasharaReports() {
       </div>
 
       <!-- 7-Planet Visual Bar Chart -->
-      <div class="rashmi-chart-container" style="margin-top:18px;">
+      <div class="rashmi-chart-container" style="margin-top:14px;">
         <div class="rashmi-chart-title">
-          <span>🪐 सप्तग्रह रश्मि-बल दृश्य बार-चार्ट (Relative Strength)</span>
+          <span>🪐 सप्तग्रह रश्मि-बल दृश्य बार-चार्ट</span>
           <span style="font-size:11px; color:var(--muted); font-weight:normal;">मूल उच्चरश्मि ➔ अंतिम शुद्ध रश्मि</span>
         </div>
         ${planetRowsHtml}
       </div>
 
-      <!-- Shodhan & Chaturguna Samskara Details -->
-      <div class="shodhan-info-box">
-        <div style="font-weight:700; color:var(--gold); margin-bottom:6px; font-size:13px;">
-          ⚖️ ग्रह शोधन एवं चतुर्गुण संस्कार गणितीय विवरण (श्लोक १८–२०):
+      <!-- Compact Shodhan & Shloka Note (Combined) -->
+      <div class="shodhan-info-box" style="margin-top:14px;">
+        <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:12.5px;">
+          ⚖️ ग्रह शोधन एवं चतुर्गुण संस्कार विवरण (श्लोक १८–२०):
         </div>
-        <div style="font-size:12px; color:var(--dark); line-height:1.7;">${shodhanHtml}</div>
+        <div style="font-size:12px; color:var(--dark); line-height:1.6;">${shodhanHtml}</div>
+        <div style="margin-top:8px; padding-top:6px; border-top:1px dashed var(--border); font-size:11.5px; color:var(--muted); font-style:italic;">
+          प्रमाण: "शनिं सितं विना ताराग्रहा अस्तंगता यदि विरश्मयो भवन्त्येवं... चतुर्गुणा राजयोगे पूर्वन्यायेन बोधिताः ॥" (बृहत्पाराशरहोराशास्त्र श्लोक १४, २०)
+        </div>
       </div>
 
-      <!-- Classical Sanskrit Shlokas Box -->
-      <div class="shloka-quote-box">
-        <strong>बृहत्पाराशरहोराशास्त्रम् (उत्तराखण्ड अध्याय ८ प्रमाण):</strong><br>
-        <em>"दिग्भवेष्विषुसप्ताष्टाष्टशराः स्वोच्चेकरा रवेः ॥ नीचे न चांतरा प्रोक्ता रश्मयस्त्वनुपातजाः । नीचोनं तु ग्रहं भार्धाधिके चक्राद्विशोधयेत् ॥" (श्लोक ६–७)</em><br>
-        <em>"शनिं सितं विना ताराग्रहा अस्तंगता यदि ॥ विरश्मयो भवन्त्येवं वक्रादौ द्विगुणास्ततः ॥" (श्लोक १४)</em><br>
-        <em>"योगेषु ये ग्रहाः प्रोक्तास्तेषां योगे च रश्मयः ॥ पापसौम्यरिमित्राणां योगे हानिश्च कीर्तिता ॥ चतुर्गुणा राजयोगे पूर्वन्यायेन बोधिताः ॥" (श्लोक १८, २०)</em>
-      </div>
-
-      <div style="margin-top:20px; text-align:right;">
-        <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('vahan')">
-          🚗 दूसरी रिपोर्ट: गोमूत्रिका वाहन एवं जनबल रिपोर्ट देखें ➔
-        </button>
-      </div>
+      <!-- Cross-sell / Switch Footer for Vahan Report -->
+      ${!isVahanUnlocked ? `
+        <div class="parashara-cross-sell-banner">
+          <div>
+            <div style="font-weight:800; font-size:14px; color:#059669;">🚗 अगली रिपोर्ट: क्या आप अपना वाहन व जनबल सामर्थ्य जानना चाहते हैं?</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">बृहत्पाराशरहोराशास्त्र श्लोक ३४–४० के गोमूत्रिका न्याय अनुसार निजी वाहन, परिचारक व संगठन संचालन क्षमता।</div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('vahan')">
+              ⚡ मात्र ₹199 में वाहन रिपोर्ट अनलॉक करें ➔
+            </button>
+            <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('vahan')">
+              पूर्वावलोकन देखें
+            </button>
+          </div>
+        </div>
+      ` : `
+        <div style="margin-top:14px; text-align:right;">
+          <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('vahan')">
+            🚗 दूसरी रिपोर्ट: पाराशर वाहन एवं जनबल रिपोर्ट देखें ➔
+          </button>
+        </div>
+      `}
     `;
   } else {
     // Locked Preview for Report 1
     pane1Content = `
-      <div class="pane-action-bar">
-        <div>
-          <span style="font-size:11px; background:rgba(180,83,9,0.12); color:var(--primary); font-weight:800; padding:3px 10px; border-radius:12px; border:1px solid var(--gold-border);">
-            ★ बृहत्पाराशरहोराशास्त्र उत्तराखण्ड अध्याय ८ (रश्मि फल वर्णन) ★
-          </span>
-          <h2 style="font-family:'Cinzel',serif; color:var(--primary); margin:6px 0 2px 0; font-size:22px;">
-            👑 ${rep1.title}
-          </h2>
-          <p style="margin:0; font-size:12.5px; color:var(--muted);">${rep1.subtitle}</p>
-        </div>
-        <div>
-          <button type="button" class="parashara-lock-overlay-btn" onclick="openParasharaPaymentModal()">
-            ⚡ ₹199 में दोनों रिपोर्ट्स अनलॉक करें ➔
-          </button>
-        </div>
-      </div>
-
       <!-- Formal Certified Header -->
       <div class="jataka-formal-header">
-        <div class="jataka-formal-emblem">ॐ श्री रामजी ज्योतिष संस्थान ॐ</div>
-        <div class="jataka-formal-org">Shri Ramji Astro Vedic Research Division • Certified Horoscope Report</div>
-        <div class="jataka-formal-report-title">Raajyoga Strength / Rashmi Bal Report</div>
+        <div class="jataka-formal-top">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; background:rgba(180,83,9,0.12); color:var(--primary); font-weight:800; padding:2px 8px; border-radius:10px; border:1px solid var(--gold-border);">BPHS Ch. 8</span>
+            <h2 class="jataka-formal-report-title">👑 ${rep1.title}</h2>
+          </div>
+          <div>
+            <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('rajyoga')" style="background:var(--primary);">
+              ⚡ ₹199 में अनलॉक करें ➔
+            </button>
+          </div>
+        </div>
         <div class="jataka-formal-grid">
-          <div class="jataka-field"><span>जातक का नाम:</span> <strong>${candidateName}</strong></div>
-          <div class="jataka-field"><span>जन्म तिथि:</span> <strong>${birthDateStr}</strong></div>
-          <div class="jataka-field"><span>जन्म समय:</span> <strong>${birthTimeStr}</strong></div>
-          <div class="jataka-field"><span>जन्म स्थान:</span> <strong>${birthPlaceStr}</strong></div>
-          <div class="jataka-field"><span>लग्न राशि:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
-          <div class="jataka-field"><span>चन्द्र राशि:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
-          <div class="jataka-field"><span>अयनांश:</span> <strong>चित्रपक्ष लाहिरी (${ayanamsaStr})</strong></div>
-          <div class="jataka-field"><span>स्थिति:</span> <strong>🔒 VIP रिपोर्ट लॉक</strong></div>
+          <div class="jataka-field"><span>जातक:</span> <strong>${candidateName}</strong></div>
+          <div class="jataka-field"><span>जन्म:</span> <strong>${birthDateStr} ${birthTimeStr}</strong></div>
+          <div class="jataka-field"><span>स्थान:</span> <strong>${birthPlaceStr}</strong></div>
+          <div class="jataka-field"><span>लग्न:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
+          <div class="jataka-field"><span>चन्द्र:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
+          <div class="jataka-field"><span>स्थिति:</span> <strong style="color:#dc2626;">🔒 VIP रिपोर्ट लॉक</strong></div>
         </div>
       </div>
 
-      <!-- Paywall Offer Callout Box -->
-      <div class="parashara-paywall-banner">
-        <div class="paywall-banner-badge">👑 एक्सक्लूसिव प्रीमियम फलित विधान</div>
+      <!-- Clean Single-Level Paywall Card -->
+      <div class="parashara-paywall-banner" style="margin:16px 0;">
+        <div class="paywall-banner-badge">👑 एक्सक्लूसिव पाराशर रश्मि विधान</div>
         <div class="paywall-banner-content">
           <div class="paywall-banner-text">
             <h3 class="paywall-banner-title">Raajyoga Strength / Rashmi Bal सम्पूर्ण रिपोर्ट अनलॉक करें</h3>
             <p class="paywall-banner-desc">
-              बृहत्पाराशरहोराशास्त्र (अध्याय ८) के गुप्त फलित सूत्रों पर आधारित अपने ७ ग्रहों का व्यक्तिगत रश्मि-बल, श्लोक १८ युति शोधन, श्लोक २० चतुर्गुण (४×) संस्कार एवं श्लोक २३–३९ का प्रामाणिक स्लैब फलादेश तुरंत प्राप्त करें।
+              बृहत्पाराशरहोराशास्त्र (अध्याय ८) अनुसार अपने ७ ग्रहों का व्यक्तिगत रश्मि-बल, श्लोक १८ युति शोधन, एवं श्लोक २३–३९ का प्रामाणिक स्लैब फलादेश तुरंत प्राप्त करें।
             </p>
             <div class="paywall-banner-highlights">
               <span>⚡ मात्र ₹199 एकमुश्त</span>
-              <span>🚗 वाहन व जनबल रिपोर्ट भी शामिल</span>
+              <span>👑 100% प्रामाणिक पाराशर विधान</span>
               <span>🖨️ आजीवन PDF / प्रिंट एक्सेस</span>
             </div>
+            ${isVahanUnlocked ? `
+              <div style="margin-top:8px; font-size:12px; color:#059669; font-weight:700;">
+                ✅ आपने वाहन रिपोर्ट पहले से अनलॉक कर रखी है! <a href="javascript:void(0)" onclick="switchParasharaReport('vahan')" style="color:#059669; text-decoration:underline;">वाहन रिपोर्ट देखने के लिए यहाँ क्लिक करें ➔</a>
+              </div>
+            ` : ''}
           </div>
           <div class="paywall-banner-cta-box">
             <div class="paywall-price-wrap">
@@ -6949,11 +7057,11 @@ function renderParasharaReports() {
               <span class="paywall-current-price">₹199</span>
               <span class="paywall-discount-tag">90% छूट</span>
             </div>
-            <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal()">
-              ⚡ मात्र ₹199 में दोनों रिपोर्ट्स अनलॉक करें ➔
+            <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal('rajyoga')">
+              ⚡ ₹199 में राजयोग रिपोर्ट अनलॉक करें ➔
             </button>
             <div class="paywall-sublink">
-              <a href="javascript:void(0)" onclick="openParasharaPaymentModal('passcode')">VIP प्रोमो कोड दर्ज करें</a>
+              <a href="javascript:void(0)" onclick="openParasharaPaymentModal('rajyoga', 'passcode')">VIP प्रोमो कोड दर्ज करें</a>
             </div>
           </div>
         </div>
@@ -6974,70 +7082,67 @@ function renderParasharaReports() {
 
   // --- HTML FOR REPORT 2: PARASHARA VAHAN & JANBAL REPORT (GOMUTRIKA VIDHAN) ---
   let pane2Content = '';
-  if (isUnlocked) {
+  if (isVahanUnlocked) {
     pane2Content = `
-      <div class="pane-action-bar">
-        <div>
-          <span style="font-size:11px; background:rgba(16,185,129,0.12); color:#059669; font-weight:800; padding:3px 10px; border-radius:12px; border:1px solid rgba(16,185,129,0.3);">
-            ★ बृहत्पाराशरहोराशास्त्र श्लोक ३४–४० (गोमूत्रिका विधान) ★
-          </span>
-          <h2 style="font-family:'Cinzel',serif; color:var(--primary); margin:6px 0 2px 0; font-size:22px;">
-            🚗 ${rep2.title}
-          </h2>
-          <p style="margin:0; font-size:12.5px; color:var(--muted);">${rep2.subtitle}</p>
-        </div>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <button type="button" class="btn-print-report-pane" onclick="printParasharaReport('vahan')">
-            <span>🖨️</span> PDF / प्रिंट यह रिपोर्ट
-          </button>
-          <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('rajyoga')">
-            👑 Raajyoga Strength रिपोर्ट ➔
-          </button>
-        </div>
-      </div>
-
-      <!-- Formal Certified Header -->
+      <!-- Streamlined Certified Header -->
       <div class="jataka-formal-header">
-        <div class="jataka-formal-emblem">ॐ श्री रामजी ज्योतिष संस्थान ॐ</div>
-        <div class="jataka-formal-org">Shri Ramji Astro Vedic Research Division • Certified Horoscope Report</div>
-        <div class="jataka-formal-report-title">Parashara Gomutrika Vahan & Janbal Report</div>
+        <div class="jataka-formal-top">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:11px; background:rgba(16,185,129,0.12); color:#059669; font-weight:800; padding:2px 8px; border-radius:10px; border:1px solid rgba(16,185,129,0.3);">
+              ★ BPHS Shlokas 34-40 ★
+            </span>
+            <h2 class="jataka-formal-report-title" style="color:#059669;">
+              🚗 ${rep2.title}
+            </h2>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn-print-report-pane" onclick="printParasharaReport('vahan')">
+              <span>🖨️</span> PDF / प्रिंट
+            </button>
+            ${isRajyogaUnlocked ? `
+              <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('rajyoga')">
+                👑 राजयोग रिपोर्ट देखें ➔
+              </button>
+            ` : `
+              <button type="button" class="btn-switch-report-pill" onclick="openParasharaPaymentModal('rajyoga')" style="background:linear-gradient(135deg, #b45309, #d97706); color:#fff; border:none; font-weight:800;">
+                👑 राजयोग रिपोर्ट अनलॉक (₹199) ➔
+              </button>
+            `}
+          </div>
+        </div>
         <div class="jataka-formal-grid">
-          <div class="jataka-field"><span>जातक का नाम:</span> <strong>${candidateName}</strong></div>
-          <div class="jataka-field"><span>जन्म तिथि:</span> <strong>${birthDateStr}</strong></div>
-          <div class="jataka-field"><span>जन्म समय:</span> <strong>${birthTimeStr}</strong></div>
-          <div class="jataka-field"><span>जन्म स्थान:</span> <strong>${birthPlaceStr}</strong></div>
-          <div class="jataka-field"><span>लग्न राशि:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
-          <div class="jataka-field"><span>चन्द्र राशि:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
-          <div class="jataka-field"><span>अयनांश:</span> <strong>चित्रपक्ष लाहिरी (${ayanamsaStr})</strong></div>
-          <div class="jataka-field"><span>विश्लेषण तिथि:</span> <strong>${todayStr}</strong></div>
+          <div class="jataka-field"><span>जातक:</span> <strong>${candidateName}</strong></div>
+          <div class="jataka-field"><span>जन्म:</span> <strong>${birthDateStr} ${birthTimeStr}</strong></div>
+          <div class="jataka-field"><span>स्थान:</span> <strong>${birthPlaceStr}</strong></div>
+          <div class="jataka-field"><span>लग्न:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
+          <div class="jataka-field"><span>चन्द्र:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
+          <div class="jataka-field"><span>अयनांश:</span> <strong>चित्रपक्ष (${ayanamsaStr})</strong></div>
         </div>
       </div>
 
-      <!-- Metric Dual Grid -->
-      <div class="vahan-metric-grid" style="margin-bottom:20px;">
-        <div class="vahan-metric-box">
-          <div class="vahan-metric-num" style="color:#10b981;">${rep2.vahan_sevak_index}</div>
-          <div class="vahan-metric-label">🚗 भौतिक साधन व वाहन सामर्थ्य सूचकांक</div>
-          <div class="vahan-metric-sub">निजी वाहन, परिचारक व भौतिक सुख-साधनों की प्रचुरता</div>
+      <!-- Single-Level Hero Score & Classical Prediction Box -->
+      <div class="hero-score-prediction-row">
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <div class="score-badge-box" style="text-align:center; min-width:110px; border:1.5px solid #10b981; border-radius:10px; padding:10px 14px; background:var(--bg);">
+            <div style="font-size:30px; font-weight:800; color:#10b981; font-family:'Cinzel',serif; line-height:1;">${rep2.vahan_sevak_index}</div>
+            <div style="font-size:11px; font-weight:700; color:#059669; text-transform:uppercase; margin-top:2px;">वाहन-सेवक सूचकांक</div>
+          </div>
+          <div class="score-badge-box" style="text-align:center; min-width:110px; border:1.5px solid var(--gold); border-radius:10px; padding:10px 14px; background:var(--bg);">
+            <div style="font-size:20px; font-weight:800; color:var(--gold); line-height:1; margin-top:2px;">👥</div>
+            <div style="font-size:11px; font-weight:700; color:var(--dark); margin-top:4px;">${rep2.janbal_capacity}</div>
+          </div>
         </div>
-        <div class="vahan-metric-box">
-          <div class="vahan-metric-num" style="font-size:20px; padding-top:6px; color:var(--gold);">👥</div>
-          <div class="vahan-metric-label" style="color:var(--gold); font-size:13px;">${rep2.janbal_capacity}</div>
-          <div class="vahan-metric-sub">आश्रितों, कर्मियों व संगठन का भरण-पोषण सामर्थ्य</div>
+        <div>
+          <div style="font-size:11px; font-weight:700; color:#059669; text-transform:uppercase; letter-spacing:0.8px;">गोमूत्रिका फल व्याख्या (BPHS Shloka 34–40)</div>
+          <div style="font-size:13px; line-height:1.6; color:var(--dark); border-left:3px solid #10b981; padding-left:10px; margin-top:4px;">
+            ${rep2.prediction}
+          </div>
         </div>
-      </div>
-
-      <!-- Prediction Textbox -->
-      <div class="prediction-textbox">
-        <div style="font-weight:700; color:var(--gold); margin-bottom:6px; font-size:13px; display:flex; align-items:center; gap:6px;">
-          <span>🐎</span> गोमूत्रिका फल व्याख्या (श्लोक ३४–४०):
-        </div>
-        <div style="font-size:14px; line-height:1.7; color:var(--dark);">${rep2.prediction}</div>
       </div>
 
       <!-- Step-by-Step Gomutrika Breakdown Box -->
-      <div class="gomutrika-steps-box" style="margin-top:20px;">
-        <div style="font-weight:700; color:var(--primary); margin-bottom:12px; font-size:13.5px; font-family:'Cinzel',serif;">
+      <div class="gomutrika-steps-box" style="margin-top:14px;">
+        <div style="font-weight:700; color:var(--primary); margin-bottom:8px; font-size:13.5px; font-family:'Cinzel',serif;">
           📐 गोमूत्रिका न्याय ५-चरणीय गणितीय साधन (Mathematical Steps):
         </div>
         <div class="gomutrika-step-row">
@@ -7063,71 +7168,83 @@ function renderParasharaReports() {
       </div>
 
       <!-- Sanskrit Shloka Reference -->
-      <div class="shloka-quote-box">
+      <div class="shloka-quote-box" style="margin-top:14px; border-left-color:#10b981;">
         <strong>बृहत्पाराशरहोराशास्त्र श्लोक ४०:</strong><br>
         <em>"उच्चचेष्टोत्थयोगार्धगुणिताः षष्टिभाजिताः। नरादीनां तु संख्याः स्युर्वाहनानां च सर्वथा॥"</em><br>
-        <span style="font-size:11.5px; color:var(--muted); font-style:normal; margin-top:4px; display:block;">
+        <span style="font-size:11.5px; color:var(--muted); font-style:normal; margin-top:3px; display:block;">
           सरलार्थ: उच्चरश्मि और चेष्टारश्मि के योग को उसी के आधे से गुणा कर ६० का भाग देने पर जो संख्या आती है, वह मनुष्य के वाहन, सेवक तथा भौतिक साधनों की संख्या होती है।
         </span>
       </div>
 
-      <div style="margin-top:20px; text-align:right;">
-        <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('rajyoga')">
-          👑 पहली रिपोर्ट: Raajyoga Strength / Rashmi Bal रिपोर्ट देखें ➔
-        </button>
-      </div>
+      <!-- Cross-sell / Switch Footer for Rajyoga Report -->
+      ${!isRajyogaUnlocked ? `
+        <div class="parashara-cross-sell-banner">
+          <div>
+            <div style="font-weight:800; font-size:14px; color:var(--primary);">👑 अगली रिपोर्ट: क्या आपने अपनी राजयोग सामर्थ्य (रश्मि-बल) रिपोर्ट देखी है?</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">बृहत्पाराशरहोराशास्त्र अनुसार सप्तग्रह रश्मि-बल, श्लोक १८ शोधन एवं श्लोक २३–३९ फलादेश।</div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('rajyoga')" style="background:var(--primary);">
+              ⚡ मात्र ₹199 में राजयोग रिपोर्ट अनलॉक करें ➔
+            </button>
+            <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('rajyoga')">
+              पूर्वावलोकन देखें
+            </button>
+          </div>
+        </div>
+      ` : `
+        <div style="margin-top:14px; text-align:right;">
+          <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('rajyoga')">
+            👑 पहली रिपोर्ट: Raajyoga Strength / Rashmi Bal देखें ➔
+          </button>
+        </div>
+      `}
     `;
   } else {
     // Locked Preview for Report 2
     pane2Content = `
-      <div class="pane-action-bar">
-        <div>
-          <span style="font-size:11px; background:rgba(16,185,129,0.12); color:#059669; font-weight:800; padding:3px 10px; border-radius:12px; border:1px solid rgba(16,185,129,0.3);">
-            ★ बृहत्पाराशरहोराशास्त्र श्लोक ३४–४० (गोमूत्रिका विधान) ★
-          </span>
-          <h2 style="font-family:'Cinzel',serif; color:var(--primary); margin:6px 0 2px 0; font-size:22px;">
-            🚗 ${rep2.title}
-          </h2>
-          <p style="margin:0; font-size:12.5px; color:var(--muted);">${rep2.subtitle}</p>
-        </div>
-        <div>
-          <button type="button" class="parashara-lock-overlay-btn" onclick="openParasharaPaymentModal()">
-            ⚡ ₹199 में दोनों रिपोर्ट्स अनलॉक करें ➔
-          </button>
-        </div>
-      </div>
-
       <!-- Formal Certified Header -->
       <div class="jataka-formal-header">
-        <div class="jataka-formal-emblem">ॐ श्री रामजी ज्योतिष संस्थान ॐ</div>
-        <div class="jataka-formal-org">Shri Ramji Astro Vedic Research Division • Certified Horoscope Report</div>
-        <div class="jataka-formal-report-title">Parashara Gomutrika Vahan & Janbal Report</div>
+        <div class="jataka-formal-top">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; background:rgba(16,185,129,0.12); color:#059669; font-weight:800; padding:2px 8px; border-radius:10px; border:1px solid rgba(16,185,129,0.3);">BPHS Shlokas 34-40</span>
+            <h2 class="jataka-formal-report-title" style="color:#059669;">🚗 ${rep2.title}</h2>
+          </div>
+          <div>
+            <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('vahan')" style="background:#059669;">
+              ⚡ ₹199 में अनलॉक करें ➔
+            </button>
+          </div>
+        </div>
         <div class="jataka-formal-grid">
-          <div class="jataka-field"><span>जातक का नाम:</span> <strong>${candidateName}</strong></div>
-          <div class="jataka-field"><span>जन्म तिथि:</span> <strong>${birthDateStr}</strong></div>
-          <div class="jataka-field"><span>जन्म समय:</span> <strong>${birthTimeStr}</strong></div>
-          <div class="jataka-field"><span>जन्म स्थान:</span> <strong>${birthPlaceStr}</strong></div>
-          <div class="jataka-field"><span>लग्न राशि:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
-          <div class="jataka-field"><span>चन्द्र राशि:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
-          <div class="jataka-field"><span>अयनांश:</span> <strong>चित्रपक्ष लाहिरी (${ayanamsaStr})</strong></div>
-          <div class="jataka-field"><span>स्थिति:</span> <strong>🔒 VIP रिपोर्ट लॉक</strong></div>
+          <div class="jataka-field"><span>जातक:</span> <strong>${candidateName}</strong></div>
+          <div class="jataka-field"><span>जन्म:</span> <strong>${birthDateStr} ${birthTimeStr}</strong></div>
+          <div class="jataka-field"><span>स्थान:</span> <strong>${birthPlaceStr}</strong></div>
+          <div class="jataka-field"><span>लग्न:</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
+          <div class="jataka-field"><span>चन्द्र:</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
+          <div class="jataka-field"><span>स्थिति:</span> <strong style="color:#dc2626;">🔒 VIP रिपोर्ट लॉक</strong></div>
         </div>
       </div>
 
-      <!-- Paywall Offer Callout Box -->
-      <div class="parashara-paywall-banner">
-        <div class="paywall-banner-badge">👑 एक्सक्लूसिव प्रीमियम फलित विधान</div>
+      <!-- Clean Single-Level Paywall Card -->
+      <div class="parashara-paywall-banner" style="margin:16px 0;">
+        <div class="paywall-banner-badge" style="background:#059669;">🚗 एक्सक्लूसिव पाराशर गोमूत्रिका विधान</div>
         <div class="paywall-banner-content">
           <div class="paywall-banner-text">
             <h3 class="paywall-banner-title">पाराशर वाहन एवं जनबल रिपोर्ट (गोमूत्रिका विधान) अनलॉक करें</h3>
             <p class="paywall-banner-desc">
-              श्लोक ३४–४० के गोमूत्रिका न्याय द्वारा भौतिक सुख-सुविधाओं, निजी वाहन, सेवकों व जातक की पोषक व संगठन संचालन क्षमता का स्वतंत्र मापन।
+              श्लोक ३४–४० के गोमूत्रिका न्याय द्वारा भौतिक सुख-सुविधाओं, निजी वाहन, सेवकों व जातक की पोषक व संगठन संचालन क्षमता का स्वतंत्र मापन तुरंत प्राप्त करें।
             </p>
             <div class="paywall-banner-highlights">
               <span>⚡ मात्र ₹199 एकमुश्त</span>
-              <span>👑 Raajyoga Strength रिपोर्ट भी शामिल</span>
+              <span>🚗 गोमूत्रिका वाहन-सेवक सूचकांक</span>
               <span>🖨️ आजीवन PDF / प्रिंट एक्सेस</span>
             </div>
+            ${isRajyogaUnlocked ? `
+              <div style="margin-top:8px; font-size:12px; color:var(--primary); font-weight:700;">
+                ✅ आपने राजयोग रिपोर्ट पहले से अनलॉक कर रखी है! <a href="javascript:void(0)" onclick="switchParasharaReport('rajyoga')" style="color:var(--primary); text-decoration:underline;">राजयोग रिपोर्ट देखने के लिए यहाँ क्लिक करें ➔</a>
+              </div>
+            ` : ''}
           </div>
           <div class="paywall-banner-cta-box">
             <div class="paywall-price-wrap">
@@ -7135,11 +7252,11 @@ function renderParasharaReports() {
               <span class="paywall-current-price">₹199</span>
               <span class="paywall-discount-tag">90% छूट</span>
             </div>
-            <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal()">
-              ⚡ मात्र ₹199 में दोनों रिपोर्ट्स अनलॉक करें ➔
+            <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal('vahan')" style="background:linear-gradient(135deg, #10b981, #059669);">
+              ⚡ ₹199 में वाहन रिपोर्ट अनलॉक करें ➔
             </button>
             <div class="paywall-sublink">
-              <a href="javascript:void(0)" onclick="openParasharaPaymentModal('passcode')">VIP प्रोमो कोड दर्ज करें</a>
+              <a href="javascript:void(0)" onclick="openParasharaPaymentModal('vahan', 'passcode')">VIP प्रोमो कोड दर्ज करें</a>
             </div>
           </div>
         </div>
@@ -8498,9 +8615,13 @@ function updateSavedKundaliBadge() {
   const b1 = document.getElementById("savedKundaliBadge");
   const b2 = document.getElementById("savedKundaliBadgeBottom");
   const b3 = document.getElementById("savedKundaliBadgeBar");
+  const bNav = document.getElementById("savedKundaliBadgeNav");
+  const bMob = document.getElementById("savedKundaliBadgeMobile");
   if (b1) b1.textContent = count;
   if (b2) b2.textContent = count;
   if (b3) b3.textContent = count;
+  if (bNav) bNav.textContent = count;
+  if (bMob) bMob.textContent = count;
   const totalCountEl = document.getElementById("savedModalTotalCount");
   if (totalCountEl) totalCountEl.textContent = count;
 }
@@ -8587,7 +8708,7 @@ function renderSavedKundalisList(filterQuery = '') {
     const safeCity = (k.city || 'निर्दिष्ट स्थान').replace(/"/g, '&quot;');
 
     html += `
-      <div class="saved-kundali-card">
+      <div class="saved-kundali-card" onclick="loadSavedKundali('${k.id}')" title="इस कुण्डली को लोड करने के लिए क्लिक करें">
         <div class="saved-card-info">
           <div class="saved-card-name">
             <span>👤</span>
@@ -8600,9 +8721,9 @@ function renderSavedKundalisList(filterQuery = '') {
           </div>
           <div class="saved-card-time-badge">🕒 सुरक्षित किया गया: ${k.savedAt || 'हाल ही में'}</div>
         </div>
-        <div class="saved-card-actions">
+        <div class="saved-card-actions" onclick="event.stopPropagation()">
           <button type="button" class="btn-load-kundali" onclick="loadSavedKundali('${k.id}')" title="इस कुण्डली को लोड करके गणना करें">
-            <span>⚡ लोड करें</span>
+            <span>⚡ कुण्डली खोलें</span>
           </button>
           <button type="button" class="btn-delete-kundali" onclick="deleteSavedKundali('${k.id}', event)" title="हटाएं">
             <span>🗑️</span>
@@ -8774,31 +8895,31 @@ window.addEventListener('DOMContentLoaded', () => {
   <div class="parashara-paywall-modal">
     <button type="button" class="parashara-modal-close" onclick="closeParasharaPaymentModal()" aria-label="बंद करें">&times;</button>
     
-    <div style="text-align:center; margin-bottom:16px;">
-      <div style="font-size:36px; margin-bottom:6px;">👑</div>
-      <div style="display:inline-block; background:rgba(180,83,9,0.12); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; font-weight:800; padding:2px 10px; border-radius:12px; margin-bottom:6px; letter-spacing:0.6px;">
+    <div style="text-align:center; margin-bottom:14px;">
+      <div style="font-size:32px; margin-bottom:4px;">👑</div>
+      <div id="parasharaModalBadge" style="display:inline-block; background:rgba(180,83,9,0.12); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; font-weight:800; padding:2px 10px; border-radius:12px; margin-bottom:6px; letter-spacing:0.6px;">
         ★ बृहत्पाराशरहोराशास्त्र फलित विधान ★
       </div>
-      <h3 style="font-family:'Cinzel', serif; font-size:20px; color:var(--primary); margin:0 0 4px 0; font-weight:800;">
-        दोनों पाराशर फलित रिपोर्ट्स अनलॉक करें
+      <h3 id="parasharaModalTitle" style="font-family:'Cinzel', serif; font-size:19px; color:var(--primary); margin:0 0 4px 0; font-weight:800;">
+        Raajyoga Strength / Rashmi Bal अनलॉक करें
       </h3>
-      <p style="font-size:12px; color:var(--muted); margin:0;">
-        Raajyoga Strength / Rashmi Bal + गोमूत्रिका वाहन एवं जनबल रिपोर्ट (आजीवन एक्सेस)
+      <p id="parasharaModalSubtitle" style="font-size:12px; color:var(--muted); margin:0;">
+        सप्तग्रह रश्मि-बल, श्लोक १८ युति शोधन एवं श्लोक २३–३९ स्लैब फलादेश (आजीवन एक्सेस)
       </p>
     </div>
 
     <!-- Pricing Summary Table -->
     <div class="parashara-deal-table">
       <div class="deal-row">
-        <span>१. Raajyoga Strength / Rashmi Bal रिपोर्ट:</span>
-        <span style="text-decoration:line-through; color:var(--muted);">₹999</span>
+        <span id="dealRow1Lbl">१. Raajyoga Strength / Rashmi Bal रिपोर्ट:</span>
+        <span id="dealRow1Val" style="text-decoration:line-through; color:var(--muted);">₹1,999</span>
       </div>
-      <div class="deal-row">
-        <span>२. गोमूत्रिका वाहन एवं जनबल रिपोर्ट:</span>
-        <span style="text-decoration:line-through; color:var(--muted);">₹1,000</span>
+      <div class="deal-row" id="dealRow2" style="display:none;">
+        <span id="dealRow2Lbl">२. गोमूत्रिका वाहन एवं जनबल रिपोर्ट:</span>
+        <span id="dealRow2Val" style="text-decoration:line-through; color:var(--muted);">₹1,999</span>
       </div>
       <div class="deal-row" style="color:#10b981; font-weight:700;">
-        <span>विशेष कॉम्बो छूट (90% OFF):</span>
+        <span>विशेष छूट (90% OFF):</span>
         <span>-₹1,800</span>
       </div>
       <div class="deal-row total">
@@ -8808,7 +8929,7 @@ window.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <!-- Primary Razorpay Checkout Button -->
-    <button type="button" class="btn-rzp-submit" onclick="triggerParasharaRazorpayCheckout()">
+    <button type="button" id="btnRzpSubmit" class="btn-rzp-submit" onclick="triggerParasharaRazorpayCheckout()">
       💳 ₹199 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
     </button>
     <div style="font-size:11px; text-align:center; color:var(--muted); margin-bottom:12px;">
@@ -8826,7 +8947,7 @@ window.addEventListener('DOMContentLoaded', () => {
           PhonePe / Google Pay / Paytm से QR स्कैन करें:
         </div>
         <div style="display:flex; justify-content:center; margin-bottom:8px;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D9517117775%40upi%26pn%3DShriRamjiAstro%26am%3D199%26cu%3DINR%26tn%3DParasharaReports" alt="UPI QR Code ₹199" style="width:160px; height:160px; border-radius:10px; border:1px solid var(--gold-border); background:#fff; padding:6px;">
+          <img id="parasharaUpiQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D9517117775%40upi%26pn%3DShriRamjiAstro%26am%3D199%26cu%3DINR%26tn%3DRajyogaReport" alt="UPI QR Code ₹199" style="width:160px; height:160px; border-radius:10px; border:1px solid var(--gold-border); background:#fff; padding:6px;">
         </div>
         <div style="font-size:12px; font-weight:800; color:var(--gold); margin-bottom:8px;">
           UPI ID: <span style="user-select:all;">9517117775@upi</span>
@@ -8834,7 +8955,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <div style="font-size:11.5px; color:var(--muted); margin-bottom:10px; line-height:1.4;">
           भुगतान के उपरांत स्क्रीनशॉट WhatsApp पर भेजें या नीचे VIP कोड दर्ज करें:
         </div>
-        <a href="https://wa.me/919517117775?text=%F0%9F%99%8F%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%BE%E0%A4%B6%E0%A4%B0%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%E0%A5%8D%E0%A4%B8%20(%E2%82%B9199)%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%20%E0%A4%A6%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4%20%E0%A4%95%E0%A5%83%E0%A4%AA%E0%A4%AF%E0%A4%BE%20%E0%A4%85%E0%A4%A8%E0%A4%B2%E0%A5%89%E0%A4%95%20%E0%A4%95%E0%A5%8B%E0%A4%A1%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A6%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%E0%A5%87%E0%A4%82%E0%A5%A4" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#25d366; color:#fff; padding:6px 14px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700;">
+        <a id="parasharaUpiWaLink" href="https://wa.me/919517117775?text=%F0%9F%99%8F%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20Raajyoga%20Strength%20%2F%20Rashmi%20Bal%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%20(%E2%82%B9199)%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%20%E0%A4%A6%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4%20%E0%A4%95%E0%A5%83%E0%A4%AA%E0%A4%AF%E0%A4%BE%20%E0%A4%85%E0%A4%A8%E0%A4%B2%E0%A5%89%E0%A4%95%20%E0%A4%95%E0%A5%8B%E0%A4%A1%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A6%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%E0%A5%87%E0%A4%82%E0%A5%A4" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#25d366; color:#fff; padding:6px 14px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700;">
           <span>💬</span> WhatsApp पर पुष्टि भेजें (+91 9517117775)
         </a>
       </div>
