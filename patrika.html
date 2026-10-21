@@ -1723,7 +1723,7 @@
     </div>
 
     <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
-      <button class="btn-calc" style="flex:2; min-width:260px;" onclick="executeParasharaMaster()">✨ शास्त्रीय जन्म पत्रिका एवं षोडशवर्ग तैयार करें ➔</button>
+      <button class="btn-calc" style="flex:2; min-width:260px;" onclick="executeParasharaMaster()" id="btnGenerateKundali">✨ अपनी जन्म पत्रिका देखें ➔</button>
       <button type="button" class="btn-saved-kundali-secondary" onclick="openSavedKundaliModal()" style="flex:1; min-width:200px;">
         <span>📂</span> सुरक्षित कुण्डलियां (<span id="savedKundaliBadgeBottom">0</span>)
       </button>
@@ -4455,6 +4455,7 @@ function executeParasharaMaster() {
   const JD_midnight = Math.floor(JD - 0.5) + 0.5;
   const sunData = calculateClassicalSunrise(JD_midnight, lat, lon, tz, ayanamsa);
   const sunriseHrs = sunData.sunriseHrs;
+  const sunsetHrs = sunData.sunsetHrs;
   const dinamanaHrs = sunData.dinamanaHrs;
   const ratrimanaHrs = 24.0 - dinamanaHrs;
 
@@ -4534,8 +4535,8 @@ function executeParasharaMaster() {
       lat, lon, tz, birthLocalHrs,
       sunriseHrs, sunsetHrs, dinamanaHrs, ratrimanaHrs,
       weekday, ishtaGhati, isDayBirth, JD, ayanamsa,
-      candidateName: (document.getElementById("name") ? document.getElementById("name").value.trim() : "") || "जातक",
-      placeName: (document.getElementById("locationSearch") ? document.getElementById("locationSearch").value.trim() : "") || "जन्म स्थान"
+      candidateName: (document.getElementById("inName") ? document.getElementById("inName").value.trim() : "") || "जातक",
+      placeName: (document.getElementById("inCitySearch") ? document.getElementById("inCitySearch").value.trim() : "") || "जन्म स्थान"
     }
   };
 
