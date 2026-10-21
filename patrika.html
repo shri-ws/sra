@@ -5839,9 +5839,11 @@ function renderParasharaReports() {
   let shodhanHtml = '';
   if (rep1.shodhan_events && rep1.shodhan_events.length > 0) {
     shodhanHtml = rep1.shodhan_events.map(ev => {
-      const yName = PLANET_META[ev.yogakaraka]?.name || ev.yogakaraka;
-      const mName = PLANET_META[ev.malefic]?.name || ev.malefic;
-      return `• <strong>भाव ${ev.house} युति शोधन:</strong> राजयोगकारक ${yName} (${ev.prevY}) एवं कष्टकारक ${mName} (${ev.prevM}) की परस्पर युति पर श्लोक १८ अनुसार शोधन हुआ। ${ev.finalY === 0 ? `${yName} रश्मि निष्फल होकर ०.०० हुई तथा ${mName} की शुद्ध रश्मि ${ev.finalM} शेष रही।` : `${mName} रश्मि निष्फल होकर ०.०० हुई तथा ${yName} की शुद्ध रश्मि ${ev.finalY} शेष रही।`}`;
+      const yNames = ev.yogakarakas.map(p => PLANET_META[p]?.name || p).join(', ');
+      const mNames = ev.malefics.map(p => PLANET_META[p]?.name || p).join(', ');
+      const yResults = Object.entries(ev.finalYValues).map(([p, v]) => `${PLANET_META[p]?.name || p}: ${v}`).join(', ');
+      const mResults = Object.entries(ev.finalMValues).map(([p, v]) => `${PLANET_META[p]?.name || p}: ${v}`).join(', ');
+      return `• <strong>भाव ${ev.house} युति शोधन (श्लोक १८):</strong> राजयोगकारक [${yNames}] एवं कष्टकारक [${mNames}] (कष्ट पूल: ${ev.initialMaleficPool}) की युति में शोधन हुआ। अंतिम मान ➔ [${yResults}], [${mResults}]।`;
     }).join('<br>');
   } else {
     shodhanHtml = `• किसी भी भाव में राजयोगकारक एवं कष्टकारक ग्रह की प्रत्यक्ष युति नहीं होने के कारण रश्मियां निर्बाध रहीं।`;
@@ -5850,9 +5852,11 @@ function renderParasharaReports() {
   if (rep1.chaturguna_events && rep1.chaturguna_events.length > 0) {
     const chEventsText = rep1.chaturguna_events.map(ev => {
       const pName = PLANET_META[ev.planet]?.name || ev.planet;
-      return `• <strong>चतुर्गुण संस्कार (श्लोक २०):</strong> ${pName} (भाव ${ev.house}) त्रिक भाव (६/८/१२) से मुक्त होने के कारण इसकी शुद्ध रश्मि ४ गुना की गई (${ev.before} ➔ <strong>${ev.after}</strong>)।`;
+      return `• <strong>चतुर्गुण संस्कार (श्लोक २०):</strong> ${pName} (भाव ${ev.house}) केन्द्र/त्रिकोण (१, ४, ५, ७, ९, १०) में स्थित होने के कारण इसकी शुद्ध रश्मि ४ गुना की गई (${ev.before} ➔ <strong>${ev.after}</strong>)।`;
     }).join('<br>');
     shodhanHtml += `<br>${chEventsText}`;
+  } else {
+    shodhanHtml += `<br>• केन्द्र या त्रिकोण भाव (१, ४, ५, ७, ९, १०) में कोई भी शुद्ध राजयोगकारक रश्मि शेष न होने के कारण किसी ग्रह को चतुर्गुण (४×) संस्कार नहीं मिला।`;
   }
 
   container.innerHTML = `

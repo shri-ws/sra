@@ -1,27 +1,22 @@
 /**
- * Parashar Rashmi & Governance Engine
+ * Fully Generic Parashar Rashmi Calculation Engine
  * Module: rashmiReportsService.js
  * Reference: Brihat Parashara Hora Shastra (BPHS), Chapter 8: Rashmi Phala Adhyaya (Shlokas 1–40)
+ * Covers all 12 Lagnas, any combination of conjunctions, combustion and retrograde rules.
  */
 
 const NEECHA_POINTS = {
-  sun: 190.0,     // Tula 10°
-  moon: 213.0,    // Vrishchik 3°
-  mars: 118.0,    // Kark 28°
-  mercury: 345.0, // Meen 15°
-  jupiter: 275.0, // Makar 5°
-  venus: 177.0,   // Kanya 27°
-  saturn: 20.0    // Mesh 20°
+  sun: 190.0,     // Tula 10 deg
+  moon: 213.0,    // Vrishchik 3 deg
+  mars: 118.0,    // Kark 28 deg
+  mercury: 345.0, // Meen 15 deg
+  jupiter: 275.0, // Makar 5 deg
+  venus: 177.0,   // Kanya 27 deg
+  saturn: 20.0    // Mesh 20 deg
 };
 
 const DHRUWANKS = {
-  sun: 10,
-  moon: 9,
-  mars: 5,
-  mercury: 5,
-  jupiter: 7,
-  venus: 8,
-  saturn: 5
+  sun: 10, moon: 9, mars: 5, mercury: 5, jupiter: 7, venus: 8, saturn: 5
 };
 
 const PLANET_META = {
@@ -34,97 +29,23 @@ const PLANET_META = {
   saturn: { name: "शनि (Saturn)", glyph: "♄", color: "#8b5cf6" }
 };
 
-// Functionally benefic/yogakaraka based on Lagna index (0=Mesh...11=Meen)
-function getFunctionalRoles(lagnaRashi) {
-  const roles = { yogakaraka: [], malefic: [] };
-  switch (lagnaRashi) {
-    case 0: // Mesh
-      roles.yogakaraka = ['sun', 'jupiter'];
-      roles.malefic = ['mercury'];
-      break;
-    case 1: // Vrishabh
-      roles.yogakaraka = ['saturn', 'mercury'];
-      roles.malefic = ['jupiter', 'mars'];
-      break;
-    case 2: // Mithun
-      roles.yogakaraka = ['venus', 'mercury'];
-      roles.malefic = ['mars', 'jupiter'];
-      break;
-    case 3: // Kark
-      roles.yogakaraka = ['mars', 'moon'];
-      roles.malefic = ['mercury', 'venus'];
-      break;
-    case 4: // Singh
-      roles.yogakaraka = ['mars', 'sun'];
-      roles.malefic = ['mercury', 'venus'];
-      break;
-    case 5: // Kanya
-      roles.yogakaraka = ['venus', 'mercury'];
-      roles.malefic = ['mars', 'jupiter'];
-      break;
-    case 6: // Tula
-      roles.yogakaraka = ['saturn'];
-      roles.malefic = ['jupiter'];
-      break;
-    case 7: // Vrishchik
-      roles.yogakaraka = ['sun', 'jupiter'];
-      roles.malefic = ['mercury', 'venus'];
-      break;
-    case 8: // Dhanu
-      roles.yogakaraka = ['sun', 'mars'];
-      roles.malefic = ['venus', 'mercury'];
-      break;
-    case 9: // Makar
-      roles.yogakaraka = ['venus', 'saturn'];
-      roles.malefic = ['sun', 'jupiter'];
-      break;
-    case 10: // Kumbha
-      roles.yogakaraka = ['venus'];
-      roles.malefic = ['moon', 'jupiter'];
-      break;
-    case 11: // Meen
-      roles.yogakaraka = ['moon', 'mars'];
-      roles.malefic = ['sun', 'venus', 'mercury'];
-      break;
-    default:
-      roles.yogakaraka = ['jupiter'];
-      roles.malefic = ['saturn'];
-  }
-  return roles;
-}
+// Shastra-sammat All 12 Lagnas Functional Classification
+const LAGNA_RULES = {
+  0: { yogakaraka: ['sun', 'jupiter', 'mars'], malefic: ['mercury', 'venus'] },          // Mesh
+  1: { yogakaraka: ['saturn', 'mercury'], malefic: ['jupiter', 'mars'] },                 // Vrishabh
+  2: { yogakaraka: ['mercury', 'venus'], malefic: ['mars', 'jupiter'] },                  // Mithun
+  3: { yogakaraka: ['mars', 'moon', 'jupiter'], malefic: ['mercury', 'venus', 'saturn'] }, // Kark
+  4: { yogakaraka: ['mars', 'sun', 'jupiter'], malefic: ['mercury', 'venus', 'saturn'] },  // Singh
+  5: { yogakaraka: ['mercury', 'venus'], malefic: ['mars', 'jupiter'] },                  // Kanya
+  6: { yogakaraka: ['saturn', 'mercury', 'venus'], malefic: ['jupiter', 'sun', 'mars'] }, // Tula
+  7: { yogakaraka: ['sun', 'jupiter', 'moon'], malefic: ['mercury', 'venus'] },           // Vrishchik
+  8: { yogakaraka: ['jupiter', 'sun', 'mars'], malefic: ['venus', 'mercury'] },           // Dhanu
+  9: { yogakaraka: ['venus', 'saturn'], malefic: ['sun', 'jupiter', 'mars'] },            // Makar
+  10: { yogakaraka: ['venus', 'saturn'], malefic: ['moon', 'jupiter', 'mars'] },          // Kumbh
+  11: { yogakaraka: ['moon', 'jupiter', 'mars'], malefic: ['venus', 'saturn', 'mercury'] }// Meen
+};
 
-function getCategoryTitle(score) {
-  if (score <= 5) return "महादरिद्र एवं पराधीनता वर्ग (श्लोक २३)";
-  if (score <= 10) return "साधारण उदर-पोषण वर्ग (श्लोक २४)";
-  if (score <= 13) return "कष्ट एवं संघर्ष वर्ग (श्लोक २५–२६)";
-  if (score <= 15) return "कुटुंब पोषक एवं स्थिर वर्ग (श्लोक २७–२८)";
-  if (score <= 20) return "कुलेश एवं पोषक वर्ग (श्लोक २७–२९)";
-  if (score <= 23) return "विख्यात एवं दानशील वर्ग (श्लोक ३०–३१)";
-  if (score <= 30) return "श्रीमान् एवं राजप्रिय वर्ग (श्लोक ३०–३२)";
-  if (score <= 35) return "मंत्री, सेनापति व जननायक वर्ग (श्लोक ३३–३६)";
-  if (score <= 40) return "क्षेत्राधिपति एवं उच्च प्रशासक वर्ग (श्लोक ३७)";
-  return "देशाधिपत्य एवं शासक वर्ग (श्लोक ३३–३९)";
-}
-
-function getCategoryPrediction(score) {
-  if (score <= 5) return "जीवन में अत्यधिक परिश्रम, पराधीनता तथा धन का अभाव। कठिन संघर्षों के उपरांत ही प्राथमिक आवश्यकताएं पूर्ण होती हैं।";
-  if (score <= 10) return "साधारण उदर-पोषण, अनिश्चित आजीविका। जीवन में उतार-चढ़ाव बना रहता है तथा संचय सीमित रहता है।";
-  if (score <= 13) return "जीवन के आरंभिक काल में अत्यधिक संघर्ष, परिश्रम के अनुपात में सीमित लाभ तथा आर्थिक उतार-चढ़ाव।";
-  if (score <= 15) return "शांत, विचारशील व बुद्धिमान व्यक्तित्व। कुटुंब का निष्ठावान पोषक, निश्चित एवं स्थिर आय के स्रोत।";
-  if (score <= 20) return "परिवार व कुटुम्ब के मुख्य पोषक (कुलेश), समाज में सम्मानित, दायित्ववान एवं स्थायी प्रतिष्ठा।";
-  if (score <= 23) return "विख्यात, परोपकारी एवं दानशील। अपने सामर्थ्य से ५० से अधिक आश्रितों व कर्मचारियों का कुशल पालक।";
-  if (score <= 30) return "विपुल धन-धान्य, शासन-प्रशासन में प्रतिष्ठा, उच्चाधिकारियों का सहयोग एवं प्रतापी व्यक्तित्व।";
-  if (score <= 35) return "मंत्री, सेनापति, संस्था प्रमुख अथवा जननायक। व्यापक जनसमूह का नेतृत्व तथा शासन-प्रशासन में प्रभावशाली सत्ता।";
-  if (score <= 40) return "विशाल क्षेत्र, उद्योग या मंडलाधिपति तुल्य प्रभाव। उच्च प्रशासनिक पद, नीति-निर्धारक अधिकार एवं सर्वमान्य प्रतिष्ठा।";
-  return "विशाल जनसमूह का नेतृत्व, उच्च प्रशासनिक पद, संस्था प्रमुख अथवा शासक-तुल्य अधिकार व आधिपत्य।";
-}
-
-function getJanbalText(score) {
-  if (score < 21) return "सीमित पारिवारिक स्तर (५ से १० निकटवर्ती आश्रितों का भरण-पोषण)";
-  if (score < 32) return "मध्यम जनबल (५० व्यक्तियों/कर्मियों का भरण-पोषण व नेतृत्व सामर्थ्य)";
-  if (score < 35) return "उच्च जनबल (४५ से १०० प्रमुख कार्मिकों/अधिकारियों का प्रबंधन)";
-  return "विशाल जनबल (५०० से १०००+ व्यक्तियों/संस्थान का पोषण व मार्गदर्शन)";
-}
+const KENDRA_TRIKONA_HOUSES = [1, 4, 5, 7, 9, 10];
 
 function generateKundaliReports(inputData) {
   const { lagna, planets } = inputData;
@@ -133,7 +54,7 @@ function generateKundaliReports(inputData) {
   let totalUccha = 0;
   let totalChesta = 0;
 
-  // Step 1: Mool Uccharashmi + Asta/Vakri Modifiers (Shlokas 6, 7, 14–16)
+  // STEP 1: Mool Uccharashmi + Asta & Vakri Modifiers (Shlokas 6, 7, 14–16)
   for (const [p, pl] of Object.entries(planets)) {
     const absDeg = (pl.rashi * 30) + pl.degree;
     let kendra = Math.abs(absDeg - NEECHA_POINTS[p]);
@@ -143,21 +64,21 @@ function generateKundaliReports(inputData) {
     const baseUccha = parseFloat(r.toFixed(4));
 
     let isCombustZeroed = false;
-    // Asta check (Shloka 14: Venus and Saturn never combust to zero)
+    // Combustion (Shloka 14: Venus and Saturn never become 0)
     if (pl.is_combust && ['mars', 'mercury', 'jupiter'].includes(p)) {
       r = 0.0;
       isCombustZeroed = true;
     }
 
-    // Vakri check (Shloka 14: 2x multiplier)
+    // Retrograde (Shloka 14: 2x multiplier for taragrahas)
     let chesta = 0;
     let isVakriDoubled = false;
     if (pl.is_retrograde && !['sun', 'moon'].includes(p)) {
       chesta = r;
-      r *= 2.0;
+      r = r * 2.0;
       isVakriDoubled = true;
     } else {
-      chesta = r * 0.3;
+      chesta = r * 0.30;
     }
 
     rawUccha[p] = parseFloat(r.toFixed(2));
@@ -186,7 +107,7 @@ function generateKundaliReports(inputData) {
     };
   }
 
-  // Step 2: Rajyoga vs Daridrayoga Shodhan (Shloka 18)
+  // STEP 2: Generic Multi-Planet Shodhan per House (Shloka 18)
   const rectified = { ...rawUccha };
   const houseMap = {};
   for (const [p, pl] of Object.entries(planets)) {
@@ -194,49 +115,70 @@ function generateKundaliReports(inputData) {
     houseMap[pl.house].push(p);
   }
 
-  const { yogakaraka, malefic } = getFunctionalRoles(lagna.rashi);
+  const lagnaIndex = Number(lagna.rashi) % 12;
+  const roles = LAGNA_RULES[lagnaIndex] || { yogakaraka: [], malefic: [] };
 
   // Mark roles in planetDetails
   for (const p of Object.keys(planets)) {
-    if (yogakaraka.includes(p)) planetDetails[p].is_yogakaraka = true;
-    if (malefic.includes(p)) planetDetails[p].is_malefic = true;
+    if (roles.yogakaraka.includes(p)) planetDetails[p].is_yogakaraka = true;
+    if (roles.malefic.includes(p)) planetDetails[p].is_malefic = true;
   }
 
   const shodhanEvents = [];
   for (const [house, pList] of Object.entries(houseMap)) {
     if (pList.length > 1) {
-      const yPlanet = pList.find(p => yogakaraka.includes(p));
-      const mPlanet = pList.find(p => malefic.includes(p));
+      const yPlanets = pList.filter(p => roles.yogakaraka.includes(p));
+      const mPlanets = pList.filter(p => roles.malefic.includes(p));
 
-      if (yPlanet && mPlanet) {
-        const prevY = rectified[yPlanet];
-        const prevM = rectified[mPlanet];
-        if (rectified[mPlanet] >= rectified[yPlanet]) {
-          rectified[mPlanet] -= rectified[yPlanet];
-          rectified[yPlanet] = 0.0;
-        } else {
-          rectified[yPlanet] -= rectified[mPlanet];
-          rectified[mPlanet] = 0.0;
+      if (yPlanets.length > 0 && mPlanets.length > 0) {
+        let totalMaleficPool = mPlanets.reduce((sum, p) => sum + rectified[p], 0);
+        const initialMaleficPool = totalMaleficPool;
+        const initialYValues = {};
+        yPlanets.forEach(y => { initialYValues[y] = rectified[y]; });
+
+        // Deduct malefic pool against yogakarakas
+        for (const y of yPlanets) {
+          if (totalMaleficPool >= rectified[y]) {
+            totalMaleficPool -= rectified[y];
+            rectified[y] = 0.0; // Rajyoga completely canceled
+          } else {
+            rectified[y] = parseFloat((rectified[y] - totalMaleficPool).toFixed(2));
+            totalMaleficPool = 0.0;
+          }
+          planetDetails[y].shodhanAdjustment = parseFloat((rectified[y] - initialYValues[y]).toFixed(2));
         }
-        planetDetails[yPlanet].shodhanAdjustment = parseFloat((rectified[yPlanet] - prevY).toFixed(2));
-        planetDetails[mPlanet].shodhanAdjustment = parseFloat((rectified[mPlanet] - prevM).toFixed(2));
+
+        // Remaining malefic points distribution
+        for (const m of mPlanets) {
+          const prevM = rectified[m];
+          if (totalMaleficPool > 0) {
+            let used = Math.min(rectified[m], totalMaleficPool);
+            rectified[m] = parseFloat(used.toFixed(2));
+            totalMaleficPool -= used;
+          } else {
+            rectified[m] = 0.0; // Absorbed in shodhan
+          }
+          planetDetails[m].shodhanAdjustment = parseFloat((rectified[m] - prevM).toFixed(2));
+        }
+
         shodhanEvents.push({
           house: parseInt(house),
-          yogakaraka: yPlanet,
-          malefic: mPlanet,
-          prevY,
-          prevM,
-          finalY: rectified[yPlanet],
-          finalM: rectified[mPlanet]
+          yogakarakas: yPlanets,
+          malefics: mPlanets,
+          initialMaleficPool: parseFloat(initialMaleficPool.toFixed(2)),
+          finalYValues: Object.fromEntries(yPlanets.map(y => [y, rectified[y]])),
+          finalMValues: Object.fromEntries(mPlanets.map(m => [m, rectified[m]]))
         });
       }
     }
   }
 
-  // Step 3: Rajyoga 4x Multiplier (Shloka 20)
+  // STEP 3: Rajyoga 4x Multiplier (Shloka 20)
+  // Strictly applies ONLY to surviving yogakarakas placed in Kendra (1,4,7,10) or Trikona (1,5,9)
   const chaturgunaEvents = [];
-  for (const p of yogakaraka) {
-    if (rectified[p] > 0 && ![6, 8, 12].includes(planets[p].house)) {
+  for (const p of roles.yogakaraka) {
+    const plHouse = planets[p]?.house;
+    if (rectified[p] > 0 && KENDRA_TRIKONA_HOUSES.includes(plHouse)) {
       const before = rectified[p];
       rectified[p] = parseFloat((rectified[p] * 4.0).toFixed(2));
       planetDetails[p].is_chaturguna = true;
@@ -244,7 +186,7 @@ function generateKundaliReports(inputData) {
         planet: p,
         before,
         after: rectified[p],
-        house: planets[p].house
+        house: plHouse
       });
     }
   }
@@ -257,7 +199,7 @@ function generateKundaliReports(inputData) {
     planetDetails[p].finalRashmi = parseFloat(score.toFixed(2));
   }
 
-  // Step 4: Gomutrika Nyaya for Conveyance & Attendants (Shloka 40)
+  // STEP 4: Gomutrika Nyaya for Conveyance & Attendants (Shloka 40)
   const combined = totalUccha + totalChesta;
   const vahanSevakIndex = Math.floor((combined * (combined / 2.0)) / 60.0);
 
@@ -275,7 +217,7 @@ function generateKundaliReports(inputData) {
       prediction: getCategoryPrediction(totalRashmi),
       shodhan_events: shodhanEvents,
       chaturguna_events: chaturgunaEvents,
-      roles: { yogakaraka, malefic }
+      roles: roles
     },
     report_vahan_janbal: {
       title: "पाराशर वाहन एवं जनबल रिपोर्ट",
@@ -289,15 +231,37 @@ function generateKundaliReports(inputData) {
   };
 }
 
+function getCategoryTitle(score) {
+  if (score <= 13) return "कष्ट एवं संघर्ष वर्ग (श्लोक २३–२६)";
+  if (score <= 20) return "कुलेश एवं पोषक वर्ग (श्लोक २७–२९)";
+  if (score <= 30) return "श्रीमान् एवं राजप्रिय वर्ग (श्लोक ३०–३२)";
+  return "देशाधिपत्य एवं शासक वर्ग (श्लोक ३३–३९)";
+}
+
+function getCategoryPrediction(score) {
+  if (score <= 13) return "जीवन के आरंभिक काल में अत्यधिक संघर्ष, परिश्रम के अनुपात में सीमित लाभ तथा आर्थिक उतार-चढ़ाव।";
+  if (score <= 20) return "परिवार व कुटुम्ब के मुख्य पोषक, समाज में सम्मानित, दायित्ववान एवं स्थायी प्रतिष्ठा।";
+  if (score <= 30) return "विपुल धन-धान्य, शासन-प्रशासन में प्रतिष्ठा, उच्चाधिकारियों का सहयोग एवं प्रतापी व्यक्तित्व।";
+  return "विशाल जनसमूह का नेतृत्व, उच्च प्रशासनिक पद, संस्था प्रमुख अथवा शासक-तुल्य अधिकार व आधिपत्य।";
+}
+
+function getJanbalText(score) {
+  if (score < 21) return "सीमित पारिवारिक स्तर (५ से १० निकटवर्ती आश्रितों का भरण-पोषण)";
+  if (score < 32) return "मध्यम जनबल (५० व्यक्तियों/कर्मियों का भरण-पोषण व नेतृत्व सामर्थ्य)";
+  return "विशाल जनबल (५०० से १०००+ व्यक्तियों/संस्थान का पोषण व मार्गदर्शन)";
+}
+
 // UMD / Global Window Export for browser and node environments
 if (typeof window !== 'undefined') {
   window.generateKundaliReports = generateKundaliReports;
-  window.getFunctionalRoles = getFunctionalRoles;
+  window.LAGNA_RULES = LAGNA_RULES;
+  window.KENDRA_TRIKONA_HOUSES = KENDRA_TRIKONA_HOUSES;
 }
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     generateKundaliReports,
-    getFunctionalRoles,
+    LAGNA_RULES,
+    KENDRA_TRIKONA_HOUSES,
     NEECHA_POINTS,
     DHRUWANKS,
     PLANET_META
