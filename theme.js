@@ -541,6 +541,194 @@
     const style = document.createElement('style');
     style.id = 'sra-bottom-nav-styles';
     style.textContent = `
+      
+      /* UNIVERSAL APP DOWNLOAD BUTTON & MODAL STYLES */
+      .btn-nav-app-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.18));
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        color: #059669 !important;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+      .btn-nav-app-download:hover {
+        background: #059669;
+        color: #ffffff !important;
+        border-color: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+      @media (max-width: 900px) {
+        .btn-nav-app-download .nav-app-label {
+          display: none;
+        }
+      }
+      .app-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        background: rgba(0, 0, 0, 0.68);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .app-modal-box {
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--gold-border, rgba(201, 168, 76, 0.35));
+        border-radius: 16px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        padding: 22px 20px;
+        position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .app-modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--muted, #64748b);
+        cursor: pointer;
+        line-height: 1;
+        padding: 4px;
+      }
+      .app-platform-tabs {
+        display: flex;
+        gap: 8px;
+        margin: 14px 0 16px 0;
+        border-bottom: 1px solid var(--border, #e2e8f0);
+        padding-bottom: 8px;
+      }
+      .app-tab-btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: var(--bg, #f8fafc);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--muted, #64748b);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .app-tab-btn.active {
+        background: var(--primary, #7c1305);
+        border-color: var(--primary, #7c1305);
+        color: #ffffff !important;
+      }
+      .app-action-card {
+        background: var(--bg, #f8fafc);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .app-verified-tag {
+        font-size: 11px;
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 700;
+      }
+      .btn-app-action-primary {
+        width: 100%;
+        padding: 11px 16px;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: #ffffff !important;
+        border: none;
+        border-radius: 8px;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        box-sizing: border-box;
+      }
+      .btn-app-action-primary:hover {
+        background: #047857;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+      }
+      .btn-app-action-secondary {
+        width: 100%;
+        padding: 10px 14px;
+        background: rgba(180, 83, 9, 0.1);
+        color: var(--primary, #7c1305);
+        border: 1px solid var(--gold-border, rgba(201, 168, 76, 0.35));
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+      }
+      .app-step-guide {
+        margin-top: 14px;
+        background: rgba(180, 83, 9, 0.03);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .app-step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: var(--dark, #0f172a);
+      }
+      .app-step-item:last-child {
+        margin-bottom: 0;
+      }
+      .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--gold, #d97706);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 800;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .btn-app-modal-close {
+        padding: 7px 18px;
+        background: var(--bg, #f8fafc);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted, #64748b);
+        cursor: pointer;
+      }
+
       /* SECONDARY FLOATING/BOTTOM NAVBAR PERMANENTLY DISABLED */
       .mobile-bottom-nav {
         display: none !important;
@@ -1389,6 +1577,9 @@
           </div>
 
           <!-- DIRECT LINKS -->
+          <a href="javascript:void(0)" onclick="closeNavDrawer(); window.openAppDownloadModal();" class="drawer-item" style="color:#059669; font-weight:800; background:rgba(16,185,129,0.08); border-radius:8px; border:1px solid rgba(16,185,129,0.3); margin:6px 0;">
+            <span>📱</span> <span>ऐप इंस्टॉल करें (Android / iOS)</span>
+          </a>
           <a href="consultation.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:800;">
             <span>🌟</span> <span data-i18n="nav_consult">1-on-1 प्रीमियम परामर्श</span>
           </a>
@@ -1468,7 +1659,33 @@
       btn.onclick = window.toggleNavDrawer;
     });
 
-    // 3. Ensure Language toggle pill is present in top navigation
+    // 3. Ensure App Install button is present in top navigation
+    document.querySelectorAll('nav:not(.mobile-bottom-nav)').forEach(nav => {
+      if (!nav.querySelector('.btn-nav-app-download')) {
+        const langBtn = nav.querySelector('.lang-pill-btn, #globalLangBtn');
+        const themeToggle = nav.querySelector('.theme-toggle-container, #themeToggleBtn');
+        const targetContainer = langBtn ? langBtn.parentNode : (themeToggle ? themeToggle.parentNode : (nav.querySelector('.nav-btns') || nav));
+        if (targetContainer) {
+          const appBtn = document.createElement('button');
+          appBtn.type = 'button';
+          appBtn.className = 'btn-nav-app-download';
+          appBtn.title = 'मोबाइल ऐप इंस्टॉल / डाउनलोड करें';
+          appBtn.onclick = window.openAppDownloadModal;
+          const currentLang = getCurrentLanguage();
+          appBtn.innerHTML = `
+            <span>📱</span>
+            <span class="nav-app-label">${currentLang === 'hi' ? 'ऐप इंस्टॉल' : 'Install App'}</span>
+          `;
+          if (langBtn && langBtn.parentNode) {
+            langBtn.parentNode.insertBefore(appBtn, langBtn);
+          } else {
+            targetContainer.appendChild(appBtn);
+          }
+        }
+      }
+    });
+
+    // 4. Ensure Language toggle pill is present in top navigation
     document.querySelectorAll('nav:not(.mobile-bottom-nav)').forEach(nav => {
       if (!nav.querySelector('.lang-pill-btn')) {
         const themeToggle = nav.querySelector('.theme-toggle-container, #themeToggleBtn');
@@ -1562,6 +1779,200 @@
   // ══════════════════════════════════════════════════════════════════════════
   // INITIALIZATION ON DOM READY
   // ══════════════════════════════════════════════════════════════════════════
+  
+  // ══════════════════════════════════════════════════════════════════════════
+  // APP DOWNLOAD & PWA / APK SUITE (UNIVERSAL)
+  // ══════════════════════════════════════════════════════════════════════════
+  let deferredPwaPrompt = null;
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+    window.deferredPwaPrompt = e;
+    document.querySelectorAll(".pwa-install-card, #pwaInstallCard").forEach(c => c.style.display = "block");
+  });
+
+  window.openAppDownloadModal = function() {
+    let m = document.getElementById("modalAppDownload");
+    if (!m) {
+      injectAppModalHtml();
+      m = document.getElementById("modalAppDownload");
+    }
+    if (m) {
+      m.style.display = "flex";
+      try { document.body.style.overflow = "hidden"; } catch(e) {}
+    }
+  };
+
+  window.closeAppDownloadModal = function() {
+    const m = document.getElementById("modalAppDownload");
+    if (m) {
+      m.style.display = "none";
+      try { document.body.style.overflow = ""; } catch(e) {}
+    }
+  };
+
+  window.switchAppTab = function(tab) {
+    const isAndroid = tab === "android";
+    const btnAnd = document.getElementById("btnAppTabAndroid");
+    const btnIos = document.getElementById("btnAppTabIos");
+    const paneAnd = document.getElementById("appPaneAndroid");
+    const paneIos = document.getElementById("appPaneIos");
+    if (btnAnd) btnAnd.classList.toggle("active", isAndroid);
+    if (btnIos) btnIos.classList.toggle("active", !isAndroid);
+    if (paneAnd) paneAnd.style.display = isAndroid ? "block" : "none";
+    if (paneIos) paneIos.style.display = isAndroid ? "none" : "block";
+  };
+
+  window.triggerPwaInstall = function() {
+    const promptEvent = window.deferredPwaPrompt || deferredPwaPrompt;
+    if (promptEvent) {
+      promptEvent.prompt();
+      promptEvent.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === "accepted") {
+          const isHi = (document.documentElement.lang || "hi") === "hi";
+          if (typeof window.showKundaliToast === "function") {
+            window.showKundaliToast(isHi ? "ऐप सफलतापूर्वक इंस्टॉल हो रहा है!" : "App installing successfully!");
+          } else {
+            alert(isHi ? "ऐप सफलतापूर्वक इंस्टॉल हो रहा है!" : "App installing successfully!");
+          }
+        }
+        window.deferredPwaPrompt = null;
+        deferredPwaPrompt = null;
+      });
+    } else {
+      const a = document.createElement("a");
+      a.href = "downloads/patrika-astro.apk";
+      a.download = "patrika-astro.apk";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      const isHi = (document.documentElement.lang || "hi") === "hi";
+      if (typeof window.showKundaliToast === "function") {
+        window.showKundaliToast(isHi ? "APK पैकेज डाउनलोड आरम्भ हो गया है।" : "APK package download initiated.");
+      } else {
+        alert(isHi ? "APK पैकेज डाउनलोड आरम्भ हो गया है।" : "APK package download initiated.");
+      }
+    }
+  };
+
+  function injectAppModalHtml() {
+    if (document.getElementById("modalAppDownload")) return;
+    const isHi = (document.documentElement.lang || "hi") === "hi";
+    const modal = document.createElement("div");
+    modal.id = "modalAppDownload";
+    modal.className = "app-modal-overlay";
+    modal.style.display = "none";
+    modal.onclick = function(e) { if (e.target === this) window.closeAppDownloadModal(); };
+    modal.innerHTML = `
+      <div class="app-modal-box">
+        <button type="button" class="app-modal-close" onclick="closeAppDownloadModal()" aria-label="बंद करें">&times;</button>
+        
+        <div style="text-align:center; margin-bottom:14px;">
+          <div style="display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; border-radius:12px; background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-size:24px; margin-bottom:6px; box-shadow:0 4px 14px rgba(124,19,5,0.25);">
+            🔱
+          </div>
+          <h3 id="appModalTitle" style="font-family:'Cinzel', serif; font-size:18px; color:var(--primary, #7c1305); margin:0 0 4px 0; font-weight:800;" data-i18n-hi="श्री रामजी एस्ट्रो ऐप इंस्टॉल करें" data-i18n-en="Install Shri Ramji Astro App">
+            ${isHi ? "श्री रामजी एस्ट्रो ऐप इंस्टॉल करें" : "Install Shri Ramji Astro App"}
+          </h3>
+          <p id="appModalSubtitle" style="font-size:12px; color:var(--muted, #64748b); margin:0;" data-i18n-hi="एंड्रॉइड (APK) एवं आईफोन (iOS) हेतु सम्पूर्ण वैदिक ज्योतिष सूट" data-i18n-en="Complete Vedic Astrology Suite for Android (APK) & Apple iOS">
+            ${isHi ? "एंड्रॉइड (APK) एवं आईफोन (iOS) हेतु सम्पूर्ण वैदिक ज्योतिष सूट" : "Complete Vedic Astrology Suite for Android (APK) & Apple iOS"}
+          </p>
+        </div>
+
+        <!-- Platform Selector Tabs -->
+        <div class="app-platform-tabs">
+          <button type="button" class="app-tab-btn active" id="btnAppTabAndroid" onclick="switchAppTab('android')">
+            <span data-i18n-hi="एंड्रॉइड (Android APK)" data-i18n-en="Android (APK / WebAPK)">${isHi ? "एंड्रॉइड (Android APK)" : "Android (APK / WebAPK)"}</span>
+          </button>
+          <button type="button" class="app-tab-btn" id="btnAppTabIos" onclick="switchAppTab('ios')">
+            <span data-i18n-hi="आईफोन (Apple iOS)" data-i18n-en="Apple iOS (iPhone/iPad)">${isHi ? "आईफोन (Apple iOS)" : "Apple iOS (iPhone/iPad)"}</span>
+          </button>
+        </div>
+
+        <!-- PANE 1: ANDROID -->
+        <div id="appPaneAndroid" class="app-platform-pane" style="display:block;">
+          <div class="app-action-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <div>
+                <div style="font-weight:700; font-size:13.5px; color:var(--dark, #0f172a);" data-i18n-hi="सीधा APK पैकेज डाउनलोड" data-i18n-en="Direct APK Package Download">${isHi ? "सीधा APK पैकेज डाउनलोड" : "Direct APK Package Download"}</div>
+                <div style="font-size:11.5px; color:var(--muted, #64748b);" data-i18n-hi="संस्करण v2.4 • आकार: 85 KB • सभी एंड्रॉइड फोन पर समर्थित" data-i18n-en="Version v2.4 • Size: 85 KB • All Android Devices">${isHi ? "संस्करण v2.4 • आकार: 85 KB • सभी एंड्रॉइड फोन पर समर्थित" : "Version v2.4 • Size: 85 KB • All Android Devices"}</div>
+              </div>
+              <span class="app-verified-tag" data-i18n-hi="सुरक्षित" data-i18n-en="Verified">${isHi ? "✓ सुरक्षित" : "✓ Verified"}</span>
+            </div>
+            <a href="downloads/patrika-astro.apk" download="patrika-astro.apk" class="btn-app-action-primary">
+              <span data-i18n-hi="APK फ़ाइल डाउनलोड करें (85 KB)" data-i18n-en="Download APK File (85 KB)">${isHi ? "APK फ़ाइल डाउनलोड करें (85 KB)" : "Download APK File (85 KB)"}</span>
+            </a>
+          </div>
+
+          <!-- 1-Click PWA Install Option -->
+          <div class="app-action-card" style="margin-top:10px;" id="pwaInstallCard">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div>
+                <div style="font-weight:700; font-size:13.5px; color:var(--dark, #0f172a);" data-i18n-hi="१-क्लिक डायरेक्ट ऐप इंस्टॉलेशन" data-i18n-en="1-Click Direct App Installation">${isHi ? "१-क्लिक डायरेक्ट ऐप इंस्टॉलेशन" : "1-Click Direct App Installation"}</div>
+                <div style="font-size:11.5px; color:var(--muted, #64748b);" data-i18n-hi="Chrome / Edge ब्राउज़र से तुरंत होम स्क्रीन पर जोड़ें" data-i18n-en="Instantly install from Chrome/Edge to Home Screen">${isHi ? "Chrome / Edge ब्राउज़र से तुरंत होम स्क्रीन पर जोड़ें" : "Instantly install from Chrome/Edge to Home Screen"}</div>
+              </div>
+              <span style="font-size:11px; background:rgba(16,185,129,0.12); color:#059669; padding:2px 8px; border-radius:10px; font-weight:700;" data-i18n-hi="अनुशंसित" data-i18n-en="Recommended">${isHi ? "अनुशंसित" : "Recommended"}</span>
+            </div>
+            <button type="button" class="btn-app-action-secondary" onclick="triggerPwaInstall()">
+              <span data-i18n-hi="होम स्क्रीन पर ऐप जोड़ें" data-i18n-en="Install to Home Screen">${isHi ? "होम स्क्रीन पर ऐप जोड़ें" : "Install to Home Screen"}</span>
+            </button>
+          </div>
+
+          <!-- Android Step Guide -->
+          <div class="app-step-guide">
+            <div style="font-weight:700; font-size:12px; color:var(--gold, #d97706); margin-bottom:6px;" data-i18n-hi="स्थापना निर्देश:" data-i18n-en="Installation Steps:">${isHi ? "स्थापना निर्देश:" : "Installation Steps:"}</div>
+            <div class="app-step-item">
+              <span class="step-num">१</span>
+              <span data-i18n-hi="ऊपर दिए गए बटन से APK फ़ाइल डाउनलोड करें।" data-i18n-en="Download the APK file using the button above.">${isHi ? "ऊपर दिए गए बटन से APK फ़ाइल डाउनलोड करें।" : "Download the APK file using the button above."}</span>
+            </div>
+            <div class="app-step-item">
+              <span class="step-num">२</span>
+              <span data-i18n-hi="डाउनलोड पूर्ण होने पर फ़ाइल खोलें और अज्ञात स्रोतों से इंस्टॉलेशन की अनुमति दें।" data-i18n-en="Open the downloaded file and allow Install from Unknown Sources.">${isHi ? "डाउनलोड पूर्ण होने पर फ़ाइल खोलें और अज्ञात स्रोतों से इंस्टॉलेशन की अनुमति दें।" : "Open the downloaded file and allow Install from Unknown Sources."}</span>
+            </div>
+            <div class="app-step-item">
+              <span class="step-num">३</span>
+              <span data-i18n-hi="'Install' पर टैप करें। ऐप आपके फ़ोन में तैयार हो जाएगी।" data-i18n-en="Tap Install to complete setup. The app is ready to use.">${isHi ? "'Install' पर टैप करें। ऐप आपके फ़ोन में तैयार हो जाएगी।" : "Tap Install to complete setup. The app is ready to use."}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANE 2: APPLE IOS (IPHONE / IPAD) -->
+        <div id="appPaneIos" class="app-platform-pane" style="display:none;">
+          <div class="app-step-guide" style="margin-top:0;">
+            <div style="font-weight:700; font-size:12.5px; color:var(--gold, #d97706); margin-bottom:8px;" data-i18n-hi="Safari ब्राउज़र द्वारा ३ सरल चरणों में इंस्टॉल करें:" data-i18n-en="Install in 3 easy steps via Safari browser:">${isHi ? "Safari ब्राउज़र द्वारा ३ सरल चरणों में इंस्टॉल करें:" : "Install in 3 easy steps via Safari browser:"}</div>
+            <div class="app-step-item">
+              <span class="step-num">१</span>
+              <div>
+                <strong data-i18n-hi="Safari में शेयर आइकन टैप करें" data-i18n-en="Tap the Share button in Safari">${isHi ? "Safari में शेयर आइकन टैप करें" : "Tap the Share button in Safari"}</strong>
+                <p style="margin:2px 0 0 0; font-size:11.5px; color:var(--muted, #64748b);" data-i18n-hi="Safari ब्राउज़र के निचले बार पर शेयर आइकन (⎋) दबाएँ।" data-i18n-en="Press the Share icon (⎋) at the bottom toolbar of Safari.">${isHi ? "Safari ब्राउज़र के निचले बार पर शेयर आइकन (⎋) दबाएँ।" : "Press the Share icon (⎋) at the bottom toolbar of Safari."}</p>
+              </div>
+            </div>
+            <div class="app-step-item">
+              <span class="step-num">२</span>
+              <div>
+                <strong data-i18n-hi="'होम स्क्रीन में जोड़ें' चुनें" data-i18n-en="Select Add to Home Screen">${isHi ? "'होम स्क्रीन में जोड़ें' चुनें" : "Select Add to Home Screen"}</strong>
+                <p style="margin:2px 0 0 0; font-size:11.5px; color:var(--muted, #64748b);" data-i18n-hi="शेयर मेनू में नीचे स्क्रॉल करें और 'होम स्क्रीन में जोड़ें' चुनें।" data-i18n-en="Scroll down in the share sheet and tap Add to Home Screen.">${isHi ? "शेयर मेनू में नीचे स्क्रॉल करें और 'होम स्क्रीन में जोड़ें' चुनें।" : "Scroll down in the share sheet and tap Add to Home Screen."} </p>
+              </div>
+            </div>
+            <div class="app-step-item">
+              <span class="step-num">३</span>
+              <div>
+                <strong data-i18n-hi="ऊपर दाईं ओर 'जोड़ें' (Add) दबाएँ" data-i18n-en="Tap Add in top-right corner">${isHi ? "ऊपर दाईं ओर 'जोड़ें' (Add) दबाएँ" : "Tap Add in top-right corner"}</strong>
+                <p style="margin:2px 0 0 0; font-size:11.5px; color:var(--muted, #64748b);" data-i18n-hi="शीर्ष दाएँ कोने में 'Add' पर टैप करें। पत्रिका ऐप होम स्क्रीन पर आ जाएगी।" data-i18n-en="Tap Add at the top-right. The Patrika app will now appear on your home screen.">${isHi ? "शीर्ष दाएँ कोने में 'Add' पर टैप करें। पत्रिका ऐप होम स्क्रीन पर आ जाएगी।" : "Tap Add at the top-right. The Patrika app will now appear on your home screen."}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="margin-top:14px; text-align:center; border-top:1px solid var(--border, #e2e8f0); padding-top:10px;">
+          <button type="button" class="btn-app-modal-close" onclick="closeAppDownloadModal()" data-i18n-hi="बंद करें" data-i18n-en="Close">${isHi ? "बंद करें" : "Close"}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
   function initAll() {
     injectBottomNavStyles();
     upgradeNavBrandAndLang();
@@ -1569,6 +1980,7 @@
     injectNavDrawer();
     injectBottomNav();
     injectGlobalFooter();
+    injectAppModalHtml();
     applyLanguage(getCurrentLanguage());
   }
 

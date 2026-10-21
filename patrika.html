@@ -9102,6 +9102,106 @@ window.addEventListener('DOMContentLoaded', () => {
     googleBtn.addEventListener("touchend", handleGoogleLoginTrigger);
   }
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// APP DOWNLOAD MODAL & PWA CONTROLLERS
+// ══════════════════════════════════════════════════════════════════════════
+let deferredPwaPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+  window.deferredPwaPrompt = e;
+  const pwaCard = document.getElementById("pwaInstallCard");
+  if (pwaCard) pwaCard.style.display = "block";
+});
+
+window.openAppDownloadModal = function() {
+  const m = document.getElementById("modalAppDownload");
+  if (m) {
+    m.style.display = "flex";
+  }
+};
+
+window.closeAppDownloadModal = function() {
+  const m = document.getElementById("modalAppDownload");
+  if (m) {
+    m.style.display = "none";
+  }
+};
+
+window.switchAppTab = function(tab) {
+  const isAndroid = tab === "android";
+  const btnAnd = document.getElementById("btnAppTabAndroid");
+  const btnIos = document.getElementById("btnAppTabIos");
+  const paneAnd = document.getElementById("appPaneAndroid");
+  const paneIos = document.getElementById("appPaneIos");
+  if (btnAnd) btnAnd.classList.toggle("active", isAndroid);
+  if (btnIos) btnIos.classList.toggle("active", !isAndroid);
+  if (paneAnd) paneAnd.style.display = isAndroid ? "block" : "none";
+  if (paneIos) paneIos.style.display = isAndroid ? "none" : "block";
+};
+
+window.triggerPwaInstall = function() {
+  const promptEvent = window.deferredPwaPrompt || deferredPwaPrompt;
+  if (promptEvent) {
+    promptEvent.prompt();
+    promptEvent.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === "accepted") {
+        const isHi = (document.documentElement.lang || "hi") === "hi";
+        showKundaliToast(isHi ? "ऐप सफलतापूर्वक इंस्टॉल हो रहा है!" : "App installing successfully!");
+      }
+      window.deferredPwaPrompt = null;
+      deferredPwaPrompt = null;
+    });
+  } else {
+    // Direct APK download fallback
+    const a = document.createElement("a");
+    a.href = "downloads/patrika-astro.apk";
+    a.download = "patrika-astro.apk";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    const isHi = (document.documentElement.lang || "hi") === "hi";
+    showKundaliToast(isHi ? "APK पैकेज डाउनलोड आरम्भ हो गया है।" : "APK package download initiated.");
+  }
+};
+
+// Global Language Sync Hook
+window.setLanguage = function(lang) {
+  if (lang !== "hi" && lang !== "en") lang = "hi";
+  document.documentElement.setAttribute("lang", lang);
+  document.body.setAttribute("data-current-lang", lang);
+  try { localStorage.setItem("sra_lang", lang); } catch(e) {}
+
+  document.querySelectorAll("[data-i18n-hi][data-i18n-en]").forEach(el => {
+    const txt = el.getAttribute("data-i18n-" + lang);
+    if (txt) {
+      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+        el.placeholder = txt;
+      } else {
+        el.textContent = txt;
+      }
+    }
+  });
+
+  if (window.currentCalculation) {
+    try {
+      renderCandidateSummaryBar();
+      renderAllTables();
+      renderRasiAndChalitCharts();
+      renderParasharaReports();
+      updateActiveDashaChainBanner();
+      renderDashaTreeUI();
+      renderCharaDashaUI();
+      renderYoginiDashaUI();
+      computeAndRenderBirthPanchang();
+      renderSavedKundalisList();
+    } catch(err) {
+      console.warn("Language re-render notice:", err);
+    }
+  }
+};
+
 </script>
 
 <!-- SAVED KUNDALI MODAL -->
