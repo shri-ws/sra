@@ -392,6 +392,445 @@
       padding-right: 10px;
     }
   }
+
+  /* ========================================================= */
+  /* SAVED KUNDALI (सुरक्षित कुण्डलियां) COMPONENT STYLES     */
+  /* ========================================================= */
+  .btn-saved-kundali-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.12), rgba(124, 19, 5, 0.15));
+    border: 1.5px solid var(--gold-border);
+    color: var(--gold);
+    padding: 7px 15px;
+    border-radius: 9999px;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .btn-saved-kundali-trigger:hover {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(180, 83, 9, 0.25);
+  }
+
+  .btn-saved-kundali-trigger:hover .saved-kundali-badge {
+    background: #fff;
+    color: var(--primary);
+  }
+
+  .saved-kundali-badge {
+    background: var(--gold);
+    color: #fff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 12px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 1.2;
+    transition: all 0.2s ease;
+  }
+
+  .btn-saved-kundali-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--gold-border);
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-saved-kundali-secondary:hover {
+    background: rgba(180, 83, 9, 0.08);
+    border-color: var(--gold);
+    color: var(--primary);
+  }
+
+  /* Modal Overlay & Container */
+  .saved-kundali-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(9, 5, 20, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeInSavedModal 0.2s ease-out;
+  }
+
+  @keyframes fadeInSavedModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .saved-kundali-modal-box {
+    background: var(--card-bg);
+    border: 2px solid var(--gold-border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 720px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    animation: scaleUpSavedModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes scaleUpSavedModal {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .saved-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to right, rgba(180, 83, 9, 0.06), transparent);
+  }
+
+  .saved-modal-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(180, 83, 9, 0.12);
+    border: 1px solid var(--gold-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .saved-modal-title {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 19px;
+    color: var(--gold);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .saved-modal-user {
+    margin: 3px 0 0 0;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  .saved-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 26px;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .saved-modal-close:hover {
+    color: var(--red);
+    background: rgba(220, 38, 38, 0.1);
+  }
+
+  .saved-modal-toolbar {
+    display: flex;
+    gap: 10px;
+    padding: 12px 22px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .saved-search-box {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+
+  .saved-search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--dark);
+    font-size: 13px;
+    outline: none;
+  }
+
+  .saved-new-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  .saved-new-btn:hover {
+    opacity: 0.9;
+  }
+
+  .saved-modal-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 22px;
+    font-size: 12px;
+    color: var(--dark);
+    background: rgba(180, 83, 9, 0.04);
+    border-bottom: 1px dashed var(--border);
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .saved-kundalis-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .saved-kundali-card {
+    background: var(--bg);
+    border: 1px solid var(--gold-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .saved-kundali-card:hover {
+    border-color: var(--gold);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+  }
+
+  .saved-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .saved-card-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .saved-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .saved-card-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .saved-card-time-badge {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 10.5px;
+    color: var(--gold);
+    background: rgba(180, 83, 9, 0.09);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .saved-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .btn-load-kundali {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-load-kundali:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+  }
+
+  .btn-delete-kundali {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-delete-kundali:hover {
+    color: var(--red);
+    border-color: var(--red);
+    background: rgba(220, 38, 38, 0.06);
+  }
+
+  .saved-empty-state {
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--muted);
+  }
+
+  .saved-empty-icon {
+    font-size: 42px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+
+  .saved-empty-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .saved-empty-desc {
+    font-size: 12.5px;
+    line-height: 1.5;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .saved-modal-footer {
+    padding: 12px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    background: var(--bg);
+  }
+
+  .saved-footer-close {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--dark);
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12.5px;
+  }
+
+  .saved-footer-close:hover {
+    background: var(--border);
+  }
+
+  /* Floating Kundali Toast */
+  .kundali-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(50px);
+    background: var(--card-bg);
+    color: var(--dark);
+    border: 1.5px solid var(--gold);
+    border-radius: 9999px;
+    padding: 10px 22px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 10005;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .kundali-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (max-width: 640px) {
+    .saved-kundali-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .saved-card-actions {
+      width: 100%;
+      justify-content: flex-end;
+      margin-top: 8px;
+      border-top: 1px dashed var(--border);
+      padding-top: 8px;
+    }
+    .saved-modal-header {
+      padding: 14px 16px;
+    }
+    .saved-modal-toolbar {
+      padding: 10px 16px;
+    }
+    .saved-kundalis-list {
+      padding: 12px 16px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -525,12 +964,21 @@
   <div class="input-panel">
     <!-- Progressive Disclosure Mode Switcher Header -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:12px; flex-wrap:wrap; gap:10px;">
-      <div style="font-weight:700; color:var(--gold); font-size:14px; font-family:'Cinzel', serif; display:flex; align-items:center; gap:6px;">
-        <span>⚡</span> इनपुट मोड चुनें (Input Mode Selection):
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div style="font-weight:700; color:var(--gold); font-size:14px; font-family:'Cinzel', serif; display:flex; align-items:center; gap:6px;">
+          <span>⚡</span> इनपुट मोड चुनें (Input Mode Selection):
+        </div>
+        <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:8px; overflow:hidden; background:var(--bg);">
+          <button type="button" id="btnModeQuick" class="v-btn active" onclick="switchDisclosureMode('quick')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--primary); color:#fff;">⚡ 1-Step Quick Mode</button>
+          <button type="button" id="btnModeExpert" class="v-btn" onclick="switchDisclosureMode('expert')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--card-bg); color:var(--gold); border-left:1px solid var(--border);">🔬 Expert Mode</button>
+        </div>
       </div>
-      <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:8px; overflow:hidden; background:var(--bg);">
-        <button type="button" id="btnModeQuick" class="v-btn active" onclick="switchDisclosureMode('quick')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--primary); color:#fff;">⚡ 1-Step Quick Mode</button>
-        <button type="button" id="btnModeExpert" class="v-btn" onclick="switchDisclosureMode('expert')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--card-bg); color:var(--gold); border-left:1px solid var(--border);">🔬 Expert Mode</button>
+      <div>
+        <button type="button" id="btnSavedKundali" onclick="openSavedKundaliModal()" class="btn-saved-kundali-trigger" title="सुरक्षित कुण्डलियां देखें">
+          <span>📂</span>
+          <span>सुरक्षित कुण्डलियां (Saved Kundali)</span>
+          <span id="savedKundaliBadge" class="saved-kundali-badge">0</span>
+        </button>
       </div>
     </div>
 
@@ -588,7 +1036,15 @@
       </div>
     </div>
 
-    <button class="btn-calc" onclick="executeParasharaMaster()">✨ शास्त्रीय जन्म पत्रिका एवं षोडशवर्ग तैयार करें ➔</button>
+    <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+      <button class="btn-calc" style="flex:2; min-width:260px;" onclick="executeParasharaMaster()">✨ शास्त्रीय जन्म पत्रिका एवं षोडशवर्ग तैयार करें ➔</button>
+      <button type="button" class="btn-saved-kundali-secondary" onclick="openSavedKundaliModal()" style="flex:1; min-width:200px;">
+        <span>📂</span> सुरक्षित कुण्डलियां (<span id="savedKundaliBadgeBottom">0</span>)
+      </button>
+      <button type="button" class="btn-saved-kundali-secondary" onclick="createNewKundaliEntry()" title="नया खाली फॉर्म भरें" style="padding:12px 16px;">
+        <span>➕</span> नया फॉर्म
+      </button>
+    </div>
   </div>
 
   <!-- Dynamic Output Section (Hidden by Default) -->
@@ -2980,6 +3436,7 @@ function executeParasharaMaster() {
 
   saveSessionState();
   if (typeof logUserToDatabase === 'function') logUserToDatabase({});
+  if (typeof autoSaveCurrentKundali === 'function') autoSaveCurrentKundali();
 
   const lat = parseFloat(latStr);
   const lon = parseFloat(lonStr);
@@ -3600,6 +4057,13 @@ function performLoginSuccess(userData) {
       name: userData.name || "Verified User",
       action: userData.action || "FIREBASE_AUTH_SUCCESS"
     });
+
+    if (typeof migrateGuestKundalisToUser === 'function') {
+      migrateGuestKundalisToUser(userIdentifier);
+    }
+    if (typeof updateSavedKundaliBadge === 'function') {
+      updateSavedKundaliBadge();
+    }
   } catch(e) {
     console.error("Login success handler error:", e);
     const modal = document.getElementById("modalMobileOtp");
@@ -3887,12 +4351,386 @@ function loadSessionState() {
   }
 }
 
+// -------------------------------------------------------------
+// SAVED KUNDALI (सुरक्षित कुण्डलियां) CONTROLLER & STORAGE
+// -------------------------------------------------------------
+function getActiveUserIdentifier() {
+  try {
+    const googleRaw = localStorage.getItem("sra_verified_google_user");
+    if (googleRaw) {
+      const gUser = JSON.parse(googleRaw);
+      if (gUser && (gUser.email || gUser.uid || gUser.name)) {
+        return (gUser.email || gUser.uid || gUser.name).toLowerCase();
+      }
+    }
+  } catch(e) {}
+
+  const mob = localStorage.getItem("sra_verified_mobile");
+  if (mob && mob.trim()) return mob.trim().toLowerCase();
+
+  const sessRaw = localStorage.getItem("sra_user_session");
+  if (sessRaw) {
+    try {
+      const sess = JSON.parse(sessRaw);
+      if (sess && (sess.email || sess.phone || sess.uid)) {
+        return (sess.email || sess.phone || sess.uid).toLowerCase();
+      }
+    } catch(e) {}
+  }
+  return "guest_user";
+}
+
+function getActiveUserDisplayName() {
+  try {
+    const googleRaw = localStorage.getItem("sra_verified_google_user");
+    if (googleRaw) {
+      const gUser = JSON.parse(googleRaw);
+      if (gUser && gUser.name) {
+        return gUser.email ? `${gUser.name} (${gUser.email})` : gUser.name;
+      }
+    }
+  } catch(e) {}
+
+  const mob = localStorage.getItem("sra_verified_mobile");
+  if (mob && mob.trim()) {
+    return mob.includes('@') ? mob : `मोबाइल: +91 ${mob}`;
+  }
+
+  return "अतिथि (लॉगिन करने पर खाता लिंक होगा)";
+}
+
+function getSavedKundaliStorageKey() {
+  const user = getActiveUserIdentifier();
+  const safeId = encodeURIComponent(user).replace(/[^a-zA-Z0-9_]/g, '_');
+  return `sra_saved_kundalis_${safeId}`;
+}
+
+function getSavedKundalis() {
+  try {
+    const key = getSavedKundaliStorageKey();
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+      // Check for guest entries to auto-migrate if user is now authenticated
+      const user = getActiveUserIdentifier();
+      if (user !== "guest_user") {
+        const guestKey = "sra_saved_kundalis_guest_user";
+        const guestRaw = localStorage.getItem(guestKey);
+        if (guestRaw) {
+          localStorage.setItem(key, guestRaw);
+          localStorage.removeItem(guestKey);
+          return JSON.parse(guestRaw);
+        }
+      }
+      return [];
+    }
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch(e) {
+    console.warn("getSavedKundalis error:", e);
+    return [];
+  }
+}
+
+function saveKundalisList(list) {
+  try {
+    const key = getSavedKundaliStorageKey();
+    localStorage.setItem(key, JSON.stringify(list));
+    updateSavedKundaliBadge();
+  } catch(e) {
+    console.error("saveKundalisList error:", e);
+  }
+}
+
+function migrateGuestKundalisToUser(userIdentifier) {
+  try {
+    const guestKey = "sra_saved_kundalis_guest_user";
+    const guestRaw = localStorage.getItem(guestKey);
+    if (!guestRaw) return;
+    const guestList = JSON.parse(guestRaw);
+    if (Array.isArray(guestList) && guestList.length > 0) {
+      const safeId = encodeURIComponent((userIdentifier || getActiveUserIdentifier()).toLowerCase()).replace(/[^a-zA-Z0-9_]/g, '_');
+      const userKey = `sra_saved_kundalis_${safeId}`;
+      const userRaw = localStorage.getItem(userKey);
+      let userList = userRaw ? JSON.parse(userRaw) : [];
+      if (!Array.isArray(userList)) userList = [];
+
+      guestList.forEach(gk => {
+        const exists = userList.some(uk => 
+          uk.date === gk.date && 
+          (uk.time || "").slice(0, 5) === (gk.time || "").slice(0, 5) && 
+          uk.name === gk.name
+        );
+        if (!exists) {
+          userList.unshift(gk);
+        }
+      });
+      localStorage.setItem(userKey, JSON.stringify(userList));
+      localStorage.removeItem(guestKey);
+    }
+  } catch(e) {
+    console.warn("migrateGuestKundalisToUser note:", e);
+  }
+}
+
+function autoSaveCurrentKundali() {
+  try {
+    const name = (document.getElementById("inName")?.value || "").trim() || "अनाम जातक";
+    const date = document.getElementById("inDate")?.value || "";
+    const time = document.getElementById("inTime")?.value || "";
+    const city = (document.getElementById("inCitySearch")?.value || "").trim();
+    const lat = document.getElementById("inLat")?.value || "";
+    const lon = document.getElementById("inLon")?.value || "";
+    const tz = document.getElementById("inTz")?.value || "5.5";
+
+    if (!date || !time || !lat || !lon) return;
+
+    let list = getSavedKundalis();
+
+    // Check if an existing entry has same date, time (first 5 chars HH:MM), and name or coordinates
+    const existingIndex = list.findIndex(k => 
+      k.date === date && 
+      (k.time || "").slice(0, 5) === time.slice(0, 5) && 
+      (k.name.toLowerCase() === name.toLowerCase() || 
+       (Math.abs(parseFloat(k.lat) - parseFloat(lat)) < 0.001 && Math.abs(parseFloat(k.lon) - parseFloat(lon)) < 0.001))
+    );
+
+    const now = new Date();
+    const dateFormatted = now.toLocaleDateString('hi-IN', { day:'numeric', month:'short', year:'numeric' }) + 
+                          ", " + now.toLocaleTimeString('hi-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+
+    const entry = {
+      id: (existingIndex >= 0 && list[existingIndex].id) ? list[existingIndex].id : 'knd_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+      name: name,
+      date: date,
+      time: time,
+      city: city || `${parseFloat(lat).toFixed(2)}°, ${parseFloat(lon).toFixed(2)}°`,
+      lat: lat,
+      lon: lon,
+      tz: tz,
+      savedAt: dateFormatted,
+      savedTimestamp: Date.now()
+    };
+
+    if (existingIndex >= 0) {
+      list[existingIndex] = entry;
+    } else {
+      list.unshift(entry);
+    }
+
+    if (list.length > 200) list = list.slice(0, 200);
+
+    saveKundalisList(list);
+    showKundaliToast(`✅ "${name}" की कुण्डली सुरक्षित हो गई!`);
+  } catch(err) {
+    console.warn("autoSaveCurrentKundali error:", err);
+  }
+}
+
+let toastTimer = null;
+function showKundaliToast(msg) {
+  const toast = document.getElementById("kundaliToast");
+  if (!toast) return;
+  toast.innerHTML = msg;
+  toast.classList.add("show");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3200);
+}
+
+function updateSavedKundaliBadge() {
+  const list = getSavedKundalis();
+  const count = list.length;
+  const b1 = document.getElementById("savedKundaliBadge");
+  const b2 = document.getElementById("savedKundaliBadgeBottom");
+  if (b1) b1.textContent = count;
+  if (b2) b2.textContent = count;
+  const totalCountEl = document.getElementById("savedModalTotalCount");
+  if (totalCountEl) totalCountEl.textContent = count;
+}
+
+function openSavedKundaliModal() {
+  const modal = document.getElementById("modalSavedKundali");
+  if (!modal) return;
+  const userEl = document.getElementById("savedModalUserInfo");
+  if (userEl) userEl.textContent = "सत्यापित खाता: " + getActiveUserDisplayName();
+  
+  const searchInput = document.getElementById("savedKundaliSearchInput");
+  if (searchInput) searchInput.value = "";
+
+  renderSavedKundalisList();
+  modal.style.display = "flex";
+}
+
+function closeSavedKundaliModal() {
+  const modal = document.getElementById("modalSavedKundali");
+  if (modal) modal.style.display = "none";
+}
+
+function handleSavedKundaliBackdropClick(event) {
+  if (event.target && event.target.id === "modalSavedKundali") {
+    closeSavedKundaliModal();
+  }
+}
+
+function filterSavedKundalis() {
+  const query = (document.getElementById("savedKundaliSearchInput")?.value || "").trim().toLowerCase();
+  renderSavedKundalisList(query);
+}
+
+function renderSavedKundalisList(filterQuery = '') {
+  const container = document.getElementById("savedKundalisList");
+  if (!container) return;
+
+  const allList = getSavedKundalis();
+  const totalCountEl = document.getElementById("savedModalTotalCount");
+  if (totalCountEl) totalCountEl.textContent = allList.length;
+
+  let list = allList;
+  if (filterQuery) {
+    list = allList.filter(k => 
+      (k.name || "").toLowerCase().includes(filterQuery) ||
+      (k.city || "").toLowerCase().includes(filterQuery) ||
+      (k.date || "").includes(filterQuery)
+    );
+  }
+
+  if (list.length === 0) {
+    if (filterQuery) {
+      container.innerHTML = `
+        <div class="saved-empty-state">
+          <div class="saved-empty-icon">🔍</div>
+          <div class="saved-empty-title">कोई परिणाम नहीं मिला</div>
+          <div class="saved-empty-desc">"${filterQuery}" से मेल खाती कोई कुण्डली नहीं मिली। कृपया भिन्न नाम या स्थान खोजें।</div>
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="saved-empty-state">
+          <div class="saved-empty-icon">📂</div>
+          <div class="saved-empty-title">अभी कोई सुरक्षित कुण्डली नहीं है</div>
+          <div class="saved-empty-desc">जब आप जन्म विवरण भरकर 'शास्त्रीय जन्म पत्रिका तैयार करें' पर क्लिक करेंगे, कुण्डली स्वतः यहाँ सहेजी जाएगी।</div>
+          <button type="button" class="saved-new-btn" style="margin-top:14px;" onclick="createNewKundaliEntry()">
+            <span>➕</span> जन्म विवरण भरें
+          </button>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  let html = '';
+  list.forEach(k => {
+    let displayDob = k.date || '';
+    if (displayDob.includes('-')) {
+      const parts = displayDob.split('-');
+      if (parts.length === 3) displayDob = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+
+    const safeName = (k.name || 'अनाम जातक').replace(/"/g, '&quot;');
+    const safeCity = (k.city || 'निर्दिष्ट स्थान').replace(/"/g, '&quot;');
+
+    html += `
+      <div class="saved-kundali-card">
+        <div class="saved-card-info">
+          <div class="saved-card-name">
+            <span>👤</span>
+            <span>${safeName}</span>
+          </div>
+          <div class="saved-card-meta">
+            <span class="saved-card-meta-item">📅 <strong>${displayDob}</strong></span>
+            <span class="saved-card-meta-item">⏰ <strong>${k.time || '--:--'}</strong></span>
+            <span class="saved-card-meta-item">📍 <strong>${safeCity}</strong></span>
+          </div>
+          <div class="saved-card-time-badge">🕒 सुरक्षित किया गया: ${k.savedAt || 'हाल ही में'}</div>
+        </div>
+        <div class="saved-card-actions">
+          <button type="button" class="btn-load-kundali" onclick="loadSavedKundali('${k.id}')" title="इस कुण्डली को लोड करके गणना करें">
+            <span>⚡ लोड करें</span>
+          </button>
+          <button type="button" class="btn-delete-kundali" onclick="deleteSavedKundali('${k.id}', event)" title="हटाएं">
+            <span>🗑️</span>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function loadSavedKundali(id) {
+  const list = getSavedKundalis();
+  const k = list.find(item => item.id === id);
+  if (!k) {
+    alert("कुण्डली नहीं मिली।");
+    return;
+  }
+
+  if (document.getElementById("inName")) document.getElementById("inName").value = k.name || "";
+  if (document.getElementById("inDate")) document.getElementById("inDate").value = k.date || "";
+  if (document.getElementById("inTime")) document.getElementById("inTime").value = k.time || "";
+  if (document.getElementById("inCitySearch")) document.getElementById("inCitySearch").value = k.city || "";
+  if (document.getElementById("inLat")) document.getElementById("inLat").value = k.lat || "";
+  if (document.getElementById("inLon")) document.getElementById("inLon").value = k.lon || "";
+  if (document.getElementById("inTz")) document.getElementById("inTz").value = k.tz || "5.5";
+
+  if (typeof updateMapMarker === 'function' && k.lat && k.lon) {
+    updateMapMarker(parseFloat(k.lat), parseFloat(k.lon));
+  }
+
+  closeSavedKundaliModal();
+  showKundaliToast(`⚡ "${k.name}" की कुण्डली लोड कर दी गई है!`);
+
+  setTimeout(() => {
+    if (typeof executeParasharaMaster === 'function') {
+      executeParasharaMaster();
+    }
+  }, 250);
+}
+
+function deleteSavedKundali(id, event) {
+  if (event) event.stopPropagation();
+  const list = getSavedKundalis();
+  const k = list.find(item => item.id === id);
+  const name = k ? k.name : "इस";
+  if (!confirm(`क्या आप "${name}" की कुण्डली को अपनी सुरक्षित सूची से हटाना चाहते हैं?`)) {
+    return;
+  }
+  const updatedList = list.filter(item => item.id !== id);
+  saveKundalisList(updatedList);
+  const query = (document.getElementById("savedKundaliSearchInput")?.value || "").trim().toLowerCase();
+  renderSavedKundalisList(query);
+  showKundaliToast(`🗑️ "${name}" की कुण्डली हटा दी गई`);
+}
+
+function createNewKundaliEntry() {
+  closeSavedKundaliModal();
+  if (document.getElementById("inName")) document.getElementById("inName").value = "";
+  if (document.getElementById("inDate")) document.getElementById("inDate").value = "";
+  if (document.getElementById("inTime")) document.getElementById("inTime").value = "";
+  if (document.getElementById("inCitySearch")) document.getElementById("inCitySearch").value = "";
+  if (document.getElementById("inLat")) document.getElementById("inLat").value = "";
+  if (document.getElementById("inLon")) document.getElementById("inLon").value = "";
+  if (document.getElementById("inTz")) document.getElementById("inTz").value = "5.5";
+  
+  const out = document.getElementById("outputSection");
+  if (out) out.style.display = "none";
+  
+  showKundaliToast("📝 नया फॉर्म तैयार है — कृपया जन्म विवरण भरें");
+  const nameInp = document.getElementById("inName");
+  if (nameInp) nameInp.focus();
+}
+
 // Auto-initialize map & session when DOM is loaded
 window.addEventListener('DOMContentLoaded', () => {
   initMap();
   checkMobileAuthStatus();
   switchDashaSystemTab('vim');
   loadSessionState();
+  if (typeof updateSavedKundaliBadge === 'function') {
+    updateSavedKundaliBadge();
+  }
 
   const googleBtn = document.getElementById("btnGoogleLogin");
   if (googleBtn) {
@@ -3907,5 +4745,52 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<!-- SAVED KUNDALI MODAL -->
+<div id="modalSavedKundali" class="saved-kundali-modal-overlay" style="display:none;" onclick="handleSavedKundaliBackdropClick(event)">
+  <div class="saved-kundali-modal-box">
+    <!-- Header -->
+    <div class="saved-modal-header">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="saved-modal-icon">📂</div>
+        <div>
+          <h3 class="saved-modal-title">सुरक्षित कुण्डलियां (Saved Kundali)</h3>
+          <p class="saved-modal-user" id="savedModalUserInfo">खाता: लोड हो रहा है...</p>
+        </div>
+      </div>
+      <button type="button" class="saved-modal-close" onclick="closeSavedKundaliModal()" aria-label="बंद करें">&times;</button>
+    </div>
+
+    <!-- Toolbar / Search -->
+    <div class="saved-modal-toolbar">
+      <div class="saved-search-box">
+        <span>🔍</span>
+        <input type="text" id="savedKundaliSearchInput" placeholder="नाम, जन्म स्थान या तारीख से खोजें..." oninput="filterSavedKundalis()">
+      </div>
+      <button type="button" class="saved-new-btn" onclick="createNewKundaliEntry()">
+        <span>➕</span> नया फॉर्म
+      </button>
+    </div>
+
+    <!-- Summary strip -->
+    <div class="saved-modal-summary" id="savedModalSummary">
+      <span>कुल सुरक्षित कुण्डलियां: <strong id="savedModalTotalCount">0</strong></span>
+      <span style="font-size:11.5px; color:var(--muted);">गणना होते ही कुण्डली स्वतः सुरक्षित हो जाती है</span>
+    </div>
+
+    <!-- List of Saved Kundalis -->
+    <div class="saved-kundalis-list" id="savedKundalisList">
+      <!-- Dynamic cards rendered via JS -->
+    </div>
+
+    <!-- Footer -->
+    <div class="saved-modal-footer">
+      <button type="button" class="saved-footer-close" onclick="closeSavedKundaliModal()">बंद करें</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING KUNDALI TOAST -->
+<div id="kundaliToast" class="kundali-toast"></div>
 </body>
 </html>
