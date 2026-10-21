@@ -831,6 +831,499 @@
       padding: 12px 16px;
     }
   }
+
+  /* ========================================================= */
+  /* HORIZONTAL CAROUSEL & DOMAIN NAVIGATOR STYLES             */
+  /* ========================================================= */
+  .output-domain-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg);
+    border: 1.5px solid var(--gold-border);
+    border-radius: 14px;
+    padding: 8px 10px;
+    margin-bottom: 22px;
+    overflow-x: auto;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    scrollbar-width: thin;
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .output-domain-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .output-domain-nav::-webkit-scrollbar-thumb {
+    background: var(--gold-border);
+    border-radius: 4px;
+  }
+
+  .domain-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--dark);
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+  }
+
+  .domain-tab:hover {
+    border-color: var(--gold);
+    color: var(--primary);
+    transform: translateY(-1px);
+  }
+
+  .domain-tab.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(124, 19, 5, 0.25);
+  }
+
+  .domain-tab .d-icon {
+    font-size: 15px;
+  }
+
+  .domain-panel {
+    display: none;
+    animation: fadeInDomain 0.25s ease-out;
+  }
+
+  .domain-panel.active {
+    display: block;
+  }
+
+  /* When "All View" mode is enabled, show all panels */
+  .all-view-mode .domain-panel {
+    display: block !important;
+    margin-bottom: 30px;
+  }
+
+  @keyframes fadeInDomain {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Chart Carousel Toolbar & Controls */
+  .chart-carousel-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--gold-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chart-selector-chips {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .chart-selector-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip-btn {
+    padding: 7px 14px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--dark);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .chip-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .chip-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(124, 19, 5, 0.2);
+  }
+
+  .chart-style-toggle {
+    display: inline-flex;
+    border: 1px solid var(--gold-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--card-bg);
+  }
+
+  .style-toggle-btn {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: var(--dark);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .style-toggle-btn.active {
+    background: var(--gold);
+    color: #fff;
+  }
+
+  /* Carousel Container */
+  .chart-carousel-wrapper {
+    position: relative;
+    background: var(--card-bg);
+    border: 1.5px solid var(--gold-border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+  }
+
+  .carousel-slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .carousel-slide-title {
+    font-family: 'Cinzel', serif;
+    font-size: 17px;
+    color: var(--gold);
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .carousel-arrows {
+    display: flex;
+    gap: 8px;
+  }
+
+  .carousel-arrow-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold-border);
+    background: var(--bg);
+    color: var(--gold);
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .carousel-arrow-btn:hover {
+    background: var(--gold);
+    color: #fff;
+    transform: scale(1.06);
+  }
+
+  /* Slide Cards */
+  .carousel-slide-card {
+    display: none;
+    animation: fadeInSlide 0.25s ease-out;
+  }
+
+  .carousel-slide-card.active {
+    display: block;
+  }
+
+  @keyframes fadeInSlide {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .carousel-chart-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .chart-viewport {
+    flex: 1;
+    min-width: 290px;
+    max-width: 460px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .chart-viewport h4 {
+    margin: 0 0 10px 0;
+    font-size: 13.5px;
+    color: var(--primary);
+    font-family: 'Cinzel', serif;
+  }
+
+  /* Style toggle display rules */
+  .style-north-only .chart-view-south {
+    display: none !important;
+  }
+  .style-north-only .chart-view-north {
+    display: block !important;
+    margin: 0 auto;
+    max-width: 480px;
+    width: 100%;
+  }
+
+  .style-south-only .chart-view-north {
+    display: none !important;
+  }
+  .style-south-only .chart-view-south {
+    display: block !important;
+    margin: 0 auto;
+    max-width: 480px;
+    width: 100%;
+  }
+
+  .style-both .chart-view-north {
+    display: block !important;
+  }
+  .style-both .chart-view-south {
+    display: block !important;
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .c-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .c-dot.active {
+    background: var(--gold);
+    width: 22px;
+    border-radius: 10px;
+  }
+
+  /* Planetary Degrees Table Card */
+  .planet-table-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--gold-border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+  }
+
+  .planet-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--gold-border);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .planet-table-title {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--gold);
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .planet-table-sub {
+    margin: 4px 0 0 0;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .vedic-planet-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--gold-border);
+    font-size: 13px;
+  }
+
+  .vedic-planet-table th {
+    background: linear-gradient(to right, rgba(180, 83, 9, 0.12), rgba(124, 19, 5, 0.08));
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1.5px solid var(--gold-border);
+    white-space: nowrap;
+  }
+
+  .vedic-planet-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--dark);
+    vertical-align: middle;
+  }
+
+  .vedic-planet-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .vedic-planet-table tbody tr:hover {
+    background: rgba(180, 83, 9, 0.04);
+  }
+
+  .planet-badge-retro {
+    display: inline-block;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .planet-badge-direct {
+    display: inline-block;
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #10b981;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .planet-badge-lagna {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #3b82f6;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .nak-pada-pill {
+    display: inline-block;
+    background: rgba(180, 83, 9, 0.1);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+
+  .house-shift-alert {
+    display: inline-block;
+    background: #fee2e2;
+    color: #991b1b;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
+
+  /* Auxiliary Tables Tabs */
+  .aux-table-tabs {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    overflow-x: auto;
+  }
+
+  .aux-tab-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--dark);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+
+  .aux-tab-btn.active {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+
+  @media (max-width: 768px) {
+    .chart-carousel-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .chart-selector-chips {
+      width: 100%;
+      justify-content: flex-start;
+    }
+    .chart-style-toggle {
+      width: 100%;
+      justify-content: center;
+    }
+    .chart-viewport {
+      min-width: 100%;
+      padding: 10px;
+    }
+    .vedic-planet-table th, .vedic-planet-table td {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    .output-domain-nav {
+      top: 60px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -1050,295 +1543,467 @@
   <!-- Dynamic Output Section (Hidden by Default) -->
   <div id="outputSection">
     
-    <!-- Row 1: North Indian Pair -->
-    <div class="row-title">पंक्ति 1: उत्तर भारतीय शैली (North Indian Diamond Style)</div>
-    <div class="charts-pair">
-      <div class="chart-card">
-        <h3>लग्न कुण्डली (D1 Rasi Chart)</h3>
-        <div class="svg-box">
-          <svg id="northRasiSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+    <!-- TOP HORIZONTAL DOMAIN NAVIGATOR BAR -->
+    <div class="output-domain-nav" id="outputDomainNav">
+      <button type="button" class="domain-tab active" onclick="switchOutputDomain('charts')" id="btnDomainCharts">
+        <span class="d-icon">🎡</span>
+        <span class="d-text">कुण्डली चक्र कैरोसेल (Charts)</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('planets')" id="btnDomainPlanets">
+        <span class="d-icon">🪐</span>
+        <span class="d-text">ग्रह स्पष्ट एवं नक्षत्र (Planets Table)</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('dashas')" id="btnDomainDashas">
+        <span class="d-icon">📜</span>
+        <span class="d-text">दशा प्रणाली (Dashas)</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('analysis')" id="btnDomainAnalysis">
+        <span class="d-icon">🌊</span>
+        <span class="d-text">जीवन तरंग व विश्लेषण (Life Wave)</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="toggleAllViewMode()" id="btnDomainAll" title="सभी सेक्शन एक साथ देखें (प्रिंट/फुल व्यू)">
+        <span class="d-icon">📑</span>
+        <span class="d-text" id="btnDomainAllText">पूर्ण दृश्य (All)</span>
+      </button>
+    </div>
+
+    <!-- DOMAIN 1: KUNDALI CHARTS CAROUSEL -->
+    <div class="domain-panel active" id="domainPanelCharts">
+      <!-- Carousel Toolbar -->
+      <div class="chart-carousel-toolbar">
+        <div class="chart-selector-chips">
+          <button type="button" class="chip-btn active" onclick="goToChartSlide(0)" id="chipSlide0">🌟 D1 लग्न कुण्डली</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(1)" id="chipSlide1">⚖️ भाव चलित (Sripati)</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(2)" id="chipSlide2">💍 D9 नवमांश (Navamsha)</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(3)" id="chipSlide3">👑 D10 दशमांश (Career)</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(4)" id="chipSlide4">🔮 षोडशवर्ग (D1-D60)</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div class="chart-style-toggle">
+            <button type="button" class="style-toggle-btn active" onclick="setChartStyle('north')" id="btnStyleNorth">💎 उत्तर भारतीय</button>
+            <button type="button" class="style-toggle-btn" onclick="setChartStyle('south')" id="btnStyleSouth">📦 दक्षिण भारतीय</button>
+            <button type="button" class="style-toggle-btn" onclick="setChartStyle('both')" id="btnStyleBoth">🪞 दोनों शैली</button>
+          </div>
+          <div class="carousel-arrows">
+            <button type="button" class="carousel-arrow-btn" onclick="prevChartSlide()" title="पिछला चक्र">❮</button>
+            <button type="button" class="carousel-arrow-btn" onclick="nextChartSlide()" title="अगला चक्र">❯</button>
+          </div>
         </div>
       </div>
-      <div class="chart-card">
-        <h3>भाव चलित कुण्डली (True Sripati Bhava Chalit)</h3>
-        <div class="svg-box">
-          <svg id="northChalitSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+
+      <!-- Chart Carousel Wrapper with Style Class -->
+      <div class="chart-carousel-wrapper style-north-only" id="chartCarouselWrapper">
+        <!-- Slide 0: D1 Lagna Rasi -->
+        <div class="carousel-slide-card active" id="chartSlide0">
+          <div class="carousel-slide-header">
+            <h3 class="carousel-slide-title">🌟 लग्न कुण्डली (D1 Rasi Chart)</h3>
+            <span style="font-size:12px; color:var(--muted);">जातक का मूल लग्न व ग्रहों की राशि स्थिति</span>
+          </div>
+          <div class="carousel-chart-display">
+            <div class="chart-viewport chart-view-north">
+              <h4>उत्तर भारतीय शैली (Diamond Style)</h4>
+              <div class="svg-box">
+                <svg id="northRasiSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+            <div class="chart-viewport chart-view-south">
+              <h4>दक्षिण भारतीय शैली (Box Style)</h4>
+              <div class="svg-box">
+                <svg id="southRasiSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 1: True Sripati Bhava Chalit -->
+        <div class="carousel-slide-card" id="chartSlide1">
+          <div class="carousel-slide-header">
+            <h3 class="carousel-slide-title">⚖️ भाव चलित कुण्डली (True Sripati Bhava Chalit)</h3>
+            <span style="font-size:12px; color:var(--muted);">श्रीपति भाव मध्य व भाव संधि अनुसार वास्तविक फलित स्थिति</span>
+          </div>
+          <div class="carousel-chart-display">
+            <div class="chart-viewport chart-view-north">
+              <h4>उत्तर भारतीय भाव चलित</h4>
+              <div class="svg-box">
+                <svg id="northChalitSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+            <div class="chart-viewport chart-view-south">
+              <h4>दक्षिण भारतीय भाव चलित</h4>
+              <div class="svg-box">
+                <svg id="southChalitSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: D9 Navamsha -->
+        <div class="carousel-slide-card" id="chartSlide2">
+          <div class="carousel-slide-header">
+            <h3 class="carousel-slide-title">💍 नवमांश कुण्डली (D9 Navamsha Chart)</h3>
+            <span style="font-size:12px; color:var(--muted);">भाग्य, जीवनसाथी, धर्म व आन्तरिक ग्रह बल</span>
+          </div>
+          <div class="carousel-chart-display">
+            <div class="chart-viewport chart-view-north">
+              <h4>उत्तर भारतीय नवमांश (D9)</h4>
+              <div class="svg-box">
+                <svg id="d9NorthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+            <div class="chart-viewport chart-view-south">
+              <h4>दक्षिण भारतीय नवमांश (D9)</h4>
+              <div class="svg-box">
+                <svg id="d9SouthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3: D10 Dasamsa -->
+        <div class="carousel-slide-card" id="chartSlide3">
+          <div class="carousel-slide-header">
+            <h3 class="carousel-slide-title">👑 दशमांश कुण्डली (D10 Dasamsa Chart)</h3>
+            <span style="font-size:12px; color:var(--muted);">करियर, मान-सम्मान, व्यवसाय व राजयोग</span>
+          </div>
+          <div class="carousel-chart-display">
+            <div class="chart-viewport chart-view-north">
+              <h4>उत्तर भारतीय दशमांश (D10)</h4>
+              <div class="svg-box">
+                <svg id="d10NorthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+            <div class="chart-viewport chart-view-south">
+              <h4>दक्षिण भारतीय दशमांश (D10)</h4>
+              <div class="svg-box">
+                <svg id="d10SouthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4: Shodashvarga Picker D1-D60 -->
+        <div class="carousel-slide-card" id="chartSlide4">
+          <div class="carousel-slide-header">
+            <h3 class="carousel-slide-title" id="activeVargaTitle">षोडशवर्ग कुण्डली चयन — D1 राशि</h3>
+            <span style="font-size:12px; color:var(--muted);">पराशर सम्मत सम्पूर्ण १६ सूक्ष्म वर्ग चक्र</span>
+          </div>
+          <!-- Varga Selector Strip (Horizontal Scrolling) -->
+          <div class="varga-section" style="margin-bottom:14px; padding:10px 14px;">
+            <div class="varga-strip" id="vargaStrip" style="overflow-x:auto; flex-wrap:nowrap; padding-bottom:6px; scrollbar-width:thin;"></div>
+          </div>
+          <div class="carousel-chart-display">
+            <div class="chart-viewport chart-view-north">
+              <h4 id="vargaNorthHeading">चयनित वर्ग कुण्डली (उत्तर भारतीय)</h4>
+              <div class="svg-box">
+                <svg id="vargaNorthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+            <div class="chart-viewport chart-view-south">
+              <h4 id="vargaSouthHeading">चयनित वर्ग कुण्डली (दक्षिण भारतीय)</h4>
+              <div class="svg-box">
+                <svg id="vargaSouthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carousel Dots -->
+        <div class="carousel-dots">
+          <span class="c-dot active" onclick="goToChartSlide(0)"></span>
+          <span class="c-dot" onclick="goToChartSlide(1)"></span>
+          <span class="c-dot" onclick="goToChartSlide(2)"></span>
+          <span class="c-dot" onclick="goToChartSlide(3)"></span>
+          <span class="c-dot" onclick="goToChartSlide(4)"></span>
         </div>
       </div>
     </div>
 
-    <!-- Row 2: South Indian Pair -->
-    <div class="row-title">पंक्ति 2: दक्षिण भारतीय शैली (South Indian Box Style)</div>
-    <div class="charts-pair">
-      <div class="chart-card">
-        <h3>लग्न कुण्डली (D1 Rasi Chart)</h3>
-        <div class="svg-box">
-          <svg id="southRasiSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+    <!-- DOMAIN 2: PLANETS & ASTRONOMICAL TABLES -->
+    <div class="domain-panel" id="domainPanelPlanets">
+      <div class="planet-table-card">
+        <div class="planet-table-header">
+          <div>
+            <h3 class="planet-table-title">🪐 शास्त्रीय ग्रह स्पष्ट एवं नक्षत्र तालिका (Planetary Longitudes & Nakshatras)</h3>
+            <p class="planet-table-sub">Chitra Paksha (Lahiri) अयनांश सम्मत सूक्ष्म अंश, नक्षत्र चरण, नक्षत्र स्वामी व चलित भाव स्थिति</p>
+          </div>
         </div>
-      </div>
-      <div class="chart-card">
-        <h3>भाव चलित कुण्डली (True Sripati Bhava Chalit)</h3>
-        <div class="svg-box">
-          <svg id="southChalitSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
+
+        <!-- The Primary Vedic Planets & Nakshatras Table -->
+        <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+          <table class="vedic-planet-table" id="tblPlanets">
+            <thead>
+              <tr>
+                <th>ग्रह (Planet)</th>
+                <th>स्थिति (Status)</th>
+                <th>राशि (Sign)</th>
+                <th>अंश-कला-विकला (Degrees)</th>
+                <th>नक्षत्र (Nakshatra)</th>
+                <th>चरण (Pada)</th>
+                <th>नक्षत्र स्वामी (Lord)</th>
+                <th>भाव स्थिति (House)</th>
+                <th>दैनिक गति (Daily Speed)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Rendered via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Auxiliary Tables Section (Tabbed for Space Optimization) -->
+        <div class="aux-table-tabs">
+          <button type="button" class="aux-tab-btn active" onclick="switchAuxTable('sripati')" id="btnAuxSripati">⚖️ श्रीपति भाव स्पष्ट (12 Bhavas)</button>
+          <button type="button" class="aux-tab-btn" onclick="switchAuxTable('upagrahas')" id="btnAuxUpagrahas">🌑 5 अप्रकाश उपग्रह व कालवेला</button>
+          <button type="button" class="aux-tab-btn" onclick="switchAuxTable('specialLagnas')" id="btnAuxLagnas">⭐ विशेष लग्न व प्राणपद</button>
+        </div>
+
+        <div id="auxPanelSripati" class="aux-panel" style="display:block; overflow-x:auto;">
+          <table class="vedic-planet-table" id="tblSripati">
+            <thead>
+              <tr>
+                <th>भाव (Bhava)</th>
+                <th>भाव आरम्भ (Sandhi 1)</th>
+                <th>भाव मध्य (Bhava Madhya)</th>
+                <th>भाव अंत (Sandhi 2)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div id="auxPanelUpagrahas" class="aux-panel" style="display:none; overflow-x:auto;">
+          <table class="vedic-planet-table" id="tblUpagrahas">
+            <thead>
+              <tr>
+                <th>संज्ञा (Upagraha Name)</th>
+                <th>राशि (Sign)</th>
+                <th>अंश-कला-विकला (Degrees)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div id="auxPanelLagnas" class="aux-panel" style="display:none; overflow-x:auto;">
+          <table class="vedic-planet-table" id="tblSpecialLagnas">
+            <thead>
+              <tr>
+                <th>संज्ञा (Special Lagna)</th>
+                <th>राशि (Sign)</th>
+                <th>अंश-कला-विकला (Degrees)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- Bhava Sandhi & Planetary Shift Notification -->
-    <div class="sandhi-panel">
-      <h3>भाव संधि एवं ग्रह विस्थापन विश्लेषण (BPHS Analysis)</h3>
-      <div id="sandhiAnalysisContent"></div>
-    </div>
-
-    <!-- Varga Selector Strip -->
-    <div class="varga-section">
-      <h3 id="activeVargaTitle">षोडशवर्ग कुण्डली चयन — D1 राशि</h3>
-      <div class="varga-strip" id="vargaStrip"></div>
-    </div>
-
-    <!-- Selected Varga Chart Pair -->
-    <div class="charts-pair">
-      <div class="chart-card">
-        <h3 id="vargaNorthHeading">चयनित वर्ग कुण्डली (उत्तर भारतीय)</h3>
-        <div class="svg-box">
-          <svg id="vargaNorthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
-        </div>
-      </div>
-      <div class="chart-card">
-        <h3 id="vargaSouthHeading">चयनित वर्ग कुण्डली (दक्षिण भारतीय)</h3>
-        <div class="svg-box">
-          <svg id="vargaSouthSvg" viewBox="0 0 400 400" width="100%" height="100%"></svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- Detailed Astronomical Tables -->
-    <div class="tables-grid">
-      <div class="table-card">
-        <h3>ग्रह स्पष्ट एवं गति (Planetary Longitudes & Central Diff Motion)</h3>
-        <table id="tblPlanets">
-          <thead><tr><th>ग्रह</th><th>राशि</th><th>अंश-कला-विकला</th><th>दैनिक गति</th><th>नक्षत्र</th></tr></thead>
-          <tbody></tbody>
-        </table>
+    <!-- DOMAIN 3: DASHA SYSTEMS -->
+    <div class="domain-panel" id="domainPanelDashas">
+      <!-- 3-TAB DASHA SYSTEM SWITCHER -->
+      <div style="display: flex; gap: 12px; margin-bottom: 16px; font-weight: bold; flex-wrap:wrap;">
+        <button id="btnDashaTabVim" class="v-btn active" onclick="switchDashaSystemTab('vim')" style="flex:1; min-width:180px; border-radius:8px; padding:12px; font-size:14px; background:var(--primary); color:#fff;">📜 विंशोत्तरी दशा (Vimshottari Dasha)</button>
+        <button id="btnDashaTabCha" class="v-btn" onclick="switchDashaSystemTab('cha')" style="flex:1; min-width:180px; border-radius:8px; padding:12px; font-size:14px; background:var(--card-bg); color:var(--gold); border:1px solid var(--gold-border);">🏹 जैमिनी चर दशा (Chara Dasha)</button>
+        <button id="btnDashaTabYog" class="v-btn" onclick="switchDashaSystemTab('yog')" style="flex:1; min-width:180px; border-radius:8px; padding:12px; font-size:14px; background:var(--card-bg); color:var(--gold); border:1px solid var(--gold-border);">🔮 योगिनी दशा (Yogini Dasha)</button>
       </div>
 
-      <div class="table-card">
-        <h3>श्रीपति भाव स्पष्ट (True Sripati Cusps: Quadrant Trisection)</h3>
-        <table id="tblSripati">
-          <thead><tr><th>भाव</th><th>भाव आरम्भ (Sandhi 1)</th><th>भाव मध्य (Madhya)</th><th>भाव अंत (Sandhi 2)</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="table-card">
-        <h3>5 अप्रकाश उपग्रह एवं कालवेला (BPHS Ch. 3)</h3>
-        <table id="tblUpagrahas">
-          <thead><tr><th>संज्ञा</th><th>राशि</th><th>अंश-कला-विकला</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="table-card">
-        <h3>विशेष लग्न एवं प्राणपद (Ch. 3 व 5)</h3>
-        <table id="tblSpecialLagnas">
-          <thead><tr><th>संज्ञा</th><th>राशि</th><th>अंश-कला-विकला</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 3-TAB DASHA SYSTEM SWITCHER -->
-    <div style="display: flex; gap: 12px; margin-top: 24px; margin-bottom: 12px; font-weight: bold;">
-      <button id="btnDashaTabVim" class="v-btn active" onclick="switchDashaSystemTab('vim')" style="flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--primary); color:#fff;">📜 विंशोत्तरी दशा (Vimshottari Dasha)</button>
-      <button id="btnDashaTabCha" class="v-btn" onclick="switchDashaSystemTab('cha')" style="flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--card-bg); color:var(--gold); border:1px solid var(--gold-border);">🏹 जैमिनी चर दशा (Chara Dasha)</button>
-      <button id="btnDashaTabYog" class="v-btn" onclick="switchDashaSystemTab('yog')" style="flex:1; border-radius:8px; padding:12px; font-size:14px; background:var(--card-bg); color:var(--gold); border:1px solid var(--gold-border);">🔮 योगिनी दशा (Yogini Dasha)</button>
-    </div>
-
-    <!-- 5-LEVEL PARASHARI VIMSHOTTARI DASHA INSPECTOR (JHORA PARITY) -->
-    <div class="dasha-container" id="dashaContainerVimshottari">
-      <div class="dasha-header">
-        <div>
-          <h3 class="dasha-title">📜 विंशोत्तरी दशा (५-स्तरीय पराशरी सूक्ष्म दशा - Jagannatha Hora Standard)</h3>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
-            Mahadasha ➔ Antardasha ➔ Pratyantardasha ➔ Sukshma Dasha ➔ Prana Dasha
-          </p>
-        </div>
-        <div>
-          <button class="v-btn" onclick="jumpToActiveDashaStream()" style="background:var(--primary); color:#fff; font-weight:700;">⚡ आज की सक्रिय दशा पर जाएँ (Active Today)</button>
-        </div>
-      </div>
-
-      <!-- Live Active Dasha Stream Banner -->
-      <div class="dasha-active-box">
-        <div class="dasha-active-title">📍 आज की सक्रिय ५-स्तरीय दशा श्रेणी (Current Active Dasha Stream as of Today):</div>
-        <div class="dasha-chain" id="dashaActiveChain">
-          <span style="color:var(--gold);">गणना की जा रही है...</span>
-        </div>
-      </div>
-
-      <!-- Interactive 5-Level Dasha Tree Table -->
-      <div style="overflow-x: auto;">
-        <table class="dasha-table">
-          <thead>
-            <tr>
-              <th style="width: 35%;">दशा स्वामी (Dasha Lord Chain)</th>
-              <th style="width: 15%;">अवधि (Duration)</th>
-              <th style="width: 25%;">आरम्भ तिथि व समय (Start Date & Time)</th>
-              <th style="width: 25%;">समाप्ति तिथि व समय (End Date & Time)</th>
-            </tr>
-          </thead>
-          <tbody id="tblDashaTree">
-            <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- JAIMINI CHARA DASHA SYSTEM (BPHS CH. 46 / JAIMINI UPADESA SUTRAS) -->
-    <div class="dasha-container" id="charaDashaContainer">
-      <div class="dasha-header">
-        <div>
-          <h3 class="dasha-title">🏹 जैमिनी चर दशा (Jaimini Chara Rasi Dasha System - BPHS Ch. 46)</h3>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
-            Sign-Based Rasi Dasha (1 to 12 Years per Sign) • Savya / Apsavya Cycle
-          </p>
-        </div>
-      </div>
-      <div style="overflow-x: auto;">
-        <table class="dasha-table">
-          <thead>
-            <tr>
-              <th style="width: 35%;">राशि दशा (Rasi Dasha Sign)</th>
-              <th style="width: 15%;">अवधि (Years)</th>
-              <th style="width: 25%;">आरम्भ तिथि (Start Date)</th>
-              <th style="width: 25%;">समाप्ति तिथि (End Date)</th>
-            </tr>
-          </thead>
-          <tbody id="tblCharaDashaTree">
-            <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर चर दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- YOGINI DASHA SYSTEM (36-YEAR NAKSHATRA CYCLE) -->
-    <div class="dasha-container" id="yoginiDashaContainer">
-      <div class="dasha-header">
-        <div>
-          <h3 class="dasha-title">🔮 योगिनी दशा (36-Year Yogini Nakshatra Cycle)</h3>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
-            Mangala (1Y) • Pingala (2Y) • Dhanya (3Y) • Bhramari (4Y) • Bhadrika (5Y) • Ulka (6Y) • Siddha (7Y) • Sankata (8Y)
-          </p>
-        </div>
-      </div>
-      <div style="overflow-x: auto;">
-        <table class="dasha-table">
-          <thead>
-            <tr>
-              <th style="width: 35%;">योगिनी दशा स्वामी (Yogini Dasha)</th>
-              <th style="width: 15%;">अवधि (Years)</th>
-              <th style="width: 25%;">आरम्भ तिथि (Start Date)</th>
-              <th style="width: 25%;">समाप्ति तिथि (End Date)</th>
-            </tr>
-          </thead>
-          <tbody id="tblYoginiDashaTree">
-            <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर योगिनी दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- BPHS 10-FACTOR MULTI-PARAMETRIC SINUSOIDAL LIFE WAVE & MILESTONE ENGINE -->
-    <div class="lifewave-container" id="lifewaveContainer">
-      <!-- ADMIN GRAPH FEATURE LOCK OVERLAY -->
-      <div id="graphAdminLockOverlay" style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:12px; padding:36px 24px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-        <div style="font-size:46px; margin-bottom:12px;">🔒</div>
-        <h3 style="font-family:'Cinzel', serif; color:var(--gold); font-size:20px; margin:0 0 8px 0; font-weight:700;">
-          🔐 बीपीएसएस जीवन तरंग ग्राफ — एडमिन रिज़र्व्ड टूल (Admin Access Only)
-        </h3>
-        <p style="font-size:13.5px; color:var(--muted); max-width:620px; margin:0 auto 20px auto; line-height:1.6;">
-          यह एडवांस्ड 10-कारक बीपीएसएस जीवन तरंग ग्राफ एवं फलित फलादेश टूल केवल अधिकृत ज्योतिषाचार्य / एडमिन उपयोग के लिए सुरक्षित किया गया है। ग्राफ व प्रेडिक्शन्स देखने हेतु कृपया एडमिन पासवर्ड दर्ज करें।
-        </p>
-
-        <div style="display:flex; justify-content:center; gap:10px; max-width:380px; margin:0 auto 12px auto; flex-wrap:wrap;">
-          <input type="password" id="inGraphAdminPass" placeholder="एडमिन पासवर्ड दर्ज करें..." onkeydown="if(event.key==='Enter'){unlockGraphFeature();}" style="flex:1; padding:10px 14px; border:1px solid var(--gold-border); border-radius:8px; font-size:14px; background:var(--bg); color:var(--dark); outline:none;">
-          <button class="v-btn" onclick="unlockGraphFeature()" style="padding:10px 20px; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:bold; border-radius:8px; border:none; cursor:pointer;">
-            अनलॉक करें (Unlock)
-          </button>
-        </div>
-
-        <div id="graphLockErrMsg" style="color:var(--sandhi-alert); font-size:12.5px; font-weight:bold; min-height:18px;"></div>
-      </div>
-
-      <!-- UNLOCKED GRAPH CONTENT (VISIBLE ONLY WITH ADMIN PASSWORD) -->
-      <div id="graphUnlockedContent" style="display:none;">
+      <!-- 5-LEVEL PARASHARI VIMSHOTTARI DASHA INSPECTOR (JHORA PARITY) -->
+      <div class="dasha-container" id="dashaContainerVimshottari" style="margin-top:0;">
         <div class="dasha-header">
           <div>
-            <h3 class="dasha-title">🌊 बीपीएसएस 10-कारक पराशरी जीवन तरंग ग्राफ (BPHS Multi-Parametric Life Wave Graph)</h3>
+            <h3 class="dasha-title">📜 विंशोत्तरी दशा (५-स्तरीय पराशरी सूक्ष्म दशा - Jagannatha Hora Standard)</h3>
             <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
-              Sthana Bala • Avastha • Functional Benefic • Sripati Chalit • Shodashvarga • Drishti • Yogas • Karakas • Dasha Matrix • Gochar
+              Mahadasha ➔ Antardasha ➔ Pratyantardasha ➔ Sukshma Dasha ➔ Prana Dasha
             </p>
           </div>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-            <button class="v-btn" onclick="openUploadedBooksModal()" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px; font-weight:bold;">📚 अपलोड की गई पुस्तकें (Uploaded Books Registry)</button>
-            <button class="v-btn" onclick="lockGraphFeature()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444; font-size:11px; padding:6px 10px; font-weight:bold;" title="Re-lock graph feature">🔒 लॉक करें (Lock Access)</button>
-            <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:6px; overflow:hidden;">
-              <button class="v-btn" onclick="setDashaSynthesisMode('CUMULATIVE')" id="btnDashaCum" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px; border-radius:0;">🌐 त्रिदशा संयुक्त तरंग (Cumulative)</button>
-              <button class="v-btn" onclick="setDashaSynthesisMode('VIMSHOTTARI')" id="btnDashaVim" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">📜 विंशोत्तरी</button>
-              <button class="v-btn" onclick="setDashaSynthesisMode('CHARA')" id="btnDashaCha" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🏹 चर दशा</button>
-              <button class="v-btn" onclick="setDashaSynthesisMode('YOGINI')" id="btnDashaYog" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🔮 योगिनी</button>
-            </div>
-            <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px;">🌐 100 Years</button>
-            <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔮 महादशा</button>
-            <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_5Y')" id="btnWindow5Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">📅 5 Years</button>
-            <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_1Y')" id="btnWindow1Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔍 1 Year (Zoom Micro)</button>
-          </div>
-        </div>
-
-        <!-- Category Milestone Filter Buttons -->
-        <div class="lifewave-filters" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; align-items:center;">
-          <span style="font-size:12px; font-weight:700; color:var(--gold);">📍 मील के पत्थर (Life Milestones Filter):</span>
-          <button class="filter-pill active" onclick="filterLifeWaveMilestones('ALL')" id="fltAll">✨ सभी घटनाएँ (All Events)</button>
-          <button class="filter-pill" onclick="filterLifeWaveMilestones('CAREER')" id="fltCareer">💼 करियर व पदोन्नति (Career)</button>
-          <button class="filter-pill" onclick="filterLifeWaveMilestones('MARRIAGE')" id="fltMarriage">💍 विवाह व जीवनसाथी (Marriage)</button>
-          <button class="filter-pill" onclick="filterLifeWaveMilestones('CHILD')" id="fltChild">👶 संतान प्राप्ति (Children)</button>
-          <button class="filter-pill" onclick="filterLifeWaveMilestones('CAR')" id="fltCar">🚗 वाहन क्रय (Car / Vehicle)</button>
-          <button class="filter-pill" onclick="filterLifeWaveMilestones('HOUSE')" id="fltHouse">🏠 गृह निर्माण व भूमि (Property)</button>
-          <button class="filter-pill" onclick="filterLifeWaveMilestones('SADHNA')" id="fltSadhna">🧘 साधना व अध्यात्म (Sadhna)</button>
-        </div>
-
-        <!-- Sinusoidal Wave Canvas Wrapper -->
-        <div style="position: relative; background: var(--bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 12px; overflow: hidden;" id="cvsWrapper">
-          <canvas id="cvsLifeWave" height="380" style="width: 100%; height: 380px; display: block; cursor: crosshair;"></canvas>
-
-          <!-- Floating Interactive Tooltip -->
-          <div id="lifeWaveTooltip" class="lifewave-tooltip" style="display:none;"></div>
-        </div>
-
-        <!-- Legend & Wave Spectrum Bar -->
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--dark); gap: 10px;">
-          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-            <span style="display: inline-flex; align-items: center; gap: 6px;">
-              <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 3px;"></span>
-              <strong style="color: #059669;">राजयोग व शुभ उत्कर्ष (+30% से +100%)</strong>
-            </span>
-            <span style="display: inline-flex; align-items: center; gap: 6px;">
-              <span style="display: inline-block; width: 14px; height: 14px; background: #94a3b8; border-radius: 3px;"></span>
-              <strong style="color: #64748b;">समस्थिति / सामान्य (-30% से +30%)</strong>
-            </span>
-            <span style="display: inline-flex; align-items: center; gap: 6px;">
-              <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #ef4444, #b91c1c); border-radius: 3px;"></span>
-              <strong style="color: #dc2626;">संघर्ष व अवरोध (-100% से -30%)</strong>
-            </span>
-          </div>
           <div>
-            <span style="color: var(--gold); font-weight: 700;">💡 टिप्स:</span> तरंग के किसी भी बिंदु या मील के पत्थर आइकॉन पर क्लिक करके बीपीएसएस 10-कारक फलादेश विवरण देखें।
+            <button class="v-btn" onclick="jumpToActiveDashaStream()" style="background:var(--primary); color:#fff; font-weight:700;">⚡ आज की सक्रिय दशा पर जाएँ (Active Today)</button>
           </div>
         </div>
 
-        <!-- Prominent Top 3 Event Predictions Summary Panel -->
-        <div id="milestonePredictionsSummaryBox" style="margin-top: 18px; border-top: 1px dashed var(--gold-border); padding-top: 16px;">
-          <!-- Populated dynamically by detectLifeWaveMilestones() -->
+        <!-- Live Active Dasha Stream Banner -->
+        <div class="dasha-active-box">
+          <div class="dasha-active-title">📍 आज की सक्रिय ५-स्तरीय दशा श्रेणी (Current Active Dasha Stream as of Today):</div>
+          <div class="dasha-chain" id="dashaActiveChain">
+            <span style="color:var(--gold);">गणना की जा रही है...</span>
+          </div>
+        </div>
+
+        <!-- Interactive 5-Level Dasha Tree Table -->
+        <div style="overflow-x: auto;">
+          <table class="dasha-table">
+            <thead>
+              <tr>
+                <th style="width: 35%;">दशा स्वामी (Dasha Lord Chain)</th>
+                <th style="width: 15%;">अवधि (Duration)</th>
+                <th style="width: 25%;">आरम्भ तिथि व समय (Start Date & Time)</th>
+                <th style="width: 25%;">समाप्ति तिथि व समय (End Date & Time)</th>
+              </tr>
+            </thead>
+            <tbody id="tblDashaTree">
+              <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- JAIMINI CHARA DASHA SYSTEM (BPHS CH. 46 / JAIMINI UPADESA SUTRAS) -->
+      <div class="dasha-container" id="charaDashaContainer" style="display:none; margin-top:0;">
+        <div class="dasha-header">
+          <div>
+            <h3 class="dasha-title">🏹 जैमिनी चर दशा (Jaimini Chara Rasi Dasha System - BPHS Ch. 46)</h3>
+            <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+              Sign-Based Rasi Dasha (1 to 12 Years per Sign) • Savya / Apsavya Cycle
+            </p>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="dasha-table">
+            <thead>
+              <tr>
+                <th style="width: 35%;">राशि दशा (Rasi Dasha Sign)</th>
+                <th style="width: 15%;">अवधि (Years)</th>
+                <th style="width: 25%;">आरम्भ तिथि (Start Date)</th>
+                <th style="width: 25%;">समाप्ति तिथि (End Date)</th>
+              </tr>
+            </thead>
+            <tbody id="tblCharaDashaTree">
+              <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर चर दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- YOGINI DASHA SYSTEM (36-YEAR NAKSHATRA CYCLE) -->
+      <div class="dasha-container" id="yoginiDashaContainer" style="display:none; margin-top:0;">
+        <div class="dasha-header">
+          <div>
+            <h3 class="dasha-title">🔮 योगिनी दशा (36-Year Yogini Nakshatra Cycle)</h3>
+            <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+              Mangala (1Y) • Pingala (2Y) • Dhanya (3Y) • Bhramari (4Y) • Bhadrika (5Y) • Ulka (6Y) • Siddha (7Y) • Sankata (8Y)
+            </p>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="dasha-table">
+            <thead>
+              <tr>
+                <th style="width: 35%;">योगिनी दशा स्वामी (Yogini Dasha)</th>
+                <th style="width: 15%;">अवधि (Years)</th>
+                <th style="width: 25%;">आरम्भ तिथि (Start Date)</th>
+                <th style="width: 25%;">समाप्ति तिथि (End Date)</th>
+              </tr>
+            </thead>
+            <tbody id="tblYoginiDashaTree">
+              <tr><td colspan="4" style="text-align:center; padding:18px; color:var(--gold);">कुण्डली जनरेट करने पर योगिनी दशा तालिका यहाँ प्रदर्शित होगी।</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOMAIN 4: LIFE WAVE & ANALYSIS -->
+    <div class="domain-panel" id="domainPanelAnalysis">
+      <!-- Bhava Sandhi & Planetary Shift Notification -->
+      <div class="sandhi-panel">
+        <h3>भाव संधि एवं ग्रह विस्थापन विश्लेषण (BPHS Analysis)</h3>
+        <div id="sandhiAnalysisContent"></div>
+      </div>
+
+      <!-- BPHS 10-FACTOR MULTI-PARAMETRIC SINUSOIDAL LIFE WAVE & MILESTONE ENGINE -->
+      <div class="lifewave-container" id="lifewaveContainer" style="margin-top:0;">
+        <!-- ADMIN GRAPH FEATURE LOCK OVERLAY -->
+        <div id="graphAdminLockOverlay" style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:12px; padding:36px 24px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+          <div style="font-size:46px; margin-bottom:12px;">🔒</div>
+          <h3 style="font-family:'Cinzel', serif; color:var(--gold); font-size:20px; margin:0 0 8px 0; font-weight:700;">
+            🔐 बीपीएसएस जीवन तरंग ग्राफ — एडमिन रिज़र्व्ड टूल (Admin Access Only)
+          </h3>
+          <p style="font-size:13.5px; color:var(--muted); max-width:620px; margin:0 auto 20px auto; line-height:1.6;">
+            यह एडवांस्ड 10-कारक बीपीएसएस जीवन तरंग ग्राफ एवं फलित फलादेश टूल केवल अधिकृत ज्योतिषाचार्य / एडमिन उपयोग के लिए सुरक्षित किया गया है। ग्राफ व प्रेडिक्शन्स देखने हेतु कृपया एडमिन पासवर्ड दर्ज करें।
+          </p>
+
+          <div style="display:flex; justify-content:center; gap:10px; max-width:380px; margin:0 auto 12px auto; flex-wrap:wrap;">
+            <input type="password" id="inGraphAdminPass" placeholder="एडमिन पासवर्ड दर्ज करें..." onkeydown="if(event.key==='Enter'){unlockGraphFeature();}" style="flex:1; padding:10px 14px; border:1px solid var(--gold-border); border-radius:8px; font-size:14px; background:var(--bg); color:var(--dark); outline:none;">
+            <button class="v-btn" onclick="unlockGraphFeature()" style="padding:10px 20px; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:bold; border-radius:8px; border:none; cursor:pointer;">
+              अनलॉक करें (Unlock)
+            </button>
+          </div>
+
+          <div id="graphLockErrMsg" style="color:var(--sandhi-alert); font-size:12.5px; font-weight:bold; min-height:18px;"></div>
+        </div>
+
+        <!-- UNLOCKED GRAPH CONTENT (VISIBLE ONLY WITH ADMIN PASSWORD) -->
+        <div id="graphUnlockedContent" style="display:none;">
+          <div class="dasha-header">
+            <div>
+              <h3 class="dasha-title">🌊 बीपीएसएस 10-कारक पराशरी जीवन तरंग ग्राफ (BPHS Multi-Parametric Life Wave Graph)</h3>
+              <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--gold);">
+                Sthana Bala • Avastha • Functional Benefic • Sripati Chalit • Shodashvarga • Drishti • Yogas • Karakas • Dasha Matrix • Gochar
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <button class="v-btn" onclick="openUploadedBooksModal()" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px; font-weight:bold;">📚 अपलोड की गई पुस्तकें (Uploaded Books Registry)</button>
+              <button class="v-btn" onclick="lockGraphFeature()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444; font-size:11px; padding:6px 10px; font-weight:bold;" title="Re-lock graph feature">🔒 लॉक करें (Lock Access)</button>
+              <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:6px; overflow:hidden;">
+                <button class="v-btn" onclick="setDashaSynthesisMode('CUMULATIVE')" id="btnDashaCum" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px; border-radius:0;">🌐 त्रिदशा संयुक्त तरंग (Cumulative)</button>
+                <button class="v-btn" onclick="setDashaSynthesisMode('VIMSHOTTARI')" id="btnDashaVim" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">📜 विंशोत्तरी</button>
+                <button class="v-btn" onclick="setDashaSynthesisMode('CHARA')" id="btnDashaCha" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🏹 चर दशा</button>
+                <button class="v-btn" onclick="setDashaSynthesisMode('YOGINI')" id="btnDashaYog" style="background:var(--card-bg); color:var(--gold); font-size:11px; padding:6px 10px; border-radius:0; border-left:1px solid var(--gold-border);">🔮 योगिनी</button>
+              </div>
+              <button class="v-btn" onclick="setLifeWaveTimeWindow('100Y')" id="btnWindow100Y" style="background:var(--primary); color:#fff; font-size:11px; padding:6px 10px;">🌐 100 Years</button>
+              <button class="v-btn" onclick="setLifeWaveTimeWindow('ACTIVE_MD')" id="btnWindowMD" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔮 महादशा</button>
+              <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_5Y')" id="btnWindow5Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">📅 5 Years</button>
+              <button class="v-btn" onclick="setLifeWaveTimeWindow('MICRO_1Y')" id="btnWindow1Y" style="background:var(--card-bg); border:1px solid var(--gold-border); color:var(--gold); font-size:11px; padding:6px 10px;">🔍 1 Year (Zoom Micro)</button>
+            </div>
+          </div>
+
+          <!-- Category Milestone Filter Buttons -->
+          <div class="lifewave-filters" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; align-items:center;">
+            <span style="font-size:12px; font-weight:700; color:var(--gold);">📍 मील के पत्थर (Life Milestones Filter):</span>
+            <button class="filter-pill active" onclick="filterLifeWaveMilestones('ALL')" id="fltAll">✨ सभी घटनाएँ (All Events)</button>
+            <button class="filter-pill" onclick="filterLifeWaveMilestones('CAREER')" id="fltCareer">💼 करियर व पदोन्नति (Career)</button>
+            <button class="filter-pill" onclick="filterLifeWaveMilestones('MARRIAGE')" id="fltMarriage">💍 विवाह व जीवनसाथी (Marriage)</button>
+            <button class="filter-pill" onclick="filterLifeWaveMilestones('CHILD')" id="fltChild">👶 संतान प्राप्ति (Children)</button>
+            <button class="filter-pill" onclick="filterLifeWaveMilestones('CAR')" id="fltCar">🚗 वाहन क्रय (Car / Vehicle)</button>
+            <button class="filter-pill" onclick="filterLifeWaveMilestones('HOUSE')" id="fltHouse">🏠 गृह निर्माण व भूमि (Property)</button>
+            <button class="filter-pill" onclick="filterLifeWaveMilestones('SADHNA')" id="fltSadhna">🧘 साधना व अध्यात्म (Sadhna)</button>
+          </div>
+
+          <!-- Sinusoidal Wave Canvas Wrapper -->
+          <div style="position: relative; background: var(--bg); border: 1px solid var(--gold-border); border-radius: 12px; padding: 12px; overflow: hidden;" id="cvsWrapper">
+            <canvas id="cvsLifeWave" height="380" style="width: 100%; height: 380px; display: block; cursor: crosshair;"></canvas>
+
+            <!-- Floating Interactive Tooltip -->
+            <div id="lifeWaveTooltip" class="lifewave-tooltip" style="display:none;"></div>
+          </div>
+
+          <!-- Legend & Wave Spectrum Bar -->
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--dark); gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+              <span style="display: inline-flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 3px;"></span>
+                <strong style="color: #059669;">राजयोग व शुभ उत्कर्ष (+30% से +100%)</strong>
+              </span>
+              <span style="display: inline-flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 14px; height: 14px; background: #94a3b8; border-radius: 3px;"></span>
+                <strong style="color: #64748b;">समस्थिति / सामान्य (-30% से +30%)</strong>
+              </span>
+              <span style="display: inline-flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #ef4444, #b91c1c); border-radius: 3px;"></span>
+                <strong style="color: #dc2626;">संघर्ष व अवरोध (-100% से -30%)</strong>
+              </span>
+            </div>
+            <div>
+              <span style="color: var(--gold); font-weight: 700;">💡 टिप्स:</span> तरंग के किसी भी बिंदु या मील के पत्थर आइकॉन पर क्लिक करके बीपीएसएस 10-कारक फलादेश विवरण देखें।
+            </div>
+          </div>
+
+          <!-- Prominent Top 3 Event Predictions Summary Panel -->
+          <div id="milestonePredictionsSummaryBox" style="margin-top: 18px; border-top: 1px dashed var(--gold-border); padding-top: 16px;">
+            <!-- Populated dynamically by detectLifeWaveMilestones() -->
+          </div>
         </div>
       </div>
     </div>
@@ -3645,6 +4310,13 @@ function executeParasharaMaster() {
   }
 
   checkGraphLockState();
+
+  if (typeof switchOutputDomain === 'function') {
+    switchOutputDomain(currentOutputDomain || 'charts');
+  }
+  if (typeof goToChartSlide === 'function') {
+    goToChartSlide(0);
+  }
 }
 
 // -------------------------------------------------------------
@@ -3732,36 +4404,99 @@ function renderSandhiAlerts(planets) {
 function renderAllTables() {
   const { planets, sripatiBhavas, upagrahas, specialLagnas } = currentCalculation;
 
-  document.querySelector("#tblPlanets tbody").innerHTML = planets.map(p => {
-    const nakIdx = Math.floor(p.abs / (13 + 20/60)) % 27;
-    const speedStr = `${p.speed >= 0 ? '+' : ''}${p.speed.toFixed(3)}°/दिन`;
-    return `<tr>
-      <td data-label="ग्रह"><b>${p.name}</b> ${p.retro ? '<span class="retro">(व)</span>' : ''}</td>
-      <td data-label="राशि">${SIGNS[p.sign]}</td>
-      <td data-label="अंश-कला-विकला">${formatDMS(p.deg)}</td>
-      <td data-label="दैनिक गति">${speedStr}</td>
-      <td data-label="नक्षत्र">${NAKSHATRAS[nakIdx]}</td>
-    </tr>`;
-  }).join('');
+  const NAK_LORDS = ["केतु", "शुक्र", "सूर्य", "चन्द्र", "मंगल", "राहु", "गुरु", "शनि", "बुध"];
+  const SIGN_LORDS = ["मंगल", "शुक्र", "बुध", "चन्द्र", "सूर्य", "बुध", "शुक्र", "मंगल", "गुरु", "शनि", "शनि", "गुरु"];
+  const PLANET_SYMBOLS = {
+    Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿",
+    Jupiter: "♃", Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋", Lagna: "⚶"
+  };
 
-  document.querySelector("#tblSripati tbody").innerHTML = sripatiBhavas.map(b => `<tr>
-    <td data-label="भाव"><b>भाव ${b.house}</b></td>
-    <td data-label="भाव आरम्भ">${SIGNS[b.sandhi1Sign]} ${formatDMS(b.sandhi1Deg)}</td>
-    <td data-label="भाव मध्य">${SIGNS[b.midSign]} ${formatDMS(b.midDeg)}</td>
-    <td data-label="भाव अंत">${SIGNS[b.sandhi2Sign]} ${formatDMS(b.sandhi2Deg)}</td>
-  </tr>`).join('');
+  const nakSpan = 13 + 20/60; // 13.333333333333334
+  const padaSpan = nakSpan / 4; // 3.3333333333333335
 
-  document.querySelector("#tblUpagrahas tbody").innerHTML = upagrahas.map(u => `<tr>
-    <td data-label="संज्ञा"><b>${u.name}</b></td>
-    <td data-label="राशि">${SIGNS[Math.floor(u.abs / 30)]}</td>
-    <td data-label="अंश-कला-विकला">${formatDMS(u.abs % 30)}</td>
-  </tr>`).join('');
+  const tblPlanetsBody = document.querySelector("#tblPlanets tbody");
+  if (tblPlanetsBody) {
+    tblPlanetsBody.innerHTML = planets.map(p => {
+      const nakIdx = Math.floor(p.abs / nakSpan) % 27;
+      const nakRemaining = p.abs % nakSpan;
+      const pada = Math.floor(nakRemaining / padaSpan) + 1;
+      const nakName = NAKSHATRAS[nakIdx] || "अश्विनी";
+      const nakLord = NAK_LORDS[nakIdx % 9];
+      const signLord = SIGN_LORDS[p.sign] || "";
+      const speedStr = p.id === "Lagna" ? "—" : `${p.speed >= 0 ? '+' : ''}${p.speed.toFixed(3)}°/दिन`;
+      const sym = PLANET_SYMBOLS[p.id] || "✦";
 
-  document.querySelector("#tblSpecialLagnas tbody").innerHTML = specialLagnas.map(l => `<tr>
-    <td data-label="संज्ञा"><b>${l.name}</b></td>
-    <td data-label="राशि">${SIGNS[Math.floor(l.abs / 30)]}</td>
-    <td data-label="अंश-कला-विकला">${formatDMS(l.abs % 30)}</td>
-  </tr>`).join('');
+      let statusBadge = "";
+      if (p.id === "Lagna") {
+        statusBadge = '<span class="planet-badge-lagna">लग्न उदय</span>';
+      } else if (p.retro) {
+        statusBadge = '<span class="planet-badge-retro">वक्री (R)</span>';
+      } else {
+        statusBadge = '<span class="planet-badge-direct">मार्गी (D)</span>';
+      }
+
+      let houseDisplay = "";
+      if (p.rasiHouse === p.chalitHouse) {
+        houseDisplay = `<b>भाव ${p.rasiHouse}</b>`;
+      } else {
+        houseDisplay = `<span>D1: <b>भाव ${p.rasiHouse}</b> ➔ चलित: <b>भाव ${p.chalitHouse}</b></span> <span class="house-shift-alert" title="श्रीपति भाव चलित में विस्थापन">विस्थापन</span>`;
+      }
+
+      return `<tr>
+        <td data-label="ग्रह">
+          <span style="font-size:15px; margin-right:4px; color:var(--primary);">${sym}</span>
+          <b>${p.name}</b>
+        </td>
+        <td data-label="स्थिति">${statusBadge}</td>
+        <td data-label="राशि">
+          <b>${SIGNS[p.sign]}</b>
+          <span style="font-size:11px; color:var(--muted); display:block;">स्वामी: ${signLord}</span>
+        </td>
+        <td data-label="अंश-कला-विकला" style="font-family:'Cinzel', serif; font-weight:700; color:var(--gold); font-size:13.5px;">
+          ${formatDMS(p.deg)}
+        </td>
+        <td data-label="नक्षत्र">
+          <b style="color:var(--primary);">${nakName}</b>
+        </td>
+        <td data-label="चरण">
+          <span class="nak-pada-pill">चरण ${pada}</span>
+        </td>
+        <td data-label="नक्षत्र स्वामी">
+          <span style="font-weight:600; color:var(--dark);">${nakLord}</span>
+        </td>
+        <td data-label="भाव स्थिति">${houseDisplay}</td>
+        <td data-label="दैनिक गति" style="font-size:12px; font-weight:600;">${speedStr}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const tblSripatiBody = document.querySelector("#tblSripati tbody");
+  if (tblSripatiBody && sripatiBhavas) {
+    tblSripatiBody.innerHTML = sripatiBhavas.map(b => `<tr>
+      <td data-label="भाव"><b>भाव ${b.house}</b></td>
+      <td data-label="भाव आरम्भ">${SIGNS[b.sandhi1Sign]} ${formatDMS(b.sandhi1Deg)}</td>
+      <td data-label="भाव मध्य" style="font-weight:700; color:var(--gold);">${SIGNS[b.midSign]} ${formatDMS(b.midDeg)}</td>
+      <td data-label="भाव अंत">${SIGNS[b.sandhi2Sign]} ${formatDMS(b.sandhi2Deg)}</td>
+    </tr>`).join('');
+  }
+
+  const tblUpagrahasBody = document.querySelector("#tblUpagrahas tbody");
+  if (tblUpagrahasBody && upagrahas) {
+    tblUpagrahasBody.innerHTML = upagrahas.map(u => `<tr>
+      <td data-label="संज्ञा"><b>${u.name}</b></td>
+      <td data-label="राशि">${SIGNS[Math.floor(u.abs / 30)]}</td>
+      <td data-label="अंश-कला-विकला" style="font-weight:700; color:var(--gold);">${formatDMS(u.abs % 30)}</td>
+    </tr>`).join('');
+  }
+
+  const tblSpecialLagnasBody = document.querySelector("#tblSpecialLagnas tbody");
+  if (tblSpecialLagnasBody && specialLagnas) {
+    tblSpecialLagnasBody.innerHTML = specialLagnas.map(l => `<tr>
+      <td data-label="संज्ञा"><b>${l.name}</b></td>
+      <td data-label="राशि">${SIGNS[Math.floor(l.abs / 30)]}</td>
+      <td data-label="अंश-कला-विकला" style="font-weight:700; color:var(--gold);">${formatDMS(l.abs % 30)}</td>
+    </tr>`).join('');
+  }
 }
 
 // -------------------------------------------------------------
@@ -3881,6 +4616,210 @@ function renderRasiAndChalitCharts() {
     });
     sChalitSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="#0f766e" font-size="10" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
   });
+
+  // Render D9 Navamsha and D10 Dasamsa for carousel slides
+  if (typeof drawSpecificVarga === 'function') {
+    drawSpecificVarga(9, "d9NorthSvg", "d9SouthSvg");
+    drawSpecificVarga(10, "d10NorthSvg", "d10SouthSvg");
+  }
+}
+
+// -------------------------------------------------------------
+// HORIZONTAL CAROUSEL & OUTPUT DOMAIN CONTROLLERS
+// -------------------------------------------------------------
+let currentOutputDomain = 'charts';
+let isAllViewMode = false;
+let currentChartSlide = 0;
+let currentChartStyle = 'north';
+
+function switchOutputDomain(domainId) {
+  currentOutputDomain = domainId;
+  isAllViewMode = false;
+  
+  const outputSec = document.getElementById("outputSection");
+  if (outputSec) outputSec.classList.remove("all-view-mode");
+
+  const btnAllText = document.getElementById("btnDomainAllText");
+  if (btnAllText) btnAllText.textContent = "पूर्ण दृश्य (All)";
+
+  const tabMap = {
+    charts: "btnDomainCharts",
+    planets: "btnDomainPlanets",
+    dashas: "btnDomainDashas",
+    analysis: "btnDomainAnalysis"
+  };
+
+  Object.keys(tabMap).forEach(key => {
+    const btn = document.getElementById(tabMap[key]);
+    if (btn) btn.classList.toggle("active", key === domainId);
+  });
+
+  const btnAllTab = document.getElementById("btnDomainAll");
+  if (btnAllTab) btnAllTab.classList.remove("active");
+
+  const panelMap = {
+    charts: "domainPanelCharts",
+    planets: "domainPanelPlanets",
+    dashas: "domainPanelDashas",
+    analysis: "domainPanelAnalysis"
+  };
+
+  Object.keys(panelMap).forEach(key => {
+    const panel = document.getElementById(panelMap[key]);
+    if (panel) {
+      panel.style.display = (key === domainId) ? "block" : "none";
+      panel.classList.toggle("active", key === domainId);
+    }
+  });
+
+  const navEl = document.getElementById("outputDomainNav");
+  if (navEl && window.scrollY > navEl.offsetTop) {
+    navEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function toggleAllViewMode() {
+  isAllViewMode = !isAllViewMode;
+  const outputSec = document.getElementById("outputSection");
+  const btnAll = document.getElementById("btnDomainAll");
+  const btnAllText = document.getElementById("btnDomainAllText");
+
+  if (isAllViewMode) {
+    if (outputSec) outputSec.classList.add("all-view-mode");
+    if (btnAll) btnAll.classList.add("active");
+    if (btnAllText) btnAllText.textContent = "✓ पूर्ण दृश्य सक्रिय";
+
+    ["domainPanelCharts", "domainPanelPlanets", "domainPanelDashas", "domainPanelAnalysis"].forEach(id => {
+      const p = document.getElementById(id);
+      if (p) p.style.display = "block";
+    });
+  } else {
+    if (outputSec) outputSec.classList.remove("all-view-mode");
+    if (btnAll) btnAll.classList.remove("active");
+    if (btnAllText) btnAllText.textContent = "पूर्ण दृश्य (All)";
+    switchOutputDomain(currentOutputDomain);
+  }
+}
+
+function setChartStyle(styleMode) {
+  currentChartStyle = styleMode;
+  const wrapper = document.getElementById("chartCarouselWrapper");
+  if (!wrapper) return;
+
+  wrapper.classList.remove("style-north-only", "style-south-only", "style-both");
+  if (styleMode === "north") wrapper.classList.add("style-north-only");
+  else if (styleMode === "south") wrapper.classList.add("style-south-only");
+  else wrapper.classList.add("style-both");
+
+  const btnN = document.getElementById("btnStyleNorth");
+  const btnS = document.getElementById("btnStyleSouth");
+  const btnB = document.getElementById("btnStyleBoth");
+  if (btnN) btnN.classList.toggle("active", styleMode === "north");
+  if (btnS) btnS.classList.toggle("active", styleMode === "south");
+  if (btnB) btnB.classList.toggle("active", styleMode === "both");
+}
+
+function goToChartSlide(idx) {
+  currentChartSlide = idx;
+  const totalSlides = 5;
+
+  for (let i = 0; i < totalSlides; i++) {
+    const slide = document.getElementById(`chartSlide${i}`);
+    const chip = document.getElementById(`chipSlide${i}`);
+    if (slide) {
+      slide.style.display = (i === idx) ? "block" : "none";
+      slide.classList.toggle("active", i === idx);
+    }
+    if (chip) chip.classList.toggle("active", i === idx);
+  }
+
+  const dots = document.querySelectorAll(".carousel-dots .c-dot");
+  dots.forEach((dot, i) => {
+    dot.classList.toggle("active", i === idx);
+  });
+
+  if (idx === 2) {
+    drawSpecificVarga(9, "d9NorthSvg", "d9SouthSvg");
+  } else if (idx === 3) {
+    drawSpecificVarga(10, "d10NorthSvg", "d10SouthSvg");
+  } else if (idx === 4) {
+    renderSelectedVargaCharts();
+  }
+}
+
+function nextChartSlide() {
+  goToChartSlide((currentChartSlide + 1) % 5);
+}
+
+function prevChartSlide() {
+  goToChartSlide((currentChartSlide - 1 + 5) % 5);
+}
+
+function switchAuxTable(tableId) {
+  const tabs = {
+    sripati: { btn: "btnAuxSripati", panel: "auxPanelSripati" },
+    upagrahas: { btn: "btnAuxUpagrahas", panel: "auxPanelUpagrahas" },
+    specialLagnas: { btn: "btnAuxLagnas", panel: "auxPanelLagnas" }
+  };
+
+  Object.keys(tabs).forEach(k => {
+    const btn = document.getElementById(tabs[k].btn);
+    const panel = document.getElementById(tabs[k].panel);
+    const active = (k === tableId);
+    if (btn) btn.classList.toggle("active", active);
+    if (panel) panel.style.display = active ? "block" : "none";
+  });
+}
+
+function drawSpecificVarga(vId, northSvgId, southSvgId) {
+  if (!currentCalculation || !currentCalculation.planets) return;
+  const { planets } = currentCalculation;
+  const lagna = planets.find(p => p.id === "Lagna");
+  if (!lagna) return;
+  const vLagnaSign = getVargaSign(lagna.sign, lagna.deg, vId);
+
+  // Varga North
+  const vNorthSvg = document.getElementById(northSvgId);
+  if (vNorthSvg) {
+    drawNorthBase(northSvgId);
+    for (let h = 1; h <= 12; h++) {
+      const sNum = (vLagnaSign + h - 1) % 12 + 1;
+      const pt = NORTH_HOUSE_COORDS[h];
+      vNorthSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
+      const occ = [];
+      if (h === 1) occ.push("लग्न");
+      planets.filter(p => p.id !== "Lagna").forEach(p => {
+        const pVSign = getVargaSign(p.sign, p.deg, vId);
+        const vHouse = (pVSign - vLagnaSign + 12) % 12 + 1;
+        if (vHouse === h) {
+          occ.push(`${p.name}${p.retro ? '*' : ''}`);
+        }
+      });
+      vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
+    }
+  }
+
+  // Varga South
+  const vSouthSvg = document.getElementById(southSvgId);
+  if (vSouthSvg) {
+    drawSouthBase(southSvgId);
+    SOUTH_BOX_SIGNS.forEach(b => {
+      const isLagna = (b.s === vLagnaSign);
+      vSouthSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+      if (isLagna) {
+        vSouthSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
+      }
+      const occ = [];
+      if (isLagna) occ.push("लग्न");
+      planets.filter(p => p.id !== "Lagna").forEach(p => {
+        const pVSign = getVargaSign(p.sign, p.deg, vId);
+        if (pVSign === b.s) {
+          occ.push(`${p.name}${p.retro ? '*' : ''}`);
+        }
+      });
+      vSouthSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
+    });
+  }
 }
 
 // -------------------------------------------------------------
