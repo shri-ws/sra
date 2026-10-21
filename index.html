@@ -161,6 +161,9 @@
 
   <style>
     /* ACCESSIBILITY UTILITY */
+    main#mainContent {
+      display: contents;
+    }
     .sr-only {
       position: absolute;
       width: 1px;
@@ -252,7 +255,7 @@
     }
 
     #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: var(--star-opacity); transition: opacity 0.3s ease; }
-    .star { position: absolute; background: var(--gold); border-radius: 50%; opacity: var(--op); animation: pulse var(--d) ease-in-out infinite var(--del); }
+    .star { position: absolute; background: var(--gold); border-radius: 50%; opacity: var(--op); }
 
     /* NAV */
     nav {
@@ -962,14 +965,13 @@
     }
     .yt-skeleton-card {
       aspect-ratio: 16 / 9;
-      background: linear-gradient(90deg, var(--bg2) 25%, var(--gold-dim) 50%, var(--bg2) 75%);
-      background-size: 200% 100%;
-      animation: skeletonLoading 1.5s infinite;
+      background: var(--gold-dim);
+      animation: skeletonLoading 1.5s infinite ease-in-out;
       border-radius: 12px;
     }
     @keyframes skeletonLoading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 0.95; }
     }
 
     /* INSTAGRAM REELS CONTAINER & CARDS */
@@ -1087,6 +1089,18 @@
     }
 
     @media (max-width: 768px) {
+      /* UNIFIED NATIVE MOBILE APP TOP BAR - SYNCED WITH THEME.JS FOR 0 CLS */
+      nav:not(.mobile-bottom-nav) {
+        height: 56px !important;
+        padding: 0 12px !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 9998 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+      }
+
       /* 1. HIDE ALL LEGACY LONG VERTICAL DESKTOP CONTENT ON MOBILE */
       .desktop-main-layout {
         display: none !important;
@@ -1317,29 +1331,45 @@
         text-transform: uppercase;
       }
       .card-badge.vip {
-        background: rgba(197, 160, 89, 0.18);
-        border: 1px solid rgba(197, 160, 89, 0.45);
-        color: #B78103;
+        background: rgba(120, 78, 16, 0.14);
+        border: 1px solid rgba(120, 78, 16, 0.4);
+        color: #6D4307;
       }
-      [data-theme="night"] .card-badge.vip { color: #F4E8C1; }
+      [data-theme="night"] .card-badge.vip {
+        background: rgba(245, 158, 11, 0.18);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        color: #FDE68A;
+      }
       .card-badge.meeus {
-        background: rgba(16, 185, 129, 0.12);
-        border: 1px solid rgba(16, 185, 129, 0.35);
-        color: #059669;
+        background: rgba(4, 120, 87, 0.14);
+        border: 1px solid rgba(4, 120, 87, 0.4);
+        color: #065F46;
       }
-      [data-theme="night"] .card-badge.meeus { color: #6EE7B7; }
+      [data-theme="night"] .card-badge.meeus {
+        background: rgba(16, 185, 129, 0.18);
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        color: #A7F3D0;
+      }
       .card-badge.preorder {
-        background: rgba(99, 102, 241, 0.12);
-        border: 1px solid rgba(99, 102, 241, 0.35);
-        color: #4F46E5;
+        background: rgba(67, 56, 202, 0.14);
+        border: 1px solid rgba(67, 56, 202, 0.4);
+        color: #3730A3;
       }
-      [data-theme="night"] .card-badge.preorder { color: #A5B4FC; }
+      [data-theme="night"] .card-badge.preorder {
+        background: rgba(99, 102, 241, 0.18);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        color: #C7D2FE;
+      }
       .card-badge.price {
-        background: rgba(220, 38, 38, 0.1);
-        border: 1px solid rgba(220, 38, 38, 0.3);
-        color: #DC2626;
+        background: rgba(185, 28, 28, 0.12);
+        border: 1px solid rgba(185, 28, 28, 0.4);
+        color: #991B1B;
       }
-      [data-theme="night"] .card-badge.price { color: #FCA5A5; }
+      [data-theme="night"] .card-badge.price {
+        background: rgba(239, 68, 68, 0.18);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        color: #FECACA;
+      }
 
       .card-title {
         font-family: var(--font-vedic-heading, 'Rozha One', 'Tiro Devanagari Hindi', serif);
@@ -2179,7 +2209,7 @@
         </div>
 
         <!-- BOTTOM MICRO TRUST SEAL -->
-        <div style="text-align:center; padding:8px 6px; font-family:var(--font-devanagari-body); font-size:10.5px; color:var(--muted); opacity:0.85;">
+        <div style="text-align:center; padding:8px 6px; font-family:var(--font-devanagari-body); font-size:11px; color:#475569; font-weight:600;">
           🔒 True Chitra Paksha (Lahiri) • 60-Term Meeus Sub-Arcsecond • Shastra Authenticated
         </div>
       </section>
@@ -4459,35 +4489,6 @@
         link: "https://www.youtube.com/watch?v=BHgnUTNhQ3Y"
       }
     ];
-
-    try {
-      const rssFeedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
-      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssFeedUrl)}`);
-      
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === 'ok' && Array.isArray(data.items) && data.items.length > 0) {
-          const ytItems = data.items.slice(0, 3).map(item => {
-            let vId = '';
-            if (item.guid && item.guid.includes('video:')) {
-              vId = item.guid.split('video:')[1];
-            } else if (item.link) {
-              const m = item.link.match(/(?:v=|\/embed\/|\/shorts\/|\/watch\?v=)([a-zA-Z0-9_-]{11})/);
-              if (m) vId = m[1];
-            }
-            return {
-              title: item.title,
-              id: vId,
-              link: item.link || `https://www.youtube.com/watch?v=${vId}`
-            };
-          });
-          renderYtGrid(ytItems);
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn("YouTube RSS API fetch notice:", e);
-    }
 
     renderYtGrid(defaultVideos);
   }
