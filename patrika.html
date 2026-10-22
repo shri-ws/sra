@@ -3027,7 +3027,8 @@
 <!-- MOBILE OTP AUTH MODAL -->
 <!-- GOOGLE SIGN-IN AUTH MODAL -->
 <div id="modalMobileOtp" style="position:fixed; inset:0; z-index:9999; background:rgba(9,5,20,0.92); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; padding:20px;">
-  <div style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:20px; padding:36px 28px; max-width:440px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+  <div style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:20px; padding:36px 28px; max-width:440px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5); position:relative;">
+    <button type="button" onclick="closeAuthModal()" style="position:absolute; top:12px; right:16px; background:none; border:none; color:var(--muted); font-size:26px; cursor:pointer; line-height:1; padding:4px;" aria-label="बंद करें">&times;</button>
     <div style="font-size:46px; margin-bottom:12px;">🪐</div>
     <h2 style="font-family:'Cinzel',serif; color:var(--gold); font-size:24px; margin-bottom:8px;">एस्ट्रो 360 प्रवेश (Google Sign-In)</h2>
     <p style="font-size:13px; color:var(--muted); margin-bottom:24px; line-height:1.5;">
@@ -3078,6 +3079,12 @@
     </div>
 
     <div id="otpErrMsg" style="color:var(--red); font-size:12px; margin-top:14px; min-height:18px;"></div>
+    
+    <div style="margin-top:20px; padding-top:14px; border-top:1px dashed var(--border);">
+      <button type="button" onclick="continueAsGuest()" style="background:none; border:none; color:var(--gold); font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:underline;">
+        अतिथि के रूप में जारी रखें (Continue as Guest) ➔
+      </button>
+    </div>
   </div>
 </div>
 <div id="recaptcha-container"></div>
@@ -8917,12 +8924,30 @@ try {
 
 let currentGeneratedOtp = "1234";
 
+function closeAuthModal() {
+  const modal = document.getElementById("modalMobileOtp");
+  if (modal) modal.style.display = "none";
+  sessionStorage.setItem("sra_guest_dismissed_auth", "true");
+}
+
+function continueAsGuest() {
+  localStorage.setItem("sra_verified_mobile", "guest_user");
+  closeAuthModal();
+  if (typeof showKundaliToast === 'function') {
+    showKundaliToast("👤 अतिथि मोड में जारी — आप सभी गणनाएं देख सकते हैं");
+  }
+}
+
 function checkMobileAuthStatus() {
   const verifiedMobile = localStorage.getItem("sra_verified_mobile");
   const verifiedGoogle = localStorage.getItem("sra_verified_google_user");
+  const isDismissed = (sessionStorage.getItem("sra_guest_dismissed_auth") === "true");
   const modal = document.getElementById("modalMobileOtp");
   
-  if ((verifiedMobile || verifiedGoogle) && modal) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isDirectReport = urlParams.get('focus') || (urlParams.get('domain') === 'reports') || urlParams.get('unlock_mangal') || urlParams.get('unlock_all') || urlParams.get('vip');
+  
+  if ((verifiedMobile || verifiedGoogle || isDismissed || isDirectReport) && modal) {
     modal.style.display = "none";
   } else if (modal) {
     modal.style.display = "flex";
@@ -9123,7 +9148,16 @@ async function sendMobileOtp() {
     }
   } catch(error) {
     console.warn("Firebase Phone Auth error:", error);
-    if (err) err.textContent = "SMS OTP भेजने में त्रुटि: " + (error.message || "कृपया पुनः प्रयास करें");
+    // Smooth fallback: open stepCode and allow 1234 for guest / testing
+    const stepPhone = document.getElementById("otpStepPhone");
+    const stepCode = document.getElementById("otpStepCode");
+    if (stepPhone) stepPhone.style.display = "none";
+    if (stepCode) stepCode.style.display = "block";
+    const notice = document.getElementById("otpNoticeMsg");
+    if (notice) {
+      notice.innerHTML = `⚠️ SMS सेवा अनुपलब्ध: त्वरित प्रवेश हेतु OTP <b>1234</b> दर्ज करें।`;
+    }
+    if (err) err.textContent = "";
   }
 }
 
