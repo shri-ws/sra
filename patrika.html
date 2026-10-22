@@ -63,6 +63,7 @@
 <script src="theme.js"></script>
 <script src="data/shloka_database.js"></script>
 <script src="rashmiReportsService.js"></script>
+<script src="mangalDoshaService.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- Google Identity Services (GIS) API & Firebase SDK -->
@@ -2492,8 +2493,6 @@
   .btn-cross-sell:hover {
     transform: translateY(-1.5px);
   }
-    color: #fff;
-  }
 
   .parashara-paywall-banner {
     background: linear-gradient(135deg, rgba(180, 83, 9, 0.1), rgba(217, 119, 6, 0.16));
@@ -2810,6 +2809,113 @@
     to { transform: translateY(0); opacity: 1; }
   }
 
+  /* MANGAL DOSHA REPORT STYLES */
+  .mangal-meter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .mangal-metric-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .mangal-metric-num {
+    font-size: 26px;
+    font-weight: 800;
+    font-family: 'Cinzel', serif;
+    line-height: 1.1;
+  }
+  .mangal-metric-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+  .mangal-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+  }
+  .tri-lagna-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .tri-lagna-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-left: 4px solid var(--border);
+    transition: all 0.2s;
+  }
+  .tri-lagna-card.has-dosha {
+    border-left-color: #ef4444;
+    background: rgba(239, 68, 68, 0.03);
+  }
+  .tri-lagna-card.no-dosha {
+    border-left-color: #10b981;
+    background: rgba(16, 185, 129, 0.03);
+  }
+  .parihara-rule-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+  }
+  .parihara-rule-card.applied {
+    border-color: rgba(16, 185, 129, 0.5);
+    background: rgba(16, 185, 129, 0.04);
+  }
+  .parihara-badge-applied {
+    background: #10b981;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .parihara-badge-na {
+    background: rgba(148, 163, 184, 0.2);
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .shloka-box-classical {
+    background: rgba(180, 83, 9, 0.06);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-family: var(--font-devanagari-body, 'Mukta', sans-serif);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--primary);
+  }
+  .partner-matcher-box {
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.06), rgba(217, 119, 6, 0.09));
+    border: 1.5px solid var(--gold-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px 0;
+  }
+
   /* DEDICATED PRINT / PDF STYLESHEET */
   @media print {
     nav,
@@ -2832,7 +2938,9 @@
     #modalParasharaPayment199,
     #modalMobileOtp,
     #kundaliToast,
-    #parasharaToastEl {
+    #parasharaToastEl,
+    .partner-matcher-box select,
+    .partner-matcher-box button {
       display: none !important;
       visibility: hidden !important;
     }
@@ -6684,6 +6792,10 @@ function isParasharaReportUnlocked(reportKey) {
       if (urlParams.get('unlock_vahan') === '1' || urlParams.get('vip') === 'vahan199' || urlParams.get('vip') === 'gomutrika199') return true;
       return localStorage.getItem('sra_unlocked_report_vahan_199') === 'true';
     }
+    if (reportKey === 'mangal') {
+      if (urlParams.get('unlock_mangal') === '1' || urlParams.get('vip') === 'mangal199' || urlParams.get('vip') === 'bhauma199' || urlParams.get('vip') === 'manglik199') return true;
+      return localStorage.getItem('sra_unlocked_report_mangal_199') === 'true';
+    }
     return false;
   } catch(e) {
     return false;
@@ -6696,6 +6808,8 @@ function openParasharaPaymentModal(reportType, focusField) {
   if (!modal) return;
 
   const isRaj = (currentPayingReport === 'rajyoga');
+  const isVah = (currentPayingReport === 'vahan');
+  const isMan = (currentPayingReport === 'mangal');
   const modalTitle = document.getElementById('parasharaModalTitle');
   const modalSubtitle = document.getElementById('parasharaModalSubtitle');
   const modalBadge = document.getElementById('parasharaModalBadge');
@@ -6705,30 +6819,40 @@ function openParasharaPaymentModal(reportType, focusField) {
   const upiWaLink = document.getElementById('parasharaUpiWaLink');
 
   if (modalBadge) {
-    modalBadge.textContent = isRaj ? '★ बृहत्पाराशरहोराशास्त्र फलित विधान ★' : '★ बृहत्पाराशरहोराशास्त्र गोमूत्रिका विधान ★';
+    if (isRaj) modalBadge.textContent = '★ बृहत्पाराशरहोराशास्त्र फलित विधान ★';
+    else if (isVah) modalBadge.textContent = '★ बृहत्पाराशरहोराशास्त्र गोमूत्रिका विधान ★';
+    else modalBadge.textContent = '★ बृहत्पाराशर • अगस्त्य संहिता • फलदीपिका विधान ★';
   }
   if (modalTitle) {
-    modalTitle.textContent = isRaj ? '👑 Raajyoga Strength / Rashmi Bal अनलॉक करें' : '🚗 पाराशर वाहन एवं जनबल रिपोर्ट अनलॉक करें';
+    if (isRaj) modalTitle.textContent = '👑 Raajyoga Strength / Rashmi Bal अनलॉक करें';
+    else if (isVah) modalTitle.textContent = '🚗 पाराशर वाहन एवं जनबल रिपोर्ट अनलॉक करें';
+    else modalTitle.textContent = '🔥 मंगल दोष एवं परिहार रिपोर्ट अनलॉक करें';
   }
   if (modalSubtitle) {
-    modalSubtitle.textContent = isRaj 
-      ? 'सप्तग्रह रश्मि-बल, श्लोक १८ युति शोधन एवं श्लोक २३–३९ स्लैब फलादेश (आजीवन एक्सेस)'
-      : 'श्लोक ३४–४० अनुसार भौतिक सुख, वाहन एवं आश्रित जनबल सामर्थ्य (आजीवन एक्सेस)';
+    if (isRaj) {
+      modalSubtitle.textContent = 'सप्तग्रह रश्मि-बल, श्लोक १८ युति शोधन एवं श्लोक २३–३९ स्लैब फलादेश (आजीवन एक्सेस)';
+    } else if (isVah) {
+      modalSubtitle.textContent = 'श्लोक ३४–४० अनुसार भौतिक सुख, वाहन एवं आश्रित जनबल सामर्थ्य (आजीवन एक्सेस)';
+    } else {
+      modalSubtitle.textContent = 'त्रि-लग्न सूक्ष्म परीक्षण, १४ प्रामाणिक परिहार नियम, मूल श्लोक व जीवनसाथी चयन परामर्श (आजीवन एक्सेस)';
+    }
   }
   if (dealRow1Lbl) {
-    dealRow1Lbl.textContent = isRaj ? '१. Raajyoga Strength / Rashmi Bal रिपोर्ट:' : '१. पाराशर गोमूत्रिका वाहन एवं जनबल रिपोर्ट:';
+    if (isRaj) dealRow1Lbl.textContent = '१. Raajyoga Strength / Rashmi Bal रिपोर्ट:';
+    else if (isVah) dealRow1Lbl.textContent = '१. पाराशर गोमूत्रिका वाहन एवं जनबल रिपोर्ट:';
+    else dealRow1Lbl.textContent = '१. प्रामाणिक मंगल दोष एवं १४ परिहार रिपोर्ट:';
   }
   if (rzpBtn) {
-    rzpBtn.innerHTML = `💳 ₹199 ऑनलाइन भुगतान करें (${isRaj ? 'राजयोग रिपोर्ट' : 'वाहन रिपोर्ट'})`;
+    const repName = isRaj ? 'राजयोग रिपोर्ट' : (isVah ? 'वाहन रिपोर्ट' : 'मंगल दोष रिपोर्ट');
+    rzpBtn.innerHTML = `💳 ₹199 ऑनलाइन भुगतान करें (${repName})`;
   }
   if (upiQrImg) {
-    const tn = isRaj ? 'RajyogaReport' : 'VahanReport';
+    const tn = isRaj ? 'RajyogaReport' : (isVah ? 'VahanReport' : 'MangalReport');
     upiQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D9517117775%40upi%26pn%3DShriRamjiAstro%26am%3D199%26cu%3DINR%26tn%3D${tn}`;
   }
   if (upiWaLink) {
-    const text = isRaj 
-      ? encodeURIComponent("🙏 मैंने Raajyoga Strength / Rashmi Bal रिपोर्ट (₹199) का भुगतान कर दिया है। कृपया अनलॉक कोड प्रदान करें।")
-      : encodeURIComponent("🙏 मैंने पाराशर वाहन एवं जनबल रिपोर्ट (₹199) का भुगतान कर दिया है। कृपया अनलॉक कोड प्रदान करें।");
+    const repName = isRaj ? 'Raajyoga Strength / Rashmi Bal' : (isVah ? 'पाराशर वाहन एवं जनबल' : 'मंगल दोष एवं परिहार');
+    const text = encodeURIComponent(`🙏 मैंने ${repName} रिपोर्ट (₹199) का भुगतान कर दिया है। कृपया अनलॉक कोड प्रदान करें।`);
     upiWaLink.href = `https://wa.me/919517117775?text=${text}`;
   }
 
@@ -6752,7 +6876,9 @@ function closeParasharaPaymentModal() {
 
 function unlockParasharaReport(reportType, paymentId) {
   try {
-    const key = (reportType === 'vahan') ? 'sra_unlocked_report_vahan_199' : 'sra_unlocked_report_rajyoga_199';
+    let key = 'sra_unlocked_report_rajyoga_199';
+    if (reportType === 'vahan') key = 'sra_unlocked_report_vahan_199';
+    if (reportType === 'mangal') key = 'sra_unlocked_report_mangal_199';
     localStorage.setItem(key, 'true');
     localStorage.setItem('sra_parashara_' + reportType + '_unlock_time', new Date().toISOString());
     if (paymentId) {
@@ -6763,7 +6889,9 @@ function unlockParasharaReport(reportType, paymentId) {
   }
   closeParasharaPaymentModal();
   renderParasharaReports();
-  const title = (reportType === 'vahan') ? '🚗 पाराशर वाहन एवं जनबल रिपोर्ट' : '👑 Raajyoga Strength / Rashmi Bal रिपोर्ट';
+  let title = '👑 Raajyoga Strength / Rashmi Bal रिपोर्ट';
+  if (reportType === 'vahan') title = '🚗 पाराशर वाहन एवं जनबल रिपोर्ट';
+  if (reportType === 'mangal') title = '🔥 मंगल दोष एवं परिहार रिपोर्ट';
   showParasharaToast(`🎉 बधाई! ${title} सफलतापूर्वक अनलॉक हो चुकी है।`);
 }
 
@@ -6775,7 +6903,11 @@ function triggerParasharaRazorpayCheckout() {
   }
 
   const isRaj = (currentPayingReport === 'rajyoga');
-  const reportTitle = isRaj ? 'Raajyoga Strength / Rashmi Bal Report' : 'Parashara Vahan & Janbal Report';
+  const isVah = (currentPayingReport === 'vahan');
+  let reportTitle = 'Raajyoga Strength / Rashmi Bal Report';
+  if (isVah) reportTitle = 'Parashara Vahan & Janbal Report';
+  if (currentPayingReport === 'mangal') reportTitle = 'Classical Mangal Dosha & Parihara Report';
+
   const clientName = (document.getElementById('inName') && document.getElementById('inName').value.trim()) 
     ? document.getElementById('inName').value.trim() 
     : "पाराशर VIP जातक";
@@ -6834,8 +6966,11 @@ function verifyParasharaPasscode() {
 
   const rajyogaCodes = ['RAJYOGA199', 'RAJYOGA', 'PARASHAR199', 'PARASHAR', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
   const vahanCodes = ['VAHAN199', 'VAHAN', 'GOMUTRIKA199', 'GOMUTRIKA', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
+  const mangalCodes = ['MANGAL199', 'MANGAL', 'BHAUMA199', 'BHAUMA', 'MANGLIK199', 'MANGLIK', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
 
-  const validCodes = (currentPayingReport === 'vahan') ? vahanCodes : rajyogaCodes;
+  let validCodes = rajyogaCodes;
+  if (currentPayingReport === 'vahan') validCodes = vahanCodes;
+  if (currentPayingReport === 'mangal') validCodes = mangalCodes;
 
   if (validCodes.includes(val)) {
     if (errBox) errBox.style.display = 'none';
@@ -6869,16 +7004,59 @@ function showParasharaToast(msg) {
 }
 
 let activeParasharaReport = 'rajyoga';
+let partnerKundaliState = null;
+
+function setPartnerMangalDetails(mHouse, sHouse, rHouse, kHouse) {
+  partnerKundaliState = {
+    Mars: { house: parseInt(mHouse, 10) || 0 },
+    Saturn: { house: parseInt(sHouse, 10) || 0 },
+    Rahu: { house: parseInt(rHouse, 10) || 0 },
+    Ketu: { house: parseInt(kHouse, 10) || 0 }
+  };
+  renderParasharaReports();
+}
+
+function clearPartnerMangalRecalc() {
+  partnerKundaliState = null;
+  renderParasharaReports();
+}
+
+function triggerPartnerMangalRecalc() {
+  const mSel = document.getElementById('selPartnerMarsH');
+  const sSel = document.getElementById('selPartnerSaturnH');
+  const rSel = document.getElementById('selPartnerRahuH');
+  const kSel = document.getElementById('selPartnerKetuH');
+
+  const mH = mSel ? parseInt(mSel.value, 10) : 0;
+  const sH = sSel ? parseInt(sSel.value, 10) : 0;
+  const rH = rSel ? parseInt(rSel.value, 10) : 0;
+  const kH = kSel ? parseInt(kSel.value, 10) : 0;
+
+  if (mH === 0 && sH === 0 && rH === 0 && kH === 0) {
+    partnerKundaliState = null;
+  } else {
+    partnerKundaliState = {
+      Mars: { house: mH },
+      Saturn: { house: sH },
+      Rahu: { house: rH },
+      Ketu: { house: kH }
+    };
+  }
+  renderParasharaReports();
+}
 
 function switchParasharaReport(reportType) {
   activeParasharaReport = reportType;
   const btnRaj = document.getElementById('tabBtnRajyoga');
   const btnVah = document.getElementById('tabBtnVahan');
+  const btnMan = document.getElementById('tabBtnMangal');
   const paneRaj = document.getElementById('parasharaPaneRajyoga');
   const paneVah = document.getElementById('parasharaPaneVahan');
+  const paneMan = document.getElementById('parasharaPaneMangal');
 
   if (btnRaj) btnRaj.classList.toggle('active', reportType === 'rajyoga');
   if (btnVah) btnVah.classList.toggle('active', reportType === 'vahan');
+  if (btnMan) btnMan.classList.toggle('active', reportType === 'mangal');
 
   if (paneRaj) {
     paneRaj.style.display = (reportType === 'rajyoga') ? 'block' : 'none';
@@ -6888,8 +7066,12 @@ function switchParasharaReport(reportType) {
     paneVah.style.display = (reportType === 'vahan') ? 'block' : 'none';
     paneVah.classList.toggle('active', reportType === 'vahan');
   }
+  if (paneMan) {
+    paneMan.style.display = (reportType === 'mangal') ? 'block' : 'none';
+    paneMan.classList.toggle('active', reportType === 'mangal');
+  }
 
-  const targetPane = (reportType === 'rajyoga') ? paneRaj : paneVah;
+  const targetPane = (reportType === 'rajyoga') ? paneRaj : ((reportType === 'vahan') ? paneVah : paneMan);
   if (targetPane) {
     targetPane.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -6919,6 +7101,7 @@ function renderParasharaReports() {
   const rep2 = reports.report_vahan_janbal;
   const isRajyogaUnlocked = isParasharaReportUnlocked('rajyoga');
   const isVahanUnlocked = isParasharaReportUnlocked('vahan');
+  const isMangalUnlocked = isParasharaReportUnlocked('mangal');
 
   const currentLang = (document.documentElement.getAttribute('lang') || (typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : localStorage.getItem('sra_lang')) || 'hi').toLowerCase();
   const isHi = currentLang === 'hi';
@@ -6964,6 +7147,23 @@ function renderParasharaReports() {
     }
   }
 
+  // Extract Mangal Dosha Engine Report
+  let repMangal = null;
+  if (typeof extractMangalDoshaContract === 'function' && typeof calculateMangalDoshaReport === 'function') {
+    try {
+      const mangalContract = extractMangalDoshaContract(currentCalculation, {
+        name: candidateName,
+        partner_d1: partnerKundaliState
+      });
+      if (mangalContract) {
+        repMangal = calculateMangalDoshaReport(mangalContract, isHi ? 'hi' : 'en');
+      }
+    } catch(err) {
+      console.warn("Mangal Dosha calculation error:", err);
+    }
+  }
+  const repMangalTitle = isHi ? "मंगल दोष एवं परिहार विवरण" : "Mangal Dosha & Parihara";
+
   // URL Focus param handling
   try {
     const urlParams = new URLSearchParams(window.location.search);
@@ -6972,6 +7172,8 @@ function renderParasharaReports() {
       activeParasharaReport = 'vahan';
     } else if (focusTarget === 'rajyoga') {
       activeParasharaReport = 'rajyoga';
+    } else if (focusTarget === 'mangal' || focusTarget === 'manglik') {
+      activeParasharaReport = 'mangal';
     }
   } catch(e) {}
 
@@ -7544,6 +7746,366 @@ function renderParasharaReports() {
     `;
   }
 
+  // --- HTML FOR REPORT 3: MANGAL DOSHA & 14 PARIHARA RULES ---
+  let paneMangalContent = '';
+  if (!repMangal) {
+    paneMangalContent = `
+      <div style="padding:30px 20px; text-align:center; color:var(--muted);">
+        <div style="font-size:32px; margin-bottom:8px;">🔥</div>
+        <p>${isHi ? 'मंगल दोष डेटा प्राप्त नहीं हो सका। कृपया जन्म विवरण भरें।' : 'Mangal Dosha calculation data not available. Please verify birth details.'}</p>
+      </div>
+    `;
+  } else if (isMangalUnlocked) {
+    paneMangalContent = `
+      <!-- Clean Formal Certificate Header -->
+      <div class="jataka-formal-header" style="border:1px solid var(--border); border-radius:12px; padding:16px 20px; background:var(--card-bg); margin-bottom:16px;">
+        <div class="jataka-formal-top" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; background:rgba(239,68,68,0.12); color:#dc2626; font-weight:800; padding:2px 8px; border-radius:8px;">14 Classical Parihara Rules</span>
+            <h2 class="jataka-formal-report-title" style="margin:0; font-size:18px; color:var(--primary);">
+              ${repMangal.report_title}
+            </h2>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn-switch-report-pill" onclick="toggleEditBirthDetails()" style="background:rgba(180,83,9,0.1); border-color:var(--gold); color:var(--dark);">
+              ✏️ ${isHi ? 'जन्म विवरण बदलें' : 'Edit Birth Details'}
+            </button>
+            <button type="button" class="btn-print-report-pane" onclick="printParasharaReport('mangal')">
+              <span>🖨️</span> ${isHi ? 'PDF / प्रिंट' : 'Print / PDF'}
+            </button>
+            <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('rajyoga')">
+              ${isHi ? 'राजयोग रिपोर्ट ➔' : 'Rajyoga Report ➔'}
+            </button>
+          </div>
+        </div>
+        <div class="jataka-formal-grid">
+          <div class="jataka-field"><span>${isHi ? 'जातक:' : 'Native:'}</span> <strong>${candidateName}</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'जन्म:' : 'Birth:'}</span> <strong>${birthDateStr} ${birthTimeStr}</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'स्थान:' : 'Place:'}</span> <strong>${birthPlaceStr}</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'लग्न:' : 'Ascendant:'}</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'चन्द्र:' : 'Moon:'}</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'मंगल स्थिति:' : 'Mars Position:'}</span> <strong>भाव ${repMangal.mars_details.house} • ${repMangal.mars_details.rashi} (${repMangal.mars_details.degree.toFixed(2)}°)</strong></div>
+        </div>
+      </div>
+
+      <!-- Score Breakdown & Grand Status Bar -->
+      <div style="background:var(--bg); border:1.5px solid var(--gold-border); border-radius:14px; padding:18px 20px; margin:16px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+          <div>
+            <div style="font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.8px;">
+              ${isHi ? 'शास्त्रीय निर्णय एवं वैवाहिक श्रेणी' : 'Classical Matrimonial Classification'}
+            </div>
+            <div style="font-size:20px; font-weight:800; color:var(--dark); margin-top:2px;">
+              ${repMangal.dosha_category}
+            </div>
+          </div>
+          <div>
+            <span class="mangal-status-badge" style="background:${repMangal.badge_hex}1a; color:${repMangal.badge_hex}; border:1.5px solid ${repMangal.badge_hex}; font-size:14px;">
+              ● ${repMangal.badge_color === 'Green' ? (isHi ? 'दोष मुक्त (0%)' : 'Dosha Free (0%)') : `${repMangal.net_dosha_percentage}% ${repMangal.dosha_category}`}
+            </span>
+          </div>
+        </div>
+
+        <!-- 3-Box Mathematical Formula: Gross - Parihara = Net -->
+        <div class="mangal-meter-grid">
+          <div class="mangal-metric-card" style="border-color:rgba(220,38,38,0.3);">
+            <div class="mangal-metric-num" style="color:#dc2626;">${repMangal.gross_dosha_percentage}%</div>
+            <div class="mangal-metric-label">${isHi ? 'प्रारंभिक ग्रॉस भार (त्रि-लग्न)' : 'Gross Affliction (Tri-Lagna)'}</div>
+          </div>
+          <div class="mangal-metric-card" style="border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.04);">
+            <div class="mangal-metric-num" style="color:#059669;">-${repMangal.parihara_deduction_percentage}%</div>
+            <div class="mangal-metric-label">${isHi ? '१४ परिहार कुल कटौती' : '14 Parihara Deductions'}</div>
+          </div>
+          <div class="mangal-metric-card" style="border-color:${repMangal.badge_hex}; background:${repMangal.badge_hex}0a;">
+            <div class="mangal-metric-num" style="color:${repMangal.badge_hex};">${repMangal.net_dosha_percentage}%</div>
+            <div class="mangal-metric-label" style="color:${repMangal.badge_hex}; font-weight:800;">${isHi ? 'अंतिम शुद्ध दोष (Net Dosha)' : 'Final Net Dosha Score'}</div>
+          </div>
+        </div>
+
+        <!-- Visual Progress Bar -->
+        <div style="margin-top:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--muted); margin-bottom:4px;">
+            <span>${isHi ? '0% (दोष मुक्त)' : '0% (Free)'}</span>
+            <span>${isHi ? '25% (मध्यम सीमा)' : '25% (Moderate)'}</span>
+            <span>${isHi ? '60% (तीव्र सीमा)' : '60% (Severe)'}</span>
+            <span>100%</span>
+          </div>
+          <div style="background:var(--border); height:10px; border-radius:5px; overflow:hidden; position:relative;">
+            <div style="height:100%; width:${repMangal.net_dosha_percentage}%; background:linear-gradient(90deg, #10b981, #f59e0b 50%, #dc2626); transition:width 0.6s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: TRI-LAGNA BREAKDOWN CARDS -->
+      <div style="margin:20px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3 style="font-size:15px; color:var(--primary); margin:0; font-weight:800;">
+            ${isHi ? '१. त्रि-लग्न दोष पहचान एवं प्रारंभिक भार' : '1. Tri-Lagna Dosha Assessment & Gross Weights'}
+          </h3>
+          <span style="font-size:12px; color:var(--muted); font-weight:600;">
+            ${isHi ? 'दोष कारक भाव: १, ४, ७, ८, १२' : 'Dosha Houses: 1, 4, 7, 8, 12'}
+          </span>
+        </div>
+        <div class="tri-lagna-grid">
+          ${repMangal.tri_lagna_breakup.map(item => `
+            <div class="tri-lagna-card ${item.is_dosha ? 'has-dosha' : 'no-dosha'}">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="font-size:14px; color:var(--dark);">${item.reference}</strong>
+                <span style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:10px; ${item.is_dosha ? 'background:rgba(239,68,68,0.12); color:#dc2626;' : 'background:rgba(16,185,129,0.12); color:#059669;'}">
+                  ${item.is_dosha ? `+${item.points}% दोष` : 'दोष रहित (+0%)'}
+                </span>
+              </div>
+              <div style="font-size:12.5px; color:var(--muted); line-height:1.5;">
+                ${item.desc}
+              </div>
+              <div style="margin-top:6px; font-size:11.5px; color:var(--dark); font-weight:600;">
+                ${isHi ? 'मंगल भाव:' : 'Mars House:'} <strong>भाव ${item.mars_house}</strong> (${item.mars_rashi}) • ${isHi ? 'भार:' : 'Weight:'} ${item.weight}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- D9 NAVAMSHA VALIDATION NOTE -->
+      <div style="background:rgba(180,83,9,0.04); border:1px solid var(--gold-border); border-radius:10px; padding:12px 16px; margin:14px 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+          <div style="font-size:13px; font-weight:700; color:var(--primary);">
+            ${isHi ? 'नवांश (D9) मंगल स्थिति एवं वर्गोत्तम परीक्षण:' : 'Navamsha (D9) Mars Validation:'}
+          </div>
+          <div style="font-size:12px; color:var(--dark); margin-top:2px;">
+            ${repMangal.d9_validation.note} (${isHi ? 'नवांश राशि:' : 'D9 Sign:'} <strong>${repMangal.d9_validation.mars_rashi}</strong> • ${isHi ? 'नवांश भाव:' : 'D9 House:'} <strong>${repMangal.d9_validation.mars_house}</strong>)
+          </div>
+        </div>
+        <div>
+          <span style="padding:4px 10px; border-radius:8px; font-size:11.5px; font-weight:800; ${repMangal.d9_validation.is_vargottama ? 'background:#10b981; color:#fff;' : 'background:rgba(148,163,184,0.2); color:#475569;'}">
+            ${repMangal.d9_validation.is_vargottama ? (isHi ? '✓ वर्गोत्तम मंगल (दोषभंग)' : '✓ Vargottama Mars') : (isHi ? 'सामान्य नवांश' : 'Non-Vargottama')}
+          </span>
+        </div>
+      </div>
+
+      <!-- STEP 2: 14 AUTHENTIC PARIHARA RULES -->
+      <div style="margin:20px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="font-size:15px; color:var(--primary); margin:0; font-weight:800;">
+              ${isHi ? '२. १४ प्रामाणिक शास्त्रीय परिहार नियम (Parihara Engine)' : '2. 14 Authentic Classical Parihara Rules'}
+            </h3>
+            <p style="margin:2px 0 0 0; font-size:12px; color:var(--muted);">
+              ${isHi ? 'अगस्त्य संहिता, मानसागरी, फलदीपिका, देवकेरलम् व मुहूर्तचिन्तामणि प्रमाण' : 'Authority: Agastya Samhita, Mansagari, Phaladeepika, Devakeralam & Muhurta Chintamani'}
+            </p>
+          </div>
+          <div style="font-size:12px; font-weight:700; color:#059669;">
+            ${isHi ? `कुल लागू परिहार: ${repMangal.applied_pariharas.length} / 14 (कटौती: ${repMangal.parihara_deduction_percentage}%)` : `Applied: ${repMangal.applied_pariharas.length} / 14 (-${repMangal.parihara_deduction_percentage}%)`}
+          </div>
+        </div>
+
+        <div>
+          ${repMangal.all_pariharas.map(p => `
+            <div class="parihara-rule-card ${p.is_applicable ? 'applied' : ''}">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:12px; font-weight:800; color:var(--gold);">#${p.rule_id}</span>
+                  <strong style="font-size:13.5px; color:var(--dark);">${p.title}</strong>
+                  <span style="font-size:11px; color:var(--muted); font-weight:600;">(${p.ref})</span>
+                </div>
+                <div>
+                  <span class="${p.is_applicable ? 'parihara-badge-applied' : 'parihara-badge-na'}">
+                    ${p.is_applicable ? (isHi ? `✓ लागू (-${p.deduction}%)` : `✓ Applied (-${p.deduction}%)`) : (isHi ? '✗ लागू नहीं' : '✗ Not Applicable')}
+                  </span>
+                </div>
+              </div>
+              <div class="shloka-box-classical" style="margin:6px 0 4px 0; font-size:12.5px;">
+                ${p.shloka.replace(/\n/g, '<br>')}
+              </div>
+              <div style="font-size:12px; color:var(--dark); line-height:1.5;">
+                ${p.explanation}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- INTERACTIVE PARTNER KUNDLI SAMDOSHA MATCHER (Parihara 14) -->
+      <div class="partner-matcher-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+          <div>
+            <h4 style="margin:0; font-size:14px; color:var(--primary); font-weight:800;">
+              💍 ${isHi ? 'जीवनसाथी समदोष परीक्षक (Parihara 14: विष से विष का नाश)' : 'Partner Counter-Dosha Matcher (Parihara 14)'}
+            </h4>
+            <p style="margin:2px 0 0 0; font-size:12px; color:var(--muted);">
+              ${isHi ? 'यदि जीवनसाथी के १, ४, ७, ८, १२ भाव में शनि, मंगल, राहु या केतु हो तो सम्पूर्ण दोष स्वतः समाप्त (१००% परिहार) हो जाता है।' : 'If partner chart has Mars, Saturn, Rahu, or Ketu in 1, 4, 7, 8, or 12, dosha is 100% neutralized.'}
+            </p>
+          </div>
+          <div id="partnerStatusPill">
+            ${partnerKundaliState ? `
+              <span style="background:#10b981; color:#fff; padding:3px 10px; border-radius:12px; font-size:11.5px; font-weight:800;">
+                ✓ पार्टनर साम्य परिहार लागू (-100%)
+              </span>
+            ` : `
+              <span style="background:rgba(180,83,9,0.1); color:var(--gold); padding:3px 10px; border-radius:12px; font-size:11.5px; font-weight:700;">
+                पार्टनर विवरण दर्ज करें ➔
+              </span>
+            `}
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-top:8px;">
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:var(--dark); display:block; margin-bottom:3px;">
+              पार्टनर मंगल भाव:
+            </label>
+            <select id="selPartnerMarsH" onchange="triggerPartnerMangalRecalc()" style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); font-size:12px;">
+              <option value="0">-- चयन करें --</option>
+              ${[1,2,3,4,5,6,7,8,9,10,11,12].map(h => `<option value="${h}" ${partnerKundaliState && partnerKundaliState.Mars && partnerKundaliState.Mars.house === h ? 'selected' : ''}>भाव ${h} ${[1,4,7,8,12].includes(h) ? '(साम्य परिहार)' : ''}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:var(--dark); display:block; margin-bottom:3px;">
+              पार्टनर शनि भाव:
+            </label>
+            <select id="selPartnerSaturnH" onchange="triggerPartnerMangalRecalc()" style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); font-size:12px;">
+              <option value="0">-- चयन करें --</option>
+              ${[1,2,3,4,5,6,7,8,9,10,11,12].map(h => `<option value="${h}" ${partnerKundaliState && partnerKundaliState.Saturn && partnerKundaliState.Saturn.house === h ? 'selected' : ''}>भाव ${h} ${[1,4,7,8,12].includes(h) ? '(साम्य परिहार)' : ''}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:var(--dark); display:block; margin-bottom:3px;">
+              पार्टनर राहु भाव:
+            </label>
+            <select id="selPartnerRahuH" onchange="triggerPartnerMangalRecalc()" style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); font-size:12px;">
+              <option value="0">-- चयन करें --</option>
+              ${[1,2,3,4,5,6,7,8,9,10,11,12].map(h => `<option value="${h}" ${partnerKundaliState && partnerKundaliState.Rahu && partnerKundaliState.Rahu.house === h ? 'selected' : ''}>भाव ${h} ${[1,4,7,8,12].includes(h) ? '(साम्य परिहार)' : ''}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:var(--dark); display:block; margin-bottom:3px;">
+              पार्टनर केतु भाव:
+            </label>
+            <select id="selPartnerKetuH" onchange="triggerPartnerMangalRecalc()" style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); font-size:12px;">
+              <option value="0">-- चयन करें --</option>
+              ${[1,2,3,4,5,6,7,8,9,10,11,12].map(h => `<option value="${h}" ${partnerKundaliState && partnerKundaliState.Ketu && partnerKundaliState.Ketu.house === h ? 'selected' : ''}>भाव ${h} ${[1,4,7,8,12].includes(h) ? '(साम्य परिहार)' : ''}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        ${partnerKundaliState ? `
+          <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; color:#059669; font-weight:700;">
+              🎉 पार्टनर साम्य ग्रह मिले: ${repMangal.partner_counter_details.join(', ')} ➔ संपूर्ण दोष शून्य!
+            </span>
+            <button type="button" onclick="clearPartnerMangalRecalc()" style="background:none; border:none; color:#ef4444; font-size:11.5px; cursor:pointer; text-decoration:underline;">
+              पार्टनर डेटा हटाएं ✕
+            </button>
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- STEP 3 & 4: SPOUSE RECOMMENDATION & REMEDIES -->
+      <div style="background:var(--card-bg); border:1.5px solid var(--gold); border-radius:12px; padding:16px 18px; margin:16px 0;">
+        <h3 style="margin:0 0 8px 0; font-size:15px; color:var(--primary); font-weight:800;">
+          🕊️ ${isHi ? 'जीवनसाथी चयन परामर्श एवं वैदिक शांति उपाय' : 'Spouse Selection Advice & Vedic Remedies'}
+        </h3>
+        <div style="background:rgba(180,83,9,0.04); border-left:3px solid var(--gold); padding:10px 14px; border-radius:6px; margin-bottom:12px;">
+          <div style="font-weight:700; color:var(--gold); font-size:13px; margin-bottom:3px;">
+            ${isHi ? 'शास्त्रोक्त वैवाहिक संस्तुति:' : 'Classical Recommendation:'}
+          </div>
+          <div style="font-size:13px; color:var(--dark); line-height:1.65;">
+            ${repMangal.spouse_recommendation.advice_text}
+          </div>
+        </div>
+        <div style="font-size:12.5px; color:var(--dark); line-height:1.6;">
+          <strong>${isHi ? 'अनुशंसित वैदिक उपाय व अनुष्ठान:' : 'Recommended Remedies:'}</strong> ${repMangal.spouse_recommendation.remedies}
+        </div>
+      </div>
+
+      <!-- Classical Shloka Authority Citation Box -->
+      <div class="shodhan-info-box" style="margin-top:16px; background:rgba(180,83,9,0.04); border-left:3px solid var(--gold); border-radius:8px; padding:12px 14px;">
+        <div style="font-weight:700; color:var(--gold); margin-bottom:4px; font-size:13px;">
+          ${isHi ? 'शास्त्रीय संदर्भ व प्रामाणिक ग्रंथ सूची:' : 'Classical Shastra Authorities:'}
+        </div>
+        <div style="font-size:12px; color:var(--dark); line-height:1.6;">
+          • बृहत्पाराशरहोराशास्त्रम् (महर्षि पराशर) — लग्न व त्रि-लग्न भौम दोष मूल विधान<br>
+          • अगस्त्य संहिता — विशिष्ट राशि-भाव परिहार (मेष, वृष, कर्क, तुला, वृश्चिक, धनु)<br>
+          • फलदीपिका (मंत्रेश्वर) व मानसागरी — स्वक्षेत्र, उच्चक्षेत्र, मरण/बाल्यावस्था व २८ वर्ष परिपक्वता<br>
+          • जातक पारिजात (वैद्यनाथ दीक्षित) — वर्गोत्तम व चंद्र-भौम विचार<br>
+          • शम्भुहोराप्रकाश — समदोष / पाप साम्य प्रतिपक्ष विधान (विषेण विषनाशः)
+        </div>
+      </div>
+    `;
+  } else {
+    // Locked Preview for Mangal Dosha Report
+    paneMangalContent = `
+      <div class="jataka-formal-header" style="border:1px solid var(--border); border-radius:12px; padding:16px 20px; background:var(--card-bg); margin-bottom:16px;">
+        <div class="jataka-formal-top" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; background:rgba(239,68,68,0.12); color:#dc2626; font-weight:800; padding:2px 8px; border-radius:8px;">14 Classical Parihara Rules</span>
+            <h2 class="jataka-formal-report-title" style="margin:0; font-size:18px; color:var(--primary);">${repMangal ? repMangal.report_title : repMangalTitle}</h2>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn-switch-report-pill" onclick="toggleEditBirthDetails()" style="background:rgba(180,83,9,0.1); border-color:var(--gold); color:var(--dark);">
+              ✏️ ${isHi ? 'जन्म विवरण बदलें' : 'Edit Details'}
+            </button>
+            <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('mangal')" style="background:#dc2626;">
+              ${isHi ? '₹199 में अनलॉक करें ➔' : 'Unlock for ₹199 ➔'}
+            </button>
+          </div>
+        </div>
+        <div class="jataka-formal-grid">
+          <div class="jataka-field"><span>${isHi ? 'जातक:' : 'Native:'}</span> <strong>${candidateName}</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'जन्म:' : 'Birth:'}</span> <strong>${birthDateStr} ${birthTimeStr}</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'स्थान:' : 'Place:'}</span> <strong>${birthPlaceStr}</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'लग्न:' : 'Ascendant:'}</span> <strong>${lagnaName} (${lagnaDegStr})</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'चन्द्र:' : 'Moon:'}</span> <strong>${moonSignName} (${moonDegStr})</strong></div>
+          <div class="jataka-field"><span>${isHi ? 'स्थिति:' : 'Status:'}</span> <strong style="color:#dc2626;">${isHi ? 'VIP रिपोर्ट लॉक' : 'Report Locked'}</strong></div>
+        </div>
+      </div>
+
+      <!-- Clean Single-Level Flat Paywall Card -->
+      <div class="parashara-paywall-banner" style="background:linear-gradient(135deg, rgba(239,68,68,0.08), rgba(220,38,38,0.14)); border:1.5px solid #dc2626; border-radius:14px; padding:20px 22px; margin:16px 0;">
+        <div class="paywall-banner-badge" style="background:#dc2626; color:#fff; display:inline-block; margin-bottom:8px;">${isHi ? 'एक्सक्लूसिव शास्त्रीय मंगल दोष एवं परिहार विधान' : 'Exclusive Classical Mangal Dosha & Parihara'}</div>
+        <div class="paywall-banner-content" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+          <div class="paywall-banner-text" style="flex:1; min-width:280px;">
+            <h3 class="paywall-banner-title" style="margin:0 0 6px 0; font-size:17px; color:#dc2626; font-weight:800;">
+              ${isHi ? 'प्रामाणिक मंगल दोष एवं १४ परिहार रिपोर्ट अनलॉक करें' : 'Unlock Authentic Mangal Dosha & 14 Parihara Report'}
+            </h3>
+            <p class="paywall-banner-desc" style="margin:0 0 10px 0; font-size:13px; line-height:1.6; color:var(--dark);">
+              ${isHi ? 'लग्न, चंद्र व शुक्र तीनों आधारों से सूक्ष्म परीक्षण, अगस्त्य संहिता व फलदीपिका के १४ शास्त्रोक्त परिहार नियम, मूल संस्कृत श्लोक एवं सटीक वैवाहिक जीवनसाथी परामर्श तुरंत प्राप्त करें।' : 'Access tri-lagna analysis, 14 authentic classical parihara rules from Agastya Samhita & Phaladeepika with Sanskrit shlokas and spouse compatibility counsel.'}
+            </p>
+            <div class="paywall-banner-highlights" style="display:flex; gap:12px; font-size:12px; font-weight:700; color:#dc2626; flex-wrap:wrap;">
+              <span>${isHi ? 'मात्र ₹199 एकमुश्त' : 'Only ₹199 One-time'}</span>
+              <span>${isHi ? '१४ शास्त्रीय परिहार नियम' : '14 Classical Rules'}</span>
+              <span>${isHi ? 'आजीवन PDF / प्रिंट एक्सेस' : 'Lifetime Print / PDF'}</span>
+            </div>
+          </div>
+          <div style="text-align:center; min-width:180px;">
+            <div class="paywall-price-wrap" style="margin-bottom:8px;">
+              <span class="paywall-old-price">₹999</span>
+              <span class="paywall-current-price" style="color:#dc2626;">₹199</span>
+              <span class="paywall-discount-tag">${isHi ? '80% छूट' : '80% OFF'}</span>
+            </div>
+            <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal('mangal')" style="background:linear-gradient(135deg, #ef4444, #dc2626);">
+              ${isHi ? '₹199 में रिपोर्ट अनलॉक करें ➔' : 'Unlock Report (₹199) ➔'}
+            </button>
+            <div class="paywall-sublink" style="margin-top:6px;">
+              <a href="javascript:void(0)" onclick="openParasharaPaymentModal('mangal', 'passcode')">${isHi ? 'VIP प्रोमो कोड दर्ज करें' : 'Enter VIP Promo Code'}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blurred Teaser Preview -->
+      <div style="position:relative; filter:blur(4px); opacity:0.5; pointer-events:none; user-select:none;">
+        <div class="mangal-meter-grid">
+          <div class="mangal-metric-card"><div class="mangal-metric-num" style="color:#dc2626;">🔒 %</div><div class="mangal-metric-label">ग्रॉस मंगल भार</div></div>
+          <div class="mangal-metric-card"><div class="mangal-metric-num" style="color:#059669;">🔒 %</div><div class="mangal-metric-label">परिहार कटौती</div></div>
+          <div class="mangal-metric-card"><div class="mangal-metric-num">🔒 %</div><div class="mangal-metric-label">शुद्ध अंतिम दोष</div></div>
+        </div>
+        <div class="shodhan-info-box" style="padding:14px;">
+          <div>१४ परिहार नियम, अगस्त्य संहिता श्लोक एवं जीवनसाथी मिलान परामर्श...</div>
+        </div>
+      </div>
+    `;
+  }
+
   // --- ASSEMBLE COMPLETE REPORT CONTAINER WITH SUB-TABS ---
   container.innerHTML = `
     <div class="parashara-reports-wrapper">
@@ -7555,6 +8117,9 @@ function renderParasharaReports() {
         <button type="button" class="parashara-report-tab ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="tabBtnVahan" onclick="switchParasharaReport('vahan')">
           <span>${rep2Title}</span>
         </button>
+        <button type="button" class="parashara-report-tab ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="tabBtnMangal" onclick="switchParasharaReport('mangal')">
+          <span>${repMangalTitle}</span>
+        </button>
       </div>
 
       <!-- PANE 1: RAAJYOGA STRENGTH / RASHMI BAL -->
@@ -7565,6 +8130,11 @@ function renderParasharaReports() {
       <!-- PANE 2: VAHAN & JANBAL REPORT -->
       <div class="parashara-report-pane ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="parasharaPaneVahan" style="display:${activeParasharaReport === 'vahan' ? 'block' : 'none'};">
         ${pane2Content}
+      </div>
+
+      <!-- PANE 3: MANGAL DOSHA & PARIHARA REPORT -->
+      <div class="parashara-report-pane ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="parasharaPaneMangal" style="display:${activeParasharaReport === 'mangal' ? 'block' : 'none'};">
+        ${paneMangalContent}
       </div>
     </div>
   `;
@@ -9083,13 +9653,65 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('domain') === 'reports') {
-    const rawSession = sessionStorage.getItem("sra_kundli_session_v2");
-    if (!rawSession && typeof showKundaliToast === 'function') {
-      setTimeout(() => {
-        showKundaliToast("📊 जन्म विवरण भरकर 'अपनी जन्म पत्रिका देखें' दबाएं — रश्मि व वाहन रिपोर्ट्स स्वतः तैयार हो जाएंगी!");
-      }, 600);
+  const isReportsTarget = (urlParams.get('domain') === 'reports');
+  const isMangalTarget = (urlParams.get('focus') === 'mangal' || urlParams.get('focus') === 'manglik');
+  const rawSession = sessionStorage.getItem("sra_kundli_session_v2");
+
+  if ((isReportsTarget || isMangalTarget) && !rawSession) {
+    // 1. Populate URL parameters if present
+    let name = urlParams.get('name') || '';
+    let dob = urlParams.get('dob') || '';
+    let tob = urlParams.get('tob') || '';
+    let city = urlParams.get('city') || '';
+    let lat = urlParams.get('lat') || '';
+    let lon = urlParams.get('lon') || '';
+    let tz = urlParams.get('tz') || '5.5';
+
+    // 2. If not in URL, check localStorage saved kundalis
+    if (!dob || !tob || !lat || !lon) {
+      try {
+        const savedRaw = localStorage.getItem("sra_saved_kundalis");
+        if (savedRaw) {
+          const list = JSON.parse(savedRaw);
+          if (Array.isArray(list) && list.length > 0) {
+            const first = list[0];
+            name = name || first.name || first.candidateName || '';
+            dob = dob || first.date || first.dob || '';
+            tob = tob || first.time || first.tob || '';
+            city = city || first.city || first.place || '';
+            lat = lat || first.lat || '';
+            lon = lon || first.lon || '';
+            tz = tz || first.tz || '5.5';
+          }
+        }
+      } catch(e) {}
     }
+
+    // 3. If still blank, use standard classical reference defaults (Varanasi, PRD reference chart)
+    if (!dob) dob = "1995-10-15";
+    if (!tob) tob = "10:30:00";
+    if (!city) city = "वाराणसी, उत्तर प्रदेश (Varanasi, UP)";
+    if (!lat) lat = "25.3176";
+    if (!lon) lon = "82.9739";
+    if (!tz) tz = "5.5";
+    if (!name) name = (document.documentElement.lang === 'en') ? "Native" : "जातक";
+
+    if (document.getElementById("inName")) document.getElementById("inName").value = name;
+    if (document.getElementById("inDate")) document.getElementById("inDate").value = dob;
+    if (document.getElementById("inTime")) document.getElementById("inTime").value = tob;
+    if (document.getElementById("inCitySearch")) document.getElementById("inCitySearch").value = city;
+    if (document.getElementById("inLat")) document.getElementById("inLat").value = lat;
+    if (document.getElementById("inLon")) document.getElementById("inLon").value = lon;
+    if (document.getElementById("inTz")) document.getElementById("inTz").value = tz;
+
+    setTimeout(() => {
+      if (typeof executeParasharaMaster === 'function') {
+        executeParasharaMaster();
+        if (typeof showKundaliToast === 'function') {
+          showKundaliToast(isMangalTarget ? "🔥 प्रामाणिक मंगल दोष एवं परिहार रिपोर्ट प्रस्तुत है" : "📊 पराशर फलित रिपोर्ट्स प्रस्तुत हैं");
+        }
+      }
+    }, 250);
   }
 
   const googleBtn = document.getElementById("btnGoogleLogin");
