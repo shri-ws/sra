@@ -2917,6 +2917,102 @@
     margin: 16px 0;
   }
 
+  /* ============================================================
+     FOCUSED REPORT MODE (मंगल दोष, राजयोग, वाहन आदि विशिष्ट दृश्य)
+     ============================================================ */
+  .focused-mode-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), rgba(180, 83, 9, 0.12));
+    border: 1.5px solid var(--gold);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 14px rgba(124, 19, 5, 0.06);
+  }
+  .focused-mode-banner.rajyoga {
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.1), rgba(217, 119, 6, 0.15));
+    border-color: var(--gold);
+  }
+  .focused-mode-banner.vahan {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(180, 83, 9, 0.12));
+    border-color: #2563eb;
+  }
+  .focused-mode-banner-icon {
+    font-size: 30px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .focused-mode-banner-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 3px;
+  }
+  .focused-mode-banner-desc {
+    font-size: 12.5px;
+    color: var(--text-muted, #475569);
+    line-height: 1.5;
+  }
+
+  /* Focused Report Mode in Output - Hide all other domains & general charts */
+  body.focused-report-mode #outputDomainNav {
+    display: none !important;
+  }
+  body.focused-report-mode #domainPanelCharts,
+  body.focused-report-mode #domainPanelPlanets,
+  body.focused-report-mode #domainPanelPanchang,
+  body.focused-report-mode #domainPanelDashas,
+  body.focused-report-mode #domainPanelAnalysis {
+    display: none !important;
+  }
+  body.focused-report-mode #domainPanelReports {
+    display: block !important;
+  }
+  body.focused-report-mode .parashara-report-nav {
+    display: none !important; /* Hide other report tabs in focused mode */
+  }
+
+  .focused-report-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: linear-gradient(135deg, #fff7ed, #fef2f2);
+    border: 1.5px solid #ea580c;
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.08);
+  }
+  [data-theme="dark"] .focused-report-top-bar {
+    background: linear-gradient(135deg, #1e1b18, #2a1414);
+    border-color: #f97316;
+  }
+  .btn-toggle-kundali-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card-bg, #ffffff);
+    border: 1.5px solid var(--gold);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .btn-toggle-kundali-view:hover {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+  }
+
   /* DEDICATED PRINT / PDF STYLESHEET */
   @media print {
     nav,
@@ -2933,13 +3029,17 @@
     .parashara-lock-overlay-btn,
     .btn-print-report-pane,
     .btn-switch-report-pill,
+    .btn-cross-sell,
     .parashara-report-nav,
     .reports-hero-banner,
     .parashara-paywall-banner,
+    .focused-report-top-bar,
+    .focused-mode-banner,
     #modalParasharaPayment199,
     #modalMobileOtp,
     #kundaliToast,
     #parasharaToastEl,
+    #pdf_gen_loading_mask,
     .partner-matcher-box select,
     .partner-matcher-box button {
       display: none !important;
@@ -2954,7 +3054,7 @@
       font-size: 10.5pt !important;
     }
 
-    #mainContainer,
+    .container,
     #outputSection,
     #domainPanelReports,
     #parasharaReportsContent {
@@ -6443,14 +6543,26 @@ async function executeParasharaMaster() {
   // Smooth scroll directly to the top so chart & tabs are in immediate view
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const targetDomain = urlParams.get('domain') || currentOutputDomain || 'charts';
+  if (focusedReportType && !isKundaliAllRevealed) {
+    if (typeof switchOutputDomain === 'function') {
+      switchOutputDomain('reports');
+    }
+    if (typeof switchParasharaReport === 'function') {
+      switchParasharaReport(focusedReportType);
+    }
+    if (typeof applyFocusedReportOutput === 'function') {
+      applyFocusedReportOutput();
+    }
+  } else {
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetDomain = urlParams.get('domain') || currentOutputDomain || 'charts';
 
-  if (typeof switchOutputDomain === 'function') {
-    switchOutputDomain(targetDomain);
-  }
-  if (typeof goToChartSlide === 'function') {
-    goToChartSlide(0);
+    if (typeof switchOutputDomain === 'function') {
+      switchOutputDomain(targetDomain);
+    }
+    if (typeof goToChartSlide === 'function') {
+      goToChartSlide(0);
+    }
   }
 }
 
@@ -7401,6 +7513,137 @@ function switchParasharaReport(reportType) {
   }
 }
 
+let focusedReportType = null; // 'mangal' | 'rajyoga' | 'vahan' | null
+let isKundaliAllRevealed = false;
+
+function checkAndApplyFocusedReportMode() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    let focus = urlParams.get('focus') || urlParams.get('report');
+    if (focus === 'manglik') focus = 'mangal';
+
+    if (focus === 'mangal' || focus === 'rajyoga' || focus === 'vahan') {
+      focusedReportType = focus;
+      activeParasharaReport = focus;
+
+      renderFocusedFormBanner(focus);
+
+      const calcBtn = document.getElementById('btnGenerateKundali');
+      if (calcBtn) {
+        if (focus === 'mangal') {
+          calcBtn.innerHTML = '🔥 मंगल दोष रिपोर्ट देखें (मात्र ₹199) ➔';
+        } else if (focus === 'rajyoga') {
+          calcBtn.innerHTML = '👑 राजयोग रिपोर्ट देखें (मात्र ₹199) ➔';
+        } else if (focus === 'vahan') {
+          calcBtn.innerHTML = '🚗 वाहन एवं जनबल रिपोर्ट देखें (मात्र ₹199) ➔';
+        }
+      }
+    }
+  } catch(e) {
+    console.warn("checkAndApplyFocusedReportMode error:", e);
+  }
+}
+
+function renderFocusedFormBanner(focus) {
+  const existing = document.getElementById('focusedFormBanner');
+  if (existing) existing.remove();
+
+  const inputPanel = document.getElementById('inputPanelWrapper');
+  if (!inputPanel) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'focusedFormBanner';
+  banner.className = `focused-mode-banner ${focus}`;
+
+  const currentLang = (document.documentElement.getAttribute('lang') || 'hi').toLowerCase();
+  const isHi = (currentLang === 'hi');
+
+  let icon = '🔥';
+  let title = isHi ? 'प्रामाणिक मंगल दोष एवं २१ परिहार परीक्षण (मात्र ₹199)' : 'Authentic Mangal Dosha & 21 Parihara Test (Only ₹199)';
+  let desc = isHi 
+    ? 'त्रि-लग्न (लग्न, चन्द्र, शुक्र) सूक्ष्म गणित, २१ शास्त्रीय परिहार नियम एवं वैवाहिक परामर्श प्राप्त करने हेतु कृपया जन्म विवरण भरें।'
+    : 'Tri-Lagna computational verification, 21 classical cancellation rules and matrimonial guidance. Please enter birth details below.';
+
+  if (focus === 'rajyoga') {
+    icon = '👑';
+    title = isHi ? 'Raajyoga Strength / Rashmi Bal रिपोर्ट (मात्र ₹199)' : 'Raajyoga Strength / Rashmi Bal Report (Only ₹199)';
+    desc = isHi
+      ? 'सप्तग्रह रश्मि-बल, श्लोक १८ युति शोधन एवं श्लोक २३–३९ स्लैब फलादेश हेतु कृपया अपना जन्म विवरण भरें।'
+      : 'Seven planet planetary rays, shloka 18 conjunction rectification and slab predictions. Please enter birth details.';
+  } else if (focus === 'vahan') {
+    icon = '🚗';
+    title = isHi ? 'पाराशर गोमूत्रिका वाहन एवं जनबल रिपोर्ट (मात्र ₹199)' : 'Parashara Gomutrika Vahan & Janbal Report (Only ₹199)';
+    desc = isHi
+      ? 'बृहत्पाराशर होराशास्त्र श्लोक ३४–४० अनुसार भौतिक सुख, वाहन एवं आश्रित जनबल सामर्थ्य हेतु कृपया जन्म विवरण भरें।'
+      : 'Brihat Parashara Hora Shastra vehicular & prosperity strength analysis. Please enter birth details.';
+  }
+
+  banner.innerHTML = `
+    <div class="focused-mode-banner-icon">${icon}</div>
+    <div style="flex:1;">
+      <div class="focused-mode-banner-title">${title}</div>
+      <div class="focused-mode-banner-desc">${desc}</div>
+    </div>
+  `;
+
+  inputPanel.insertBefore(banner, inputPanel.firstChild);
+}
+
+function applyFocusedReportOutput() {
+  if (!focusedReportType || isKundaliAllRevealed) return;
+
+  document.body.classList.add('focused-report-mode');
+
+  // Hide general domain navigation bar
+  const domainNav = document.getElementById('outputDomainNav');
+  if (domainNav) domainNav.style.display = 'none';
+
+  // Hide general domain panels (charts, planets, panchang, dashas, analysis)
+  ['domainPanelCharts', 'domainPanelPlanets', 'domainPanelPanchang', 'domainPanelDashas', 'domainPanelAnalysis'].forEach(id => {
+    const p = document.getElementById(id);
+    if (p) {
+      p.style.display = 'none';
+      p.classList.remove('active');
+    }
+  });
+
+  // Ensure reports domain and active report pane are active
+  const repDomain = document.getElementById('domainPanelReports');
+  if (repDomain) {
+    repDomain.style.display = 'block';
+    repDomain.classList.add('active');
+  }
+
+  if (typeof switchParasharaReport === 'function') {
+    switchParasharaReport(focusedReportType);
+  }
+}
+
+function toggleFocusedKundaliView() {
+  isKundaliAllRevealed = !isKundaliAllRevealed;
+
+  const domainNav = document.getElementById('outputDomainNav');
+  const isHi = (document.documentElement.lang || 'hi').toLowerCase() === 'hi';
+  const repName = (focusedReportType === 'mangal') ? (isHi ? 'मंगल दोष' : 'Mangal Dosha') :
+                  ((focusedReportType === 'vahan') ? (isHi ? 'वाहन' : 'Vahan') : (isHi ? 'राजयोग' : 'Rajyoga'));
+
+  if (isKundaliAllRevealed) {
+    document.body.classList.remove('focused-report-mode');
+    if (domainNav) domainNav.style.display = 'flex';
+    if (typeof renderParasharaReports === 'function') {
+      renderParasharaReports();
+    }
+    showKundaliToast(isHi ? "👁️ संपूर्ण जन्म चक्र व कुण्डली दृश्य सक्रिय किया गया" : "👁️ Full Kundali Charts & Dashas revealed");
+  } else {
+    document.body.classList.add('focused-report-mode');
+    applyFocusedReportOutput();
+    if (typeof renderParasharaReports === 'function') {
+      renderParasharaReports();
+    }
+    showKundaliToast(isHi ? `🎯 केवल ${repName} रिपोर्ट दृश्य सक्रिय` : `🎯 ${repName} Dedicated View Active`);
+  }
+}
+
 async function printParasharaReport(reportType) {
   // 1. Ensure the requested report pane is active
   switchParasharaReport(reportType);
@@ -7409,6 +7652,12 @@ async function printParasharaReport(reportType) {
   const pane = document.getElementById(paneId);
   if (!pane) {
     window.print();
+    return;
+  }
+
+  // 1.1 Verify unlock status
+  if (!isParasharaReportUnlocked(reportType)) {
+    openParasharaPaymentModal(reportType);
     return;
   }
 
@@ -7424,12 +7673,39 @@ async function printParasharaReport(reportType) {
     btn.style.opacity = '0.7';
   }
 
-  if (typeof showKundaliToast === 'function') {
-    showKundaliToast(isHi ? '📥 PDF रिपोर्ट तैयार की जा रही है, कृपया प्रतीक्षा करें...' : '📥 Generating PDF report, please wait...');
+  // Show professional non-blocking loading mask
+  let mask = document.getElementById('pdf_gen_loading_mask');
+  if (!mask) {
+    mask = document.createElement('div');
+    mask.id = 'pdf_gen_loading_mask';
+    mask.style.position = 'fixed';
+    mask.style.top = '0';
+    mask.style.left = '0';
+    mask.style.width = '100vw';
+    mask.style.height = '100vh';
+    mask.style.zIndex = '999999';
+    mask.style.background = 'rgba(15, 23, 42, 0.85)';
+    mask.style.backdropFilter = 'blur(4px)';
+    mask.style.display = 'flex';
+    mask.style.flexDirection = 'column';
+    mask.style.alignItems = 'center';
+    mask.style.justifyContent = 'center';
+    mask.style.color = '#ffffff';
+    mask.style.fontFamily = "'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif";
+    mask.innerHTML = `
+      <div style="font-size:42px; margin-bottom:12px;">📥</div>
+      <div style="font-size:20px; font-weight:800; color:#fbbf24; font-family:'Cinzel', serif; letter-spacing:1px;">श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO</div>
+      <div style="font-size:16px; font-weight:700; margin-top:8px;">${isHi ? 'प्रामाणिक A4 PDF रिपोर्ट तैयार की जा रही है...' : 'Compiling High-Resolution A4 PDF...'}</div>
+      <div style="font-size:12.5px; color:#cbd5e1; margin-top:4px;">${isHi ? 'कृपया २-३ सेकंड प्रतीक्षा करें • सभी २१ परिहार व शास्त्रीय सूत्र संकलित हो रहे हैं' : 'Please wait 2-3 seconds • Certified Astrological Document'}</div>
+    `;
+    document.body.appendChild(mask);
+  } else {
+    mask.style.display = 'flex';
   }
 
   // 3. Fallback if html2pdf is unavailable
   if (typeof html2pdf !== 'function') {
+    if (mask) mask.style.display = 'none';
     if (btn) {
       btn.innerHTML = originalBtnHtml;
       btn.disabled = false;
@@ -7441,6 +7717,7 @@ async function printParasharaReport(reportType) {
     return;
   }
 
+  let container = null;
   try {
     // 4. Determine candidate name and filename
     let candidateName = 'Jataka';
@@ -7453,41 +7730,96 @@ async function printParasharaReport(reportType) {
       }
     }
 
-    const reportSlug = (reportType === 'rajyoga') ? 'Rajyoga_Rashmi' : ((reportType === 'vahan') ? 'Vahan_Janbal' : 'Mangal_Dosha_Parihara');
+    const reportSlug = (reportType === 'rajyoga') ? 'Rajyoga_Rashmi' : ((reportType === 'vahan') ? 'Vahan_Janbal' : 'Mangal_Dosha_21Parihara');
     const filename = `ShriRamjiAstro_${reportSlug}_${candidateName}.pdf`;
 
     // 5. Clone the pane to generate a pristine, print-optimized document
     const clone = pane.cloneNode(true);
 
     // Remove buttons, edit links, cross-sells, select dropdowns, etc. from the PDF
-    clone.querySelectorAll('.btn-print-report-pane, .btn-switch-report-pill, .btn-cross-sell, select, button, .paywall-sublink').forEach(el => {
+    clone.querySelectorAll('.btn-print-report-pane, .btn-switch-report-pill, .btn-cross-sell, select, button, .paywall-sublink, .focused-report-top-bar').forEach(el => {
       el.remove();
     });
 
-    // 6. Wrap in formal certificate container
-    const container = document.createElement('div');
+    // 6. Wrap in formal certificate container (ON-SCREEN AT TOP:0, LEFT:0 UNDER MASK SO HTML2CANVAS CAN CAPTURE IT ACCURATELY)
+    container = document.createElement('div');
+    container.id = 'sra_pdf_certificate_stage';
     container.style.position = 'fixed';
-    container.style.top = '-99999px';
-    container.style.left = '-99999px';
-    container.style.width = '794px'; // Standard A4 width at 96 DPI
+    container.style.top = '0px';
+    container.style.left = '0px';
+    container.style.width = '794px'; // 210mm at 96 DPI
+    container.style.minHeight = '1123px'; // 297mm at 96 DPI
     container.style.background = '#ffffff';
     container.style.color = '#1e293b';
     container.style.padding = '24px 28px';
     container.style.fontFamily = "'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif";
     container.style.boxSizing = 'border-box';
+    container.style.zIndex = '999998'; // Just below loading mask so user sees loading screen while html2canvas renders
+    container.style.overflow = 'visible';
+
+    // PDF specific styles
+    const pdfStyle = document.createElement('style');
+    pdfStyle.textContent = `
+      #sra_pdf_certificate_stage, #sra_pdf_certificate_stage * {
+        color-scheme: light !important;
+        box-sizing: border-box !important;
+      }
+      #sra_pdf_certificate_stage {
+        background: #ffffff !important;
+        color: #1e293b !important;
+      }
+      #sra_pdf_certificate_stage .jataka-formal-header {
+        background: #fffdfa !important;
+        border: 1.5px solid #b45309 !important;
+        page-break-inside: avoid !important;
+      }
+      #sra_pdf_certificate_stage .mangal-meter-grid {
+        page-break-inside: avoid !important;
+      }
+      #sra_pdf_certificate_stage .mangal-metric-card {
+        background: #ffffff !important;
+      }
+      #sra_pdf_certificate_stage .parihara-rule-card {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        border: 1px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        margin-bottom: 10px !important;
+      }
+      #sra_pdf_certificate_stage .parihara-rule-card.applied {
+        border-color: #10b981 !important;
+        background: #f0fdf4 !important;
+      }
+      #sra_pdf_certificate_stage .shloka-quote-box,
+      #sra_pdf_certificate_stage .shloka-box-classical {
+        page-break-inside: avoid !important;
+        background: #fffbeb !important;
+        border-left: 3px solid #b45309 !important;
+        color: #7c1305 !important;
+      }
+      #sra_pdf_certificate_stage .parashara-table th {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+      }
+      #sra_pdf_certificate_stage .parashara-table td {
+        background: #ffffff !important;
+        color: #1e293b !important;
+      }
+    `;
+    container.appendChild(pdfStyle);
 
     // Formal Vedic Letterhead Header
     const headerBanner = document.createElement('div');
     headerBanner.style.textAlign = 'center';
-    headerBanner.style.borderBottom = '2px solid #b45309';
+    headerBanner.style.borderBottom = '2.5px solid #b45309';
     headerBanner.style.paddingBottom = '12px';
     headerBanner.style.marginBottom = '16px';
     headerBanner.innerHTML = `
-      <div style="font-size:22px; font-weight:800; color:#7c1305; font-family:'Cinzel', serif; letter-spacing:1px;">
+      <div style="font-size:24px; font-weight:800; color:#7c1305; font-family:'Cinzel', serif; letter-spacing:1.5px;">
         श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO
       </div>
-      <div style="font-size:12px; color:#b45309; font-weight:700; margin-top:3px;">
-        काशी (वाराणसी) • True Chitra Paksha (Lahiri) • महर्षि पराशर सम्मत वैदिक जन्म पत्रिका
+      <div style="font-size:12.5px; color:#b45309; font-weight:700; margin-top:3px;">
+        काशी (वाराणसी) • True Chitra Paksha (Lahiri) • महर्षि पराशर सम्मत प्रामाणिक फलित विवरण
       </div>
     `;
     container.appendChild(headerBanner);
@@ -7509,14 +7841,17 @@ async function printParasharaReport(reportType) {
     footer.style.borderTop = '1px solid #cbd5e1';
     footer.style.paddingTop = '10px';
     footer.style.marginTop = '20px';
-    footer.style.fontSize = '10px';
+    footer.style.fontSize = '10.5px';
     footer.style.color = '#64748b';
     footer.innerHTML = `
-      © ${new Date().getFullYear()} श्री रामजी एस्ट्रो (shriramjiastro.in) • यह रिपोर्ट महर्षि पराशर, अगस्त्य संहिता व फलदीपिका के प्रामाणिक सूत्रों पर आधारित है।
+      © ${new Date().getFullYear()} श्री रामजी एस्ट्रो (shriramjiastro.in) • यह प्रामाणिक रिपोर्ट महर्षि पराशर, अगस्त्य संहिता, फलदीपिका एवं मानसागरी के सूत्रों पर आधारित है।
     `;
     container.appendChild(footer);
 
     document.body.appendChild(container);
+
+    // Give browser 60ms to ensure fonts and layout in container are fully rendered
+    await new Promise(resolve => setTimeout(resolve, 60));
 
     const opt = {
       margin: [8, 8, 8, 8],
@@ -7526,20 +7861,23 @@ async function printParasharaReport(reportType) {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+        width: 794,
+        windowWidth: 794
       },
       jsPDF: {
         unit: 'mm',
         format: 'a4',
         orientation: 'portrait'
       },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     await html2pdf().set(opt).from(container).save();
-
-    // Clean up temporary DOM element
-    document.body.removeChild(container);
 
     // 7. Success state on button
     if (btn) {
@@ -7565,6 +7903,13 @@ async function printParasharaReport(reportType) {
     setTimeout(() => {
       window.print();
     }, 150);
+  } finally {
+    if (container && container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+    if (mask) {
+      mask.style.display = 'none';
+    }
   }
 }
 
@@ -8596,20 +8941,73 @@ function renderParasharaReports() {
   }
 
   // --- ASSEMBLE COMPLETE REPORT CONTAINER WITH SUB-TABS ---
+  const isFocusedAndLockedView = (focusedReportType && !isKundaliAllRevealed);
+  const repName = (focusedReportType === 'mangal') ? (isHi ? 'मंगल दोष एवं २१ परिहार' : 'Mangal Dosha & Parihara') :
+                  ((focusedReportType === 'vahan') ? (isHi ? 'वाहन एवं जनबल' : 'Vahan & Janbal') : (isHi ? 'राजयोग व रश्मि-बल' : 'Rajyoga & Rashmi'));
+
   container.innerHTML = `
     <div class="parashara-reports-wrapper">
-      <!-- Report Sub-Tab Selector (Separate Navigation) -->
-      <div class="parashara-report-nav">
-        <button type="button" class="parashara-report-tab ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="tabBtnRajyoga" onclick="switchParasharaReport('rajyoga')">
-          <span>${rep1Title}</span>
-        </button>
-        <button type="button" class="parashara-report-tab ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="tabBtnVahan" onclick="switchParasharaReport('vahan')">
-          <span>${rep2Title}</span>
-        </button>
-        <button type="button" class="parashara-report-tab ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="tabBtnMangal" onclick="switchParasharaReport('mangal')">
-          <span>${repMangalTitle}</span>
-        </button>
-      </div>
+      ${isFocusedAndLockedView ? `
+        <!-- Focused Dedicated View Top Bar -->
+        <div class="focused-report-top-bar" id="focusedReportTopBar">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:24px;">${focusedReportType === 'mangal' ? '🔥' : (focusedReportType === 'rajyoga' ? '👑' : '🚗')}</span>
+            <div>
+              <div style="font-weight:800; font-size:15.5px; color:var(--primary);">
+                ${isHi ? `विशिष्ट दृश्य: प्रामाणिक ${repName} रिपोर्ट` : `Dedicated View: Authentic ${repName} Report`}
+              </div>
+              <div style="font-size:12px; color:var(--muted);">
+                ${isHi ? 'केवल चयनित रिपोर्ट प्रदर्शित है • अन्य चक्र व सारणियां छिपी हुई हैं' : 'Only requested report is displayed • General charts hidden'}
+              </div>
+            </div>
+          </div>
+          <div>
+            <button type="button" class="btn-toggle-kundali-view" id="btnToggleKundaliView" onclick="toggleFocusedKundaliView()">
+              👁️ ${isHi ? 'संपूर्ण जन्म चक्र व कुण्डली देखें (Full Kundali)' : 'View Full Kundali Charts'}
+            </button>
+          </div>
+        </div>
+      ` : (focusedReportType ? `
+        <!-- Revealed Full Kundali Banner with quick return -->
+        <div class="focused-report-top-bar" id="focusedReportTopBar" style="background:rgba(180,83,9,0.06); border-color:var(--gold);">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">👁️</span>
+            <span style="font-weight:700; font-size:13px; color:var(--gold);">
+              ${isHi ? 'संपूर्ण कुण्डली चक्र व दशाएं दृश्यमान हैं' : 'All Kundali Charts & Dashas are Visible'}
+            </span>
+          </div>
+          <div>
+            <button type="button" class="btn-toggle-kundali-view" id="btnToggleKundaliView" onclick="toggleFocusedKundaliView()">
+              <span>${focusedReportType === 'mangal' ? '🔥' : (focusedReportType === 'rajyoga' ? '👑' : '🚗')}</span>
+              ${isHi ? `केवल ${repName} रिपोर्ट देखें` : `View ${repName} Only`}
+            </button>
+          </div>
+        </div>
+        <div class="parashara-report-nav">
+          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="tabBtnRajyoga" onclick="switchParasharaReport('rajyoga')">
+            <span>${rep1Title}</span>
+          </button>
+          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="tabBtnVahan" onclick="switchParasharaReport('vahan')">
+            <span>${rep2Title}</span>
+          </button>
+          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="tabBtnMangal" onclick="switchParasharaReport('mangal')">
+            <span>${repMangalTitle}</span>
+          </button>
+        </div>
+      ` : `
+        <!-- Standard Report Sub-Tab Selector -->
+        <div class="parashara-report-nav">
+          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="tabBtnRajyoga" onclick="switchParasharaReport('rajyoga')">
+            <span>${rep1Title}</span>
+          </button>
+          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="tabBtnVahan" onclick="switchParasharaReport('vahan')">
+            <span>${rep2Title}</span>
+          </button>
+          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="tabBtnMangal" onclick="switchParasharaReport('mangal')">
+            <span>${repMangalTitle}</span>
+          </button>
+        </div>
+      `)}
 
       <!-- PANE 1: RAAJYOGA STRENGTH / RASHMI BAL -->
       <div class="parashara-report-pane ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="parasharaPaneRajyoga" style="display:${activeParasharaReport === 'rajyoga' ? 'block' : 'none'};">
@@ -10178,6 +10576,9 @@ window.addEventListener('DOMContentLoaded', () => {
     updateSavedKundaliBadge();
   }
 
+  // Check and apply focused report mode (Mangal Dosha, Rajyoga, Vahan)
+  checkAndApplyFocusedReportMode();
+
   const urlParams = new URLSearchParams(window.location.search);
   const isReportsTarget = (urlParams.get('domain') === 'reports');
   const isMangalTarget = (urlParams.get('focus') === 'mangal' || urlParams.get('focus') === 'manglik');
@@ -10213,31 +10614,34 @@ window.addEventListener('DOMContentLoaded', () => {
       } catch(e) {}
     }
 
-    // 3. If still blank, use standard classical reference defaults (Varanasi, PRD reference chart)
-    if (!dob) dob = "1995-10-15";
-    if (!tob) tob = "10:30:00";
-    if (!city) city = "वाराणसी, उत्तर प्रदेश (Varanasi, UP)";
-    if (!lat) lat = "25.3176";
-    if (!lon) lon = "82.9739";
-    if (!tz) tz = "5.5";
-    if (!name) name = (document.documentElement.lang === 'en') ? "Native" : "जातक";
+    // 3. Only auto-execute if legitimate user details were supplied
+    if (dob && tob && city && lat && lon) {
+      if (document.getElementById("inName")) document.getElementById("inName").value = name;
+      if (document.getElementById("inDate")) document.getElementById("inDate").value = dob;
+      if (document.getElementById("inTime")) document.getElementById("inTime").value = tob;
+      if (document.getElementById("inCitySearch")) document.getElementById("inCitySearch").value = city;
+      if (document.getElementById("inLat")) document.getElementById("inLat").value = lat;
+      if (document.getElementById("inLon")) document.getElementById("inLon").value = lon;
+      if (document.getElementById("inTz")) document.getElementById("inTz").value = tz;
 
-    if (document.getElementById("inName")) document.getElementById("inName").value = name;
-    if (document.getElementById("inDate")) document.getElementById("inDate").value = dob;
-    if (document.getElementById("inTime")) document.getElementById("inTime").value = tob;
-    if (document.getElementById("inCitySearch")) document.getElementById("inCitySearch").value = city;
-    if (document.getElementById("inLat")) document.getElementById("inLat").value = lat;
-    if (document.getElementById("inLon")) document.getElementById("inLon").value = lon;
-    if (document.getElementById("inTz")) document.getElementById("inTz").value = tz;
-
-    setTimeout(() => {
-      if (typeof executeParasharaMaster === 'function') {
-        executeParasharaMaster();
-        if (typeof showKundaliToast === 'function') {
-          showKundaliToast(isMangalTarget ? "🔥 प्रामाणिक मंगल दोष एवं परिहार रिपोर्ट प्रस्तुत है" : "📊 पराशर फलित रिपोर्ट्स प्रस्तुत हैं");
+      setTimeout(() => {
+        if (typeof executeParasharaMaster === 'function') {
+          executeParasharaMaster();
+          if (typeof showKundaliToast === 'function') {
+            showKundaliToast(isMangalTarget ? "🔥 प्रामाणिक मंगल दोष एवं परिहार रिपोर्ट प्रस्तुत है" : "📊 पराशर फलित रिपोर्ट्स प्रस्तुत हैं");
+          }
         }
+      }, 250);
+    } else {
+      // Leave form open for user to enter their actual details!
+      const nameInp = document.getElementById("inName");
+      if (nameInp && typeof nameInp.focus === 'function') {
+        setTimeout(() => nameInp.focus(), 300);
       }
-    }, 250);
+      if (typeof showKundaliToast === 'function') {
+        showKundaliToast(isMangalTarget ? "🔥 कृपया जन्म विवरण भरें — प्रामाणिक मंगल दोष रिपोर्ट तुरंत प्राप्त करें" : "📝 कृपया अपना जन्म विवरण भरें");
+      }
+    }
   }
 
   const googleBtn = document.getElementById("btnGoogleLogin");
