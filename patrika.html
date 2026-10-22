@@ -64,6 +64,7 @@
 <script src="data/shloka_database.js"></script>
 <script src="rashmiReportsService.js"></script>
 <script src="mangalDoshaService.js"></script>
+<script src="html2pdf.bundle.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- Google Identity Services (GIS) API & Firebase SDK -->
@@ -7084,11 +7085,171 @@ function switchParasharaReport(reportType) {
   }
 }
 
-function printParasharaReport(reportType) {
+async function printParasharaReport(reportType) {
+  // 1. Ensure the requested report pane is active
   switchParasharaReport(reportType);
-  setTimeout(() => {
+
+  const paneId = (reportType === 'rajyoga') ? 'parasharaPaneRajyoga' : ((reportType === 'vahan') ? 'parasharaPaneVahan' : 'parasharaPaneMangal');
+  const pane = document.getElementById(paneId);
+  if (!pane) {
     window.print();
-  }, 200);
+    return;
+  }
+
+  // 2. Identify button for visual loading feedback
+  const btn = pane.querySelector('.btn-print-report-pane');
+  const originalBtnHtml = btn ? btn.innerHTML : '';
+  const currentLang = (document.documentElement.getAttribute('lang') || 'hi').toLowerCase();
+  const isHi = (currentLang === 'hi');
+
+  if (btn) {
+    btn.innerHTML = `<span>⏳</span> ${isHi ? 'PDF तैयार हो रहा है...' : 'Generating PDF...'}`;
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+  }
+
+  if (typeof showKundaliToast === 'function') {
+    showKundaliToast(isHi ? '📥 PDF रिपोर्ट तैयार की जा रही है, कृपया प्रतीक्षा करें...' : '📥 Generating PDF report, please wait...');
+  }
+
+  // 3. Fallback if html2pdf is unavailable
+  if (typeof html2pdf !== 'function') {
+    if (btn) {
+      btn.innerHTML = originalBtnHtml;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+    setTimeout(() => {
+      window.print();
+    }, 150);
+    return;
+  }
+
+  try {
+    // 4. Determine candidate name and filename
+    let candidateName = 'Jataka';
+    if (currentCalculation && currentCalculation.birthDetails && currentCalculation.birthDetails.candidateName) {
+      candidateName = currentCalculation.birthDetails.candidateName.trim().replace(/\s+/g, '_');
+    } else {
+      const nameInp = document.getElementById('inName');
+      if (nameInp && nameInp.value.trim()) {
+        candidateName = nameInp.value.trim().replace(/\s+/g, '_');
+      }
+    }
+
+    const reportSlug = (reportType === 'rajyoga') ? 'Rajyoga_Rashmi' : ((reportType === 'vahan') ? 'Vahan_Janbal' : 'Mangal_Dosha_Parihara');
+    const filename = `ShriRamjiAstro_${reportSlug}_${candidateName}.pdf`;
+
+    // 5. Clone the pane to generate a pristine, print-optimized document
+    const clone = pane.cloneNode(true);
+
+    // Remove buttons, edit links, cross-sells, select dropdowns, etc. from the PDF
+    clone.querySelectorAll('.btn-print-report-pane, .btn-switch-report-pill, .btn-cross-sell, select, button, .paywall-sublink').forEach(el => {
+      el.remove();
+    });
+
+    // 6. Wrap in formal certificate container
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '-99999px';
+    container.style.left = '-99999px';
+    container.style.width = '794px'; // Standard A4 width at 96 DPI
+    container.style.background = '#ffffff';
+    container.style.color = '#1e293b';
+    container.style.padding = '24px 28px';
+    container.style.fontFamily = "'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif";
+    container.style.boxSizing = 'border-box';
+
+    // Formal Vedic Letterhead Header
+    const headerBanner = document.createElement('div');
+    headerBanner.style.textAlign = 'center';
+    headerBanner.style.borderBottom = '2px solid #b45309';
+    headerBanner.style.paddingBottom = '12px';
+    headerBanner.style.marginBottom = '16px';
+    headerBanner.innerHTML = `
+      <div style="font-size:22px; font-weight:800; color:#7c1305; font-family:'Cinzel', serif; letter-spacing:1px;">
+        श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO
+      </div>
+      <div style="font-size:12px; color:#b45309; font-weight:700; margin-top:3px;">
+        काशी (वाराणसी) • True Chitra Paksha (Lahiri) • महर्षि पराशर सम्मत वैदिक जन्म पत्रिका
+      </div>
+    `;
+    container.appendChild(headerBanner);
+
+    // Style the cloned report pane for paper-ready PDF
+    clone.style.display = 'block';
+    clone.style.background = '#ffffff';
+    clone.style.color = '#1e293b';
+    clone.style.padding = '0';
+    clone.style.margin = '0';
+    clone.style.boxShadow = 'none';
+    clone.style.border = 'none';
+
+    container.appendChild(clone);
+
+    // Formal Certified Footer
+    const footer = document.createElement('div');
+    footer.style.textAlign = 'center';
+    footer.style.borderTop = '1px solid #cbd5e1';
+    footer.style.paddingTop = '10px';
+    footer.style.marginTop = '20px';
+    footer.style.fontSize = '10px';
+    footer.style.color = '#64748b';
+    footer.innerHTML = `
+      © ${new Date().getFullYear()} श्री रामजी एस्ट्रो (shriramjiastro.in) • यह रिपोर्ट महर्षि पराशर, अगस्त्य संहिता व फलदीपिका के प्रामाणिक सूत्रों पर आधारित है।
+    `;
+    container.appendChild(footer);
+
+    document.body.appendChild(container);
+
+    const opt = {
+      margin: [8, 8, 8, 8],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      },
+      pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    await html2pdf().set(opt).from(container).save();
+
+    // Clean up temporary DOM element
+    document.body.removeChild(container);
+
+    // 7. Success state on button
+    if (btn) {
+      btn.innerHTML = `<span>✅</span> ${isHi ? 'डाउनलोड पूर्ण' : 'Downloaded'}`;
+      setTimeout(() => {
+        btn.innerHTML = originalBtnHtml;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 2500);
+    }
+
+    if (typeof showKundaliToast === 'function') {
+      showKundaliToast(isHi ? '✅ PDF रिपोर्ट सफलतापूर्वक डाउनलोड हो गई!' : '✅ PDF Report downloaded successfully!');
+    }
+  } catch (err) {
+    console.error("PDF Generation error:", err);
+    if (btn) {
+      btn.innerHTML = originalBtnHtml;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+    // Fallback to native print
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  }
 }
 
 function renderParasharaReports() {

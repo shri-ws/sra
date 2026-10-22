@@ -3,7 +3,7 @@
  * Enables PWA native installability and offline caching
  */
 
-const CACHE_NAME = 'sra-patrika-v3';
+const CACHE_NAME = 'sra-patrika-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/patrika.html',
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   '/theme.js',
   '/rashmiReportsService.js',
   '/mangalDoshaService.js',
+  '/html2pdf.bundle.min.js',
   '/icon-192.png',
   '/icon-512.png',
   '/apple-touch-icon.png'
