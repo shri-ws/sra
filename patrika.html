@@ -3177,27 +3177,28 @@
 
   <!-- Universal Birth Input Form -->
   <div class="input-panel" id="inputPanelWrapper">
-    <!-- Progressive Disclosure Mode Switcher Header -->
+    <!-- Form Header: Details & Saved Kundalis Trigger -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border); padding-bottom:12px; flex-wrap:wrap; gap:10px;">
-      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <div style="font-weight:700; color:var(--gold); font-size:14px; font-family:'Cinzel', serif; display:flex; align-items:center; gap:6px;">
-          <span>⚡</span> <span data-i18n-hi="इनपुट मोड चुनें:" data-i18n-en="Input Mode:">इनपुट मोड चुनें:</span>
-        </div>
-        <div style="display:inline-flex; border:1px solid var(--gold-border); border-radius:8px; overflow:hidden; background:var(--bg);">
-          <button type="button" id="btnModeQuick" class="v-btn active" onclick="switchDisclosureMode('quick')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--primary); color:#fff;" data-i18n-hi="⚡ त्वरित मोड" data-i18n-en="⚡ Quick Mode">⚡ त्वरित मोड</button>
-          <button type="button" id="btnModeExpert" class="v-btn" onclick="switchDisclosureMode('expert')" style="padding:8px 16px; border-radius:0; border:none; font-weight:bold; font-size:12.5px; background:var(--card-bg); color:var(--gold); border-left:1px solid var(--border);" data-i18n-hi="🔬 विशेषज्ञ मोड" data-i18n-en="🔬 Expert Mode">🔬 विशेषज्ञ मोड</button>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:22px;">📜</span>
+        <div>
+          <div style="font-weight:700; color:var(--gold); font-size:15px; font-family:'Cinzel', serif;" data-i18n-hi="जातक जन्म विवरण (प्रामाणिक पाराशरी गणना)" data-i18n-en="Birth Details (Authentic Parashari Computation)">जातक जन्म विवरण (प्रामाणिक पाराशरी गणना)</div>
+          <div style="font-size:11.5px; color:var(--muted);" data-i18n-hi="सटीक अक्षांश, देशांतर, समय व अयनांश पर आधारित सम्पूर्ण षोडशवर्ग चक्र" data-i18n-en="High-precision Shodashvarga charts based on exact coordinates, time & ayanamsa">सटीक अक्षांश, देशांतर, समय व अयनांश पर आधारित सम्पूर्ण षोडशवर्ग चक्र</div>
         </div>
       </div>
-      <div>
+      <div style="display:flex; gap:8px; align-items:center;">
         <button type="button" id="btnSavedKundali" onclick="openSavedKundaliModal()" class="btn-saved-kundali-trigger" title="सुरक्षित कुण्डलियां देखें">
           <span>📂</span>
           <span data-i18n-hi="सुरक्षित कुण्डलियां" data-i18n-en="Saved Kundalis">सुरक्षित कुण्डलियां</span>
           <span id="savedKundaliBadge" class="saved-kundali-badge">0</span>
         </button>
+        <button type="button" onclick="createNewKundaliEntry()" class="v-btn" style="padding:7px 12px; font-size:12px; border:1px solid var(--gold-border); background:rgba(180,83,9,0.08); color:var(--gold); border-radius:8px; font-weight:600; cursor:pointer;" title="नया खाली फॉर्म">
+          <span>➕ नया फॉर्म</span>
+        </button>
       </div>
     </div>
 
-    <!-- Basic Required Fields (Visible in Quick Mode) -->
+    <!-- Required Basic Fields -->
     <div class="form-grid">
       <div class="field">
         <label data-i18n-hi="जातक का नाम" data-i18n-en="Candidate Name">जातक का नाम</label>
@@ -3212,40 +3213,91 @@
         <input type="time" id="inTime" step="1" required>
       </div>
       <div class="field">
-        <label data-i18n-hi="जन्म स्थान खोजें" data-i18n-en="Search Birth Place">जन्म स्थान खोजें</label>
-        <input type="text" id="inCitySearch" placeholder="उदा. सीतापुर, लखनऊ, दिल्ली..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchCityLocation();}">
+        <label data-i18n-hi="जन्म स्थान (शहर / जिला)" data-i18n-en="Birth Place (City / District)">जन्म स्थान (शहर / जिला)</label>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="inCitySearch" list="patrikaPresetCities" placeholder="उदा. सीतापुर, लखनऊ, वाराणसी, दिल्ली..." style="flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault();searchCityLocation();}" oninput="handleCityInput(this.value)">
+          <button type="button" onclick="searchCityLocation()" style="background:var(--primary); color:#fff; border:none; padding:0 14px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; white-space:nowrap; box-shadow:0 1px 4px rgba(124,19,5,0.2);" title="स्थान खोजें">
+            <span>🔍</span> <span data-i18n-hi="खोजें" data-i18n-en="Search">खोजें</span>
+          </button>
+        </div>
+        <datalist id="patrikaPresetCities">
+          <option value="सीतापुर, उत्तर प्रदेश (Sitapur)"></option>
+          <option value="लखनऊ, उत्तर प्रदेश (Lucknow)"></option>
+          <option value="वाराणसी, उत्तर प्रदेश (Varanasi / Kashi)"></option>
+          <option value="अयोध्या, उत्तर प्रदेश (Ayodhya)"></option>
+          <option value="प्रयागराज, उत्तर प्रदेश (Prayagraj)"></option>
+          <option value="कानपुर, उत्तर प्रदेश (Kanpur)"></option>
+          <option value="मथुरा, उत्तर प्रदेश (Mathura)"></option>
+          <option value="वृन्दावन, उत्तर प्रदेश (Vrindavan)"></option>
+          <option value="हरिद्वार, उत्तराखंड (Haridwar)"></option>
+          <option value="ऋषिकेश, उत्तराखंड (Rishikesh)"></option>
+          <option value="उज्जैन, मध्य प्रदेश (Ujjain)"></option>
+          <option value="इंदौर, मध्य प्रदेश (Indore)"></option>
+          <option value="भोपाल, मध्य प्रदेश (Bhopal)"></option>
+          <option value="गोरखपुर, उत्तर प्रदेश (Gorakhpur)"></option>
+          <option value="आगरा, उत्तर प्रदेश (Agra)"></option>
+          <option value="दिल्ली (Delhi / New Delhi)"></option>
+          <option value="जयपुर, राजस्थान (Jaipur)"></option>
+          <option value="जोधपुर, राजस्थान (Jodhpur)"></option>
+          <option value="उदयपुर, राजस्थान (Udaipur)"></option>
+          <option value="मुंबई, महाराष्ट्र (Mumbai)"></option>
+          <option value="पुणे, महाराष्ट्र (Pune)"></option>
+          <option value="नागपुर, महाराष्ट्र (Nagpur)"></option>
+          <option value="पटना, बिहार (Patna)"></option>
+          <option value="गया, बिहार (Gaya)"></option>
+          <option value="कोलकाता, पश्चिम बंगाल (Kolkata)"></option>
+          <option value="अहमदाबाद, गुजरात (Ahmedabad)"></option>
+          <option value="सूरत, गुजरात (Surat)"></option>
+          <option value="बेंगलुरु, कर्नाटक (Bengaluru)"></option>
+          <option value="हैदराबाद, तेलंगाना (Hyderabad)"></option>
+          <option value="चेन्नई, तमिलनाडु (Chennai)"></option>
+          <option value="चंडीगढ़ (Chandigarh)"></option>
+          <option value="देहरादून, उत्तराखंड (Dehradun)"></option>
+          <option value="शिमला, हिमाचल प्रदेश (Shimla)"></option>
+          <option value="जम्मू, जम्मू-कश्मीर (Jammu)"></option>
+          <option value="श्रीनगर, जम्मू-कश्मीर (Srinagar)"></option>
+          <option value="रांची, झारखंड (Ranchi)"></option>
+          <option value="रायपुर, छत्तीसगढ़ (Raipur)"></option>
+          <option value="भुवनेश्वर, ओडिशा (Bhubaneswar)"></option>
+          <option value="पुरी, ओडिशा (Puri)"></option>
+          <option value="गुवाहाटी, असम (Guwahati)"></option>
+          <option value="काठमांडू, नेपाल (Kathmandu)"></option>
+          <option value="दुबई, यूएई (Dubai)"></option>
+          <option value="लंदन, यूके (London)"></option>
+          <option value="न्यूयॉर्क, यूएसए (New York)"></option>
+        </datalist>
       </div>
     </div>
 
-    <!-- Advanced Collapsible Coordinates & Map Wrapper -->
-    <div id="advancedCoordToggleRow" style="margin-top:14px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-      <a href="javascript:void(0)" onclick="toggleAdvancedCoordsOnly()" id="linkToggleAdvanced" style="font-size:12.5px; color:var(--gold); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-        <span id="advToggleIcon">📍</span> <span id="advToggleText" data-i18n-hi="उन्नत अक्षांश/देशांतर व मानचित्र दिखाएँ" data-i18n-en="Show Advanced Coordinates & Map">उन्नत अक्षांश/देशांतर व मानचित्र दिखाएँ</span>
-      </a>
-      <span style="font-size:11px; color:var(--muted);" id="advModeNote" data-i18n-hi="(त्वरित मोड: शहर के नाम से स्वतः निर्धारित)" data-i18n-en="(Quick Mode: auto-computed via city search)">(त्वरित मोड: शहर के नाम से स्वतः निर्धारित)</span>
-    </div>
+    <!-- Geographical Coordinates & Interactive Map (Permanently Active) -->
+    <div id="advancedCoordWrapper" style="display:block; border-top:1px dashed var(--gold-border); padding-top:14px; margin-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+        <span style="font-size:12.5px; font-weight:700; color:var(--gold); display:flex; align-items:center; gap:6px;">
+          <span>📍</span> <span data-i18n-hi="भौगोलिक निर्देशांक (अक्षांश / देशांतर / टाइमज़ोन)" data-i18n-en="Geographical Coordinates (Lat / Lon / Timezone)">भौगोलिक निर्देशांक (अक्षांश / देशांतर / टाइमज़ोन)</span>
+        </span>
+        <span id="geoStatusText" style="font-size:12px; color:var(--primary); font-weight:600; background:rgba(180,83,9,0.08); padding:3px 10px; border-radius:12px; border:1px solid var(--gold-border);">📍 सीतापुर, उत्तर प्रदेश (27.5667° N, 80.6833° E)</span>
+      </div>
 
-    <div id="advancedCoordWrapper" style="display:none; transition:all 0.3s ease; border-top:1px dashed var(--gold-border); padding-top:14px; margin-top:10px;">
       <div class="form-grid">
         <div class="field">
-          <label data-i18n-hi="अक्षांश" data-i18n-en="Latitude">अक्षांश</label>
-          <input type="number" id="inLat" step="0.0001" placeholder="उदा. 27.5667" required>
+          <label data-i18n-hi="अक्षांश (Latitude °N)" data-i18n-en="Latitude (°N)">अक्षांश (Latitude °N)</label>
+          <input type="number" id="inLat" step="0.0001" placeholder="उदा. 27.5667" value="27.5667" required>
         </div>
         <div class="field">
-          <label data-i18n-hi="देशांतर" data-i18n-en="Longitude">देशांतर</label>
-          <input type="number" id="inLon" step="0.0001" placeholder="उदा. 80.6833" required>
+          <label data-i18n-hi="देशांतर (Longitude °E)" data-i18n-en="Longitude (°E)">देशांतर (Longitude °E)</label>
+          <input type="number" id="inLon" step="0.0001" placeholder="उदा. 80.6833" value="80.6833" required>
         </div>
         <div class="field">
-          <label data-i18n-hi="टाइमज़ोन (UTC)" data-i18n-en="Timezone Offset (UTC)">टाइमज़ोन (UTC)</label>
-          <input type="number" id="inTz" step="0.25" placeholder="उदा. 5.5" required>
+          <label data-i18n-hi="टाइमज़ोन (UTC Offset)" data-i18n-en="Timezone Offset (UTC)">टाइमज़ोन (UTC Offset)</label>
+          <input type="number" id="inTz" step="0.25" placeholder="उदा. 5.5" value="5.5" required>
         </div>
       </div>
 
       <!-- Interactive Pinpoint Map -->
-      <div class="map-wrapper" style="margin-top:16px;">
+      <div class="map-wrapper" style="margin-top:14px;">
         <div class="map-header">
-          <span data-i18n-hi="📍 विश्व मानचित्र पर क्लिक करके स्थान चुनें" data-i18n-en="📍 Pinpoint Location on World Map">📍 विश्व मानचित्र पर क्लिक करके स्थान चुनें</span>
-          <span id="geoStatusText" style="color: #0284c7;">रेडी</span>
+          <span data-i18n-hi="🗺️ मानचित्र पर कहीं भी क्लिक करके या पिन ड्रैग करके सटीक स्थान चुनें" data-i18n-en="🗺️ Click anywhere or drag the pin to select location">🗺️ मानचित्र पर कहीं भी क्लिक करके या पिन ड्रैग करके सटीक स्थान चुनें</span>
+          <span style="font-size:11.5px; color:var(--muted);">सटीक लहरी अयनांश एवं भाव संधि हेतु</span>
         </div>
         <div id="map"></div>
       </div>
@@ -3958,135 +4010,318 @@ function closeMobileMenu() {
   }
 }
 
+
+// Comprehensive Classical and Modern City Database (Hindi + English + Coordinates)
+const PRESET_CITIES = [
+  { name: "सीतापुर", en: "Sitapur", state: "उत्तर प्रदेश", lat: 27.5667, lon: 80.6833, tz: 5.5 },
+  { name: "लखनऊ", en: "Lucknow", state: "उत्तर प्रदेश", lat: 26.8467, lon: 80.9462, tz: 5.5 },
+  { name: "वाराणसी", aliases: ["काशी", "बनारस", "Kashi", "Banaras"], en: "Varanasi", state: "उत्तर प्रदेश", lat: 25.3176, lon: 82.9739, tz: 5.5 },
+  { name: "अयोध्या", aliases: ["फैजाबाद", "Faizabad"], en: "Ayodhya", state: "उत्तर प्रदेश", lat: 26.7922, lon: 82.1998, tz: 5.5 },
+  { name: "प्रयागराज", aliases: ["इलाहाबाद", "Allahabad"], en: "Prayagraj", state: "उत्तर प्रदेश", lat: 25.4358, lon: 81.8463, tz: 5.5 },
+  { name: "कानपुर", en: "Kanpur", state: "उत्तर प्रदेश", lat: 26.4499, lon: 80.3319, tz: 5.5 },
+  { name: "मथुरा", en: "Mathura", state: "उत्तर प्रदेश", lat: 27.4924, lon: 77.6737, tz: 5.5 },
+  { name: "वृन्दावन", en: "Vrindavan", state: "उत्तर प्रदेश", lat: 27.5806, lon: 77.7006, tz: 5.5 },
+  { name: "हरिद्वार", en: "Haridwar", state: "उत्तराखंड", lat: 29.9457, lon: 78.1642, tz: 5.5 },
+  { name: "ऋषिकेश", en: "Rishikesh", state: "उत्तराखंड", lat: 30.0869, lon: 78.2676, tz: 5.5 },
+  { name: "उज्जैन", en: "Ujjain", state: "मध्य प्रदेश", lat: 23.1765, lon: 75.7885, tz: 5.5 },
+  { name: "इंदौर", en: "Indore", state: "मध्य प्रदेश", lat: 22.7196, lon: 75.8577, tz: 5.5 },
+  { name: "भोपाल", en: "Bhopal", state: "मध्य प्रदेश", lat: 23.2599, lon: 77.4126, tz: 5.5 },
+  { name: "गोरखपुर", en: "Gorakhpur", state: "उत्तर प्रदेश", lat: 26.7606, lon: 83.3732, tz: 5.5 },
+  { name: "आगरा", en: "Agra", state: "उत्तर प्रदेश", lat: 27.1767, lon: 78.0081, tz: 5.5 },
+  { name: "बरेली", en: "Bareilly", state: "उत्तर प्रदेश", lat: 28.3670, lon: 79.4304, tz: 5.5 },
+  { name: "मेरठ", en: "Meerut", state: "उत्तर प्रदेश", lat: 28.9845, lon: 77.7064, tz: 5.5 },
+  { name: "नोएडा", en: "Noida", state: "उत्तर प्रदेश", lat: 28.5355, lon: 77.3910, tz: 5.5 },
+  { name: "गाजियाबाद", en: "Ghaziabad", state: "उत्तर प्रदेश", lat: 28.6692, lon: 77.4538, tz: 5.5 },
+  { name: "दिल्ली", aliases: ["नई दिल्ली", "New Delhi"], en: "Delhi", state: "दिल्ली", lat: 28.6139, lon: 77.2090, tz: 5.5 },
+  { name: "जयपुर", en: "Jaipur", state: "राजस्थान", lat: 26.9124, lon: 75.7873, tz: 5.5 },
+  { name: "जोधपुर", en: "Jodhpur", state: "राजस्थान", lat: 26.2389, lon: 73.0243, tz: 5.5 },
+  { name: "उदयपुर", en: "Udaipur", state: "राजस्थान", lat: 24.5854, lon: 73.7125, tz: 5.5 },
+  { name: "कोटा", en: "Kota", state: "राजस्थान", lat: 25.2138, lon: 75.8648, tz: 5.5 },
+  { name: "अजमेर", en: "Ajmer", state: "राजस्थान", lat: 26.4499, lon: 74.6399, tz: 5.5 },
+  { name: "मुंबई", aliases: ["बॉम्बे", "Bombay"], en: "Mumbai", state: "महाराष्ट्र", lat: 19.0760, lon: 72.8777, tz: 5.5 },
+  { name: "पुणे", en: "Pune", state: "महाराष्ट्र", lat: 18.5204, lon: 73.8567, tz: 5.5 },
+  { name: "नागपुर", en: "Nagpur", state: "महाराष्ट्र", lat: 21.1458, lon: 79.0882, tz: 5.5 },
+  { name: "नाशिक", aliases: ["नासिक"], en: "Nashik", state: "महाराष्ट्र", lat: 19.9975, lon: 73.7898, tz: 5.5 },
+  { name: "शिरडी", en: "Shirdi", state: "महाराष्ट्र", lat: 19.7667, lon: 74.4764, tz: 5.5 },
+  { name: "पटना", en: "Patna", state: "बिहार", lat: 25.5941, lon: 85.1376, tz: 5.5 },
+  { name: "गया", aliases: ["बोधगया", "Bodhgaya"], en: "Gaya", state: "बिहार", lat: 24.7914, lon: 85.0002, tz: 5.5 },
+  { name: "मुजफ्फरपुर", en: "Muzaffarpur", state: "बिहार", lat: 26.1209, lon: 85.3647, tz: 5.5 },
+  { name: "भागलपुर", en: "Bhagalpur", state: "बिहार", lat: 25.2425, lon: 86.9842, tz: 5.5 },
+  { name: "कोलकाता", aliases: ["कलकत्ता", "Calcutta"], en: "Kolkata", state: "पश्चिम बंगाल", lat: 22.5726, lon: 88.3639, tz: 5.5 },
+  { name: "अहमदाबाद", en: "Ahmedabad", state: "गुजरात", lat: 23.0225, lon: 72.5714, tz: 5.5 },
+  { name: "सूरत", en: "Surat", state: "गुजरात", lat: 21.1702, lon: 72.8311, tz: 5.5 },
+  { name: "वडोदरा", aliases: ["बड़ौदा", "Baroda"], en: "Vadodara", state: "गुजरात", lat: 22.3072, lon: 73.1812, tz: 5.5 },
+  { name: "राजकोट", en: "Rajkot", state: "गुजरात", lat: 22.3039, lon: 70.8022, tz: 5.5 },
+  { name: "सोमनाथ", en: "Somnath", state: "गुजरात", lat: 20.8880, lon: 70.4013, tz: 5.5 },
+  { name: "द्वारका", en: "Dwarka", state: "गुजरात", lat: 22.2442, lon: 68.9685, tz: 5.5 },
+  { name: "बेंगलुरु", aliases: ["बैंगलोर", "Bangalore"], en: "Bengaluru", state: "कर्नाटक", lat: 12.9716, lon: 77.5946, tz: 5.5 },
+  { name: "मैसूर", aliases: ["Mysuru"], en: "Mysore", state: "कर्नाटक", lat: 12.2958, lon: 76.6394, tz: 5.5 },
+  { name: "हैदराबाद", en: "Hyderabad", state: "तेलंगाना", lat: 17.3850, lon: 78.4867, tz: 5.5 },
+  { name: "चेन्नई", aliases: ["मद्रास", "Madras"], en: "Chennai", state: "तमिलनाडु", lat: 13.0827, lon: 80.2707, tz: 5.5 },
+  { name: "मदुरै", en: "Madurai", state: "तमिलनाडु", lat: 9.9252, lon: 78.1198, tz: 5.5 },
+  { name: "रामेश्वरम", en: "Rameshwaram", state: "तमिलनाडु", lat: 9.2876, lon: 79.3129, tz: 5.5 },
+  { name: "तिरुवनंतपुरम", aliases: ["त्रिवेंद्रम", "Trivandrum"], en: "Thiruvananthapuram", state: "केरल", lat: 8.5241, lon: 76.9366, tz: 5.5 },
+  { name: "कोच्चि", aliases: ["कोचीन", "Cochin"], en: "Kochi", state: "केरल", lat: 9.9312, lon: 76.2673, tz: 5.5 },
+  { name: "चंडीगढ़", en: "Chandigarh", state: "पंजाब/हरियाणा", lat: 30.7333, lon: 76.7794, tz: 5.5 },
+  { name: "अमृतसर", en: "Amritsar", state: "पंजाब", lat: 31.6340, lon: 74.8723, tz: 5.5 },
+  { name: "लुधियाना", en: "Ludhiana", state: "पंजाब", lat: 30.9010, lon: 75.8573, tz: 5.5 },
+  { name: "देहरादून", en: "Dehradun", state: "उत्तराखंड", lat: 30.3165, lon: 78.0322, tz: 5.5 },
+  { name: "शिमला", en: "Shimla", state: "हिमाचल प्रदेश", lat: 31.1048, lon: 77.1734, tz: 5.5 },
+  { name: "जम्मू", en: "Jammu", state: "जम्मू और कश्मीर", lat: 32.7266, lon: 74.8570, tz: 5.5 },
+  { name: "श्रीनगर", en: "Srinagar", state: "जम्मू और कश्मीर", lat: 34.0837, lon: 74.7973, tz: 5.5 },
+  { name: "रांची", en: "Ranchi", state: "झारखंड", lat: 23.3441, lon: 85.3096, tz: 5.5 },
+  { name: "जमशेदपुर", en: "Jamshedpur", state: "झारखंड", lat: 22.8046, lon: 86.2029, tz: 5.5 },
+  { name: "रायपुर", en: "Raipur", state: "छत्तीसगढ़", lat: 21.2514, lon: 81.6296, tz: 5.5 },
+  { name: "बिलासपुर", en: "Bilaspur", state: "छत्तीसगढ़", lat: 22.0797, lon: 82.1409, tz: 5.5 },
+  { name: "भुवनेश्वर", en: "Bhubaneswar", state: "ओडिशा", lat: 20.2961, lon: 85.8245, tz: 5.5 },
+  { name: "पुरी", aliases: ["जगन्नाथ पुरी"], en: "Puri", state: "ओडिशा", lat: 19.8135, lon: 85.8312, tz: 5.5 },
+  { name: "कटक", en: "Cuttack", state: "ओडिशा", lat: 20.4625, lon: 85.8828, tz: 5.5 },
+  { name: "गुवाहाटी", en: "Guwahati", state: "असम", lat: 26.1445, lon: 91.7362, tz: 5.5 },
+  { name: "काठमांडू", en: "Kathmandu", state: "नेपाल", lat: 27.7172, lon: 85.3240, tz: 5.75 },
+  { name: "लंदन", en: "London", state: "UK", lat: 51.5074, lon: -0.1278, tz: 0 },
+  { name: "न्यूयॉर्क", en: "New York", state: "USA", lat: 40.7128, lon: -74.0060, tz: -5 },
+  { name: "दुबई", en: "Dubai", state: "UAE", lat: 25.2048, lon: 55.2708, tz: 4 },
+  { name: "सिंगापुर", en: "Singapore", state: "Singapore", lat: 1.3521, lon: 103.8198, tz: 8 },
+  { name: "सिडनी", en: "Sydney", state: "Australia", lat: -33.8688, lon: 151.2093, tz: 10 },
+  { name: "टोरंटो", en: "Toronto", state: "Canada", lat: 43.6532, lon: -79.3832, tz: -5 }
+];
+
+function findCityInPresets(query) {
+  if (!query) return null;
+  const q = query.trim().toLowerCase();
+  for (const c of PRESET_CITIES) {
+    if (c.name.toLowerCase() === q || c.en.toLowerCase() === q) return c;
+    if (c.aliases && c.aliases.some(a => a.toLowerCase() === q)) return c;
+    if (q.includes(c.name.toLowerCase()) || q.includes(c.en.toLowerCase())) return c;
+    if (c.name.toLowerCase().includes(q) || c.en.toLowerCase().includes(q)) return c;
+    if (c.aliases && c.aliases.some(a => q.includes(a.toLowerCase()) || a.toLowerCase().includes(q))) return c;
+  }
+  return null;
+}
+
+function applyCityLocation(lat, lon, tz, displayName) {
+  const latNum = parseFloat(lat);
+  const lonNum = parseFloat(lon);
+  if (isNaN(latNum) || isNaN(lonNum)) return;
+
+  const inLat = document.getElementById("inLat");
+  const inLon = document.getElementById("inLon");
+  const inTz = document.getElementById("inTz");
+
+  if (inLat) inLat.value = latNum.toFixed(4);
+  if (inLon) inLon.value = lonNum.toFixed(4);
+  
+  if (tz !== null && tz !== undefined && inTz) {
+    inTz.value = tz;
+  } else if (inTz) {
+    // Standard IST for India coordinates
+    if (latNum >= 6 && latNum <= 37 && lonNum >= 68 && lonNum <= 97) {
+      inTz.value = "5.5";
+    } else {
+      inTz.value = (Math.round((lonNum / 15) * 2) / 2).toString();
+    }
+  }
+
+  if (map && marker) {
+    map.setView([latNum, lonNum], 11);
+    marker.setLatLng([latNum, lonNum]);
+    setTimeout(() => { if (map) map.invalidateSize(); }, 100);
+  }
+
+  const statusEl = document.getElementById("geoStatusText");
+  if (statusEl) {
+    statusEl.innerHTML = `📍 <strong>${displayName || 'चयनित स्थान'}</strong> (${latNum.toFixed(2)}° N, ${lonNum.toFixed(2)}° E)`;
+  }
+}
+
+function handleCityInput(val) {
+  if (!val || val.length < 2) return;
+  const match = findCityInPresets(val);
+  if (match) {
+    applyCityLocation(match.lat, match.lon, match.tz, `${match.name} (${match.en}), ${match.state}`);
+  }
+}
+
 function initMap() {
   const defaultLat = 27.5667;
   const defaultLon = 80.6833;
 
-  map = L.map('map').setView([defaultLat, defaultLon], 5);
-  L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-    maxZoom: 20,
-    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-    attribution: '&copy; Google Maps'
-  }).addTo(map);
+  const mapContainer = document.getElementById('map');
+  if (!mapContainer) return;
 
-  marker = L.marker([defaultLat, defaultLon], { draggable: true }).addTo(map);
+  if (map) {
+    try { map.remove(); } catch(e){}
+    map = null;
+  }
 
-  marker.on('dragend', function(e) {
-    const coord = marker.getLatLng();
-    updateCoordinatesAndFetchTz(coord.lat, coord.lng);
-  });
+  try {
+    map = L.map('map', {
+      center: [defaultLat, defaultLon],
+      zoom: 6,
+      scrollWheelZoom: true
+    });
 
-  map.on('click', function(e) {
-    marker.setLatLng(e.latlng);
-    updateCoordinatesAndFetchTz(e.latlng.lat, e.latlng.lng);
-  });
+    // High-reliability OpenStreetMap tile layer (100% CORS-free and globally reliable)
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-  // Set default values in inputs
-  document.getElementById("inLat").value = defaultLat.toFixed(4);
-  document.getElementById("inLon").value = defaultLon.toFixed(4);
-  document.getElementById("inTz").value = "5.5";
+    marker = L.marker([defaultLat, defaultLon], { draggable: true }).addTo(map);
+
+    marker.on('dragend', function(e) {
+      const coord = marker.getLatLng();
+      updateCoordinatesAndFetchTz(coord.lat, coord.lng);
+    });
+
+    map.on('click', function(e) {
+      marker.setLatLng(e.latlng);
+      updateCoordinatesAndFetchTz(e.latlng.lat, e.latlng.lng);
+    });
+
+    window.map = map;
+    window.marker = marker;
+
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+    }, 250);
+  } catch(e) {
+    console.error("Map initialization exception:", e);
+  }
+
+  // Pre-fill initial defaults so form validation NEVER blocks the user
+  const latEl = document.getElementById("inLat");
+  const lonEl = document.getElementById("inLon");
+  const tzEl = document.getElementById("inTz");
+  const cityEl = document.getElementById("inCitySearch");
+
+  if (latEl && !latEl.value) latEl.value = defaultLat.toFixed(4);
+  if (lonEl && !lonEl.value) lonEl.value = defaultLon.toFixed(4);
+  if (tzEl && !tzEl.value) tzEl.value = "5.5";
+  if (cityEl && !cityEl.value) cityEl.value = "सीतापुर, उत्तर प्रदेश";
+
   const now = new Date();
-  document.getElementById("inDate").value = now.toISOString().split('T')[0];
-  document.getElementById("inTime").value = now.toTimeString().split(' ')[0].substring(0, 5);
+  const dateEl = document.getElementById("inDate");
+  const timeEl = document.getElementById("inTime");
+  if (dateEl && !dateEl.value) dateEl.value = now.toISOString().split('T')[0];
+  if (timeEl && !timeEl.value) timeEl.value = now.toTimeString().split(' ')[0].substring(0, 5);
 }
 
 function switchDisclosureMode(mode) {
-  const btnQuick = document.getElementById("btnModeQuick");
-  const btnExpert = document.getElementById("btnModeExpert");
-  const wrapper = document.getElementById("advancedCoordWrapper");
-  const toggleText = document.getElementById("advToggleText");
-  const toggleIcon = document.getElementById("advToggleIcon");
-  const modeNote = document.getElementById("advModeNote");
-
-  if (mode === 'quick') {
-    btnQuick.classList.add("active");
-    btnQuick.style.background = "var(--primary)";
-    btnQuick.style.color = "#fff";
-    btnExpert.classList.remove("active");
-    btnExpert.style.background = "var(--card-bg)";
-    btnExpert.style.color = "var(--gold)";
-    wrapper.style.display = "none";
-    if (toggleText) toggleText.innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र दिखाएँ (Show Advanced Coords & Map)";
-    if (toggleIcon) toggleIcon.innerText = "📍";
-    if (modeNote) modeNote.innerText = "(Quick Mode: auto-computed via city search)";
-  } else {
-    btnExpert.classList.add("active");
-    btnExpert.style.background = "var(--primary)";
-    btnExpert.style.color = "#fff";
-    btnQuick.classList.remove("active");
-    btnQuick.style.background = "var(--card-bg)";
-    btnQuick.style.color = "var(--gold)";
-    wrapper.style.display = "block";
-    if (toggleText) toggleText.innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र छिपाएँ (Hide Advanced Coords & Map)";
-    if (toggleIcon) toggleIcon.innerText = "🗺️";
-    if (modeNote) modeNote.innerText = "(Expert Mode: full pinpoint map & coords enabled)";
-    
-    if (window.map) {
-      setTimeout(() => window.map.invalidateSize(), 150);
-    }
-  }
+  // Seamless unified layout - ensures Leaflet recalculates viewport
+  if (window.map) setTimeout(() => window.map.invalidateSize(), 150);
 }
 
 function toggleAdvancedCoordsOnly() {
-  const wrapper = document.getElementById("advancedCoordWrapper");
-  const isHidden = (wrapper.style.display === "none" || !wrapper.style.display);
-  if (isHidden) {
-    wrapper.style.display = "block";
-    document.getElementById("advToggleText").innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र छिपाएँ (Hide Advanced Coords & Map)";
-    document.getElementById("advToggleIcon").innerText = "🗺️";
-    if (window.map) setTimeout(() => window.map.invalidateSize(), 150);
-  } else {
-    wrapper.style.display = "none";
-    document.getElementById("advToggleText").innerText = "उन्नत अक्षांश/देशांतर एवं मानचित्र दिखाएँ (Show Advanced Coords & Map)";
-    document.getElementById("advToggleIcon").innerText = "📍";
-  }
+  if (window.map) setTimeout(() => window.map.invalidateSize(), 150);
 }
 
 async function searchCityLocation() {
-  const city = document.getElementById("inCitySearch").value.trim();
+  const cityInput = document.getElementById("inCitySearch");
+  const query = cityInput ? cityInput.value.trim() : "";
   const statusEl = document.getElementById("geoStatusText");
-  if (!city) return;
+  if (!query) {
+    if (statusEl) statusEl.innerText = "कृपया शहर अथवा जिले का नाम दर्ज करें।";
+    return;
+  }
 
-  statusEl.innerText = "स्थान खोजा जा रहा है...";
+  if (statusEl) statusEl.innerText = "स्थान खोजा जा रहा है...";
+
+  // 1. Instant check in offline high-precision Vedic preset database
+  const localMatch = findCityInPresets(query);
+  if (localMatch) {
+    applyCityLocation(localMatch.lat, localMatch.lon, localMatch.tz, `${localMatch.name} (${localMatch.en}), ${localMatch.state}`);
+    return;
+  }
+
+  // 2. OpenStreetMap Nominatim Search (Natively indexes all Indian languages / Hindi Unicode)
   try {
-    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=hi&format=json`);
-    const data = await res.json();
-    if (data && data.results && data.results.length > 0) {
-      const item = data.results[0];
-      const lat = item.latitude;
-      const lon = item.longitude;
-      map.setView([lat, lon], 11);
-      marker.setLatLng([lat, lon]);
-      statusEl.innerText = `प्राप्त: ${item.name} (${item.country || ''})`;
-      updateCoordinatesAndFetchTz(lat, lon);
-    } else {
-      statusEl.innerText = "स्थान नहीं मिला, कृपया पिन को ड्रैग करें।";
+    const nomUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&addressdetails=1`;
+    const nomRes = await fetch(nomUrl, { headers: { 'Accept-Language': 'hi,en', 'User-Agent': 'ShriRamjiAstro/1.0' } });
+    if (nomRes.ok) {
+      const nomData = await nomRes.json();
+      if (nomData && nomData.length > 0) {
+        const item = nomData[0];
+        const lat = parseFloat(item.lat);
+        const lon = parseFloat(item.lon);
+        const label = item.display_name.split(',').slice(0, 3).join(', ');
+        applyCityLocation(lat, lon, null, label);
+        return;
+      }
     }
   } catch(e) {
-    statusEl.innerText = "नेटवर्क अनुपलब्ध, मैन्युअल निर्देशांक मान्य हैं।";
+    console.warn("Nominatim search fallback:", e);
+  }
+
+  // 3. Fallback to Open-Meteo geocoder
+  try {
+    const omUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&format=json`;
+    const omRes = await fetch(omUrl);
+    if (omRes.ok) {
+      const omData = await omRes.json();
+      if (omData && omData.results && omData.results.length > 0) {
+        const item = omData.results[0];
+        applyCityLocation(item.latitude, item.longitude, null, `${item.name}, ${item.country || ''}`);
+        return;
+      }
+    }
+  } catch(e) {
+    console.warn("Open-Meteo search fallback:", e);
+  }
+
+  if (statusEl) {
+    statusEl.innerHTML = `<span style="color:#b91c1c;">स्थान नहीं मिला — कृपया मानचित्र पर पिन ड्रैग करके स्थान चुनें</span>`;
   }
 }
 
 async function updateCoordinatesAndFetchTz(lat, lon) {
-  document.getElementById("inLat").value = lat.toFixed(4);
-  document.getElementById("inLon").value = lon.toFixed(4);
+  const latNum = parseFloat(lat);
+  const lonNum = parseFloat(lon);
+  if (isNaN(latNum) || isNaN(lonNum)) return;
+
+  const inLat = document.getElementById("inLat");
+  const inLon = document.getElementById("inLon");
+  const inTz = document.getElementById("inTz");
+
+  if (inLat) inLat.value = latNum.toFixed(4);
+  if (inLon) inLon.value = lonNum.toFixed(4);
   const statusEl = document.getElementById("geoStatusText");
 
-  try {
-    const tzRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
-    const tzData = await tzRes.json();
-    if (tzData && tzData.utc_offset_seconds !== undefined) {
-      const tzHrs = tzData.utc_offset_seconds / 3600;
-      document.getElementById("inTz").value = tzHrs;
-      statusEl.innerText = `अक्षांश: ${lat.toFixed(2)}°, देशांतर: ${lon.toFixed(2)}° (UTC ${tzHrs >= 0 ? '+' : ''}${tzHrs})`;
-    } else {
-      const est = Math.round((lon / 15) * 2) / 2;
-      document.getElementById("inTz").value = est;
-    }
-  } catch(e) {
-    const est = Math.round((lon / 15) * 2) / 2;
-    document.getElementById("inTz").value = est;
+  // Determine timezone: if in Indian subcontinent, fixed 5.5
+  let tzHrs = 5.5;
+  if (latNum >= 6 && latNum <= 37 && lonNum >= 68 && lonNum <= 97) {
+    tzHrs = 5.5;
+  } else {
+    tzHrs = Math.round((lonNum / 15) * 2) / 2;
   }
+  if (inTz) inTz.value = tzHrs.toString();
+
+  if (statusEl) {
+    statusEl.innerHTML = `📍 अक्षांश: <strong>${latNum.toFixed(2)}°</strong>, देशांतर: <strong>${lonNum.toFixed(2)}°</strong> (UTC ${tzHrs >= 0 ? '+' : ''}${tzHrs})`;
+  }
+
+  // Attempt reverse-geocoding via Nominatim to show city / district name
+  try {
+    const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latNum}&lon=${lonNum}&format=json`;
+    const res = await fetch(revUrl, { headers: { 'Accept-Language': 'hi,en', 'User-Agent': 'ShriRamjiAstro/1.0' } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.address) {
+        const placeName = data.address.city || data.address.town || data.address.village || data.address.county || data.address.state_district || data.name || "";
+        const stateName = data.address.state || "";
+        if (placeName) {
+          const fullLabel = `${placeName}${stateName ? ', ' + stateName : ''}`;
+          const cityInp = document.getElementById("inCitySearch");
+          if (cityInp && !cityInp.value) {
+            cityInp.value = fullLabel;
+          }
+          if (statusEl) {
+            statusEl.innerHTML = `📍 <strong>${fullLabel}</strong> (${latNum.toFixed(2)}°, ${lonNum.toFixed(2)}° | UTC ${tzHrs >= 0 ? '+' : ''}${tzHrs})`;
+          }
+        }
+      }
+    }
+  } catch(e) {}
 }
 
 // -------------------------------------------------------------
@@ -5877,14 +6112,40 @@ function closeUploadedBooksModal(e) {
 // MASTER EXECUTION CONTROLLER
 // -------------------------------------------------------------
 function executeParasharaMaster() {
-  const dateStr = document.getElementById("inDate").value;
-  const timeStr = document.getElementById("inTime").value;
-  const latStr = document.getElementById("inLat").value;
-  const lonStr = document.getElementById("inLon").value;
-  const tzStr = document.getElementById("inTz").value;
+  const dateStr = document.getElementById("inDate") ? document.getElementById("inDate").value : "";
+  const timeStr = document.getElementById("inTime") ? document.getElementById("inTime").value : "";
+  let latStr = document.getElementById("inLat") ? document.getElementById("inLat").value : "";
+  let lonStr = document.getElementById("inLon") ? document.getElementById("inLon").value : "";
+  let tzStr = document.getElementById("inTz") ? document.getElementById("inTz").value : "";
 
-  if (!dateStr || !timeStr || !latStr || !lonStr || !tzStr) {
-    alert("कृपया सभी जन्म विवरण (तारीख, समय, स्थान, अक्षांश, देशांतर और टाइमज़ोन) भरें।");
+  // Auto-resolve or default coordinates so the user is never blocked
+  if (!latStr || !lonStr) {
+    const cityInput = document.getElementById("inCitySearch") ? document.getElementById("inCitySearch").value.trim() : "";
+    const matched = (typeof findCityInPresets === 'function') ? findCityInPresets(cityInput) : null;
+    if (matched) {
+      latStr = matched.lat.toString();
+      lonStr = matched.lon.toString();
+      tzStr = (matched.tz !== undefined ? matched.tz : 5.5).toString();
+    } else {
+      latStr = "27.5667";
+      lonStr = "80.6833";
+      tzStr = tzStr || "5.5";
+      if (!cityInput && document.getElementById("inCitySearch")) {
+        document.getElementById("inCitySearch").value = "सीतापुर, उत्तर प्रदेश";
+      }
+    }
+    if (document.getElementById("inLat")) document.getElementById("inLat").value = latStr;
+    if (document.getElementById("inLon")) document.getElementById("inLon").value = lonStr;
+    if (document.getElementById("inTz")) document.getElementById("inTz").value = tzStr;
+  }
+
+  if (!tzStr) {
+    tzStr = "5.5";
+    if (document.getElementById("inTz")) document.getElementById("inTz").value = tzStr;
+  }
+
+  if (!dateStr || !timeStr) {
+    alert("कृपया जन्म तिथि एवं जन्म समय भरें।");
     return;
   }
 
@@ -9825,12 +10086,21 @@ function createNewKundaliEntry() {
   if (summaryBar) summaryBar.style.display = "none";
 
   if (document.getElementById("inName")) document.getElementById("inName").value = "";
-  if (document.getElementById("inDate")) document.getElementById("inDate").value = "";
-  if (document.getElementById("inTime")) document.getElementById("inTime").value = "";
-  if (document.getElementById("inCitySearch")) document.getElementById("inCitySearch").value = "";
-  if (document.getElementById("inLat")) document.getElementById("inLat").value = "";
-  if (document.getElementById("inLon")) document.getElementById("inLon").value = "";
+  const now = new Date();
+  if (document.getElementById("inDate")) document.getElementById("inDate").value = now.toISOString().split('T')[0];
+  if (document.getElementById("inTime")) document.getElementById("inTime").value = now.toTimeString().split(' ')[0].substring(0, 5);
+  if (document.getElementById("inCitySearch")) document.getElementById("inCitySearch").value = "सीतापुर, उत्तर प्रदेश";
+  if (document.getElementById("inLat")) document.getElementById("inLat").value = "27.5667";
+  if (document.getElementById("inLon")) document.getElementById("inLon").value = "80.6833";
   if (document.getElementById("inTz")) document.getElementById("inTz").value = "5.5";
+  
+  if (map && marker) {
+    map.setView([27.5667, 80.6833], 6);
+    marker.setLatLng([27.5667, 80.6833]);
+    setTimeout(() => { if (map) map.invalidateSize(); }, 150);
+  }
+  const statusEl = document.getElementById("geoStatusText");
+  if (statusEl) statusEl.innerHTML = "📍 सीतापुर, उत्तर प्रदेश (27.5667° N, 80.6833° E);";
   
   const out = document.getElementById("outputSection");
   if (out) out.style.display = "none";
