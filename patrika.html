@@ -3293,11 +3293,11 @@
         </div>
       </div>
 
-      <!-- Interactive Pinpoint Map -->
+      <!-- Interactive Pinpoint Map (Google Maps) -->
       <div class="map-wrapper" style="margin-top:14px;">
         <div class="map-header">
-          <span data-i18n-hi="🗺️ मानचित्र पर कहीं भी क्लिक करके या पिन ड्रैग करके सटीक स्थान चुनें" data-i18n-en="🗺️ Click anywhere or drag the pin to select location">🗺️ मानचित्र पर कहीं भी क्लिक करके या पिन ड्रैग करके सटीक स्थान चुनें</span>
-          <span style="font-size:11.5px; color:var(--muted);">सटीक लहरी अयनांश एवं भाव संधि हेतु</span>
+          <span data-i18n-hi="🗺️ गूगल मैप्स (Google Maps) — विश्व मानचित्र पर क्लिक करके या पिन ड्रैग करके स्थान चुनें" data-i18n-en="🗺️ Google Maps — Click anywhere or drag the pin to select location">🗺️ गूगल मैप्स (Google Maps) — विश्व मानचित्र पर क्लिक करके या पिन ड्रैग करके स्थान चुनें</span>
+          <span style="font-size:11.5px; color:var(--primary); font-weight:700; background:rgba(180,83,9,0.08); padding:2px 8px; border-radius:10px; border:1px solid var(--gold-border);">Google Maps</span>
         </div>
         <div id="map"></div>
       </div>
@@ -4165,11 +4165,44 @@ function initMap() {
       scrollWheelZoom: true
     });
 
-    // High-reliability OpenStreetMap tile layer (100% CORS-free and globally reliable)
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Primary Google Maps Roadmap layer (Official Google Maps Street layout & typography)
+    const gmapRoadmap = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google Maps'
+    });
+
+    // Google Maps Satellite / Hybrid layer (Satellite imagery with roads and city names)
+    const gmapHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google Maps'
+    });
+
+    // Google Maps Terrain layer
+    const gmapTerrain = L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google Maps'
+    });
+
+    // OpenStreetMap layer (as alternate choice)
+    const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+      attribution: '&copy; OpenStreetMap'
+    });
+
+    // Set Google Maps Roadmap as active by default
+    gmapRoadmap.addTo(map);
+
+    // Interactive Base Layer Switcher (Top Right of Map)
+    const baseLayers = {
+      "🗺️ Google Maps": gmapRoadmap,
+      "🛰️ Google Satellite": gmapHybrid,
+      "⛰️ Google Terrain": gmapTerrain,
+      "🌐 OpenStreetMap": osmLayer
+    };
+    L.control.layers(baseLayers, null, { position: 'topright' }).addTo(map);
 
     // Clicking anywhere on world map dynamically drops/moves the marker
     map.on('click', function(e) {
