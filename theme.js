@@ -67,7 +67,7 @@
       card_kaalsarp_title: "कालसर्प दोष निवारण",
       card_kaalsarp_sub: "१२ प्रकार के योग शांति",
       card_mangal_title: "मंगल दोष परिहार",
-      card_mangal_sub: "१४ शास्त्रीय परिहार नियम",
+      card_mangal_sub: "२१ शास्त्रीय परिहार नियम",
       card_blogs_title: "ज्योतिष शोध व ब्लॉग",
       card_blogs_sub: "पंचांग व महर्षि पराशर आलेख",
       card_ratna_title: "रत्न परामर्श व उपाय",
@@ -159,7 +159,7 @@
       sub_kaalsarp_title: "कालसर्प दोष रिपोर्ट",
       sub_kaalsarp_desc: "12 कालसर्प व अचूक उपाय",
       sub_mangal_title: "मंगल दोष निवारण",
-      sub_mangal_desc: "14 शास्त्रीय परिहार नियम",
+      sub_mangal_desc: "21 शास्त्रीय परिहार नियम",
       sub_ratna_title: "रत्न और वैदिक उपाय",
       sub_ratna_desc: "लग्नेश-भाग्येश शोधन व रुद्राक्ष",
       nav_patrika: "पत्रिका (Patrika)",
@@ -223,7 +223,7 @@
       card_kaalsarp_title: "Kaal Sarp Dosh Remedy",
       card_kaalsarp_sub: "12 Yoga Parihar & Puja",
       card_mangal_title: "Mangal Dosh Analysis",
-      card_mangal_sub: "14 Classical Parihar Rules",
+      card_mangal_sub: "21 Classical Parihar Rules",
       card_blogs_title: "Jyotish Blogs & Research",
       card_blogs_sub: "BPHS & Ephemeris Articles",
       card_ratna_title: "Gemstones & Remedies",
@@ -315,7 +315,7 @@
       sub_kaalsarp_title: "Kaal Sarp Dosh Report",
       sub_kaalsarp_desc: "12 Types & Shastra Remedies",
       sub_mangal_title: "Mangal Dosh Report",
-      sub_mangal_desc: "14 Classical Parihar Rules",
+      sub_mangal_desc: "21 Classical Parihar Rules",
       sub_ratna_title: "Gemstones & Remedies",
       sub_ratna_desc: "Ascendant/9th Lord Analysis",
       nav_patrika: "Patrika (Birth Chart)",
@@ -1565,7 +1565,7 @@
                     <span class="drawer-sub-title" data-i18n="sub_mangal_title">मंगल दोष निवारण</span>
                     <span class="drop-badge">लाइव ₹199</span>
                   </div>
-                  <span class="drawer-sub-hint" data-i18n="sub_mangal_desc">14 शास्त्रीय परिहार नियम</span>
+                  <span class="drawer-sub-hint" data-i18n="sub_mangal_desc">21 शास्त्रीय परिहार नियम</span>
                 </div>
               </a>
               <a href="javascript:void(0)" onclick="openReportPreOrder('रत्न और उपाय रिपोर्ट', '249')" class="drawer-sub-item">

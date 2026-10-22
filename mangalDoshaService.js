@@ -1,5 +1,5 @@
 /**
- * Classical Mangal Dosha & 14 Authentic Parihara Rules Engine
+ * Classical Mangal Dosha & 21 Authentic Parihara Rules Engine
  * Module: mangalDoshaService.js
  * Reference Authorities:
  * - Brihat Parashara Hora Shastra (BPHS)
@@ -9,6 +9,10 @@
  * - Muhurta Chintamani & Muhurta Ganapati
  * - Vasishtha Samhita & Chandrakala Nadi
  * - Jataka Tattvam & Shambhu Hora Prakasha
+ * - Muhurta Martanda & Brihajjataka Tika
+ * - Narada Samhita & Maharshi Atri Smriti
+ * - Muhurta Kalpadruma & Sarvartha Chintamani
+ * - Jataka Deepika & Muhurta Tattva
  * 
  * Strict Zero-Bilingual-Clutter Mathematical Classical Standard.
  */
@@ -98,6 +102,63 @@
   }
 
   /**
+   * Vimshottari Dasha Constants & Mars Dasha Window Checker (Ages 21 to 36)
+   */
+  const DASHA_LORDS = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"];
+  const DASHA_YEARS = { Ketu: 7, Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
+
+  function isMarsDashaActiveInWindow(moonAbsDeg, startAge = 21, endAge = 36) {
+    if (typeof moonAbsDeg !== 'number' || isNaN(moonAbsDeg)) return false;
+    const normMoon = ((moonAbsDeg % 360) + 360) % 360;
+    const nakDeg = 360 / 27; // 13° 20' = 13.333333333333334°
+    const nakIdx = Math.floor(normMoon / nakDeg);
+    const remFraction = 1 - ((normMoon % nakDeg) / nakDeg);
+
+    let lordIdx = nakIdx % 9;
+    let currentAge = 0;
+
+    let firstLord = DASHA_LORDS[lordIdx];
+    let firstMdYears = DASHA_YEARS[firstLord] * remFraction;
+
+    while (currentAge < 100) {
+      let mdLord = DASHA_LORDS[lordIdx];
+      let totalMdYears = DASHA_YEARS[mdLord];
+      let actualMdDuration = (currentAge === 0) ? firstMdYears : totalMdYears;
+      let mdStart = currentAge;
+      let mdEnd = currentAge + actualMdDuration;
+
+      let adLordStartIdx = DASHA_LORDS.indexOf(mdLord);
+      let adStartAge = mdStart;
+
+      let adElapsedBeforeBirth = (totalMdYears - actualMdDuration);
+      let accumulatedAd = 0;
+
+      for (let i = 0; i < 9; i++) {
+        let adLord = DASHA_LORDS[(adLordStartIdx + i) % 9];
+        let adDuration = (totalMdYears * DASHA_YEARS[adLord]) / 120;
+        accumulatedAd += adDuration;
+
+        if (accumulatedAd <= adElapsedBeforeBirth) continue;
+
+        let effectiveAdStart = adStartAge;
+        let effectiveAdEnd = mdStart + (accumulatedAd - adElapsedBeforeBirth);
+        adStartAge = effectiveAdEnd;
+
+        let isMarsActive = (mdLord === "Mars" || adLord === "Mars");
+        if (isMarsActive) {
+          if (effectiveAdStart < endAge && effectiveAdEnd > startAge) {
+            return true;
+          }
+        }
+      }
+
+      currentAge = mdEnd;
+      lordIdx = (lordIdx + 1) % 9;
+    }
+    return false;
+  }
+
+  /**
    * Extract standardized Mangal Dosha Engine Contract from SRA's currentCalculation object
    */
   function extractMangalDoshaContract(calc, jatakaOverride) {
@@ -107,6 +168,7 @@
     const sunObj = calc.planets.find(p => p.id === "Sun");
     const marsObj = calc.planets.find(p => p.id === "Mars");
     const moonObj = calc.planets.find(p => p.id === "Moon");
+    const mercObj = calc.planets.find(p => p.id === "Mercury");
     const venusObj = calc.planets.find(p => p.id === "Venus");
     const jupObj = calc.planets.find(p => p.id === "Jupiter");
     const satObj = calc.planets.find(p => p.id === "Saturn");
@@ -184,14 +246,52 @@
     d9VenusRashi = computeD9Sign(vSign0, vDeg);
     d9VenusHouse = (d9VenusRashi - d9LagnaRashi + 12) % 12 + 1;
 
-    // Jataka Info
+    // Jataka Info & Day of Birth
     const b = calc.birthDetails || {};
+    const dobStr = (jatakaOverride && jatakaOverride.dob) || (b.year ? `${b.year}-${String(b.month).padStart(2, '0')}-${String(b.day).padStart(2, '0')}` : "2000-01-01");
+    const bDate = new Date(dobStr);
+    let dayOfBirth = (jatakaOverride && jatakaOverride.day_of_birth) || "";
+    if (!dayOfBirth && !isNaN(bDate.getTime())) {
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      dayOfBirth = days[bDate.getDay()];
+    }
+
     const jataka_info = {
       name: (jatakaOverride && jatakaOverride.name) || b.candidateName || "जातक",
       gender: (jatakaOverride && jatakaOverride.gender) || b.gender || "male",
-      dob: (jatakaOverride && jatakaOverride.dob) || (b.year ? `${b.year}-${String(b.month).padStart(2, '0')}-${String(b.day).padStart(2, '0')}` : "2000-01-01"),
+      dob: dobStr,
       tob: (jatakaOverride && jatakaOverride.tob) || (b.hour !== undefined ? `${String(b.hour).padStart(2, '0')}:${String(b.minute).padStart(2, '0')}` : "12:00"),
-      pob: (jatakaOverride && jatakaOverride.pob) || b.placeName || "वाराणसी"
+      pob: (jatakaOverride && jatakaOverride.pob) || b.placeName || "वाराणसी",
+      day_of_birth: dayOfBirth
+    };
+
+    // Mars Nakshatra Calculation (1 to 27)
+    const marsAbs = (marsObj.abs !== undefined) ? marsObj.abs : ((marsObj.sign || 0) * 30 + (marsObj.deg || 0));
+    const marsNakNum = Math.floor((((marsAbs % 360) + 360) % 360) / (360 / 27)) + 1;
+
+    // 7th Lord Calculation
+    const seventhRashi = ((lagnaRashi - 1 + 6) % 12) + 1;
+    const SIGN_LORDS = { 1: "Mars", 2: "Venus", 3: "Mercury", 4: "Moon", 5: "Sun", 6: "Mercury", 7: "Venus", 8: "Mars", 9: "Jupiter", 10: "Saturn", 11: "Saturn", 12: "Jupiter" };
+    const OWN_SIGNS = { Sun: [5], Moon: [4], Mars: [1, 8], Mercury: [3, 6], Jupiter: [9, 12], Venus: [2, 7], Saturn: [10, 11] };
+    const EXALTED_SIGNS = { Sun: 1, Moon: 2, Mars: 10, Mercury: 6, Jupiter: 4, Venus: 12, Saturn: 7 };
+    const rulerName = SIGN_LORDS[seventhRashi];
+    const rulerObjRaw = calc.planets.find(p => p.id === rulerName);
+    const rulerPlanet = mapPlanet(rulerObjRaw);
+    let seventhLordInfo = null;
+    if (rulerPlanet) {
+      seventhLordInfo = {
+        planet: rulerName,
+        house: rulerPlanet.house,
+        rashi: rulerPlanet.rashi,
+        is_own_sign: OWN_SIGNS[rulerName] ? OWN_SIGNS[rulerName].includes(rulerPlanet.rashi) : false,
+        is_exalted: (EXALTED_SIGNS[rulerName] === rulerPlanet.rashi)
+      };
+    }
+
+    // Dasha Info (Vimshottari Mars Dasha active in marital window ages 21 to 36)
+    const moonAbs = (moonObj.abs !== undefined) ? moonObj.abs : ((moonObj.sign || 0) * 30 + (moonObj.deg || 0));
+    const dasha_info = {
+      mars_dasha_active_in_window: isMarsDashaActiveInWindow(moonAbs, 21, 36)
     };
 
     return {
@@ -200,12 +300,14 @@
         lagna: { rashi: lagnaRashi, degree: lagnaDeg },
         Sun: mapPlanet(sunObj),
         Moon: mapPlanet(moonObj),
-        Mars: mapPlanet(marsObj),
+        Mars: { ...mapPlanet(marsObj), nakshatra_number: marsNakNum },
+        Mercury: mapPlanet(mercObj),
         Jupiter: mapPlanet(jupObj),
         Venus: mapPlanet(venusObj),
         Saturn: mapPlanet(satObj),
         Rahu: mapPlanet(rahObj),
-        Ketu: mapPlanet(ketObj)
+        Ketu: mapPlanet(ketObj),
+        "7th_lord": seventhLordInfo
       },
       d9: {
         lagna: { rashi: d9LagnaRashi },
@@ -213,6 +315,7 @@
         Moon: { house: d9MoonHouse, rashi: d9MoonRashi },
         Venus: { house: d9VenusHouse, rashi: d9VenusRashi }
       },
+      dasha_info,
       partner_d1: (jatakaOverride && jatakaOverride.partner_d1) || null
     };
   }
@@ -222,7 +325,7 @@
    * 
    * Strict implementation of the PRD / Technical Specification:
    * - Step 1: Tri-Lagna Dosha Identification (Gross Score)
-   * - Step 2: 14 Authentic Parihara Rules Evaluation
+   * - Step 2: 21 Authentic Parihara Rules Evaluation
    * - Step 3: Final Computation, Clamping & Categorization
    * - Step 4: Print & UI Report Payload Construction
    */
@@ -234,7 +337,7 @@
       throw new Error("Invalid Input Data: d1 with Mars is mandatory for Mangal Dosha Engine.");
     }
 
-    const { jataka_info = {}, d1, d9 = {}, partner_d1 = null } = inputData;
+    const { jataka_info = {}, d1, d9 = {}, dasha_info = null, partner_d1 = null } = inputData;
 
     // Normalize D1 Mars, Moon, Venus, Jupiter, Saturn, Rahu, Ketu
     const mars = {
@@ -266,6 +369,60 @@
       house: d9.Mars.house || 1,
       rashi: normalizeRashi(d9.Mars.rashi)
     } : null;
+
+    // ─────────────────────────────────────────────────────────────
+    // INPUT DEPENDENCIES FOR 21 PARIHARA RULES
+    // ─────────────────────────────────────────────────────────────
+    const lagnaRashi = (d1.lagna && d1.lagna.rashi) ? normalizeRashi(d1.lagna.rashi) : 1;
+
+    let dayOfBirth = (jataka_info && jataka_info.day_of_birth) || "";
+    if (!dayOfBirth && jataka_info && jataka_info.dob) {
+      const bDate = new Date(jataka_info.dob);
+      if (!isNaN(bDate.getTime())) {
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        dayOfBirth = days[bDate.getDay()];
+      }
+    }
+
+    let marsNakNumber = (d1.Mars && d1.Mars.nakshatra_number);
+    if (!marsNakNumber) {
+      const mDegAbs = ((mars.rashi - 1) * 30) + (mars.degree || 0);
+      marsNakNumber = Math.floor((((mDegAbs % 360) + 360) % 360) / (360 / 27)) + 1;
+    }
+
+    let lord7 = d1["7th_lord"];
+    if (!lord7 && d1.lagna && d1.lagna.rashi) {
+      const seventhRashi = ((lagnaRashi - 1 + 6) % 12) + 1;
+      const SIGN_LORDS = { 1: "Mars", 2: "Venus", 3: "Mercury", 4: "Moon", 5: "Sun", 6: "Mercury", 7: "Venus", 8: "Mars", 9: "Jupiter", 10: "Saturn", 11: "Saturn", 12: "Jupiter" };
+      const OWN_SIGNS = { Sun: [5], Moon: [4], Mars: [1, 8], Mercury: [3, 6], Jupiter: [9, 12], Venus: [2, 7], Saturn: [10, 11] };
+      const EXALTED_SIGNS = { Sun: 1, Moon: 2, Mars: 10, Mercury: 6, Jupiter: 4, Venus: 12, Saturn: 7 };
+      const rulerName = SIGN_LORDS[seventhRashi];
+      const rulerPlanet = d1[rulerName];
+      if (rulerPlanet) {
+        const rHouse = rulerPlanet.house;
+        const rRashi = normalizeRashi(rulerPlanet.rashi);
+        lord7 = {
+          planet: rulerName,
+          house: rHouse,
+          rashi: rRashi,
+          is_own_sign: OWN_SIGNS[rulerName] ? OWN_SIGNS[rulerName].includes(rRashi) : false,
+          is_exalted: (EXALTED_SIGNS[rulerName] === rRashi)
+        };
+      }
+    }
+
+    let dashaInfo = dasha_info || inputData.dasha_info;
+    if (!dashaInfo && d1.Moon) {
+      let moonAbs = null;
+      if (typeof d1.Moon.abs === 'number') moonAbs = d1.Moon.abs;
+      else if (typeof d1.Moon.degree === 'number') moonAbs = ((normalizeRashi(d1.Moon.rashi) - 1) * 30) + d1.Moon.degree;
+      else if (d1.Moon.rashi) moonAbs = (normalizeRashi(d1.Moon.rashi) - 1) * 30 + 15;
+      if (moonAbs !== null) {
+        dashaInfo = {
+          mars_dasha_active_in_window: isMarsDashaActiveInWindow(moonAbs, 21, 36)
+        };
+      }
+    }
 
     // ─────────────────────────────────────────────────────────────
     // STEP 1: TRI-LAGNA DOSHA IDENTIFICATION & GROSS SCORE
@@ -662,6 +819,116 @@
     });
 
     // ─────────────────────────────────────────────────────────────
+    // ADDITIONAL CLASSICAL RULES: 15 THROUGH 21
+    // ─────────────────────────────────────────────────────────────
+
+    // PARIHARA 15: South Indian Tradition - Dwitiya Bhava me Budha ki Rashi (-30%)
+    evaluateParihara({
+      id: 15,
+      title_hi: "द्वितीय भाव में बुध राशि परिहार (दक्षिण भारतीय मत)",
+      title_en: "Mars in 2nd House in Mercury Sign (South Indian Tradition)",
+      deduction: 30,
+      logic_summary: "d1.Mars.house === 2 && [3, 6].includes(d1.Mars.rashi)",
+      condition: () => (mars.house === 2 && (mars.rashi === 3 || mars.rashi === 6)),
+      shloka: "द्वितीये बुधराशौ चेत्कुजदोषो न विद्यते।",
+      ref: "मुहूर्त मार्तण्ड / बृहज्जातक टीका",
+      explanation_hi: "द्वितीय भाव में मिथुन अथवा कन्या (बुध की राशि) का मंगल होने से कुटुम्ब व वाणी पर मंगल का अनिष्ट प्रभाव समाप्त हो जाता है।",
+      explanation_en: "In South Indian tradition, 2nd house Mars placed in Gemini or Virgo causes no affliction to familial harmony or speech."
+    });
+
+    // PARIHARA 16: Nakshatra-based Placement (Ketu & Mitra Nakshatras) (-30%)
+    evaluateParihara({
+      id: 16,
+      title_hi: "विशिष्ट नक्षत्र अवस्थिति परिहार",
+      title_en: "Specific Nakshatra Placement Exemption",
+      deduction: 30,
+      logic_summary: "Mars in Ashwini(1), Mrigashira(5), Magha(10), Anuradha(17), or Mula(19)",
+      condition: () => {
+        const EXEMPT_NAKSHATRAS = [1, 5, 10, 17, 19];
+        return EXEMPT_NAKSHATRAS.includes(marsNakNumber);
+      },
+      shloka: "अश्विनी मघामूलेषु भौमदोषो न विद्यते।\nअनुराधा मृगे चैव जामित्रेऽपि शुभप्रदः॥",
+      ref: "नारद संहिता / महर्षि अत्रि स्मृति",
+      explanation_hi: "मंगल अश्विनी, मघा, मूल, अनुराधा अथवा मृगशिरा नक्षत्र में स्थित होकर अपनी मारक क्षमता खो देता है और दांपत्य को आघात नहीं पहुंचाता।",
+      explanation_en: "Mars placed in Ashwini, Mrigashira, Magha, Anuradha, or Mula nakshatra pacifies its aggressive malice and turns protective."
+    });
+
+    // PARIHARA 17: Shukra-Mangal or Guru-Mangal Conjunction (-35%)
+    let isWithVenus = (mars.house === venus.house);
+    let isWithJupiter = (mars.house === jupiter.house);
+    evaluateParihara({
+      id: 17,
+      title_hi: isWithJupiter ? "गुरु-भौम युति परिहार" : "भृगु-भौम (शुक्र-मंगल) युति परिहार",
+      title_en: isWithJupiter ? "Jupiter-Mars Conjunction Parihara" : "Venus-Mars Conjunction Parihara",
+      deduction: 35,
+      logic_summary: "d1.Mars.house === d1.Venus.house || d1.Mars.house === d1.Jupiter.house",
+      condition: () => (isWithVenus || isWithJupiter),
+      shloka: "गुरुणा भृगुणा वापि युक्ते भौमे न दोषभाक्।",
+      ref: "मुहूर्त कल्पद्रुम",
+      explanation_hi: `मंगल के साथ ${(mars.house === jupiter.house) ? 'देवगुरु बृहस्पति' : 'दैत्यगुरु शुक्र'} एक ही भाव में युतिबद्ध हैं, जिससे मंगल की तामसिक अग्नि शांत होकर सौम्यता में परिवर्तित हो जाती है।`,
+      explanation_en: `Mars is conjoined with ${(mars.house === jupiter.house) ? 'Jupiter (Devaguru)' : 'Venus (Bhrigu)'} in the same house, cooling Mars's fiery aggression into harmonious beneficence.`
+    });
+
+    // PARIHARA 18: Lagnesha Exemption (Aries & Scorpio Ascendants) (-45%)
+    evaluateParihara({
+      id: 18,
+      title_hi: "स्वयं लग्नेश होने का परिहार (मेष / वृश्चिक लग्न)",
+      title_en: "Mars as Lagnesha Exemption (Aries / Scorpio Ascendant)",
+      deduction: 45,
+      logic_summary: "d1.lagna.rashi === 1 || d1.lagna.rashi === 8",
+      condition: () => (lagnaRashi === 1 || lagnaRashi === 8),
+      shloka: "सर्वे त्रिकोणनेतारो ग्रहाः शुभफलप्रदाः।\nकुजो यदि स्वयं लग्नेशः सर्वदोषहरो भवेत्॥",
+      ref: "बृहत्पाराशरहोराशास्त्रम्",
+      explanation_hi: "जातक का जन्म मेष अथवा वृश्चिक लग्न में हुआ है, अतः मंगल इस कुंडली का लग्नेश (रक्षक) है। लग्नेश कभी अपनी ही कुंडली में वैवाहिक जीवन का विनाश नहीं करता।",
+      explanation_en: "The native is born in Aries or Scorpio ascendant, making Mars the Lagna Lord (custodian of life). As ascendant lord, Mars does not destroy marital bliss in its own chart."
+    });
+
+    // PARIHARA 19: 7th Lord Exalted or in Own Sign in Kendra/Trikona (-35%)
+    evaluateParihara({
+      id: 19,
+      title_hi: "सप्तमेश का उच्च/स्वक्षेत्री होकर शुभ स्थानों में बैठना",
+      title_en: "7th Lord Exalted or in Own Sign in Kendra/Trikona",
+      deduction: 35,
+      logic_summary: "lord7 && (lord7.is_exalted || lord7.is_own_sign) && [1, 4, 7, 10, 5, 9].includes(lord7.house)",
+      condition: () => {
+        const KENDRA_TRIKONA = [1, 4, 7, 10, 5, 9];
+        return !!(lord7 && (lord7.is_exalted || lord7.is_own_sign) && KENDRA_TRIKONA.includes(lord7.house));
+      },
+      shloka: "सप्तमेशे बलोपेते शुभग्रहनिरीक्षिते।\nकेन्द्रकोणगते वापि कुजदोषो विनश्यति॥",
+      ref: "फलदीपिका",
+      explanation_hi: "दांपत्य भाव का स्वामी (सप्तमेश) स्वयं उच्च/स्वराशि होकर केंद्र या त्रिकोण में पूर्ण बली है। जब दांपत्य का स्वामी सशक्त हो, तो मंगल वैवाहिक सुख को भंग नहीं कर पाता।",
+      explanation_en: "The lord of the 7th house is dignified in its own sign or exaltation sign within Kendra (1, 4, 7, 10) or Trikona (5, 9), guaranteeing an unshakeable marital foundation."
+    });
+
+    // PARIHARA 20: Absence of Mars Dasha/Antardasha in Marriage Window (Ages 21-36) (-25%)
+    evaluateParihara({
+      id: 20,
+      title_hi: "विवाह काल में मंगल दशा-अंतर्दशा की अनुपस्थिति (काल परिहार)",
+      title_en: "Absence of Mars Dasha/Antardasha in Prime Marriage Window (Ages 21-36)",
+      deduction: 25,
+      logic_summary: "dasha_info.mars_dasha_active_in_window === false",
+      condition: () => !!(dashaInfo && dashaInfo.mars_dasha_active_in_window === false),
+      shloka: "दशाविरोधे जाते तु न दोषः फलदायकः।\nयस्य यस्य दशा नास्ति स स निष्फलमुच्यते॥",
+      ref: "सर्वार्थचिन्तामणि / दशाफल प्रकरण",
+      explanation_hi: "जातक की विवाह योग्य मुख्य आयु अवधि (२१ से ३६ वर्ष) के दौरान मंगल की महादशा अथवा अंतर्दशा सक्रिय नहीं है। दशा के अभाव में मंगल का अनिष्ट प्रभाव जातक पर प्रभावी नहीं होता।",
+      explanation_en: "Mars Mahadasha or Antardasha is not operative during the prime marriage age bracket (21 to 36 years). Without its active planetary cycle, Mars remains dormant."
+    });
+
+    // PARIHARA 21: Tuesday Birth Exemption (Bhaumavara) (-20%)
+    evaluateParihara({
+      id: 21,
+      title_hi: "भौमवार (मंगलवार) जन्म परिहार",
+      title_en: "Tuesday Birth Parihara (Bhaumavara)",
+      deduction: 20,
+      logic_summary: "jataka_info.day_of_birth.toLowerCase() === 'tuesday'",
+      condition: () => (dayOfBirth && dayOfBirth.toLowerCase() === "tuesday"),
+      shloka: "भौमवारे यदा जन्म कुजदोषो न विद्यते।",
+      ref: "जातक दीपिका / मुहूर्त तत्व",
+      explanation_hi: "जातक का जन्म मंगलवार को होने से मंगल इसका अधिष्ठाता ग्रह है, अतः जातक की प्रकृति में मंगल का सामंजस्य पहले से विद्यमान होता है।",
+      explanation_en: "Being born on Tuesday (day of Mars), Mars is the presiding lord of birth, establishing natural biological affinity and immunity against its afflictions."
+    });
+
+    // ─────────────────────────────────────────────────────────────
     // STEP 3: FINAL SCORE & CLASSIFICATION COMPUTATION
     // ─────────────────────────────────────────────────────────────
     const totalDeduction = appliedPariharas.reduce((sum, item) => sum + item.deduction, 0);
@@ -774,6 +1041,7 @@
     getRelativeHouse,
     calculateAge,
     calculateBalaadiAvastha,
+    isMarsDashaActiveInWindow,
     extractMangalDoshaContract,
     calculateMangalDoshaReport
   };
