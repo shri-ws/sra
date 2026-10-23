@@ -3404,7 +3404,7 @@
     </div>
 
     <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
-      <button class="btn-calc" style="flex:2; min-width:260px;" onclick="handlePatrikaGenerateClick()" id="btnGenerateKundali">✨ अपनी जन्म पत्रिका देखें ➔</button>
+      <button class="btn-calc" style="flex:2; min-width:260px;" onclick="executeParasharaMaster()" id="btnGenerateKundali">✨ अपनी जन्म पत्रिका देखें ➔</button>
       <button type="button" class="btn-saved-kundali-secondary" onclick="openSavedKundaliModal()" style="flex:1; min-width:200px;">
         <span>📂</span> सुरक्षित कुण्डलियां (<span id="savedKundaliBadgeBottom">0</span>)
       </button>
@@ -7306,7 +7306,7 @@ function closeParasharaPaymentModal() {
   }
 }
 
-async function unlockParasharaReport(reportType, paymentId) {
+function unlockParasharaReport(reportType, paymentId) {
   try {
     let key = 'sra_unlocked_report_rajyoga_199';
     if (reportType === 'vahan') key = 'sra_unlocked_report_vahan_199';
@@ -7320,83 +7320,11 @@ async function unlockParasharaReport(reportType, paymentId) {
     console.error("Storage error:", e);
   }
   closeParasharaPaymentModal();
-
-  // If Kundli was not yet calculated, execute calculations now with native positions
-  if (!currentCalculation || !currentCalculation.planets) {
-    if (typeof executeParasharaMaster === 'function') {
-      await executeParasharaMaster();
-    }
-  } else {
-    renderParasharaReports();
-  }
-
-  if (typeof switchParasharaReport === 'function') {
-    switchParasharaReport(reportType);
-  }
-
-  // Update button text on input form
-  const calcBtn = document.getElementById('btnGenerateKundali');
-  if (calcBtn && reportType === 'mangal') {
-    calcBtn.innerHTML = '🔥 मंगल रिपोर्ट देखें ➔';
-  }
-
+  renderParasharaReports();
   let title = '👑 Raajyoga Strength / Rashmi Bal रिपोर्ट';
   if (reportType === 'vahan') title = '🚗 पाराशर वाहन एवं जनबल रिपोर्ट';
   if (reportType === 'mangal') title = '🔥 मंगल दोष एवं परिहार रिपोर्ट';
   showParasharaToast(`🎉 बधाई! ${title} सफलतापूर्वक अनलॉक हो चुकी है।`);
-}
-
-async function handlePatrikaGenerateClick() {
-  const urlParams = new URLSearchParams(window.location.search);
-  let focus = urlParams.get('focus') || urlParams.get('report') || focusedReportType;
-  if (focus === 'manglik') focus = 'mangal';
-
-  if (focus === 'mangal') {
-    // 1. Mandatory Birth Date & Time validation
-    const dateStr = document.getElementById("inDate") ? document.getElementById("inDate").value.trim() : "";
-    const timeStr = document.getElementById("inTime") ? document.getElementById("inTime").value.trim() : "";
-    const cityInput = document.getElementById("inCitySearch") ? document.getElementById("inCitySearch").value.trim() : "";
-    let latStr = document.getElementById("inLat") ? document.getElementById("inLat").value.trim() : "";
-    let lonStr = document.getElementById("inLon") ? document.getElementById("inLon").value.trim() : "";
-
-    if (!dateStr || !timeStr) {
-      alert("कृपया अपनी जन्म तिथि एवं जन्म समय भरें।");
-      if (!dateStr && document.getElementById("inDate")) document.getElementById("inDate").focus();
-      else if (!timeStr && document.getElementById("inTime")) document.getElementById("inTime").focus();
-      return;
-    }
-
-    if ((!latStr || !lonStr) && cityInput) {
-      if (typeof searchCityLocation === 'function') {
-        await searchCityLocation();
-      }
-      latStr = document.getElementById("inLat") ? document.getElementById("inLat").value.trim() : "";
-      lonStr = document.getElementById("inLon") ? document.getElementById("inLon").value.trim() : "";
-    }
-
-    if (!latStr || !lonStr || !cityInput) {
-      alert("कृपया अपना जन्म स्थान (शहर/जिला) भरें अथवा विश्व मानचित्र पर स्थान चुनें।");
-      const cityEl = document.getElementById("inCitySearch");
-      if (cityEl) {
-        cityEl.focus();
-        cityEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
-
-    // 2. Check if Mangal report is already unlocked
-    if (isParasharaReportUnlocked('mangal')) {
-      await executeParasharaMaster();
-      return;
-    }
-
-    // 3. User needs to pay ₹199 via Razorpay
-    openParasharaPaymentModal('mangal');
-    return;
-  }
-
-  // Normal flow
-  await executeParasharaMaster();
 }
 
 function triggerParasharaRazorpayCheckout() {
@@ -7590,8 +7518,7 @@ function checkAndApplyFocusedReportMode() {
       const calcBtn = document.getElementById('btnGenerateKundali');
       if (calcBtn) {
         if (focus === 'mangal') {
-          const isUnlocked = isParasharaReportUnlocked('mangal');
-          calcBtn.innerHTML = isUnlocked ? '🔥 मंगल रिपोर्ट देखें ➔' : '🔥 मंगल रिपोर्ट जनरेट करें (₹199 के पेमेंट पर) ➔';
+          calcBtn.innerHTML = '🔥 मंगल दोष रिपोर्ट देखें (मात्र ₹199) ➔';
         } else if (focus === 'rajyoga') {
           calcBtn.innerHTML = '👑 राजयोग रिपोर्ट देखें (मात्र ₹199) ➔';
         } else if (focus === 'vahan') {
@@ -7850,10 +7777,6 @@ async function printParasharaReport(reportType) {
         border-color: #10b981 !important;
         background: #f0fdf4 !important;
       }
-      #sra_pdf_certificate_stage .mangal-grand-verdict-banner {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
       #sra_pdf_certificate_stage .shloka-quote-box,
       #sra_pdf_certificate_stage .shloka-box-classical {
         page-break-inside: avoid !important;
@@ -7872,26 +7795,18 @@ async function printParasharaReport(reportType) {
     `;
     container.appendChild(pdfStyle);
 
-    // Formal Vedic Letterhead Header with Official Logo & Mars Emblem
+    // Formal Vedic Letterhead Header
     const headerBanner = document.createElement('div');
     headerBanner.style.textAlign = 'center';
     headerBanner.style.borderBottom = '2.5px solid #b45309';
-    headerBanner.style.paddingBottom = '14px';
+    headerBanner.style.paddingBottom = '12px';
     headerBanner.style.marginBottom = '16px';
     headerBanner.innerHTML = `
-      <div style="display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:8px;">
-        <img src="logo.png" style="height:55px; width:55px; border-radius:50%; object-fit:contain; border:2px solid #b45309; box-shadow:0 2px 6px rgba(0,0,0,0.15);" alt="Shri Ramji Astro">
-        <div style="text-align:center;">
-          <div style="font-size:22px; font-weight:900; color:#7c1305; font-family:'Cinzel', serif; letter-spacing:1.5px;">
-            श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO
-          </div>
-          <div style="font-size:12px; color:#b45309; font-weight:700; margin-top:2px;">
-            काशी (वाराणसी) • True Chitra Paksha (Lahiri) • महर्षि पराशर सम्मत प्रामाणिक फलित विवरण
-          </div>
-        </div>
-        <div style="width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg, #7c1305, #dc2626); color:#ffffff; font-size:28px; font-weight:bold; display:flex; align-items:center; justify-content:center; border:2px solid #f59e0b; box-shadow:0 2px 6px rgba(124,19,5,0.25);">
-          ♂
-        </div>
+      <div style="font-size:24px; font-weight:800; color:#7c1305; font-family:'Cinzel', serif; letter-spacing:1.5px;">
+        श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO
+      </div>
+      <div style="font-size:12.5px; color:#b45309; font-weight:700; margin-top:3px;">
+        काशी (वाराणसी) • True Chitra Paksha (Lahiri) • महर्षि पराशर सम्मत प्रामाणिक फलित विवरण
       </div>
     `;
     container.appendChild(headerBanner);
@@ -8704,9 +8619,9 @@ function renderParasharaReports() {
     `;
   }
 
-  // --- HTML FOR REPORT 3: MANGAL DOSHA & 21 PARIHARA RULES ---
+  // --- HTML FOR REPORT 3: MANGAL DOSHA & 14 PARIHARA RULES ---
   let paneMangalContent = '';
-  if (!repMangal || !repMangal.mars_details) {
+  if (!repMangal) {
     paneMangalContent = `
       <div style="padding:30px 20px; text-align:center; color:var(--muted);">
         <div style="font-size:32px; margin-bottom:8px;">🔥</div>
@@ -8715,18 +8630,14 @@ function renderParasharaReports() {
     `;
   } else if (isMangalUnlocked) {
     paneMangalContent = `
-      <!-- Clean Formal Certificate Header with Logo & Mars Emblem -->
-      <div class="jataka-formal-header" style="border:1.5px solid var(--gold-border); border-radius:14px; padding:18px 22px; background:var(--card-bg); margin-bottom:16px; box-shadow:0 3px 12px rgba(180,83,9,0.08);">
-        <div class="jataka-formal-top" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <img src="logo.png" style="height:48px; width:48px; border-radius:50%; object-fit:contain; border:2px solid var(--gold); box-shadow:0 2px 6px rgba(0,0,0,0.15);" alt="Shri Ramji Astro">
-            <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg, #7c1305, #dc2626); color:#fff; font-size:24px; font-weight:bold; display:flex; align-items:center; justify-content:center; border:2px solid #f59e0b; box-shadow:0 2px 6px rgba(124,19,5,0.25);">♂</div>
-            <div>
-              <span style="font-size:11px; background:rgba(239,68,68,0.12); color:#dc2626; font-weight:800; padding:2px 8px; border-radius:8px;">21 Classical Parihara Rules • BPHS</span>
-              <h2 class="jataka-formal-report-title" style="margin:2px 0 0 0; font-size:18px; color:var(--primary);">
-                ${repMangal.report_title}
-              </h2>
-            </div>
+      <!-- Clean Formal Certificate Header -->
+      <div class="jataka-formal-header" style="border:1px solid var(--border); border-radius:12px; padding:16px 20px; background:var(--card-bg); margin-bottom:16px;">
+        <div class="jataka-formal-top" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; background:rgba(239,68,68,0.12); color:#dc2626; font-weight:800; padding:2px 8px; border-radius:8px;">14 Classical Parihara Rules</span>
+            <h2 class="jataka-formal-report-title" style="margin:0; font-size:18px; color:var(--primary);">
+              ${repMangal.report_title}
+            </h2>
           </div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <button type="button" class="btn-switch-report-pill" onclick="toggleEditBirthDetails()" style="background:rgba(180,83,9,0.1); border-color:var(--gold); color:var(--dark);">
@@ -8749,55 +8660,6 @@ function renderParasharaReports() {
           <div class="jataka-field"><span>${isHi ? 'मंगल स्थिति:' : 'Mars Position:'}</span> <strong>भाव ${repMangal.mars_details.house} • ${repMangal.mars_details.rashi} (${repMangal.mars_details.degree.toFixed(2)}°)</strong></div>
         </div>
       </div>
-
-      <!-- MAJOR SHALOKIC VERDICT BANNER (3 Distinct Highlighted States) -->
-      ${(() => {
-        if (repMangal.gross_dosha_percentage === 0) {
-          return `
-            <div class="mangal-grand-verdict-banner free-dosha" style="background:linear-gradient(135deg, #ecfdf5, #d1fae5); border:2px solid #059669; border-radius:14px; padding:18px 22px; margin:16px 0; display:flex; align-items:center; gap:16px; box-shadow:0 4px 14px rgba(5,150,105,0.12);">
-              <div style="width:52px; height:52px; border-radius:50%; background:#059669; color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; box-shadow:0 2px 8px rgba(5,150,105,0.3);">✓</div>
-              <div style="flex:1;">
-                <div style="font-size:11.5px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.8px;">शास्त्रीय निर्णय • FINAL MATRIMONIAL VERDICT</div>
-                <div style="font-size:20px; font-weight:900; color:#064e3b; margin:2px 0 4px 0;">🎉 जातक की कुण्डली पूर्णतः मंगल दोष मुक्त है (दोष रहित - ०%)</div>
-                <div style="font-size:13px; color:#1e293b; line-height:1.5;">
-                  जातक के लग्न, चन्द्र अथवा शुक्र—तीनों मुख्य आधारों से १, ४, ७, ८, १२ भावों में मंगल की प्रतिकूल उपस्थिति <strong>नहीं पाई गई</strong>। कुण्डली वैवाहिक दृष्टिकोण से निर्दोष है तथा किसी भी मांगलिक परिहार अथवा शांति की आवश्यकता नहीं है।
-                </div>
-              </div>
-            </div>
-          `;
-        } else if (repMangal.net_dosha_percentage === 0) {
-          return `
-            <div class="mangal-grand-verdict-banner cancelled-dosha" style="background:linear-gradient(135deg, #f0fdf4, #fef3c7); border:2px solid #10b981; border-radius:14px; padding:18px 22px; margin:16px 0; display:flex; align-items:center; gap:16px; box-shadow:0 4px 14px rgba(16,185,129,0.15);">
-              <div style="width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); color:#fff; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; box-shadow:0 2px 8px rgba(16,185,129,0.3);">✨</div>
-              <div style="flex:1;">
-                <div style="font-size:11.5px; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0.8px;">शास्त्रीय निर्णय • 21 AUTHENTIC PARIHARA VERDICT</div>
-                <div style="font-size:20px; font-weight:900; color:#065f46; margin:2px 0 4px 0;">✓ मंगल दोष परिहार लागू — शास्त्रीय नियमों द्वारा दोष पूर्णतया निष्प्रभावी / निरस्त (१००% परिहार)</div>
-                <div style="font-size:13px; color:#1e293b; line-height:1.5;">
-                  प्रारंभिक त्रि-लग्न गणना में ग्रॉस मंगल भार <strong>${repMangal.gross_dosha_percentage}%</strong> उपस्थित था, किन्तु २१ प्रामाणिक शास्त्रीय परिहार नियमों (अगस्त्य संहिता, फलदीपिका, मानसागरी, गुरु दृष्टि, स्वक्षेत्र/उच्च बल) के अंतर्गत <strong>१००% परिहार लागू</strong> होकर अंतिम शुद्ध दोष <strong>०% (शून्य)</strong> हो चुका है। सामान्य विवाह पूर्णतः अनुशंसित है।
-                </div>
-                ${repMangal.applied_pariharas && repMangal.applied_pariharas.length ? `
-                  <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                    ${repMangal.applied_pariharas.map(p => `<span style="background:rgba(16,185,129,0.15); color:#047857; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; border:1px solid rgba(16,185,129,0.3);">✓ नियम ${p.rule_id}: ${p.title} (-${p.deduction}%)</span>`).join('')}
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-          `;
-        } else {
-          return `
-            <div class="mangal-grand-verdict-banner active-dosha" style="background:linear-gradient(135deg, #fef2f2, #fee2e2); border:2px solid #dc2626; border-radius:14px; padding:18px 22px; margin:16px 0; display:flex; align-items:center; gap:16px; box-shadow:0 4px 14px rgba(220,38,38,0.12);">
-              <div style="width:52px; height:52px; border-radius:50%; background:#dc2626; color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; box-shadow:0 2px 8px rgba(220,38,38,0.3);">🔥</div>
-              <div style="flex:1;">
-                <div style="font-size:11.5px; font-weight:800; color:#b91c1c; text-transform:uppercase; letter-spacing:0.8px;">शास्त्रीय निर्णय • ACTIVE DOSHA VERDICT</div>
-                <div style="font-size:20px; font-weight:900; color:#991b1b; margin:2px 0 4px 0;">⚠️ मंगल दोष प्रभावी — वर्तमान कुण्डली में दोष बना हुआ है (शुद्ध प्रभाव: ${repMangal.net_dosha_percentage}%)</div>
-                <div style="font-size:13px; color:#1e293b; line-height:1.5;">
-                  प्रारंभिक ग्रॉस भार: <strong>${repMangal.gross_dosha_percentage}%</strong> • २१ परिहार कटौती: <strong>-${repMangal.parihara_deduction_percentage}%</strong> • अंतिम प्रभावी दोष: <strong>${repMangal.net_dosha_percentage}%</strong> (${repMangal.dosha_category})। विवाह पूर्व जीवनसाथी कुण्डली में समदोष साम्य (पार्टनर के १, ४, ७, ८, १२ भाव में मंगल, शनि अथवा राहु) का परीक्षण एवं अनुशंसित शास्त्रीय वैदिक उपाय आवश्यक हैं।
-                </div>
-              </div>
-            </div>
-          `;
-        }
-      })()}
 
       <!-- Score Breakdown & Grand Status Bar -->
       <div style="background:var(--bg); border:1.5px solid var(--gold-border); border-radius:14px; padding:18px 20px; margin:16px 0;">
