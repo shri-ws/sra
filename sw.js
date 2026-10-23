@@ -3,7 +3,7 @@
  * Enables PWA native installability and offline caching
  */
 
-const CACHE_NAME = 'sra-patrika-v7';
+const CACHE_NAME = 'sra-patrika-v8';
 const ASSETS_TO_CACHE = [
   '/',
   '/patrika.html',
@@ -18,12 +18,13 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(ASSETS_TO_CACHE).catch(err => {
         console.warn('PWA caching non-fatal warning:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -33,6 +34,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.map(k => {
           if (k !== CACHE_NAME) {
+            console.log('[SRA PWA] Deleting old cache:', k);
             return caches.delete(k);
           }
         })
@@ -42,8 +44,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Network first with cache fallback
   if (event.request.method !== 'GET') return;
+
+  // Always force network-first with cache-busting for HTML navigation pages
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-cache' })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );

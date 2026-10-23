@@ -1794,10 +1794,20 @@
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(function(reg) {
           console.log('[SRA PWA] Service Worker registered:', reg.scope);
+          reg.update();
         })
         .catch(function(err) {
           console.warn('[SRA PWA] Service Worker registration failed:', err);
         });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('[SRA PWA] New Service Worker active, reloading page...');
+          window.location.reload();
+        }
+      });
     });
   }
 

@@ -1328,13 +1328,18 @@
         <span class="brand-sub">by Shri Ram Ji Astro</span>
       </div>
     </a>
-    <div class="nav-links">
-      <a href="/index.html">होम</a>
-      <a href="/patrika.html">कुण्डली</a>
-      <a href="/vmm.html">विवाह मुहूर्त</a>
-      <!-- Exact Internal Link Anchor Text for Navbar -->
-      <a href="/manglik-dosh-calculator" class="active">मंगल दोष एवं परिहार कैलकुलेटर</a>
-      <a href="#calculator-section" class="nav-cta">गणना करें</a>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button type="button" onclick="window.location.replace(window.location.pathname + '?_t=' + Date.now())" title="ताज़ा ऐप रीलोड करें" style="background:rgba(180,83,9,0.08); border:1px solid var(--border-gold); color:var(--primary); font-size:12px; font-weight:700; padding:6px 10px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-family:var(--font-hindi);">
+        <span>🔄</span> <span>ताज़ा करें</span>
+      </button>
+      <div class="nav-links">
+        <a href="/index.html">होम</a>
+        <a href="/patrika.html">कुण्डली</a>
+        <a href="/vmm.html">विवाह मुहूर्त</a>
+        <!-- Exact Internal Link Anchor Text for Navbar -->
+        <a href="/manglik-dosh-calculator" class="active">मंगल दोष एवं परिहार कैलकुलेटर</a>
+        <a href="#calculator-section" class="nav-cta">गणना करें</a>
+      </div>
     </div>
   </nav>
 
@@ -2304,26 +2309,28 @@
                   <div style="font-size:12.5px; font-weight:800; color:var(--primary); margin-bottom:4px; font-family:var(--font-hindi);">
                     १. त्रि-लग्न मंगल स्थिति परीक्षण
                   </div>
-                  <table class="tri-lagna-table">
-                    <thead>
-                      <tr>
-                        <th>आधार</th>
-                        <th>मंगल भाव</th>
-                        <th>दोष कारक?</th>
-                        <th>शास्त्रीय स्थिति</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${rep.tri_lagna_breakup.map(item => `
+                  <div style="width:100%; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; box-sizing:border-box;">
+                    <table class="tri-lagna-table">
+                      <thead>
                         <tr>
-                          <td><b>${item.reference || item.name}</b></td>
-                          <td>${item.mars_house || item.house}वां (${item.mars_rashi || ''})</td>
-                          <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">हाँ</span>' : '<span style="color:#16a34a; font-weight:700;">नहीं</span>'}</td>
-                          <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">भौम दोष</span>' : '<span style="color:#16a34a; font-weight:700;">निर्दोष</span>'}</td>
+                          <th style="width:26%;">आधार</th>
+                          <th style="width:26%;">मंगल भाव</th>
+                          <th style="width:22%;">दोष कारक?</th>
+                          <th style="width:26%;">शास्त्रीय स्थिति</th>
                         </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        ${rep.tri_lagna_breakup.map(item => `
+                          <tr>
+                            <td><b>${item.reference || item.name}</b></td>
+                            <td>${item.mars_house || item.house}वां (${item.mars_rashi || ''})</td>
+                            <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">हाँ</span>' : '<span style="color:#16a34a; font-weight:700;">नहीं</span>'}</td>
+                            <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">भौम दोष</span>' : '<span style="color:#16a34a; font-weight:700;">निर्दोष</span>'}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 <!-- D9 Navamsha Validation -->
@@ -2461,13 +2468,23 @@
       const btn = document.getElementById('btnDownloadManglikPdf');
       const originalHtml = btn ? btn.innerHTML : '';
       if (btn) {
-        btn.innerHTML = '<span>⏳</span> <span>PDF तैयार हो रही है, कृपया प्रतीक्षा करें...</span>';
+        btn.innerHTML = '<span>⏳</span> <span>PDF तैयार हो रही है (3-4 सेकंड)...</span>';
         btn.disabled = true;
         btn.style.opacity = '0.7';
       }
 
+      // 10-second safety reset timer so button is never permanently stuck
+      const safetyResetTimer = setTimeout(() => {
+        if (btn && btn.disabled) {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }
+      }, 10000);
+
       const reportEl = document.getElementById('printableA4Report');
       if (!reportEl) {
+        clearTimeout(safetyResetTimer);
         if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; btn.style.opacity = '1'; }
         window.print();
         return;
@@ -2565,6 +2582,7 @@
           delivered = true;
         }
 
+        clearTimeout(safetyResetTimer);
         if (stage && stage.parentNode) {
           stage.parentNode.removeChild(stage);
           stage = null;
@@ -2580,6 +2598,7 @@
         }
         return;
       } catch (err) {
+        clearTimeout(safetyResetTimer);
         console.error("PDF generation failed, falling back to window.print():", err);
         if (stage && stage.parentNode) {
           stage.parentNode.removeChild(stage);
