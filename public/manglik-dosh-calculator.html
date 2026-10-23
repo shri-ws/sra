@@ -2284,6 +2284,19 @@
               <div class="span-full-mobile" style="grid-column: span 2;"><span style="color:#64748b;">शास्त्रोक्त निर्णय:</span> <strong style="color:${rep.badge_hex || '#16a34a'}; font-size:13px;">${rep.dosha_category}</strong></div>
             </div>
 
+            <!-- TOP ACTION BUTTONS BAR (Prominently visible on Mobile immediately upon unlock) -->
+            <div class="no-print report-top-actions" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 14px; padding:10px 12px; background:#fffcf6; border:1.5px solid var(--border-gold); border-radius:10px; box-shadow:0 2px 8px rgba(180,83,9,0.08);">
+              <button type="button" class="btn-dl-pdf" onclick="downloadManglikReportPDF()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:13.5px; font-weight:800; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 3px 10px rgba(124,19,5,0.22); display:inline-flex; align-items:center; gap:6px;">
+                <span>📥</span> <span>A4 PDF डाउनलोड करें</span>
+              </button>
+              <button type="button" onclick="window.print()" style="background:#ffffff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:13px; font-weight:800; padding:10px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                <span>🖨️</span> <span>प्रिंट / PDF (Apple iOS)</span>
+              </button>
+              <button type="button" onclick="generateNewReport()" style="background:#f8fafc; border:1px solid var(--border); color:#475569; font-family:var(--font-hindi); font-size:12.5px; font-weight:700; padding:10px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                <span>🔄</span> <span>नई रिपोर्ट</span>
+              </button>
+            </div>
+
             <!-- 2-Column Side-by-Side: Left = Chart Snapshot, Right = Verdict & Tri-Lagna -->
             <div class="report-split-grid">
               <!-- Left: North Indian Chart Snapshot (Centered) -->
@@ -2429,14 +2442,17 @@
           </div>
 
           <!-- Action Buttons (No-Print) -->
-          <div class="no-print btn-action-group" style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
-            <button type="button" id="btnDownloadManglikPdf" onclick="downloadManglikReportPDF()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:15px; font-weight:800; padding:12px 24px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(124,19,5,0.25); display:inline-flex; align-items:center; gap:8px;">
+          <div class="no-print btn-action-group" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+            <button type="button" class="btn-dl-pdf" onclick="downloadManglikReportPDF()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:14.5px; font-weight:800; padding:12px 22px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(124,19,5,0.25); display:inline-flex; align-items:center; gap:8px;">
               <span>📥</span> <span>A4 PDF रिपोर्ट डाउनलोड करें</span>
             </button>
-            <button type="button" onclick="generateNewReport()" style="background:#fff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:14.5px; font-weight:800; padding:12px 20px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <button type="button" onclick="window.print()" style="background:#ffffff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:14px; font-weight:800; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+              <span>🖨️</span> <span>A4 प्रिंट / PDF सेव करें (iOS/Android)</span>
+            </button>
+            <button type="button" onclick="generateNewReport()" style="background:#fff; border:1.5px solid var(--border); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
               <span>🔄</span> <span>नई रिपोर्ट जनरेट करें</span>
             </button>
-            <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fffcf6; border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 20px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fffcf6; border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
               <span>✨</span> <span>पत्रिका (D1-D60) ➔</span>
             </button>
           </div>
@@ -2501,65 +2517,26 @@
 
     // Direct PDF Downloader for Mobile Apps, Android WebViews, and Desktop
     async function downloadManglikReportPDF() {
-      const btn = document.getElementById('btnDownloadManglikPdf');
-      const originalHtml = btn ? btn.innerHTML : '';
-      if (btn) {
-        btn.innerHTML = '<span>⏳</span> <span>PDF तैयार हो रही है (3-4 सेकंड)...</span>';
-        btn.disabled = true;
-        btn.style.opacity = '0.7';
-      }
-
-      // Show Full-Screen Loading Mask so user sees clean loading animation while html2canvas renders
-      let mask = document.getElementById('sra_pdf_loading_mask');
-      if (!mask) {
-        mask = document.createElement('div');
-        mask.id = 'sra_pdf_loading_mask';
-        mask.style.position = 'fixed';
-        mask.style.top = '0';
-        mask.style.left = '0';
-        mask.style.width = '100vw';
-        mask.style.height = '100vh';
-        mask.style.background = 'rgba(15, 23, 42, 0.88)';
-        mask.style.backdropFilter = 'blur(4px)';
-        mask.style.zIndex = '999999';
-        mask.style.display = 'flex';
-        mask.style.flexDirection = 'column';
-        mask.style.alignItems = 'center';
-        mask.style.justifyContent = 'center';
-        mask.style.color = '#ffffff';
-        mask.style.fontFamily = "'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif";
-        mask.innerHTML = `
-          <div style="font-size:42px; margin-bottom:12px;">📥</div>
-          <div style="font-size:18px; font-weight:800; color:#fbbf24; font-family:'Cinzel', serif; letter-spacing:1px;">श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO</div>
-          <div style="font-size:15px; font-weight:700; margin-top:8px;">प्रामाणिक मांगलिक दोष A4 PDF तैयार हो रही है...</div>
-          <div style="font-size:12px; color:#cbd5e1; margin-top:4px;">कृपया २-३ सेकंड प्रतीक्षा करें • शास्त्रीय प्रमाण-पत्र संकलित हो रहा है</div>
-        `;
-        document.body.appendChild(mask);
-      } else {
-        mask.style.display = 'flex';
-      }
-
-      // 12-second safety reset timer so button is never permanently stuck
-      const safetyResetTimer = setTimeout(() => {
-        if (mask && mask.parentNode) mask.parentNode.removeChild(mask);
-        if (btn && btn.disabled) {
-          btn.innerHTML = originalHtml;
-          btn.disabled = false;
-          btn.style.opacity = '1';
-        }
-      }, 12000);
+      const allDlBtns = document.querySelectorAll('.btn-dl-pdf');
+      allDlBtns.forEach(b => {
+        b.innerHTML = '<span>⏳</span> <span>PDF तैयार हो रहा है (2-3 सेकंड)...</span>';
+        b.disabled = true;
+        b.style.opacity = '0.7';
+      });
 
       const reportEl = document.getElementById('printableA4Report');
       if (!reportEl) {
-        clearTimeout(safetyResetTimer);
-        if (mask && mask.parentNode) mask.parentNode.removeChild(mask);
-        if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; btn.style.opacity = '1'; }
         window.print();
+        allDlBtns.forEach(b => {
+          b.innerHTML = '<span>📥</span> <span>A4 PDF डाउनलोड करें</span>';
+          b.disabled = false;
+          b.style.opacity = '1';
+        });
         return;
       }
 
       const jName = (currentSelectedKundali && currentSelectedKundali.name) ? currentSelectedKundali.name.trim().replace(/\s+/g, '_') : 'जातक';
-      const filename = `Manglik_Dosha_Report_${jName}_ShriRamjiAstro.pdf`;
+      const filename = `Manglik_Report_${jName}_ShriRamjiAstro.pdf`;
 
       // Wait if html2pdf library is still loading
       for (let w = 0; w < 10; w++) {
@@ -2567,130 +2544,38 @@
         await new Promise(r => setTimeout(r, 150));
       }
 
-      let stage = null;
+      if (typeof html2pdf !== 'function') {
+        window.print();
+        allDlBtns.forEach(b => {
+          b.innerHTML = '<span>📥</span> <span>A4 PDF डाउनलोड करें</span>';
+          b.disabled = false;
+          b.style.opacity = '1';
+        });
+        return;
+      }
+
+      const noPrintEls = reportEl.querySelectorAll('.no-print');
       try {
-        if (typeof html2pdf !== 'function') {
-          throw new Error("html2pdf library unavailable");
-        }
-
-        // Clone report into a fixed 794px desktop container (A4 width at 96 DPI)
-        const clone = reportEl.cloneNode(true);
-        clone.querySelectorAll('.no-print, .btn-action-group, button').forEach(el => el.remove());
-
-        // Position stage on-screen with positive z-index under mask so html2canvas renders accurately without blanking
-        stage = document.createElement('div');
-        stage.id = 'sra_pdf_render_stage';
-        stage.style.position = 'fixed';
-        stage.style.top = '0px';
-        stage.style.left = '0px';
-        stage.style.width = '794px';
-        stage.style.minHeight = '1123px';
-        stage.style.background = '#ffffff';
-        stage.style.color = '#1e293b';
-        stage.style.padding = '18px 24px';
-        stage.style.boxSizing = 'border-box';
-        stage.style.zIndex = '999998'; // Just below loading mask (999999) so it is in viewport rendering tree
-        stage.style.overflow = 'visible';
-
-        // High-fidelity styling injected directly into stage for pristine PDF output
-        const pdfStyle = document.createElement('style');
-        pdfStyle.textContent = `
-          #sra_pdf_render_stage, #sra_pdf_render_stage * {
-            color-scheme: light !important;
-            box-sizing: border-box !important;
-          }
-          #sra_pdf_render_stage {
-            background: #ffffff !important;
-            color: #1e293b !important;
-            width: 794px !important;
-            max-width: 794px !important;
-          }
-          #sra_pdf_render_stage .unlocked-report-card {
-            border: 1.5px solid #b45309 !important;
-            box-shadow: none !important;
-            padding: 16px 20px !important;
-            margin: 0 !important;
-            background: #ffffff !important;
-            width: 100% !important;
-            max-width: 100% !important;
-          }
-          #sra_pdf_render_stage .report-page-1 {
-            page-break-after: always !important;
-            break-after: page !important;
-          }
-          #sra_pdf_render_stage .report-page-2 {
-            page-break-before: auto !important;
-            break-before: auto !important;
-            margin-top: 14px !important;
-          }
-          #sra_pdf_render_stage .report-split-grid {
-            display: grid !important;
-            grid-template-columns: 240px 1fr !important;
-            gap: 12px !important;
-          }
-          #sra_pdf_render_stage .kundli-snapshot-box {
-            width: 240px !important;
-            min-width: 240px !important;
-            max-width: 240px !important;
-          }
-          #sra_pdf_render_stage svg {
-            width: 230px !important;
-            height: 230px !important;
-            max-width: 230px !important;
-            max-height: 230px !important;
-            display: block !important;
-          }
-          #sra_pdf_render_stage .tri-lagna-table {
-            width: 100% !important;
-            table-layout: fixed !important;
-          }
-          #sra_pdf_render_stage .parihara-audit-grid {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 8px !important;
-          }
-          #sra_pdf_render_stage .btn-action-group,
-          #sra_pdf_render_stage .no-print {
-            display: none !important;
-          }
-        `;
-        stage.appendChild(pdfStyle);
-
-        clone.style.display = 'block';
-        clone.style.background = '#ffffff';
-        clone.style.color = '#1e293b';
-        clone.style.padding = '0';
-        clone.style.margin = '0';
-        clone.style.boxShadow = 'none';
-        clone.style.border = 'none';
-        stage.appendChild(clone);
-        document.body.appendChild(stage);
-
-        // Allow microtask tick for DOM & fonts to settle
-        await new Promise(r => setTimeout(r, 150));
+        // Temporarily hide action buttons during capture
+        noPrintEls.forEach(el => el.style.display = 'none');
 
         const opt = {
           margin: [8, 8, 8, 8],
           filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
+          image: { type: 'jpeg', quality: 0.95 },
           html2canvas: {
-            scale: 2,
+            scale: 1.5,
             useCORS: true,
             logging: false,
             backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: 0,
-            x: 0,
-            y: 0,
-            width: 794,
-            windowWidth: 794
+            scrollY: 0
           },
           jsPDF: {
             unit: 'mm',
             format: 'a4',
             orientation: 'portrait'
           },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          pagebreak: { mode: 'css' }
         };
 
         let delivered = false;
@@ -2698,7 +2583,7 @@
         // Mobile Device Native Delivery: Web Share API (Works in Android WebViews & iOS Safari)
         if (navigator.canShare && window.File) {
           try {
-            const blob = await html2pdf().set(opt).from(stage).output('blob');
+            const blob = await html2pdf().set(opt).from(reportEl).output('blob');
             if (blob && blob instanceof Blob && blob.size > 2000) {
               const file = new File([blob], filename, { type: 'application/pdf' });
               if (navigator.canShare({ files: [file] })) {
@@ -2711,43 +2596,35 @@
               }
             }
           } catch (shareErr) {
-            if (shareErr.name === 'AbortError') {
-              delivered = true;
-            }
+            if (shareErr.name === 'AbortError') delivered = true;
           }
         }
 
-        // Desktop / Standard Browser direct download link
+        // Standard browser direct download if Web Share was not used
         if (!delivered) {
-          await html2pdf().set(opt).from(stage).save();
+          await html2pdf().set(opt).from(reportEl).save();
           delivered = true;
         }
 
-        if (btn) {
-          btn.innerHTML = '<span>✅</span> <span>PDF डाउनलोड पूर्ण!</span>';
+        allDlBtns.forEach(b => {
+          b.innerHTML = '<span>✅</span> <span>डाउनलोड पूर्ण!</span>';
           setTimeout(() => {
-            btn.innerHTML = originalHtml;
-            btn.disabled = false;
-            btn.style.opacity = '1';
-          }, 2500);
-        }
-        return;
+            b.innerHTML = '<span>📥</span> <span>A4 PDF डाउनलोड करें</span>';
+            b.disabled = false;
+            b.style.opacity = '1';
+          }, 3000);
+        });
       } catch (err) {
-        console.error("PDF generation failed, falling back to window.print():", err);
-        if (btn) {
-          btn.innerHTML = originalHtml;
-          btn.disabled = false;
-          btn.style.opacity = '1';
-        }
+        console.error("PDF generation note:", err);
         window.print();
+        allDlBtns.forEach(b => {
+          b.innerHTML = '<span>📥</span> <span>A4 PDF डाउनलोड करें</span>';
+          b.disabled = false;
+          b.style.opacity = '1';
+        });
       } finally {
-        clearTimeout(safetyResetTimer);
-        if (mask && mask.parentNode) {
-          mask.parentNode.removeChild(mask);
-        }
-        if (stage && stage.parentNode) {
-          stage.parentNode.removeChild(stage);
-        }
+        // Always restore action buttons
+        noPrintEls.forEach(el => el.style.display = '');
       }
     }
 
