@@ -543,6 +543,7 @@
         shloka: ruleDef.shloka,
         ref: ruleDef.ref,
         explanation: isEn ? ruleDef.explanation_en : ruleDef.explanation_hi,
+        desc: isEn ? ruleDef.explanation_en : ruleDef.explanation_hi,
         logic_summary: ruleDef.logic_summary
       };
       allPariharas.push(item);
