@@ -139,6 +139,21 @@ jsResult.triggered.forEach(y => {
 
 assert.strictEqual(jsResult.capacity_index, 411, `Expected capacity_index 411, got ${jsResult.capacity_index}`);
 assert.strictEqual(jsResult.band.tier, 5);
+assert.strictEqual(jsResult.band.sanskrit, 'Koti-Pati');
+assert.strictEqual(jsResult.band.indicative_net_worth_inr, '₹5 crore – ₹15 crore');
+assert.strictEqual(jsResult.band.inr_calibrated, false);
 assert.strictEqual(jsResult.triggered.length, 9);
+
+// Test career trajectory bridge
+const { analyzeCareerTrajectory } = require('./dhanaYogaService.js').DhanaYogaEngine;
+const bridgeSalaried = analyzeCareerTrajectory('salaried_govt', 'middle', jsResult, {});
+assert.strictEqual(bridgeSalaried.currentStatusKey, 'salaried_govt');
+assert.strictEqual(bridgeSalaried.isOpenEnded, false);
+assert(bridgeSalaried.contrastNote.includes('मासिक वेतन'));
+
+console.log("\nCareer Trajectory Bridge Sample (Salaried + Tier 5 Kotipati):");
+console.log("- Status:", bridgeSalaried.currentStatusTitle);
+console.log("- Natural Baseline:", bridgeSalaried.baselineCap);
+console.log("- Contrast & Guidance:", bridgeSalaried.contrastNote);
 
 console.log("\nALL DHANA YOGA JS TESTS PASSED 100% PERFECTLY!\n");

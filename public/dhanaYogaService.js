@@ -208,17 +208,33 @@
       shadbala: { floor: 0.75, cap: 1.25 }
     },
     scoring: { scale_max: 1000, saturation_fraction: 0.5, calibrated: false },
+    inr_display: {
+      enabled: true,
+      basis: "net-worth capacity (indicative), not income",
+      calibrated: false,
+      disclaimer: "Indicative classical-style band from an uncalibrated score; not a prediction or guarantee."
+    },
     bands: [
-      { tier: 1, upper: 100, label: "Alpa-sanchaya / Low retention", label_hi: "अल्प-संचय (सीमित संचय क्षमता)" },
-      { tier: 2, upper: 200, label: "Fragile accumulation", label_hi: "अस्थिर संचय (व्यय अधिक, संचय मध्यम)" },
-      { tier: 3, upper: 300, label: "Modest, steady", label_hi: "मध्यम व स्थिर आय (स्थिर जीवन स्तर)" },
-      { tier: 4, upper: 400, label: "Reliable base", label_hi: "विश्वसनीय आधार (सुदृढ़ आर्थिक नींव)" },
-      { tier: 5, upper: 500, label: "Good capacity", label_hi: "उत्तम धन क्षमता (उत्तरोत्तर समृद्धि)" },
-      { tier: 6, upper: 600, label: "Strong capacity", label_hi: "प्रबल धन क्षमता (प्रचुर भौतिक लाभ)" },
-      { tier: 7, upper: 700, label: "Very strong capacity", label_hi: "अति प्रबल समृद्धि योग (राजसी सुख-वैभव)" },
-      { tier: 8, upper: 800, label: "Exceptional capacity", label_hi: "विशिष्ट महालक्ष्मी योग (अतुल संपत्ति)" },
-      { tier: 9, upper: 900, label: "Rare capacity", label_hi: "दुर्लभ कुबेर तुल्य क्षमता (महान साम्राज्य योग)" },
-      { tier: 10, upper: 1000, label: "Highest indicated capacity", label_hi: "सर्वोच्च शास्त्रीय धन क्षमता (अक्षय श्री योग)" }
+      { tier: 1,  upper: 100,  label: "Alpa-sanchaya / Low retention",
+        sanskrit: "Alpa-Dhana / Nirvaha",   inr: "₹0 – ₹10 lakh" },
+      { tier: 2,  upper: 200,  label: "Fragile accumulation",
+        sanskrit: "Sadharana Lakhpati",     inr: "₹10 lakh – ₹50 lakh" },
+      { tier: 3,  upper: 300,  label: "Modest, steady",
+        sanskrit: "Madhyama Lakhpati",      inr: "₹50 lakh – ₹1.5 crore" },
+      { tier: 4,  upper: 400,  label: "Reliable base",
+        sanskrit: "Varishtha Lakhpati",     inr: "₹1.5 crore – ₹5 crore" },
+      { tier: 5,  upper: 500,  label: "Good capacity",
+        sanskrit: "Koti-Pati",              inr: "₹5 crore – ₹15 crore" },
+      { tier: 6,  upper: 600,  label: "Strong capacity",
+        sanskrit: "Bahu-Kotipati",          inr: "₹15 crore – ₹50 crore" },
+      { tier: 7,  upper: 700,  label: "Very strong capacity",
+        sanskrit: "Maha-Kotipati",          inr: "₹50 crore – ₹150 crore" },
+      { tier: 8,  upper: 800,  label: "Exceptional capacity",
+        sanskrit: "Shata-Kotipati",         inr: "₹150 crore – ₹500 crore" },
+      { tier: 9,  upper: 900,  label: "Rare capacity",
+        sanskrit: "Arabpati",               inr: "₹500 crore – ₹2,500 crore (5 – 25 arab)" },
+      { tier: 10, upper: 1000, label: "Highest indicated capacity",
+        sanskrit: "Maha-Arabpati",          inr: "₹2,500 crore+ (25 arab+)" }
     ],
     unknown_policy: "neutral_and_flag"
   };
@@ -1285,16 +1301,25 @@
     const index = ref > 0 ? Math.min(sc.scale_max, Math.round(sc.scale_max * net / ref)) : 0;
     const band = cfg.bands.find(b => index <= b.upper) || cfg.bands[cfg.bands.length - 1];
 
+    const disp = cfg.inr_display;
+    const band_out = {
+      tier: band.tier,
+      label: band.label,
+      sanskrit: band.sanskrit
+    };
+    if (disp && disp.enabled) {
+      band_out.indicative_net_worth_inr = band.inr;
+      band_out.inr_basis = disp.basis;
+      band_out.inr_calibrated = disp.calibrated;
+      band_out.disclaimer = disp.disclaimer;
+    }
+
     const nm = tables.SIGN_NAMES;
     const nm_hi = tables.SIGN_NAMES_HI;
 
     return {
       capacity_index: index,
-      band: {
-        tier: band.tier,
-        label: band.label,
-        label_hi: band.label_hi
-      },
+      band: band_out,
       calibrated: sc.calibrated,
       components: {
         positive_points: Number(pos.toFixed(2)),
@@ -1492,6 +1517,64 @@
     };
   }
 
+  function analyzeCareerTrajectory(currentStatus = 'salaried_govt', currentScale = 'middle', dhanResult = {}, calcResult = {}) {
+    const statusMeta = {
+      salaried_govt: {
+        title: "वेतनभोगी / सरकारी सेवा",
+        baselineCap: "₹1.5 करोड़ – ₹3 करोड़ (नियमित वेतन, पीएफ व पेंशन सीमा)",
+        isOpenEnded: false,
+        advice: "वेतन व पेंशन का दायरा स्वाभाविक रूप से सुरक्षित परंतु सीमित होता है। यदि आपकी कुंडली में उच्च धन योग सक्रिय हैं, तो केवल मासिक वेतन पर निर्भर रहने के बजाय बचत को रियल एस्टेट, सुरक्षित म्यूचुअल फंड्स, या सेवानिवृत्ति उपरांत परामर्श (Consultancy / Side Venture) में लगाना चाहिए ताकि कुंडली की पूर्ण क्षमता अनलॉक हो सके।"
+      },
+      professional: {
+        title: "स्वतंत्र पेशेवर / सलाहकार / चिकित्सक / सीए",
+        baselineCap: "₹5 करोड़ – ₹25 करोड़ (फीस, कंसल्टिंग व ब्रांड वैल्यू)",
+        isOpenEnded: true,
+        advice: "पेशेवर क्षेत्र में आपकी आय आपके व्यक्तिगत कौशल, प्रतिष्ठा और विशेषज्ञता से संचालित होती है। उच्च धन योगों का लाभ उठाने हेतु अपने कार्य को एक संस्था, फर्म या डिजिटल प्लेटफॉर्म के रूप में विकसित करें।"
+      },
+      business: {
+        title: "व्यापार / उद्योग / स्टार्टअप",
+        baselineCap: "असीमित / खुला दायरा (टर्नओवर व इक्विटी आधारित)",
+        isOpenEnded: true,
+        advice: "व्यापार में वित्तीय सीमाएं पूरी तरह खुली होती हैं। आपकी कुंडली के धन योग सीधे व्यावसायिक विस्तार, नए बाज़ारों और नकदी प्रवाह को गति देने में सक्षम हैं। अनावश्यक देनदारियों व लीकेज से बचना ही मुख्य कुंजी है।"
+      },
+      investor: {
+        title: "निवेशक / शेयर बाजार / रियल एस्टेट",
+        baselineCap: "चक्रवृद्धि (Compounding) व एसेट वैल्यू आधारित",
+        isOpenEnded: true,
+        advice: "आपकी पूंजी ही आपका प्राथमिक धन स्रोत है। कुंडली के पंचम (बुद्धि/सट्टा) व एकादश (लाभ) भाव के योग दीर्घकालिक चक्रवृद्धि लाभ का संकेत करते हैं।"
+      },
+      starter: {
+        title: "विद्यार्थी / नवयुवा / करियर प्रारंभ",
+        baselineCap: "नींव निर्माण काल (Foundation Phase)",
+        isOpenEnded: true,
+        advice: "वर्तमान समय धन संचय से अधिक कौशल, नेटवर्क और ज्ञान अर्जन का है। आपकी कुंडली के धन योग जीवन के 28 से 35 वर्ष की आयु के पश्चात तीव्र गति से फलित होना प्रारंभ होंगे।"
+      }
+    };
+
+    const cur = statusMeta[currentStatus] || statusMeta.salaried_govt;
+    const band = dhanResult.band || {};
+    
+    let contrastNote = "";
+    if (!cur.isOpenEnded && band.tier >= 5) {
+      contrastNote = `वर्तमान में आपका कार्य-क्षेत्र '${cur.title}' है जहाँ केवल मासिक वेतन से ${band.indicative_net_worth_inr || ''} (${band.sanskrit || ''}) तक पहुँचना संभव नहीं है। अतः कुंडली संकेत देती है कि आपके धन योग बचत के अनुशासित निवेश (Investment / Assets) अथवा समानांतर ज्ञान-पूंजी के माध्यम से ही पूर्णतः प्रकट होंगे।`;
+    } else if (cur.isOpenEnded && band.tier >= 5) {
+      contrastNote = `आपका कार्य-क्षेत्र '${cur.title}' है जहाँ वित्तीय सीमाएं खुली हैं। आपकी कुंडली के सक्रिय धन योग आपके व्यवसाय/निवेश की स्वाभाविक स्केलिंग का पूर्ण समर्थन करते हैं।`;
+    } else {
+      contrastNote = `आपकी वर्तमान स्थिति और कुंडली की धन क्षमता आपस में संतुलित हैं। अनुशासित बचत एवं स्थिरता द्वारा आप इस संकेतात्मक दायरे को सुगमता से प्राप्त कर सकते हैं।`;
+    }
+
+    return {
+      currentStatusKey: currentStatus,
+      currentStatusTitle: cur.title,
+      baselineCap: cur.baselineCap,
+      isOpenEnded: cur.isOpenEnded,
+      guidance: cur.advice,
+      contrastNote: contrastNote,
+      indicativeBand: band.indicative_net_worth_inr || band.label,
+      sanskritTier: band.sanskrit || band.label
+    };
+  }
+
   return {
     ARCSEC_PER_DEG,
     ARCSEC_PER_SIGN,
@@ -1511,6 +1594,7 @@
     runEngine,
     analyzeHostPayload,
     analyzePatrikaChart,
-    getLocalizedYogaInfo
+    getLocalizedYogaInfo,
+    analyzeCareerTrajectory
   };
 });

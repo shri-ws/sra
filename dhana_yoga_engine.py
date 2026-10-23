@@ -159,17 +159,33 @@ CONFIG: Dict[str, Any] = {
     },
     "scoring": {"scale_max": 1000, "saturation_fraction": 0.5, "calibrated": False},
     # qualitative bands only; no rupee claims. "upper" inclusive on the index.
+    "inr_display": {
+        "enabled": True,
+        "basis": "net-worth capacity (indicative), not income",
+        "calibrated": False,
+        "disclaimer": "Indicative classical-style band from an uncalibrated score; not a prediction or guarantee.",
+    },
     "bands": [
-        {"tier": 1, "upper": 100, "label": "Alpa-sanchaya / Low retention"},
-        {"tier": 2, "upper": 200, "label": "Fragile accumulation"},
-        {"tier": 3, "upper": 300, "label": "Modest, steady"},
-        {"tier": 4, "upper": 400, "label": "Reliable base"},
-        {"tier": 5, "upper": 500, "label": "Good capacity"},
-        {"tier": 6, "upper": 600, "label": "Strong capacity"},
-        {"tier": 7, "upper": 700, "label": "Very strong capacity"},
-        {"tier": 8, "upper": 800, "label": "Exceptional capacity"},
-        {"tier": 9, "upper": 900, "label": "Rare capacity"},
-        {"tier": 10, "upper": 1000, "label": "Highest indicated capacity"},
+        {"tier": 1,  "upper": 100,  "label": "Alpa-sanchaya / Low retention",
+         "sanskrit": "Alpa-Dhana / Nirvaha",   "inr": "₹0 – ₹10 lakh"},
+        {"tier": 2,  "upper": 200,  "label": "Fragile accumulation",
+         "sanskrit": "Sadharana Lakhpati",     "inr": "₹10 lakh – ₹50 lakh"},
+        {"tier": 3,  "upper": 300,  "label": "Modest, steady",
+         "sanskrit": "Madhyama Lakhpati",      "inr": "₹50 lakh – ₹1.5 crore"},
+        {"tier": 4,  "upper": 400,  "label": "Reliable base",
+         "sanskrit": "Varishtha Lakhpati",     "inr": "₹1.5 crore – ₹5 crore"},
+        {"tier": 5,  "upper": 500,  "label": "Good capacity",
+         "sanskrit": "Koti-Pati",              "inr": "₹5 crore – ₹15 crore"},
+        {"tier": 6,  "upper": 600,  "label": "Strong capacity",
+         "sanskrit": "Bahu-Kotipati",          "inr": "₹15 crore – ₹50 crore"},
+        {"tier": 7,  "upper": 700,  "label": "Very strong capacity",
+         "sanskrit": "Maha-Kotipati",          "inr": "₹50 crore – ₹150 crore"},
+        {"tier": 8,  "upper": 800,  "label": "Exceptional capacity",
+         "sanskrit": "Shata-Kotipati",         "inr": "₹150 crore – ₹500 crore"},
+        {"tier": 9,  "upper": 900,  "label": "Rare capacity",
+         "sanskrit": "Arabpati",               "inr": "₹500 crore – ₹2,500 crore (5 – 25 arab)"},
+        {"tier": 10, "upper": 1000, "label": "Highest indicated capacity",
+         "sanskrit": "Maha-Arabpati",          "inr": "₹2,500 crore+ (25 arab+)"},
     ],
     "unknown_policy": "neutral_and_flag",
 }
@@ -942,9 +958,17 @@ def run_engine(canon, cfg=CONFIG, tables=REFERENCE_TABLES, rules=RULES) -> Dict[
     ref = sc["saturation_fraction"] * ref_max
     index = int(min(sc["scale_max"], round(sc["scale_max"] * net / ref))) if ref > 0 else 0
     band = next(b for b in cfg["bands"] if index <= b["upper"])
+    disp = cfg["inr_display"]
+    band_out = {"tier": band["tier"], "label": band["label"], "sanskrit": band["sanskrit"]}
+    if disp["enabled"]:
+        band_out["indicative_net_worth_inr"] = band["inr"]
+        band_out["inr_basis"] = disp["basis"]
+        band_out["inr_calibrated"] = disp["calibrated"]
+        band_out["disclaimer"] = disp["disclaimer"]
+
     nm = tables["SIGN_NAMES"]
     return {
-        "capacity_index": index, "band": {"tier": band["tier"], "label": band["label"]},
+        "capacity_index": index, "band": band_out,
         "calibrated": sc["calibrated"],
         "components": {"positive_points": round(pos, 2), "penalty_points": round(neg, 2),
                        "sav_multiplier": {"value": sav_f, "evaluated": sav_ok},
