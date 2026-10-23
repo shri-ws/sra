@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
   <!-- प्राथमिक यूआरएल स्लॉग -->
   <link rel="canonical" href="https://shriramjiastro.in/manglik-dosh-calculator" />
@@ -2607,6 +2610,13 @@
 
     // Auto populate on page load
     window.addEventListener('DOMContentLoaded', () => {
+      // Auto-update Service Worker to immediately purge mobile PWA stale cache
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          regs.forEach(reg => reg.update());
+        });
+      }
+
       const params = new URLSearchParams(window.location.search);
       let targetKundali = null;
       if (params.get('dob') && params.get('tob')) {
