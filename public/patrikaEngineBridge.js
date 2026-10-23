@@ -438,6 +438,94 @@
       }
     }
 
+    // In browser, render to a crisp high-res Canvas PNG to guarantee 100% fidelity in html2canvas/PDF
+    if (typeof document !== 'undefined' && document.createElement) {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 680;
+        canvas.height = 680;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.scale(2, 2); // 2x retina sharpness
+
+          // Background
+          ctx.fillStyle = '#fffcf6';
+          ctx.fillRect(0, 0, 340, 340);
+
+          // Mars highlight polygon fill
+          for (let h = 1; h <= 12; h++) {
+            const pItems = housePlanets[h] || [];
+            if (pItems.some(x => x.isMars)) {
+              const polyStr = housePolys[h];
+              const pts = polyStr.split(' ').map(pair => pair.split(',').map(Number));
+              ctx.beginPath();
+              ctx.moveTo(pts[0][0], pts[0][1]);
+              for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+              ctx.closePath();
+              ctx.fillStyle = 'rgba(239, 68, 68, 0.16)';
+              ctx.fill();
+              ctx.strokeStyle = '#dc2626';
+              ctx.lineWidth = 2.2;
+              ctx.stroke();
+            }
+          }
+
+          // Outer border
+          ctx.strokeStyle = '#b45309';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(6, 6, 328, 328);
+
+          // Diagonals
+          ctx.beginPath();
+          ctx.strokeStyle = '#d97706';
+          ctx.lineWidth = 1.8;
+          ctx.moveTo(6, 6); ctx.lineTo(334, 334);
+          ctx.moveTo(334, 6); ctx.lineTo(6, 334);
+          ctx.stroke();
+
+          // Diamond
+          ctx.beginPath();
+          ctx.strokeStyle = '#b45309';
+          ctx.lineWidth = 2.2;
+          ctx.moveTo(170, 6);
+          ctx.lineTo(6, 170);
+          ctx.lineTo(170, 334);
+          ctx.lineTo(334, 170);
+          ctx.closePath();
+          ctx.stroke();
+
+          // Rashi numbers & planets
+          for (let h = 1; h <= 12; h++) {
+            const c = houseCoords[h];
+            const rashiNum = getHouseRashiNum(h);
+            const pItems = housePlanets[h] || [];
+
+            // Draw Rashi Number
+            ctx.font = '900 12px "Plus Jakarta Sans", system-ui, sans-serif';
+            ctx.fillStyle = '#b45309';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(rashiNum), c.rX, c.rY);
+
+            // Draw Planets
+            if (pItems.length > 0) {
+              const pStr = pItems.map(x => (x.isMars ? '♂' : '') + x.text).join(' ');
+              ctx.font = 'bold 11px "Noto Sans Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", system-ui, sans-serif';
+              ctx.fillStyle = pItems.some(x => x.isMars) ? '#b91c1c' : '#334155';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(pStr, c.pX, c.pY);
+            }
+          }
+
+          const pngData = canvas.toDataURL('image/png');
+          return `<img src="${pngData}" style="width:100%; max-width:280px; display:block; margin:6px auto; border-radius:12px; box-shadow:0 4px 16px rgba(180,83,9,0.12);" alt="D1 जन्म लग्न चक्र" />`;
+        }
+      } catch (canvasErr) {
+        console.warn("Canvas chart render fallback to SVG:", canvasErr);
+      }
+    }
+
     let housesSVG = "";
     for (let h = 1; h <= 12; h++) {
       const c = houseCoords[h];
