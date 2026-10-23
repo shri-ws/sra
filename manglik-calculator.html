@@ -2305,11 +2305,11 @@
 
             <!-- TOP ACTION BUTTONS BAR (Prominently visible on Mobile immediately upon unlock) -->
             <div class="no-print report-top-actions" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 14px; padding:10px 12px; background:#fffcf6; border:1.5px solid var(--border-gold); border-radius:10px; box-shadow:0 2px 8px rgba(180,83,9,0.08);">
-              <button type="button" class="btn-dl-pdf" onclick="downloadManglikReportPDF()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:13.5px; font-weight:800; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 3px 10px rgba(124,19,5,0.22); display:inline-flex; align-items:center; gap:6px;">
-                <span>📥</span> <span>A4 PDF डाउनलोड करें</span>
+              <button type="button" onclick="shareManglikReportOnWhatsApp()" style="background:linear-gradient(135deg, #25D366, #128C7E); color:#ffffff; font-family:var(--font-hindi); font-size:14px; font-weight:800; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 3px 12px rgba(37,211,102,0.35); display:inline-flex; align-items:center; gap:8px;">
+                <span style="font-size:16px;">💬</span> <span>WhatsApp पर भेजें</span>
               </button>
-              <button type="button" onclick="window.print()" style="background:#ffffff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:13px; font-weight:800; padding:10px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
-                <span>🖨️</span> <span>प्रिंट / PDF (Apple iOS)</span>
+              <button type="button" class="btn-dl-pdf" onclick="downloadManglikReportPDF()" style="background:#ffffff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:13px; font-weight:800; padding:10px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                <span>📥</span> <span>A4 PDF</span>
               </button>
               <button type="button" onclick="generateNewReport()" style="background:#f8fafc; border:1px solid var(--border); color:#475569; font-family:var(--font-hindi); font-size:12.5px; font-weight:700; padding:10px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                 <span>🔄</span> <span>नई रिपोर्ट</span>
@@ -2469,15 +2469,16 @@
           </div>
 
           <!-- Action Buttons (No-Print) -->
-          <div class="no-print btn-action-group" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
-            <button type="button" class="btn-dl-pdf" onclick="downloadManglikReportPDF()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:14.5px; font-weight:800; padding:12px 22px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(124,19,5,0.25); display:inline-flex; align-items:center; gap:8px;">
-              <span>📥</span> <span>A4 PDF रिपोर्ट डाउनलोड करें</span>
+          <div class="no-print btn-action-group" style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+            <button type="button" onclick="shareManglikReportOnWhatsApp()" style="background:linear-gradient(135deg, #25D366, #128C7E); color:#ffffff; font-family:var(--font-hindi); font-size:16px; font-weight:800; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; box-shadow:0 4px 18px rgba(37,211,102,0.4); display:inline-flex; align-items:center; gap:10px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" style="flex-shrink:0;"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-12.416c-5.514 0-10 4.486-10 10 0 1.761.458 3.418 1.258 4.86l-1.297 4.74 4.863-1.275c1.4 0.767 2.996 1.199 4.697 1.199 5.514 0 10-4.486 10-10s-4.486-10-10-10zm0 18.232c-1.527 0-2.973-.42-4.227-1.157l-.303-.179-2.88.755.768-2.808-.197-.313c-.808-1.286-1.236-2.775-1.236-4.329 0-4.464 3.633-8.096 8.096-8.096 4.464 0 8.096 3.633 8.096 8.096 0 4.463-3.633 8.096-8.096 8.096z"/></svg>
+              <span>💬 WhatsApp पर पूरी रिपोर्ट शेयर करें</span>
             </button>
-            <button type="button" onclick="window.print()" style="background:#ffffff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:14px; font-weight:800; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-              <span>🖨️</span> <span>A4 प्रिंट / PDF सेव करें (iOS/Android)</span>
+            <button type="button" class="btn-dl-pdf" onclick="downloadManglikReportPDF()" style="background:#ffffff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:14px; font-weight:800; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+              <span>📥</span> <span>A4 PDF डाउनलोड करें</span>
             </button>
             <button type="button" onclick="generateNewReport()" style="background:#fff; border:1.5px solid var(--border); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-              <span>🔄</span> <span>नई रिपोर्ट जनरेट करें</span>
+              <span>🔄</span> <span>नई रिपोर्ट</span>
             </button>
             <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fffcf6; border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
               <span>✨</span> <span>पत्रिका (D1-D60) ➔</span>
@@ -2540,6 +2541,76 @@
       // Smooth scroll back to selection card
       const selBox = document.getElementById('savedKundaliSelectorCard');
       if (selBox) selBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Instant WhatsApp Share for Manglik Dosha Certificate
+    function shareManglikReportOnWhatsApp() {
+      const k = currentSelectedKundali;
+      const rep = window.currentManglikReport;
+      const calc = window.currentManglikCalc;
+
+      if (!k || !rep) {
+        alert("कृपया पहले मंगल दोष रिपोर्ट जनरेट करें।");
+        return;
+      }
+
+      const signsList = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुम्भ", "मीन"];
+      const lagnaObj = calc && calc.planets ? calc.planets.find(p => p.id === 'Lagna') : null;
+      const moonObj = calc && calc.planets ? calc.planets.find(p => p.id === 'Moon') : null;
+      const marsObj = calc && calc.planets ? calc.planets.find(p => p.id === 'Mars') : null;
+
+      const lagnaRashiName = lagnaObj ? signsList[Math.floor(lagnaObj.abs / 30)] : "—";
+      const moonRashiName = moonObj ? signsList[Math.floor(moonObj.abs / 30)] : "—";
+      const marsRashiName = marsObj ? signsList[Math.floor(marsObj.abs / 30)] : "—";
+      const marsHouse = rep.mars_details ? rep.mars_details.house : (marsObj ? marsObj.rasiHouse : '—');
+
+      let text = `🚩 *श्री रामजी एस्ट्रो • प्रामाणिक मंगल दोष एवं परिहार रिपोर्ट* 🚩\n`;
+      text += `━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `👤 *जातक विवरण:*\n`;
+      text += `• *नाम:* ${k.name || 'जातक'}\n`;
+      text += `• *जन्म दिनांक:* ${k.date} | *समय:* ${k.time}\n`;
+      text += `• *जन्म स्थान:* ${k.city}\n`;
+      text += `• *लग्न:* ${lagnaRashiName} | *चन्द्र राशि:* ${moonRashiName}\n`;
+      text += `• *मंगल स्थिति:* भाव ${marsHouse} (${marsRashiName})\n`;
+      text += `• *अयनांश:* ट्रू लाहिड़ी (True Lahiri)\n\n`;
+
+      text += `🔍 *त्रि-लग्न भौम परीक्षण:*\n`;
+      text += `• लग्न से: ${rep.is_lagna_manglik ? 'भौम दोष ⚠️' : 'निर्दोष ✅'}\n`;
+      text += `• चन्द्र से: ${rep.is_moon_manglik ? 'भौम दोष ⚠️' : 'निर्दोष ✅'}\n`;
+      text += `• शुक्र से: ${rep.is_venus_manglik ? 'भौम दोष ⚠️' : 'निर्दोष ✅'}\n`;
+      if (rep.d9_validation) {
+        text += `• नवांश (D9): ${rep.d9_validation.is_vargottama ? 'वर्गोत्तम मंगल (सौम्य प्रभाव)' : 'सामान्य नवांश'}\n`;
+      }
+      text += `\n`;
+
+      text += `⚖️ *शास्त्रोक्त अंतिम निर्णय:*\n`;
+      text += `*${rep.dosha_category}*\n`;
+      if (!rep.has_dosha) {
+        text += `_कुण्डली जन्म से ही पूर्णतः निर्दोष है। लग्न, चन्द्र व शुक्र किसी भी आधार से मंगल १, ४, ७, ८, १२वें भाव में नहीं है। अतः किसी भी परिहार या शांति उपाय की आवश्यकता नहीं है।_\n\n`;
+      } else if (rep.applied_pariharas && rep.applied_pariharas.length > 0) {
+        text += `_कुण्डली में २१ शास्त्रीय परिहार नियमों में से ${rep.applied_pariharas.length} परिहार लागू हुए हैं। अतः दोष का तीव्र शमन होकर जातक सौम्य (आंशिक) मांगलिक श्रेणी में है।_\n\n`;
+      } else {
+        text += `_कुण्डली में त्रि-लग्न आधार पर भौम दोष विद्यमान है। विवाह हेतु मांगलिक अथवा समदोष प्रतिपक्ष जातक का चयन करें।_\n\n`;
+      }
+
+      if (rep.spouse_recommendation) {
+        text += `💍 *वैवाहिक परामर्श:*\n${rep.spouse_recommendation.advice_text}\n\n`;
+        if (rep.spouse_recommendation.remedies) {
+          text += `🪔 *अनुशंसित वैदिक परामर्श:*\n${rep.spouse_recommendation.remedies}\n\n`;
+        }
+      }
+
+      text += `📜 *शास्त्रीय संदर्भ व प्रामाणिक ग्रंथ:*\n`;
+      text += `बृहत्पाराशरहोराशास्त्र, अगस्त्य संहिता, मानसागरी, फलदीपिका एवं नारद संहिता मानक।\n\n`;
+
+      text += `🌐 *ऑनलाइन विस्तृत रिपोर्ट व पत्रिका:* https://shriramjiastro.in/manglik-dosh-calculator\n`;
+      text += `━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `© श्री रामजी एस्ट्रो (shriramjiastro.in) • काशी (वाराणसी)`;
+
+      const encodedText = encodeURIComponent(text);
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
+
+      window.open(whatsappUrl, '_blank');
     }
 
     // Bulletproof A4 PDF Downloader for Mobile, iOS PWA, Android, and Desktop
