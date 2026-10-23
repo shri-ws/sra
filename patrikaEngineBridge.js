@@ -455,25 +455,21 @@
       }
 
       housesSVG += `
-        <text x="${c.rX}" y="${c.rY}" font-size="12" font-weight="900" fill="#b45309" text-anchor="middle" dominant-baseline="middle" font-family="'Plus Jakarta Sans', sans-serif">${rashiNum}</text>
-        <text x="${c.pX}" y="${c.pY}" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle" font-family="'Noto Sans Devanagari', sans-serif">${pSvg}</text>
+        <text x="${c.rX}" y="${c.rY}" font-size="13" font-weight="900" fill="#b45309" text-anchor="middle" dy="0.35em" font-family="'Plus Jakarta Sans', system-ui, sans-serif">${rashiNum}</text>
+        <text x="${c.pX}" y="${c.pY}" font-size="11.5" font-weight="bold" text-anchor="middle" dy="0.35em" font-family="'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', system-ui, sans-serif">${pSvg}</text>
       `;
     }
 
     return `
-      <svg viewBox="0 0 340 340" style="width:100%; max-width:320px; background:#fffcf6; border:2.5px solid #b45309; border-radius:14px; margin:12px auto; display:block; box-shadow:0 4px 16px rgba(180,83,9,0.12);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="340" height="340" viewBox="0 0 340 340" style="width:100%; max-width:320px; background:#fffcf6; border:2.5px solid #b45309; border-radius:14px; margin:8px auto; display:block; box-shadow:0 4px 16px rgba(180,83,9,0.12);">
         <!-- Outer Square Box -->
-        <rect x="6" y="6" width="328" height="328" fill="none" stroke="#b45309" stroke-width="2.5" />
+        <rect x="6" y="6" width="328" height="328" fill="#fffcf6" stroke="#b45309" stroke-width="2.5" />
         <!-- Mars House Shading Highlight -->
         ${marsHighlightsSVG}
         <!-- Diagonals -->
-        <line x1="6" y1="6" x2="334" y2="334" stroke="#d97706" stroke-width="1.2" />
-        <line x1="334" y1="6" x2="6" y2="334" stroke="#d97706" stroke-width="1.2" />
+        <path d="M 6 6 L 334 334 M 334 6 L 6 334" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" />
         <!-- Inner Diamond Lines -->
-        <line x1="170" y1="6" x2="6" y2="170" stroke="#b45309" stroke-width="1.6" />
-        <line x1="6" y1="170" x2="170" y2="334" stroke="#b45309" stroke-width="1.6" />
-        <line x1="170" y1="334" x2="334" y2="170" stroke="#b45309" stroke-width="1.6" />
-        <line x1="334" y1="170" x2="170" y2="6" stroke="#b45309" stroke-width="1.6" />
+        <path d="M 170 6 L 6 170 L 170 334 L 334 170 Z" fill="none" stroke="#b45309" stroke-width="2.2" stroke-linejoin="round" />
         
         <!-- House Numbers & Planet Tags -->
         ${housesSVG}

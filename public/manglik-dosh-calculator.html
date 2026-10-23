@@ -706,14 +706,20 @@
       max-width: 100% !important;
       box-sizing: border-box !important;
       overflow-x: hidden !important;
+      font-family: 'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Mukta', system-ui, sans-serif !important;
+      letter-spacing: 0px !important;
+      word-break: normal !important;
+      overflow-wrap: normal !important;
+    }
+    .unlocked-report-card * {
+      letter-spacing: 0px !important;
+      box-sizing: border-box !important;
     }
     .unlocked-report-header {
       text-align: center;
       border-bottom: 2px solid var(--border-gold);
       padding-bottom: 10px;
       margin-bottom: 12px;
-      word-break: break-word;
-      overflow-wrap: break-word;
     }
     .unlocked-meta-grid {
       display: grid;
@@ -1040,14 +1046,27 @@
         padding: 0 !important;
         margin: 0 !important;
         background: transparent !important;
+        font-family: 'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', system-ui, sans-serif !important;
+        letter-spacing: 0px !important;
+        word-break: normal !important;
+      }
+      .unlocked-report-card * {
+        letter-spacing: 0px !important;
       }
       .report-page-1 {
         page-break-after: always !important;
         break-after: page !important;
       }
+      .html2pdf__page-break {
+        page-break-after: always !important;
+        break-after: page !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
       .report-page-2 {
-        page-break-before: auto !important;
-        break-before: auto !important;
+        page-break-before: always !important;
+        break-before: page !important;
       }
       .report-split-grid {
         display: grid !important;
@@ -2209,9 +2228,9 @@
         verdictBannerHtml = `
           <div class="mangal-grand-verdict-banner free-dosha">
             <div style="width:36px; height:36px; border-radius:50%; background:#059669; color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">✓</div>
-            <div style="flex:1 1 0%; min-width:0; word-break:break-word;">
-              <div style="font-size:10px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.6px;">शास्त्रीय निर्णय • FINAL MATRIMONIAL VERDICT</div>
-              <div style="font-size:14px; font-weight:900; color:#064e3b; margin:2px 0; word-break:break-word; line-height:1.3;">🎉 जातक की कुण्डली पूर्णतः मांगलिक दोष मुक्त है (निर्दोष कुण्डली)</div>
+            <div style="flex:1 1 0%; min-width:0;">
+              <div style="font-size:10px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0px;">शास्त्रीय निर्णय • FINAL MATRIMONIAL VERDICT</div>
+              <div style="font-size:14px; font-weight:900; color:#064e3b; margin:2px 0; line-height:1.3;">🎉 जातक की कुण्डली पूर्णतः मांगलिक दोष मुक्त है (निर्दोष कुण्डली)</div>
               <div style="font-size:11.5px; color:#1e293b; line-height:1.4;">
                 जातक के लग्न, चन्द्र अथवा शुक्र—तीनों मुख्य आधारों से १, ४, ७, ८, १२ भावों में मंगल की प्रतिकूल उपस्थिति <strong>नहीं पाई गई</strong>। कुण्डली वैवाहिक दृष्टिकोण से निर्दोष है तथा किसी भी परिहार अथवा शांति अनुष्ठान की आवश्यकता नहीं है।
               </div>
@@ -2222,9 +2241,9 @@
         verdictBannerHtml = `
           <div class="mangal-grand-verdict-banner cancelled-dosha">
             <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">✨</div>
-            <div style="flex:1 1 0%; min-width:0; word-break:break-word;">
-              <div style="font-size:9.5px; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0.5px;">शास्त्रीय निर्णय • 21 AUTHENTIC PARIHARA VERDICT</div>
-              <div style="font-size:13.5px; font-weight:900; color:#065f46; margin:2px 0; word-break:break-word; line-height:1.3;">✨ आंशिक मांगलिक — शास्त्रीय परिहारों द्वारा दोष का तीव्र शमन (सौम्य मंगल)</div>
+            <div style="flex:1 1 0%; min-width:0;">
+              <div style="font-size:9.5px; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0px;">शास्त्रीय निर्णय • 21 AUTHENTIC PARIHARA VERDICT</div>
+              <div style="font-size:13.5px; font-weight:900; color:#065f46; margin:2px 0; line-height:1.3;">✨ आंशिक मांगलिक — शास्त्रीय परिहारों द्वारा दोष का तीव्र शमन (सौम्य मंगल)</div>
               <div style="font-size:11.5px; color:#1e293b; line-height:1.4;">
                 जातक की कुण्डली में त्रि-लग्न आधार पर भौम स्थिति पाई गई, किन्तु २१ प्रामाणिक शास्त्रीय परिहार नियमों में से <strong>${rep.applied_pariharas.length} शास्त्रीय परिहार लागू</strong> होने से दोष का शमन हो चुका है। अतः जातक <strong>आंशिक मांगलिक (सौम्य प्रभाव)</strong> श्रेणी में आता है और सामान्य अथवा परिहार-प्राप्त जातक से विवाह पूर्णतः सुरक्षित व शास्त्र सम्मत है।
               </div>
@@ -2235,9 +2254,9 @@
         verdictBannerHtml = `
           <div class="mangal-grand-verdict-banner active-dosha">
             <div style="width:36px; height:36px; border-radius:50%; background:#dc2626; color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">⚠️</div>
-            <div style="flex:1 1 0%; min-width:0; word-break:break-word;">
-              <div style="font-size:10px; font-weight:800; color:#991b1b; text-transform:uppercase; letter-spacing:0.6px;">शास्त्रीय निर्णय • ACTIVE MANGLIK DOSHA</div>
-              <div style="font-size:14px; font-weight:900; color:#7f1d1d; margin:2px 0; word-break:break-word; line-height:1.3;">⚠️ प्रभावी मांगलिक दोष (पूर्ण मांगलिक)</div>
+            <div style="flex:1 1 0%; min-width:0;">
+              <div style="font-size:10px; font-weight:800; color:#991b1b; text-transform:uppercase; letter-spacing:0px;">शास्त्रीय निर्णय • ACTIVE MANGLIK DOSHA</div>
+              <div style="font-size:14px; font-weight:900; color:#7f1d1d; margin:2px 0; line-height:1.3;">⚠️ प्रभावी मांगलिक दोष (पूर्ण मांगलिक)</div>
               <div style="font-size:11.5px; color:#1e293b; line-height:1.4;">
                 जातक की कुण्डली में त्रि-लग्न आधार पर भौम दोष विद्यमान है तथा कोई प्रमुख शास्त्रीय परिहार लागू नहीं हुआ है। अतः विवाह हेतु मांगलिक अथवा समदोष प्रतिपक्ष जातक का चयन करें अथवा विवाह पूर्व विधिवत शास्त्रीय शांति अनुष्ठान / कुंभ विवाह कराएं।
               </div>
@@ -2256,7 +2275,7 @@
                 <img src="/logo.png" style="height:40px; width:40px; border-radius:50%; object-fit:contain; border:2px solid var(--gold); box-shadow:0 2px 6px rgba(0,0,0,0.12);" alt="Shri Ramji Astro" />
                 <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #7c1305, #dc2626); color:#fff; font-size:20px; font-weight:bold; display:flex; align-items:center; justify-content:center; border:2px solid #f59e0b; box-shadow:0 2px 6px rgba(124,19,5,0.2);">♂</div>
               </div>
-              <div style="font-size:10.5px; font-weight:800; color:var(--gold-dark); letter-spacing:0.8px; text-transform:uppercase;">
+              <div style="font-size:10.5px; font-weight:800; color:var(--gold-dark); letter-spacing:0px; text-transform:uppercase;">
                 SHRI RAMJI ASTRO • VEDIC RESEARCH FOUNDATION
               </div>
               <h2 style="font-family:var(--font-hindi); font-size:19px; color:var(--primary); margin:2px 0 3px; font-weight:800; line-height:1.2;">
@@ -2359,6 +2378,9 @@
             </div>
           </div>
 
+          <!-- Explicit Hard Page Break for PDF Export -->
+          <div class="html2pdf__page-break" style="page-break-after:always; break-after:page; height:0; margin:0; padding:0; display:block;"></div>
+
           <!-- PAGE 2: 21 RULES AUDIT, REMEDIES, CITATIONS (Table 2 removed to prevent redundancy) -->
           <div class="report-page-2">
             <!-- 2. ALL 21 PARIHARAS AUDIT CHECKLIST (Only shown when Dosha exists; otherwise Shastric Exemption Box) -->
@@ -2439,6 +2461,11 @@
               <strong>शास्त्रीय संदर्भ व प्रामाणिक ग्रंथ:</strong>
               बृहत्पाराशरहोराशास्त्रम् (महर्षि पराशर) • अगस्त्य संहिता (विशिष्ट भाव-राशि परिहार) • फलदीपिका व मानसागरी (स्वक्षेत्र/उच्च/अवस्था) • नारद संहिता व महर्षि अत्रि स्मृति • मुहूर्त कल्पद्रुम व सर्वार्थचिन्तामणि
             </div>
+
+            <!-- Formal Certified Footer -->
+            <div style="text-align:center; border-top:1px solid #cbd5e1; padding-top:8px; margin-top:14px; font-size:10.5px; color:#64748b; font-family:var(--font-hindi);">
+              © ${new Date().getFullYear()} श्री रामजी एस्ट्रो (shriramjiastro.in) • काशी (वाराणसी) • True Lahiri Ayanamsha • प्रामाणिक त्रि-लग्न भौम परीक्षण प्रमाण-पत्र
+            </div>
           </div>
 
           <!-- Action Buttons (No-Print) -->
@@ -2515,11 +2542,11 @@
       if (selBox) selBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // Direct PDF Downloader for Mobile Apps, Android WebViews, and Desktop
+    // Bulletproof A4 PDF Downloader for Mobile, iOS PWA, Android, and Desktop
     async function downloadManglikReportPDF() {
       const allDlBtns = document.querySelectorAll('.btn-dl-pdf');
       allDlBtns.forEach(b => {
-        b.innerHTML = '<span>⏳</span> <span>PDF तैयार हो रहा है (2-3 सेकंड)...</span>';
+        b.innerHTML = '<span>⏳</span> <span>PDF तैयार हो रहा है...</span>';
         b.disabled = true;
         b.style.opacity = '0.7';
       });
@@ -2554,20 +2581,157 @@
         return;
       }
 
-      const noPrintEls = reportEl.querySelectorAll('.no-print');
+      let stage = null;
       try {
-        // Temporarily hide action buttons during capture
-        noPrintEls.forEach(el => el.style.display = 'none');
+        // Create an off-screen, pristine desktop A4 staging container (794px width = exact A4 at 96 DPI)
+        stage = document.createElement('div');
+        stage.id = 'sra_pdf_a4_stage';
+        stage.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 794px;
+          min-height: 1123px;
+          background: #ffffff;
+          color: #1e293b;
+          font-family: 'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', system-ui, sans-serif !important;
+          letter-spacing: 0px !important;
+          word-break: normal !important;
+          overflow-wrap: normal !important;
+          text-rendering: optimizeLegibility !important;
+          box-sizing: border-box !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          z-index: -9999;
+          opacity: 0;
+          pointer-events: none;
+        `;
+
+        // Clone the report card
+        const clone = reportEl.cloneNode(true);
+        clone.id = 'printableA4Report_clone';
+
+        // Remove no-print buttons from the PDF clone
+        clone.querySelectorAll('.no-print').forEach(el => el.remove());
+
+        // Ensure strict A4 styling on the cloned pages
+        const page1 = clone.querySelector('.report-page-1');
+        if (page1) {
+          page1.style.cssText += `
+            width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 16px 20px 10px !important;
+            margin: 0 !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            letter-spacing: 0px !important;
+            word-break: normal !important;
+          `;
+          // In desktop A4 view, split grid has 2 columns: Chart on left (260px), Verdict & Table on right
+          const sGrid = page1.querySelector('.report-split-grid');
+          if (sGrid) {
+            sGrid.style.cssText += `
+              display: grid !important;
+              grid-template-columns: 270px 1fr !important;
+              gap: 14px !important;
+              align-items: start !important;
+              margin-bottom: 8px !important;
+            `;
+          }
+        }
+
+        // Ensure explicit page break separator
+        let pageBreakEl = clone.querySelector('.html2pdf__page-break');
+        if (!pageBreakEl) {
+          pageBreakEl = document.createElement('div');
+          pageBreakEl.className = 'html2pdf__page-break';
+          pageBreakEl.style.cssText = 'page-break-after: always; break-after: page; height: 0; margin: 0; padding: 0;';
+          if (page1 && page1.nextSibling) {
+            clone.insertBefore(pageBreakEl, page1.nextSibling);
+          }
+        }
+
+        const page2 = clone.querySelector('.report-page-2');
+        if (page2) {
+          page2.style.cssText += `
+            width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 16px 20px 14px !important;
+            margin: 0 !important;
+            page-break-before: always !important;
+            break-before: page !important;
+            letter-spacing: 0px !important;
+            word-break: normal !important;
+          `;
+        }
+
+        // Enforce letter-spacing: 0 and word-break: normal on ALL elements inside the clone
+        clone.querySelectorAll('*').forEach(el => {
+          el.style.letterSpacing = '0px';
+          el.style.wordBreak = 'normal';
+          el.style.overflowWrap = 'normal';
+          if (el.style.fontFamily) {
+            el.style.fontFamily = "'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', system-ui, sans-serif";
+          }
+        });
+
+        // Pre-rasterize all SVGs inside the clone to high-res PNG images using canvas
+        const svgs = Array.from(clone.querySelectorAll('svg'));
+        for (const svg of svgs) {
+          try {
+            const svgXml = new XMLSerializer().serializeToString(svg);
+            const svgBlob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
+            const blobUrl = URL.createObjectURL(svgBlob);
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            await new Promise(r => {
+              img.onload = r;
+              img.onerror = r;
+              setTimeout(r, 400);
+              img.src = blobUrl;
+            });
+            const c = document.createElement('canvas');
+            c.width = 680;
+            c.height = 680;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#fffcf6';
+            ctx.fillRect(0, 0, 680, 680);
+            ctx.drawImage(img, 0, 0, 680, 680);
+            URL.revokeObjectURL(blobUrl);
+
+            const pngImg = document.createElement('img');
+            pngImg.src = c.toDataURL('image/png');
+            pngImg.style.width = '100%';
+            pngImg.style.maxWidth = '260px';
+            pngImg.style.display = 'block';
+            pngImg.style.margin = '4px auto';
+            pngImg.style.borderRadius = '12px';
+            pngImg.style.border = '2px solid #b45309';
+            svg.parentNode.replaceChild(pngImg, svg);
+          } catch (svgErr) {
+            console.warn('SVG pre-render note:', svgErr);
+          }
+        }
+
+        stage.appendChild(clone);
+        document.body.appendChild(stage);
+
+        // Wait a tick for fonts/layout in stage to settle
+        await new Promise(r => setTimeout(r, 60));
 
         const opt = {
           margin: [8, 8, 8, 8],
           filename: filename,
-          image: { type: 'jpeg', quality: 0.95 },
+          image: { type: 'jpeg', quality: 0.98 },
           html2canvas: {
-            scale: 1.5,
+            scale: 2,
             useCORS: true,
             logging: false,
             backgroundColor: '#ffffff',
+            letterRendering: false,
+            width: 794,
+            windowWidth: 794,
+            scrollX: 0,
             scrollY: 0
           },
           jsPDF: {
@@ -2575,7 +2739,7 @@
             format: 'a4',
             orientation: 'portrait'
           },
-          pagebreak: { mode: 'css' }
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'], before: '.report-page-2' }
         };
 
         let delivered = false;
@@ -2583,7 +2747,7 @@
         // Mobile Device Native Delivery: Web Share API (Works in Android WebViews & iOS Safari)
         if (navigator.canShare && window.File) {
           try {
-            const blob = await html2pdf().set(opt).from(reportEl).output('blob');
+            const blob = await html2pdf().set(opt).from(stage).output('blob');
             if (blob && blob instanceof Blob && blob.size > 2000) {
               const file = new File([blob], filename, { type: 'application/pdf' });
               if (navigator.canShare({ files: [file] })) {
@@ -2602,7 +2766,7 @@
 
         // Standard browser direct download if Web Share was not used
         if (!delivered) {
-          await html2pdf().set(opt).from(reportEl).save();
+          await html2pdf().set(opt).from(stage).save();
           delivered = true;
         }
 
@@ -2623,8 +2787,9 @@
           b.style.opacity = '1';
         });
       } finally {
-        // Always restore action buttons
-        noPrintEls.forEach(el => el.style.display = '');
+        if (stage && stage.parentNode) {
+          stage.parentNode.removeChild(stage);
+        }
       }
     }
 
