@@ -2971,7 +2971,7 @@
     display: block !important;
   }
   body.focused-report-mode .parashara-report-nav {
-    display: none !important; /* Hide other report tabs in focused mode */
+    display: flex !important; /* Keep report tabs accessible at all times */
   }
 
   .focused-report-top-bar {
@@ -6884,7 +6884,12 @@ function switchOutputDomain(domainId) {
   isAllViewMode = false;
   
   const outputSec = document.getElementById("outputSection");
-  if (outputSec) outputSec.classList.remove("all-view-mode");
+  if (outputSec) {
+    if (outputSec.style.display === "none") {
+      outputSec.style.display = "block";
+    }
+    outputSec.classList.remove("all-view-mode");
+  }
 
   const btnAllText = document.getElementById("btnDomainAllText");
   if (btnAllText) btnAllText.textContent = "पूर्ण दृश्य (All)";
@@ -7282,15 +7287,6 @@ function openParasharaPaymentModal(reportType, focusField) {
     const repName = isRaj ? 'राजयोग रिपोर्ट' : (isVah ? 'वाहन रिपोर्ट' : 'मंगल दोष रिपोर्ट');
     rzpBtn.innerHTML = `💳 ₹199 ऑनलाइन भुगतान करें (${repName})`;
   }
-  if (upiQrImg) {
-    const tn = isRaj ? 'RajyogaReport' : (isVah ? 'VahanReport' : 'MangalReport');
-    upiQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D9517117775%40upi%26pn%3DShriRamjiAstro%26am%3D199%26cu%3DINR%26tn%3D${tn}`;
-  }
-  if (upiWaLink) {
-    const repName = isRaj ? 'Raajyoga Strength / Rashmi Bal' : (isVah ? 'पाराशर वाहन एवं जनबल' : 'मंगल दोष एवं परिहार');
-    const text = encodeURIComponent(`🙏 मैंने ${repName} रिपोर्ट (₹199) का भुगतान कर दिया है। कृपया अनलॉक कोड प्रदान करें।`);
-    upiWaLink.href = `https://wa.me/919517117775?text=${text}`;
-  }
 
   modal.classList.add('active');
   const errBox = document.getElementById('parasharaVipErrMsg');
@@ -7333,8 +7329,7 @@ function unlockParasharaReport(reportType, paymentId) {
 
 function triggerParasharaRazorpayCheckout() {
   if (typeof Razorpay === 'undefined') {
-    alert('Razorpay gateway script loading failed. कृपया सीधे UPI QR कोड या VIP कोड का प्रयोग करें।');
-    toggleParasharaPaymentQrView();
+    alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट जांचें या VIP कोड का प्रयोग करें।');
     return;
   }
 
@@ -7382,15 +7377,7 @@ function triggerParasharaRazorpayCheckout() {
     rzp.open();
   } catch(e) {
     console.error("Razorpay Checkout Error:", e);
-    alert('Razorpay gateway error. कृपया UPI QR कोड या VIP कोड का प्रयोग करें।');
-    toggleParasharaPaymentQrView();
-  }
-}
-
-function toggleParasharaPaymentQrView() {
-  const pane = document.getElementById('parasharaUpiPane');
-  if (pane) {
-    pane.style.display = (pane.style.display === 'block') ? 'none' : 'block';
+    alert('Razorpay पेमेंट गेटवे त्रुटि। कृपया पुनः प्रयास करें अथवा VIP कोड का प्रयोग करें।');
   }
 }
 
@@ -7913,9 +7900,64 @@ async function printParasharaReport(reportType) {
   }
 }
 
+function focusBirthInputForm() {
+  const pageHeader = document.getElementById("pageHeader") || document.querySelector(".header");
+  const inputPanel = document.getElementById("inputPanelWrapper") || document.querySelector(".input-panel");
+  if (pageHeader) pageHeader.style.display = "";
+  if (inputPanel) inputPanel.style.display = "";
+  const nameInp = document.getElementById("inName") || document.getElementById("inDate");
+  if (nameInp) {
+    nameInp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    nameInp.focus();
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
 function renderParasharaReports() {
   const container = document.getElementById("parasharaReportsContent");
-  if (!container || !currentCalculation) return;
+  if (!container) return;
+
+  if (!currentCalculation || !currentCalculation.planets) {
+    // If birth inputs exist in form, auto-trigger master calculation
+    const dVal = document.getElementById("inDate") ? document.getElementById("inDate").value.trim() : "";
+    const tVal = document.getElementById("inTime") ? document.getElementById("inTime").value.trim() : "";
+    const latVal = document.getElementById("inLat") ? document.getElementById("inLat").value.trim() : "";
+    const lonVal = document.getElementById("inLon") ? document.getElementById("inLon").value.trim() : "";
+    if (dVal && tVal && latVal && lonVal && typeof executeParasharaMaster === 'function') {
+      executeParasharaMaster();
+      return;
+    }
+
+    const currentLang = (document.documentElement.getAttribute('lang') || (typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : localStorage.getItem('sra_lang')) || 'hi').toLowerCase();
+    const isHi = currentLang === 'hi';
+    container.innerHTML = `
+      <div class="parashara-welcome-prompt" style="text-align:center; padding:40px 20px; background:var(--card-bg, #fff); border:1.5px dashed var(--border-gold, #c5a059); border-radius:18px; margin:20px auto; max-width:850px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <div style="font-size:42px; margin-bottom:12px;">👑</div>
+        <h3 style="font-family:'Cinzel', serif; font-size:22px; color:var(--primary, #7c1305); margin:0 0 10px 0; font-weight:800;">
+          ${isHi ? 'बृहत्पाराशर होराशास्त्र फलित रिपोर्ट्स' : 'Brihat Parashara Hora Shastra Predictive Reports'}
+        </h3>
+        <p style="font-size:14.5px; color:var(--text-muted, #64748b); max-width:620px; margin:0 auto 24px auto; line-height:1.65;">
+          ${isHi ? 'सटीक सप्तग्रह रश्मि-बल, गोमूत्रिका वाहन-जनबल एवं त्रि-लग्न आधारित २१ परिहार मंगल दोष रिपोर्ट प्राप्त करने हेतु कृपया पहले अपना जन्म विवरण प्रविष्ट करें।' : 'Please enter birth details above to calculate Raajyoga Rashmi-Bal, Gomutrika Vahan, and Authentic Mangal Dosha reports.'}
+        </p>
+        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:28px;">
+          <div style="background:rgba(180,83,9,0.07); border:1px solid var(--border-gold, #c5a059); padding:10px 16px; border-radius:12px; font-size:13px; font-weight:700; color:var(--primary, #7c1305);">
+            👑 ${isHi ? 'राजयोग / रश्मि-बल' : 'Raajyoga Strength'}
+          </div>
+          <div style="background:rgba(180,83,9,0.07); border:1px solid var(--border-gold, #c5a059); padding:10px 16px; border-radius:12px; font-size:13px; font-weight:700; color:var(--primary, #7c1305);">
+            🚗 ${isHi ? 'वाहन एवं जनबल' : 'Vehicular Strength'}
+          </div>
+          <div style="background:rgba(220,38,38,0.07); border:1px solid #fca5a5; padding:10px 16px; border-radius:12px; font-size:13px; font-weight:700; color:#dc2626;">
+            🔥 ${isHi ? 'मंगल दोष व २१ परिहार' : 'Mangal Dosha & Parihara'}
+          </div>
+        </div>
+        <button type="button" onclick="focusBirthInputForm()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:inherit; font-size:15px; font-weight:800; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; box-shadow:0 4px 15px rgba(124,19,5,0.3); display:inline-flex; align-items:center; gap:8px;">
+          <span>✍️</span> <span>${isHi ? 'जन्म विवरण भरें और फलित रिपोर्ट देखें ➔' : 'Enter Birth Details to View Reports ➔'}</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
 
   const inputContract = extractKundaliContract(currentCalculation);
   if (!inputContract) return;
@@ -8018,6 +8060,8 @@ function renderParasharaReports() {
 
   const planetKeys = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
   const maxScore = Math.max(...Object.values(rep1.planet_rashmi_scores), 10);
+
+  const DHRUWANKS = (typeof window !== 'undefined' && window.DHRUWANKS) ? window.DHRUWANKS : { sun: 10, moon: 9, mars: 5, mercury: 5, jupiter: 7, venus: 8, saturn: 5 };
 
   // Generate 7-Planet Mathematical Table Rows
   const tableRowsHtml = planetKeys.map(k => {
@@ -8957,7 +9001,7 @@ function renderParasharaReports() {
                 ${isHi ? `विशिष्ट दृश्य: प्रामाणिक ${repName} रिपोर्ट` : `Dedicated View: Authentic ${repName} Report`}
               </div>
               <div style="font-size:12px; color:var(--muted);">
-                ${isHi ? 'केवल चयनित रिपोर्ट प्रदर्शित है • अन्य चक्र व सारणियां छिपी हुई हैं' : 'Only requested report is displayed • General charts hidden'}
+                ${isHi ? 'अन्य फलित रिपोर्ट्स हेतु नीचे टैब्स पर क्लिक करें • संपूर्ण जन्म चक्र देखने हेतु दायाँ बटन दबाएं' : 'Switch reports below • Click right button for all charts'}
               </div>
             </div>
           </div>
@@ -8983,31 +9027,20 @@ function renderParasharaReports() {
             </button>
           </div>
         </div>
-        <div class="parashara-report-nav">
-          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="tabBtnRajyoga" onclick="switchParasharaReport('rajyoga')">
-            <span>${rep1Title}</span>
-          </button>
-          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="tabBtnVahan" onclick="switchParasharaReport('vahan')">
-            <span>${rep2Title}</span>
-          </button>
-          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="tabBtnMangal" onclick="switchParasharaReport('mangal')">
-            <span>${repMangalTitle}</span>
-          </button>
-        </div>
-      ` : `
-        <!-- Standard Report Sub-Tab Selector -->
-        <div class="parashara-report-nav">
-          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="tabBtnRajyoga" onclick="switchParasharaReport('rajyoga')">
-            <span>${rep1Title}</span>
-          </button>
-          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="tabBtnVahan" onclick="switchParasharaReport('vahan')">
-            <span>${rep2Title}</span>
-          </button>
-          <button type="button" class="parashara-report-tab ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="tabBtnMangal" onclick="switchParasharaReport('mangal')">
-            <span>${repMangalTitle}</span>
-          </button>
-        </div>
-      `)}
+      ` : '')}
+
+      <!-- Standard Report Sub-Tab Selector (Always Visible) -->
+      <div class="parashara-report-nav" id="parasharaReportNav">
+        <button type="button" class="parashara-report-tab ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="tabBtnRajyoga" onclick="switchParasharaReport('rajyoga')">
+          <span>${rep1Title}</span>
+        </button>
+        <button type="button" class="parashara-report-tab ${activeParasharaReport === 'vahan' ? 'active' : ''}" id="tabBtnVahan" onclick="switchParasharaReport('vahan')">
+          <span>${rep2Title}</span>
+        </button>
+        <button type="button" class="parashara-report-tab ${activeParasharaReport === 'mangal' ? 'active' : ''}" id="tabBtnMangal" onclick="switchParasharaReport('mangal')">
+          <span>${repMangalTitle}</span>
+        </button>
+      </div>
 
       <!-- PANE 1: RAAJYOGA STRENGTH / RASHMI BAL -->
       <div class="parashara-report-pane ${activeParasharaReport === 'rajyoga' ? 'active' : ''}" id="parasharaPaneRajyoga" style="display:${activeParasharaReport === 'rajyoga' ? 'block' : 'none'};">
@@ -10847,33 +10880,8 @@ window.setLanguage = function(lang) {
     <button type="button" id="btnRzpSubmit" class="btn-rzp-submit" onclick="triggerParasharaRazorpayCheckout()">
       💳 ₹199 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
     </button>
-    <div style="font-size:11px; text-align:center; color:var(--muted); margin-bottom:12px;">
-      🔒 सुरक्षित 256-bit Razorpay गेटवे • तत्काल ऑटो-अनलॉक
-    </div>
-
-    <!-- Direct UPI QR / WhatsApp Toggle -->
-    <div class="upi-expand-section">
-      <button type="button" class="upi-link-btn" onclick="toggleParasharaPaymentQrView()">
-        📱 या सीधे UPI QR कोड स्कैन करके ₹199 पे करें ➔
-      </button>
-
-      <div class="upi-pane-box" id="parasharaUpiPane">
-        <div style="font-size:12px; font-weight:700; color:var(--dark); margin-bottom:8px;">
-          PhonePe / Google Pay / Paytm से QR स्कैन करें:
-        </div>
-        <div style="display:flex; justify-content:center; margin-bottom:8px;">
-          <img id="parasharaUpiQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D9517117775%40upi%26pn%3DShriRamjiAstro%26am%3D199%26cu%3DINR%26tn%3DRajyogaReport" alt="UPI QR Code ₹199" style="width:160px; height:160px; border-radius:10px; border:1px solid var(--gold-border); background:#fff; padding:6px;">
-        </div>
-        <div style="font-size:12px; font-weight:800; color:var(--gold); margin-bottom:8px;">
-          UPI ID: <span style="user-select:all;">9517117775@upi</span>
-        </div>
-        <div style="font-size:11.5px; color:var(--muted); margin-bottom:10px; line-height:1.4;">
-          भुगतान के उपरांत स्क्रीनशॉट WhatsApp पर भेजें या नीचे VIP कोड दर्ज करें:
-        </div>
-        <a id="parasharaUpiWaLink" href="https://wa.me/919517117775?text=%F0%9F%99%8F%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20Raajyoga%20Strength%20%2F%20Rashmi%20Bal%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%20(%E2%82%B9199)%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%20%E0%A4%A6%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4%20%E0%A4%95%E0%A5%83%E0%A4%AA%E0%A4%AF%E0%A4%BE%20%E0%A4%85%E0%A4%A8%E0%A4%B2%E0%A5%89%E0%A4%95%20%E0%A4%95%E0%A5%8B%E0%A4%A1%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A6%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%B0%E0%A5%87%E0%A4%82%E0%A5%A4" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#25d366; color:#fff; padding:6px 14px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700;">
-          <span>💬</span> WhatsApp पर पुष्टि भेजें (+91 9517117775)
-        </a>
-      </div>
+    <div style="font-size:11.5px; text-align:center; color:var(--muted); margin-bottom:14px;">
+      🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
     </div>
 
     <!-- VIP Promo Code Section -->

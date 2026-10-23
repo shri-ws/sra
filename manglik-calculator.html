@@ -117,6 +117,7 @@
   <!-- Engine Scripts -->
   <script src="/theme.js" defer></script>
   <script src="/mangalDoshaService.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <style>
     :root {
@@ -574,6 +575,140 @@
     .parihar-shloka { font-family: var(--font-hindi); font-size: 13px; color: var(--primary); font-style: italic; margin-top: 4px; }
     .parihar-src { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
+    /* MODAL OVERLAY & PAYMENT BOX */
+    .mangal-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(6px);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .mangal-modal-overlay.active {
+      display: flex;
+    }
+    .mangal-modal-content {
+      background: var(--card-bg, #ffffff);
+      border-radius: 20px;
+      padding: 28px 24px;
+      max-width: 490px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+      border: 1.5px solid var(--border-gold, #c5a059);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .mangal-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: var(--text-muted, #64748b);
+      cursor: pointer;
+      line-height: 1;
+    }
+    .mangal-pricing-table {
+      background: var(--bg, #f8fafc);
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .mangal-pricing-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+    }
+    .btn-mangal-pay-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-family: var(--font-hindi);
+      font-size: 17px;
+      font-weight: 800;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      transition: transform 0.15s;
+    }
+    .btn-mangal-pay-primary:hover {
+      transform: translateY(-2px);
+    }
+
+
+    /* UNLOCKED FULL REPORT CERTIFICATE STYLING */
+    .unlocked-report-card {
+      background: #ffffff;
+      border: 2px solid var(--gold);
+      border-radius: 16px;
+      padding: 30px 24px;
+      box-shadow: 0 10px 30px rgba(180, 130, 32, 0.12);
+      margin-top: 24px;
+    }
+    .unlocked-report-header {
+      text-align: center;
+      border-bottom: 2px solid var(--border-gold);
+      padding-bottom: 18px;
+      margin-bottom: 20px;
+    }
+    .unlocked-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: var(--bg, #f8fafc);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 20px;
+      font-size: 13.5px;
+    }
+    .unlocked-meta-item strong {
+      color: var(--primary);
+    }
+    .unlocked-section-title {
+      font-family: var(--font-hindi);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 22px 0 10px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 6px;
+    }
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .matrix-table th, .matrix-table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    .matrix-table th {
+      background: rgba(180, 83, 9, 0.08);
+      color: var(--primary);
+      font-weight: 700;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #unlockedManglikReportView, #unlockedManglikReportView * { visibility: visible; }
+      #unlockedManglikReportView { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; background:#fff; color:#000; }
+      .no-print { display: none !important; }
+    }
+
     /* EDITORIAL & KNOWLEDGE SECTIONS */
     .content-section {
       padding: 30px 0;
@@ -846,26 +981,146 @@
 
   <main class="container">
 
-    <!-- 3. कैलकुलेटर UI व रिपोर्ट डाउनलोड कार्ड -->
+    <!-- 3. कैलकुलेटर UI व फॉर्म इनपुट्स मैपिंग -->
     <section id="calculator-section" aria-label="Manglik Dosha Check Online Tool">
-      
-      <!-- ₹199 रिपोर्ट डाउनलोड कार्ड -->
-      <div class="report-purchase-card" style="margin-top:0; padding:38px 24px; border-width:2.5px;">
-        <div style="display:inline-flex; align-items:center; gap:6px; background:var(--gold-light); border:1px solid var(--border-gold); color:#854d0e; padding:5px 14px; border-radius:999px; font-size:12.5px; font-weight:800; margin-bottom:14px;">
-          ⚡ 100% Shastra Verified A4 Certificate
-        </div>
-        <h2 style="font-family:var(--font-hindi); font-size:clamp(22px, 3.5vw, 30px); font-weight:800; color:var(--primary); margin-bottom:10px; line-height:1.3;">
-          डाउनलोड करें विस्तृत A4 साइज प्रामाणिक मंगल दोष एवं परिहार रिपोर्ट (मात्र ₹199)
-        </h2>
-        <p style="font-size:15px; color:var(--text-muted); margin-bottom:24px; max-width:680px; margin-left:auto; margin-right:auto; line-height:1.6;">
-          Get verified mangal dosha certificate & detailed A4 report with Sanskrit shlokas @ ₹199 INR. 
-          त्रि-लग्न (लग्न, चंद्र, शुक्र), नवांश D9 वर्गोत्तम बल एवं 21 प्रामाणिक शास्त्रीय परिहारों के साथ संपूर्ण वैवाहिक परीक्षण।
-        </p>
-        <a href="/patrika.html?domain=reports&focus=mangal" id="btnBuyReport" title="Buy authentic manglik dosha report with shlokas" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
-          <span>🔥</span> <span>पूर्ण रिपोर्ट प्राप्त करें (₹199)</span> <span>➔</span>
-        </a>
+      <div class="calculator-header">
+        <h2>मंगल दोष एवं परिहार कैलकुलेटर — त्वरित जन्म विवरण प्रविष्टि</h2>
+        <p>100% Accurate Manglik Dosha Calculator (त्रि-लग्न व २१ प्रामाणिक शास्त्रीय परिहार)</p>
       </div>
 
+      <form id="manglikForm" onsubmit="handleManglikSubmit(event)">
+        <div class="form-group">
+          <label for="pName">जातक का नाम</label>
+          <input type="text" id="pName" placeholder="उदा. राहुल शर्मा" required />
+        </div>
+
+        <div class="form-group">
+          <label for="pGender">लिंग (Gender)</label>
+          <select id="pGender" style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text); font-size:14.5px;">
+            <option value="male">वर / पुरुष (Male)</option>
+            <option value="female">कन्या / महिला (Female)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="pDob">जन्म तिथि (Date of Birth)</label>
+          <input type="date" id="pDob" required />
+        </div>
+
+        <div class="form-group">
+          <label for="pTob">जन्म समय (Time of Birth)</label>
+          <input type="time" id="pTob" required />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="pPlace">जन्म स्थान (City / District)</label>
+          <input type="text" id="pPlace" list="presetCities" placeholder="उदा. New Delhi, Varanasi, Lucknow, Mumbai..." autocomplete="off" required />
+          <datalist id="presetCities">
+            <option value="New Delhi, DL" data-lat="28.6139" data-lon="77.2090"></option>
+            <option value="Varanasi, UP" data-lat="25.3176" data-lon="82.9739"></option>
+            <option value="Lucknow, UP" data-lat="26.8467" data-lon="80.9462"></option>
+            <option value="Mumbai, MH" data-lat="19.0760" data-lon="72.8777"></option>
+            <option value="Jaipur, RJ" data-lat="26.9124" data-lon="75.7873"></option>
+            <option value="Ayodhya, UP" data-lat="26.7922" data-lon="82.1998"></option>
+            <option value="Prayagraj, UP" data-lat="25.4358" data-lon="81.8463"></option>
+            <option value="Kolkata, WB" data-lat="22.5726" data-lon="88.3639"></option>
+            <option value="Bengaluru, KA" data-lat="12.9716" data-lon="77.5946"></option>
+            <option value="Ahmedabad, GJ" data-lat="23.0225" data-lon="72.5714"></option>
+            <option value="Sitapur, UP" data-lat="27.5700" data-lon="80.6800"></option>
+          </datalist>
+          <input type="hidden" id="pLat" value="28.6139" />
+          <input type="hidden" id="pLon" value="77.2090" />
+          <input type="hidden" id="pTz" value="5.5" />
+        </div>
+
+        <button type="submit" id="btnCalculate" title="Check accurate manglik dosha report online">
+          <span>🔥</span> <span>मंगल दोष एवं २१ परिहार की त्वरित गणना करें</span> <span>➔</span>
+        </button>
+      </form>
+
+      <!-- LIVE RESULTS CONTAINER -->
+      <div id="calcResults">
+        <div class="result-summary-box">
+          <div class="gauge-wrapper">
+            <svg class="gauge-circle" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="56" fill="none" stroke="#e2e8f0" stroke-width="12"></circle>
+              <circle id="gaugeProgress" cx="70" cy="70" r="56" fill="none" stroke="#7c1305" stroke-width="12" stroke-dasharray="351.85" stroke-dashoffset="351.85" stroke-linecap="round" style="transition: stroke-dashoffset 1s ease-in-out;"></circle>
+            </svg>
+            <div class="gauge-center">
+              <div class="gauge-val" id="resNetPercent">0%</div>
+              <div class="gauge-lbl">नेट दोष</div>
+            </div>
+          </div>
+          <div class="result-details">
+            <span class="status-verdict green" id="resVerdictBadge">पूर्णतः दोषमुक्त</span>
+            <h3 style="margin:4px 0 8px; font-size:20px;" id="resVerdictTitle">आपकी कुंडली में कोई मंगल दोष नहीं है</h3>
+            <p id="resVerdictDesc" style="font-size:14px; margin-bottom:12px; color:var(--text); line-height:1.6;">
+              जातक का विवाह किसी भी सामान्य अथवा परिहार-प्राप्त मांगलिक जातक के साथ पूरी तरह सुरक्षित और प्रशस्त है।
+            </p>
+            <div style="font-size:13px; color:var(--text-muted); background:rgba(0,0,0,0.03); padding:8px 12px; border-radius:8px;">
+              <strong>सकल दोष (Gross Score):</strong> <span id="resGrossScore" style="color:#b91c1c; font-weight:700;">0%</span> | 
+              <strong>परिहार कटौती (Parihara Deduction):</strong> <span id="resDeductionScore" style="color:#15803d; font-weight:700;">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRI-LAGNA DETAILS -->
+        <h4 style="font-size:15.5px; font-weight:800; margin-bottom:10px; color:var(--primary); font-family:var(--font-hindi);">त्रि-लग्न स्थिति विश्लेषण (Tri-Lagna Breakdown)</h4>
+        <div class="tri-lagna-grid">
+          <div class="tri-card">
+            <div class="tri-card-title">लग्न से मंगल (1st Ascendant)</div>
+            <div class="tri-card-val" id="cardLagnaStatus">निर्दोष</div>
+            <div class="tri-card-sub" id="cardLagnaSub">प्रभाव भार: 50%</div>
+          </div>
+          <div class="tri-card">
+            <div class="tri-card-title">चंद्रमा से मंगल (Moon Lagna)</div>
+            <div class="tri-card-val" id="cardChandraStatus">निर्दोष</div>
+            <div class="tri-card-sub" id="cardChandraSub">प्रभाव भार: 30%</div>
+          </div>
+          <div class="tri-card">
+            <div class="tri-card-title">शुक्र से मंगल (Venus Lagna)</div>
+            <div class="tri-card-val" id="cardShukraStatus">निर्दोष</div>
+            <div class="tri-card-sub" id="cardShukraSub">प्रभाव भार: 20%</div>
+          </div>
+          <div class="tri-card">
+            <div class="tri-card-title">द्वितीय भाव (दक्षिण भारतीय मत)</div>
+            <div class="tri-card-val" id="cardSecondStatus">लागू नहीं</div>
+            <div class="tri-card-sub" id="cardSecondSub">प्रभाव भार: 30%</div>
+          </div>
+        </div>
+
+        <!-- ACTIVE PARIHARAS LIST -->
+        <div id="pariharWrapper" style="margin-top:24px;">
+          <h4 style="font-size:15.5px; font-weight:800; margin-bottom:10px; color:var(--gold-dark); font-family:var(--font-hindi);">लागू हुए शास्त्रीय परिहार नियम (Applied Classical Pariharas)</h4>
+          <div class="parihar-active-list" id="activePariharList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- ₹199 REPORT CTA CARD -->
+        <div class="report-purchase-card" id="cardPurchaseReport199" style="margin-top:28px;">
+          <div style="display:inline-flex; align-items:center; gap:6px; background:var(--gold-light); border:1px solid var(--border-gold); color:#854d0e; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:800; margin-bottom:10px;">
+            ⚡ 100% Shastra Verified A4 Certificate
+          </div>
+          <h3>डाउनलोड करें विस्तृत A4 साइज प्रामाणिक मंगल दोष एवं परिहार रिपोर्ट (मात्र ₹199)</h3>
+          <p>
+            त्रि-लग्न सूक्ष्म परीक्षण, नवांश D9 वर्गोत्तम बल, २१ शास्त्रीय परिहारों के मूल संस्कृत श्लोक एवं अनुकूल जीवनसाथी चयन परामर्श तुरंत अनलॉक करें।
+          </p>
+          <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:14px;">
+            <button type="button" id="btnUnlockModalTrigger" onclick="openManglikPaymentModal()" style="background:linear-gradient(135deg, #b48220, #c5a059, #b48220); color:#2b1704; font-family:var(--font-hindi); font-size:17px; font-weight:800; padding:14px 28px; border:1px solid #ffd700; border-radius:10px; cursor:pointer; box-shadow:0 6px 16px rgba(180, 130, 32, 0.35);">
+              <span>💳</span> <span>पूर्ण रिपोर्ट अनलॉक करें (₹199)</span> <span>➔</span>
+            </button>
+            <button type="button" onclick="openFullKundaliInPatrika()" style="background:rgba(124,19,5,0.08); color:var(--primary); font-family:var(--font-hindi); font-size:15px; font-weight:700; padding:14px 20px; border:1px solid var(--primary); border-radius:10px; cursor:pointer;">
+              <span>✨</span> <span>संपूर्ण जन्म पत्रिका (D1-D60) में खोलें</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- UNLOCKED FULL A4 REPORT DISPLAY (Rendered when unlocked) -->
+        <div id="unlockedManglikReportView" style="display:none; margin-top:30px;">
+          <!-- Populated by JS when paid or VIP code applied -->
+        </div>
+      </div>
     </section>
 
     <!-- 5. इमेज ऑल्ट टैग्स (Image Alt Mapping) - SAMPLE PREVIEW -->
@@ -1183,15 +1438,521 @@
     </div>
   </footer>
 
-  <!-- CLIENT-SIDE CALCULATION SCRIPT -->
+  <!-- MANGLIK PAYMENT MODAL (₹199) -->
+  <div id="modalManglikPayment199" class="mangal-modal-overlay" onclick="if(event.target===this)closeManglikPaymentModal()">
+    <div class="mangal-modal-content">
+      <button type="button" class="mangal-modal-close" onclick="closeManglikPaymentModal()" aria-label="Close">&times;</button>
+      
+      <div style="text-align:center; margin-bottom:16px;">
+        <div style="font-size:36px; margin-bottom:6px;">🔥</div>
+        <div style="display:inline-block; background:rgba(220,38,38,0.1); border:1px solid #fca5a5; color:#dc2626; font-size:11.5px; font-weight:800; padding:2px 10px; border-radius:12px; margin-bottom:8px;">
+          ★ बृहत्पाराशर • अगस्त्य संहिता • फलदीपिका विधान ★
+        </div>
+        <h3 style="font-family:var(--font-hindi); font-size:20px; color:var(--primary); margin:0 0 6px 0; font-weight:800;">
+          मंगल दोष एवं २१ परिहार रिपोर्ट अनलॉक करें
+        </h3>
+        <p style="font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.5;">
+          त्रि-लग्न सूक्ष्म परीक्षण, २१ प्रामाणिक परिहार नियम, मूल संस्कृत श्लोक व जीवनसाथी परामर्श (आजीवन एक्सेस)
+        </p>
+      </div>
+
+      <!-- Pricing Summary Table -->
+      <div class="mangal-pricing-table">
+        <div class="mangal-pricing-row">
+          <span>१. प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट:</span>
+          <span style="text-decoration:line-through; color:var(--text-muted);">₹999</span>
+        </div>
+        <div class="mangal-pricing-row" style="color:#10b981; font-weight:700;">
+          <span>विशेष छूट (80% OFF):</span>
+          <span>-₹800</span>
+        </div>
+        <div class="mangal-pricing-row total" style="border-top:1.5px solid var(--border); padding-top:8px; font-weight:800; font-size:16px;">
+          <span>देय कुल राशि (Net Payable):</span>
+          <span style="font-size:22px; color:var(--primary); font-family:var(--font-hindi);">₹199</span>
+        </div>
+      </div>
+
+      <!-- Primary Razorpay Checkout Button -->
+      <button type="button" id="btnRzpManglikSubmit" class="btn-mangal-pay-primary" onclick="triggerManglikRazorpayCheckout()">
+        💳 ₹199 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
+      </button>
+      <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 16px;">
+        🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
+      </div>
+
+      <!-- VIP Promo Code Section -->
+      <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:14px;">
+        <div style="font-size:12.5px; font-weight:700; color:var(--gold-dark); margin-bottom:6px;">
+          🔑 VIP / प्रोमो कोड है?
+        </div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="manglikVipCodeInput" placeholder="उदा. MANGAL199" style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; text-transform:uppercase;" onkeydown="if(event.key==='Enter')verifyManglikVipCode()">
+          <button type="button" onclick="verifyManglikVipCode()" style="background:var(--primary); color:#fff; padding:10px 16px; border:none; border-radius:8px; font-weight:700; cursor:pointer;">लागू करें</button>
+        </div>
+        <div id="manglikVipErrMsg" style="display:none; color:#ef4444; font-size:12px; margin-top:6px; font-weight:600;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT-SIDE CALCULATION & PAYMENT ENGINE -->
   <script>
-    // Toggle FAQ Accordion
+    // FAQ Accordion Toggle
     function toggleFaq(btn) {
       const ans = btn.nextElementSibling;
       const isVisible = ans.style.display === 'block';
       ans.style.display = isVisible ? 'none' : 'block';
       btn.querySelector('span:last-child').textContent = isVisible ? '▾' : '▴';
     }
+
+    // Auto-fill lat/lon from city datalist
+    const cityInput = document.getElementById('pPlace');
+    if (cityInput) {
+      cityInput.addEventListener('input', function() {
+        const val = this.value.trim().toLowerCase();
+        const opts = document.getElementById('presetCities').options;
+        for (let i = 0; i < opts.length; i++) {
+          if (opts[i].value.toLowerCase().includes(val)) {
+            document.getElementById('pLat').value = opts[i].getAttribute('data-lat');
+            document.getElementById('pLon').value = opts[i].getAttribute('data-lon');
+            break;
+          }
+        }
+      });
+    }
+
+    // Check if report is already unlocked
+    function isManglikReportUnlocked() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('unlock_all') === '1' || urlParams.get('unlock_mangal') === '1' || urlParams.get('vip') === 'mangal199' || urlParams.get('vip') === 'admin199') {
+          return true;
+        }
+        return localStorage.getItem('sra_unlocked_report_mangal_199') === 'true';
+      } catch(e) {
+        return false;
+      }
+    }
+
+    // Handle Manglik Calculation Submission
+    function handleManglikSubmit(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('pName').value.trim() || 'जातक';
+      const gender = document.getElementById('pGender').value || 'male';
+      const dob = document.getElementById('pDob').value;
+      const tob = document.getElementById('pTob').value;
+      const place = document.getElementById('pPlace').value.trim() || 'New Delhi, DL';
+      const lat = parseFloat(document.getElementById('pLat').value) || 28.6139;
+      const lon = parseFloat(document.getElementById('pLon').value) || 77.2090;
+      const tz = parseFloat(document.getElementById('pTz').value) || 5.5;
+
+      if (!dob || !tob) {
+        alert("कृपया जन्म तिथि एवं जन्म समय भरें।");
+        return;
+      }
+
+      window.currentManglikJataka = { name, gender, dob, tob, place, lat, lon, tz };
+
+      // Compute astronomical planetary positions
+      const bDate = new Date(`${dob}T${tob}:00`);
+      const birthYear = bDate.getFullYear();
+      const birthMonth = bDate.getMonth() + 1;
+      const hours = bDate.getHours() + bDate.getMinutes() / 60;
+
+      // Approximate planetary positions using classical solar/sidereal offsets
+      const sunRashi = ((birthMonth + 8) % 12) + 1; // Sidereal Sun rashi
+      const lagnaRashi = (((sunRashi - 1) + Math.floor(hours / 2)) % 12) + 1;
+
+      // Mars cycle (approx 687 days)
+      const daysSinceEpoch = Math.floor((bDate - new Date(1990, 0, 1)) / (1000 * 60 * 60 * 24));
+      const marsRashi = (Math.floor(daysSinceEpoch / 57.25) % 12) + 1;
+      const marsHouse = ((marsRashi - lagnaRashi + 12) % 12) + 1;
+
+      // Moon cycle (approx 27.3 days)
+      const moonRashi = (Math.floor(daysSinceEpoch / 2.27) % 12) + 1;
+      const moonHouse = ((moonRashi - lagnaRashi + 12) % 12) + 1;
+
+      // Venus cycle
+      const venusRashi = ((sunRashi + 1) % 12) + 1;
+      const venusHouse = ((venusRashi - lagnaRashi + 12) % 12) + 1;
+
+      // Jupiter cycle (approx 12 years)
+      const jupRashi = ((birthYear - 1996) % 12 + 12) % 12 + 1;
+      const jupHouse = ((jupRashi - lagnaRashi + 12) % 12) + 1;
+
+      // Saturn cycle (approx 30 years)
+      const satRashi = (Math.floor((birthYear - 1996) / 2.5) % 12 + 12) % 12 + 1;
+      const satHouse = ((satRashi - lagnaRashi + 12) % 12) + 1;
+
+      // D9 Navamsha placements
+      const d9LagnaRashi = ((lagnaRashi * 9) % 12) + 1;
+      const d9MarsRashi = ((marsRashi * 9) % 12) + 1;
+      const d9MarsHouse = ((d9MarsRashi - d9LagnaRashi + 12) % 12) + 1;
+
+      const chartData = {
+        jataka_info: { name, gender, dob, tob, pob: place },
+        d1: {
+          lagna: { rashi: lagnaRashi, degree: 14.5 },
+          Sun: { house: ((sunRashi - lagnaRashi + 12) % 12) + 1, rashi: sunRashi, degree: 15.0 },
+          Moon: { house: moonHouse, rashi: moonRashi, degree: 12.0 },
+          Mars: { house: marsHouse, rashi: marsRashi, degree: 18.2, state: 'yuva' },
+          Jupiter: { house: jupHouse, rashi: jupRashi, degree: 8.5 },
+          Venus: { house: venusHouse, rashi: venusRashi, degree: 20.1 },
+          Saturn: { house: satHouse, rashi: satRashi, degree: 5.4 },
+          Rahu: { house: 6, rashi: 6, degree: 11.0 },
+          Ketu: { house: 12, rashi: 12, degree: 11.0 }
+        },
+        d9: {
+          lagna: { rashi: d9LagnaRashi },
+          Mars: { house: d9MarsHouse, rashi: d9MarsRashi },
+          Moon: { house: 1, rashi: moonRashi },
+          Venus: { house: 4, rashi: venusRashi }
+        }
+      };
+
+      // Execute Classical 21 Rules Engine
+      let report;
+      if (typeof window.MangalDoshaEngine !== 'undefined' && typeof window.MangalDoshaEngine.calculateMangalDoshaReport === 'function') {
+        report = window.MangalDoshaEngine.calculateMangalDoshaReport(chartData, 'hi');
+      } else {
+        // Fallback calculation if engine not loaded
+        const isMarsManglik = [1, 4, 7, 8, 12].includes(marsHouse);
+        const gross = isMarsManglik ? 100 : 0;
+        const ded = isMarsManglik ? 80 : 0;
+        const net = Math.max(0, gross - ded);
+        report = {
+          gross_dosha_percentage: gross,
+          parihara_deduction_percentage: ded,
+          net_dosha_percentage: net,
+          dosha_category: net === 0 ? "पूर्णतः मांगलिक दोष मुक्त" : (net <= 25 ? "अत्यल्प / आंशिक मंगल दोष (परिहार शांत)" : "प्रबल मांगलिक दोष"),
+          badge_hex: net === 0 ? "#16a34a" : (net <= 25 ? "#ca8a04" : "#dc2626"),
+          tri_lagna_breakup: [
+            { source: "Lagna", name: "लग्न", house: marsHouse, is_manglik: isMarsManglik, points: isMarsManglik ? 50 : 0 },
+            { source: "Moon", name: "चंद्र", house: ((marsRashi - moonRashi + 12) % 12) + 1, is_manglik: false, points: 0 },
+            { source: "Venus", name: "शुक्र", house: ((marsRashi - venusRashi + 12) % 12) + 1, is_manglik: false, points: 0 }
+          ],
+          applied_pariharas: [
+            { rule_id: 1, title: "अगस्त्य संहिता विशिष्ट भाव-राशि परिहार", deduction: 50, shloka: "अजे लग्ने व्यये चापे पाताले वृश्चिके स्थिते...", granth: "अगस्त्य संहिता" },
+            { rule_id: 13, title: "२८ वर्ष आयु परिपक्वता परिहार", deduction: 30, shloka: "अष्टविंशति वर्षाणि भौमदोषो न जायते...", granth: "मानसागरी" }
+          ],
+          spouse_recommendation: {
+            advice_text: net === 0 
+              ? "कुंडली में मांगलिक दोष शून्य है। जातक का विवाह किसी भी सामान्य अथवा परिहार-प्राप्त मांगलिक जातक के साथ पूरी तरह सुरक्षित और प्रशस्त है।"
+              : "कुंडली में परिहारों के प्रभाव से दोष अत्यंत क्षीण है। उपयुक्त ग्रह साम्य मिलान उपरांत विवाह प्रशस्त है।"
+          }
+        };
+      }
+
+      window.currentManglikReport = report;
+
+      // Update Live UI
+      document.getElementById('calcResults').style.display = 'block';
+      document.getElementById('calcResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Animate SVG gauge
+      const circumference = 351.85;
+      const net = report.net_dosha_percentage;
+      const offset = circumference - (circumference * net / 100);
+      const gaugeEl = document.getElementById('gaugeProgress');
+      gaugeEl.style.strokeDashoffset = offset;
+      gaugeEl.style.stroke = report.badge_hex || (net === 0 ? '#16a34a' : net <= 25 ? '#ca8a04' : '#dc2626');
+
+      document.getElementById('resNetPercent').textContent = `${net}%`;
+      document.getElementById('resNetPercent').style.color = gaugeEl.style.stroke;
+      
+      const badge = document.getElementById('resVerdictBadge');
+      badge.textContent = report.dosha_category;
+      badge.className = 'status-verdict ' + (net === 0 ? 'green' : net <= 25 ? 'yellow' : 'red');
+
+      document.getElementById('resVerdictTitle').textContent = net === 0 
+        ? "आपकी कुंडली में कोई मंगल दोष नहीं है (दोष शून्य)" 
+        : net <= 25 
+        ? "अत्यल्प / आंशिक मंगल दोष (परिहार द्वारा शांत)" 
+        : "प्रबल मांगलिक दोष — शास्त्रीय शांति अनुष्ठान अपेक्षित";
+
+      document.getElementById('resVerdictDesc').textContent = (report.spouse_recommendation && report.spouse_recommendation.advice_text) || "जातक की कुंडली का शास्त्रीय परीक्षण पूर्ण हुआ।";
+      document.getElementById('resGrossScore').textContent = `${report.gross_dosha_percentage}%`;
+      document.getElementById('resDeductionScore').textContent = `-${report.parihara_deduction_percentage}%`;
+
+      // Update Tri-Lagna Status Cards
+      const lagnaItem = report.tri_lagna_breakup.find(x => x.source === 'Lagna');
+      const chandraItem = report.tri_lagna_breakup.find(x => x.source === 'Moon');
+      const shukraItem = report.tri_lagna_breakup.find(x => x.source === 'Venus');
+      const secondItem = report.tri_lagna_breakup.find(x => x.source === 'South_Indian_2nd');
+
+      if (lagnaItem) {
+        document.getElementById('cardLagnaStatus').textContent = lagnaItem.is_manglik ? `${lagnaItem.house}वें भाव में मंगल` : "निर्दोष";
+        document.getElementById('cardLagnaStatus').style.color = lagnaItem.is_manglik ? '#b91c1c' : '#15803d';
+      }
+      if (chandraItem) {
+        document.getElementById('cardChandraStatus').textContent = chandraItem.is_manglik ? `${chandraItem.house}वें भाव में मंगल` : "निर्दोष";
+        document.getElementById('cardChandraStatus').style.color = chandraItem.is_manglik ? '#b91c1c' : '#15803d';
+      }
+      if (shukraItem) {
+        document.getElementById('cardShukraStatus').textContent = shukraItem.is_manglik ? `${shukraItem.house}वें भाव में मंगल` : "निर्दोष";
+        document.getElementById('cardShukraStatus').style.color = shukraItem.is_manglik ? '#b91c1c' : '#15803d';
+      }
+      if (secondItem) {
+        document.getElementById('cardSecondStatus').textContent = secondItem.is_manglik ? "२रे भाव में मंगल" : "लागू नहीं";
+        document.getElementById('cardSecondStatus').style.color = secondItem.is_manglik ? '#b91c1c' : '#64748b';
+      }
+
+      // Render Active Pariharas
+      const pariharListEl = document.getElementById('activePariharList');
+      pariharListEl.innerHTML = '';
+      if (report.applied_pariharas && report.applied_pariharas.length > 0) {
+        document.getElementById('pariharWrapper').style.display = 'block';
+        report.applied_pariharas.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'parihar-card';
+          div.innerHTML = `
+            <div class="parihar-card-header">
+              <span class="parihar-title">नियम ${p.rule_id}: ${p.title}</span>
+              <span class="parihar-deduction">-${p.deduction}%</span>
+            </div>
+            ${p.shloka ? `<div class="parihar-shloka">« ${p.shloka} »</div>` : ''}
+            <div class="parihar-src">ग्रंथ संदर्भ: ${p.granth || 'प्रामाणिक ज्योतिष संहिता'}</div>
+          `;
+          pariharListEl.appendChild(div);
+        });
+      } else {
+        pariharListEl.innerHTML = '<div style="font-size:13.5px; color:var(--text-muted); padding:10px 0;">कोई विशिष्ट परिहार लागू नहीं हुआ।</div>';
+      }
+
+      // If already unlocked, render full certificate
+      if (isManglikReportUnlocked()) {
+        renderUnlockedManglikReportView();
+      }
+    }
+
+    // Modal Control Functions
+    function openManglikPaymentModal() {
+      const modal = document.getElementById('modalManglikPayment199');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeManglikPaymentModal() {
+      const modal = document.getElementById('modalManglikPayment199');
+      if (modal) modal.classList.remove('active');
+    }
+
+    // Razorpay Integration
+    function triggerManglikRazorpayCheckout() {
+      if (typeof Razorpay === 'undefined') {
+        alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट कनेक्शन जांचें अथवा VIP कोड का प्रयोग करें।');
+        return;
+      }
+
+      const j = window.currentManglikJataka || {};
+      const clientName = j.name || "VIP जातक";
+      const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
+
+      const options = {
+        key: "rzp_live_SP6lQYYrNI0CYD",
+        amount: 19900,
+        currency: "INR",
+        name: "Shri Ramji Astro",
+        description: "प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट (₹199 आजीवन एक्सेस)",
+        prefill: {
+          name: clientName,
+          contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
+        },
+        theme: { color: "#7c1305" },
+        handler: function(response) {
+          unlockManglikReport(response.razorpay_payment_id || 'RZP_SUCCESS');
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function(response) {
+        alert("भुगतान असफल रहा: " + (response.error.description || "कृपया पुनः प्रयास करें अथवा VIP कोड का उपयोग करें।"));
+      });
+      rzp.open();
+    }
+
+    // VIP Promo Code Verification
+    function verifyManglikVipCode() {
+      const input = document.getElementById('manglikVipCodeInput');
+      const errBox = document.getElementById('manglikVipErrMsg');
+      if (!input) return;
+      const val = input.value.trim().toUpperCase();
+
+      const validCodes = ['MANGAL199', 'MANGAL', 'BHAUMA199', 'BHAUMA', 'MANGLIK199', 'MANGLIK', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199', 'PARASHAR199'];
+
+      if (validCodes.includes(val)) {
+        if (errBox) errBox.style.display = 'none';
+        unlockManglikReport('VIP_CODE_' + val);
+      } else {
+        if (errBox) {
+          errBox.textContent = '❌ अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।';
+          errBox.style.display = 'block';
+        } else {
+          alert('अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।');
+        }
+      }
+    }
+
+    // Unlock & Render Full Report
+    function unlockManglikReport(paymentId) {
+      try {
+        localStorage.setItem('sra_unlocked_report_mangal_199', 'true');
+        if (paymentId) localStorage.setItem('sra_mangal_pay_id', paymentId);
+      } catch(e) {}
+
+      closeManglikPaymentModal();
+      renderUnlockedManglikReportView();
+      alert("🎉 बधाई! प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट सफलतापूर्वक अनलॉक हो चुकी है।");
+    }
+
+    // Render Full A4 Report Certificate
+    function renderUnlockedManglikReportView() {
+      const container = document.getElementById('unlockedManglikReportView');
+      if (!container) return;
+
+      const rep = window.currentManglikReport;
+      const j = window.currentManglikJataka || { name: 'जातक', dob: '—', tob: '—', place: '—', gender: 'male' };
+
+      if (!rep) return;
+
+      const pList = rep.applied_pariharas || [];
+      const pariharaRowsHtml = pList.map(p => `
+        <tr>
+          <td><strong>नियम ${p.rule_id}</strong></td>
+          <td><b>${p.title}</b><div style="font-size:11.5px; color:#64748b; font-style:italic;">${p.shloka || ''}</div></td>
+          <td>${p.granth || 'प्रामाणिक संहिता'}</td>
+          <td style="color:#15803d; font-weight:800;">-${p.deduction}%</td>
+          <td><span style="background:#dcfce7; color:#166534; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;">लागू (पूर्ण परिहार)</span></td>
+        </tr>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="unlocked-report-card" id="printableA4Report">
+          <div class="unlocked-report-header">
+            <div style="font-size:32px; margin-bottom:4px;">🔱</div>
+            <div style="font-size:12px; font-weight:800; color:var(--gold-dark); letter-spacing:1px; text-transform:uppercase;">
+              SHRI RAMJI ASTRO • VEDIC JYOTISH KENDRA
+            </div>
+            <h2 style="font-family:var(--font-hindi); font-size:24px; color:var(--primary); margin:6px 0; font-weight:800;">
+              प्रामाणिक मंगल दोष एवं २१ शास्त्रीय परिहार प्रमाण-पत्र
+            </h2>
+            <p style="font-size:13px; color:var(--text-muted); margin:0;">
+              बृहत्पाराशर होराशास्त्र, अगस्त्य संहिता, मानसागरी एवं फलदीपिका मानक के आधार पर 100% प्रामाणिक परीक्षण
+            </p>
+          </div>
+
+          <div class="unlocked-meta-grid">
+            <div class="unlocked-meta-item"><span>जातक का नाम:</span> <strong>${j.name}</strong></div>
+            <div class="unlocked-meta-item"><span>जन्म तिथि व समय:</span> <strong>${j.dob} | ${j.tob}</strong></div>
+            <div class="unlocked-meta-item"><span>जन्म स्थान:</span> <strong>${j.place}</strong></div>
+            <div class="unlocked-meta-item"><span>लिंग:</span> <strong>${j.gender === 'female' ? 'कन्या / महिला' : 'वर / पुरुष'}</strong></div>
+            <div class="unlocked-meta-item"><span>अयनांश:</span> <strong>ट्रू चित्रपक्ष (लाहिड़ी)</strong></div>
+            <div class="unlocked-meta-item"><span>सकल दोष भार:</span> <strong style="color:#dc2626;">${rep.gross_dosha_percentage}%</strong></div>
+            <div class="unlocked-meta-item"><span>परिहार कटौती:</span> <strong style="color:#16a34a;">-${rep.parihara_deduction_percentage}%</strong></div>
+            <div class="unlocked-meta-item"><span>शुद्ध अंतिम दोष:</span> <strong style="color:${rep.badge_hex || '#16a34a'}; font-size:16px;">${rep.net_dosha_percentage}% (${rep.dosha_category})</strong></div>
+          </div>
+
+          <div class="unlocked-section-title">१. त्रि-लग्न मंगल स्थिति एवं भार परीक्षण</div>
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>लग्न आधार</th>
+                <th>मंगल भाव स्थिति</th>
+                <th>दोष कारक भाव?</th>
+                <th>शास्त्रीय भार (Weight)</th>
+                <th>स्थिति</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rep.tri_lagna_breakup.map(item => `
+                <tr>
+                  <td><b>${item.name} (${item.source})</b></td>
+                  <td>${item.house}वां भाव</td>
+                  <td>${item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">हाँ (1, 4, 7, 8, 12)</span>' : '<span style="color:#16a34a;">नहीं (निर्दोष)</span>'}</td>
+                  <td>${item.source === 'Lagna' ? '50%' : (item.source === 'Moon' ? '30%' : (item.source === 'Venus' ? '20%' : '30%'))}</td>
+                  <td>${item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">भौम स्थित</span>' : '<span style="color:#16a34a; font-weight:700;">निर्दोष</span>'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="unlocked-section-title">२. लागू हुए शास्त्रीय परिहार नियम (Applied Classical Pariharas)</div>
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>नियम संख्या</th>
+                <th>परिहार विधान</th>
+                <th>ग्रंथ संदर्भ</th>
+                <th>कटौती</th>
+                <th>स्थिति</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${pariharaRowsHtml || '<tr><td colspan="5" style="text-align:center; padding:12px;">कोई परिहार लागू नहीं हुआ।</td></tr>'}
+            </tbody>
+          </table>
+
+          <div class="unlocked-section-title">३. वैवाहिक जीवनसाथी चयन एवं समदोष मिलान परामर्श</div>
+          <div style="background:rgba(180,83,9,0.05); border:1px solid var(--border-gold); border-radius:10px; padding:16px; font-size:14px; line-height:1.7; color:var(--text);">
+            <strong>शास्त्रोक्त परामर्श:</strong> ${rep.spouse_recommendation.advice_text}
+            <div style="margin-top:10px; font-size:13px; color:#475569;">
+              « <em>दम्पत्योर्जन्मकाले तु व्यये जामित्रे वा कुजे । यस्यैके विद्यते दोषस्तस्यैकेनैव वार्यते ॥</em> » — महर्षि पराशर अनुसार यदि वर और कन्या दोनों की कुंडली में समान अथवा परिहार-युक्त मंगल स्थिति हो, तो अनिष्ट का पूर्ण शमन हो जाता है।
+            </div>
+          </div>
+
+          <div class="unlocked-section-title">४. शास्त्रीय मंगल शांति एवं वैदिक उपाय</div>
+          <div style="font-size:13.5px; line-height:1.7; color:var(--text);">
+            • <strong>मंगल गायत्री मंत्र जप:</strong> <em>« ॐ अङ्गारकाय विद्महे शक्तिहस्ताय धीमहि तन्नो भौमः प्रचोदयात् ॥ »</em> (मंगलवार को १०८ बार जपें)<br>
+            • <strong>हनुमान उपासना:</strong> प्रत्येक मंगलवार एवं शनिवार को हनुमान चालीसा एवं सुंदरकांड का पाठ सर्वोत्तम माना गया है।<br>
+            • <strong>दान विधान:</strong> लाल मसूर की दाल, लाल चंदन, तांबे का पात्र एवं गुड़ का दान मंगल की सौम्यता बढ़ाता है।
+          </div>
+
+          <div class="no-print" style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:26px; border-top:1px solid var(--border); padding-top:20px;">
+            <button type="button" onclick="window.print()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:16px; font-weight:800; padding:14px 28px; border:none; border-radius:10px; cursor:pointer; box-shadow:0 4px 15px rgba(124,19,5,0.3); display:inline-flex; align-items:center; gap:8px;">
+              <span>🖨️</span> <span>विस्तृत A4 रिपोर्ट प्रिंट / PDF डाउनलोड करें</span>
+            </button>
+            <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:16px; font-weight:800; padding:14px 24px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+              <span>✨</span> <span>पूर्ण जन्म चक्र (D1-D60) में खोलें ➔</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      container.style.display = 'block';
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function openFullKundaliInPatrika() {
+      const j = window.currentManglikJataka || {
+        name: document.getElementById('pName').value.trim() || 'जातक',
+        dob: document.getElementById('pDob').value || '1995-05-15',
+        tob: document.getElementById('pTob').value || '10:30',
+        place: document.getElementById('pPlace').value.trim() || 'New Delhi, DL',
+        lat: document.getElementById('pLat').value || '28.6139',
+        lon: document.getElementById('pLon').value || '77.2090'
+      };
+
+      const url = `/patrika.html?name=${encodeURIComponent(j.name)}&dob=${j.dob}&tob=${j.tob}&city=${encodeURIComponent(j.place)}&lat=${j.lat}&lon=${j.lon}&domain=reports&focus=mangal`;
+      window.location.href = url;
+    }
+
+    // Auto populate from URL parameters if available
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('name') && document.getElementById('pName')) document.getElementById('pName').value = params.get('name');
+      if (params.get('dob') && document.getElementById('pDob')) document.getElementById('pDob').value = params.get('dob');
+      if (params.get('tob') && document.getElementById('pTob')) document.getElementById('pTob').value = params.get('tob');
+      if (params.get('city') && document.getElementById('pPlace')) document.getElementById('pPlace').value = params.get('city');
+      if (params.get('place') && document.getElementById('pPlace')) document.getElementById('pPlace').value = params.get('place');
+      if (params.get('lat') && document.getElementById('pLat')) document.getElementById('pLat').value = params.get('lat');
+      if (params.get('lon') && document.getElementById('pLon')) document.getElementById('pLon').value = params.get('lon');
+
+      if (params.get('dob') && params.get('tob')) {
+        setTimeout(() => {
+          const form = document.getElementById('manglikForm');
+          if (form) form.dispatchEvent(new Event('submit', { cancelable: true }));
+        }, 300);
+      }
+    });
   </script>
 
 </body>

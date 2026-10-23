@@ -390,6 +390,9 @@ if (typeof window !== 'undefined') {
   window.LAGNA_RULES = LAGNA_RULES;
   window.TRUE_YOGAKARAKAS = TRUE_YOGAKARAKAS;
   window.KENDRA_TRIKONA_HOUSES = KENDRA_TRIKONA_HOUSES;
+  window.DHRUWANKS = DHRUWANKS;
+  window.NEECHA_POINTS = NEECHA_POINTS;
+  window.PLANET_META = PLANET_META;
 }
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
