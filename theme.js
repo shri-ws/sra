@@ -1558,11 +1558,11 @@
                   <span class="drawer-sub-hint" data-i18n="sub_kaalsarp_desc">12 कालसर्प व अचूक उपाय</span>
                 </div>
               </a>
-              <a href="/manglik-dosh-calculator" onclick="closeNavDrawer()" class="drawer-sub-item">
+              <a href="patrika.html?domain=reports&focus=mangal" onclick="closeNavDrawer()" class="drawer-sub-item">
                 <span class="drawer-sub-icon">🔥</span>
                 <div class="drawer-sub-text">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="drawer-sub-title">मंगल दोष एवं परिहार कैलकुलेटर</span>
+                    <span class="drawer-sub-title">मंगल दोष एवं परिहार रिपोर्ट</span>
                     <span class="drop-badge">लाइव ₹199</span>
                   </div>
                   <span class="drawer-sub-hint">100% Accurate 21 Classical Pariharas</span>

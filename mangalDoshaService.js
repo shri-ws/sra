@@ -523,41 +523,8 @@
         : (isEn ? "Mars occupies different signs in D1 and D9." : "मंगल D1 एवं D9 में पृथक राशियों में स्थित है।")
     };
 
-    // Special Condition Check: If grossScore === 0, no parihara required!
-    if (grossScore === 0) {
-      return {
-        report_title: isEn ? "Classical Mangal Dosha & Authentic Parihara Certification" : "प्रामाणिक मांगलिक दोष एवं परिहार विवरण पत्रिका",
-        jataka_name: jataka_info.name || (isEn ? "Native" : "जातक"),
-        jataka_gender: jataka_info.gender || "male",
-        jataka_dob: jataka_info.dob || "—",
-        jataka_tob: jataka_info.tob || "—",
-        jataka_pob: jataka_info.pob || "—",
-        gross_dosha_percentage: 0,
-        parihara_deduction_percentage: 0,
-        net_dosha_percentage: 0,
-        dosha_category: isEn ? "Completely Free from Mangal Dosha" : "पूर्णतः मांगलिक दोष मुक्त",
-        badge_color: "Green",
-        badge_hex: "#16a34a",
-        is_manglik: false,
-        tri_lagna_breakup: triLagnaBreakup,
-        d9_validation: d9Validation,
-        applied_shlokas: appliedShlokas,
-        applied_pariharas: [],
-        all_pariharas: [],
-        spouse_recommendation: {
-          must_marry_manglik: false,
-          advice_text: isEn
-            ? "The birth chart is 100% free from Mangal Dosha. The native is fully eligible to marry a non-manglik or parihara-mitigated partner without astrological hindrance."
-            : "कुंडली में मांगलिक दोष शून्य है। जातक का विवाह किसी भी सामान्य अथवा परिहार-प्राप्त मांगलिक जातक के साथ पूरी तरह सुरक्षित और प्रशस्त है।",
-          remedies: isEn
-            ? "No specific Mars propitiation or Shanti ritual required."
-            : "किसी विशिष्ट मंगल शांति अनुष्ठान की आवश्यकता नहीं है। सामान्य कुलदेवता पूजन व दांपत्य मंगल कामना पर्याप्त है।"
-        }
-      };
-    }
-
     // ─────────────────────────────────────────────────────────────
-    // STEP 2: 14 AUTHENTIC PARIHARA RULE ENGINE
+    // STEP 2: 21 AUTHENTIC PARIHARA RULE ENGINE
     // ─────────────────────────────────────────────────────────────
     const allPariharas = [];
     const appliedPariharas = [];
