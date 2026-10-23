@@ -448,7 +448,7 @@
       if (pItems.length > 0) {
         pSvg = pItems.map(item => {
           if (item.isMars) {
-            return `<tspan fill="#b91c1c" font-weight="900" font-size="12" style="filter: drop-shadow(0 0 3px #fca5a5);">♂${item.text}</tspan>`;
+            return `<tspan fill="#b91c1c" font-weight="900" font-size="12">♂${item.text}</tspan>`;
           }
           return `<tspan fill="#334155" font-weight="700">${item.text}</tspan>`;
         }).join(" ");
