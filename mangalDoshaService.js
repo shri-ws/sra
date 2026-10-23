@@ -529,12 +529,15 @@
     // ─────────────────────────────────────────────────────────────
     // STEP 2: 21 AUTHENTIC PARIHARA RULE ENGINE
     // ─────────────────────────────────────────────────────────────
+    const isDoshaPresent = isDoshaFromLagna || isDoshaFromMoon || isDoshaFromVenus;
     const allPariharas = [];
     const appliedPariharas = [];
 
     // Helper to evaluate and register each Parihara
     function evaluateParihara(ruleDef) {
-      const isApplicable = !!ruleDef.condition();
+      // Shastric Principle: Parihara (cancellation/mitigation) only applies if a Dosha actually exists.
+      // If neither Lagna, Moon, nor Venus is Manglik, no cancellation is needed or applicable.
+      const isApplicable = isDoshaPresent ? !!ruleDef.condition() : false;
       const item = {
         rule_id: ruleDef.id,
         title: isEn ? ruleDef.title_en : ruleDef.title_hi,
@@ -908,7 +911,6 @@
     if (grossScore === 0) netDosha = 0;
 
     // Output Categorization Matrix: Pure Classical Shastric Evaluation
-    const isDoshaPresent = isDoshaFromLagna || isDoshaFromMoon || isDoshaFromVenus;
     const hasPariharas = (appliedPariharas.length > 0);
 
     let categoryName = "";
@@ -927,11 +929,11 @@
       badgeHex = "#16a34a";
       mustMarryManglik = false;
       adviceText = isEn
-        ? "Mangal Dosha is completely absent in the birth chart. The native can marry any prospective partner with full confidence."
-        : "जातक के लग्न, चन्द्र अथवा शुक्र—तीनों मुख्य आधारों से १, ४, ७, ८, १२ भावों में मंगल की प्रतिकूल उपस्थिति नहीं है। कुण्डली वैवाहिक दृष्टिकोण से सर्वथा निर्दोष है तथा किसी भी परिहार अथवा शांति अनुष्ठान की आवश्यकता नहीं है।";
+        ? "Mangal Dosha is completely absent across Lagna, Moon, and Venus. The native can marry any prospective partner with full confidence."
+        : "जातक की कुण्डली में लग्न, चन्द्र एवं शुक्र—तीनों आधारों से १, ४, ७, ८, १२वें भाव में मंगल की उपस्थिति नहीं है। कुण्डली जन्म से ही पूर्णतः निर्दोष व मंगल दोष से मुक्त है। विवाह हेतु किसी भी विशिष्ट परिहार अथवा शांति उपाय की आवश्यकता नहीं है।";
       remediesText = isEn
-        ? "No specific Mars propitiation required. Regular family deity worship is sufficient."
-        : "किसी विशिष्ट मंगल शांति अनुष्ठान की आवश्यकता नहीं है। सामान्य कुलदेवता पूजन व दांपत्य मंगल कामना पर्याप्त है।";
+        ? "Chart is inherently free from Mangal Dosha. No Mars propitiation or remedial rituals required. Normal family deity worship is sufficient."
+        : "कुण्डली पूर्णतः निर्दोष एवं मंगल दोष से मुक्त है। किसी भी प्रकार के मंगल जप, अनुष्ठान या शांति उपाय की आवश्यकता नहीं है। सामान्य कुलदेवता पूजन व दांपत्य मंगल कामना पर्याप्त है।";
     } else if (hasPariharas) {
       // 2. Partial Manglik with Classical Pariharas applied (User rule: never show 0%, show Anshik Manglik / Parihara Yukta)
       categoryName = isEn ? "Partial Manglik - Classical Parihara Mitigated" : "आंशिक मांगलिक (शास्त्रीय परिहार प्राप्त — सौम्य प्रभाव)";
@@ -943,8 +945,8 @@
         ? `Due to ${appliedPariharas.length} authentic classical parihara rules, the adverse influence of Mars has been largely mitigated into a mild/soft influence. Marriage with a non-manglik or partially manglik partner is auspicious and secure.`
         : `जातक की कुण्डली में त्रि-लग्न आधार पर भौम स्थिति पाई गई, किन्तु २१ प्रामाणिक शास्त्रीय परिहार नियमों में से ${appliedPariharas.length} शास्त्रीय परिहार लागू होने से दोष का शमन हो चुका है। अतः जातक आंशिक मांगलिक (सौम्य प्रभाव) श्रेणी में आता है और सामान्य अथवा परिहार-प्राप्त जातक से विवाह पूर्णतः सुरक्षित व शास्त्र सम्मत है।`;
       remediesText = isEn
-        ? "Regular Hanuman Chalisa recitation, Tuesday charity of jaggery/lentils, and Mangal Gayatri Japa for sustained conjugal peace."
-        : "हनुमान चालीसा का पाठ, मंगलवार को गुड़/मसूर का दान एवं मंगल गायत्री मंत्र का जप दांपत्य सौहार्द हेतु अनुशंसित है।";
+        ? "Regular Hanuman Chalisa recitation and Mangal Gayatri Japa for sustained conjugal peace."
+        : "हनुमान चालीसा का पाठ एवं मंगल गायत्री मंत्र का जप दांपत्य सौहार्द हेतु अनुशंसित है।";
     } else {
       // 3. Active Manglik Dosha (No major pariharas applied)
       categoryName = isEn ? "Active Manglik Dosha (Purna Manglik)" : "प्रभावी मांगलिक दोष (पूर्ण मांगलिक)";

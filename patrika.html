@@ -8756,7 +8756,25 @@ function renderParasharaReports() {
         </div>
       </div>
 
-      <!-- STEP 2: 21 AUTHENTIC PARIHARA RULES -->
+      <!-- STEP 2: 21 AUTHENTIC PARIHARA RULES OR EXEMPTION CERTIFICATION -->
+      ${!repMangal.has_dosha ? `
+        <div style="margin:20px 0; background:linear-gradient(135deg, rgba(22,163,74,0.06), rgba(5,150,105,0.04)); border:1.5px solid #86efac; border-radius:10px; padding:16px 20px;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <span style="font-size:24px;">🛡️</span>
+            <div>
+              <h3 style="margin:0; font-size:15px; color:#065f46; font-weight:800;">
+                ${isHi ? 'कुण्डली जन्म से ही पूर्णतः निर्दोष — परिहार नियमों की आवश्यकता नहीं' : 'Chart Inherently Free From Dosha — No Parihara Required'}
+              </h3>
+              <p style="margin:2px 0 0 0; font-size:11.5px; color:#166534;">
+                ${isHi ? 'बृहत्पाराशर होराशास्त्र एवं नारद संहिता के अनुसार त्रि-लग्न शोधन' : 'Tri-Lagna Verification per BPHS and Narada Samhita'}
+              </p>
+            </div>
+          </div>
+          <div style="font-size:12px; color:#1e293b; line-height:1.6;">
+            ${isHi ? 'शास्त्रों के अनुसार परिहार (दोष शमन अथवा काट) की आवश्यकता केवल तभी होती है जब लग्न, चन्द्र या शुक्र से मंगल १, ४, ७, ८, १२वें भाव में स्थित हो। प्रस्तुत कुण्डली में तीनों आधारों से भौम दोष अनुपस्थित है, अतः कुण्डली जन्म से ही पूर्णतः निर्दोष है तथा किसी भी परिहार नियम को देखने अथवा मंगल शांति की आवश्यकता नहीं है।' : 'According to classical scriptures, parihara (mitigation) is only relevant when Mars occupies houses 1, 4, 7, 8, or 12 from Lagna, Moon, or Venus. As Mars is completely unafflicted across all three reference points, the chart is inherently auspicious and free from dosha.'}
+          </div>
+        </div>
+      ` : `
       <div style="margin:20px 0;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <div>
@@ -8797,6 +8815,7 @@ function renderParasharaReports() {
           `).join('')}
         </div>
       </div>
+      `}
 
       <!-- INTERACTIVE PARTNER KUNDLI SAMDOSHA MATCHER (Parihara 14) -->
       <div class="partner-matcher-box">
