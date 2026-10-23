@@ -1046,8 +1046,8 @@
         break-after: page !important;
       }
       .report-page-2 {
-        page-break-before: always !important;
-        break-before: page !important;
+        page-break-before: auto !important;
+        break-before: auto !important;
       }
       .report-split-grid {
         display: grid !important;
@@ -1705,8 +1705,8 @@
         विवाह मुहूर्त व कुंडली मिलान के लिए प्रामाणिक वैदिक रिपोर्ट:
       </div>
       <!-- Exact Vivah Blogs In-line Link Anchor Text -->
-      <a href="/manglik-dosh-calculator" class="cross-link-btn" style="background:#b45309;">
-        21 शास्त्रीय परिहार नियमों के साथ अपना मंगल दोष रिपोर्ट देखें (मात्र ₹199) →
+      <a href="/vmm.html" class="cross-link-btn" style="background:linear-gradient(135deg, #7c1305, #b45309);">
+        💍 विवाह मैच मेकिंग कैलकुलेटर (36 गुण व नाड़ी मिलान) →
       </a>
     </div>
 
@@ -2509,18 +2509,50 @@
         btn.style.opacity = '0.7';
       }
 
-      // 10-second safety reset timer so button is never permanently stuck
+      // Show Full-Screen Loading Mask so user sees clean loading animation while html2canvas renders
+      let mask = document.getElementById('sra_pdf_loading_mask');
+      if (!mask) {
+        mask = document.createElement('div');
+        mask.id = 'sra_pdf_loading_mask';
+        mask.style.position = 'fixed';
+        mask.style.top = '0';
+        mask.style.left = '0';
+        mask.style.width = '100vw';
+        mask.style.height = '100vh';
+        mask.style.background = 'rgba(15, 23, 42, 0.88)';
+        mask.style.backdropFilter = 'blur(4px)';
+        mask.style.zIndex = '999999';
+        mask.style.display = 'flex';
+        mask.style.flexDirection = 'column';
+        mask.style.alignItems = 'center';
+        mask.style.justifyContent = 'center';
+        mask.style.color = '#ffffff';
+        mask.style.fontFamily = "'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif";
+        mask.innerHTML = `
+          <div style="font-size:42px; margin-bottom:12px;">📥</div>
+          <div style="font-size:18px; font-weight:800; color:#fbbf24; font-family:'Cinzel', serif; letter-spacing:1px;">श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO</div>
+          <div style="font-size:15px; font-weight:700; margin-top:8px;">प्रामाणिक मांगलिक दोष A4 PDF तैयार हो रही है...</div>
+          <div style="font-size:12px; color:#cbd5e1; margin-top:4px;">कृपया २-३ सेकंड प्रतीक्षा करें • शास्त्रीय प्रमाण-पत्र संकलित हो रहा है</div>
+        `;
+        document.body.appendChild(mask);
+      } else {
+        mask.style.display = 'flex';
+      }
+
+      // 12-second safety reset timer so button is never permanently stuck
       const safetyResetTimer = setTimeout(() => {
+        if (mask && mask.parentNode) mask.parentNode.removeChild(mask);
         if (btn && btn.disabled) {
           btn.innerHTML = originalHtml;
           btn.disabled = false;
           btn.style.opacity = '1';
         }
-      }, 10000);
+      }, 12000);
 
       const reportEl = document.getElementById('printableA4Report');
       if (!reportEl) {
         clearTimeout(safetyResetTimer);
+        if (mask && mask.parentNode) mask.parentNode.removeChild(mask);
         if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; btn.style.opacity = '1'; }
         window.print();
         return;
@@ -2541,33 +2573,104 @@
           throw new Error("html2pdf library unavailable");
         }
 
-        // Clone report into a fixed 794px desktop-like container to eliminate mobile layout/SVG scaling issues
+        // Clone report into a fixed 794px desktop container (A4 width at 96 DPI)
         const clone = reportEl.cloneNode(true);
-        clone.querySelectorAll('.no-print').forEach(el => el.remove());
+        clone.querySelectorAll('.no-print, .btn-action-group, button').forEach(el => el.remove());
 
+        // Position stage on-screen with positive z-index under mask so html2canvas renders accurately without blanking
         stage = document.createElement('div');
         stage.id = 'sra_pdf_render_stage';
-        stage.style.position = 'absolute';
-        stage.style.top = '0';
-        stage.style.left = '0';
+        stage.style.position = 'fixed';
+        stage.style.top = '0px';
+        stage.style.left = '0px';
         stage.style.width = '794px';
         stage.style.minHeight = '1123px';
         stage.style.background = '#ffffff';
         stage.style.color = '#1e293b';
-        stage.style.padding = '16px 20px';
+        stage.style.padding = '18px 24px';
         stage.style.boxSizing = 'border-box';
-        stage.style.zIndex = '-9999';
-        stage.style.opacity = '1';
-        stage.style.pointerEvents = 'none';
+        stage.style.zIndex = '999998'; // Just below loading mask (999999) so it is in viewport rendering tree
         stage.style.overflow = 'visible';
+
+        // High-fidelity styling injected directly into stage for pristine PDF output
+        const pdfStyle = document.createElement('style');
+        pdfStyle.textContent = `
+          #sra_pdf_render_stage, #sra_pdf_render_stage * {
+            color-scheme: light !important;
+            box-sizing: border-box !important;
+          }
+          #sra_pdf_render_stage {
+            background: #ffffff !important;
+            color: #1e293b !important;
+            width: 794px !important;
+            max-width: 794px !important;
+          }
+          #sra_pdf_render_stage .unlocked-report-card {
+            border: 1.5px solid #b45309 !important;
+            box-shadow: none !important;
+            padding: 16px 20px !important;
+            margin: 0 !important;
+            background: #ffffff !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          #sra_pdf_render_stage .report-page-1 {
+            page-break-after: always !important;
+            break-after: page !important;
+          }
+          #sra_pdf_render_stage .report-page-2 {
+            page-break-before: auto !important;
+            break-before: auto !important;
+            margin-top: 14px !important;
+          }
+          #sra_pdf_render_stage .report-split-grid {
+            display: grid !important;
+            grid-template-columns: 240px 1fr !important;
+            gap: 12px !important;
+          }
+          #sra_pdf_render_stage .kundli-snapshot-box {
+            width: 240px !important;
+            min-width: 240px !important;
+            max-width: 240px !important;
+          }
+          #sra_pdf_render_stage svg {
+            width: 230px !important;
+            height: 230px !important;
+            max-width: 230px !important;
+            max-height: 230px !important;
+            display: block !important;
+          }
+          #sra_pdf_render_stage .tri-lagna-table {
+            width: 100% !important;
+            table-layout: fixed !important;
+          }
+          #sra_pdf_render_stage .parihara-audit-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          #sra_pdf_render_stage .btn-action-group,
+          #sra_pdf_render_stage .no-print {
+            display: none !important;
+          }
+        `;
+        stage.appendChild(pdfStyle);
+
+        clone.style.display = 'block';
+        clone.style.background = '#ffffff';
+        clone.style.color = '#1e293b';
+        clone.style.padding = '0';
+        clone.style.margin = '0';
+        clone.style.boxShadow = 'none';
+        clone.style.border = 'none';
         stage.appendChild(clone);
         document.body.appendChild(stage);
 
         // Allow microtask tick for DOM & fonts to settle
-        await new Promise(r => setTimeout(r, 120));
+        await new Promise(r => setTimeout(r, 150));
 
         const opt = {
-          margin: [6, 6, 6, 6],
+          margin: [8, 8, 8, 8],
           filename: filename,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: {
@@ -2575,10 +2678,12 @@
             useCORS: true,
             logging: false,
             backgroundColor: '#ffffff',
-            width: 794,
-            windowWidth: 794,
+            scrollX: 0,
             scrollY: 0,
-            scrollX: 0
+            x: 0,
+            y: 0,
+            width: 794,
+            windowWidth: 794
           },
           jsPDF: {
             unit: 'mm',
@@ -2618,12 +2723,6 @@
           delivered = true;
         }
 
-        clearTimeout(safetyResetTimer);
-        if (stage && stage.parentNode) {
-          stage.parentNode.removeChild(stage);
-          stage = null;
-        }
-
         if (btn) {
           btn.innerHTML = '<span>✅</span> <span>PDF डाउनलोड पूर्ण!</span>';
           setTimeout(() => {
@@ -2634,18 +2733,21 @@
         }
         return;
       } catch (err) {
-        clearTimeout(safetyResetTimer);
         console.error("PDF generation failed, falling back to window.print():", err);
-        if (stage && stage.parentNode) {
-          stage.parentNode.removeChild(stage);
-          stage = null;
-        }
         if (btn) {
           btn.innerHTML = originalHtml;
           btn.disabled = false;
           btn.style.opacity = '1';
         }
         window.print();
+      } finally {
+        clearTimeout(safetyResetTimer);
+        if (mask && mask.parentNode) {
+          mask.parentNode.removeChild(mask);
+        }
+        if (stage && stage.parentNode) {
+          stage.parentNode.removeChild(stage);
+        }
       }
     }
 
