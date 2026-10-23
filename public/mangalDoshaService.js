@@ -907,62 +907,57 @@
     let netDosha = grossScore - finalDeduction;
     if (grossScore === 0) netDosha = 0;
 
-    // Output Categorization Matrix
+    // Output Categorization Matrix: Pure Classical Shastric Evaluation
+    const isDoshaPresent = isDoshaFromLagna || isDoshaFromMoon || isDoshaFromVenus;
+    const hasPariharas = (appliedPariharas.length > 0);
+
     let categoryName = "";
     let badgeColor = "";
     let badgeHex = "";
     let mustMarryManglik = false;
     let adviceText = "";
     let remediesText = "";
+    let statusKey = "";
 
-    if (netDosha >= 60) {
-      // 60% to 100%: Severe Manglik
-      categoryName = isEn ? "Severe (Ghor) Manglik Dosha" : "तीव्र (घोर) मांगलिक दोष";
-      badgeColor = "Red";
-      badgeHex = "#dc2626";
-      mustMarryManglik = true;
-      adviceText = isEn
-        ? "Mandatory Requirement: The native must only marry a similarly Manglik native or one whose chart offers full Counter-Dosha (Paap Samya with Saturn/Rahu/Mars in 1, 4, 7, 8, 12). Perform classical Kumbha Vivaha / Arka Vivaha or Bhauma Shanti Mahayajna prior to marriage."
-        : "अनिवार्य शर्त: जातक का विवाह केवल समान मांगलिक (Manglik) जातक से ही होना चाहिए। अथवा सामने वाले के 1, 4, 7, 8, 12 में शनि/राहु हो (साम्य परिहार)। विवाह पूर्व शास्त्रीय कुंभ विवाह/अर्क विवाह या मंगल शांति अनुष्ठान कराएं।";
-      remediesText = isEn
-        ? "Classical Kumbha / Arka Vivaha, Mangal Shanti Yajna, daily recitation of Rinmochaka Mangala Stotra and Sundarkand."
-        : "विवाह पूर्व कुंभ विवाह / अर्क विवाह, मंगल शांति महायज्ञ, ऋणमोचक मंगल स्तोत्र व सुंदरकांड का नित्य पाठ।";
-    } else if (netDosha >= 25) {
-      // 25% to 59%: Moderate / Partial Manglik
-      categoryName = isEn ? "Moderate / Partial Manglik Dosha" : "मध्यम / आंशिक मांगलिक दोष";
-      badgeColor = "Orange";
-      badgeHex = "#ea580c";
-      mustMarryManglik = false;
-      adviceText = isEn
-        ? "Marriage is feasible with a non-manglik partner provided Ashtakoot Gun Milan score exceeds 24 points and Nadi Dosha is absent. If the partner has Jupiter in Kendra or Trikona, married life remains secure."
-        : "जातक का विवाह सामान्य जातक से भी संभव है, बशर्ते गुण मिलान में २४+ गुण मिलें और नाड़ी दोष न हो। यदि सामने वाले के केंद्र या त्रिकोण में गुरु हो, तो दांपत्य सुरक्षित रहेगा। सुंदरकांड/हनुमान चालीसा का पाठ श्रेयस्कर है।";
-      remediesText = isEn
-        ? "Sundarkand or Hanuman Chalisa recitation, Mangal Gayatri Japa, and charitable offering of red lentils (masoor) and copper on Tuesdays."
-        : "सुंदरकांड/हनुमान चालीसा का पाठ, मंगल गायत्री जप एवं मंगलवार को लाल मसूर व तांबे का दान श्रेयस्कर है।";
-    } else if (netDosha >= 1) {
-      // 1% to 24%: Mild / Negligible Manglik
-      categoryName = isEn ? "Mild / Negligible Manglik - Parihara Mitigated" : "अल्प (नगण्य) मांगलिक - परिहार युक्त";
-      badgeColor = "Yellow";
-      badgeHex = "#d97706";
-      mustMarryManglik = false;
-      adviceText = isEn
-        ? "Due to powerful classical exceptions (Pariharas), the adverse influence of Mars has been largely neutralized. The native can marry a non-manglik partner without apprehension."
-        : "शास्त्रोक्त परिहारों के कारण मंगल का दुष्प्रभाव लगभग समाप्त हो चुका है। जातक का विवाह गैर-मांगलिक (Non-Manglik) जीवनसाथी के साथ भी निर्बाध रूप से किया जा सकता है।";
-      remediesText = isEn
-        ? "Regular Hanuman upasana and sweet offerings on Tuesdays for continued harmony."
-        : "नियमित हनुमान उपासना एवं मंगलवार को मिष्ठान्न वितरण।";
-    } else {
-      // 0%: Completely Free
-      categoryName = isEn ? "Completely Free from Mangal Dosha" : "पूर्णतः मांगलिक दोष मुक्त";
+    if (!isDoshaPresent) {
+      // 1. Completely Free: Mars is not in 1, 4, 7, 8, 12 from Lagna, Moon, or Venus
+      categoryName = isEn ? "Completely Free from Mangal Dosha (Nirdosh Chart)" : "पूर्णतः मांगलिक दोष मुक्त (निर्दोष कुण्डली)";
+      statusKey = "FREE_FROM_DOSHA";
       badgeColor = "Green";
       badgeHex = "#16a34a";
       mustMarryManglik = false;
       adviceText = isEn
-        ? "Mangal Dosha is completely nullified in the birth chart. The native can marry any prospective partner with full confidence."
-        : "कुंडली में मांगलिक दोष शून्य है। जातक का विवाह किसी भी सामान्य अथवा परिहार-प्राप्त मांगलिक जातक के साथ पूरी तरह सुरक्षित और प्रशस्त है।";
+        ? "Mangal Dosha is completely absent in the birth chart. The native can marry any prospective partner with full confidence."
+        : "जातक के लग्न, चन्द्र अथवा शुक्र—तीनों मुख्य आधारों से १, ४, ७, ८, १२ भावों में मंगल की प्रतिकूल उपस्थिति नहीं है। कुण्डली वैवाहिक दृष्टिकोण से सर्वथा निर्दोष है तथा किसी भी परिहार अथवा शांति अनुष्ठान की आवश्यकता नहीं है।";
       remediesText = isEn
-        ? "No specific Mars propitiation required."
-        : "किसी विशिष्ट मंगल शांति अनुष्ठान की आवश्यकता नहीं है।";
+        ? "No specific Mars propitiation required. Regular family deity worship is sufficient."
+        : "किसी विशिष्ट मंगल शांति अनुष्ठान की आवश्यकता नहीं है। सामान्य कुलदेवता पूजन व दांपत्य मंगल कामना पर्याप्त है।";
+    } else if (hasPariharas) {
+      // 2. Partial Manglik with Classical Pariharas applied (User rule: never show 0%, show Anshik Manglik / Parihara Yukta)
+      categoryName = isEn ? "Partial Manglik - Classical Parihara Mitigated" : "आंशिक मांगलिक (शास्त्रीय परिहार प्राप्त — सौम्य प्रभाव)";
+      statusKey = "PARIHARA_MITIGATED";
+      badgeColor = "Emerald";
+      badgeHex = "#059669";
+      mustMarryManglik = false;
+      adviceText = isEn
+        ? `Due to ${appliedPariharas.length} authentic classical parihara rules, the adverse influence of Mars has been largely mitigated into a mild/soft influence. Marriage with a non-manglik or partially manglik partner is auspicious and secure.`
+        : `जातक की कुण्डली में त्रि-लग्न आधार पर भौम स्थिति पाई गई, किन्तु २१ प्रामाणिक शास्त्रीय परिहार नियमों में से ${appliedPariharas.length} शास्त्रीय परिहार लागू होने से दोष का शमन हो चुका है। अतः जातक आंशिक मांगलिक (सौम्य प्रभाव) श्रेणी में आता है और सामान्य अथवा परिहार-प्राप्त जातक से विवाह पूर्णतः सुरक्षित व शास्त्र सम्मत है।`;
+      remediesText = isEn
+        ? "Regular Hanuman Chalisa recitation, Tuesday charity of jaggery/lentils, and Mangal Gayatri Japa for sustained conjugal peace."
+        : "हनुमान चालीसा का पाठ, मंगलवार को गुड़/मसूर का दान एवं मंगल गायत्री मंत्र का जप दांपत्य सौहार्द हेतु अनुशंसित है।";
+    } else {
+      // 3. Active Manglik Dosha (No major pariharas applied)
+      categoryName = isEn ? "Active Manglik Dosha (Purna Manglik)" : "प्रभावी मांगलिक दोष (पूर्ण मांगलिक)";
+      statusKey = "ACTIVE_DOSHA";
+      badgeColor = "Red";
+      badgeHex = "#dc2626";
+      mustMarryManglik = true;
+      adviceText = isEn
+        ? "Active Mangal Dosha is present in the birth chart without substantial parihara mitigation. It is recommended to choose a Manglik partner or perform classical remedial rites (Kumbha Vivaha / Bhauma Shanti) prior to marriage."
+        : "जातक की कुण्डली में त्रि-लग्न आधार पर भौम दोष विद्यमान है तथा कोई प्रमुख शास्त्रीय परिहार लागू नहीं हुआ है। अतः विवाह हेतु मांगलिक अथवा समदोष प्रतिपक्ष जातक का चयन करें अथवा विवाह पूर्व विधिवत शास्त्रीय शांति अनुष्ठान / कुंभ विवाह कराएं।";
+      remediesText = isEn
+        ? "Classical Kumbha Vivaha / Arka Vivaha, Mangal Shanti Mahayajna, daily recitation of Rinmochaka Mangala Stotra and Sundarkand."
+        : "विवाह पूर्व कुंभ विवाह / अर्क विवाह, मंगल शांति महायज्ञ, ऋणमोचक मंगल स्तोत्र व सुंदरकांड का नित्य पाठ।";
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -983,7 +978,14 @@
       dosha_category: categoryName,
       badge_color: badgeColor,
       badge_hex: badgeHex,
-      is_manglik: (netDosha > 0),
+      is_manglik: isDoshaPresent,
+      has_dosha: isDoshaPresent,
+      status_key: statusKey,
+      is_lagna_manglik: isDoshaFromLagna,
+      is_moon_manglik: isDoshaFromMoon,
+      is_venus_manglik: isDoshaFromVenus,
+      applied_pariharas_count: appliedPariharas.length,
+      shastric_status: isDoshaPresent ? (hasPariharas ? "आंशिक मांगलिक (परिहार-युक्त)" : "प्रभावी मांगलिक (पूर्ण दोष)") : "निर्दोष (दोष रहित)",
       mars_details: {
         house: mars.house,
         rashi: signsList[mars.rashi - 1],

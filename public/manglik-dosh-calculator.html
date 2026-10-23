@@ -116,6 +116,7 @@
 
   <!-- Engine Scripts -->
   <script src="/theme.js" defer></script>
+  <script src="/html2pdf.bundle.min.js"></script>
   <script src="/patrikaEngineBridge.js"></script>
   <script src="/mangalDoshaService.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -2013,34 +2014,34 @@
           <td><strong>नियम ${p.rule_id}</strong></td>
           <td><b>${p.title}</b><div style="font-size:11px; color:#64748b; font-style:italic;">${p.shloka || ''}</div></td>
           <td>${p.granth || p.ref || 'प्रामाणिक संहिता'}</td>
-          <td style="color:#15803d; font-weight:800;">-${p.deduction}%</td>
-          <td><span style="background:#dcfce7; color:#166534; font-size:10.5px; padding:2px 7px; border-radius:6px; font-weight:700;">✓ लागू (पूर्ण परिहार)</span></td>
+          <td style="color:#15803d; font-weight:700;">दोष शमन / सौम्य प्रभाव</td>
+          <td><span style="background:#dcfce7; color:#166534; font-size:10.5px; padding:2px 7px; border-radius:6px; font-weight:700;">✓ लागू (परिहार प्राप्त)</span></td>
         </tr>
       `).join('');
 
       let verdictBannerHtml = "";
-      if (rep.gross_dosha_percentage === 0) {
+      if (!rep.has_dosha) {
         verdictBannerHtml = `
           <div class="mangal-grand-verdict-banner free-dosha">
             <div style="width:36px; height:36px; border-radius:50%; background:#059669; color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">✓</div>
             <div style="flex:1;">
               <div style="font-size:10px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.6px;">शास्त्रीय निर्णय • FINAL MATRIMONIAL VERDICT</div>
-              <div style="font-size:15px; font-weight:900; color:#064e3b; margin:1px 0;">🎉 जातक की कुण्डली पूर्णतः मंगल दोष मुक्त है (०%)</div>
+              <div style="font-size:15px; font-weight:900; color:#064e3b; margin:1px 0;">🎉 जातक की कुण्डली पूर्णतः मांगलिक दोष मुक्त है (निर्दोष कुण्डली)</div>
               <div style="font-size:11.5px; color:#1e293b; line-height:1.4;">
-                लग्न, चन्द्र अथवा शुक्र से १, ४, ७, ८, १२ भावों में मंगल की प्रतिकूल उपस्थिति <strong>नहीं पाई गई</strong>। कुण्डली वैवाहिक दृष्टिकोण से निर्दोष है तथा किसी भी परिहार या शांति की आवश्यकता नहीं है।
+                जातक के लग्न, चन्द्र अथवा शुक्र—तीनों मुख्य आधारों से १, ४, ७, ८, १२ भावों में मंगल की प्रतिकूल उपस्थिति <strong>नहीं पाई गई</strong>। कुण्डली वैवाहिक दृष्टिकोण से निर्दोष है तथा किसी भी परिहार अथवा शांति अनुष्ठान की आवश्यकता नहीं है।
               </div>
             </div>
           </div>
         `;
-      } else if (rep.net_dosha_percentage === 0) {
+      } else if (rep.applied_pariharas && rep.applied_pariharas.length > 0) {
         verdictBannerHtml = `
           <div class="mangal-grand-verdict-banner cancelled-dosha">
             <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #10b981, #059669); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">✨</div>
             <div style="flex:1;">
               <div style="font-size:10px; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0.6px;">शास्त्रीय निर्णय • 21 AUTHENTIC PARIHARA VERDICT</div>
-              <div style="font-size:15px; font-weight:900; color:#065f46; margin:1px 0;">✓ मंगल दोष परिहार लागू — दोष पूर्णतया निरस्त (१००% परिहार)</div>
+              <div style="font-size:15px; font-weight:900; color:#065f46; margin:1px 0;">✨ आंशिक मांगलिक — शास्त्रीय परिहारों द्वारा दोष का तीव्र शमन (सौम्य मंगल)</div>
               <div style="font-size:11.5px; color:#1e293b; line-height:1.4;">
-                सकल मंगल भार <strong>${rep.gross_dosha_percentage}%</strong> था, किन्तु २१ शास्त्रीय परिहार नियमों द्वारा <strong>१००% परिहार लागू</strong> होकर अंतिम शुद्ध दोष <strong>०% (शून्य)</strong> हो चुका है। सामान्य विवाह पूर्णतः अनुशंसित है।
+                जातक की कुण्डली में त्रि-लग्न आधार पर भौम स्थिति पाई गई, किन्तु २१ प्रामाणिक शास्त्रीय परिहार नियमों में से <strong>${rep.applied_pariharas.length} शास्त्रीय परिहार लागू</strong> होने से दोष का शमन हो चुका है। अतः जातक <strong>आंशिक मांगलिक (सौम्य प्रभाव)</strong> श्रेणी में आता है और सामान्य अथवा परिहार-प्राप्त जातक से विवाह पूर्णतः सुरक्षित व शास्त्र सम्मत है।
               </div>
             </div>
           </div>
@@ -2051,9 +2052,9 @@
             <div style="width:36px; height:36px; border-radius:50%; background:#dc2626; color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">⚠️</div>
             <div style="flex:1;">
               <div style="font-size:10px; font-weight:800; color:#991b1b; text-transform:uppercase; letter-spacing:0.6px;">शास्त्रीय निर्णय • ACTIVE MANGLIK DOSHA</div>
-              <div style="font-size:15px; font-weight:900; color:#7f1d1d; margin:1px 0;">⚠️ मंगल दोष प्रभावी — ${rep.net_dosha_percentage}% भौम प्रभाव विद्यमान</div>
+              <div style="font-size:15px; font-weight:900; color:#7f1d1d; margin:1px 0;">⚠️ प्रभावी मांगलिक दोष (पूर्ण मांगलिक)</div>
               <div style="font-size:11.5px; color:#1e293b; line-height:1.4;">
-                परिहार कटौतियों के पश्चात भी <strong>${rep.net_dosha_percentage}%</strong> प्रभाव शेष है। अतः विवाह हेतु मांगलिक अथवा समदोष प्रतिपक्ष जातक का चयन करें अथवा विधिवत शांति अनुष्ठान कराएं।
+                जातक की कुण्डली में त्रि-लग्न आधार पर भौम दोष विद्यमान है तथा कोई प्रमुख शास्त्रीय परिहार लागू नहीं हुआ है। अतः विवाह हेतु मांगलिक अथवा समदोष प्रतिपक्ष जातक का चयन करें अथवा विवाह पूर्व विधिवत शास्त्रीय शांति अनुष्ठान / कुंभ विवाह कराएं।
               </div>
             </div>
           </div>
@@ -2081,7 +2082,7 @@
               </p>
             </div>
 
-            <!-- Jataka Details Meta Grid (Compact & Aligned) -->
+            <!-- Jataka Details Meta Grid (Pure Shastric Format - No Arbitrary Percentages) -->
             <div class="unlocked-meta-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 6px 12px; background: #fffcf6; border: 1px solid var(--border-gold); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px;">
               <div><span style="color:#64748b;">जातक:</span> <strong>${k.name}</strong></div>
               <div><span style="color:#64748b;">जन्म तिथि:</span> <strong>${k.date}</strong></div>
@@ -2093,9 +2094,9 @@
               <div><span style="color:#64748b;">मंगल:</span> <strong>भाव ${rep.mars_details ? rep.mars_details.house : marsObj.rasiHouse} (${marsRashiName})</strong></div>
               <div><span style="color:#64748b;">अयनांश:</span> <strong>ट्रू लाहिड़ी</strong></div>
 
-              <div><span style="color:#64748b;">सकल भार:</span> <strong style="color:#dc2626;">${rep.gross_dosha_percentage}%</strong></div>
-              <div><span style="color:#64748b;">परिहार:</span> <strong style="color:#16a34a;">-${rep.parihara_deduction_percentage}%</strong></div>
-              <div style="grid-column: span 2;"><span style="color:#64748b;">शुद्ध अंतिम दोष:</span> <strong style="color:${rep.badge_hex || '#16a34a'}; font-size:13.5px;">${rep.net_dosha_percentage}% (${rep.dosha_category})</strong></div>
+              <div><span style="color:#64748b;">त्रि-लग्न स्थिति:</span> <strong>${rep.is_lagna_manglik ? 'लग्न मांगलिक' : 'लग्न निर्दोष'} • ${rep.is_moon_manglik ? 'चन्द्र मांगलिक' : 'चन्द्र निर्दोष'}</strong></div>
+              <div><span style="color:#64748b;">लागू परिहार:</span> <strong style="color:#16a34a;">${(rep.applied_pariharas || []).length} परिहार लागू</strong></div>
+              <div style="grid-column: span 2;"><span style="color:#64748b;">शास्त्रोक्त निर्णय:</span> <strong style="color:${rep.badge_hex || '#16a34a'}; font-size:13px;">${rep.dosha_category}</strong></div>
             </div>
 
             <!-- 2-Column Side-by-Side: Left = Chart Snapshot, Right = Verdict & Tri-Lagna -->
@@ -2118,19 +2119,18 @@
               <div style="display:flex; flex-direction:column; gap:8px;">
                 ${verdictBannerHtml}
 
-                <!-- Tri-Lagna Table -->
+                <!-- Tri-Lagna Table (Pure Shastric - No 50%, 30%, 20%) -->
                 <div>
                   <div style="font-size:12.5px; font-weight:800; color:var(--primary); margin-bottom:4px; font-family:var(--font-hindi);">
-                    १. त्रि-लग्न मंगल स्थिति एवं भार परीक्षण
+                    १. त्रि-लग्न मंगल स्थिति परीक्षण
                   </div>
                   <table class="matrix-table">
                     <thead>
                       <tr>
                         <th>आधार</th>
                         <th>मंगल भाव</th>
-                        <th>दोष कारक?</th>
-                        <th>भार</th>
-                        <th>स्थिति</th>
+                        <th>दोष कारक भाव?</th>
+                        <th>शास्त्रीय स्थिति</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2138,9 +2138,8 @@
                         <tr>
                           <td><b>${item.reference || item.name}</b></td>
                           <td>${item.mars_house || item.house}वां भाव (${item.mars_rashi || ''})</td>
-                          <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">हाँ (1,4,7,8,12)</span>' : '<span style="color:#16a34a;">नहीं</span>'}</td>
-                          <td>${item.weight || (item.points ? item.points + '%' : '—')}</td>
-                          <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">भौम स्थित</span>' : '<span style="color:#16a34a; font-weight:700;">निर्दोष</span>'}</td>
+                          <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">हाँ (1,4,7,8,12)</span>' : '<span style="color:#16a34a;">नहीं (निर्दोष)</span>'}</td>
+                          <td>${item.is_dosha || item.is_manglik ? '<span style="color:#dc2626; font-weight:700;">भौम दोष स्थित</span>' : '<span style="color:#16a34a; font-weight:700;">पूर्णतः निर्दोष</span>'}</td>
                         </tr>
                       `).join('')}
                     </tbody>
@@ -2153,7 +2152,7 @@
                     <strong style="color:var(--primary);">नवांश (D9) मंगल:</strong> ${rep.d9_validation.note} (${rep.d9_validation.mars_rashi}, भाव ${rep.d9_validation.mars_house})
                   </div>
                   <span style="padding:2px 8px; border-radius:6px; font-size:10px; font-weight:800; white-space:nowrap; ${rep.d9_validation.is_vargottama ? 'background:#10b981; color:#fff;' : 'background:rgba(148,163,184,0.2); color:#475569;'}">
-                    ${rep.d9_validation.is_vargottama ? '✓ वर्गोत्तम' : 'सामान्य नवांश'}
+                    ${rep.d9_validation.is_vargottama ? '✓ वर्गोत्तम (सौम्य)' : 'सामान्य नवांश'}
                   </span>
                 </div>
               </div>
@@ -2169,13 +2168,13 @@
                 <tr>
                   <th style="width:70px;">नियम</th>
                   <th>परिहार विधान व शास्त्रीय प्रमाण</th>
-                  <th style="width:110px;">ग्रंथ संदर्भ</th>
-                  <th style="width:70px;">कटौती</th>
-                  <th style="width:120px;">स्थिति</th>
+                  <th style="width:120px;">ग्रंथ संदर्भ</th>
+                  <th style="width:140px;">परिहार प्रभाव</th>
+                  <th style="width:110px;">स्थिति</th>
                 </tr>
               </thead>
               <tbody>
-                ${pariharaRowsHtml || '<tr><td colspan="5" style="text-align:center; padding:8px; color:#64748b;">जातक की कुण्डली में प्रारंभिक सकल दोष ०% होने के कारण किसी परिहार की आवश्यकता नहीं पड़ी।</td></tr>'}
+                ${pariharaRowsHtml || '<tr><td colspan="5" style="text-align:center; padding:8px; color:#64748b;">जातक की कुण्डली में प्रारंभिक भौम स्थिति निर्दोष होने के कारण किसी परिहार की आवश्यकता नहीं पड़ी।</td></tr>'}
               </tbody>
             </table>
 
@@ -2190,7 +2189,7 @@
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
                     <strong style="color:var(--text); font-size:11.5px;">#${p.rule_id} ${p.title}</strong>
                     <span style="font-size:10px; font-weight:800; padding:1px 5px; border-radius:4px; ${p.is_applicable ? 'background:#dcfce7; color:#15803d;' : 'background:#f1f5f9; color:#64748b;'}">
-                      ${p.is_applicable ? `✓ लागू (-${p.deduction}%)` : 'लागू नहीं'}
+                      ${p.is_applicable ? '✓ लागू (परिहार प्राप्त)' : 'लागू नहीं'}
                     </span>
                   </div>
                   <div style="color:var(--text-muted); font-size:10.5px; line-height:1.35;">${p.explanation || p.desc || p.logic_summary || ''}</div>
@@ -2224,12 +2223,15 @@
           </div>
 
           <!-- Action Buttons (No-Print) -->
-          <div class="no-print" style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
-            <button type="button" onclick="window.print()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:15px; font-weight:800; padding:12px 24px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(124,19,5,0.25); display:inline-flex; align-items:center; gap:8px;">
-              <span>🖨️</span> <span>विस्तृत A4 रिपोर्ट प्रिंट / PDF डाउनलोड करें</span>
+          <div class="no-print" style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+            <button type="button" id="btnDownloadManglikPdf" onclick="downloadManglikReportPDF()" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; font-family:var(--font-hindi); font-size:15px; font-weight:800; padding:12px 24px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 15px rgba(124,19,5,0.25); display:inline-flex; align-items:center; gap:8px;">
+              <span>📥</span> <span>A4 PDF रिपोर्ट डाउनलोड करें (Mobile & Desktop)</span>
             </button>
-            <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:15px; font-weight:800; padding:12px 20px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-              <span>✨</span> <span>संपूर्ण जन्म पत्रिका (D1-D60) में खोलें ➔</span>
+            <button type="button" onclick="window.print()" style="background:#fff; border:1.5px solid var(--border-gold); color:var(--primary); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+              <span>🖨️</span> <span>प्रिंट डायलॉग</span>
+            </button>
+            <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fff; border:1.5px solid var(--primary); color:var(--primary); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 20px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+              <span>✨</span> <span>पत्रिका (D1-D60) ➔</span>
             </button>
           </div>
         </div>
@@ -2237,7 +2239,76 @@
 
       container.dataset.renderedKundaliId = getKundaliPaymentKey(k);
       container.style.display = 'block';
+
+      // Hide general editorial sections below to eliminate duplicate clutter for the user
+      const belowSections = document.querySelectorAll('.content-section, .content-img-wrap, .faq-section');
+      belowSections.forEach(el => el.style.display = 'none');
+
       container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Direct PDF Downloader for Mobile Apps, Android WebViews, and Desktop
+    async function downloadManglikReportPDF() {
+      const btn = document.getElementById('btnDownloadManglikPdf');
+      const originalHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerHTML = '<span>⏳</span> <span>PDF तैयार हो रही है, कृपया प्रतीक्षा करें...</span>';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+      }
+
+      const reportEl = document.getElementById('printableA4Report');
+      if (!reportEl) {
+        if (btn) { btn.innerHTML = originalHtml; btn.disabled = false; btn.style.opacity = '1'; }
+        window.print();
+        return;
+      }
+
+      const jName = (currentSelectedKundali && currentSelectedKundali.name) ? currentSelectedKundali.name.replace(/\s+/g, '_') : 'जातक';
+      const filename = `Manglik_Dosha_Report_${jName}_ShriRamjiAstro.pdf`;
+
+      if (typeof html2pdf !== 'undefined') {
+        try {
+          const opt = {
+            margin: [6, 6, 6, 6],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: '#ffffff'
+            },
+            jsPDF: {
+              unit: 'mm',
+              format: 'a4',
+              orientation: 'portrait'
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          };
+
+          await html2pdf().set(opt).from(reportEl).save();
+
+          if (btn) {
+            btn.innerHTML = '<span>✅</span> <span>PDF डाउनलोड पूर्ण!</span>';
+            setTimeout(() => {
+              btn.innerHTML = originalHtml;
+              btn.disabled = false;
+              btn.style.opacity = '1';
+            }, 2500);
+          }
+          return;
+        } catch (err) {
+          console.error("html2pdf generation error:", err);
+        }
+      }
+
+      if (btn) {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+      window.print();
     }
 
     function openFullKundaliInPatrika() {
