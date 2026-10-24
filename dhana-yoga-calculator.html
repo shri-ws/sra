@@ -66,6 +66,7 @@
   <script src="/theme.js?v=16" defer></script>
   <script src="/patrikaEngineBridge.js?v=16"></script>
   <script src="/dhanaYogaService.js?v=16"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <style>
     :root {
@@ -841,6 +842,99 @@
     [data-theme="night"] .bindu-low { background: #7f1d1d; color: #fca5a5; }
 
     /* FOOTER */
+    /* DHAN YOGA PAYMENT MODAL */
+    .dhan-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(6px);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .dhan-modal-overlay.active {
+      display: flex;
+    }
+    .dhan-modal-content {
+      background: var(--card-bg, #ffffff);
+      border-radius: 20px;
+      padding: 28px 24px;
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+      border: 2px solid var(--gold, #c5a059);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .dhan-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 26px;
+      color: var(--text-muted, #64748b);
+      cursor: pointer;
+      line-height: 1;
+    }
+    .dhan-pricing-table {
+      background: var(--bg, #f8fafc);
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .dhan-pricing-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      margin-bottom: 6px;
+    }
+    .btn-dhan-pay-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-family: var(--font-hindi);
+      font-size: 17px;
+      font-weight: 800;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      transition: transform 0.15s;
+    }
+    .btn-dhan-pay-primary:hover {
+      transform: translateY(-2px);
+    }
+    .dhan-unlock-success-banner {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border: 1.5px solid #22c55e;
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #15803d;
+      font-weight: 700;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    [data-theme="night"] .dhan-unlock-success-banner {
+      background: linear-gradient(135deg, #052e16, #14532d);
+      color: #86efac;
+      border-color: #16a34a;
+    }
+
     footer {
       margin-top: auto;
       background: var(--card-bg);
@@ -974,13 +1068,21 @@
         </div>
 
         <button type="submit" id="btnCalculate">
-          <span>✨ धन योग व लक्ष्मी योग विश्लेषण करें</span>
+          <span>✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹299 के पेमेंट पर)</span>
         </button>
+        <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin-top:8px;">
+          🔒 100% सुरक्षित 256-bit Razorpay • 25 प्रामाणिक धन योग • 16 षोडशवर्ग (D1-D60) • सर्वाष्टकवर्ग • विंशोत्तरी दशा
+        </div>
       </form>
     </div>
 
     <!-- CALCULATION RESULTS -->
     <div id="calcResults">
+
+      <!-- SUCCESS UNLOCK BANNER (Shown after payment) -->
+      <div id="resDhanUnlockBanner" class="dhan-unlock-success-banner" style="display:none;">
+        <span>✅</span> <span>₹299 भुगतान सफल! आपकी संपूर्ण धन योग, षोडशवर्ग, सर्वाष्टकवर्ग एवं दशा रिपोर्ट अनलॉक हो चुकी है।</span>
+      </div>
 
       <!-- HERO WEALTH SCORE BANNER -->
       <div class="wealth-hero-card">
@@ -1265,6 +1367,50 @@
 
   </main>
 
+  <!-- DHANA YOGA PAYMENT MODAL (₹299 Pure Razorpay) -->
+  <div id="modalDhanPayment299" class="dhan-modal-overlay" onclick="if(event.target===this)closeDhanPaymentModal()">
+    <div class="dhan-modal-content">
+      <button type="button" class="dhan-modal-close" onclick="closeDhanPaymentModal()" aria-label="Close">&times;</button>
+      
+      <div style="text-align:center; margin-bottom:16px;">
+        <div style="font-size:38px; margin-bottom:6px;">🪙</div>
+        <div style="display:inline-block; background:rgba(180,83,9,0.1); border:1px solid #fcd34d; color:#b45309; font-size:11.5px; font-weight:800; padding:2px 10px; border-radius:12px; margin-bottom:8px;">
+          ★ बृहत्पाराशर • जैमिनी उपदेश सूत्र • फलदीपिका विधान ★
+        </div>
+        <h3 style="font-family:var(--font-hindi); font-size:20px; color:var(--primary); margin:0 0 6px 0; font-weight:800;">
+          सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट अनलॉक करें <span id="modalPayKundaliName" style="color:var(--gold-dark); font-size:15px; font-weight:600;"></span>
+        </h3>
+        <p style="font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.5;">
+          २५ प्रामाणिक धन योग, इन्दु लग्न, आरूढ़ लग्न (AL/A11), सर्वाष्टकवर्ग (३३७ बिंदु), १६ षोडशवर्ग (D1 से D60) व १२०-वर्षीय विंशोत्तरी दशा (आजीवन एक्सेस)
+        </p>
+      </div>
+
+      <!-- Pricing Summary Table -->
+      <div class="dhan-pricing-table">
+        <div class="dhan-pricing-row">
+          <span>१. संपूर्ण वैदिक धन योग एवं लक्ष्मी योग रिपोर्ट:</span>
+          <span style="text-decoration:line-through; color:var(--text-muted);">₹1,499</span>
+        </div>
+        <div class="dhan-pricing-row" style="color:#10b981; font-weight:700;">
+          <span>विशेष छूट (80% OFF):</span>
+          <span>-₹1,200</span>
+        </div>
+        <div class="dhan-pricing-row total" style="border-top:1.5px solid var(--border); padding-top:8px; font-weight:800; font-size:16px;">
+          <span>देय कुल राशि (Net Payable):</span>
+          <span style="font-size:22px; color:var(--primary); font-family:var(--font-hindi);">₹299</span>
+        </div>
+      </div>
+
+      <!-- Primary Razorpay Checkout Button -->
+      <button type="button" id="btnRzpDhanSubmit" class="btn-dhan-pay-primary" onclick="triggerDhanRazorpayCheckout()">
+        💳 ₹299 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
+      </button>
+      <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 6px;">
+        🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer>
     <p>© 2026 Shri Ramji Astro (SRA). सर्वाधिकार सुरक्षित। वैदिक ज्योतिष एवं खगोलीय गणित का प्रामाणिक संगम।</p>
@@ -1377,8 +1523,60 @@
         if (item.lat) document.getElementById('birthLat').value = item.lat;
         if (item.lon) document.getElementById('birthLon').value = item.lon;
         if (item.tz !== undefined) document.getElementById('birthTz').value = item.tz;
+        updateCalculateButtonLabel(item);
       } catch (e) {
         console.warn("loadSelectedKundali error:", e);
+      }
+    }
+
+    let pendingDhanInput = null;
+
+    function getDhanPaymentKey(input) {
+      if (!input) return 'default';
+      const name = (input.name || 'native').trim().toLowerCase();
+      const date = (input.date || '').trim();
+      const time = (input.time || '').trim();
+      const city = (input.city || '').trim().toLowerCase();
+      return (name + '_' + date + '_' + time + '_' + city).replace(/[^a-z0-9_]/g, '');
+    }
+
+    function isDhanReportUnlocked(input) {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('unlock_all') === '1' || urlParams.get('unlock_dhan') === '1') {
+          return true;
+        }
+        if (!input) return false;
+        const key = getDhanPaymentKey(input);
+        return localStorage.getItem('sra_unlocked_dhan_' + key) === 'true';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function openDhanPaymentModal() {
+      const modal = document.getElementById('modalDhanPayment299');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeDhanPaymentModal() {
+      const modal = document.getElementById('modalDhanPayment299');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function updateCalculateButtonLabel(input) {
+      const btn = document.getElementById('btnCalculate');
+      if (!btn) return;
+      const target = input || {
+        name: document.getElementById('birthName').value,
+        date: document.getElementById('birthDate').value,
+        time: document.getElementById('birthTime').value,
+        city: document.getElementById('birthCity').value
+      };
+      if (isDhanReportUnlocked(target)) {
+        btn.innerHTML = '<span>✨ धन योग व लक्ष्मी योग रिपोर्ट देखें (अनलॉक)</span>';
+      } else {
+        btn.innerHTML = '<span>✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹299 के पेमेंट पर)</span>';
       }
     }
 
@@ -1391,6 +1589,92 @@
         return;
       }
 
+      const input = {
+        name: document.getElementById('birthName').value.trim() || 'जातक',
+        gender: document.getElementById('birthGender').value || 'male',
+        date: document.getElementById('birthDate').value,
+        time: document.getElementById('birthTime').value,
+        lat: parseFloat(document.getElementById('birthLat').value) || 28.6139,
+        lon: parseFloat(document.getElementById('birthLon').value) || 77.2090,
+        tz: parseFloat(document.getElementById('birthTz').value) || 5.5,
+        city: document.getElementById('birthCity').value || 'New Delhi',
+        currentStatus: document.getElementById('currentCareerStatus').value,
+        currentScale: document.getElementById('currentWealthScale').value
+      };
+
+      pendingDhanInput = input;
+
+      // Mandatory Payment Check: Ask for ₹299 payment
+      if (!isDhanReportUnlocked(input)) {
+        const titleEl = document.getElementById('modalPayKundaliName');
+        if (titleEl) {
+          titleEl.textContent = `(${input.name})`;
+        }
+        openDhanPaymentModal();
+        return;
+      }
+
+      executeDhanCalculation(input);
+    }
+
+    // Razorpay Checkout for Dhana Yoga (₹299)
+    function triggerDhanRazorpayCheckout() {
+      if (typeof Razorpay === 'undefined') {
+        alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट कनेक्शन जांचें व पुनः प्रयास करें।');
+        return;
+      }
+
+      if (!pendingDhanInput) {
+        alert('कृपया पहले जन्म विवरण दर्ज करें।');
+        closeDhanPaymentModal();
+        return;
+      }
+
+      const clientName = pendingDhanInput.name || "जातक";
+      const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
+
+      const options = {
+        key: "rzp_live_SP6lQYYrNI0CYD",
+        amount: 29900,
+        currency: "INR",
+        name: "Shri Ramji Astro",
+        description: `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName} (₹299)`,
+        prefill: {
+          name: clientName,
+          contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
+        },
+        theme: { color: "#7c1305" },
+        handler: function(response) {
+          unlockDhanReport(response.razorpay_payment_id || 'RZP_SUCCESS');
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function(response) {
+        alert("भुगतान असफल रहा: " + (response.error.description || "कृपया पुनः प्रयास करें।"));
+      });
+      rzp.open();
+    }
+
+    // Unlock & Render Full Dhana Yoga Report
+    function unlockDhanReport(paymentId) {
+      if (pendingDhanInput) {
+        const key = getDhanPaymentKey(pendingDhanInput);
+        try {
+          localStorage.setItem('sra_unlocked_dhan_' + key, 'true');
+          if (paymentId) localStorage.setItem('sra_dhan_pay_id_' + key, paymentId);
+        } catch (e) {
+          console.warn("localStorage error:", e);
+        }
+      }
+
+      closeDhanPaymentModal();
+      updateCalculateButtonLabel(pendingDhanInput);
+      executeDhanCalculation(pendingDhanInput, true);
+    }
+
+    // Execute Dhana Yoga Calculation
+    function executeDhanCalculation(input, isJustUnlocked = false) {
       const btn = document.getElementById('btnCalculate');
       const oldText = btn.innerHTML;
       btn.innerHTML = '<span>⏳ गणना जारी है...</span>';
@@ -1398,17 +1682,6 @@
 
       setTimeout(() => {
         try {
-          const input = {
-            name: document.getElementById('birthName').value.trim() || 'जातक',
-            gender: document.getElementById('birthGender').value || 'male',
-            date: document.getElementById('birthDate').value,
-            time: document.getElementById('birthTime').value,
-            lat: parseFloat(document.getElementById('birthLat').value) || 28.6139,
-            lon: parseFloat(document.getElementById('birthLon').value) || 77.2090,
-            tz: parseFloat(document.getElementById('birthTz').value) || 5.5,
-            city: document.getElementById('birthCity').value || 'New Delhi'
-          };
-
           // Step 1: Calculate Host Planetary Longitudes via pristine Patrika Engine Bridge
           const calc = window.PatrikaEngineBridge.calculatePatrikaPlanets(input);
           currentCalcData = calc;
@@ -1418,12 +1691,18 @@
           currentDhanResult = dhan;
 
           // Step 3: Run Career Trajectory Bridge
-          const currentStatus = document.getElementById('currentCareerStatus').value;
-          const currentScale = document.getElementById('currentWealthScale').value;
+          const currentStatus = input.currentStatus || document.getElementById('currentCareerStatus').value;
+          const currentScale = input.currentScale || document.getElementById('currentWealthScale').value;
           const bridge = window.DhanaYogaEngine.analyzeCareerTrajectory(currentStatus, currentScale, dhan, calc);
           currentBridgeData = bridge;
 
           renderDhanYogaResults(calc, dhan, bridge);
+
+          // Show Success Unlock Banner if just unlocked
+          const unlockBanner = document.getElementById('resDhanUnlockBanner');
+          if (unlockBanner) {
+            unlockBanner.style.display = isJustUnlocked ? 'flex' : 'none';
+          }
 
           document.getElementById('calcResults').style.display = 'block';
           document.getElementById('calcResults').scrollIntoView({ behavior: 'smooth' });
@@ -1431,7 +1710,7 @@
           console.error("Dhana Yoga calculation failed:", err);
           alert("गणना में त्रुटि आई: " + err.message);
         } finally {
-          btn.innerHTML = oldText;
+          btn.innerHTML = isDhanReportUnlocked(input) ? '<span>✨ धन योग व लक्ष्मी योग रिपोर्ट देखें (अनलॉक)</span>' : oldText;
           btn.disabled = false;
         }
       }, 50);
@@ -1780,6 +2059,12 @@ ${d.triggered.length > 5 ? `... एवं ${d.triggered.length - 5} अन्य
     window.addEventListener('DOMContentLoaded', () => {
       populateSavedKundalis();
       populateVargaDropdown();
+      updateCalculateButtonLabel();
+
+      ['birthName', 'birthDate', 'birthTime', 'birthCity'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => updateCalculateButtonLabel());
+      });
     });
   </script>
 </body>

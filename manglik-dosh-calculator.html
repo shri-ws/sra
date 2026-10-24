@@ -1865,20 +1865,8 @@
       <button type="button" id="btnRzpManglikSubmit" class="btn-mangal-pay-primary" onclick="triggerManglikRazorpayCheckout()">
         💳 ₹199 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
       </button>
-      <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 16px;">
+      <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 6px;">
         🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
-      </div>
-
-      <!-- VIP Promo Code Section -->
-      <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:14px;">
-        <div style="font-size:12.5px; font-weight:700; color:var(--gold-dark); margin-bottom:6px;">
-          🔑 VIP / प्रोमो कोड है?
-        </div>
-        <div style="display:flex; gap:8px;">
-          <input type="text" id="manglikVipCodeInput" placeholder="उदा. MANGAL199" style="flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; text-transform:uppercase;" onkeydown="if(event.key==='Enter')verifyManglikVipCode()">
-          <button type="button" onclick="verifyManglikVipCode()" style="background:var(--primary); color:#fff; padding:10px 16px; border:none; border-radius:8px; font-weight:700; cursor:pointer;">लागू करें</button>
-        </div>
-        <div id="manglikVipErrMsg" style="display:none; color:#ef4444; font-size:12px; margin-top:6px; font-weight:600;"></div>
       </div>
     </div>
   </div>
@@ -1910,7 +1898,7 @@
       const target = k || currentSelectedKundali;
       try {
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('unlock_all') === '1' || urlParams.get('unlock_mangal') === '1' || urlParams.get('vip') === 'mangal199' || urlParams.get('vip') === 'admin199') {
+        if (urlParams.get('unlock_all') === '1' || urlParams.get('unlock_mangal') === '1') {
           return true;
         }
         if (!target) return false;
@@ -2103,11 +2091,11 @@
     // Razorpay Checkout Integration
     function triggerManglikRazorpayCheckout() {
       if (typeof Razorpay === 'undefined') {
-        alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट कनेक्शन जांचें अथवा VIP कोड का प्रयोग करें।');
+        alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट कनेक्शन जांचें व पुनः प्रयास करें।');
         return;
       }
 
-      const clientName = (currentSelectedKundali && currentSelectedKundali.name) || "VIP जातक";
+      const clientName = (currentSelectedKundali && currentSelectedKundali.name) || "जातक";
       const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
 
       const options = {
@@ -2128,31 +2116,9 @@
 
       const rzp = new Razorpay(options);
       rzp.on('payment.failed', function(response) {
-        alert("भुगतान असफल रहा: " + (response.error.description || "कृपया पुनः प्रयास करें अथवा VIP कोड का उपयोग करें।"));
+        alert("भुगतान असफल रहा: " + (response.error.description || "कृपया पुनः प्रयास करें।"));
       });
       rzp.open();
-    }
-
-    // VIP Promo Code Verification
-    function verifyManglikVipCode() {
-      const input = document.getElementById('manglikVipCodeInput');
-      const errBox = document.getElementById('manglikVipErrMsg');
-      if (!input) return;
-      const val = input.value.trim().toUpperCase();
-
-      const validCodes = ['MANGAL199', 'MANGAL', 'BHAUMA199', 'BHAUMA', 'MANGLIK199', 'MANGLIK', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199', 'PARASHAR199'];
-
-      if (validCodes.includes(val)) {
-        if (errBox) errBox.style.display = 'none';
-        unlockManglikReport('VIP_CODE_' + val);
-      } else {
-        if (errBox) {
-          errBox.textContent = '❌ अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।';
-          errBox.style.display = 'block';
-        } else {
-          alert('अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।');
-        }
-      }
     }
 
     // Unlock & Render Full Report
