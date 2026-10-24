@@ -1349,6 +1349,510 @@
     return runEngine(prepareChart(adaptHostPayload(host, mapping), cfg), cfg);
   }
 
+  // =============================================================================
+  // 6. ASHTAKAVARGA & SARVASHTAKAVARGA ENGINE (BPHS 337-POINT CANON)
+  // =============================================================================
+  const BPHS_ASHTAKAVARGA_RULES = {
+    Sun: {
+      Sun: [1, 2, 4, 7, 8, 9, 10, 11],
+      Moon: [3, 6, 10, 11],
+      Mars: [1, 2, 4, 7, 8, 9, 10, 11],
+      Mercury: [3, 5, 6, 9, 10, 11, 12],
+      Jupiter: [5, 6, 9, 11],
+      Venus: [6, 7, 12],
+      Saturn: [1, 2, 4, 7, 8, 9, 10, 11],
+      Lagna: [3, 4, 6, 10, 11, 12]
+    },
+    Moon: {
+      Sun: [3, 6, 7, 8, 10, 11],
+      Moon: [1, 3, 6, 7, 10, 11],
+      Mars: [2, 3, 5, 6, 9, 10, 11],
+      Mercury: [1, 3, 4, 5, 7, 8, 10, 11],
+      Jupiter: [1, 4, 7, 8, 10, 11, 12],
+      Venus: [3, 4, 5, 7, 9, 10, 11],
+      Saturn: [3, 5, 6, 11],
+      Lagna: [3, 6, 10, 11]
+    },
+    Mars: {
+      Sun: [3, 5, 6, 10, 11],
+      Moon: [3, 6, 11],
+      Mars: [1, 2, 4, 7, 8, 10, 11],
+      Mercury: [3, 5, 6, 11],
+      Jupiter: [6, 10, 11, 12],
+      Venus: [6, 8, 11, 12],
+      Saturn: [1, 4, 7, 8, 9, 10, 11],
+      Lagna: [1, 3, 6, 10, 11]
+    },
+    Mercury: {
+      Sun: [5, 6, 9, 11, 12],
+      Moon: [2, 4, 6, 8, 10, 11],
+      Mars: [1, 2, 4, 7, 8, 9, 10, 11],
+      Mercury: [1, 3, 5, 6, 9, 10, 11, 12],
+      Jupiter: [6, 8, 11, 12],
+      Venus: [1, 2, 3, 4, 5, 8, 9, 11],
+      Saturn: [1, 2, 4, 7, 8, 9, 10, 11],
+      Lagna: [1, 2, 4, 6, 8, 10, 11]
+    },
+    Jupiter: {
+      Sun: [1, 2, 3, 4, 7, 8, 9, 10, 11],
+      Moon: [2, 5, 7, 9, 11],
+      Mars: [1, 2, 4, 7, 8, 10, 11],
+      Mercury: [1, 2, 4, 5, 6, 9, 10, 11],
+      Jupiter: [1, 2, 3, 4, 7, 8, 10, 11],
+      Venus: [2, 5, 6, 9, 10, 11],
+      Saturn: [3, 5, 6, 12],
+      Lagna: [1, 2, 4, 5, 6, 7, 9, 10, 11]
+    },
+    Venus: {
+      Sun: [8, 11, 12],
+      Moon: [1, 2, 3, 4, 5, 8, 9, 11, 12],
+      Mars: [3, 5, 6, 9, 11, 12],
+      Mercury: [3, 5, 6, 9, 11],
+      Jupiter: [5, 8, 9, 10, 11],
+      Venus: [1, 2, 3, 4, 5, 8, 9, 10, 11],
+      Saturn: [3, 4, 5, 8, 9, 10, 11],
+      Lagna: [1, 2, 3, 4, 5, 8, 9, 11]
+    },
+    Saturn: {
+      Sun: [1, 2, 4, 7, 8, 10, 11],
+      Moon: [3, 6, 11],
+      Mars: [3, 5, 6, 10, 11, 12],
+      Mercury: [6, 8, 9, 10, 11, 12],
+      Jupiter: [5, 6, 11, 12],
+      Venus: [6, 11, 12],
+      Saturn: [3, 5, 6, 11],
+      Lagna: [1, 3, 4, 6, 10, 11]
+    }
+  };
+
+  const AV_PLANET_CODES = {
+    Sun: "SU", Moon: "MO", Mars: "MA", Mercury: "ME", Jupiter: "JU", Venus: "VE", Saturn: "SA"
+  };
+
+  function computeAshtakavarga(calcResult) {
+    if (!calcResult || !calcResult.planets) {
+      throw new ChartInputError("Invalid chart provided for Ashtakavarga");
+    }
+
+    const planetSigns = {};
+    calcResult.planets.forEach(p => {
+      planetSigns[p.id] = (p.sign !== undefined) ? p.sign : Math.floor(p.abs / 30);
+    });
+
+    const lagnaObj = calcResult.planets.find(p => p.id === 'Lagna');
+    const lagnaSign = lagnaObj ? ((lagnaObj.sign !== undefined) ? lagnaObj.sign : Math.floor(lagnaObj.abs / 30)) : (calcResult.lagnaSign || 0);
+
+    const bav = {};
+    const bavCode = {};
+    const sav = new Array(12).fill(0);
+
+    for (const [targetP, refs] of Object.entries(BPHS_ASHTAKAVARGA_RULES)) {
+      const arr = new Array(12).fill(0);
+      for (const [refP, houses] of Object.entries(refs)) {
+        const refSign = (refP === "Lagna") ? lagnaSign : planetSigns[refP];
+        if (refSign === undefined) continue;
+        houses.forEach(h => {
+          const s = (refSign + (h - 1)) % 12;
+          arr[s] += 1;
+        });
+      }
+      bav[targetP] = arr;
+      bavCode[AV_PLANET_CODES[targetP]] = arr;
+      for (let s = 0; s < 12; s++) {
+        sav[s] += arr[s];
+      }
+    }
+
+    const houseSav = [];
+    for (let h = 1; h <= 12; h++) {
+      const s = (lagnaSign + (h - 1)) % 12;
+      houseSav.push(sav[s]);
+    }
+
+    const h11_bindus = houseSav[10];
+    const h12_bindus = houseSav[11];
+    const h2_bindus = houseSav[1];
+    const h1_bindus = houseSav[0];
+    const h9_bindus = houseSav[8];
+    const h10_bindus = houseSav[9];
+
+    let balanceCommentary = "";
+    if (h11_bindus > h12_bindus) {
+      balanceCommentary = `एकादश भाव (आय/लाभ: ${h11_bindus} बिंदु) द्वादश भाव (व्यय/हानि: ${h12_bindus} बिंदु) से अधिक बलवान है। यह नियमित आय की तुलना में कम खर्च और निरंतर धन संचय का उत्कृष्ट योग है।`;
+    } else if (h11_bindus < h12_bindus) {
+      balanceCommentary = `द्वादश भाव (व्यय: ${h12_bindus} बिंदु) एकादश भाव (आय: ${h11_bindus} बिंदु) से अधिक है। जातक को अनियोजित खर्चों व लीकेज पर कठोर वित्तीय नियंत्रण रखने की आवश्यकता है।`;
+    } else {
+      balanceCommentary = `एकादश भाव (आय: ${h11_bindus} बिंदु) और द्वादश भाव (व्यय: ${h12_bindus} बिंदु) समान हैं। आय और व्यय में संतुलन रहेगा।`;
+    }
+
+    let retentionCommentary = "";
+    if (h2_bindus >= 30) {
+      retentionCommentary = `द्वितीय भाव (धन कोष: ${h2_bindus} बिंदु) असाधारण रूप से सुदृढ़ है। जातक पैतृक व स्व-अर्जित संपत्ति को सहेजकर रखने में अत्यंत दक्ष रहेगा।`;
+    } else if (h2_bindus >= 25) {
+      retentionCommentary = `द्वितीय भाव (धन कोष: ${h2_bindus} बिंदु) संतोषजनक है। नियमित बचत से कोष की स्थिति स्थिर रहेगी।`;
+    } else {
+      retentionCommentary = `द्वितीय भाव (धन कोष: ${h2_bindus} बिंदु < 25) अपेक्षाकृत दुर्बल है। संचित धन के बार-बार बाहर निकलने की प्रवृत्ति रह सकती है।`;
+    }
+
+    return {
+      sav,
+      bav,
+      bavCode,
+      houseSav,
+      lagnaSign,
+      wealthSummary: {
+        h11_bindus,
+        h12_bindus,
+        h2_bindus,
+        h1_bindus,
+        h9_bindus,
+        h10_bindus,
+        diff11_12: h11_bindus - h12_bindus,
+        balanceCommentary,
+        retentionCommentary
+      }
+    };
+  }
+
+  // =============================================================================
+  // 7. SHODASHAVARGA (16 DIVISIONAL CHARTS) ENGINE
+  // =============================================================================
+  const SHODASHAVARGA_DEFS = [
+    { id: 1,  code: "D1",  name: "लग्न कुंडली (Rasi)", significance: "शारीरिक अस्तित्व एवं संपूर्ण जीवन का मूल आधार" },
+    { id: 2,  code: "D2",  name: "होरा चक्र (Hora)", significance: "विशेष धन, संपत्ति, वित्तीय कोष, संचय व समृद्धि (मुख्य धन वर्ग)" },
+    { id: 3,  code: "D3",  name: "द्रेष्काण (Drekkana)", significance: "पराक्रम, पुरुषार्थ, सहोदर व उद्यमशीलता" },
+    { id: 4,  code: "D4",  name: "चतुर्थांश (Chaturthamsha)", significance: "अचल संपत्ति, भूमि, भवन, स्थायी भाग्य व वाहन" },
+    { id: 7,  code: "D7",  name: "सप्तमांश (Saptamsha)", significance: "संतान, वंश वृद्धि एवं भावी पीढ़ी की समृद्धि" },
+    { id: 9,  code: "D9",  name: "नवांश (Navamsha)", significance: "भाग्य, धर्म, वैवाहिक जीवन व ग्रहों का वास्तविक सूक्ष्म बल" },
+    { id: 10, code: "D10", name: "दशमांश (Dashamsha)", significance: "आजीविका, कर्म, व्यापार, सत्ता, उच्च पद व मान-प्रतिष्ठा" },
+    { id: 12, code: "D12", name: "द्वादशांश (Dwadashamsha)", significance: "माता-पिता, पैतृक संस्कार, वंश परम्परा व वंशावली" },
+    { id: 16, code: "D16", name: "षोडशांश (Shodashamsha)", significance: "वाहन, सुख-साधन, भौतिक ऐश्वर्य व आमोद-प्रमोद" },
+    { id: 20, code: "D20", name: "विंशांश (Vimshamsha)", significance: "आध्यात्मिक प्रगति, उपासना, मंत्र सिद्धि व ईश्वरीय कृपा" },
+    { id: 24, code: "D24", name: "चतुर्विंशांश / सिद्धांश", significance: "उच्च ज्ञान, विद्या, बौद्धिक सामर्थ्य व अनुसंधान" },
+    { id: 27, code: "D27", name: "सप्तविंशांश (Bhamsa)", significance: "शारीरिक व मानसिक बल, सहनशक्ति व अवचेतन क्षमता" },
+    { id: 30, code: "D30", name: "त्रिंशांश (Trimshamsha)", significance: "अरिष्ट, जीवन के संकट, व्याधियां व उनसे सुरक्षा" },
+    { id: 40, code: "D40", name: "खवेदांश (Khavedamsha)", significance: "शुभ-अशुभ संस्कारों का सूक्ष्म विश्लेषण" },
+    { id: 45, code: "D45", name: "अक्षवेदांश (Akshavedamsha)", significance: "जीवन के समस्त सूक्ष्म क्षेत्रों की समग्र समीक्षा" },
+    { id: 60, code: "D60", name: "षष्ट्यंश (Shashtiamsha)", significance: "पूर्वजन्म कर्म, प्रारब्ध एवं सर्वोच्च सूक्ष्म निर्णायक वर्ग" }
+  ];
+
+  function getVargaSign(sign, deg, varga) {
+    const eps = 0.00001;
+    switch(varga) {
+      case 1: return sign;
+      case 2:
+        if (sign % 2 === 0) return deg < 15 ? 4 : 3;
+        return deg < 15 ? 3 : 4;
+      case 3: {
+        const dPart = Math.floor((deg - eps) / 10);
+        const shift = dPart === 0 ? 0 : (dPart === 1 ? 4 : 8);
+        return (sign + shift) % 12;
+      }
+      case 4:
+        return (sign + Math.floor((deg - eps) / 7.5) * 3) % 12;
+      case 7: {
+        const sStart = (sign % 2 === 0) ? sign : (sign + 6) % 12;
+        return (sStart + Math.floor((deg - eps) / (30/7))) % 12;
+      }
+      case 9: {
+        let nStart = (sign % 3 === 0) ? sign : (sign % 3 === 1 ? (sign + 8) % 12 : (sign + 4) % 12);
+        return (nStart + Math.floor((deg - eps) / (3 + 20/60))) % 12;
+      }
+      case 10: {
+        let dsStart = (sign % 2 === 0) ? sign : (sign + 8) % 12;
+        return (dsStart + Math.floor((deg - eps) / 3.0)) % 12;
+      }
+      case 12:
+        return (sign + Math.floor((deg - eps) / 2.5)) % 12;
+      case 16: {
+        let shStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 4 : 8);
+        return (shStart + Math.floor((deg - eps) / 1.875)) % 12;
+      }
+      case 20: {
+        let vStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 8 : 4);
+        return (vStart + Math.floor((deg - eps) / 1.5)) % 12;
+      }
+      case 24: {
+        let sidStart = (sign % 2 === 0) ? 4 : 3;
+        return (sidStart + Math.floor((deg - eps) / 1.25)) % 12;
+      }
+      case 27:
+        return ((sign % 4) * 3 + Math.floor((deg - eps) / (1 + 7/60))) % 12;
+      case 30:
+        if (sign % 2 === 0) {
+          if (deg < 5) return 0; if (deg < 10) return 10; if (deg < 18) return 8; if (deg < 25) return 2; return 6;
+        } else {
+          if (deg < 5) return 1; if (deg < 12) return 5; if (deg < 20) return 11; if (deg < 25) return 9; return 7;
+        }
+      case 40:
+        return (((sign % 2 === 0) ? 0 : 6) + Math.floor((deg - eps) / 0.75)) % 12;
+      case 45: {
+        let akStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 4 : 8);
+        return (akStart + Math.floor((deg - eps) / (30/45))) % 12;
+      }
+      case 60:
+        return (sign + Math.floor((deg * 2) - eps) % 12) % 12;
+      default: return sign;
+    }
+  }
+
+  function getVargaCalc(calcResult, vargaNumber) {
+    const lagnaObj = calcResult.planets.find(p => p.id === 'Lagna');
+    const lagnaSign = lagnaObj ? ((lagnaObj.sign !== undefined) ? lagnaObj.sign : Math.floor(lagnaObj.abs / 30)) : (calcResult.lagnaSign || 0);
+    const lagnaDeg = lagnaObj ? lagnaObj.deg : 0;
+    const vLagnaSign = getVargaSign(lagnaSign, lagnaDeg, vargaNumber);
+
+    const vPlanets = calcResult.planets.map(p => {
+      const vSign = getVargaSign(p.sign, p.deg, vargaNumber);
+      const rasiHouse = ((vSign - vLagnaSign + 12) % 12) + 1;
+      return {
+        ...p,
+        sign: vSign,
+        rasiHouse: rasiHouse
+      };
+    });
+
+    return {
+      ...calcResult,
+      lagnaSign: vLagnaSign,
+      planets: vPlanets
+    };
+  }
+
+  function computeShodashavarga(calcResult) {
+    const vargas = SHODASHAVARGA_DEFS.map(def => {
+      const vCalc = getVargaCalc(calcResult, def.id);
+      return {
+        ...def,
+        lagnaSign: vCalc.lagnaSign,
+        planets: vCalc.planets
+      };
+    });
+
+    const d2 = vargas.find(v => v.id === 2);
+    const sunHoraPlanets = [];
+    const moonHoraPlanets = [];
+    if (d2) {
+      d2.planets.forEach(p => {
+        if (p.id === 'Lagna') return;
+        if (p.sign === 4) sunHoraPlanets.push(p.name || p.id);
+        else if (p.sign === 3) moonHoraPlanets.push(p.name || p.id);
+      });
+    }
+
+    const d9 = vargas.find(v => v.id === 9);
+    const vargottamaPlanets = [];
+    if (d9) {
+      calcResult.planets.forEach(p => {
+        if (p.id === 'Lagna') return;
+        const d9P = d9.planets.find(dp => dp.id === p.id);
+        if (d9P && d9P.sign === p.sign) {
+          vargottamaPlanets.push(p.name || p.id);
+        }
+      });
+    }
+
+    return {
+      vargas,
+      d2Analysis: {
+        sunHoraPlanets,
+        moonHoraPlanets,
+        commentary: `होरा चक्र (D2) में सूर्य होरा (सिंह) में [${sunHoraPlanets.join(', ') || 'कोई नहीं'}] स्थित हैं जो पराक्रम, स्वाभिमान व सक्रिय उद्यम से धन का संकेत करते हैं; जबकि चंद्र होरा (कर्क) में [${moonHoraPlanets.join(', ') || 'कोई नहीं'}] स्थित हैं जो संचित पूंजी, तरल धन व सुगम लाभ का प्रतीक हैं।`
+      },
+      vargottamaPlanets
+    };
+  }
+
+  // =============================================================================
+  // 8. VIMSHOTTARI DASHA (120-YEAR TIMELINE & WEALTH TIMING)
+  // =============================================================================
+  const DASHA_LORDS = [
+    { id: "Ketu", name: "केतु", code: "KE", years: 7, color: "#8E44AD" },
+    { id: "Venus", name: "शुक्र", code: "VE", years: 20, color: "#E91E63" },
+    { id: "Sun", name: "सूर्य", code: "SU", years: 6, color: "#D35400" },
+    { id: "Moon", name: "चन्द्र", code: "MO", years: 10, color: "#2980B9" },
+    { id: "Mars", name: "मंगल", code: "MA", years: 7, color: "#C0392B" },
+    { id: "Rahu", name: "राहु", code: "RA", years: 18, color: "#2C3E50" },
+    { id: "Jupiter", name: "गुरु", code: "JU", years: 16, color: "#D4AC0D" },
+    { id: "Saturn", name: "शनि", code: "SA", years: 19, color: "#34495E" },
+    { id: "Mercury", name: "बुध", code: "ME", years: 17, color: "#27AE60" }
+  ];
+
+  const NAKSHATRA_NAMES_HI = [
+    "अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा",
+    "पुनर्वसु", "पुष्य", "अश्लेषा", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी",
+    "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा",
+    "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा",
+    "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"
+  ];
+
+  const MS_PER_SOLAR_YEAR = 365.242199 * 86400 * 1000;
+
+  function computeVimshottariDasha(calcResult, targetDate = new Date()) {
+    const moonObj = calcResult.planets.find(p => p.id === 'Moon');
+    if (!moonObj) {
+      throw new ChartInputError("Moon position missing for Vimshottari Dasha");
+    }
+
+    const bd = calcResult.birthDetails;
+    let birthMs = 0;
+    if (bd && bd.year) {
+      birthMs = new Date(Date.UTC(bd.year, bd.month - 1, bd.day, bd.hour || 12, bd.minute || 0)).getTime();
+    } else {
+      birthMs = new Date().getTime() - (30 * MS_PER_SOLAR_YEAR);
+    }
+
+    const nakLen = 13 + 20 / 60;
+    const moonNorm = (moonObj.abs % 360 + 360) % 360;
+    const nakIndex = Math.floor(moonNorm / nakLen);
+    const nakElapsedDeg = moonNorm % nakLen;
+    const remFraction = 1.0 - (nakElapsedDeg / nakLen);
+    const birthMDLordIndex = nakIndex % 9;
+
+    let mdStartCursor = birthMs - (1.0 - remFraction) * (DASHA_LORDS[birthMDLordIndex].years * MS_PER_SOLAR_YEAR);
+
+    const mahadashas = [];
+    for (let i = 0; i < 9; i++) {
+      const lordIdx = (birthMDLordIndex + i) % 9;
+      const lord = DASHA_LORDS[lordIdx];
+      const mdDur = lord.years * MS_PER_SOLAR_YEAR;
+      const mdEnd = mdStartCursor + mdDur;
+
+      const antardashas = [];
+      let adCursor = mdStartCursor;
+      for (let j = 0; j < 9; j++) {
+        const adLordIdx = (lordIdx + j) % 9;
+        const adLord = DASHA_LORDS[adLordIdx];
+        const adDur = mdDur * (adLord.years / 120);
+        const adEnd = adCursor + adDur;
+
+        const pratyantardashas = [];
+        let pdCursor = adCursor;
+        for (let k = 0; k < 9; k++) {
+          const pdLordIdx = (adLordIdx + k) % 9;
+          const pdLord = DASHA_LORDS[pdLordIdx];
+          const pdDur = adDur * (pdLord.years / 120);
+          const pdEnd = pdCursor + pdDur;
+
+          pratyantardashas.push({
+            lord: pdLord,
+            startMs: pdCursor,
+            endMs: pdEnd,
+            startDate: new Date(pdCursor),
+            endDate: new Date(pdEnd)
+          });
+          pdCursor = pdEnd;
+        }
+
+        antardashas.push({
+          lord: adLord,
+          startMs: adCursor,
+          endMs: adEnd,
+          startDate: new Date(adCursor),
+          endDate: new Date(adEnd),
+          pratyantardashas
+        });
+        adCursor = adEnd;
+      }
+
+      mahadashas.push({
+        lord: lord,
+        startMs: mdStartCursor,
+        endMs: mdEnd,
+        startDate: new Date(mdStartCursor),
+        endDate: new Date(mdEnd),
+        antardashas
+      });
+      mdStartCursor = mdEnd;
+    }
+
+    const targetMs = targetDate.getTime();
+    const activeMD = mahadashas.find(m => targetMs >= m.startMs && targetMs < m.endMs) || null;
+    let activeAD = null;
+    let activePD = null;
+    if (activeMD) {
+      activeAD = activeMD.antardashas.find(a => targetMs >= a.startMs && targetMs < a.endMs) || null;
+      if (activeAD) {
+        activePD = activeAD.pratyantardashas.find(p => targetMs >= p.startMs && targetMs < p.endMs) || null;
+      }
+    }
+
+    const lagnaSign = calcResult.lagnaSign || 0;
+    const signLords = [
+      "Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury",
+      "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"
+    ];
+
+    const getHouseLord = (h) => signLords[(lagnaSign + h - 1) % 12];
+    const lordL1 = getHouseLord(1);
+    const lordL2 = getHouseLord(2);
+    const lordL5 = getHouseLord(5);
+    const lordL9 = getHouseLord(9);
+    const lordL10 = getHouseLord(10);
+    const lordL11 = getHouseLord(11);
+
+    let mdWealthRole = "सामान्य प्रभाव";
+    let isWealthAuspicious = false;
+    if (activeMD) {
+      const pId = activeMD.lord.id;
+      const roles = [];
+      if (pId === lordL2) roles.push("धनेश (2nd Lord - कोष व संचय)");
+      if (pId === lordL11) roles.push("लाभेश (11th Lord - आय व लाभ)");
+      if (pId === lordL9) roles.push("भाग्येश (9th Lord - महाभाग्य)");
+      if (pId === lordL1) roles.push("लग्नेश (1st Lord - सामर्थ्य)");
+      if (pId === lordL5) roles.push("पंचमेश (5th Lord - पूर्वपुण्य)");
+      if (pId === lordL10) roles.push("कर्मेश (10th Lord - आजीविका)");
+
+      if (roles.length > 0) {
+        mdWealthRole = roles.join(", ");
+        isWealthAuspicious = true;
+      } else if (pId === "Jupiter" || pId === "Venus") {
+        mdWealthRole = "नैसर्गिक धन कारक (गुरु/शुक्र)";
+        isWealthAuspicious = true;
+      }
+    }
+
+    let adWealthRole = "सामान्य प्रभाव";
+    if (activeAD) {
+      const pId = activeAD.lord.id;
+      const roles = [];
+      if (pId === lordL2) roles.push("धनेश (2nd Lord)");
+      if (pId === lordL11) roles.push("लाभेश (11th Lord)");
+      if (pId === lordL9) roles.push("भाग्येश (9th Lord)");
+      if (pId === lordL1) roles.push("लग्नेश (1st Lord)");
+      if (pId === lordL5) roles.push("पंचमेश (5th Lord)");
+      if (roles.length > 0) {
+        adWealthRole = roles.join(", ");
+      } else if (pId === "Jupiter" || pId === "Venus") {
+        adWealthRole = "नैसर्गिक धन कारक";
+      }
+    }
+
+    return {
+      birthNakshatra: {
+        index: nakIndex + 1,
+        name: NAKSHATRA_NAMES_HI[nakIndex] || "अश्विनी",
+        lord: DASHA_LORDS[birthMDLordIndex].name,
+        balanceYears: (DASHA_LORDS[birthMDLordIndex].years * remFraction).toFixed(2)
+      },
+      activeMD,
+      activeAD,
+      activePD,
+      mahadashas,
+      wealthTiming: {
+        isAuspicious: isWealthAuspicious,
+        mdLordName: activeMD ? activeMD.lord.name : "N/A",
+        adLordName: activeAD ? activeAD.lord.name : "N/A",
+        pdLordName: activePD ? activePD.lord.name : "N/A",
+        mdRole: mdWealthRole,
+        adRole: adWealthRole,
+        verdict: isWealthAuspicious
+          ? `वर्तमान महादशा स्वामी (${activeMD.lord.name}) आपकी कुंडली में ${mdWealthRole} का दायित्व रखते हैं। यह कालखंड आर्थिक प्रगति, व्यावसायिक सुदृढ़ता एवं संचित कोष के संवर्धन हेतु अत्यंत अनुकूल है।`
+          : `वर्तमान महादशा स्वामी (${activeMD ? activeMD.lord.name : ''}) का प्रभाव मध्यम है। अंतर्दशाओं के शुभ संयोग एवं अनुशासित निवेश से आर्थिक संतुलन बनाए रखें।`
+      }
+    };
+  }
+
   /**
    * Adapter for Patrika Engine Bridge output:
    * Consumes calcResult = PatrikaEngineBridge.calculatePatrikaPlanets(input)
@@ -1371,17 +1875,25 @@
       };
     });
 
+    const ashtakavarga = computeAshtakavarga(calcResult);
+    const sav = options.sav || calcResult.sav || ashtakavarga.sav;
+    const bav = options.bav || calcResult.bav || ashtakavarga.bavCode;
+
     const hostPayload = {
       zodiac: "sidereal",
       house_system: "whole_sign",
       ascendant_degree: ascDegree,
       planets: hostPlanets,
-      sav: options.sav || calcResult.sav || null,
-      bav: options.bav || calcResult.bav || null,
+      sav: sav,
+      bav: bav,
       shadbala: options.shadbala || calcResult.shadbala || null
     };
 
-    return analyzeHostPayload(hostPayload);
+    const res = analyzeHostPayload(hostPayload);
+    res.ashtakavarga = ashtakavarga;
+    res.shodashavarga = computeShodashavarga(calcResult);
+    res.vimshottari = computeVimshottariDasha(calcResult, options.targetDate || new Date());
+    return res;
   }
 
   // Classical metadata and Hindi descriptions for UI rendering
@@ -1595,6 +2107,14 @@
     analyzeHostPayload,
     analyzePatrikaChart,
     getLocalizedYogaInfo,
-    analyzeCareerTrajectory
+    analyzeCareerTrajectory,
+    computeAshtakavarga,
+    computeShodashavarga,
+    computeVimshottariDasha,
+    getVargaSign,
+    getVargaCalc,
+    SHODASHAVARGA_DEFS,
+    BPHS_ASHTAKAVARGA_RULES,
+    DASHA_LORDS
   };
 });

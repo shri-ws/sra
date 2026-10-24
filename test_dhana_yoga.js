@@ -156,4 +156,67 @@ console.log("- Status:", bridgeSalaried.currentStatusTitle);
 console.log("- Natural Baseline:", bridgeSalaried.baselineCap);
 console.log("- Contrast & Guidance:", bridgeSalaried.contrastNote);
 
+// -------------------------------------------------------------
+// Test 8: Ashtakavarga & Sarvashtakavarga 337-Point Canon
+// -------------------------------------------------------------
+const {
+  computeAshtakavarga,
+  computeShodashavarga,
+  computeVimshottariDasha
+} = require('./dhanaYogaService.js').DhanaYogaEngine;
+const { calculatePatrikaPlanets } = require('./patrikaEngineBridge.js');
+
+const samplePatrika = calculatePatrikaPlanets({
+  name: "परीक्षण जातक",
+  date: "1990-05-15",
+  time: "14:30:00",
+  lat: 28.6139,
+  lon: 77.2090,
+  tz: 5.5
+});
+
+const av = computeAshtakavarga(samplePatrika);
+const savSum = av.sav.reduce((a, b) => a + b, 0);
+assert.strictEqual(savSum, 337, `SAV total must be 337, got ${savSum}`);
+assert.strictEqual(av.bavCode.SU.reduce((a, b) => a + b, 0), 48);
+assert.strictEqual(av.bavCode.MO.reduce((a, b) => a + b, 0), 49);
+assert.strictEqual(av.bavCode.MA.reduce((a, b) => a + b, 0), 39);
+assert.strictEqual(av.bavCode.ME.reduce((a, b) => a + b, 0), 54);
+assert.strictEqual(av.bavCode.JU.reduce((a, b) => a + b, 0), 56);
+assert.strictEqual(av.bavCode.VE.reduce((a, b) => a + b, 0), 52);
+assert.strictEqual(av.bavCode.SA.reduce((a, b) => a + b, 0), 39);
+console.log("✓ Test 8: Ashtakavarga 337-point canon verified successfully.");
+
+// -------------------------------------------------------------
+// Test 9: Shodashavarga (16 Divisional Charts)
+// -------------------------------------------------------------
+const sv = computeShodashavarga(samplePatrika);
+assert.strictEqual(sv.vargas.length, 16, `Expected 16 varga charts, got ${sv.vargas.length}`);
+const d2 = sv.vargas.find(v => v.id === 2);
+assert(d2 !== undefined);
+assert(d2.planets.length > 0);
+const d9 = sv.vargas.find(v => v.id === 9);
+assert(d9 !== undefined);
+assert(Array.isArray(sv.vargottamaPlanets));
+console.log("✓ Test 9: Shodashavarga 16 divisional charts verified successfully.");
+
+// -------------------------------------------------------------
+// Test 10: Vimshottari Dasha 120-Year Timeline
+// -------------------------------------------------------------
+const vd = computeVimshottariDasha(samplePatrika, new Date('2026-10-24T00:00:00Z'));
+assert.strictEqual(vd.mahadashas.length, 9);
+assert(vd.activeMD !== null);
+assert(vd.wealthTiming.verdict.length > 10);
+console.log("✓ Test 10: Vimshottari Dasha timeline & active timing verified successfully.");
+
+// -------------------------------------------------------------
+// Test 11: Integrated analyzePatrikaChart with SAV evaluation
+// -------------------------------------------------------------
+const integratedDhan = analyzePatrikaChart(samplePatrika);
+assert.strictEqual(integratedDhan.components.sav_multiplier.evaluated, true);
+assert(integratedDhan.ashtakavarga !== undefined);
+assert(integratedDhan.shodashavarga !== undefined);
+assert(integratedDhan.vimshottari !== undefined);
+console.log("✓ Test 11: Integrated Patrika Dhan analysis with SAV multiplier verified successfully.");
+
 console.log("\nALL DHANA YOGA JS TESTS PASSED 100% PERFECTLY!\n");

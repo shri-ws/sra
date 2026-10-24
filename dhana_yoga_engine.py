@@ -441,6 +441,66 @@ def prepare_chart(raw: Dict[str, Any], cfg: Dict[str, Any] = CONFIG) -> Dict[str
 
 
 # =============================================================================
+# 6.1 ASHTAKAVARGA & SARVASHTAKAVARGA GENERATOR (BPHS 337-POINT CANON)
+# =============================================================================
+BPHS_ASHTAKAVARGA_RULES: Dict[str, Dict[str, List[int]]] = {
+    "SU": {
+        "SU": [1, 2, 4, 7, 8, 9, 10, 11], "MO": [3, 6, 10, 11], "MA": [1, 2, 4, 7, 8, 9, 10, 11],
+        "ME": [3, 5, 6, 9, 10, 11, 12], "JU": [5, 6, 9, 11], "VE": [6, 7, 12],
+        "SA": [1, 2, 4, 7, 8, 9, 10, 11], "AS": [3, 4, 6, 10, 11, 12]
+    },
+    "MO": {
+        "SU": [3, 6, 7, 8, 10, 11], "MO": [1, 3, 6, 7, 10, 11], "MA": [2, 3, 5, 6, 9, 10, 11],
+        "ME": [1, 3, 4, 5, 7, 8, 10, 11], "JU": [1, 4, 7, 8, 10, 11, 12], "VE": [3, 4, 5, 7, 9, 10, 11],
+        "SA": [3, 5, 6, 11], "AS": [3, 6, 10, 11]
+    },
+    "MA": {
+        "SU": [3, 5, 6, 10, 11], "MO": [3, 6, 11], "MA": [1, 2, 4, 7, 8, 10, 11],
+        "ME": [3, 5, 6, 11], "JU": [6, 10, 11, 12], "VE": [6, 8, 11, 12],
+        "SA": [1, 4, 7, 8, 9, 10, 11], "AS": [1, 3, 6, 10, 11]
+    },
+    "ME": {
+        "SU": [5, 6, 9, 11, 12], "MO": [2, 4, 6, 8, 10, 11], "MA": [1, 2, 4, 7, 8, 9, 10, 11],
+        "ME": [1, 3, 5, 6, 9, 10, 11, 12], "JU": [6, 8, 11, 12], "VE": [1, 2, 3, 4, 5, 8, 9, 11],
+        "SA": [1, 2, 4, 7, 8, 9, 10, 11], "AS": [1, 2, 4, 6, 8, 10, 11]
+    },
+    "JU": {
+        "SU": [1, 2, 3, 4, 7, 8, 9, 10, 11], "MO": [2, 5, 7, 9, 11], "MA": [1, 2, 4, 7, 8, 10, 11],
+        "ME": [1, 2, 4, 5, 6, 9, 10, 11], "JU": [1, 2, 3, 4, 7, 8, 10, 11], "VE": [2, 5, 6, 9, 10, 11],
+        "SA": [3, 5, 6, 12], "AS": [1, 2, 4, 5, 6, 7, 9, 10, 11]
+    },
+    "VE": {
+        "SU": [8, 11, 12], "MO": [1, 2, 3, 4, 5, 8, 9, 11, 12], "MA": [3, 5, 6, 9, 11, 12],
+        "ME": [3, 5, 6, 9, 11], "JU": [5, 8, 9, 10, 11], "VE": [1, 2, 3, 4, 5, 8, 9, 10, 11],
+        "SA": [3, 4, 5, 8, 9, 10, 11], "AS": [1, 2, 3, 4, 5, 8, 9, 11]
+    },
+    "SA": {
+        "SU": [1, 2, 4, 7, 8, 10, 11], "MO": [3, 6, 11], "MA": [3, 5, 6, 10, 11, 12],
+        "ME": [6, 8, 9, 10, 11, 12], "JU": [5, 6, 11, 12], "VE": [6, 11, 12],
+        "SA": [3, 5, 6, 11], "AS": [1, 3, 4, 6, 10, 11]
+    }
+}
+
+
+def compute_ashtakavarga(asc_sign: int, planet_signs: Dict[str, int]) -> Dict[str, Any]:
+    bav: Dict[str, List[int]] = {}
+    sav: List[int] = [0] * SIGN_COUNT
+    for target_p, refs in BPHS_ASHTAKAVARGA_RULES.items():
+        arr = [0] * SIGN_COUNT
+        for ref_p, houses in refs.items():
+            ref_sign = asc_sign if ref_p == "AS" else planet_signs.get(ref_p)
+            if ref_sign is None:
+                continue
+            for h in houses:
+                s = (ref_sign + (h - 1)) % SIGN_COUNT
+                arr[s] += 1
+        bav[target_p] = arr
+        for s in range(SIGN_COUNT):
+            sav[s] += arr[s]
+    return {"bav": bav, "sav": sav}
+
+
+# =============================================================================
 # 7. CHART CONTEXT: dignity, combustion, relations, special lagnas, karakas
 # =============================================================================
 @dataclass
@@ -1037,6 +1097,12 @@ def run_self_tests() -> None:
     # 7. Absent retro status must not be silently treated as direct
     c = ChartContext(prepare_chart(_synthetic(0, _BASE, retro={"ME": None})), CONFIG, REFERENCE_TABLES)
     assert c.planets["ME"].retro is None
+    # 8. BPHS Ashtakavarga 337 sum and consistency
+    pl_signs = {pid: s for pid, (s, _) in _BASE.items()}
+    av = compute_ashtakavarga(0, pl_signs)
+    assert sum(av["sav"]) == 337
+    for pid, total in CONFIG["bav_totals"].items():
+        assert sum(av["bav"][pid]) == total
     print("self-tests passed")
 
 
