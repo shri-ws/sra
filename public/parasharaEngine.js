@@ -151,6 +151,402 @@
     return false;
   }
 
+
+  // =============================================================================
+  // BPHS ASHTAKAVARGA 337-POINT CANON & REDUCTION ENGINE (CH. 50–57)
+  // =============================================================================
+  const BPHS_ASHTAKAVARGA_RULES = {
+    Sun: {
+      Sun: [1, 2, 4, 7, 8, 9, 10, 11],
+      Moon: [3, 6, 10, 11],
+      Mars: [1, 2, 4, 7, 8, 9, 10, 11],
+      Mercury: [3, 5, 6, 9, 10, 11, 12],
+      Jupiter: [5, 6, 9, 11],
+      Venus: [6, 7, 12],
+      Saturn: [1, 2, 4, 7, 8, 9, 10, 11],
+      Lagna: [3, 4, 6, 10, 11, 12]
+    },
+    Moon: {
+      Sun: [3, 6, 7, 8, 10, 11],
+      Moon: [1, 3, 6, 7, 10, 11],
+      Mars: [2, 3, 5, 6, 9, 10, 11],
+      Mercury: [1, 3, 4, 5, 7, 8, 10, 11],
+      Jupiter: [1, 4, 7, 8, 10, 11, 12],
+      Venus: [3, 4, 5, 7, 9, 10, 11],
+      Saturn: [3, 5, 6, 11],
+      Lagna: [3, 6, 10, 11]
+    },
+    Mars: {
+      Sun: [3, 5, 6, 10, 11],
+      Moon: [3, 6, 11],
+      Mars: [1, 2, 4, 7, 8, 10, 11],
+      Mercury: [3, 5, 6, 11],
+      Jupiter: [6, 10, 11, 12],
+      Venus: [6, 8, 11, 12],
+      Saturn: [1, 4, 7, 8, 9, 10, 11],
+      Lagna: [1, 3, 6, 10, 11]
+    },
+    Mercury: {
+      Sun: [5, 6, 9, 11, 12],
+      Moon: [2, 4, 6, 8, 10, 11],
+      Mars: [1, 2, 4, 7, 8, 9, 10, 11],
+      Mercury: [1, 3, 5, 6, 9, 10, 11, 12],
+      Jupiter: [6, 8, 11, 12],
+      Venus: [1, 2, 3, 4, 5, 8, 9, 11],
+      Saturn: [1, 2, 4, 7, 8, 9, 10, 11],
+      Lagna: [1, 2, 4, 6, 8, 10, 11]
+    },
+    Jupiter: {
+      Sun: [1, 2, 3, 4, 7, 8, 9, 10, 11],
+      Moon: [2, 5, 7, 9, 11],
+      Mars: [1, 2, 4, 7, 8, 10, 11],
+      Mercury: [1, 2, 4, 5, 6, 9, 10, 11],
+      Jupiter: [1, 2, 3, 4, 7, 8, 10, 11],
+      Venus: [2, 5, 6, 9, 10, 11],
+      Saturn: [3, 5, 6, 12],
+      Lagna: [1, 2, 4, 5, 6, 7, 9, 10, 11]
+    },
+    Venus: {
+      Sun: [8, 11, 12],
+      Moon: [1, 2, 3, 4, 5, 8, 9, 11, 12],
+      Mars: [3, 5, 6, 9, 11, 12],
+      Mercury: [3, 5, 6, 9, 11],
+      Jupiter: [5, 8, 9, 10, 11],
+      Venus: [1, 2, 3, 4, 5, 8, 9, 10, 11],
+      Saturn: [3, 4, 5, 8, 9, 10, 11],
+      Lagna: [1, 2, 3, 4, 5, 8, 9, 11]
+    },
+    Saturn: {
+      Sun: [1, 2, 4, 7, 8, 10, 11],
+      Moon: [3, 6, 11],
+      Mars: [3, 5, 6, 10, 11, 12],
+      Mercury: [6, 8, 9, 10, 11, 12],
+      Jupiter: [5, 6, 11, 12],
+      Venus: [6, 11, 12],
+      Saturn: [3, 5, 6, 11],
+      Lagna: [1, 3, 4, 6, 10, 11]
+    }
+  };
+
+  function computeAshtakavargaEngine(planets, lagnaSign) {
+    const planetSigns = {};
+    planets.forEach(p => {
+      planetSigns[p.id] = (p.sign !== undefined) ? p.sign : Math.floor(p.abs / 30);
+    });
+
+    const bav = {};
+    const sav = new Array(12).fill(0);
+
+    for (const [targetP, refs] of Object.entries(BPHS_ASHTAKAVARGA_RULES)) {
+      const arr = new Array(12).fill(0);
+      for (const [refP, houses] of Object.entries(refs)) {
+        const refSign = (refP === "Lagna") ? lagnaSign : planetSigns[refP];
+        if (refSign === undefined) continue;
+        houses.forEach(h => {
+          const s = (refSign + (h - 1)) % 12;
+          arr[s] += 1;
+        });
+      }
+      bav[targetP] = arr;
+      for (let s = 0; s < 12; s++) {
+        sav[s] += arr[s];
+      }
+    }
+
+    const houseSav = [];
+    for (let h = 1; h <= 12; h++) {
+      const s = (lagnaSign + (h - 1)) % 12;
+      houseSav.push(sav[s]);
+    }
+
+    const h11_bindus = houseSav[10];
+    const h12_bindus = houseSav[11];
+    const h2_bindus = houseSav[1];
+    const h1_bindus = houseSav[0];
+    const h9_bindus = houseSav[8];
+    const h10_bindus = houseSav[9];
+
+    let balanceCommentary = "";
+    if (h11_bindus > h12_bindus) {
+      balanceCommentary = `एकादश भाव (आय/लाभ: ${h11_bindus} बिंदु) द्वादश भाव (व्यय/हानि: ${h12_bindus} बिंदु) से अधिक बलवान है। यह निरंतर धन संचय, प्रचुर आय एवं कम खर्च का शास्त्रसम्मत राजयोग है।`;
+    } else if (h11_bindus < h12_bindus) {
+      balanceCommentary = `द्वादश भाव (व्यय/हानि: ${h12_bindus} बिंदु) एकादश भाव (आय/लाभ: ${h11_bindus} बिंदु) से अधिक है। जातक को अनियोजित खर्चों, अत्यधिक उदारता व वित्तीय रिसाव पर कठोर नियंत्रण रखने तथा स्वचालित बचत प्रणाली (SIP/Emergency Fund) अपनाने का शास्त्रीय निर्देश है।`;
+    } else {
+      balanceCommentary = `एकादश भाव (आय: ${h11_bindus} बिंदु) और द्वादश भाव (व्यय: ${h12_bindus} बिंदु) समान हैं। आय और व्यय में स्वाभाविक संतुलन रहेगा।`;
+    }
+
+    // Trikona Shodhana
+    const TRINES = [[0, 4, 8], [1, 5, 9], [2, 6, 10], [3, 7, 11]];
+    const trikonaReduced = [...sav];
+    TRINES.forEach(t => {
+      const minVal = Math.min(trikonaReduced[t[0]], trikonaReduced[t[1]], trikonaReduced[t[2]]);
+      t.forEach(s => { trikonaReduced[s] -= minVal; });
+    });
+
+    // Ekadhipatya Shodhana
+    const DUAL_PAIRS = [
+      { p: 'Mars', signs: [0, 7] },
+      { p: 'Venus', signs: [1, 6] },
+      { p: 'Mercury', signs: [2, 5] },
+      { p: 'Jupiter', signs: [8, 11] },
+      { p: 'Saturn', signs: [9, 10] }
+    ];
+    const ekadhipatyaReduced = [...trikonaReduced];
+    DUAL_PAIRS.forEach(pair => {
+      const [s1, s2] = pair.signs;
+      const p1 = Object.values(planetSigns).includes(s1);
+      const p2 = Object.values(planetSigns).includes(s2);
+      if (!p1 && !p2) {
+        const minVal = Math.min(ekadhipatyaReduced[s1], ekadhipatyaReduced[s2]);
+        ekadhipatyaReduced[s1] = minVal;
+        ekadhipatyaReduced[s2] = minVal;
+      } else if (p1 && !p2) {
+        if (ekadhipatyaReduced[s2] > ekadhipatyaReduced[s1]) ekadhipatyaReduced[s2] = ekadhipatyaReduced[s1];
+      } else if (!p1 && p2) {
+        if (ekadhipatyaReduced[s1] > ekadhipatyaReduced[s2]) ekadhipatyaReduced[s1] = ekadhipatyaReduced[s2];
+      }
+    });
+
+    // Pinda Sadhana
+    const RASHI_GUNAKARA = [7, 10, 8, 4, 10, 5, 7, 8, 9, 5, 11, 12];
+    const GRAHA_GUNAKARA = { Sun: 5, Moon: 5, Mars: 8, Mercury: 5, Jupiter: 10, Venus: 7, Saturn: 5 };
+    let rashiPinda = 0;
+    for (let s = 0; s < 12; s++) rashiPinda += ekadhipatyaReduced[s] * RASHI_GUNAKARA[s];
+    let grahaPinda = 0;
+    for (const [gid, gmul] of Object.entries(GRAHA_GUNAKARA)) {
+      const s = planetSigns[gid];
+      if (s !== undefined) grahaPinda += ekadhipatyaReduced[s] * gmul;
+    }
+    const yogaPinda = rashiPinda + grahaPinda;
+
+    return {
+      sav,
+      bav,
+      houseSav,
+      wealthSummary: {
+        h11_bindus,
+        h12_bindus,
+        h2_bindus,
+        h1_bindus,
+        h9_bindus,
+        h10_bindus,
+        diff11_12: h11_bindus - h12_bindus,
+        balanceCommentary
+      },
+      trikonaReduced,
+      ekadhipatyaReduced,
+      pindaSadhana: { rashiPinda, grahaPinda, yogaPinda }
+    };
+  }
+
+  // =============================================================================
+  // BPHS SHODASHAVARGA (16 DIVISIONAL CHARTS) ENGINE (CH. 6 & 7)
+  // =============================================================================
+  const SHODASHAVARGA_DEFS = [
+    { id: 1,  code: "D1",  name: "लग्न कुंडली (Rasi)", significance: "शारीरिक देह, आत्म-चेतना एवं संपूर्ण जीवन का मूल आधार" },
+    { id: 2,  code: "D2",  name: "होरा चक्र (Hora)", significance: "धन-संपत्ति, कोष, आर्थिक सामर्थ्य व समृद्धि (मुख्य धन वर्ग)" },
+    { id: 3,  code: "D3",  name: "द्रेष्काण (Drekkana)", significance: "सहोदर, पराक्रम, पुरुषार्थ, उद्यमशीलता एवं देह-चिह्न" },
+    { id: 4,  code: "D4",  name: "चतुर्थांश (Chaturthamsha)", significance: "अचल संपत्ति, भूमि, भवन, स्थायी भाग्य एवं वाहन सुख" },
+    { id: 7,  code: "D7",  name: "सप्तांश (Saptamsha)", significance: "संतान, संतति-सुख, वंश-वृद्धि एवं भावी पीढ़ी" },
+    { id: 9,  code: "D9",  name: "नवांश (Navamsha)", significance: "भाग्य, धर्म, जीवनसाथी, अंतःकरण व ग्रहों का वास्तविक सूक्ष्म बल" },
+    { id: 10, code: "D10", name: "दशमांश (Dashamsha)", significance: "कर्म, आजीविका, व्यापार, सत्ता, उच्च पद व मान-प्रतिष्ठा" },
+    { id: 12, code: "D12", name: "द्वादशांश (Dwadashamsha)", significance: "माता-पिता, पितृ-ऋण, पैतृक संस्कार व वंश परम्परा" },
+    { id: 16, code: "D16", name: "षोडशांश (Shodashamsha)", significance: "वाहन, सुख-साधन, भौतिक ऐश्वर्य एवं आकस्मिक यात्राएं" },
+    { id: 20, code: "D20", name: "विंशांश (Vimshamsha)", significance: "आध्यात्मिक प्रगति, उपासना, मंत्र-सिद्धि व ईश्वरीय कृपा" },
+    { id: 24, code: "D24", name: "चतुर्विंशांश / सिद्धांश", significance: "उच्च ज्ञान, विद्या, बौद्धिक सामर्थ्य, अनुसंधान व मेधा" },
+    { id: 27, code: "D27", name: "सप्तविंशांश (Bhamsa)", significance: "शारीरिक व मानसिक बल, सहनशक्ति व अवचेतन सामर्थ्य" },
+    { id: 30, code: "D30", name: "त्रिंशांश (Trimshamsha)", significance: "अरिष्ट, जीवन के संकट, व्याधियां, पाप-दोष व उनसे सुरक्षा" },
+    { id: 40, code: "D40", name: "खवेदांश (Khavedamsha)", significance: "शुभ-अशुभ संस्कारों का सूक्ष्म विश्लेषण व आचरण शुद्धि" },
+    { id: 45, code: "D45", name: "अक्षवेदांश (Akshavedamsha)", significance: "जीवन के समस्त सूक्ष्म क्षेत्रों की समग्र समीक्षा" },
+    { id: 60, code: "D60", name: "षष्ट्यंश (Shashtiamsha)", significance: "पूर्वजन्म कर्म, संचित प्रारब्ध एवं सर्वोच्च सूक्ष्म निर्णायक वर्ग" }
+  ];
+
+  function computeShodashavargaEngine(planets, lagnaSign, lagnaDeg) {
+    const vargas = SHODASHAVARGA_DEFS.map(def => {
+      const vLagnaSign = getVargaSign(lagnaSign, lagnaDeg, def.id);
+      const vPlanets = planets.map(p => {
+        const pSign = (p.sign !== undefined) ? p.sign : Math.floor(p.abs / 30);
+        const pDeg = (p.deg !== undefined) ? p.deg : (p.abs % 30);
+        const vSign = getVargaSign(pSign, pDeg, def.id);
+        const rasiHouse = ((vSign - vLagnaSign + 12) % 12) + 1;
+        return {
+          id: p.id,
+          name: p.name || p.grahaName || GRAHA_NAMES[p.id] || p.id,
+          sign: vSign,
+          rashiName: RASHI_NAMES[vSign],
+          rasiHouse: rasiHouse
+        };
+      });
+      return {
+        id: def.id,
+        code: def.code,
+        name: def.name,
+        significance: def.significance,
+        lagnaSign: vLagnaSign,
+        lagnaRashi: RASHI_NAMES[vLagnaSign],
+        planets: vPlanets
+      };
+    });
+
+    const d1 = vargas.find(v => v.id === 1);
+    const d9 = vargas.find(v => v.id === 9);
+    const vargottamaPlanets = [];
+    if (d1 && d9) {
+      d1.planets.forEach(p => {
+        if (p.id === 'Lagna') return;
+        const d9P = d9.planets.find(x => x.id === p.id);
+        if (d9P && d9P.sign === p.sign) {
+          vargottamaPlanets.push(p.name);
+        }
+      });
+    }
+
+    const VAISHESHIKAMSA_LEVELS = [
+      { count: 2, title: "पारिजात (Parijata)", badge: "पारिजातांश", desc: "सदा शुभ, निरंतर प्रगति, समाज में सम्मान एवं स्थिर आजीविका" },
+      { count: 3, title: "उत्तम (Uttama)", badge: "उत्तमांश", desc: "उत्कृष्ट चरित्र, उच्च प्रतिष्ठा, धर्म-परायणता एवं सद्गुण" },
+      { count: 4, title: "गोपुर (Gopura)", badge: "गोपुरांश", desc: "विपुल भूमि, भवन, विद्वत्ता, शास्त्र-ज्ञान एवं बुद्धिजीवियों में आदर" },
+      { count: 5, title: "सिंहासन (Simhasana)", badge: "सिंहासनांश", desc: "प्रशासकीय अधिकार, राजसत्ता, उच्च नेतृत्व एवं निर्णायक शक्ति" },
+      { count: 6, title: "पारावत (Paravata)", badge: "पारावतांश", desc: "राजतुल्य ऐश्वर्य, उत्कृष्ट वाहन सुख, अक्षय कीर्ति एवं अपार समृद्धि" },
+      { count: 7, title: "देवलोक (Devaloka)", badge: "देवलोकांश", desc: "संत-तुल्य गरिमा, आध्यात्मिक प्रभाव, ईश्वरीय कृपा एवं सार्वभौम यश" },
+      { count: 8, title: "ऐरावत (Airavata)", badge: "ऐरावतांश", desc: "सर्वोच्च संप्रभुता, कालजयी ख्याति, ऐतिहासिक नेतृत्व एवं असीम सम्मान" }
+    ];
+
+    const vargaList = [1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60];
+    const sevenGrahas = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+    const vaisheshikamsa = [];
+
+    sevenGrahas.forEach(gid => {
+      const p = planets.find(x => x.id === gid);
+      if (!p) return;
+      const pSign = (p.sign !== undefined) ? p.sign : Math.floor(p.abs / 30);
+      const pDeg = (p.deg !== undefined) ? p.deg : (p.abs % 30);
+      let goodCount = 0;
+      vargaList.forEach(vNum => {
+        const vSign = getVargaSign(pSign, pDeg, vNum);
+        if (isPlanetDignifiedInSign(gid, vSign)) goodCount++;
+      });
+      let matchedTier = null;
+      for (let i = VAISHESHIKAMSA_LEVELS.length - 1; i >= 0; i--) {
+        if (goodCount >= VAISHESHIKAMSA_LEVELS[i].count) {
+          matchedTier = VAISHESHIKAMSA_LEVELS[i];
+          break;
+        }
+      }
+      vaisheshikamsa.push({
+        planetId: gid,
+        grahaName: GRAHA_NAMES[gid] || gid,
+        goodCount,
+        tier: matchedTier || { count: goodCount, title: "सामान्य वर्ग", badge: "वर्ग-बल", desc: "संतुलित प्रभाव" }
+      });
+    });
+
+    return {
+      vargas,
+      vargottamaPlanets,
+      vaisheshikamsa
+    };
+  }
+
+  // =============================================================================
+  // BPHS VIMSHOTTARI DASHA TIMELINE ENGINE (CH. 64–72)
+  // =============================================================================
+  const DASHA_LORDS_CONFIG = [
+    { id: "Ketu", name: "केतु", years: 7, ch: 71, title: "एकसप्ततितमोऽध्यायः — केतुदशायामन्तर्दशाफलाध्यायः" },
+    { id: "Venus", name: "शुक्र", years: 20, ch: 72, title: "द्विसप्ततितमोऽध्यायः — शुक्रदशायामन्तर्दशाफलाध्यायः" },
+    { id: "Sun", name: "सूर्य", years: 6, ch: 64, title: "चतुःषष्टितमोऽध्यायः — विंशोत्तरीदशायामन्तर्दशाफलाध्यायः (सूर्यदशाफलम्)" },
+    { id: "Moon", name: "चन्द्र", years: 10, ch: 65, title: "पञ्चषष्टितमोऽध्यायः — चन्द्रदशायामन्तर्दशाफलाध्यायः" },
+    { id: "Mars", name: "मंगल", years: 7, ch: 66, title: "षट्षष्टितमोऽध्यायः — भौमदशायामन्तर्दशाफलाध्यायः" },
+    { id: "Rahu", name: "राहु", years: 18, ch: 67, title: "सप्तषष्टितमोऽध्यायः — राहुदशायामन्तर्दशाफलाध्यायः" },
+    { id: "Jupiter", name: "गुरु", years: 16, ch: 68, title: "अष्टषष्टितमोऽध्यायः — गुरुदशायामन्तर्दशाफलाध्यायः" },
+    { id: "Saturn", name: "शनि", years: 19, ch: 69, title: "एकोनसप्ततितमोऽध्यायः — शनिदशायामन्तर्दशाफलाध्यायः" },
+    { id: "Mercury", name: "बुध", years: 17, ch: 70, title: "सप्ततितमोऽध्यायः — बुधदशायामन्तर्दशाफलाध्यायः" }
+  ];
+
+  function computeVimshottariTimelineEngine(moonObj, birthDetails, targetDate = new Date()) {
+    const moonNorm = ((moonObj ? (moonObj.abs || 0) : 0) % 360 + 360) % 360;
+    const nakLen = 13 + 20 / 60;
+    const nakIndex = Math.floor(moonNorm / nakLen);
+    const nakElapsed = moonNorm % nakLen;
+    const remFraction = 1.0 - (nakElapsed / nakLen);
+    const birthMDIndex = nakIndex % 9;
+
+    const bd = birthDetails || {};
+    let birthMs = 0;
+    if (bd && bd.year) {
+      birthMs = new Date(Date.UTC(bd.year, (bd.month || 1) - 1, bd.day || 1, bd.hour || 12, bd.minute || 0)).getTime();
+    } else {
+      birthMs = new Date().getTime() - (30 * 365.242199 * 86400 * 1000);
+    }
+    const MS_PER_YEAR = 365.242199 * 86400 * 1000;
+
+    let mdStartCursor = birthMs - (1.0 - remFraction) * (DASHA_LORDS_CONFIG[birthMDIndex].years * MS_PER_YEAR);
+
+    const mahadashas = [];
+    for (let i = 0; i < 9; i++) {
+      const lIdx = (birthMDIndex + i) % 9;
+      const lord = DASHA_LORDS_CONFIG[lIdx];
+      const dur = lord.years * MS_PER_YEAR;
+      const end = mdStartCursor + dur;
+
+      const antardashas = [];
+      let adCursor = mdStartCursor;
+      for (let j = 0; j < 9; j++) {
+        const aIdx = (lIdx + j) % 9;
+        const aLord = DASHA_LORDS_CONFIG[aIdx];
+        const aDur = dur * (aLord.years / 120);
+        const aEnd = adCursor + aDur;
+        antardashas.push({
+          lord: aLord,
+          startMs: adCursor,
+          endMs: aEnd,
+          startDate: new Date(adCursor),
+          endDate: new Date(aEnd)
+        });
+        adCursor = aEnd;
+      }
+
+      mahadashas.push({
+        lord: lord,
+        startMs: mdStartCursor,
+        endMs: end,
+        startDate: new Date(mdStartCursor),
+        endDate: new Date(end),
+        antardashas: antardashas
+      });
+      mdStartCursor = end;
+    }
+
+    const targetMs = (targetDate instanceof Date ? targetDate : new Date()).getTime();
+    let activeMD = mahadashas.find(m => targetMs >= m.startMs && targetMs < m.endMs) || null;
+    if (!activeMD) {
+      activeMD = mahadashas[mahadashas.length - 1];
+    }
+
+    let activeAD = null;
+    let upcomingAD = null;
+    if (activeMD) {
+      const adIdx = activeMD.antardashas.findIndex(a => targetMs >= a.startMs && targetMs < a.endMs);
+      if (adIdx !== -1) {
+        activeAD = activeMD.antardashas[adIdx];
+        if (adIdx + 1 < activeMD.antardashas.length) {
+          upcomingAD = activeMD.antardashas[adIdx + 1];
+        }
+      } else {
+        activeAD = activeMD.antardashas[0];
+        upcomingAD = activeMD.antardashas[1];
+      }
+    }
+
+    return {
+      mahadashas,
+      activeMD,
+      activeAD,
+      upcomingAD,
+      birthMDIndex,
+      nakIndex
+    };
+  }
+
   // =============================================================================
   // MAIN ANALYSIS FUNCTION: EVALUATE CHAPTERS 1 TO 10
   // =============================================================================
@@ -206,6 +602,11 @@
       }
     });
     const atmakaraka = planetMap[atmakarakaId];
+
+    // Compute BPHS Ashtakavarga, Shodashavarga, and Vimshottari Timeline
+    const ashtakavarga = computeAshtakavargaEngine(planets, lagnaSign);
+    const shodashavarga = computeShodashavargaEngine(planets, lagnaSign, lagnaDeg);
+    const vimshottariDasha = computeVimshottariTimelineEngine(moon, calcResult.birthDetails, options.targetDate || new Date());
 
     const matchedShlokas = [];
 
@@ -430,71 +831,52 @@
     });
 
     // =========================================================================
-    // CHAPTERS 6 & 7: षष्ठो व सप्तमोऽध्यायः — षोडशवर्ग एवं वैशेषिकांश (Vaisheshikamsa)
+    // CHAPTER 6: षष्ठोऽध्यायः — षोडशवर्गाध्यायः (The 16 Divisional Charts)
     // =========================================================================
-    // Evaluate how many good vargas each planet attains
-    const VAISHESHIKAMSA_LEVELS = [
-      { count: 2, title: "पारिजात (Parijata)", badge: "पारिजातांश", desc: "सदा शुभ, निरंतर प्रगति, समाज में सम्मान एवं स्थिर आजीविका" },
-      { count: 3, title: "उत्तम (Uttama)", badge: "उत्तमांश", desc: "उत्कृष्ट चरित्र, उच्च प्रतिष्ठा, धर्म-परायणता एवं सद्गुण" },
-      { count: 4, title: "गोपुर (Gopura)", badge: "गोपुरांश", desc: "विपुल भूमि, भवन, विद्वत्ता, शास्त्र-ज्ञान एवं बुद्धिजीवियों में आदर" },
-      { count: 5, title: "सिंहासन (Simhasana)", badge: "सिंहासनांश", desc: "प्रशासकीय अधिकार, राजसत्ता, उच्च नेतृत्व एवं निर्णायक शक्ति" },
-      { count: 6, title: "पारावत (Paravata)", badge: "पारावतांश", desc: "राजतुल्य ऐश्वर्य, उत्कृष्ट वाहन सुख, अक्षय कीर्ति एवं अपार समृद्धि" },
-      { count: 7, title: "देवलोक (Devaloka)", badge: "देवलोकांश", desc: "संत-तुल्य गरिमा, आध्यात्मिक प्रभाव, ईश्वरीय कृपा एवं सार्वभौम यश" },
-      { count: 8, title: "ऐरावत (Airavata)", badge: "ऐरावतांश", desc: "सर्वोच्च संप्रभुता, कालजयी ख्याति, ऐतिहासिक नेतृत्व एवं असीम सम्मान" }
-    ];
+    const vargottamaText = shodashavarga.vargottamaPlanets.length > 0
+      ? `आपकी कुंडली में ${shodashavarga.vargottamaPlanets.map(p => `'${p}'`).join(', ')} ग्रह लग्न (D1) एवं नवांश (D9) दोनों में समान राशि में स्थित होकर 'वर्गोत्तम' हैं। महर्षि पराशर के अनुसार वर्गोत्तम ग्रह को विशेष शुभ-फलप्रद और अचल रक्षा-कवच का दर्जा प्राप्त है।`
+      : "षोडशवर्गों (D1 से D60) में ग्रहों की सूक्ष्म स्थिति जातक के जीवन के भिन्न-भिन्न आयामों को पुष्ट करती है।";
 
-    const vargaList = [1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60];
-    const bestVaisheshikamsa = [];
-
-    sevenGrahas.forEach(gid => {
-      const p = planetMap[gid];
-      let goodCount = 0;
-      vargaList.forEach(vNum => {
-        const vSign = getVargaSign(p.sign, p.deg, vNum);
-        if (isPlanetDignifiedInSign(gid, vSign)) {
-          goodCount++;
-        }
-      });
-
-      if (goodCount >= 2) {
-        let matchedTier = VAISHESHIKAMSA_LEVELS[0];
-        for (let i = VAISHESHIKAMSA_LEVELS.length - 1; i >= 0; i--) {
-          if (goodCount >= VAISHESHIKAMSA_LEVELS[i].count) {
-            matchedTier = VAISHESHIKAMSA_LEVELS[i];
-            break;
-          }
-        }
-        bestVaisheshikamsa.push({
-          planetId: gid,
-          grahaName: p.grahaName,
-          goodCount,
-          tier: matchedTier
-        });
-      }
+    matchedShlokas.push({
+      chapterNumber: 6,
+      chapterTitle: "षष्ठोऽध्यायः — षोडशवर्गाध्यायः",
+      chapterSignificance: "षोडशवर्ग (D1 से D60) साधन — सूक्ष्म चक्रों द्वारा कर्म, भाग्य, विद्या व प्रारब्ध का उद्घाटन",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `षोडशानां तु वर्गाणां नामानि शृणु मे द्विज ।
+क्षेत्रं होराऽथ दृक्काणस्तुरियांशस्ततः परम् ॥ १ ॥
+सप्तमांशो नवांशश्च दशमांशस्ततः परम् ।
+द्वादशांशः षोडशांशस्त्रिंशदंशस्ततः परम् ॥ २ ॥
+षष्ट्यंशश्चैव विख्यातो वर्गाणां प्रवरो मतः ॥ ३ ॥`,
+      applicabilityStatus: "षोडशवर्ग (D1-D60) सूक्ष्म चक्र साधन एवं वर्गोत्तम ग्रह मिलान",
+      natalTrigger: `D1 (लग्न) से D60 (षष्ट्यंश) तक १६ सूक्ष्म कुंडलियों की प्रामाणिक संरचना। ${vargottamaText}`,
+      classicalPrediction: "महर्षि पाराशर के अनुसार केवल जन्म लग्न (D1) से फलादेश अधूरा रहता है। षोडशवर्गों के सूक्ष्म अध्ययन से ही विद्या (D24), कर्म (D10), भाग्य (D9), संतति (D7) और पूर्वजन्म प्रारब्ध (D60) का अंतिम सत्य उजागर होता है। वर्गोत्तम ग्रह जीवन के कठिनतम समय में भी जातक की रक्षा करता है।",
+      deepMeaning: "षोडशवर्ग आत्मा के १६ भिन्न-भिन्न आयाम हैं; स्थूल जगत में जो अदृश्य है, वह षष्ट्यंश (D60) और सूक्ष्म वर्गों में स्पष्ट दर्पण की भांति प्रतिबिंबित होता है।",
+      badges: ["षोडशवर्ग साधन", "D1–D60 सूक्ष्म चक्र", ...(shodashavarga.vargottamaPlanets.length > 0 ? [`वर्गोत्तम: ${shodashavarga.vargottamaPlanets.join(', ')}`] : [])],
+      shodashavargaData: shodashavarga
     });
 
-    if (bestVaisheshikamsa.length > 0) {
-      // Pick top planet
-      bestVaisheshikamsa.sort((a, b) => b.goodCount - a.goodCount);
-      const topBadge = bestVaisheshikamsa[0];
+    // =========================================================================
+    // CHAPTER 7: सप्तमोऽध्यायः — वर्गविवेकाध्यायः (Vaisheshikamsa Dignity Analysis)
+    // =========================================================================
+    const topVaisheshikamsaItem = shodashavarga.vaisheshikamsa.slice().sort((a,b) => b.goodCount - a.goodCount)[0];
+    const highDignityGrahas = shodashavarga.vaisheshikamsa.filter(v => v.goodCount >= 2);
+    const dignityListStr = highDignityGrahas.map(v => `${v.grahaName}: ${v.tier.title} (${v.goodCount} वर्ग)`).join(', ') || "संतुलित वर्ग";
 
-      matchedShlokas.push({
-        chapterNumber: 7,
-        chapterTitle: "सप्तमोऽध्यायः — वर्गविवेकाध्यायः",
-        chapterSignificance: "षोडशवर्गों में ग्रहों के वैशेषिकांश एवं सर्वोच्च राजयोग सम्मान",
-        verseNumbers: "श्लोक ३३–३६",
-        shlokaSanskrit: `द्वाभ्यां पारिजातांशश्च त्रिभिः स्यादुत्तमो मतः ।
+    matchedShlokas.push({
+      chapterNumber: 7,
+      chapterTitle: "सप्तमोऽध्यायः — वर्गविवेकाध्यायः",
+      chapterSignificance: "षोडशवर्गों में ग्रहों के वैशेषिकांश एवं सर्वोच्च राजयोग सम्मान",
+      verseNumbers: "श्लोक ३३–३६",
+      shlokaSanskrit: `द्वाभ्यां पारिजातांशश्च त्रिभिः स्यादुत्तमो मतः ।
 चतुर्भिर्गोपुरः प्रोक्तः पञ्चभिः सिंहसंज्ञकः ॥ ३३ ॥
 षड्भिः पारावतश्चापि सप्तभिर्देवलोककः ।
 अष्टभिश्चैरावतो ज्ञेयः सर्वराजसुपूजितः ॥ ३४ ॥`,
-        applicabilityStatus: `वैशेषिकांश राजयोग मिलान (${topBadge.grahaName}: ${topBadge.tier.title})`,
-        natalTrigger: `आपके ${topBadge.grahaName} देव ने १६ सूक्ष्म वर्गों में से ${topBadge.goodCount} वर्गों में शुभ स्व/उच्च/मूलत्रिकोण स्थान प्राप्त करके '**${topBadge.tier.title}**' उपाधि अर्जित की है।`,
-        classicalPrediction: `महर्षि पाराशर के अनुसार जब कोई ग्रह ${topBadge.tier.title} में प्रवेश करता है, तो: "${topBadge.tier.desc}"। यह जातक के जीवन का सबसे मजबूत आधार बन जाता है।`,
-        deepMeaning: "स्थूल कुंडली में ग्रह सामान्य दिख सकता है, किंतु सूक्ष्म षोडशवर्गों में वैशेषिकांश प्राप्त ग्रह जातक के भाग्य का वास्तविक निर्माता होता है।",
-        badges: [topBadge.tier.badge, `${topBadge.grahaName}: ${topBadge.goodCount} वर्ग`]
-      });
-    }
-
+      applicabilityStatus: `वैशेषिकांश राजयोग मिलान (${topVaisheshikamsaItem.grahaName}: ${topVaisheshikamsaItem.tier.title})`,
+      natalTrigger: `ग्रहों के वैशेषिकांश पद: ${dignityListStr}। सर्वोच्च पद: ${topVaisheshikamsaItem.grahaName} (${topVaisheshikamsaItem.tier.title} - ${topVaisheshikamsaItem.goodCount} वर्ग)।`,
+      classicalPrediction: `महर्षि पाराशर के अनुसार जब कोई ग्रह ${topVaisheshikamsaItem.tier.title} में प्रवेश करता है, तो जातक को "${topVaisheshikamsaItem.tier.desc}" का वरदान मिलता है। सूक्ष्म वर्गों में बलवान ग्रह स्थूल कुंडली के दोषों को भी निष्प्रभावी कर देते हैं।`,
+      deepMeaning: "वैशेषिकांश यह सिद्ध करता है कि बाह्य रूप से सामान्य दिखने वाला ग्रह भी यदि षोडशवर्ग में उच्च स्थान प्राप्त करता है, तो वह जातक को सर्वोच्च पद दिलाता है।",
+      badges: [topVaisheshikamsaItem.tier.badge, `${topVaisheshikamsaItem.grahaName}: ${topVaisheshikamsaItem.goodCount} वर्ग`, "पाराशर राजमान"]
+    });
     // =========================================================================
     // CHAPTER 8: अष्टमोऽध्यायः — ग्रहाणां दृष्टयः (Planetary Aspects)
     // =========================================================================
@@ -1678,15 +2060,18 @@
 यस्य ज्ञानेन मन्त्राणां ग्रहाणां ज्ञायते बलम् ॥ १ ॥
 बिन्दुबाहुल्यतो वृद्धिर्हानिर्बिन्दुविपर्यये ॥ २ ॥`,
       applicabilityStatus: "अष्टकवर्ग बिन्दु-गणना एवं सूक्ष्म ग्रह-सामर्थ्य",
-      natalTrigger: `जातक की जन्म कुंडली के प्रत्येक भाव और ग्रह को आठ उद्गमों (सूर्य, चन्द्र, मंगल, बुध, गुरु, शुक्र, शनि, लग्न) से शुभ बिन्दु प्राप्त हैं।`,
+      natalTrigger: `जातक की कुंडली के ७ ग्रहों के भिन्नाष्टकवर्ग (BAV) बिन्दु: सूर्य (${ashtakavarga.bav.Sun.reduce((a,b)=>a+b,0)}), चन्द्र (${ashtakavarga.bav.Moon.reduce((a,b)=>a+b,0)}), मंगल (${ashtakavarga.bav.Mars.reduce((a,b)=>a+b,0)}), बुध (${ashtakavarga.bav.Mercury.reduce((a,b)=>a+b,0)}), गुरु (${ashtakavarga.bav.Jupiter.reduce((a,b)=>a+b,0)}), शुक्र (${ashtakavarga.bav.Venus.reduce((a,b)=>a+b,0)}), शनि (${ashtakavarga.bav.Saturn.reduce((a,b)=>a+b,0)}) — कुल ३३७ बिन्दु।`,
       classicalPrediction: "महर्षि पाराशर का अमर सिद्धांत: 'बिन्दुबाहुल्यतो वृद्धिः' — जिस भाव में अष्टकवर्ग के शुभ बिन्दु अधिक होते हैं, वह भाव बिना किसी प्रयास के भी शुभ फल देता है; और कम बिन्दु वाला भाव सतर्कता की मांग करता है।",
       deepMeaning: "अष्टकवर्ग संपूर्ण सौरमंडल की सामूहिक सहमति (Consensus of Planets) है; जब सभी ग्रह मिलकर किसी भाव को बिन्दु देते हैं, तो वह सफलता अकाट्य होती है।",
-      badges: ["अष्टकवर्ग शिरोमणि", "सामूहिक ग्रह-सहमति"]
+      badges: ["अष्टकवर्ग शिरोमणि", "सामूहिक ग्रह-सहमति", "कुल ३३७ बिन्दु"]
     });
 
     // =========================================================================
     // CHAPTER 51: एकपञ्चाशत्तमोऽध्यायः — सर्वाष्टकवर्गाध्यायः (Sarvashtakavarga - The 337 Bindus)
     // =========================================================================
+    const hSav = ashtakavarga.houseSav;
+    const savDetailStr = `लग्न: ${hSav[0]}, २रा: ${hSav[1]}, ३रा: ${hSav[2]}, ४था: ${hSav[3]}, ५वां: ${hSav[4]}, ६ठा: ${hSav[5]}, ७वां: ${hSav[6]}, ८वां: ${hSav[7]}, ९वां: ${hSav[8]}, १०वां: ${hSav[9]}, ११वां (आय): ${hSav[10]}, १२वां (व्यय): ${hSav[11]}`;
+
     matchedShlokas.push({
       chapterNumber: 51,
       chapterTitle: "एकपञ्चाशत्तमोऽध्यायः — सर्वाष्टकवर्गाध्यायः",
@@ -1696,11 +2081,14 @@
 अष्टाविंशतिभिर्बिन्दुर्मध्यमं शुभमुच्यते ॥ १ ॥
 त्रिंशदूर्ध्वं महाभाग्यं वित्तलाभं दिने दिने ॥ २ ॥
 लाभेऽधिका व्यये न्यूना बहुवित्तयुतो भवेत् ॥ ३ ॥`,
-      applicabilityStatus: "सर्वाष्टकवर्ग ३३७ बिन्दु वितरण एवं वित्तीय नियम",
-      natalTrigger: `पाराशर स्वर्णिम वित्तीय सूत्र: एकादश भाव (आय) के बिन्दु द्वादश भाव (व्यय) के बिन्दुओं से अधिक होना जातक को अखंड धन-संचय प्रदान करता है।`,
-      classicalPrediction: "महर्षि पाराशर का प्रत्यक्ष वचन: 'त्रिंशदूर्ध्वं महाभाग्यं वित्तलाभं दिने दिने' — जिन भावों में ३० या उससे अधिक सर्वाष्टकवर्ग बिन्दु होते हैं, वे भाव जातक के जीवन के सबसे मजबूत स्तंभ बनते हैं। एकादश भाव में व्यय से अधिक बिन्दु होना धन के कभी न समाप्त होने की गारंटी है।",
+      applicabilityStatus: `सर्वाष्टकवर्ग ३३७ बिन्दु वितरण एवं आय-व्यय अनुपात (११वां: ${hSav[10]} vs १२वां: ${hSav[11]})`,
+      natalTrigger: `जातक के १२ भावों के वास्तविक सर्वाष्टकवर्ग बिन्दु: ${savDetailStr}। लग्न भाव में सर्वाधिक ${hSav[0]} बिन्दु (असाधारण आत्मबल), दशम भाव में ${hSav[9]} बिन्दु (अटूट कर्म-प्रतिष्ठा)। एकादश (आय) में ${hSav[10]} एवं द्वादश (व्यय) में ${hSav[11]} बिन्दु हैं।`,
+      classicalPrediction: ashtakavarga.wealthSummary.diff11_12 >= 0
+        ? `महर्षि पाराशर का प्रत्यक्ष सूत्र: 'लाभेऽधिका व्यये न्यूना बहुवित्तयुतो भवेत्' — आपकी कुंडली में एकादश भाव (आय: ${hSav[10]} बिंदु) द्वादश भाव (व्यय: ${hSav[11]} बिंदु) से अधिक है, जो प्रचुर धन-संचय और स्थायी संपदा का उत्कृष्ट योग है।`
+        : `महर्षि पाराशर का प्रत्यक्ष सूत्र: 'लाभेऽधिका व्यये न्यूना बहुवित्तयुतो भवेत्' — आपकी कुंडली में द्वादश भाव (व्यय: ${hSav[11]} बिंदु) एकादश भाव (आय: ${hSav[10]} बिंदु) से अधिक है। शास्त्र का स्पष्ट निर्देश है कि जातक को अनियोजित व्ययों, अत्यधिक उदारता और वित्तीय रिसाव पर कठोर नियंत्रण रखना होगा; स्वचालित बचत (SIP) और विवेकपूर्ण बजट से ही संपदा संचित होगी।`,
       deepMeaning: "सर्वाष्टकवर्ग जातक का ब्रह्मांडीय बैंक-खाता है; ३३७ बिन्दुओं का उचित संतुलन यह सुनिश्चित करता है कि जातक जीवन में कभी पराजित न हो।",
-      badges: ["सर्वाष्टकवर्ग ३३७ बिन्दु", "आय > व्यय नियम"]
+      badges: ["सर्वाष्टकवर्ग ३३७ बिन्दु", `लग्न: ${hSav[0]} बिन्दु`, `आय: ${hSav[10]} | व्यय: ${hSav[11]}`, ashtakavarga.wealthSummary.diff11_12 >= 0 ? "आय > व्यय" : "व्यय > आय सतर्कता"],
+      ashtakavargaData: ashtakavarga
     });
 
     // =========================================================================
@@ -1741,6 +2129,7 @@
     // =========================================================================
     // CHAPTER 54: चतुष्पञ्चाशत्तमोऽध्यायः — त्रिकोणशोधनाध्यायः (Trikona Shodhana — Triad Reduction)
     // =========================================================================
+    const tr = ashtakavarga.trikonaReduced;
     matchedShlokas.push({
       chapterNumber: 54,
       chapterTitle: "चतुष्पञ्चाशत्तमोऽध्यायः — त्रिकोणशोधनाध्यायः",
@@ -1749,7 +2138,7 @@
       shlokaSanskrit: `त्रिकोणशोधनं पूर्वं कुर्याच्छास्त्रप्रमाणतः ।
 समे न्यूने त्यजेद्बिन्दून् शेषाः शुद्धाः प्रकीर्तिताः ॥ १ ॥`,
       applicabilityStatus: "चारों मूल तत्वों (धर्म, अर्थ, काम, मोक्ष त्रिकोण) का शुद्धीकरण",
-      natalTrigger: `१-५-९ (धर्म), २-६-१० (अर्थ), ३-७-११ (काम) एवं ४-८-१२ (मोक्ष) त्रिकोणों के बिन्दुओं का शास्त्रीय शोधन शुद्ध ऊर्जा को प्रकट करता है।`,
+      natalTrigger: `त्रिकोण शोधन उपरांत शुद्ध बिन्दु: अग्नि त्रिकोण [मेष ${tr[0]}, सिंह ${tr[4]}, धनु ${tr[8]}], पृथ्वी त्रिकोण [वृषभ ${tr[1]}, कन्या ${tr[5]}, मकर ${tr[9]}], वायु त्रिकोण [मिथुन ${tr[2]}, तुला ${tr[6]}, कुम्भ ${tr[10]}], जल त्रिकोण [कर्क ${tr[3]}, वृश्चिक ${tr[7]}, मीन ${tr[11]}]।`,
       classicalPrediction: "महर्षि पाराशर के अनुसार त्रिकोण शोधन के उपरांत जो शेष बिन्दु बचते हैं, वे जातक के पूर्वपुण्य के शुद्ध सोने की भांति होते हैं जो कभी व्यर्थ नहीं जाते।",
       deepMeaning: "त्रिकोण शोधन जीवन के चार पुरुषार्थों (धर्म, अर्थ, काम, मोक्ष) का गणितीय संतुलन है।",
       badges: ["त्रिकोण शोधन", "तत्व शुद्धीकरण"]
@@ -1758,6 +2147,8 @@
     // =========================================================================
     // CHAPTER 55: पञ्चपञ्चाशत्तमोऽध्यायः — एकाधिपत्यशोधनाध्यायः (Ekadhipatya Shodhana)
     // =========================================================================
+    const er = ashtakavarga.ekadhipatyaReduced;
+    const ekTotal = er.reduce((a,b)=>a+b, 0);
     matchedShlokas.push({
       chapterNumber: 55,
       chapterTitle: "पञ्चपञ्चाशत्तमोऽध्यायः — एकाधिपत्यशोधनाध्यायः",
@@ -1766,15 +2157,16 @@
       shlokaSanskrit: `एकाधिपत्यशुद्धिं च ततः कुर्याद्विचक्षणः ।
 ग्रहाधिष्ठितभे चैव न शोधनमुदीरितम् ॥ १ ॥`,
       applicabilityStatus: "एकाधिपत्य परिमार्जन द्वारा अंतिम शुद्ध बिन्दु निष्कर्षण",
-      natalTrigger: `एक ही ग्रह के आधिपत्य वाली दोनों राशियों के बिन्दुओं का तुलनात्मक शोधन ग्रह की वास्तविक निष्पक्ष शक्ति को उजागर करता है।`,
+      natalTrigger: `एकाधिपत्य शोधन उपरांत शुद्ध शोध्य बिन्दु योग: ${ekTotal} बिन्दु। द्वैत राशियों के बिन्दुओं का तुलनात्मक शोधन ग्रह की वास्तविक निष्पक्ष शक्ति को उजागर करता है।`,
       classicalPrediction: "महर्षि पाराशर के अनुसार एकाधिपत्य शोधन के पश्चात ग्रह का वास्तविक 'शुद्ध पिण्ड' जातक को स्थायी फल प्रदान करने के लिए तत्पर होता है।",
       deepMeaning: "यह प्रक्रिया जातक के कर्मों में छिपे द्वैत (Duality) को समाप्त कर एकाग्र शक्ति का निर्माण करती है।",
-      badges: ["एकाधिपत्य शोधन", "शुद्ध बिन्दु निष्कर्षण"]
+      badges: ["एकाधिपत्य शोधन", `शुद्ध योग: ${ekTotal}`]
     });
 
     // =========================================================================
     // CHAPTER 56: षट्पञ्चाशत्तमोऽध्यायः — पिण्डसाधनाध्यायः (Shodhya Pinda Sadhana)
     // =========================================================================
+    const ps = ashtakavarga.pindaSadhana;
     matchedShlokas.push({
       chapterNumber: 56,
       chapterTitle: "षट्पञ्चाशत्तमोऽध्यायः — पिण्डसाधनाध्यायः",
@@ -1783,11 +2175,11 @@
       shlokaSanskrit: `शोध्यपिण्डबलाज्ज्ञेयं जातकस्य महद्बलम् ।
 पिण्डाधिक्ये महासौख्यं सर्वकार्येषु संसिद्धिः ॥ १ ॥
 पिण्डायुः प्रवरं प्रोक्तं मुनिभिस्तत्वदर्शिभिः ॥ २ ॥`,
-      applicabilityStatus: "शोध्य पिण्ड (Shodhya Pinda) जीवन-ऊर्जा सामर्थ्य",
-      natalTrigger: `शुद्ध बिन्दुओं को राशि व ग्रह गुणकों से गुणा करके प्राप्त 'शोध्य पिण्ड' जातक की समग्र प्राण-ऊर्जा और दीर्घायु का आधार है।`,
+      applicabilityStatus: `शोध्य पिण्ड जीवन-ऊर्जा सामर्थ्य (योग पिण्ड: ${ps.yogaPinda})`,
+      natalTrigger: `जातक का राशि पिण्ड: ${ps.rashiPinda}, ग्रह पिण्ड: ${ps.grahaPinda}, समग्र योग पिण्ड: ${ps.yogaPinda}। यह जातक की समग्र प्राण-ऊर्जा और दीर्घायु का आधार है।`,
       classicalPrediction: "महर्षि पाराशर के अनुसार जिस जातक का शोध्य पिण्ड बलवान होता है, वह समाज में अजेय, शारीरिक रूप से ओजस्वी और सभी उपक्रमों में सिद्धि प्राप्त करने वाला होता है।",
       deepMeaning: "शोध्य पिण्ड व्यक्ति के पूरे जीवन का संचित ओज (Vital Reserve) है।",
-      badges: ["शोध्य पिण्ड", "प्राण-ऊर्जा सामर्थ्य"]
+      badges: ["शोध्य पिण्ड", `योग पिण्ड: ${ps.yogaPinda}`, "प्राण-ऊर्जा सामर्थ्य"]
     });
 
     // =========================================================================
@@ -1802,12 +2194,11 @@
 प्रविष्टाः कुर्वते राज्यं धनधान्यसमृद्धिदम् ॥ १ ॥
 अल्पबिन्दौ गताः खेटाः क्लेशबाधाप्रदायकाः ॥ २ ॥`,
       applicabilityStatus: "गोचरीय ग्रह संचरण एवं अष्टकवर्ग बिन्दु समन्वय",
-      natalTrigger: `शनि एवं गुरु जब भी कुंडली की उच्च-बिन्दु राशियों में प्रवेश करते हैं, तो जातक के जीवन में बड़े सकारात्मक मोड़ आते हैं।`,
+      natalTrigger: `शनि एवं गुरु जब भी कुंडली की उच्च-बिन्दु राशियों (जैसे लग्न ${hSav[0]}, दशम ${hSav[9]}) में प्रवेश करते हैं, तो जातक के जीवन में बड़े सकारात्मक मोड़ आते हैं।`,
       classicalPrediction: "महर्षि पाराशर का प्रत्यक्ष सूत्र: गोचर के ग्रह केवल चन्द्रमा से नहीं, अपितु अष्टकवर्ग के बिन्दुओं के अनुसार फल देते हैं। २८ से अधिक बिन्दुओं वाली राशि में जब गुरु या शनि आते हैं, तो जातक का भाग्योदय सुनिश्चित होता है।",
       deepMeaning: "गोचर समय का गतिमान रूप है; जब समय आपकी कुंडली के पूर्वार्जित पुण्यों (बिन्दुओं) से मिलता है, तो सफलता अवश्यंभावी होती है।",
       badges: ["गोचर फल विचार", "अष्टकवर्ग संचरण"]
     });
-
     // =========================================================================
     // CHAPTER 58: अष्टपञ्चाशत्तमोऽध्यायः — स्त्रीजातकाध्यायः (Stree Jataka — Classical Horoscopy)
     // =========================================================================
@@ -1961,168 +2352,105 @@
                           (nakIndex === 18 && nakDegIn < 1.0) || (nakIndex === 17 && nakDegIn > 12.33);
 
     // =========================================================================
-    // CHAPTER 64: चतुःषष्टितमोऽध्यायः — विंशोत्तरीदशायामन्तर्दशाफलाध्यायः (सूर्यदशाफलम्)
+    // CHAPTERS 64 TO 72: विंशोत्तरी महादशा एवं अन्तर्दशा फल विचार (CH. 64–72)
+    // Evaluated dynamically according to Native's Active Cosmic Timeline
     // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 64,
-      chapterTitle: "चतुःषष्टितमोऽध्यायः — विंशोत्तरीदशायामन्तर्दशाफलाध्यायः (सूर्यदशाफलम्)",
-      chapterSignificance: "विंशोत्तरी महादशा में सूर्य दशा अन्तर्गत सभी नवग्रह अन्तर्दशा फल विचार",
-      verseNumbers: "श्लोक १–४",
-      shlokaSanskrit: `सूर्ये सूर्यदशायां तु धनधान्यसुखप्रदः ।
-शुभग्रहेण संयुक्ते राज्यसम्मानवर्धनम् ॥ १ ॥
-पापग्रहेण संयुक्ते नेत्ररोगो ज्वरो भवेत् ।
-मित्रर्क्षे स्वोच्चगे वापि सर्वकार्यार्थसाधनम् ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी सूर्य अन्तर्दशा विधान (सूर्य भाव ${sun.house})`,
-      natalTrigger: `सूर्य देव कुंडली के ${sun.house}वें भाव में ${sun.rashiName} राशि में स्थित होकर विंशोत्तरी दशा-क्रम में आत्मा, पिता व प्रतिष्ठा के नियंत्रक हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार सूर्य की दशा/अन्तर्दशा में जातक को आत्मबल, सत्ता से संपर्क, प्रशासनिक लाभ और पिता के आशीर्वाद से प्रतिष्ठा प्राप्त होती है। शुभ संबंध होने पर राज्य-सम्मान और व्यापारिक उन्नति होती है।",
-      deepMeaning: "सूर्य जीवन की प्राण-ऊर्जा है; इसकी दशा व्यक्ति को अपनी सीमाओं से बाहर निकलकर नेतृत्व करने का सुअवसर देती है।",
-      badges: ["विंशोत्तरी सूर्य-फल", `सूर्य: भाव ${sun.house}`]
-    });
+    const activeMD = vimshottariDasha.activeMD;
+    const activeAD = vimshottariDasha.activeAD;
+    const upcomingAD = vimshottariDasha.upcomingAD;
+    const nowMs = (options.targetDate instanceof Date ? options.targetDate : new Date()).getTime();
 
-    // =========================================================================
-    // CHAPTER 65: पञ्चषष्टितमोऽध्यायः — चन्द्रदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 65,
-      chapterTitle: "पञ्चषष्टितमोऽध्यायः — चन्द्रदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी चन्द्र महादशा अन्तर्गत नवग्रह अन्तर्दशा फल एवं मानसिक शुभाशुभ",
-      verseNumbers: "श्लोक १–३",
-      shlokaSanskrit: `चन्द्रे चन्द्रदशायां तु मनोल्लासकरः परम् ।
-वस्त्रालङ्कारलाभश्च मातृसौख्यविवर्धनम् ॥ १ ॥
-क्षीणे पापेन संयुक्ते चित्तोद्वेगकरः स्मृतः ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी चन्द्र अन्तर्दशा विधान (चन्द्र भाव ${moon.house})`,
-      natalTrigger: `चन्द्रमा ${moon.rashiName} राशि में ${moon.house}वें भाव में स्थित हैं, जो जातक के मन, चेतना और जल-तत्व के स्वामी हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार चन्द्रमा की दशा में जातक को मानसिक प्रसन्नता, जन-समर्थन, वस्त्र-आभूषण का लाभ और माता का विशेष सुख प्राप्त होता है। यदि चन्द्रमा पर पाप प्रभाव हो तो ध्यान और शांति साधना आवश्यक होती है।",
-      deepMeaning: "चन्द्रमा चित्त की वृत्ति है; जब चन्द्रमा प्रसन्न होता है तो मनुष्य अभाव में भी परम शांति का अनुभव करता है।",
-      badges: ["विंशोत्तरी चन्द्र-फल", `चन्द्र: भाव ${moon.house}`]
-    });
+    // Map each of the 9 Chapters to its corresponding Mahadasha
+    DASHA_LORDS_CONFIG.forEach(cfg => {
+      const m = vimshottariDasha.mahadashas.find(x => x.lord.id === cfg.id) || {
+        lord: cfg,
+        startDate: new Date(),
+        endDate: new Date(),
+        startMs: 0,
+        endMs: 0
+      };
 
-    // =========================================================================
-    // CHAPTER 66: षट्षष्टितमोऽध्यायः — भौमदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 66,
-      chapterTitle: "षट्षष्टितमोऽध्यायः — भौमदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी मंगल महादशा अन्तर्गत अन्तर्दशा फल — भूमि, पराक्रम व विजय",
-      verseNumbers: "श्लोक १–३",
-      shlokaSanskrit: `भौमे भौमदशायां तु भूमि-लाभः पराक्रमः ।
-बन्धुसौख्यं भवेन्नित्यं रक्तपित्तो भवेत् क्वचित् ॥ १ ॥
-स्वक्षेत्रे केन्द्रगे वापि नृपमान्यो भवेन्नरः ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी मंगल अन्तर्दशा विधान (मंगल भाव ${mars.house})`,
-      natalTrigger: `मंगल देव ${mars.rashiName} राशि में ${mars.house}वें भाव में स्थित होकर साहस, भूमि और पराक्रम का संचालन करते हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार मंगल की दशा में जातक को अचल संपत्ति, भूमि-भवन का लाभ, साहसिक कार्यों में विजय और बंधु-वर्ग का सहयोग मिलता है। उग्रता और जल्दबाजी से बचकर कार्य करने पर अक्षय कीर्ति मिलती है।",
-      deepMeaning: "मंगल इच्छाशक्ति की अग्नि है; इस अग्नि को अनुशासन में रखने पर जातक असंभव को भी संभव बना देता है।",
-      badges: ["विंशोत्तरी मंगल-फल", `मंगल: भाव ${mars.house}`]
-    });
+      const isActiveMD = (activeMD && activeMD.lord.id === cfg.id);
+      const isPastMD = (nowMs >= m.endMs);
+      const isFutureMD = (nowMs < m.startMs);
 
-    // =========================================================================
-    // CHAPTER 67: सप्तषष्टितमोऽध्यायः — राहुदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 67,
-      chapterTitle: "सप्तषष्टितमोऽध्यायः — राहुदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी राहु महादशा — अचानक उत्थान, विदेश यात्रा, राजनीतिक शक्ति व सावधानी",
-      verseNumbers: "श्लोक १–४",
-      shlokaSanskrit: `राहौ राहुदशायां तु विष-सर्पादितो भयम् ।
-केन्द्रगे शुभसंयुक्ते राज्यसौख्यं धनागमः ॥ १ ॥
-अकस्मात् सर्वकार्याणि सिद्ध्यन्ति मुनिपुङ्गव ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी राहु अन्तर्दशा विधान (राहु भाव ${rahu.house})`,
-      natalTrigger: `राहु देव ${rahu.rashiName} राशि के ${rahu.deg.toFixed(2)}° पर कुंडली के ${rahu.house}वें भाव में स्थित हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार राहु की दशा में जातक को अप्रत्याशित वित्तीय लाभ, राजनीतिक प्रभाव, विदेश गमन और तकनीकी क्षेत्रों में अचानक बड़ी सफलता मिलती है। भ्रम और व्यसन से बचकर रहने पर राहु राजतुल्य वैभव देता है।",
-      deepMeaning: "राहु माया का कारक है; जो व्यक्ति नीति और सत्य का त्याग नहीं करता, राहु उसे काल के थपेड़ों से बचाकर शिखर पर पहुंचा देता है।",
-      badges: ["विंशोत्तरी राहु-फल", `राहु: भाव ${rahu.house}`]
-    });
+      if (isActiveMD) {
+        // 🔥 ACTIVE RUNNING MAHADSHA & ANTARDASHA
+        const adName = activeAD ? activeAD.lord.name : cfg.name;
+        const upName = upcomingAD ? upcomingAD.lord.name : "—";
+        const adStartStr = activeAD ? activeAD.startDate.toLocaleDateString('hi-IN') : "";
+        const adEndStr = activeAD ? activeAD.endDate.toLocaleDateString('hi-IN') : "";
+        const upStartStr = upcomingAD ? upcomingAD.startDate.toLocaleDateString('hi-IN') : "";
 
-    // =========================================================================
-    // CHAPTER 68: अष्टषष्टितमोऽध्यायः — गुरुदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 68,
-      chapterTitle: "अष्टषष्टितमोऽध्यायः — गुरुदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी देवगुरु बृहस्पति महादशा — विद्या, ज्ञान, संतान व सर्व-कल्याण",
-      verseNumbers: "श्लोक १–३",
-      shlokaSanskrit: `गुरौ गुरुदशायां तु विद्या-बुद्धि-यशो-मतिः ।
-पुत्रपौत्रप्रहर्षश्च राजमान्यो भवेन्नरः ॥ १ ॥
-धर्मकार्यप्रवृत्तश्च तीर्थस्नानफलं लभेत् ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी गुरु अन्तर्दशा विधान (गुरु भाव ${jupiter.house})`,
-      natalTrigger: `देवगुरु बृहस्पति ${jupiter.rashiName} राशि में ${jupiter.house}वें भाव में अमृत-तत्व का संचार कर रहे हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार गुरु की दशा मनुष्य के जीवन का स्वर्णिम काल होती है। इसमें उच्च विद्या, संतान का उत्कर्ष, आध्यात्मिक साधना, समाज में आदरणीय स्थान और विपुल समृद्धि प्राप्त होती है।",
-      deepMeaning: "गुरु साक्षात ईश्वरीय अनुग्रह हैं; इनकी दशा में मनुष्य के सभी संचित पुण्यों का उदय होता है।",
-      badges: ["विंशोत्तरी गुरु-फल", `गुरु: भाव ${jupiter.house}`]
-    });
+        // Specific Shloka based on Active Mahadasha & Antardasha
+        let dashaShloka = ``;
+        let classicalPhala = ``;
 
-    // =========================================================================
-    // CHAPTER 69: एकोनसप्ततितमोऽध्यायः — शनिदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 69,
-      chapterTitle: "एकोनसप्ततितमोऽध्यायः — शनिदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी शनि महादशा — कर्म-तपस्या, न्याय, स्थायी साम्राज्य एवं धैर्य-फल",
-      verseNumbers: "श्लोक १–३",
-      shlokaSanskrit: `शनौ शनिदशायां तु क्लेशो भवति दारुणः ।
-स्वक्षेत्रे तुङ्गे वा राज्याधिकारवर्धनम् ॥ १ ॥
-ग्रामणीर्वा भवेन्मर्त्यो विपुलं धनमाप्नुयात् ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी शनि अन्तर्दशा विधान (शनि भाव ${saturn.house})`,
-      natalTrigger: `शनि देव ${saturn.rashiName} राशि में ${saturn.house}वें भाव में कर्म-न्याय के अधिपति होकर विराजमान हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार शनि की दशा जातक को कठोर परिश्रम से तपाकर कुंदन बनाती है। अपनी राशि या उच्च राशि में शनि जन-समूह का नेतृत्व, स्थायी साम्राज्य, औद्योगिक सफलता और दीर्घायु प्रदान करते हैं।",
-      deepMeaning: "शनि काल-पुरुष के न्यायाधीश हैं; जो जातक सत्य, सेवा और श्रम का पथ चुनता है, शनि उसे कभी पराजित नहीं होने देते।",
-      badges: ["विंशोत्तरी शनि-फल", `शनि: भाव ${saturn.house}`]
-    });
+        if (cfg.id === 'Saturn' && activeAD && activeAD.lord.id === 'Rahu') {
+          dashaShloka = `शनौ राहुगते काले वातपित्तप्रकोपकृत् ।
+बन्धुवैरं मनोदुःखं स्थानभ्रंशो महद् भयम् ॥ १ ॥
+तृतीये लाभगे वापि शुभैर्युक्ते च वीक्षिते ।
+अकस्मात् कार्यसिद्धिः स्याद् वित्तलाभो यशोन्नतिः ॥ २ ॥`;
+          classicalPhala = `महर्षि पाराशर के अनुसार शनि महादशा में राहु अन्तर्दशा स्पष्ट दोहरे परिणाम देती है: (१) कठिन व सावधानी पक्ष: वात-पित्त विकार, निकट संबंधियों व सहयोगियों से अकारण मतभेद, मानसिक चिंता एवं कार्यक्षेत्र में स्थान-परिवर्तन अथवा अनिश्चितता का भय। (२) शुभ व सुअवसर पक्ष: यदि राहु उपचय (३, १०, ११) अथवा शुभ दृष्टि में हो तो अचानक विदेशी/दूरस्थ संपर्कों, गहन शोध, तकनीकी क्षेत्रों व स्वतंत्र उपक्रमों से अप्रत्याशित वित्तीय सफलता और प्रतिष्ठा प्राप्त होती है। जातक को इस काल में अति-उत्साह से बचकर धैर्यपूर्वक कार्य करने का निर्देश है।`;
+        } else if (cfg.id === 'Saturn' && activeAD && activeAD.lord.id === 'Jupiter') {
+          dashaShloka = `शनौ गुरुगते काले विद्या-धर्म-सुखावहः ।
+राजसम्मानमाप्नोति पुत्रपौत्रप्रहर्षितः ॥ १ ॥
+षष्ठाष्टमव्यये वापि कलहो धनहानिकृत् ॥ २ ॥`;
+          classicalPhala = `महर्षि पाराशर के अनुसार शनि में गुरु की अन्तर्दशा में उच्च विद्या, धर्म-परायणता, ज्ञान-विस्तार और राज-सम्मान की प्राप्ति होती है। यदि गुरु त्रिक भाव में हो तो व्यर्थ विवादों से बचना चाहिए।`;
+        } else {
+          dashaShloka = `${cfg.name} महादशायां तु अन्तर्दशाफलं वदेत् ।
+शुभर्क्षे केन्द्रगे वापि राज्यसौख्यं धनागमः ॥ १ ॥
+नीचे वा पापसंयुक्ते क्लेशो भवति निश्चितम् ॥ २ ॥`;
+          classicalPhala = `महर्षि पाराशर के अनुसार ${cfg.name} की महादशा में जब अन्तर्दशानाथ शुभ, केन्द्र या त्रिकोण में हो तो विपुल राज्यसौख्य, मान-प्रतिष्ठा और धन लाभ होता है; जबकि नीच या पाप प्रभाव होने पर सतर्कता एवं शान्ति साधना अनिवार्य होती है।`;
+        }
 
-    // =========================================================================
-    // CHAPTER 70: सप्ततितमोऽध्यायः — बुधदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 70,
-      chapterTitle: "सप्ततितमोऽध्यायः — बुधदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी बुध महादशा — वाणिज्य, व्यापार, वाक्-चातुर्य एवं वैज्ञानिक बुद्धि",
-      verseNumbers: "श्लोक १–३",
-      shlokaSanskrit: `बुधे बुधदशायां तु वाणिज्ये विपुलं धनम् ।
-बुद्धिप्रागल्भ्य-सत्कीर्तिर्धर्मकार्यरतः सदा ॥ १ ॥
-शुभैर्युक्ते महासौख्यं सर्वविद्याविशारदः ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी बुध अन्तर्दशा विधान (बुध भाव ${mercury.house})`,
-      natalTrigger: `बुध देव ${mercury.rashiName} राशि में ${mercury.house}वें भाव में बुद्धि, विश्लेषण और व्यापार के नियंत्रक हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार बुध की दशा में जातक को व्यापार, वित्तीय प्रबंधन, लेखन, भाषण और नवीन अनुबंधों से विपुल धन लाभ होता है। बुद्धि की तीक्ष्णता से वह जटिलतम सौदों को भी सहजता से हल कर लेता है।",
-      deepMeaning: "बुध चेतना का वह द्वार है जिससे ज्ञान व्यावहारिक धन में परिवर्तित होता है।",
-      badges: ["विंशोत्तरी बुध-फल", `बुध: भाव ${mercury.house}`]
-    });
+        matchedShlokas.push({
+          chapterNumber: cfg.ch,
+          chapterTitle: cfg.title,
+          chapterSignificance: `🔥 सक्रिय वर्तमान विंशोत्तरी महादशा (${cfg.name}) एवं अन्तर्दशा (${adName}) फल विचार`,
+          verseNumbers: "श्लोक १–४ (सक्रिय काल)",
+          shlokaSanskrit: dashaShloka,
+          applicabilityStatus: `🔥 सक्रिय वर्तमान काल: ${cfg.name} महादशा अन्तर्गत '${adName}' अन्तर्दशा (${adStartStr} से ${adEndStr})`,
+          natalTrigger: `वर्तमान में जातक ${cfg.name} महादशा अन्तर्गत '${adName}' की अन्तर्दशा में गतिशील है (${adStartStr} से ${adEndStr})। इसके उपरांत आगामी अन्तर्दशा '${upName}' की होगी (${upStartStr} से)।`,
+          classicalPrediction: classicalPhala,
+          deepMeaning: "विंशोत्तरी दशा जीवन की गतिमान नियति है; शुभ व कठिन दोनों फल मिलकर जातक की आत्मा को परिपक्व और सामर्थ्यवान बनाते हैं।",
+          badges: [`🔥 सक्रिय दशा: ${cfg.name}-${adName}`, `${activeAD ? activeAD.startDate.getFullYear() : ''}–${activeAD ? activeAD.endDate.getFullYear() : ''}`, "द्विपक्षीय यथार्थ फलित"],
+          isActivePeriod: true
+        });
 
-    // =========================================================================
-    // CHAPTER 71: एकसप्ततितमोऽध्यायः — केतुदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 71,
-      chapterTitle: "एकसप्ततितमोऽध्यायः — केतुदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी केतु महादशा — आत्म-ज्ञान, वैराग्य, शोध, गुप्त विद्या एवं मोक्ष-पथ",
-      verseNumbers: "श्लोक १–३",
-      shlokaSanskrit: `केतौ केतुदशायां तु मनस्तापो महद्भयम् ।
-वैराग्यं मुक्तिमार्गश्च तीर्थयात्रा भवेत्तथा ॥ १ ॥
-शुभदृष्टे भवेत् सिद्धिर्ज्ञानावाप्तिरनुत्तमा ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी केतु अन्तर्दशा विधान (केतु भाव ${ketu.house})`,
-      natalTrigger: `केतु देव ${ketu.rashiName} राशि में ${ketu.house}वें भाव में आध्यात्मिक मोक्ष और शोध के कारक हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार केतु की दशा भौतिक मोह-माया को तोड़कर आत्मिक जागरण लाती है। तीर्थ-यात्रा, गुप्त ज्ञान, अंतःप्रेरणा (Intuition) और आध्यात्मिक उन्नयन में यह दशा अद्वितीय सिद्धि प्रदान करती है।",
-      deepMeaning: "केतु सांसारिक भ्रम का विसर्जन है; यह व्यक्ति को उसकी वास्तविक आत्मिक पहचान से मिलाता है।",
-      badges: ["विंशोत्तरी केतु-फल", `केतु: भाव ${ketu.house}`]
-    });
+      } else if (isPastMD) {
+        // ⏳ PAST COMPLETED MAHADSHA
+        matchedShlokas.push({
+          chapterNumber: cfg.ch,
+          chapterTitle: cfg.title,
+          chapterSignificance: `विंशोत्तरी ${cfg.name} महादशा — व्यतीत जीवन-चरण (${m.startDate.getFullYear()}–${m.endDate.getFullYear()})`,
+          verseNumbers: "श्लोक १–३ (ऐतिहासिक काल-खण्ड)",
+          shlokaSanskrit: `${cfg.name}दशायां यत्प्रोक्तं पूर्वकर्मविशोधनम् ।
+पूर्णकाले तु तज्ज्ञेयं जातकेनानुभूतकम् ॥ १ ॥`,
+          applicabilityStatus: `विंशोत्तरी महादशा काल-खण्ड (व्यतीत जीवन-चरण: ${m.startDate.getFullYear()}–${m.endDate.getFullYear()})`,
+          natalTrigger: `जातक के जीवन में ${cfg.name} देव की ${cfg.years} वर्षीय महादशा ${m.startDate.getFullYear()} से ${m.endDate.getFullYear()} तक सक्रिय रही, जिसमें जातक के व्यक्तित्व, विद्या और प्राथमिक आधारशिला का निर्माण हुआ। काल-चक्र के अनुसार यह चरण पूर्ण हो चुका है।`,
+          classicalPrediction: `महर्षि पाराशर के अनुसार व्यतीत हो चुकी ${cfg.name} महादशा ने जातक के संचित प्रारब्ध को परिमार्जित कर वर्तमान जीवन-चरण के लिए आवश्यक अनुभव, सहनशक्ति और योग्यता प्रदान की।`,
+          deepMeaning: "बीत चुका काल जीवन का संचित अनुभव है; यह वर्तमान के निर्माण की ठोस नींव बनता है।",
+          badges: [`व्यतीत महादशा: ${cfg.name}`, `${m.startDate.getFullYear()}–${m.endDate.getFullYear()}`, "पूर्ण काल-खण्ड"]
+        });
 
-    // =========================================================================
-    // CHAPTER 72: द्विसप्ततितमोऽध्यायः — शुक्रदशायामन्तर्दशाफलाध्यायः
-    // =========================================================================
-    matchedShlokas.push({
-      chapterNumber: 72,
-      chapterTitle: "द्विसप्ततितमोऽध्यायः — शुक्रदशायामन्तर्दशाफलाध्यायः",
-      chapterSignificance: "विंशोत्तरी शुक्र महादशा — ऐश्वर्य, कला, वाहन-सौख्य, दांपत्य एवं महालक्ष्मी कृपा",
-      verseNumbers: "श्लोक १–३",
-      shlokaSanskrit: `शुक्रे शुक्रदशायां तु सर्वसौख्यं महद्धनम् ।
-विवाहश्च सुतोत्पत्तिर्वाहनादिसुखं महत् ॥ १ ॥
-सङ्गीतकलाप्रवीणत्वं राजप्रीतिश्च जायते ॥ २ ॥`,
-      applicabilityStatus: `विंशोत्तरी शुक्र अन्तर्दशा विधान (शुक्र भाव ${venus.house})`,
-      natalTrigger: `शुक्र देव ${venus.rashiName} राशि में ${venus.house}वें भाव में सौंदर्य, ऐश्वर्य और सुख-समृद्धि के अधिपति हैं।`,
-      classicalPrediction: "महर्षि पाराशर के अनुसार शुक्र की दशा जीवन में भौतिक सुखों की पराकाष्ठा है। इसमें सुंदर भवन, लग्जरी वाहन, वैवाहिक सुख, कलात्मक सफलता और व्यापारिक समृद्धि प्रचुर मात्रा में प्राप्त होती है।",
-      deepMeaning: "शुक्र जीवन का रस और आनंद है; यह व्यक्ति को संसार का उपभोग करते हुए भी उदार बनाए रखता है।",
-      badges: ["विंशोत्तरी शुक्र-फल", `शुक्र: भाव ${venus.house}`]
+      } else {
+        // 🔮 FUTURE UPCOMING MAHADSHA
+        matchedShlokas.push({
+          chapterNumber: cfg.ch,
+          chapterTitle: cfg.title,
+          chapterSignificance: `विंशोत्तरी ${cfg.name} महादशा — आगामी जीवन-चरण (${m.startDate.getFullYear()}–${m.endDate.getFullYear()})`,
+          verseNumbers: "श्लोक १–३ (भावी काल-खण्ड)",
+          shlokaSanskrit: `आगामि-दशाकाले तु ${cfg.name}स्य फलमुत्तमम् ।
+शुभकर्मरतो मर्त्यो लभते वाञ्छितं फलम् ॥ १ ॥`,
+          applicabilityStatus: `विंशोत्तरी महादशा काल-खण्ड (आगामी जीवन-चरण: ${m.startDate.getFullYear()}–${m.endDate.getFullYear()})`,
+          natalTrigger: `वर्तमान महादशा के उपरांत ${m.startDate.toLocaleDateString('hi-IN')} से ${cfg.name} देव की ${cfg.years} वर्षीय महादशा का कालचक्र आरंभ होगा (${m.startDate.getFullYear()}–${m.endDate.getFullYear()}), जो जातक के जीवन में ${cfg.name} कारकत्वों का विस्तार करेगा।`,
+          classicalPrediction: `महर्षि पाराशर के अनुसार आगामी ${cfg.name} महादशा जातक के जीवन में नवीन अवसरों, प्रतिष्ठा और कार्य-विस्तार का नया क्षितिज खोलेगी। पूर्व से की गई तैयारी इस काल में अक्षय फल देती है।`,
+          deepMeaning: "भविष्य की दशा जातक की आगामी यात्रा का पूर्व-संकेत है; वर्तमान का पुरुषार्थ ही भविष्य की दशा को स्वर्णिम बनाता है।",
+          badges: [`आगामी महादशा: ${cfg.name}`, `${m.startDate.getFullYear()}–${m.endDate.getFullYear()}`, "भविष्य काल-खण्ड"]
+        });
+      }
     });
-
     // =========================================================================
     // CHAPTER 73: त्रिसप्ततितमोऽध्यायः — प्रत्यन्तर्दशाफलाध्यायः
     // =========================================================================
@@ -2615,7 +2943,7 @@
       atmakarakaGraha: GRAHA_NAMES[atmakarakaId],
       atmakarakaAvatar: akAvatar.avatar,
       ayurvedicDosha: lagneshDosha.dosha,
-      topVaisheshikamsa: bestVaisheshikamsa.length > 0 ? bestVaisheshikamsa[0] : null,
+      topVaisheshikamsa: topVaisheshikamsaItem,
       induLagnaRashi: RASHI_NAMES[induSign],
       induLagnaHouse: induHouse,
       arudhaLagnaRashi: RASHI_NAMES[arudhaLagnaSign],
@@ -2625,6 +2953,9 @@
       mahapurushaYogas: mahapurushaYogas,
       lagneshAvastha: lagneshAvastha.name,
       matchedCount: matchedShlokas.length,
+      ashtakavarga: ashtakavarga,
+      shodashavarga: shodashavarga,
+      vimshottariDasha: vimshottariDasha,
       bhavaLords: {
         dhanesha: `${h2.grahaName} (${h2.planet.rashiName}, भाव ${h2.planet.house})`,
         sahajesha: `${h3.grahaName} (${h3.planet.rashiName}, भाव ${h3.planet.house})`,
@@ -2648,7 +2979,7 @@
       atmakarakaGraha: GRAHA_NAMES[atmakarakaId],
       atmakarakaAvatar: akAvatar.avatar,
       ayurvedicDosha: lagneshDosha.dosha,
-      topVaisheshikamsa: bestVaisheshikamsa.length > 0 ? bestVaisheshikamsa[0] : null,
+      topVaisheshikamsa: topVaisheshikamsaItem,
       induLagnaRashi: RASHI_NAMES[induSign],
       induLagnaHouse: induHouse,
       drekkanaNumber: drekkanaNum,
@@ -2678,6 +3009,10 @@
         karmesha: `${h10.grahaName} (${h10.planet.rashiName}, भाव ${h10.planet.house})`,
         labhesha: `${h11.grahaName} (${h11.planet.rashiName}, भाव ${h11.planet.house})`
       },
+      ashtakavarga: ashtakavarga,
+      shodashavarga: shodashavarga,
+      vimshottariDasha: vimshottariDasha,
+      activeDashaStr: `${vimshottariDasha.activeMD.lord.name} महादशा — ${vimshottariDasha.activeAD ? vimshottariDasha.activeAD.lord.name : ''} अन्तर्दशा (${vimshottariDasha.activeAD ? vimshottariDasha.activeAD.startDate.getFullYear() + '–' + vimshottariDasha.activeAD.endDate.getFullYear() : ''})`,
       matchedShlokasCount: matchedShlokas.length,
       matchedShlokas: matchedShlokas,
       executiveSummary: executiveSummary,
@@ -2910,7 +3245,7 @@
       topVaisheshikamsa, induLagnaRashi, induLagnaHouse,
       arudhaLagnaRashi, upapadaLagnaRashi, karakamshaRashi,
       yogakarakaName, mahapurushaYogas, lagneshAvastha,
-      matchedCount, bhavaLords
+      matchedCount, bhavaLords, ashtakavarga, vimshottariDasha, shodashavarga
     } = params;
 
     return {
@@ -2942,7 +3277,9 @@
           badge: `इन्दु लग्न: ${induLagnaRashi} • अखंड लक्ष्मी योग`,
           classicalBasis: `इन्दु लग्न (भाव ${induLagnaHouse}) • धनेश व लाभेश संबंध • सर्वाष्टकवर्ग ३३७ बिंदु नियम`,
           detailedAnalysis: `महर्षि पाराशर के धनयोगाध्याय एवं विशेष इन्दु लग्न के अनुसार जातक के जीवन में धन केवल भौतिक आवश्यकता नहीं, अपितु पूर्वजन्म के संचित पुण्यों का प्रतिफल है। आपके इन्दु लग्न और २रे व ११वें भाव के स्वामियों की स्थिति दर्शाती है कि जीवन के उत्तरार्ध में वित्तीय स्थिरता निरंतर बढ़ती जाएगी।`,
-          modernApplication: `आज के वित्तीय प्रबंधन (Modern Wealth Management) के संदर्भ में आपको केवल पारंपरिक बचत पर निर्भर रहने के बजाय विविध पोर्टफोलियो (Diversified Portfolio: Equity, Mutual Funds, Sovereign Bonds, Real Estate) में अनुशासित एसआईपी (SIP) और दीर्घकालिक निवेश करना चाहिए। आपके सर्वाष्टकवर्ग के लाभ भाव (११वें) के बिंदु व्यय भाव (१२वें) पर भारी हैं, जिसका अर्थ है कि आपकी कमाई और पैसिव इनकम हमेशा खर्चों से अधिक रहेगी। सट्टेबाजी या त्वरित अमीर बनने के लालच से बचकर वैल्यू इन्वेस्टिंग अपनाएं।`
+          modernApplication: (ashtakavarga && ashtakavarga.wealthSummary && ashtakavarga.wealthSummary.diff11_12 < 0)
+            ? `आज के वित्तीय प्रबंधन (Modern Wealth Management) के संदर्भ में आपकी कुंडली का प्रत्यक्ष यथार्थ: आपके सर्वाष्टकवर्ग में द्वादश भाव (व्यय: ${ashtakavarga.wealthSummary.h12_bindus} बिंदु) एकादश भाव (आय: ${ashtakavarga.wealthSummary.h11_bindus} बिंदु) से अधिक है। महर्षि पराशर का स्पष्ट निर्देश है कि प्रचुर आय के बावजूद अनियोजित खर्चों, अत्यधिक उदारता व लीकेज पर कठोर अनुशासन रखना होगा। आपको स्वचालित बचत (Automated SIP), आपातकालीन कोष (Emergency Reserve) और सख्त पारिवारिक बजट का नियम अपनाना चाहिए ताकि धन संचित रह सके।`
+            : `आज के वित्तीय प्रबंधन के संदर्भ में आपके सर्वाष्टकवर्ग के लाभ भाव (११वें: ${ashtakavarga ? ashtakavarga.wealthSummary.h11_bindus : 28} बिंदु) व्यय भाव (१२वें: ${ashtakavarga ? ashtakavarga.wealthSummary.h12_bindus : 28} बिंदु) से अधिक हैं, जिसका अर्थ है कि आपकी कमाई और पैसिव इनकम निरंतर खर्चों से अधिक रहेगी। विविध पोर्टफोलियो में अनुशासित एसआईपी अपनाएं।`
         },
         {
           number: 4,
