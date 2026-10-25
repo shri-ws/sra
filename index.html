@@ -2507,6 +2507,16 @@
             <div class="card-sub">२३ प्रामाणिक धन योग, इन्दु लग्न व लक्ष्मी योग</div>
           </a>
 
+          <!-- CARD: MEGA PARASHARA KUNDALI REPORT (RESTRICTED MPKR1111) -->
+          <div class="app-service-card" onclick="openParasharaAuthModal()" role="button" tabindex="0" aria-label="मेगा पाराशर संहिता रिपोर्ट" style="cursor:pointer; text-decoration:none;">
+            <div class="card-top-row">
+              <div class="card-glyph">📜</div>
+              <span class="card-badge vip" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff;">🔒 अधिकृत कोड</span>
+            </div>
+            <div class="card-title">मेगा पाराशर संहिता रिपोर्ट</div>
+            <div class="card-sub">बृहत्पाराशरहोराशास्त्रम् मूल श्लोक मिलान (अध्याय १-१०)</div>
+          </div>
+
           <!-- CARD 9: ASTROLOGY BLOGS & RESEARCH -->
           <a href="about.html?tab=admin_blogs" class="app-service-card" aria-label="ज्योतिष शोध व ब्लॉग">
             <div class="card-top-row">
@@ -3746,6 +3756,25 @@
     </div>
   </div>
 
+  <!-- MODAL: PARASHARA REPORT AUTH GATE (CODE: MPKR1111) -->
+  <div class="modal-overlay" id="parasharaAuthModal" onclick="if(event.target===this)closeModal('parasharaAuthModal')">
+    <div class="modal" style="max-width:440px; text-align:center; padding:32px 24px;">
+      <button class="modal-close" onclick="closeModal('parasharaAuthModal')" aria-label="Close">✕</button>
+      <div style="font-size:42px; margin-bottom:10px;">🔐</div>
+      <h3 style="font-family:'Cinzel',serif; font-size:20px; color:var(--heading-color); font-weight:800; margin-bottom:8px;">मेगा पाराशर संहिता रिपोर्ट</h3>
+      <p style="font-size:13.5px; color:var(--muted); margin-bottom:18px; line-height:1.6;">
+        यह विशेष मॉड्यूल अधिकृत सुरक्षा कोड द्वारा सुरक्षित है। कृपया जारी रखने के लिए एक्सेस कोड दर्ज करें:
+      </p>
+      <input type="password" id="indexParasharaPassInput" placeholder="सुरक्षा कोड दर्ज करें" style="width:100%; padding:13px 16px; font-size:17px; text-align:center; font-weight:800; letter-spacing:2px; border-radius:10px; border:1.5px solid var(--gold-border); background:var(--bg); color:var(--text); margin-bottom:14px;" onkeydown="if(event.key==='Enter')submitParasharaAuthCode()" />
+      <button type="button" class="modal-btn" onclick="submitParasharaAuthCode()" style="background:linear-gradient(135deg, #7c1305, #dc2626); font-family:inherit; font-size:14px; font-weight:800; letter-spacing:1px; width:100%;">
+        सत्यापित करें एवं रिपोर्ट खोलें
+      </button>
+      <div id="indexParasharaErrMsg" style="color:#dc2626; font-size:12.5px; font-weight:700; margin-top:10px; display:none;">
+        ❌ अमान्य कोड! केवल अधिकृत व्यक्ति ही इसे खोल सकते हैं।
+      </div>
+    </div>
+  </div>
+
   <!-- SEO AUTHORITY BLOCK -->
   <section class="seo-authority-block" style="padding: 40px 20px; background-color: var(--card-bg, #fcfbf7); border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border); margin-top: 40px;">
     <div class="section-wrap">
@@ -3812,6 +3841,40 @@
   function closeModal(id) {
     const el = document.getElementById(id);
     if(el) el.classList.remove('open');
+  }
+  function openParasharaAuthModal() {
+    const saved = localStorage.getItem('sra_mpkr_authorized');
+    if (saved === 'true') {
+      window.location.href = '/parashara-report.html?key=MPKR1111';
+      return;
+    }
+    const m = document.getElementById('parasharaAuthModal');
+    if (m) {
+      m.classList.add('open');
+      const inp = document.getElementById('indexParasharaPassInput');
+      if (inp) { inp.value = ''; inp.focus(); }
+    } else {
+      const code = prompt("🔐 अधिकृत सुरक्षा कोड दर्ज करें (Access Restricted):");
+      if (code && code.trim() === "MPKR1111") {
+        try { localStorage.setItem('sra_mpkr_authorized', 'true'); } catch(e){}
+        window.location.href = '/parashara-report.html?key=MPKR1111';
+      } else if (code) {
+        alert("❌ अमान्य सुरक्षा कोड!");
+      }
+    }
+  }
+  function submitParasharaAuthCode() {
+    const inp = document.getElementById('indexParasharaPassInput');
+    const err = document.getElementById('indexParasharaErrMsg');
+    if (inp && inp.value.trim() === "MPKR1111") {
+      try { localStorage.setItem('sra_mpkr_authorized', 'true'); } catch(e){}
+      window.location.href = '/parashara-report.html?key=MPKR1111';
+    } else {
+      if (err) {
+        err.style.display = 'block';
+        setTimeout(() => { err.style.display = 'none'; }, 3000);
+      }
+    }
   }
   function toggleMobileMenu() {
     if (typeof window.toggleNavDrawer === 'function') {
