@@ -13,27 +13,28 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#7c1305" />
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Royal Vedic & Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Mukta:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Martel:wght@400;600;700;800&family=Mukta:wght@400;500;600;700;800&family=Noto+Serif+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rozha+One&display=swap" rel="stylesheet" />
 
   <style>
     :root {
       --primary: #7c1305;
-      --primary-dark: #580c02;
+      --primary-dark: #4a0404;
       --gold: #d4af37;
       --gold-dark: #b45309;
       --gold-light: #fef3c7;
-      --bg: #fcf8f2;
+      --bg: #fcf9f2;
       --card-bg: #ffffff;
       --text: #1e293b;
       --text-muted: #64748b;
       --border: #e2e8f0;
-      --border-gold: rgba(212, 175, 55, 0.4);
-      --font-hindi: 'Noto Sans Devanagari', 'Mukta', sans-serif;
+      --border-gold: rgba(212, 175, 55, 0.45);
+      --font-hindi: 'Mukta', 'Noto Serif Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-shloka: 'Martel', 'Noto Serif Devanagari', serif;
+      --font-title: 'Cinzel', 'Rozha One', serif;
       --font-eng: 'Plus Jakarta Sans', sans-serif;
-      --font-title: 'Cinzel', serif;
     }
 
     body.dark-mode {
@@ -55,7 +56,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-hindi);
-      line-height: 1.6;
+      line-height: 1.7;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -293,42 +294,182 @@
       border: 1px solid rgba(180, 83, 9, 0.3);
     }
     .shloka-quote-box {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(124, 19, 5, 0.04));
-      border-left: 4px solid var(--primary);
-      border-radius: 0 10px 10px 0;
-      padding: 14px 18px;
-      font-size: 16.5px;
-      line-height: 1.8;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(124, 19, 5, 0.05));
+      border-left: 5px solid var(--primary);
+      border-radius: 0 12px 12px 0;
+      padding: 16px 20px;
+      font-family: var(--font-shloka);
+      font-size: 18px;
+      line-height: 2.1;
       font-weight: 700;
-      color: var(--primary-dark);
+      color: #4a0404;
       margin-bottom: 16px;
       white-space: pre-line;
+      letter-spacing: 0.3px;
     }
     body.dark-mode .shloka-quote-box {
-      color: #fcd34d;
+      color: #fef08a;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(124, 19, 5, 0.2));
     }
     .trigger-box {
-      background: rgba(241, 245, 249, 0.6);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13.5px;
-      margin-bottom: 12px;
+      background: rgba(241, 245, 249, 0.65);
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: 14px;
+      margin-bottom: 14px;
       border: 1px solid var(--border);
     }
     body.dark-mode .trigger-box {
       background: rgba(30, 41, 59, 0.7);
     }
     .prediction-box {
+      font-size: 15.5px;
+      line-height: 1.8;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+    .modern-box {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(99, 102, 241, 0.04));
+      border-left: 4px solid #0284c7;
+      border-radius: 0 10px 10px 0;
+      padding: 14px 18px;
       font-size: 14.5px;
-      line-height: 1.7;
-      margin-bottom: 10px;
+      line-height: 1.8;
+      margin: 14px 0;
+      color: #0f172a;
+    }
+    body.dark-mode .modern-box {
+      background: rgba(14, 165, 233, 0.12);
+      color: #bae6fd;
+      border-left-color: #38bdf8;
     }
     .meaning-box {
-      font-size: 13px;
+      font-size: 13.5px;
       color: var(--text-muted);
       border-top: 1px dashed var(--border);
-      padding-top: 8px;
-      font-style: italic;
+      padding-top: 10px;
+      line-height: 1.7;
+    }
+
+    /* REPORT TOOLBAR */
+    .report-header-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 28px 0 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 2px solid var(--border-gold);
+      padding-bottom: 14px;
+    }
+    .btn-top-print {
+      padding: 8px 18px;
+      font-size: 14px;
+      background: linear-gradient(135deg, #7c1305, #b45309);
+      color: #fff !important;
+      border: none;
+      box-shadow: 0 3px 10px rgba(124, 19, 5, 0.25);
+    }
+
+    /* 7-PILLAR EXECUTIVE SUMMARY CARD */
+    .summary-executive-card {
+      background: var(--card-bg);
+      border: 2px solid var(--gold);
+      border-radius: 20px;
+      padding: 32px 24px;
+      margin: 40px 0 32px;
+      box-shadow: 0 8px 30px rgba(212, 175, 55, 0.12);
+      position: relative;
+    }
+    .summary-executive-header {
+      text-align: center;
+      margin-bottom: 28px;
+      border-bottom: 2px dashed var(--border-gold);
+      padding-bottom: 20px;
+    }
+    .summary-executive-header h2 {
+      font-size: clamp(22px, 3vw, 28px);
+      color: var(--primary);
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .summary-executive-header p {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .pillar-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .pillar-box {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1.5px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.03);
+    }
+    body.dark-mode .pillar-box {
+      background: rgba(30, 41, 59, 0.6);
+    }
+    .pillar-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .pillar-title {
+      font-size: 17.5px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pillar-badge {
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(212, 175, 55, 0.18);
+      color: var(--gold-dark);
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border-gold);
+    }
+    .pillar-basis {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.03);
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+    body.dark-mode .pillar-basis {
+      background: rgba(255,255,255,0.05);
+    }
+    .pillar-analysis {
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .pillar-modern {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(99, 102, 241, 0.04));
+      border-left: 4px solid #0284c7;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: #0f172a;
+    }
+    body.dark-mode .pillar-modern {
+      background: rgba(14, 165, 233, 0.12);
+      color: #bae6fd;
     }
 
     /* ACTION BUTTONS */
@@ -340,26 +481,123 @@
       flex-wrap: wrap;
     }
     .btn-act {
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 700;
+      padding: 14px 26px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 800;
       cursor: pointer;
       font-family: var(--font-hindi);
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       border: none;
       text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-act:hover {
+      transform: translateY(-2px);
     }
     .btn-act-print {
-      background: var(--card-bg);
-      border: 1.5px solid var(--primary);
-      color: var(--primary);
+      background: linear-gradient(135deg, #7c1305, #b45309);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(124, 19, 5, 0.3);
     }
     .btn-act-share {
       background: linear-gradient(135deg, #25D366, #128C7E);
       color: #fff;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+    }
+
+    /* PRINT STYLESHEET */
+    .print-only-header {
+      display: none;
+    }
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 10mm 14mm 10mm;
+      }
+      html, body {
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        background: #ffffff !important;
+        color: #111111 !important;
+        font-size: 11pt !important;
+        overflow: visible !important;
+      }
+      header, 
+      .hero-banner, 
+      .kundali-card, 
+      .action-row, 
+      .theme-toggle-btn, 
+      #gateOverlay, 
+      #modalNewKundali, 
+      .btn-new-k, 
+      .btn-generate,
+      .btn-top-print,
+      .print-hide {
+        display: none !important;
+      }
+      .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      #reportViewContainer {
+        display: block !important;
+      }
+      .print-only-header {
+        display: block !important;
+        border-bottom: 2pt solid #7c1305;
+        padding-bottom: 10pt;
+        margin-bottom: 14pt;
+        text-align: center;
+      }
+      .print-meta-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6pt !important;
+        font-size: 8.5pt !important;
+        text-align: left !important;
+        margin-top: 6pt !important;
+        background: #fbf9f5 !important;
+        padding: 6pt 10pt !important;
+        border: 0.5pt solid #d4af37 !important;
+      }
+      .shloka-card, 
+      .matrix-box, 
+      .summary-executive-card, 
+      .pillar-box {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+        border: 0.75pt solid #d4af37 !important;
+        background: #ffffff !important;
+        margin-bottom: 12pt !important;
+        padding: 12pt !important;
+      }
+      .shloka-quote-box {
+        border-left: 3pt solid #7c1305 !important;
+        background: #fdfaf5 !important;
+        color: #4a0404 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-size: 12pt !important;
+        line-height: 1.8 !important;
+      }
+      .modern-box, .pillar-modern {
+        border-left: 2.5pt solid #0284c7 !important;
+        background: #f0f9ff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .summary-matrix {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6pt !important;
+      }
     }
 
     /* SECURITY PASSCODE MODAL */
@@ -537,24 +775,40 @@
     <!-- REPORT VIEW -->
     <section id="reportViewContainer" style="display:none;">
       
+      <!-- PRINT ONLY HEADER (Visible only on print/PDF) -->
+      <div class="print-only-header" id="printOnlyHeader">
+        <div style="font-size:22pt; font-weight:900; color:#7c1305; font-family:'Cinzel', serif;">श्री रामजी एस्ट्रो</div>
+        <div style="font-size:15pt; font-weight:800; color:#b45309; margin-top:3pt;">मेगा पाराशर संहिता कुण्डली रिपोर्ट</div>
+        <div style="font-size:9.5pt; color:#64748b; margin-top:2pt;">बृहत्पाराशरहोराशास्त्रम् अखिल अध्याय १ से ६३ — शत-प्रतिशत प्रामाणिक फलित व आधुनिक मार्गदर्शिका</div>
+        <div class="print-meta-grid" id="printMetaGrid"></div>
+      </div>
+
       <!-- SUMMARY MATRIX -->
       <div class="summary-matrix" id="summaryMatrix"></div>
 
-      <!-- MATCHED SHLOKAS SECTION -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin: 28px 0 16px; flex-wrap:wrap; gap:10px;">
-        <h2 style="font-size:22px; color:var(--primary); font-weight:900;">
-          📜 कुंडली में मैच हुए पाराशर श्लोक (<span id="countBadge">0</span>)
-        </h2>
-        <span style="font-size:12.5px; color:var(--text-muted); font-weight:700;">सम्पूर्ण संहिता (अध्याय १ से ६३) का सूक्ष्म फलितार्थ</span>
+      <!-- MATCHED SHLOKAS TOOLBAR -->
+      <div class="report-header-toolbar">
+        <div>
+          <h2 style="font-size:22px; color:var(--primary); font-weight:900;">
+            📜 कुंडली में मैच हुए पाराशर श्लोक (<span id="countBadge">0</span>)
+          </h2>
+          <span style="font-size:13px; color:var(--text-muted); font-weight:700;">सम्पूर्ण संहिता (अध्याय १ से ६३) का विस्तृत फलितार्थ एवं आधुनिक विश्लेषण</span>
+        </div>
+        <button type="button" class="btn-act btn-top-print" onclick="executePrintReport()">
+          <span>🖨️ रिपोर्ट प्रिंट / Save PDF</span>
+        </button>
       </div>
 
       <!-- LIST OF SHLOKAS -->
       <div id="shlokasList"></div>
 
-      <!-- ACTION BUTTONS -->
+      <!-- 7-PILLAR EXECUTIVE LIFE SUMMARY (लास्ट में समग्र सार) -->
+      <div id="executiveSummaryContainer"></div>
+
+      <!-- BOTTOM ACTION BUTTONS -->
       <div class="action-row">
-        <button type="button" class="btn-act btn-act-print" onclick="window.print()">
-          <span>🖨️ रिपोर्ट प्रिंट / PDF</span>
+        <button type="button" class="btn-act btn-act-print" onclick="executePrintReport()">
+          <span>🖨️ सम्पूर्ण रिपोर्ट प्रिंट / PDF डाउनलोड करें</span>
         </button>
         <button type="button" class="btn-act btn-act-share" onclick="shareOnWhatsApp()">
           <span>💬 व्हाट्सएप पर साझा करें</span>
@@ -842,18 +1096,111 @@
           </div>
 
           <div class="prediction-box">
-            <strong>महर्षि पाराशर का प्रत्यक्ष फलित निर्णय:</strong> ${s.classicalPrediction}
+            <strong>📜 महर्षि पाराशर का प्रत्यक्ष फलित निर्णय:</strong> ${s.classicalPrediction}
           </div>
 
+          ${s.modernContext ? `
+            <div class="modern-box">
+              <strong>🌐 आधुनिक परिवेश एवं व्यावहारिक जीवन में प्रभाव:</strong> ${s.modernContext}
+            </div>
+          ` : ''}
+
           <div class="meaning-box">
-            💡 <strong>शास्त्रीय गूढ़ार्थ:</strong> ${s.deepMeaning}
+            💡 <strong>शास्त्रीय गूढ़ार्थ एवं जीवन-सूत्र:</strong> ${s.deepMeaning}
           </div>
         `;
         list.appendChild(card);
       });
 
+      // Render 7-Pillar Executive Summary (लास्ट में समग्र सार)
+      const summaryContainer = document.getElementById('executiveSummaryContainer');
+      if (summaryContainer && rep.executiveSummary) {
+        const es = rep.executiveSummary;
+        let pillarsHtml = '';
+        (es.pillars || []).forEach(p => {
+          pillarsHtml += `
+            <div class="pillar-box">
+              <div class="pillar-title-row">
+                <div class="pillar-title"><span>${p.icon}</span> <span>${p.number}. ${p.title}</span></div>
+                <span class="pillar-badge">${p.badge}</span>
+              </div>
+              <div class="pillar-basis">📌 <strong>शास्त्रीय आधार:</strong> ${p.classicalBasis}</div>
+              <div class="pillar-analysis">
+                <strong>📜 पाराशर फलित विश्लेषण:</strong> ${p.detailedAnalysis}
+              </div>
+              <div class="pillar-modern">
+                <strong>🌐 आधुनिक परिवेश एवं जीवन-रणनीति:</strong> ${p.modernApplication}
+              </div>
+            </div>
+          `;
+        });
+
+        summaryContainer.innerHTML = `
+          <div class="summary-executive-card">
+            <div class="summary-executive-header">
+              <h2>${es.title}</h2>
+              <p>${es.subtitle}</p>
+            </div>
+            <div class="pillar-grid">
+              ${pillarsHtml}
+            </div>
+          </div>
+        `;
+      }
+
       // Scroll smoothly into view
       document.getElementById('reportViewContainer').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // UPDATE PRINT HEADER METADATA
+    function updatePrintHeaderData() {
+      if (!currentParasharaReport) return;
+      const rep = currentParasharaReport;
+      const k = currentSelectedKundali || {};
+      const grid = document.getElementById('printMetaGrid');
+      if (grid) {
+        grid.innerHTML = `
+          <div><strong>जातक का नाम:</strong> ${rep.name}</div>
+          <div><strong>जन्म विवरण:</strong> ${k.date || ''} (${k.time || ''})</div>
+          <div><strong>जन्म स्थान:</strong> ${k.city || '—'}</div>
+          <div><strong>लग्न राशि:</strong> ${rep.lagnaRashi} (${rep.lagnaDegStr})</div>
+          <div><strong>चन्द्र राशि:</strong> ${rep.moonRashi} (${rep.moonDegStr})</div>
+          <div><strong>आत्मकारक:</strong> ${rep.atmakarakaGraha} (${rep.atmakarakaAvatar})</div>
+          <div><strong>आयुर्वेदिक त्रिदोष:</strong> ${rep.ayurvedicDosha}</div>
+          <div><strong>विशेष इन्दु लग्न:</strong> ${rep.induLagnaRashi} (भाव ${rep.induLagnaHouse})</div>
+          <div><strong>प्रमाणित श्लोक:</strong> कुल ${rep.matchedShlokasCount} (सम्पूर्ण संहिता १–६३)</div>
+        `;
+      }
+    }
+
+    // ROBUST PRINT REPORT / SAVE AS PDF HANDLER
+    function executePrintReport() {
+      if (!currentParasharaReport) {
+        alert("कृपया पहले 'पाराशर संहिता श्लोक-मिलान रिपोर्ट जनरेट करें' बटन दबाकर रिपोर्ट जनरेट करें।");
+        return;
+      }
+
+      const repContainer = document.getElementById('reportViewContainer');
+      if (repContainer) repContainer.style.display = 'block';
+
+      // Set clean PDF filename via page title
+      const prevTitle = document.title;
+      const nativeName = (currentParasharaReport.name || 'जातक').replace(/[\/\\]/g, '_');
+      document.title = `मेगा_पाराशर_कुण्डली_रिपोर्ट_${nativeName}`;
+
+      updatePrintHeaderData();
+
+      // Initiate print with safe fallback
+      try {
+        window.focus();
+        setTimeout(() => {
+          window.print();
+          setTimeout(() => { document.title = prevTitle; }, 2000);
+        }, 150);
+      } catch (err) {
+        console.error("Direct print invocation failed:", err);
+        alert("डायरेक्ट प्रिंट शुरू नहीं हो सका। कृपया अपने ब्राउज़र मेनू (⋮ या Share आइकन) से 'Print' या 'Save as PDF' का चयन करें।");
+      }
     }
 
     // WHATSAPP SHARE
@@ -869,6 +1216,7 @@
 👑 *सर्वोच्च वैशेषिकांश:* ${rep.topVaisheshikamsa ? rep.topVaisheshikamsa.grahaName + ' (' + rep.topVaisheshikamsa.tier.title + ')' : 'पारिजात'}
 🎯 *द्रेष्काण देह-चिह्न:* ${rep.anatomicalMarkRegion}
 📜 *मैच हुए पाराशर श्लोक:* कुल ${rep.matchedShlokasCount} श्लोक प्रमाणित
+🌟 *७-स्तंभ महा-पाराशर समग्र जीवन सार एवं आधुनिक मार्गदर्शिका सहित*
 ━━━━━━━━━━━━━━━━━━━━
 🔗 अपनी रिपोर्ट देखें: ${window.location.origin}/parashara-report?key=MPKR1111`;
 

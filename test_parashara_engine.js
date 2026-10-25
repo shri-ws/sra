@@ -52,4 +52,22 @@ if (rep.matchedShlokasCount < 50) {
   process.exit(1);
 }
 
+if (!rep.executiveSummary || !rep.executiveSummary.pillars || rep.executiveSummary.pillars.length !== 7) {
+  console.error("Test Failed: Executive Summary 7 pillars missing!");
+  process.exit(1);
+}
+
+const missingModernContext = rep.matchedShlokas.filter(s => !s.modernContext);
+if (missingModernContext.length > 0) {
+  console.error(`Test Failed: ${missingModernContext.length} shlokas missing modernContext!`);
+  process.exit(1);
+}
+
+console.log("\nExecutive Summary Verification:");
+console.log(`Title: ${rep.executiveSummary.title}`);
+rep.executiveSummary.pillars.forEach(p => {
+  console.log(`  [Pillar ${p.number}] ${p.icon} ${p.title}`);
+});
+console.log(`All ${rep.matchedShlokasCount} matched shlokas have valid modernContext!`);
+
 console.log("\nALL CHAPTERS (COMPLETE BPHS CORPUS) PARASHARA ENGINE TESTS PASSED 100% PERFECTLY!");
