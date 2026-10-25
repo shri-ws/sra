@@ -366,6 +366,35 @@
   }
 
   /**
+   * Asynchronous bridge to SRA Parashara Canonical Microservice (FastAPI / pyswisseph JPL DE431).
+   * Automatically falls back to high-precision synchronous calculation if offline.
+   */
+  async function calculatePatrikaPlanetsAsync(input, endpoint = 'http://127.0.0.1:8000/calculate') {
+    if (typeof fetch === 'function') {
+      try {
+        const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const timeoutId = controller ? setTimeout(() => controller.abort(), 1200) : null;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+          signal: controller ? controller.signal : undefined
+        });
+        if (timeoutId) clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.planets && data.planets.length) {
+            return data;
+          }
+        }
+      } catch (e) {
+        // Transparent fallback to local synchronous engine without disruption
+      }
+    }
+    return calculatePatrikaPlanets(input);
+  }
+
+  /**
    * Render North Indian Diamond Chart SVG with Mars (मं) Highlight
    */
   function renderNorthIndianChartSVG(calc, highlightPlanetId = 'Mars') {
@@ -605,6 +634,7 @@
     computeLagnaFromRAMC,
     calculateTrueSripatiCusps,
     calculatePatrikaPlanets,
+    calculatePatrikaPlanetsAsync,
     renderNorthIndianChartSVG,
     getAllSavedKundalis
   };
