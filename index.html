@@ -2523,11 +2523,11 @@
             <div class="card-sub">२३ प्रामाणिक धन योग, इन्दु लग्न व लक्ष्मी योग</div>
           </a>
 
-          <!-- CARD: MEGA PARASHARA KUNDALI REPORT (RESTRICTED MPKR1111) -->
+          <!-- CARD: MEGA PARASHARA KUNDALI REPORT (RESTRICTED MPP1111) -->
           <a href="/parashara-report.html" class="app-service-card" aria-label="मेगा पाराशर संहिता रिपोर्ट" style="text-decoration:none; cursor:pointer;">
             <div class="card-top-row">
               <div class="card-glyph">📜</div>
-              <span class="card-badge vip" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff;">🔒 अधिकृत कोड</span>
+              <span class="card-badge vip" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff;">✨ प्रीमियम ₹551</span>
             </div>
             <div class="card-title">मेगा पाराशर संहिता रिपोर्ट</div>
             <div class="card-sub">बृहत्पाराशरहोराशास्त्रम् मूल श्लोक मिलान (सम्पूर्ण ९७ अध्याय)</div>
@@ -3772,7 +3772,7 @@
     </div>
   </div>
 
-  <!-- MODAL: PARASHARA REPORT AUTH GATE (CODE: MPKR1111) -->
+  <!-- MODAL: PARASHARA REPORT AUTH GATE (CODE: MPP1111) -->
   <div class="modal-overlay" id="parasharaAuthModal" onclick="if(event.target===this)closeModal('parasharaAuthModal')">
     <div class="modal" style="max-width:440px; text-align:center; padding:32px 24px;">
       <button class="modal-close" onclick="closeModal('parasharaAuthModal')" aria-label="Close">✕</button>
@@ -3859,9 +3859,9 @@
     if(el) el.classList.remove('open');
   }
   function openParasharaAuthModal() {
-    const saved = localStorage.getItem('sra_mpkr_authorized');
+    const saved = localStorage.getItem('sra_mpp_authorized') || localStorage.getItem('sra_mpkr_authorized');
     if (saved === 'true') {
-      window.location.href = '/parashara-report.html?key=MPKR1111';
+      window.location.href = '/parashara-report.html?key=MPP1111';
       return;
     }
     const m = document.getElementById('parasharaAuthModal');
@@ -3870,21 +3870,19 @@
       const inp = document.getElementById('indexParasharaPassInput');
       if (inp) { inp.value = ''; inp.focus(); }
     } else {
-      const code = prompt("🔐 अधिकृत सुरक्षा कोड दर्ज करें (Access Restricted):");
-      if (code && code.trim() === "MPKR1111") {
-        try { localStorage.setItem('sra_mpkr_authorized', 'true'); } catch(e){}
-        window.location.href = '/parashara-report.html?key=MPKR1111';
-      } else if (code) {
-        alert("❌ अमान्य सुरक्षा कोड!");
-      }
+      window.location.href = '/parashara-report.html';
     }
   }
   function submitParasharaAuthCode() {
     const inp = document.getElementById('indexParasharaPassInput');
     const err = document.getElementById('indexParasharaErrMsg');
-    if (inp && inp.value.trim() === "MPKR1111") {
-      try { localStorage.setItem('sra_mpkr_authorized', 'true'); } catch(e){}
-      window.location.href = '/parashara-report.html?key=MPKR1111';
+    const val = (inp && inp.value ? inp.value.trim().toUpperCase() : '');
+    if (val === "MPP1111") {
+      try { 
+        localStorage.setItem('sra_mpp_authorized', 'true'); 
+        localStorage.setItem('sra_mpkr_authorized', 'true'); 
+      } catch(e){}
+      window.location.href = '/parashara-report.html?key=MPP1111';
     } else {
       if (err) {
         err.style.display = 'block';
