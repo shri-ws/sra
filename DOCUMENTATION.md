@@ -3,7 +3,7 @@
 > **System Designation**: Shri Ramji Astro (SRA) Unified Vedic Astrological Computing Suite  
 > **Engineering Level**: Dot-by-Dot Production & Mathematical Precision  
 > **Target Platforms**: Web (Desktop & Mobile), Android PWA/APK (v2.4), Apple iOS Safari WebApp  
-> **Core Astronomical Standard**: Meeus VSOP87 Series + IAU 1980 Nutation + True Chitra Paksha (Lahiri) Ayanamsa  
+> **Core Astronomical Standard**: NASA JPL Swiss Ephemeris (DE431, <0.001" Precision) + True Chitra Paksha Ayanamsa (Mode 27 / Spica @ 180°00'00.000") + Apparent Refracted Sunrise (h0 = -50') + Tropical Solar Year (365.2425 days) Vimshottari  
 > **Scriptural Canonical Authorities**: *Brihat Parashara Hora Shastra* (BPHS), *Muhurta Chintamani*, *Jaimini Upadesha Sutras*, *Phaladeepika*, *Saravali*
 
 ---
@@ -74,6 +74,21 @@ flowchart TD
 ---
 
 ## 2. खगोलीय गणना एवं एफेमेरिस कोर इंजन
+
+### 2.0 SRA Parashara Canonical Engine (NASA JPL Swiss Ephemeris DE431 Microservice)
+प्रणाली का प्राथमिक बैकएंड एवं उच्च-परिशुद्धता खगोलीय कोर `parashara_canonical_engine.py` द्वारा संचालित है, जो नासा JPL स्विस एफिमेरिस बाइनरी डेटा फाइलों (`./ephe/` में `seas_18.se1`, `semo_18.se1`, `sepl_18.se1`) से सीधे संख्यात्मक समाकलन (Numerical Integration) निष्पादित करता है।
+
+- **खगोलीय परिशुद्धता**: $<0.001''$ आर्कसेकंड (DE431 JPL Integration via `swe.FLG_SWIEPH`)
+- **कैनोनिकल अयनांश**: सत्य चित्रा पक्ष अयनांश (Mode ID: 27 / `SIDM_TRUE_CITRA`) — चित्रा नक्षत्र के मुख्य तारे स्पिका (α Virginis) को ठीक $180^\circ 00' 00.000''$ पर स्थिर रखता है।
+- **भू-केन्द्रीय नाक्षत्र फ्रेम**: 100% Geocentric Sidereal (`FLG_SWIEPH | FLG_SPEED | FLG_SIDEREAL`), जन्मकालीन चन्द्रमा पर शून्य टॉपोसेंट्रिक विचलन।
+- **दृश्य बिम्बार्धोदय सूर्योदय ($h_0 = -50'$)**: वायुमंडलीय अपवर्तन (34') एवं सौर अर्धव्यास (16') के संयुक्त प्रभाव सम्मत सूर्योदय (`CALC_RISE | BIT_DISC_CENTER`), जिससे शुद्ध इष्टकाल (घटी, पल, विपल) प्राप्त होता है।
+- **विशेष लग्न निष्पत्ति**: होरा लग्न (HL) और घटी लग्न (GL) को इष्टकाल से पूर्णतः शुद्ध गणितीय रूप से बिना किसी ड्रिफ्ट के निकाला जाता है:
+  $$HL = (\text{Sun}_{\text{sunrise}} + \text{Ishta}_{\text{ghatis}} \times 12^\circ) \pmod{360^\circ}$$
+  $$GL = (\text{Sun}_{\text{sunrise}} + \text{Ishta}_{\text{ghatis}} \times 30^\circ) \pmod{360^\circ}$$
+- **विंशोत्तरी सौर वर्ष-मान**: उष्णकटिबंधीय सौर वर्ष ($\text{Year Length} = 365.2425 \text{ दिन}$) मानक द्वारा विंशोत्तरी महादशा, अन्तर्दशा एवं प्रत्यन्तर्दशा का निर्धारण, जिससे ३६०-दिन के सावन वर्ष का ड्रिफ्ट समाप्त होता है।
+- **समभाव / सम-राशि चक्र (Whole Sign / Equal Bhava)**: स्विस एफिमेरिस `'E'` फ्लैग द्वारा उच्च अक्षांशों ($>66.5^\circ$ N/S ध्रुवीय क्षेत्र) में भी अक्षुण्ण स्थिरता।
+- **सटीक राहु व सम्मुख केतु**: `TRUE_NODE` आधारित राहु तथा ठीक सम्मुख $(\text{Rahu} + 180^\circ) \pmod{360^\circ}$ पर केतु।
+- **क्लाइंट-साइड रेजिलिएंट फॉलबैक**: `patrikaEngineBridge.js` में `calculatePatrikaPlanetsAsync` द्वारा माइक्रोसर्विस से रीयल-टाइम डेटा फेच, तथा ऑफलाइन स्थिति में ब्राउज़र-आधारित मीउस इंजन पर सहज रूप से फॉलबैक।
 
 ### 2.1 जूलियन डे एवं एपोच गणना (Julian Day & Ephemeris Time $T$)
 किसी भी ग्रेगोरियन जन्म तिथि व समय $(Y, M, D, H, Min, Sec)$ को UT (Universal Time) में परिवर्तित कर जूलियन डे ($JD$) की गणना की जाती है:
