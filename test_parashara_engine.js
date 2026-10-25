@@ -1,11 +1,11 @@
 /**
- * Unit Test for Parashara Engine (Chapters 1 to 20)
+ * Unit Test for Parashara Engine (Chapters 1 to 40)
  */
 
 const { calculatePatrikaPlanets } = require('./patrikaEngineBridge.js');
 const { evaluateParasharaReport } = require('./parasharaEngine.js');
 
-console.log("Starting Parashara Engine Tests...");
+console.log("Starting Parashara Engine Tests (Chapters 1 to 40)...");
 
 // Test with sample chart
 const sampleInput = {
@@ -28,11 +28,17 @@ console.log(`लग्न: ${rep.lagnaRashi} (${rep.lagnaDegStr}) • चंद�
 console.log(`आत्मकारक ग्रह: ${rep.atmakarakaGraha} -> ${rep.atmakarakaAvatar}`);
 console.log(`आयुर्वेदिक त्रिदोष: ${rep.ayurvedicDosha}`);
 console.log(`इन्दु लग्न: ${rep.induLagnaRashi} (भाव: ${rep.induLagnaHouse})`);
+console.log(`आरूढ़ लग्न (AL): ${rep.arudhaLagnaRashi} (भाव: ${rep.arudhaLagnaHouse})`);
+console.log(`उपपद लग्न (UL): ${rep.upapadaLagnaRashi} (भाव: ${rep.upapadaLagnaHouse})`);
+console.log(`कारकांश लग्न: ${rep.karakamshaRashi}`);
+console.log(`नाभस योग: ${rep.nabhashaYogaName}`);
+console.log(`चन्द्र योग: ${rep.chandraYogaName}`);
+console.log(`सूर्य योग: ${rep.suryaYogaName}`);
 console.log(`द्रेष्काण संख्या: ${rep.drekkanaNumber} (देह-चिह्न अंग: ${rep.anatomicalMarkRegion})`);
 if (rep.topVaisheshikamsa) {
   console.log(`सर्वोच्च वैशेषिकांश: ${rep.topVaisheshikamsa.grahaName} (${rep.topVaisheshikamsa.tier.title} - ${rep.topVaisheshikamsa.goodCount} वर्ग)`);
 }
-console.log(`कुल मैच हुए पाराशर श्लोक (अध्याय १-२०): ${rep.matchedShlokasCount}`);
+console.log(`कुल मैच हुए पाराशर श्लोक (अध्याय १-४०): ${rep.matchedShlokasCount}`);
 console.log("==========================================\n");
 
 rep.matchedShlokas.forEach((s, idx) => {
@@ -41,9 +47,9 @@ rep.matchedShlokas.forEach((s, idx) => {
   console.log(`     लागू योग: ${s.natalTrigger}`);
 });
 
-if (rep.matchedShlokasCount < 8) {
+if (rep.matchedShlokasCount < 30) {
   console.error("Test Failed: Insufficient matched shlokas!");
   process.exit(1);
 }
 
-console.log("\nALL PARASHARA ENGINE TESTS PASSED 100% PERFECTLY!");
+console.log("\nALL 40 CHAPTERS PARASHARA ENGINE TESTS PASSED 100% PERFECTLY!");

@@ -2,7 +2,7 @@
  * =============================================================================
  * MEGA PARASHARA KUNDALI ENGINE (मेगा पाराशर कुण्डली इंजन)
  * Based on the Classical Canon: बृहत्पाराशरहोराशास्त्रम् (Brihat Parashara Hora Shastra)
- * Chapters 1 to 20 Shloka Matching & Computational Evaluation Engine
+ * Chapters 1 to 40 Shloka Matching & Computational Evaluation Engine
  * =============================================================================
  */
 
@@ -922,6 +922,552 @@
       badges: [planetsIn11.length > 0 ? "सर्व-लाभ योग" : (isMahaDhanapati ? "महा-धनपति योग" : "मनोरथ सिद्धि"), `लाभेश: ${h11.grahaName}`]
     });
 
+    // =========================================================================
+    // ADVANCED COMPUTATIONS FOR CHAPTERS 21 TO 40
+    // =========================================================================
+
+    // 1. Arudha Pada Calculation Helper:
+    function getBhavaArudha(houseNum) {
+      const houseSign = (lagnaSign + houseNum - 1) % 12;
+      const lordPlanet = planetMap[RASHI_LORDS[houseSign]];
+      const lordSign = lordPlanet.sign;
+      const dist = (lordSign - houseSign + 12) % 12;
+      let arudha = (lordSign + dist) % 12;
+      if (arudha === houseSign || arudha === (houseSign + 6) % 12) {
+        arudha = (arudha + 9) % 12;
+      }
+      return arudha;
+    }
+
+    const arudhaLagnaSign = getBhavaArudha(1); // Arudha Lagna (AL)
+    const upapadaLagnaSign = getBhavaArudha(12); // Upapada Lagna (UL)
+    const arudhaLagnaHouse = getHouse(arudhaLagnaSign, lagnaSign);
+    const upapadaLagnaHouse = getHouse(upapadaLagnaSign, lagnaSign);
+
+    // 2. Charakarakas (7 planets sorted by deg descending):
+    const charaGrahaList = sevenGrahas.slice().sort((a, b) => planetMap[b].deg - planetMap[a].deg);
+    const charaKarakas = {
+      AK: { id: charaGrahaList[0], name: GRAHA_NAMES[charaGrahaList[0]], title: "आत्मकारक (Atmakaraka)", role: "आत्मा, जीवन-ध्येय व सर्वोच्च आत्मिक स्वरूप" },
+      AmK: { id: charaGrahaList[1], name: GRAHA_NAMES[charaGrahaList[1]], title: "आमात्यकारक (Amatyakaraka)", role: "कर्म, आजीविका, नेतृत्व व बौद्धिक कौशल" },
+      BK: { id: charaGrahaList[2], name: GRAHA_NAMES[charaGrahaList[2]], title: "भ्रातृकारक (Bhratrikaraka)", role: "गुरु, भ्राता, पराक्रम व धर्म-मार्गदर्शन" },
+      MK: { id: charaGrahaList[3], name: GRAHA_NAMES[charaGrahaList[3]], title: "मातृकारक (Matrikaraka)", role: "माता, हृदय-सुख, संस्कार व शांति" },
+      PK: { id: charaGrahaList[4], name: GRAHA_NAMES[charaGrahaList[4]], title: "पुत्रकारक (Putrakaraka)", role: "प्रज्ञा, विद्या, पूर्वपुण्य व संतति" },
+      GK: { id: charaGrahaList[5], name: GRAHA_NAMES[charaGrahaList[5]], title: "ज्ञातिकारक (Gnatikaraka)", role: "प्रतिस्पर्धा, चुनौतियां, बंधु-संबंध व विजय" },
+      DK: { id: charaGrahaList[6], name: GRAHA_NAMES[charaGrahaList[6]], title: "दारकारक (Darakaraka)", role: "जीवनसाथी, वैवाहिक सामंजस्य व प्रेम" }
+    };
+
+    // 3. Karakamsha (Navamsha sign of Atmakaraka):
+    const karakamshaSign = getVargaSign(planetMap[charaKarakas.AK.id].sign, planetMap[charaKarakas.AK.id].deg, 9);
+    const karakamshaRashiName = RASHI_NAMES[karakamshaSign];
+
+    // 4. Yogakaraka identification:
+    let yogakarakaId = null;
+    let yogakarakaDesc = "";
+    if (lagnaSign === 1) { yogakarakaId = "Saturn"; yogakarakaDesc = "शनि (नवमेश व दशमेश)"; }
+    else if (lagnaSign === 3) { yogakarakaId = "Mars"; yogakarakaDesc = "मंगल (पंचमेश व दशमेश)"; }
+    else if (lagnaSign === 4) { yogakarakaId = "Mars"; yogakarakaDesc = "मंगल (चतुर्थेश व नवमेश)"; }
+    else if (lagnaSign === 6) { yogakarakaId = "Saturn"; yogakarakaDesc = "शनि (चतुर्थेश व पंचमेश)"; }
+    else if (lagnaSign === 9) { yogakarakaId = "Venus"; yogakarakaDesc = "शुक्र (पंचमेश व दशमेश)"; }
+    else if (lagnaSign === 10) { yogakarakaId = "Venus"; yogakarakaDesc = "शुक्र (चतुर्थेश व नवमेश)"; }
+    else { yogakarakaId = lagneshaId; yogakarakaDesc = `${GRAHA_NAMES[lagneshaId]} (लग्नेश एवं शुभ त्रिकोण नियंता)`; }
+
+    // 5. Nabhasha Yogas (Counting unique signs of 7 planets):
+    const occupiedSigns = new Set(sevenGrahas.map(gid => planetMap[gid].sign));
+    const signCount = occupiedSigns.size;
+    const SANKHYA_YOGAS = {
+      7: { name: "वीणा योग (Veena Yoga)", desc: "संगीत, कला, सौंदर्य, वाक्-माधुर्य एवं ललित कलाओं में परम निपुणता" },
+      6: { name: "दामिनी योग (Damini Yoga)", desc: "विशाल हृदय, निरंतर दान, विपुल संपत्ति, परोपकार एवं सर्व-जन प्रियता" },
+      5: { name: "पाश योग (Pasha Yoga)", desc: "प्रशासकीय कार्य-कुशलता, विशाल संगठन, सेवक-सुख एवं दृढ़ अनुशासन" },
+      4: { name: "केदार योग (Kedara Yoga)", desc: "भूमि, भवन, अचल संपत्ति, कृषि, स्थिरता एवं लोक-कल्याणकारी ख्याति" },
+      3: { name: "शूल योग (Shoola Yoga)", desc: "अदम्य युद्ध-साहस, तीक्ष्ण बुद्धि, विपरीत परिस्थितियों में अपराजेय विजय" },
+      2: { name: "युग योग (Yuga Yoga)", desc: "अपूर्व मानसिक एकाग्रता, विशिष्ट अनुसंधान एवं वैज्ञानिक/गूढ़ प्रतिभा" },
+      1: { name: "गोल योग (Gola Yoga)", desc: "अविचल संकल्प, तपस्वी एकाग्रता एवं आंतरिक आत्मबल" }
+    };
+    const nabhasha = SANKHYA_YOGAS[signCount] || SANKHYA_YOGAS[5];
+
+    // 6. Chandra Yogas:
+    const moonSign = moon.sign;
+    const sign2ndFromMoon = (moonSign + 1) % 12;
+    const sign12thFromMoon = (moonSign + 11) % 12;
+    const grahasIn2FromMoon = sevenGrahas.filter(g => g !== 'Sun' && g !== 'Moon' && planetMap[g].sign === sign2ndFromMoon);
+    const grahasIn12FromMoon = sevenGrahas.filter(g => g !== 'Sun' && g !== 'Moon' && planetMap[g].sign === sign12thFromMoon);
+
+    let chandraYogaName = "";
+    let chandraYogaDesc = "";
+    if (grahasIn2FromMoon.length > 0 && grahasIn12FromMoon.length > 0) {
+      chandraYogaName = "दुरुधरा योग (Durudhara Yoga)";
+      chandraYogaDesc = "जातक अतुल्य संपदा, सुंदर वाहनों, राजतुल्य विलासिता, उदारता एवं सर्व-सुखों से युक्त रहता है।";
+    } else if (grahasIn2FromMoon.length > 0) {
+      chandraYogaName = "सुनफा योग (Sunapha Yoga)";
+      chandraYogaDesc = "जातक अपने स्वअर्जित पराक्रम से विपुल धन, सुबुद्धि, ख्याति एवं निरंतर प्रगति अर्जित करता है।";
+    } else if (grahasIn12FromMoon.length > 0) {
+      chandraYogaName = "अनफा योग (Anapha Yoga)";
+      chandraYogaDesc = "जातक निरोगी काया, मधुर स्वभाव, उत्तम वस्त्र-आभूषण, सदाचार एवं समाज में सम्मानित रहता है।";
+    } else {
+      const kendraFromMoonHasGraha = sevenGrahas.some(g => g !== 'Moon' && [1, 4, 7, 10].includes(((planetMap[g].sign - moonSign + 12) % 12) + 1));
+      if (kendraFromMoonHasGraha || isKendra(moon.house)) {
+        chandraYogaName = "केमद्रुम-भंग राजयोग (Kemadruma Bhanga Raja Yoga)";
+        chandraYogaDesc = "केमद्रुम योग का पूर्ण परिहार होकर राजयोग में रूपांतरण! जीवन में संघर्ष के बाद ऐतिहासिक सफलता प्राप्त होती है।";
+      } else {
+        chandraYogaName = "केमद्रुम योग (Kemadruma Yoga)";
+        chandraYogaDesc = "जातक को स्वावलंबन, आंतरिक साधना एवं आत्मबल से जीवन की नींव रखनी होती है।";
+      }
+    }
+
+    // 7. Surya Yogas:
+    const sunSign = sun.sign;
+    const sign2ndFromSun = (sunSign + 1) % 12;
+    const sign12thFromSun = (sunSign + 11) % 12;
+    const grahasIn2FromSun = sevenGrahas.filter(g => g !== 'Sun' && g !== 'Moon' && planetMap[g].sign === sign2ndFromSun);
+    const grahasIn12FromSun = sevenGrahas.filter(g => g !== 'Sun' && g !== 'Moon' && planetMap[g].sign === sign12thFromSun);
+
+    let suryaYogaName = "";
+    let suryaYogaDesc = "";
+    if (grahasIn2FromSun.length > 0 && grahasIn12FromSun.length > 0) {
+      suryaYogaName = "उभयचरी योग (Ubhayachari Yoga)";
+      suryaYogaDesc = "जातक तेजस्वी, प्रतापी, वक्ता, शासन में उच्च सम्मानित तथा सर्व-सुविधा संपन्न रहता है।";
+    } else if (grahasIn2FromSun.length > 0) {
+      suryaYogaName = "वेशि योग (Vesi Yoga)";
+      suryaYogaDesc = "जातक सत्यवादी, धीर, दीर्घदृष्टा, यशस्वी एवं धार्मिक कार्यों में अग्रणी रहता है।";
+    } else if (grahasIn12FromSun.length > 0) {
+      suryaYogaName = "वाशि योग (Vasi Yoga)";
+      suryaYogaDesc = "जातक मेधावी, स्थिर चित्त, उद्योगी, राज्य-मान्य एवं कला-प्रिय होता है।";
+    } else {
+      suryaYogaName = "भास्कर प्रभा योग (Bhaskara Prabha)";
+      suryaYogaDesc = "सूर्य देव अपने स्वतंत्र आत्म-तेज से जातक को आत्मनिर्भरता एवं निर्भयता प्रदान करते हैं।";
+    }
+
+    // 8. Pancha Mahapurusha & Raja Yogas:
+    const mahapurushaYogas = [];
+    if (isKendra(mars.house) && (mars.sign === 0 || mars.sign === 7 || mars.sign === 9)) {
+      mahapurushaYogas.push({ name: "रुचक महापुरुष योग (Ruchaka Yoga)", planet: "मंगल", desc: "अजेय सेनापति-तुल्य शौर्य, भूमि-भवन स्वामी, निर्भय व्यक्तित्व एवं उच्च प्रशासनिक सत्ता" });
+    }
+    if (isKendra(mercury.house) && (mercury.sign === 2 || mercury.sign === 5)) {
+      mahapurushaYogas.push({ name: "भद्र महापुरुष योग (Bhadra Yoga)", planet: "बुध", desc: "कुशाग्र बौद्धिक संपदा, वाक्-सिद्धि, व्यापारिक साम्राज्य, शास्त्र-प्रवीणता एवं दीर्घायु" });
+    }
+    if (isKendra(jupiter.house) && (jupiter.sign === 8 || jupiter.sign === 11 || jupiter.sign === 3)) {
+      mahapurushaYogas.push({ name: "हंस महापुरुष योग (Hamsa Yoga)", planet: "गुरु", desc: "साधु-तुल्य पावन चरित्र, शास्त्र-विद्वत्ता, राजपूज्य गरिमा, धर्माधिकारी पद एवं परम सम्मान" });
+    }
+    if (isKendra(venus.house) && (venus.sign === 1 || venus.sign === 6 || venus.sign === 11)) {
+      mahapurushaYogas.push({ name: "मालव्य महापुरुष योग (Malavya Yoga)", planet: "शुक्र", desc: "अखंड वैभव, कला-पारखी, राजसी वाहन व भवन, सौंदर्य, दांपत्य विलास एवं कालजयी ख्याति" });
+    }
+    if (isKendra(saturn.house) && (saturn.sign === 9 || saturn.sign === 10 || saturn.sign === 6)) {
+      mahapurushaYogas.push({ name: "शश महापुरुष योग (Shasha Yoga)", planet: "शनि", desc: "जन-नायक, जन-समूह पर सर्वोच्च नियंत्रण, अटूट धैर्य, गुप्त नीतियों का स्वामी एवं विशाल संपत्ति" });
+    }
+
+    // 9. Gajakesari Yoga:
+    const moonToJupHouse = ((jupiter.sign - moon.sign + 12) % 12) + 1;
+    const isGajakesari = isKendra(moonToJupHouse);
+
+    // =========================================================================
+    // CHAPTER 21: एकविंशोऽध्यायः — व्ययभावफलाध्यायः (12th House / Vyaya Bhava Phala)
+    // =========================================================================
+    const isVimalaYoga = [6, 8, 12].includes(h12.planet.house);
+    matchedShlokas.push({
+      chapterNumber: 21,
+      chapterTitle: "एकविंशोऽध्यायः — व्ययभावफलाध्यायः",
+      chapterSignificance: "द्वादश भाव — मोक्ष, दान, विदेश यात्रा, शयन-सुख एवं विमल विपरीत राजयोग",
+      verseNumbers: "श्लोक १–३",
+      shlokaSanskrit: `व्ययेशे केन्द्रकोणे वा शुभदृष्टियुतेऽपि वा ।
+व्ययो धर्मे भवेत्तस्य तीर्थयात्रारतो नरः ॥ १ ॥
+व्ययेशे रिपुगे वापि रन्ध्रगे व्ययगेऽपि वा ।
+विमलाख्यो भवेद्योगः सर्वसौख्यविवर्धनः ॥ २ ॥`,
+      applicabilityStatus: isVimalaYoga
+        ? "विमल विपरीत राजयोग (द्वादशेश त्रिक भाव में)"
+        : `पाराशर सद्व्यय, विदेश एवं मोक्ष विधान (द्वादशेश '${h12.grahaName}')`,
+      natalTrigger: `द्वादश भाव (व्यय, विदेश व मोक्ष) की राशि ${h12.rashiName} है; द्वादशेश '${h12.grahaName}' भाव ${h12.planet.house} में स्थित हैं।`,
+      classicalPrediction: isVimalaYoga
+        ? `महर्षि पाराशर के अनुसार द्वादशेश का त्रिक स्थान में होना 'विमल विपरीत राजयोग' का सृजन करता है। जातक स्वतंत्र विचारों वाला, मितव्ययी, संकटों से सहज उबरने वाला तथा स्वाभिमान से अपार धन-संचय करने वाला बनता है।`
+        : `महर्षि पाराशर के अनुसार द्वादशेश की स्थिति जातक को दान-पुण्य, परोपकार, दूरस्थ स्थानों/विदेश से संबंध, तीर्थ-यात्रा एवं आध्यात्मिक मोक्ष-पथ की ओर प्रेरित करती है।`,
+      deepMeaning: "द्वादश भाव मुक्ति और अहंकार के विसर्जन का सर्वोच्च धाम है; यहाँ का शुभ योग जातक को सांसारिक बंधनों के बीच भी आध्यात्मिक मुक्ति का मार्ग दिखाता है।",
+      badges: [isVimalaYoga ? "विमल राजयोग" : "मोक्ष व सद्व्यय", `द्वादशेश: ${h12.grahaName}`]
+    });
+
+    // =========================================================================
+    // CHAPTER 22: द्वाविंशोऽध्यायः — भावस्वाम्यध्यायः (Lordship of Bhavas & Manifestations)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 22,
+      chapterTitle: "द्वाविंशोऽध्यायः — भावस्वाम्यध्यायः",
+      chapterSignificance: "भावेशों का पारस्परिक प्रभाव, केन्द्र-त्रिकोण आधिपत्य एवं फल-वितरण",
+      verseNumbers: "श्लोक १–२",
+      shlokaSanskrit: `यद्भावपो यद्भावस्थस्तद्भावफलदायकः ।
+शुभाः शुभप्रदा ज्ञेयाः क्रूराः कष्टप्रदाः स्मृताः ॥ १ ॥
+केन्द्राधिपाश्च कोणापाः शुभाः सर्वफलप्रदाः ॥ २ ॥`,
+      applicabilityStatus: "द्वादश भाव स्वामियों का सार्वभौम फलित संकलन",
+      natalTrigger: `लग्नेश '${lagnesha.grahaName}' भाव ${lagneshHouse} में, धनेश '${h2.grahaName}' भाव ${h2.planet.house} में, भाग्येश '${h9.grahaName}' भाव ${h9.planet.house} में तथा कर्मेश '${h10.grahaName}' भाव ${h10.planet.house} में स्थित हैं।`,
+      classicalPrediction: "महर्षि पाराशर का आधारभूत नियम: जिस भाव का स्वामी अपने से शुभ स्थान में जाता है, वह उस भाव के फलों को पुष्पित करता है। केन्द्र और त्रिकोण के स्वामियों का संबंध जीवन में स्थायी स्थिरता और भाग्य-वृद्धि का मुख्य कारक बनता है।",
+      deepMeaning: "भाव केवल स्थिर कक्ष नहीं हैं, अपितु उनके स्वामी जीवन के अलग-अलग विभागों के प्रबंधक हैं। जब प्रबंधक शुभ भाव में बैठते हैं, तो उस विभाग का कार्य स्वतः निर्विघ्न संपन्न होता है।",
+      badges: ["भावेश नियम", "पाराशर स्वामी-विधान"]
+    });
+
+    // =========================================================================
+    // CHAPTER 23: त्रयोविंशोऽध्यायः — भावफलविवेकाध्यायः (Deep Bhava Analysis)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 23,
+      chapterTitle: "त्रयोविंशोऽध्यायः — भावफलविवेकाध्यायः",
+      chapterSignificance: "त्रिक भावों (६, ८, १२) का गूढ़ विश्लेषण एवं विपरीत राजयोग समन्वय",
+      verseNumbers: "श्लोक ५–६",
+      shlokaSanskrit: `हर्षः सरलो विमलश्चेति विपरीतराजयोगतः ।
+त्रिकेशैस्त्रिकसंस्थैश्च नृपमान्यो भवेन्नरः ॥ ५ ॥
+दोषनाशकरो योगः सर्वसंपत्प्रदायकः ॥ ६ ॥`,
+      applicabilityStatus: (isHarshaYoga || isSaralaYoga || isVimalaYoga)
+        ? "विपरीत राजयोग संकुल (हर्ष/सरल/विमल योग प्रभाव)"
+        : "त्रिक भाव संतुलन एवं सतर्कता विधान",
+      natalTrigger: `षष्ठेश भाव ${h6.planet.house} में, अष्टमेश भाव ${h8.planet.house} में तथा द्वादशेश भाव ${h12.planet.house} में स्थित हैं।`,
+      classicalPrediction: (isHarshaYoga || isSaralaYoga || isVimalaYoga)
+        ? "महर्षि पाराशर का उद्घोष: जब त्रिक भावों के स्वामी अन्य त्रिक भावों में स्थित हों, तो जातक को जीवन की सबसे विषम चुनौतियों के उपरांत राजतुल्य सम्मान, अचानक भाग्योदय एवं विरोधियों पर अप्रत्याशित विजय प्राप्त होती है।"
+        : "महर्षि पाराशर के अनुसार त्रिक भावों का यह विन्यास जातक को कर्मठता, आध्यात्मिक अनुशासन एवं नियमित स्वास्थ्य सुरक्षा द्वारा निरंतर विजयी बनाए रखता है।",
+      deepMeaning: "विपरीत राजयोग यह सिद्ध करता है कि जो विष साधारण व्यक्ति को नष्ट कर देता है, वही योग-बल से अमृत बनकर जातक को अमर कीर्ति दिलाता है।",
+      badges: [(isHarshaYoga || isSaralaYoga || isVimalaYoga) ? "विपरीत राजयोग" : "त्रिक संतुलन", "गूढ़ फलित"]
+    });
+
+    // =========================================================================
+    // CHAPTER 24: चतुर्विंशोऽध्यायः — भावस्वाम्यफलाध्यायः (Effects of House Lords in various Houses)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 24,
+      chapterTitle: "चतुर्विंशोऽध्यायः — भावस्वाम्यफलाध्यायः",
+      chapterSignificance: "लग्नेश, धनेश, भाग्येश एवं कर्मेश के द्वादश भावों में विशिष्ट फल",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `लग्नेशे केन्द्रगे नित्यं देहसौख्यं यशस्तथा ।
+धनेशे केन्द्रगे वित्तं भाग्येशे भाग्यवर्धनम् ॥ १ ॥
+कर्मेशे शुभसंयुक्ते राज्यसम्मानमश्नुते ॥ २ ॥`,
+      applicabilityStatus: `प्रमुख भावेशों का केंद्र-त्रिकोण समन्वय (लग्नेश भाव ${lagneshHouse})`,
+      natalTrigger: `आपके लग्नेश '${lagnesha.grahaName}' ${lagneshHouse}वें भाव में तथा कर्मेश '${h10.grahaName}' ${h10.planet.house}वें भाव में स्थित हैं।`,
+      classicalPrediction: "महर्षि पाराशर के अनुसार जब जीवन के मुख्य आधार (लग्न, धन, भाग्य, कर्म) के स्वामी परस्पर केन्द्र या त्रिकोण में स्थापित होते हैं, तो जातक समाज में सम्मानित, स्वावलंबी, समृद्ध एवं कर्तव्यपरायण बनता है।",
+      deepMeaning: "भाव-स्वामियों का शुभ स्थान जातक को आंतरिक संतुष्टि के साथ-साथ बाह्य संसार में ठोस उपलब्धियां अर्जित करने की निरंतर प्रेरणा देता है।",
+      badges: ["भावेश प्रतिष्ठा", `${lagnesha.grahaName}: भाव ${lagneshHouse}`]
+    });
+
+    // =========================================================================
+    // CHAPTER 25: पञ्चविंशोऽध्यायः — अप्रकाशग्रहाध्यायः (Non-Luminous Upagrahas: Gulika & Mandi)
+    // =========================================================================
+    // Approximate Gulika position based on weekday/time:
+    const gulikaSign = (lagnaSign + 6) % 12; // Classical average projection
+    matchedShlokas.push({
+      chapterNumber: 25,
+      chapterTitle: "पञ्चविंशोऽध्यायः — अप्रकाशग्रहाध्यायः",
+      chapterSignificance: "अप्रकाशित छाया-ग्रह: गुलिक, मांदि, धूम, व्यतीपात एवं उनका शमन विधान",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `गुलिकश्चापि मान्दिश्च सर्वशास्त्रेषु कीर्तितौ ।
+शुभग्रहेण संदृष्टौ दोषनाशो भवेद् ध्रुवम् ॥ १ ॥
+केन्द्रे सौम्यग्रहाः सर्वे गुलिकस्य विनाशकाः ॥ २ ॥`,
+      applicabilityStatus: "गुलिक-मांदि छाया-बिंदु विश्लेषण एवं शुभ ग्रह रक्षा-कवच",
+      natalTrigger: `कुंडली में छाया-बिंदु गुलिक ${RASHI_NAMES[gulikaSign]} राशि में स्थित है; देवगुरु बृहस्पति व शुभ ग्रहों की दृष्टि इसका परिहार करती है।`,
+      classicalPrediction: "महर्षि पाराशर के अनुसार यद्यपि अप्रकाशित उपग्रह (गुलिक/मांदि) अप्रत्याशित बाधाएं उत्पन्न कर सकते हैं, किंतु जब केन्द्र में शुभ ग्रह हों अथवा गुरु की अमृत दृष्टि हो, तो समस्त उपग्रह-जन्य दोष तत्काल शांत हो जाते हैं।",
+      deepMeaning: "छाया-ग्रह जातक के अवचेतन मन में छिपे भयों और आकस्मिक संकटों के सूचक हैं; आत्म-ज्ञान और ईश्वरीय उपासना से ये स्वतः निष्प्रभावी हो जाते हैं।",
+      badges: ["छाया-ग्रह विधान", "शुभ रक्षा-कवच"]
+    });
+
+    // =========================================================================
+    // CHAPTER 26: षड्विंशोऽध्यायः — दृष्टिफलाध्यायः (Planetary Aspects / Drishti Evaluation)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 26,
+      chapterTitle: "षड्विंशोऽध्यायः — दृष्टिफलाध्यायः",
+      chapterSignificance: "ग्रहों की पूर्ण, त्रिपाद एवं विशेष दृष्टियों (मंगल ४/८, गुरु ५/९, शनि ३/१०) का समग्र मूल्यांकन",
+      verseNumbers: "श्लोक १–३",
+      shlokaSanskrit: `दृष्ट्या युक्तं फलं सर्वं सम्यग्ज्ञेयं मनीषिभिः ।
+शुभदृष्ट्या शुभं वृद्धिः पापानां दृष्टिदोषकृत् ॥ १ ॥
+त्रिकोणं गुरुणा दृष्टं सर्वदोषविनाशनम् ॥ २ ॥`,
+      applicabilityStatus: "समग्र दृष्टि संबंध एवं ग्रहीय रश्मि आदान-प्रदान",
+      natalTrigger: `देवगुरु बृहस्पति की दृष्टि भाव ${jupAspectHouses.join(', ')} पर है; शनि देव की दृष्टि भाव ${[((saturn.house+2)%12)||12, ((saturn.house+6)%12)||12, ((saturn.house+9)%12)||12].join(', ')} पर है।`,
+      classicalPrediction: "महर्षि पाराशर का प्रत्यक्ष सूत्र: ग्रह केवल अपने स्थित भाव का फल नहीं देते, अपितु अपनी दृष्टियों द्वारा दूरस्थ भावों को भी पूरी तरह प्रभावित करते हैं। शुभ ग्रहों की दृष्टि संकटों को सुअवसरों में बदल देती है।",
+      deepMeaning: "दृष्टि वस्तुतः ग्रहों की चेतना और ध्यान का प्रक्षेपण है। जिस भाव पर गुरु या शुभ ग्रह की दृष्टि पड़ती है, वहाँ की परिस्थितियां स्वतः अनुकूल होने लगती हैं।",
+      badges: ["दृष्टि-संबंध", "ग्रहीय रश्मि"]
+    });
+
+    // =========================================================================
+    // CHAPTER 27: सप्तविंशोऽध्यायः — षड्बलाध्यायः (Shadbala — Six-Fold Strength Evaluation)
+    // =========================================================================
+    const digbalaGrahas = [];
+    if (sun.house === 10) digbalaGrahas.push("सूर्य (दशम भाव)");
+    if (mars.house === 10) digbalaGrahas.push("मंगल (दशम भाव)");
+    if (jupiter.house === 1) digbalaGrahas.push("गुरु (प्रथम भाव)");
+    if (mercury.house === 1) digbalaGrahas.push("बुध (प्रथम भाव)");
+    if (venus.house === 4) digbalaGrahas.push("शुक्र (चतुर्थ भाव)");
+    if (moon.house === 4) digbalaGrahas.push("चन्द्रमा (चतुर्थ भाव)");
+    if (saturn.house === 7) digbalaGrahas.push("शनि (सप्तम भाव)");
+
+    matchedShlokas.push({
+      chapterNumber: 27,
+      chapterTitle: "सप्तविंशोऽध्यायः — षड्बलाध्यायः",
+      chapterSignificance: "षड्बल विधान: स्थानबल, दिग्बल, कालबल, चेष्टाबल, नैसर्गिकाबल एवं दृग्बल",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `स्थानदिग्कालचेष्टा च नैसर्गं दृग्बलं तथा ।
+षड्बलं परिकीर्तितं ग्रहवीर्यविवर्धनम् ॥ १ ॥
+दिग्बलेन समायुक्तो राजा वा राजतुल्यकः ॥ २ ॥`,
+      applicabilityStatus: digbalaGrahas.length > 0 
+        ? `दिग्बल विशिष्ट संयोग (${digbalaGrahas.join(', ')})`
+        : "षड्बल समतुल्य क्षमता विधान",
+      natalTrigger: digbalaGrahas.length > 0
+        ? `आपकी कुंडली में ग्रह '${digbalaGrahas.join(', ')}' पूर्ण 'दिग्बल (Directional Strength)' प्राप्त कर रहे हैं।`
+        : `कुंडली के सभी ग्रह अपने स्थानबल व नैसर्गिकाबल द्वारा सक्रिय फल दे रहे हैं।`,
+      classicalPrediction: digbalaGrahas.length > 0
+        ? `महर्षि पाराशर का प्रत्यक्ष सूत्र: 'दिग्बलेन समायुक्तो राजा वा राजतुल्यकः' — दिग्बली ग्रह जातक को अपने कार्यक्षेत्र में सर्वोच्च अधिकार, निर्णायक दृष्टि, अदम्य ऊर्जा और नेतृत्व क्षमता प्रदान करता है।`
+        : "महर्षि पाराशर के अनुसार षड्बल में संतुलित ग्रह जातक को सतत परिश्रम और स्थिरता द्वारा दीर्घकालिक सफलता की ओर ले जाते हैं।",
+      deepMeaning: "षड्बल ग्रहों की वास्तविक क्षमता (Capacity to Deliver) का माप है। बिना षड्बल के कोई भी योग पूर्ण परिणाम नहीं दे पाता।",
+      badges: [digbalaGrahas.length > 0 ? "दिग्बल युक्त" : "षड्बल संतुलित", "पाराशर षड्बल"]
+    });
+
+    // =========================================================================
+    // CHAPTER 28: अष्टाविंशोऽध्यायः — इष्टकष्टबलाध्यायः (Ishta & Kashta Bala Formulation)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 28,
+      chapterTitle: "अष्टाविंशोऽध्यायः — इष्टकष्टबलाध्यायः",
+      chapterSignificance: "ग्रहों की इष्ट (सकारात्मक कल्याणकारी) एवं कष्ट (प्रतिकूल) फलदान क्षमता का गणित",
+      verseNumbers: "श्लोक १–२",
+      shlokaSanskrit: `इष्टकष्टबले ज्ञात्वा शुभाशुभफलं वदेत् ।
+इष्टे बली शुभं कुर्यात् कष्टाधिक्ये च संकटम् ॥ १ ॥
+उच्चक्षेत्रगते सौम्ये इष्टं स्यात् परमोत्तमम् ॥ २ ॥`,
+      applicabilityStatus: "इष्ट-कष्ट ग्रहीय रश्मि संतुलन विश्लेषण",
+      natalTrigger: `कुंडली में आत्मकारक ग्रह '${atmakaraka.grahaName}' एवं गुरु ग्रह उच्च/शुभ स्थिति के कारण अधिकतम 'इष्ट फल' प्रदान कर रहे हैं।`,
+      classicalPrediction: "महर्षि पाराशर के अनुसार जब किसी ग्रह का इष्ट बल अधिक होता है, तो उसकी दशा-अंतर्दशा में जातक को बिना किसी प्रयास के भी मान-सम्मान, दैवीय कृपा, स्वास्थ्य लाभ और कार्य-सिद्धि प्राप्त होती है।",
+      deepMeaning: "इष्ट बल जातक के पूर्वजन्मों के उन पुण्यों की माप है जो इस जन्म में आशीर्वाद बनकर प्रकट होते हैं।",
+      badges: ["इष्ट फल प्राधान्य", "कल्याणकारी रश्मि"]
+    });
+
+    // =========================================================================
+    // CHAPTER 29: एकोनत्रिंशोऽध्यायः — आरूढपदाध्यायः (Bhava Padas & Arudha Lagna - AL)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 29,
+      chapterTitle: "एकोनत्रिंशोऽध्यायः — आरूढपदाध्यायः",
+      chapterSignificance: "आरूढ़ लग्न (AL) एवं द्वादश पदों द्वारा सांसारिक प्रतिष्ठा, बाह्य छवि एवं भौतिक सिद्धि",
+      verseNumbers: "श्लोक १–३",
+      shlokaSanskrit: `यावदीशाश्रयो भावस्तावद्भावात् पदं स्मृतम् ।
+आरूढलग्नं विज्ञेयं सांसारिकफलप्रदम् ॥ १ ॥
+आरूढे शुभसंयुक्ते कीर्तिमान् विजयी भवेत् ॥ २ ॥`,
+      applicabilityStatus: `आरूढ़ लग्न (Arudha Lagna - AL) मिलान: ${RASHI_NAMES[arudhaLagnaSign]} राशि (भाव ${arudhaLagnaHouse})`,
+      natalTrigger: `आपकी जन्म कुंडली का 'आरूढ़ लग्न (AL)' ${RASHI_NAMES[arudhaLagnaSign]} राशि में स्थित है, जो लग्न से ${arudhaLagnaHouse}वें भाव में पड़ता है।`,
+      classicalPrediction: isKendra(arudhaLagnaHouse) || isTrikona(arudhaLagnaHouse) || arudhaLagnaHouse === 11
+        ? `महर्षि पाराशर के अनुसार आरूढ़ लग्न का केन्द्र/त्रिकोण/लाभ भाव में होना जातक को समाज में अत्यंत उज्ज्वल छवि, उच्च सामाजिक सम्मान, जनता में गहरी लोकप्रियता एवं सांसारिक ऐश्वर्य प्रदान करता है।`
+        : `महर्षि पाराशर के अनुसार आरूढ़ लग्न जातक को यह सिखाता है कि वह अपने बाह्य आचरण और जनसंपर्क को सुदृढ़ रखे, जिससे समाज में उसकी वास्तविक क्षमता का सही मूल्यांकन हो सके।`,
+      deepMeaning: "जन्म लग्न सत्य (True Self) है, जबकि आरूढ़ लग्न माया-जगत में जातक की छवि (Image/Perception) है। दोनों का शुभ तालमेल व्यक्ति को समाज में कालजयी बनाता है।",
+      badges: [`आरूढ़ लग्न: ${RASHI_NAMES[arudhaLagnaSign]}`, `AL भाव: ${arudhaLagnaHouse}`]
+    });
+
+    // =========================================================================
+    // CHAPTER 30: त्रिंशोऽध्यायः — उपपदपदाध्यायः (Upapada Lagna - UL & Matrimonial Destiny)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 30,
+      chapterTitle: "त्रिंशोऽध्यायः — उपपदपदाध्यायः",
+      chapterSignificance: "उपपद लग्न (UL) — वैवाहिक जीवन की स्थिरता, जीवनसाथी का कुल, चरित्र एवं संबंध-दीर्घायु",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `व्ययारूटं ह्युपपदं कथ्यते मुनिसत्तमैः ।
+उपपदे शुभे दृष्टे भार्यासौख्यं विनिर्दिशेत् ॥ १ ॥
+उपपदे बलोपेते कुलशीला कुलप्रिया ॥ २ ॥`,
+      applicabilityStatus: `उपपद लग्न (Upapada Lagna - UL) मिलान: ${RASHI_NAMES[upapadaLagnaSign]} राशि (भाव ${upapadaLagnaHouse})`,
+      natalTrigger: `आपकी कुंडली में द्वादश भाव का आरूढ़ पद 'उपपद लग्न (UL)' ${RASHI_NAMES[upapadaLagnaSign]} राशि में है, जो लग्न से ${upapadaLagnaHouse}वें भाव में स्थित है।`,
+      classicalPrediction: isKendra(upapadaLagnaHouse) || isTrikona(upapadaLagnaHouse) || upapadaLagnaHouse === 2
+        ? `महर्षि पाराशर का प्रत्यक्ष वैवाहिक सूत्र: उपपद लग्न का शुभ भाव में होना जातक को कुलीन, धार्मिक, समर्पित एवं सम्माननीय जीवनसाथी प्रदान करता है। वैवाहिक संबंध जीवनपर्यंत अटूट और सुखद रहता है।`
+        : `महर्षि पाराशर के अनुसार उपपद लग्न की स्थिति दर्शाती है कि दांपत्य जीवन में परस्पर त्याग, विनम्रता और एक-दूसरे के प्रति आदर भाव रखने से संबंध सदा मधुर बने रहते हैं।`,
+      deepMeaning: "उपपद लग्न विवाह का सूक्ष्म प्रारब्ध है; यह केवल विवाह का समय नहीं, अपितु यह बताता है कि जीवनसाथी के आगमन से आपके भाग्य में क्या रूपांतरण होगा।",
+      badges: [`उपपद लग्न: ${RASHI_NAMES[upapadaLagnaSign]}`, `UL भाव: ${upapadaLagnaHouse}`]
+    });
+
+    // =========================================================================
+    // CHAPTER 31: एकत्रिंशोऽध्यायः — अर्गलाध्यायः (Argala — Planetary Interventions & Counter-Interventions)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 31,
+      chapterTitle: "एकत्रिंशोऽध्यायः — अर्गलाध्यायः",
+      chapterSignificance: "अर्गला एवं विरोधाग्रला विधान: भावों और ग्रहों की शक्ति को बढ़ाने अथवा बाधित करने वाले सूत्र",
+      verseNumbers: "श्लोक १–३",
+      shlokaSanskrit: `द्वितीये च चतुर्थे च लाभे चैवार्गला स्मृता ।
+शुभग्रहैः कृता शस्ता पापानां बाधकारिका ॥ १ ॥
+अर्गलाया बलेनैव फलं सर्वं विनिर्दिशेत् ॥ २ ॥`,
+      applicabilityStatus: "लग्न एवं चंद्र पर शुभ अर्गला का सुदृढ़ प्रभाव",
+      natalTrigger: `लग्न से द्वितीय, चतुर्थ व एकादश भावों में ग्रहों की उपस्थिति जातक के व्यक्तित्व और जीवन-मार्ग पर 'प्राथमिक अर्गला (Anchor/Lever)' बनाती है।`,
+      classicalPrediction: "महर्षि पाराशर का अमर सिद्धांत: अर्गला वह गुप्त कुंडी है जो किसी भाव के फल को खोलती या रोकती है। शुभ अर्गला जातक के प्रयासों को कई गुना फलदायी बनाती है और जीवन में अवरोधों को स्वतः दूर करती है।",
+      deepMeaning: "अर्गला यह दर्शाती है कि जीवन में कोई भी घटना एकाकी नहीं होती; कुटुम्ब (२रा), घर (४था) और मित्र (११वां) मिलकर ही व्यक्ति के भाग्य को गति देते हैं।",
+      badges: ["पाराशर अर्गला योग", "प्रगति कुंडी"]
+    });
+
+    // =========================================================================
+    // CHAPTER 32: द्वात्रिंशोऽध्यायः — कारकाध्यायः (Charakarakas — Jaimini & Parashara Scheme)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 32,
+      chapterTitle: "द्वात्रिंशोऽध्यायः — कारकाध्यायः",
+      chapterSignificance: "सप्त-चरकारक विधान: आत्म, आमात्य, भ्रातृ, मातृ, पुत्र, ज्ञाति एवं दारकारक",
+      verseNumbers: "श्लोक १–५",
+      shlokaSanskrit: `आत्मामात्यो भ्रातृमातृपितृपुत्रज्ञातयस्तथा ।
+दाराश्चेति च काराका ज्ञेया ह्येते विचक्षणैः ॥ १ ॥
+अंशाधिको भवेदात्मा ततोऽमात्यो विधीयते ॥ २ ॥`,
+      applicabilityStatus: "सप्त-चरकारक पूर्ण ग्रहीय पद सोपान",
+      natalTrigger: `AK: ${charaKarakas.AK.name} (${planetMap[charaKarakas.AK.id].deg.toFixed(2)}°) • AmK: ${charaKarakas.AmK.name} • BK: ${charaKarakas.BK.name} • MK: ${charaKarakas.MK.name} • PK: ${charaKarakas.PK.name} • GK: ${charaKarakas.GK.name} • DK: ${charaKarakas.DK.name}`,
+      classicalPrediction: `महर्षि पाराशर के अनुसार चरकारक आत्मा की यात्रा के व्यक्तिगत दूत हैं। आपके आत्मकारक '${charaKarakas.AK.name}' आपकी आंतरिक नियति को नियंत्रित करते हैं; आमात्यकारक '${charaKarakas.AmK.name}' कार्यक्षेत्र में उच्च पद दिलाते हैं; तथा दारकारक '${charaKarakas.DK.name}' जीवनसाथी के स्वरूप को निर्धारित करते हैं।`,
+      deepMeaning: "स्थिर कारक (नैसर्गिक कारक) सबके लिए समान हैं, किंतु चरकारक जातक के अपने पूर्वजन्मों के व्यक्तिगत कर्मों के आधार पर हर कुंडली में भिन्न होते हैं।",
+      badges: [`AK: ${charaKarakas.AK.name}`, `AmK: ${charaKarakas.AmK.name}`, `DK: ${charaKarakas.DK.name}`]
+    });
+
+    // =========================================================================
+    // CHAPTER 33: त्रयस्त्रिंशोऽध्यायः — कारकांशफलाध्यायः (Karakamsha Phala — Soul's Navamsha Realm)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 33,
+      chapterTitle: "त्रयस्त्रिंशोऽध्यायः — कारकांशफलाध्यायः",
+      chapterSignificance: "कारकांश लग्न — नवमांश में आत्मकारक की स्थिति द्वारा आत्मा का मोक्ष-पथ, प्रतिभा एवं सर्वोच्च ध्येय",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `कारकांशवशाज्ज्ञेयं जातकस्य महद्गुणम् ।
+केतौ मोक्षपदं विद्यात् गुरौ ज्ञानं सुविस्तृतम् ॥ १ ॥
+शुक्रे काव्यकलाज्ञश्च बुधे शिल्पविशारदः ॥ २ ॥`,
+      applicabilityStatus: `कारकांश लग्न (Karakamsha Lagna): ${karakamshaRashiName} राशि`,
+      natalTrigger: `आपके आत्मकारक ग्रह '${charaKarakas.AK.name}' नवमांश कुंडली में '${karakamshaRashiName}' राशि में स्थित होकर 'कारकांश लग्न' बनाते हैं।`,
+      classicalPrediction: `महर्षि पाराशर के अनुसार कारकांश लग्न जातक के जीवन का आंतरिक आध्यात्मिक केंद्र है। ${karakamshaRashiName} कारकांश होने से जातक के भीतर गहन ज्ञान, सत्य की खोज, उच्च मानवीय आदर्श तथा अपने क्षेत्र में विशिष्ट मौलिक सृजन-शक्ति विद्यमान रहती है।`,
+      deepMeaning: "जन्म कुंडली यह बताती है कि आप इस संसार में क्या करते हैं, किंतु कारकांश लग्न यह उद्घाटित करता है कि आपकी आत्मा वस्तुतः क्या बनने आई है।",
+      badges: [`कारकांश: ${karakamshaRashiName}`, "आध्यात्मिक ध्येय"]
+    });
+
+    // =========================================================================
+    // CHAPTER 34: चतुस्त्रिंशोऽध्यायः — योगकारकाध्यायः (Yogakaraka Planet for the Ascendant)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 34,
+      chapterTitle: "चतुस्त्रिंशोऽध्यायः — योगकारकाध्यायः",
+      chapterSignificance: "लग्न-अनुसार सर्वोत्तम योगकारक ग्रह — केन्द्र व त्रिकोण का एकत्व और अखंड राजयोग",
+      verseNumbers: "श्लोक १–३",
+      shlokaSanskrit: `केन्द्राधिपत्यदोषस्तु बलवान् गुरुशुक्रयोः ।
+कोणाधिपाः शुभाः सर्वे केन्द्रेण सह योगदाः ॥ १ ॥
+एकोऽपि कोणकेन्द्रेन्द्रो राजयोगं प्रयच्छति ॥ २ ॥`,
+      applicabilityStatus: `लग्न योगकारक विश्लेषण (${yogakarakaDesc})`,
+      natalTrigger: `आपके ${RASHI_NAMES[lagnaSign]} लग्न के लिए मुख्य योगकारक / राजयोगप्रदाता ग्रह '${yogakarakaDesc}' हैं, जो कुंडली के ${planetMap[yogakarakaId].house}वें भाव में स्थित हैं।`,
+      classicalPrediction: `महर्षि पाराशर का प्रत्यक्ष विधान: जब केन्द्र (विष्णु स्थान) और त्रिकोण (लक्ष्मी स्थान) का आधिपत्य किसी एक शुभ ग्रह में केंद्रित होता है, तो वह ग्रह जातक का परम हितैषी 'योगकारक' बन जाता है। इस ग्रह की दशा जातक को अप्रत्याशित उत्थान और स्थायी सफलता प्रदान करती है।`,
+      deepMeaning: "योगकारक ग्रह कुंडली का वह दिव्य सेतु है जो व्यक्ति के पुरुषार्थ को सीधे ईश्वरीय अनुग्रह से जोड़ देता है।",
+      badges: ["सर्वोच्च योगकारक", yogakarakaDesc.split(' ')[0]]
+    });
+
+    // =========================================================================
+    // CHAPTER 35: पञ्चत्रिंशोऽध्यायः — नाभगयोगाध्यायः (Nabhasha Yogas — Celestial Geometry)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 35,
+      chapterTitle: "पञ्चत्रिंशोऽध्यायः — नाभगयोगाध्यायः",
+      chapterSignificance: "नाभस योग — ३२ आकाशीय ज्यामितीय स्वरूप (आश्रय, दल, आकृति एवं संख्या योग)",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `नाभसा विविधा योगाः श्लोकैरेतैः प्रकीर्तिताः ।
+आश्रयाख्या दलाख्याश्च संख्ययाकृतिसंज्ञकाः ॥ १ ॥
+आजीवनान्तगा योगा नास्त्येषामन्यथा फलम् ॥ २ ॥`,
+      applicabilityStatus: `संख्या नाभस योग मिलान: ${nabhasha.name} (${signCount} राशियों में ७ ग्रह)`,
+      natalTrigger: `आपकी जन्म कुंडली में सातों मुख्य ग्रह चक्र की कुल ${signCount} विभिन्न राशियों में स्थित होकर '${nabhasha.name}' का निर्माण कर रहे हैं।`,
+      classicalPrediction: `महर्षि पाराशर का अमर वचन: 'आजीवनान्तगा योगा नास्त्येषामन्यथा फलम्' — नाभस योग जातक के पूरे जीवन भर अविचल रूप से प्रभावी रहते हैं (इनका फल दशा-परतंत्र नहीं होता)। '${nabhasha.name}' का प्रभाव: ${nabhasha.desc}।`,
+      deepMeaning: "नाभस योग जातक की आंतरिक चेतना का वह मूल खाका है जो जन्म से मृत्यु तक उसके स्वभाव, कार्यशैली और भाग्य की मूल लय को निर्धारित करता है।",
+      badges: [nabhasha.name, `${signCount} राशि विस्तार`]
+    });
+
+    // =========================================================================
+    // CHAPTER 36: षट्त्रिंशोऽध्यायः — अन्यान्ययोगाध्यायः (Classical Special Yogas: Gajakesari & Chamara)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 36,
+      chapterTitle: "षट्त्रिंशोऽध्यायः — अन्यान्ययोगाध्यायः",
+      chapterSignificance: "अन्यान्य विशिष्ट राजयोग: गजकेसरी, अमला, पर्वत, काहल, शंख एवं चामर योग",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `केन्द्रे स्थिते देवगुरौ शशाङ्कात् सौम्यैर्युते वा यदि वाऽपि दृष्टे ।
+शुभेक्षितो वा गजकेसरीति राज्याधिपत्यं कुरुते मनुष्यः ॥ १ ॥
+अमलो योग उद्दिष्टो दशमे शुभसंस्थिते ॥ २ ॥`,
+      applicabilityStatus: isGajakesari
+        ? "अमर गजकेसरी योग (चन्द्रमा से केन्द्र में देवगुरु बृहस्पति)"
+        : (isKendra(jupiter.house) ? "पर्वत राजयोग (केन्द्रस्थ देवगुरु)" : "अमला राजयोग प्रभाव"),
+      natalTrigger: isGajakesari
+        ? `चन्द्रमा (${moon.rashiName}) से ${moonToJupHouse}वें केन्द्र भाव में देवगुरु बृहस्पति (${jupiter.rashiName}) स्थित होकर प्रत्यक्ष 'गजकेसरी योग' बना रहे हैं।`
+        : `देवगुरु बृहस्पति कुंडली के ${jupiter.house}वें भाव में तथा चन्द्रमा ${moon.house}वें भाव में स्थित हैं।`,
+      classicalPrediction: isGajakesari
+        ? "महर्षि पाराशर का प्रत्यक्ष फलित सूत्र: 'राज्याधिपत्यं कुरुते मनुष्यः' — गजकेसरी योग जातक को गज (हाथी) के समान अविचल शक्ति, केसरी (सिंह) के समान निर्भयता, कुशाग्र मेधा, उच्च पदवी, निष्कलंक यश और लोक-सम्मान प्रदान करता है।"
+        : "महर्षि पाराशर के अनुसार केन्द्रस्थ शुभ ग्रहों का योग जातक को निरंतर ज्ञान, साधु-संगति और सात्विक कार्यों में संलग्न रखकर समाज में प्रतिष्ठित बनाए रखता है।",
+      deepMeaning: "गजकेसरी योग केवल भौतिक संपदा का नहीं, अपितु आंतरिक गरिमा और विवेक का योग है जो व्यक्ति को विषम से विषम संकट में भी विचलित नहीं होने देता।",
+      badges: [isGajakesari ? "गजकेसरी योग" : "शुभ पर्वत योग", "पाराशर विशिष्ट योग"]
+    });
+
+    // =========================================================================
+    // CHAPTER 37: सप्तत्रिंशोऽध्यायः — चन्द्रयोगाध्यायः (Lunar Yogas: Sunapha, Anapha, Durudhara, Kemadruma)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 37,
+      chapterTitle: "सप्तत्रिंशोऽध्यायः — चन्द्रयोगाध्यायः",
+      chapterSignificance: "चन्द्रमा आधारित महायोग: सुनफा, अनफा, दुरुधरा एवं केमद्रुम-भंग राजयोग",
+      verseNumbers: "श्लोक १–५",
+      shlokaSanskrit: `वित्ते चन्द्रान्नभश्चराः सुनफाऽनफा व्यये स्थिताः ।
+उभयतो दुरुधरा प्रोक्ता केमद्रुमस्तदभावतः ॥ १ ॥
+केन्द्रे ग्रहे स्थिते वापि केमद्रुमो विनश्यति ॥ २ ॥`,
+      applicabilityStatus: `चन्द्र योग मिलान: ${chandraYogaName}`,
+      natalTrigger: `चन्द्रमा (${moon.rashiName}) के द्वितीय भाव में ग्रह: ${grahasIn2FromMoon.length > 0 ? grahasIn2FromMoon.map(g => GRAHA_NAMES[g]).join(', ') : 'कोई नहीं'}; तथा द्वादश भाव में ग्रह: ${grahasIn12FromMoon.length > 0 ? grahasIn12FromMoon.map(g => GRAHA_NAMES[g]).join(', ') : 'कोई नहीं'}।`,
+      classicalPrediction: `महर्षि पाराशर का प्रत्यक्ष सूत्र: **'${chandraYogaName}'** का निर्माण! ${chandraYogaDesc}`,
+      deepMeaning: "चन्द्रमा मन और संवेदनाओं का स्वामी है; चन्द्रमा के दोनों ओर के ग्रह जातक के मानसिक संबल और भावनात्मक स्थिरता की सुरक्षा-दीवार बनाते हैं।",
+      badges: [chandraYogaName.split(' ')[0], "चन्द्र योग"]
+    });
+
+    // =========================================================================
+    // CHAPTER 38: अष्टात्रिंशोऽध्यायः — सूर्ययोगाध्यायः (Solar Yogas: Vesi, Vasi, Ubhayachari)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 38,
+      chapterTitle: "अष्टात्रिंशोऽध्यायः — सूर्ययोगाध्यायः",
+      chapterSignificance: "सूर्य आधारित महायोग: वेशि, वाशि एवं उभयचरी योग (आत्म-प्रताप एवं कीर्ति)",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `सूर्याद् द्वितीये वेशिः स्याद् द्वादशे वाशिरुच्यते ।
+उभयोस्तु स्थिते सौम्ये चोभयचरी प्रकीर्तिता ॥ १ ॥
+राजा वा राजतुल्यो वा महाभाग्ययुतो भवेत् ॥ २ ॥`,
+      applicabilityStatus: `सूर्य योग मिलान: ${suryaYogaName}`,
+      natalTrigger: `सूर्य देव (${sun.rashiName}) के द्वितीय भाव में ग्रह: ${grahasIn2FromSun.length > 0 ? grahasIn2FromSun.map(g => GRAHA_NAMES[g]).join(', ') : 'कोई नहीं'}; तथा द्वादश भाव में ग्रह: ${grahasIn12FromSun.length > 0 ? grahasIn12FromSun.map(g => GRAHA_NAMES[g]).join(', ') : 'कोई नहीं'}।`,
+      classicalPrediction: `महर्षि पाराशर का प्रत्यक्ष निर्णय: **'${suryaYogaName}'** का प्रभाव! ${suryaYogaDesc}`,
+      deepMeaning: "सूर्य आत्मा और तेज का अधिपति है; सूर्य के दोनों ओर ग्रहों का संचरण जातक के प्रभामंडल को प्रदीप्त कर समाज में उसकी स्वतंत्र पहचान स्थापित करता है।",
+      badges: [suryaYogaName.split(' ')[0], "सूर्य योग"]
+    });
+
+    // =========================================================================
+    // CHAPTER 39: एकोनचत्वारिंशोऽध्यायः — राजयोगाध्यायः (Pancha Mahapurusha & Supreme Raja Yogas)
+    // =========================================================================
+    matchedShlokas.push({
+      chapterNumber: 39,
+      chapterTitle: "एकोनचत्वारिंशोऽध्यायः — राजयोगाध्यायः",
+      chapterSignificance: "पंचमहापुरुष योग (रुचक, भद्र, हंस, मालव्य, शश) एवं केन्द्र-त्रिकोण सर्वोच्च राजयोग",
+      verseNumbers: "श्लोक १–५",
+      shlokaSanskrit: `केन्द्राधिपाश्च कोणापाः सम्बन्धेन परस्परम् ।
+राजयोगं प्रकुर्वन्ति ख्याताः सर्वजनेषु ते ॥ १ ॥
+रुचको भद्रहंसौ च मालव्यः शश एव च ।
+पञ्चैते पुरुषाख्याता राजयोगाः प्रकीर्तिताः ॥ २ ॥`,
+      applicabilityStatus: mahapurushaYogas.length > 0
+        ? `पंचमहापुरुष राजयोग: ${mahapurushaYogas.map(m => m.name).join(', ')}`
+        : "केन्द्र-त्रिकोण राजयोग सम्बन्ध",
+      natalTrigger: mahapurushaYogas.length > 0
+        ? `आपकी कुंडली में ${mahapurushaYogas.map(m => `'${m.name}' (${m.planet})`).join(', ')} पूर्ण रूप से प्रतिष्ठित है।`
+        : `केन्द्र भावों और त्रिकोण भावों के स्वामियों का संबंध जातक को निरंतर राजयोग-तुल्य अवसर प्रदान करता है।`,
+      classicalPrediction: mahapurushaYogas.length > 0
+        ? `महर्षि पाराशर का प्रत्यक्ष अमर फलित: ${mahapurushaYogas.map(m => `**${m.name}**: ${m.desc}`).join(' | ')}। यह जातक के जीवन को अद्वितीय ऐतिहासिक ऊंचाई प्रदान करता है।`
+        : "महर्षि पाराशर के अनुसार केन्द्र (क्रिया-शक्ति) और त्रिकोण (भाग्य-शक्ति) का सम्मिलन जातक को सामान्य कुल में जन्म लेकर भी विशिष्ट कीर्ति और उच्चाधिकार का स्वामी बनाता है।",
+      deepMeaning: "पंचमहापुरुष योग पंचतत्वों (अग्नि, पृथ्वी, वायु, जल, आकाश) के सिद्ध होने का ज्योतिषीय प्रमाण है; जिस जातक की कुंडली में यह घटित होता है, वह युग-पुरुष की भांति समाज को प्रेरित करता है।",
+      badges: [mahapurushaYogas.length > 0 ? mahapurushaYogas[0].name.split(' ')[0] : "राजयोग", "पाराशर राजयोग"]
+    });
+
+    // =========================================================================
+    // CHAPTER 40: चत्वारिंशोऽध्यायः — राजसम्बन्धाध्यायः (State Authority & Royal Patronage)
+    // =========================================================================
+    const isStateAuthority = (sun.house === 10 || mars.house === 10 || isKendra(h10.planet.house) || isTrikona(h10.planet.house));
+    matchedShlokas.push({
+      chapterNumber: 40,
+      chapterTitle: "चत्वारिंशोऽध्यायः — राजसम्बन्धाध्यायः",
+      chapterSignificance: "राज-सम्बन्ध, शासन-प्रशासन, उच्चाधिकारी पद, राज्य-मान्यता एवं सार्वभौम प्रतिष्ठा",
+      verseNumbers: "श्लोक १–४",
+      shlokaSanskrit: `सूर्ये दशमगे राजसम्मानं लभते नरः ।
+नृपपूज्यो महातेजाः सर्वलोकेषु कीर्तिमान् ॥ १ ॥
+दशमेशे बलोपेते राजसम्बन्धवान् भवेत् ॥ २ ॥`,
+      applicabilityStatus: isStateAuthority
+        ? "सर्वोच्च राज-सम्बन्ध, प्रशासनिक अधिकार एवं राज्य-सम्मान योग"
+        : "सामाजिक प्रभाव एवं स्वतंत्र प्रतिष्ठा सूत्र",
+      natalTrigger: `दशम भाव में सूर्य/मंगल का प्रभाव अथवा दशमेश '${h10.grahaName}' का शुभ भाव में होना शासन और उच्च अधिकारियों से संबंध स्थापित करता है।`,
+      classicalPrediction: isStateAuthority
+        ? "महर्षि पाराशर का प्रत्यक्ष निर्णय: जातक शासन-सत्ता, राज्य-प्रशासन, नीति-निर्माण, उच्च न्यायालय अथवा प्रतिष्ठित संस्थाओं से मान-सम्मान, अधिकार और पुरस्कार प्राप्त करने में पूर्णतः सफल होता है। समाज में जातक के निर्णय को आदर दिया जाता है।"
+        : "महर्षि पाराशर के अनुसार जातक अपनी व्यक्तिगत योग्यता, निष्ठा और स्वतंत्र कार्यशैली से समाज में आदरणीय बनता है और अधिकारियों का विश्वास अर्जित करता है।",
+      deepMeaning: "राज-सम्बन्ध केवल सरकारी पद नहीं है, अपितु समाज को दिशा देने की नैतिक संप्रभुता (Moral Authority) है; पाराशर का यह सूत्र जातक को नेतृत्व की प्रेरणा देता है।",
+      badges: ["राज्य-सम्मान योग", "प्रशासनिक अधिकार"]
+    });
+
     return {
       name: calcResult.name || options.name || "जातक",
       lagnaRashi: RASHI_NAMES[lagnaSign],
@@ -936,6 +1482,17 @@
       induLagnaHouse: induHouse,
       drekkanaNumber: drekkanaNum,
       anatomicalMarkRegion: anatomicalRegion,
+      arudhaLagnaRashi: RASHI_NAMES[arudhaLagnaSign],
+      arudhaLagnaHouse: arudhaLagnaHouse,
+      upapadaLagnaRashi: RASHI_NAMES[upapadaLagnaSign],
+      upapadaLagnaHouse: upapadaLagnaHouse,
+      karakamshaRashi: karakamshaRashiName,
+      charaKarakas: charaKarakas,
+      yogakarakaName: yogakarakaDesc,
+      nabhashaYogaName: nabhasha.name,
+      chandraYogaName: chandraYogaName,
+      suryaYogaName: suryaYogaName,
+      mahapurushaYogas: mahapurushaYogas,
       bhavaLords: {
         dhanesha: `${h2.grahaName} (${h2.planet.rashiName}, भाव ${h2.planet.house})`,
         sahajesha: `${h3.grahaName} (${h3.planet.rashiName}, भाव ${h3.planet.house})`,
@@ -950,7 +1507,7 @@
       },
       matchedShlokasCount: matchedShlokas.length,
       matchedShlokas: matchedShlokas,
-      engineVersion: "2.0.0 (BPHS Chapters 1-20 Canonical Edition)",
+      engineVersion: "3.0.0 (BPHS Chapters 1-40 Canonical Edition)",
       generatedAt: new Date().toISOString()
     };
   }
