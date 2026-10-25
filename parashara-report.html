@@ -502,10 +502,10 @@
   <!-- MAIN CONTENT -->
   <main class="container">
     <section class="hero-banner">
-      <div class="hero-badge">📜 बृहत्पाराशरहोराशास्त्रम् — अध्याय १ से १०</div>
+      <div class="hero-badge">📜 बृहत्पाराशरहोराशास्त्रम् — अध्याय १ से २०</div>
       <h1>मेगा पाराशर संहिता कुण्डली रिपोर्ट</h1>
       <p>
-        वैदिक ज्योतिष के मूल संहिताओं के आधार पर आपकी जन्म कुंडली के ग्रहों, लग्नों, द्रेष्काण और षोडशवर्गों का महर्षि पाराशर के प्रामाणिक श्लोकों से शत-प्रतिशत सटीक मिलान।
+        वैदिक ज्योतिष के मूल संहिताओं के आधार पर आपकी जन्म कुंडली के ग्रहों, लग्नों, द्वादश भावों (तनु, धन, सहज, सुख, सुत, शत्रु, कलत्र, आयु, भाग्य, कर्म व लाभ), द्रेष्काण और षोडशवर्गों का महर्षि पाराशर के प्रामाणिक श्लोकों से शत-प्रतिशत सटीक मिलान।
       </p>
     </section>
 
@@ -545,7 +545,7 @@
         <h2 style="font-size:22px; color:var(--primary); font-weight:900;">
           📜 कुंडली में मैच हुए पाराशर श्लोक (<span id="countBadge">0</span>)
         </h2>
-        <span style="font-size:12.5px; color:var(--text-muted); font-weight:700;">अध्याय १ से १० का सूक्ष्म फलितार्थ</span>
+        <span style="font-size:12.5px; color:var(--text-muted); font-weight:700;">अध्याय १ से २० का सूक्ष्म फलितार्थ</span>
       </div>
 
       <!-- LIST OF SHLOKAS -->
@@ -782,6 +782,16 @@
           <div class="matrix-val">द्रेष्काण ${rep.drekkanaNumber}</div>
           <div class="matrix-sub">${rep.anatomicalMarkRegion}</div>
         </div>
+        <div class="matrix-box">
+          <div class="matrix-lbl">धनेश एवं लाभेश (अध्याय ११ व २०)</div>
+          <div class="matrix-val">${rep.bhavaLords ? rep.bhavaLords.dhanesha.split(' ')[0] + ' व ' + rep.bhavaLords.labhesha.split(' ')[0] : 'शुभ'}</div>
+          <div class="matrix-sub">वित्तीय संचय व सर्व-लाभ योग</div>
+        </div>
+        <div class="matrix-box">
+          <div class="matrix-lbl">भाग्येश एवं कर्मेश (अध्याय १८ व १९)</div>
+          <div class="matrix-val">${rep.bhavaLords ? rep.bhavaLords.bhagyesha.split(' ')[0] + ' व ' + rep.bhavaLords.karmesha.split(' ')[0] : 'शुभ'}</div>
+          <div class="matrix-sub">धर्मकर्माधिपति व राज्य-सम्मान</div>
+        </div>
       `;
 
       // Render Shlokas Cards
@@ -825,7 +835,7 @@
     function shareOnWhatsApp() {
       if (!currentParasharaReport) return;
       const rep = currentParasharaReport;
-      const text = `📜 *मेगा पाराशर संहिता कुण्डली रिपोर्ट (बृहत्पाराशरहोराशास्त्रम्)*
+      const text = `📜 *मेगा पाराशर संहिता कुण्डली रिपोर्ट (बृहत्पाराशरहोराशास्त्रम् अध्याय १–२०)*
 ━━━━━━━━━━━━━━━━━━━━
 👤 *जातक:* ${rep.name}
 🪐 *लग्न:* ${rep.lagnaRashi} (${rep.lagnaDegStr}) • *चन्द्र राशि:* ${rep.moonRashi}

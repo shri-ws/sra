@@ -1,5 +1,5 @@
 /**
- * Unit Test for Parashara Engine (Chapters 1 to 10)
+ * Unit Test for Parashara Engine (Chapters 1 to 20)
  */
 
 const { calculatePatrikaPlanets } = require('./patrikaEngineBridge.js');
@@ -32,7 +32,7 @@ console.log(`द्रेष्काण संख्या: ${rep.drekkanaNumbe
 if (rep.topVaisheshikamsa) {
   console.log(`सर्वोच्च वैशेषिकांश: ${rep.topVaisheshikamsa.grahaName} (${rep.topVaisheshikamsa.tier.title} - ${rep.topVaisheshikamsa.goodCount} वर्ग)`);
 }
-console.log(`कुल मैच हुए पाराशर श्लोक (अध्याय १-१०): ${rep.matchedShlokasCount}`);
+console.log(`कुल मैच हुए पाराशर श्लोक (अध्याय १-२०): ${rep.matchedShlokasCount}`);
 console.log("==========================================\n");
 
 rep.matchedShlokas.forEach((s, idx) => {
