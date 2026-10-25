@@ -1,11 +1,11 @@
 /**
- * Unit Test for Parashara Engine (Chapters 1 to 40)
+ * Unit Test for Parashara Engine (All 97 Chapters - Purva & Uttara Khanda)
  */
 
 const { calculatePatrikaPlanets } = require('./patrikaEngineBridge.js');
 const { evaluateParasharaReport } = require('./parasharaEngine.js');
 
-console.log("Starting Parashara Engine Tests (Complete BPHS Corpus - Chapters 1 to 63)...");
+console.log("Starting Parashara Engine Tests (Complete BPHS Corpus - All 97 Chapters)...");
 
 // Test with sample chart
 const sampleInput = {
@@ -38,7 +38,7 @@ console.log(`द्रेष्काण संख्या: ${rep.drekkanaNumbe
 if (rep.topVaisheshikamsa) {
   console.log(`सर्वोच्च वैशेषिकांश: ${rep.topVaisheshikamsa.grahaName} (${rep.topVaisheshikamsa.tier.title} - ${rep.topVaisheshikamsa.goodCount} वर्ग)`);
 }
-console.log(`कुल मैच हुए पाराशर श्लोक (सम्पूर्ण संहिता - अध्याय १ से ६३): ${rep.matchedShlokasCount}`);
+console.log(`कुल मैच हुए पाराशर श्लोक (सम्पूर्ण संहिता - अध्याय १ से ९७): ${rep.matchedShlokasCount}`);
 console.log("==========================================\n");
 
 rep.matchedShlokas.forEach((s, idx) => {
