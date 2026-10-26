@@ -6,7 +6,7 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <title>Patrika by Shri Ram Ji Astro | High-Precision Vedic Astrology & Birth Chart Software</title>
   <!-- Primary Meta Tags -->
   <meta name="title" content="Patrika by Shri Ram Ji Astro | High-Precision Vedic Astrology & Birth Chart Software">
@@ -476,7 +476,7 @@
     }
 
     .hamburger {
-      display: inline-flex !important;
+      display: none !important;
       align-items: center;
       justify-content: center;
       background: none;
@@ -491,6 +491,11 @@
       flex-shrink: 0;
       transition: background 0.2s, transform 0.15s;
       z-index: 10001;
+    }
+    @media(max-width: 1024px) {
+      .hamburger {
+        display: inline-flex !important;
+      }
     }
     .hamburger:hover {
       background: var(--gold-dim);
@@ -533,13 +538,18 @@
       z-index: 100000 !important;
       display: flex !important;
       flex-direction: column !important;
-      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
+      box-shadow: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
       transform: translateX(100%) !important;
-      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s ease !important;
       box-sizing: border-box !important;
     }
     .nav-drawer.open {
       transform: translateX(0) !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
     }
     .drawer-header {
       padding: 14px 18px !important;
@@ -2236,7 +2246,6 @@
       </a>
       <a href="course.html" data-i18n="nav_course">कोर्स (Academy)</a>
       <a href="about.html" data-i18n="nav_about">अबाउट व ब्लॉग</a>
-      <a href="admin.html" data-i18n="nav_admin">एडमिन</a>
     </div>
     <div class="nav-btns">
       <!-- APP INSTALL BUTTON (NATIVE STATIC DOM - ZERO RUNTIME INJECTION SHIFT) -->
@@ -2404,9 +2413,6 @@
       </a>
       <a href="about.html" onclick="closeNavDrawer()" class="drawer-item">
         <span>📖</span> <span data-i18n="nav_about">अबाउट अस व ज्योतिष ब्लॉग</span>
-      </a>
-      <a href="admin.html" onclick="closeNavDrawer()" class="drawer-item">
-        <span>🔐</span> <span data-i18n="nav_admin">एडमिन डैशबोर्ड</span>
       </a>
     </div>
 

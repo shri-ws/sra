@@ -1024,13 +1024,43 @@
         z-index: 100000 !important;
         display: flex !important;
         flex-direction: column !important;
-        box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
+        box-shadow: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
         transform: translateX(100%) !important;
-        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s ease !important;
         box-sizing: border-box !important;
       }
       .nav-drawer.open {
         transform: translateX(0) !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
+      }
+
+      /* PREVENT IOS SAFARI ZOOM ON INPUT FOCUS */
+      @media screen and (max-width: 768px) {
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+          font-size: 16px !important;
+        }
+      }
+
+      /* HIDE HAMBURGER ON DESKTOP */
+      .hamburger {
+        display: none !important;
+      }
+      @media (max-width: 1024px) {
+        .hamburger {
+          display: inline-flex !important;
+        }
       }
       .drawer-header {
         padding: 14px 18px !important;
@@ -1995,9 +2025,6 @@
           <a href="about.html" onclick="closeNavDrawer()" class="drawer-item">
             <span>📖</span> <span data-i18n="nav_about">अबाउट अस व ज्योतिष ब्लॉग</span>
           </a>
-          <a href="admin.html" onclick="closeNavDrawer()" class="drawer-item">
-            <span>🔐</span> <span data-i18n="nav_admin">एडमिन डैशबोर्ड</span>
-          </a>
         </div>
 
         <div class="drawer-footer">
@@ -2430,6 +2457,17 @@
   }
 
   function initAll() {
+    // Ensure viewport-fit=cover for iOS safe area insets globally
+    try {
+      const vpMeta = document.querySelector('meta[name="viewport"]');
+      if (vpMeta) {
+        let content = vpMeta.getAttribute('content') || '';
+        if (!content.includes('viewport-fit=cover')) {
+          vpMeta.setAttribute('content', content + ', viewport-fit=cover');
+        }
+      }
+    } catch(e) {}
+
     injectBottomNavStyles();
     upgradeNavBrandAndLang();
     upgradeNavLinks();

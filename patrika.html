@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
 <title>Patrika — 97 BPHS Sanskrit Shlokas & Triple Dasha (Vimshottari, Chara, Yogini) | Shri Ramji Astro</title>
 <meta name="title" content="Patrika — 97 BPHS Sanskrit Shlokas & Triple Dasha (Vimshottari, Chara, Yogini) | Shri Ramji Astro">
 <meta name="description" content="India's only free ad-free Vedic astrology web app powered by NASA Swiss Ephemeris & Meeus 60-term lunar algorithm. Displays original Sanskrit shlokas from all 97 BPHS chapters and runs Vimshottari, Jaimini Chara, and Yogini dashas simultaneously." />
@@ -3188,8 +3188,8 @@
 <!-- SITE NAVBAR -->
 <!-- MOBILE OTP AUTH MODAL -->
 <!-- GOOGLE SIGN-IN AUTH MODAL -->
-<div id="modalMobileOtp" style="position:fixed; inset:0; z-index:9999; background:rgba(9,5,20,0.92); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; padding:20px;">
-  <div style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:20px; padding:36px 28px; max-width:440px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5); position:relative;">
+<div id="modalMobileOtp" style="position:fixed; inset:0; z-index:9999; background:rgba(9,5,20,0.92); backdrop-filter:blur(10px); display:none; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--card-bg); border:2px solid var(--gold-border); border-radius:20px; padding:36px 28px; max-width:440px; width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5); position:relative; max-height:90dvh; overflow-y:auto; -webkit-overflow-scrolling:touch;">
     <button type="button" onclick="closeAuthModal()" style="position:absolute; top:12px; right:16px; background:none; border:none; color:var(--muted); font-size:26px; cursor:pointer; line-height:1; padding:4px;" aria-label="बंद करें">&times;</button>
     <div style="font-size:46px; margin-bottom:12px;">🪐</div>
     <h2 style="font-family:'Cinzel',serif; color:var(--gold); font-size:24px; margin-bottom:8px;">एस्ट्रो 360 प्रवेश (Google Sign-In)</h2>
@@ -3238,25 +3238,25 @@
 
     <div id="otpStepPhone" style="display:block; margin-top:10px;">
       <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <span style="background:var(--bg); border:1px solid var(--gold-border); padding:10px 12px; border-radius:8px; font-weight:bold; color:var(--gold);">+91</span>
-        <input type="tel" id="inMobileNum" placeholder="10-अंकीय मोबाइल नंबर (उदा. 9876543210)" maxlength="10" style="flex:1; background:var(--bg); border:1px solid var(--gold-border); border-radius:8px; padding:10px 14px; font-size:14px; font-weight:bold; color:var(--dark); outline:none;">
+        <span style="background:var(--bg); border:1px solid var(--gold-border); padding:10px 12px; border-radius:8px; font-weight:bold; color:var(--gold); display:flex; align-items:center;">+91</span>
+        <input type="tel" id="inMobileNum" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" placeholder="10-अंकीय मोबाइल नंबर (उदा. 9876543210)" maxlength="10" style="flex:1; background:var(--bg); border:1px solid var(--gold-border); border-radius:8px; padding:10px 14px; font-size:16px; font-weight:bold; color:var(--dark); outline:none;">
       </div>
-      <button class="v-btn" onclick="sendMobileOtp()" style="width:100%; padding:12px; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:bold; font-size:14px; border-radius:10px;">
+      <button class="v-btn" onclick="sendMobileOtp()" style="width:100%; padding:12px; background:linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:bold; font-size:14px; border-radius:10px; cursor:pointer;">
         ओटीपी (OTP) प्राप्त करें
       </button>
     </div>
 
     <div id="otpStepCode" style="display:none; margin-top:16px;">
       <div style="background:rgba(22,163,74,0.1); border:1px solid rgba(22,163,74,0.3); border-radius:8px; padding:10px; font-size:12px; color:#16a34a; margin-bottom:14px;" id="otpNoticeMsg"></div>
-      <input type="text" id="inOtpCode" placeholder="1234" maxlength="4" style="width:100%; background:var(--bg); border:1px solid var(--gold-border); border-radius:8px; padding:12px; text-align:center; font-size:22px; font-weight:800; letter-spacing:8px; color:var(--gold); outline:none; margin-bottom:16px;">
-      <button class="v-btn" onclick="verifyMobileOtp()" style="width:100%; padding:12px; background:linear-gradient(135deg, #16a34a, #15803d); color:#fff; font-weight:bold; font-size:14px; border-radius:10px;">सत्यापित करें व प्रवेश करें</button>
+      <input type="text" id="inOtpCode" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" placeholder="6-अंकीय OTP" maxlength="6" style="width:100%; background:var(--bg); border:1px solid var(--gold-border); border-radius:8px; padding:12px; text-align:center; font-size:22px; font-weight:800; letter-spacing:8px; color:var(--gold); outline:none; margin-bottom:16px;">
+      <button class="v-btn" onclick="verifyMobileOtp()" style="width:100%; padding:12px; background:linear-gradient(135deg, #16a34a, #15803d); color:#fff; font-weight:bold; font-size:14px; border-radius:10px; cursor:pointer;">सत्यापित करें व प्रवेश करें</button>
     </div>
 
     <div id="otpErrMsg" style="color:var(--red); font-size:12px; margin-top:14px; min-height:18px;"></div>
     
     <div style="margin-top:20px; padding-top:14px; border-top:1px dashed var(--border);">
-      <button type="button" onclick="continueAsGuest()" style="background:none; border:none; color:var(--gold); font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:underline;">
-        अतिथि के रूप में जारी रखें (Continue as Guest) ➔
+      <button type="button" onclick="continueAsGuest()" style="background:var(--gold-dim, rgba(212,175,55,0.12)); border:1px solid var(--gold-border, rgba(212,175,55,0.3)); border-radius:10px; padding:11px 16px; width:100%; color:var(--gold-dark, #c5a059); font-size:13px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+        <span>👤 अतिथि के रूप में जारी रखें (Continue as Guest)</span> <span>➔</span>
       </button>
     </div>
   </div>
@@ -9943,7 +9943,7 @@ try {
   console.warn("Firebase App Initialization note:", e);
 }
 
-let currentGeneratedOtp = "1234";
+let currentGeneratedOtp = "";
 
 function closeAuthModal() {
   const modal = document.getElementById("modalMobileOtp");
@@ -9960,24 +9960,14 @@ function continueAsGuest() {
 }
 
 function checkMobileAuthStatus() {
-  const verifiedMobile = localStorage.getItem("sra_verified_mobile");
-  const verifiedGoogle = localStorage.getItem("sra_verified_google_user");
-  const isDismissed = (sessionStorage.getItem("sra_guest_dismissed_auth") === "true");
   const modal = document.getElementById("modalMobileOtp");
-  
   const urlParams = new URLSearchParams(window.location.search);
   const isExplicitLogin = (urlParams.get('login') === '1');
-  const isDirectReport = urlParams.get('focus') || (urlParams.get('domain') === 'reports') || urlParams.get('unlock_mangal') || urlParams.get('unlock_all') || urlParams.get('vip');
   
   if (isExplicitLogin && modal) {
     modal.style.display = "flex";
-    return;
-  }
-
-  if ((verifiedMobile || verifiedGoogle || isDismissed || isDirectReport) && modal) {
-    modal.style.display = "none";
   } else if (modal) {
-    modal.style.display = "flex";
+    modal.style.display = "none";
   }
 }
 
@@ -10258,16 +10248,9 @@ async function sendMobileOtp() {
     }
   } catch(error) {
     console.warn("Firebase Phone Auth error:", error);
-    // Smooth fallback: open stepCode and allow 1234 for guest / testing
-    const stepPhone = document.getElementById("otpStepPhone");
-    const stepCode = document.getElementById("otpStepCode");
-    if (stepPhone) stepPhone.style.display = "none";
-    if (stepCode) stepCode.style.display = "block";
-    const notice = document.getElementById("otpNoticeMsg");
-    if (notice) {
-      notice.innerHTML = `⚠️ SMS सेवा अनुपलब्ध: त्वरित प्रवेश हेतु OTP <b>1234</b> दर्ज करें।`;
+    if (err) {
+      err.innerHTML = `⚠️ SMS सेवा लोड करने में समस्या आई। आप ऊपर दिए गए <b>Google साइन-इन</b> से 1-क्लिक में तुरंत सुरक्षित प्रवेश कर सकते हैं अथवा नीचे <b>अतिथि मोड</b> चुनें।`;
     }
-    if (err) err.textContent = "";
   }
 }
 
@@ -10288,7 +10271,7 @@ async function verifyMobileOtp() {
   const err = document.getElementById("otpErrMsg");
 
   if (!code || code.length < 4) {
-    if (err) err.textContent = "कृपया मोबाइल पर प्राप्त सही OTP कोड दर्ज करें।";
+    if (err) err.textContent = "कृपया मोबाइल पर प्राप्त सही 6-अंकीय OTP कोड दर्ज करें।";
     return;
   }
 
@@ -10315,13 +10298,13 @@ async function verifyMobileOtp() {
     }
   }
 
-  // 2. Fallback WhatsApp OTP verification
-  if (code === currentGeneratedOtp || code === "1234") {
+  // 2. Custom OTP verification fallback
+  if (currentGeneratedOtp && code === currentGeneratedOtp) {
     performLoginSuccess({
-      name: "WhatsApp Verified User",
+      name: "Verified User",
       email: num + "@shriramjiastro.in",
       phone: num,
-      action: "WA_VERIFIED"
+      action: "PHONE_OTP_VERIFIED"
     });
   } else {
     if (err) err.textContent = "गलत ओटीपी! कृपया प्राप्त सही कोड प्रविष्ट करें।";
