@@ -2002,6 +2002,15 @@
 
       <!-- PURE RAZORPAY PAYMENT SECTION -->
       <div style="margin: 14px 0 12px;">
+        <div style="text-align: left; margin-bottom: 10px;">
+          <label for="gateUserPhone" style="display: block; font-size: 11.5px; font-weight: 700; color: var(--text); margin-bottom: 4px;">
+            📱 आपका १०-अंकीय मोबाइल नंबर (WhatsApp / SMS अपडेट व रिपोर्ट सुरक्षा हेतु):
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <span style="background: var(--card-subtle); border: 1px solid var(--border-gold); padding: 9px 12px; border-radius: 8px; font-weight: 800; color: var(--primary);">+91</span>
+            <input type="tel" id="gateUserPhone" placeholder="उदा. 9876543210" maxlength="10" style="flex: 1; padding: 9px 14px; border: 1px solid var(--border-gold); border-radius: 8px; font-size: 15px; font-weight: 700; color: var(--text); background: var(--bg); outline: none; box-sizing: border-box;" />
+          </div>
+        </div>
         <button type="button" class="btn-hero-primary" onclick="triggerMegaParasharaRazorpayCheckout()" style="width: 100%; justify-content: center; padding: 14px 18px; font-size: 16px; border-radius: 12px;">
           <span>🔒 Razorpay द्वारा ₹1111 भुगतान करें</span>
         </button>
@@ -3183,6 +3192,50 @@
     const PARASHARA_RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
     const PARASHARA_PRICE_PAISE = 111100; // ₹1111 in paise
 
+    async function logPaymentToServer(paymentData) {
+      try {
+        paymentData.status = paymentData.status || 'completed';
+        paymentData.created_at = paymentData.created_at || new Date().toISOString();
+        await fetch("api/save_payment.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(paymentData)
+        });
+      } catch(e) {
+        console.warn("Payment server logging fallback note:", e);
+      }
+    }
+
+    async function logUserToDatabase(payload) {
+      try {
+        const phone = payload.phone || localStorage.getItem("sra_verified_mobile") || "ANONYMOUS";
+        const data = {
+          phone: phone,
+          email: payload.email || (phone.includes('@') ? phone : (localStorage.getItem("sra_verified_email") || "")),
+          name: payload.name || "मेगा पाराशर जातक",
+          dob: payload.dob || "",
+          tob: payload.tob || "",
+          location: payload.location || "",
+          lat: payload.lat || "",
+          lon: payload.lon || "",
+          tz: payload.tz || "",
+          action: payload.action || "PAID_MEGA_PARASHARA_REPORT",
+          login_method: payload.action || "PAID_MEGA_PARASHARA_REPORT"
+        };
+        let localDb = JSON.parse(localStorage.getItem("sra_user_db") || "[]");
+        localDb.unshift({ ...data, logged_at: new Date().toLocaleString("en-IN") });
+        localStorage.setItem("sra_user_db", JSON.stringify(localDb.slice(0, 200)));
+
+        await fetch("api/save_user.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+      } catch(e) {
+        console.warn("User logging note:", e);
+      }
+    }
+
     function triggerMegaParasharaRazorpayCheckout() {
       if (typeof Razorpay === 'undefined') {
         alert('Razorpay पेमेंट गेटवे लोड हो रहा है, कृपया २ सेकंड बाद पुनः प्रयास करें अथवा इंटरनेट जांचें।');
@@ -3191,7 +3244,17 @@
 
       const k = currentSelectedKundali || {};
       const clientName = k.name || 'पाराशर जातक';
-      const clientMobile = localStorage.getItem('sra_verified_mobile') || '9517117775';
+
+      const phoneInput = document.getElementById('gateUserPhone');
+      let clientMobile = (phoneInput && phoneInput.value.trim()) ? phoneInput.value.trim().replace(/\D/g, '') : (localStorage.getItem('sra_verified_mobile') || '');
+      if (clientMobile && clientMobile.length > 10) clientMobile = clientMobile.slice(-10);
+
+      if (!clientMobile || clientMobile.length !== 10) {
+        alert('कृपया भुगतान व रिपोर्ट सुरक्षा हेतु अपना १०-अंकीय वैध मोबाइल नंबर दर्ज करें।');
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
+      localStorage.setItem('sra_verified_mobile', clientMobile);
 
       const options = {
         key: PARASHARA_RZP_KEY,
@@ -3202,7 +3265,7 @@
         image: "/assets/logo.png",
         prefill: {
           name: clientName,
-          contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
+          contact: clientMobile
         },
         theme: {
           color: "#7c1305"
@@ -3214,14 +3277,40 @@
           amount: "1111"
         },
         handler: function (response) {
-          const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_MEGA_SUCCESS';
+          const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : ('RZP_MEGA_' + Date.now());
           const targetK = currentSelectedKundali;
+          const kKey = targetK ? getKundaliPaymentKey(targetK) : 'default';
           if (targetK) {
-            const key = getKundaliPaymentKey(targetK);
-            localStorage.setItem('sra_mega_paid_' + key, 'true');
-            localStorage.setItem('sra_mega_payid_' + key, payId);
+            localStorage.setItem('sra_mega_paid_' + kKey, 'true');
+            localStorage.setItem('sra_mega_payid_' + kKey, payId);
           }
           localStorage.setItem('sra_mega_last_payid', payId);
+
+          // Centralized server payment logging
+          logPaymentToServer({
+            razorpay_payment_id: payId,
+            student_name: clientName,
+            student_phone: clientMobile,
+            student_email: localStorage.getItem('sra_verified_email') || '',
+            plan_name: 'मेगा पाराशर संहिता कुण्डली रिपोर्ट (९७ अध्याय)',
+            report_type: 'mega_parashara_97_chapters',
+            amount: 1111,
+            kundali_key: kKey
+          });
+
+          // Also log user to DB
+          logUserToDatabase({
+            phone: clientMobile,
+            name: clientName,
+            dob: targetK ? targetK.dob : '',
+            tob: targetK ? targetK.tob : '',
+            location: targetK ? targetK.location : '',
+            lat: targetK ? targetK.lat : '',
+            lon: targetK ? targetK.lon : '',
+            tz: targetK ? targetK.tz : '',
+            action: 'PAID_MEGA_PARASHARA_REPORT'
+          });
+
           closeGateModal();
           updateAuthBadge();
           updateGenerateButtonState(currentSelectedKundali);
@@ -3263,10 +3352,14 @@
     function openGateModal() {
       const overlay = document.getElementById('gateOverlay');
       if (overlay) overlay.style.display = 'flex';
+      const phoneInput = document.getElementById('gateUserPhone');
+      if (phoneInput) {
+        const savedPhone = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '');
+        if (savedPhone.length === 10) phoneInput.value = savedPhone;
+      }
       const input = document.getElementById('gatePasscodeInput');
       if (input) {
         input.value = '';
-        input.focus();
       }
     }
 

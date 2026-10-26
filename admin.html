@@ -222,16 +222,32 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <div class="panel active" id="panel-overview">
       <div class="stats-grid">
         <div class="stat-card gold"><div class="stat-label">Total Revenue</div><div class="stat-val" id="s-revenue">—</div><div class="stat-sub">Completed payments</div></div>
-        <div class="stat-card green"><div class="stat-label">Paid Students</div><div class="stat-val" id="s-paid">—</div><div class="stat-sub">Successful payments</div></div>
-        <div class="stat-card"><div class="stat-label">Registered</div><div class="stat-val" id="s-students">—</div><div class="stat-sub">Total accounts</div></div>
-        <div class="stat-card"><div class="stat-label">Forum Posts</div><div class="stat-val" id="s-posts">—</div><div class="stat-sub">Community activity</div></div>
+        <div class="stat-card green"><div class="stat-label">Paid Customers</div><div class="stat-val" id="s-paid">—</div><div class="stat-sub">Successful paid orders</div></div>
+        <div class="stat-card"><div class="stat-label">Registered / Logins</div><div class="stat-val" id="s-students">—</div><div class="stat-sub">OTP & Google verified accounts</div></div>
+        <div class="stat-card"><div class="stat-label">Kundli Queries</div><div class="stat-val" id="s-posts">—</div><div class="stat-sub">Total calculated charts</div></div>
       </div>
 
-      <div class="table-wrap">
-        <div class="table-header"><span class="table-title">Recent Students</span></div>
+      <!-- Recent Payments Overview -->
+      <div class="table-wrap" style="margin-bottom: 24px;">
+        <div class="table-header">
+          <span class="table-title">💰 Recent Customer Payments</span>
+          <button class="export-btn" onclick="showPanel('payments', document.querySelectorAll('.nav-item')[4])">View All Payments ➔</button>
+        </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Interest</th><th>Joined</th></tr></thead>
-          <tbody id="recent-students"></tbody>
+          <thead><tr><th>Customer Name</th><th>Phone (WhatsApp)</th><th>Plan / Report</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Date</th></tr></thead>
+          <tbody id="recent-payments-tbody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- Recent User Logins Overview -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">📱 Recent Mobile OTP Logins & Kundli Queries</span>
+          <button class="export-btn" onclick="showPanel('users', document.querySelectorAll('.nav-item')[2])">View All Users ➔</button>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Mobile Number (WhatsApp)</th><th>Candidate Name</th><th>Login / Auth Method</th><th>Location</th><th>Logged Date / Time</th></tr></thead>
+          <tbody id="recent-users-tbody"></tbody>
         </table></div>
       </div>
     </div>
@@ -323,7 +339,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Mobile Number / Email</th><th>Candidate Name</th><th>Date of Birth</th><th>Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th></tr></thead>
+          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Login / Auth Method</th><th>DOB & Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th><th>WhatsApp</th></tr></thead>
           <tbody id="users-tbody"></tbody>
         </table></div>
       </div>
@@ -463,23 +479,135 @@ function showDebug(msg){
   el.innerHTML += msg + '<br/>';
 }
 
-async function fetchUserQueries(){
+async function fetchPayments(){
+  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  let serverPayments = [];
   try {
-    const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
-    const res = await fetch('api/get_users.php', {
+    const res = await fetch('api/get_payments.php?admin_key=' + encodeURIComponent(adminToken), {
       headers: {
         'X-Admin-Auth': adminToken
       }
     });
     if(res.ok){
       const json = await res.json();
-      if(json && json.data) return json.data;
+      if(json && json.data) serverPayments = json.data;
+    }
+  } catch(e){
+    console.warn("api/get_payments.php note:", e);
+  }
+
+  // Also query Supabase if reachable
+  let supaPayments = [];
+  try {
+    supaPayments = await fetchTable('payments');
+  } catch(e) {}
+
+  // Check any local unlocks/payments stored in localStorage on this device
+  const localPayments = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('sra_mega_payid_') || key.startsWith('sra_parashara_') || key.startsWith('sra_dhan_pay_id_') || key.startsWith('sra_mangal_pay_id_'))) {
+        const payId = localStorage.getItem(key);
+        if (payId && (payId.startsWith('pay_') || payId.startsWith('RZP_'))) {
+          localPayments.push({
+            razorpay_payment_id: payId,
+            student_name: 'वेरिफाइड जातक',
+            student_phone: localStorage.getItem('sra_verified_mobile') || '',
+            plan_name: key.includes('mega') ? 'मेगा पाराशर संहिता कुण्डली रिपोर्ट (९७ अध्याय)' : (key.includes('dhan') ? 'Dhana Yoga & Sampatti Analysis (₹299)' : 'Parashara Vedic Report (₹199)'),
+            amount: key.includes('mega') ? 1111 : (key.includes('dhan') ? 299 : 199),
+            status: 'completed',
+            created_at: new Date().toISOString()
+          });
+        }
+      }
+    }
+  } catch(e) {}
+
+  // Merge and deduplicate by razorpay_payment_id
+  const merged = [...serverPayments];
+  const seen = new Set(serverPayments.map(p => p.razorpay_payment_id));
+  [...supaPayments, ...localPayments].forEach(p => {
+    if (p.razorpay_payment_id && !seen.has(p.razorpay_payment_id)) {
+      merged.push(p);
+      seen.add(p.razorpay_payment_id);
+    }
+  });
+
+  merged.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return merged;
+}
+
+async function fetchUserQueries(){
+  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  let serverData = [];
+  try {
+    const res = await fetch('api/get_users.php?admin_key=' + encodeURIComponent(adminToken), {
+      headers: {
+        'X-Admin-Auth': adminToken
+      }
+    });
+    if(res.ok){
+      const json = await res.json();
+      if(json && json.data) serverData = json.data;
     }
   } catch(e){
     showDebug(`ℹ️ Registered Users DB endpoint fallback active.`);
   }
-  const local = localStorage.getItem('sra_user_db');
-  return local ? JSON.parse(local) : [];
+
+  let local = [];
+  try {
+    local = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
+  } catch(e) {}
+
+  // Merge server + local
+  const combined = [...serverData];
+  const seen = new Set();
+  serverData.forEach(u => {
+    seen.add((u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16));
+  });
+  local.forEach(u => {
+    const k = (u.phone || '').trim() + '_' + (u.logged_at || '').slice(0,16);
+    if (!seen.has(k)) {
+      combined.push({
+        id: 'local_' + Math.random().toString(36).substring(7),
+        phone: u.phone,
+        email: u.email,
+        candidate_name: u.name,
+        dob: u.dob,
+        tob: u.tob,
+        location: u.location,
+        latitude: u.lat,
+        longitude: u.lon,
+        timezone: u.tz,
+        login_method: u.action || u.login_method || 'OTP_VERIFIED',
+        created_at: u.logged_at || new Date().toISOString()
+      });
+      seen.add(k);
+    }
+  });
+
+  combined.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return combined;
+}
+
+async function fetchConsultations(){
+  let supaCon = [];
+  try {
+    supaCon = await fetchTable('consultations');
+  } catch(e) {}
+  const localCon = JSON.parse(localStorage.getItem('sra_consultation_db') || '[]');
+  const combined = [...(supaCon || [])];
+  const seen = new Set((supaCon || []).map(c => (c.phone || '') + '_' + (c.created_at || '').slice(0,16)));
+  localCon.forEach(c => {
+    const k = (c.phone || '') + '_' + (c.created_at || '').slice(0,16);
+    if (!seen.has(k)) {
+      combined.push(c);
+      seen.add(k);
+    }
+  });
+  combined.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return combined;
 }
 
 async function fetchReviews(){
@@ -501,8 +629,8 @@ async function loadAll(){
 
   const [students, payments, consultations, forum, users, reviews] = await Promise.all([
     fetchTable('students'),
-    fetchTable('payments'),
-    fetchTable('consultations'),
+    fetchPayments(),
+    fetchConsultations(),
     fetchTable('forum_posts'),
     fetchUserQueries(),
     fetchReviews()
@@ -523,7 +651,7 @@ async function loadAll(){
 }
 
 function setLoading(){
-  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-students','reviews-tbody'].forEach(id=>{
+  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-payments-tbody','recent-users-tbody','reviews-tbody'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML=`<tr><td colspan="10" class="loading-row"><span class="spin"></span> Loading...</td></tr>`;
   });
@@ -532,31 +660,89 @@ function setLoading(){
 /* ══ RENDER ══ */
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
 const fmtAmt  = n => n ? '₹'+Number(n).toLocaleString('en-IN') : '—';
-const wa      = p => p ? `<a class="wa-link" href="https://wa.me/91${p.replace(/\D/g,'').slice(-10)}" target="_blank">📱 ${p}</a>` : '—';
-const badge   = s => `<span class="badge ${s||'pending'}">${s||'pending'}</span>`;
+const wa      = p => {
+  if (!p) return '—';
+  const clean = p.replace(/\D/g,'').slice(-10);
+  return clean ? `<a class="wa-link" href="https://wa.me/91${clean}" target="_blank">📱 ${p}</a>` : p;
+};
+const badge   = s => `<span class="badge ${s||'completed'}">${s||'completed'}</span>`;
 const pid     = id=> id ? `<span style="font-size:10px;font-family:monospace;color:var(--muted)">${id.slice(0,18)}...</span>` : '—';
 const safe    = s => (s||'—');
 
+function getAuthMethodBadge(m) {
+  const method = String(m || '').toUpperCase();
+  if (method.includes('PAID') || method.includes('PURCHASE')) {
+    return `<span class="badge" style="background:rgba(180,130,32,0.15);color:var(--gold);border:1px solid rgba(180,130,32,0.3)">💎 Paid Report</span>`;
+  }
+  if (method.includes('SMS') || method.includes('FIREBASE')) {
+    return `<span class="badge" style="background:rgba(217,119,6,0.15);color:var(--yellow);border:1px solid rgba(217,119,6,0.3)">🔥 SMS OTP</span>`;
+  }
+  if (method.includes('OTP')) {
+    return `<span class="badge completed">📱 OTP Verified</span>`;
+  }
+  if (method.includes('GOOGLE')) {
+    return `<span class="badge" style="background:rgba(59,130,246,0.15);color:#2563eb;border:1px solid rgba(59,130,246,0.3)">🌐 Google Login</span>`;
+  }
+  if (method.includes('KUNDLI')) {
+    return `<span class="badge" style="background:rgba(124,19,5,0.12);color:var(--gold);border:1px solid rgba(124,19,5,0.25)">🪐 Kundli Query</span>`;
+  }
+  return `<span class="badge completed">${safe(m || 'OTP Verified')}</span>`;
+}
+
 function renderAll(){
   /* Stats */
-  const completed = D.payments.filter(p=>p.status==='completed');
-  const revenue   = completed.reduce((s,p)=>s+(p.amount||0),0);
+  const completed = D.payments.filter(p=>p.status==='completed' || !p.status);
+  const revenue   = completed.reduce((s,p)=>s+(Number(p.amount)||0),0);
   document.getElementById('s-revenue').textContent  = fmtAmt(revenue);
   document.getElementById('s-paid').textContent     = completed.length;
-  document.getElementById('s-students').textContent = D.students.length;
-  document.getElementById('s-posts').textContent    = D.forum.length;
 
-  /* Recent students (overview) */
-  renderStudentRows('recent-students', D.students.slice(0,8));
+  const uniqueUsers = new Set(D.users.map(u => (u.phone || u.email || '').trim()).filter(Boolean));
+  document.getElementById('s-students').textContent = Math.max(uniqueUsers.size, D.users.length);
+  document.getElementById('s-posts').textContent    = D.users.length;
+
+  /* Overview Recent tables */
+  renderRecentPaymentRows('recent-payments-tbody', D.payments.slice(0,8));
+  renderRecentUserRows('recent-users-tbody', D.users.slice(0,8));
 
   /* Full tables */
-  renderStudentRows('students-tbody', D.students);
+  renderStudentRows('students-tbody', D.students.length ? D.students : D.users.slice(0, 50));
   renderPaymentRows('payments-tbody', D.payments);
   renderConsultRows('consultations-tbody', D.consultations);
   renderForumRows('forum-tbody', D.forum);
   renderUserQueryRows('users-tbody', D.users);
   renderEmailRows('emails-tbody', D.users);
   renderReviewRows('reviews-tbody', D.reviews);
+}
+
+function renderRecentPaymentRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!el) return;
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(p=>`<tr>
+    <td><div class="name-cell">${safe(p.student_name || 'जातक')}</div><div class="email-cell">${safe(p.student_email)}</div></td>
+    <td>${wa(p.student_phone)}</td>
+    <td style="font-size:12px;max-width:180px;font-weight:600">${safe(p.plan_name)}</td>
+    <td class="amount-cell" style="color:var(--gold);font-weight:800">${fmtAmt(p.amount)}</td>
+    <td>${badge(p.status || 'completed')}</td>
+    <td>${pid(p.razorpay_payment_id)}</td>
+    <td class="date-cell">${fmtDate(p.created_at)}</td>
+  </tr>`).join('');
+}
+
+function renderRecentUserRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!el) return;
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="5" class="empty-row">No mobile logins or queries recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(u=>{
+    const methodBadge = getAuthMethodBadge(u.login_method || u.action);
+    return `<tr>
+      <td>${wa(u.phone)}</td>
+      <td><div class="name-cell">${safe(u.candidate_name || u.name || 'जातक')}</div></td>
+      <td>${methodBadge}</td>
+      <td style="font-size:12px">${safe(u.location)}</td>
+      <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderReviewRows(tbodyId, rows){
@@ -644,43 +830,56 @@ function renderEmailRows(tbodyId, rows){
 
 function renderUserQueryRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No registered user queries logged yet</td></tr>`; return; }
-  el.innerHTML=rows.map(u=>`<tr>
-    <td>${u.phone && u.phone.includes('@') ? '📧 ' + safe(u.phone) : wa(u.phone)}</td>
-    <td><div class="name-cell">${safe(u.candidate_name || u.name)}</div></td>
-    <td style="font-size:12px">${safe(u.dob)}</td>
-    <td style="font-size:12px">${safe(u.tob)}</td>
-    <td style="font-size:12px">${safe(u.location)}</td>
-    <td style="font-size:11px;font-family:monospace;color:var(--muted)">${safe(u.latitude || u.lat)}, ${safe(u.longitude || u.lon)}</td>
-    <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
-  </tr>`).join('');
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No registered user queries or OTP logins recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(u=>{
+    const methodBadge = getAuthMethodBadge(u.login_method || u.action);
+    const dobTob = [safe(u.dob), safe(u.tob)].filter(x=>x&&x!=='—').join(' • ') || '—';
+    const coords = (u.latitude || u.lat) ? `${safe(u.latitude || u.lat)}, ${safe(u.longitude || u.lon)}` : '—';
+    const cleanPhone = (u.phone || '').replace(/\D/g,'').slice(-10);
+    const waChat = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (u.candidate_name||u.name||'जातक') + ' जी, श्री रामजी एस्ट्रो में आपका स्वागत है।')}" target="_blank">💬 WhatsApp</a>` : '—';
+
+    return `<tr>
+      <td>${wa(u.phone)}</td>
+      <td><div class="name-cell">${safe(u.candidate_name || u.name || 'जातक')}</div></td>
+      <td>${methodBadge}</td>
+      <td style="font-size:12px">${dobTob}</td>
+      <td style="font-size:12px">${safe(u.location)}</td>
+      <td style="font-size:11px;font-family:monospace;color:var(--muted)">${coords}</td>
+      <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
+      <td>${waChat}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderStudentRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No students yet</td></tr>`; return; }
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No students or applicants registered yet</td></tr>`; return; }
   el.innerHTML=rows.map(s=>`<tr>
-    <td><div class="name-cell">${safe(s.first_name)} ${safe(s.last_name)}</div></td>
+    <td><div class="name-cell">${safe(s.first_name || s.candidate_name || s.name || 'जातक')} ${safe(s.last_name || '')}</div></td>
     <td class="email-cell">${safe(s.email)}</td>
     <td>${wa(s.phone)}</td>
-    <td style="font-size:12px;color:var(--muted)">${safe(s.city)}</td>
-    <td style="font-size:12px">${safe(s.course_interest)}</td>
-    <td class="date-cell">${fmtDate(s.created_at)}</td>
+    <td style="font-size:12px;color:var(--muted)">${safe(s.city || s.location)}</td>
+    <td style="font-size:12px">${safe(s.course_interest || s.login_method || 'Vedic Astrology')}</td>
+    <td class="date-cell">${fmtDate(s.created_at || s.logged_at)}</td>
   </tr>`).join('');
 }
 
 function renderPaymentRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No payments yet</td></tr>`; return; }
-  el.innerHTML=rows.map(p=>`<tr>
-    <td><div class="name-cell">${safe(p.student_name)}</div><div class="email-cell">${safe(p.student_email)}</div></td>
-    <td>${wa(p.student_phone)}</td>
-    <td style="font-size:12px;max-width:140px">${safe(p.plan_name)}</td>
-    <td class="amount-cell">${fmtAmt(p.amount)}</td>
-    <td>${badge(p.status)}</td>
-    <td>${pid(p.razorpay_payment_id)}</td>
-    <td class="date-cell">${fmtDate(p.created_at)}</td>
-  </tr>`).join('');
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(p=>{
+    const cleanPhone = (p.student_phone || '').replace(/\D/g,'').slice(-10);
+    const waLink = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (p.student_name||'जातक') + ' जी, आपकी ' + (p.plan_name||'रिपोर्ट') + ' की दक्षिणा रसीद प्राप्त हुई। क्या आपको रिपोर्ट प्राप्त हो गई?')}" target="_blank">📱 ${p.student_phone}</a>` : '—';
+    return `<tr>
+      <td><div class="name-cell">${safe(p.student_name || 'जातक')}</div><div class="email-cell">${safe(p.student_email)}</div></td>
+      <td>${waLink}</td>
+      <td style="font-size:12px;max-width:180px;font-weight:600">${safe(p.plan_name)}</td>
+      <td class="amount-cell" style="color:var(--gold);font-weight:800">${fmtAmt(p.amount)}</td>
+      <td>${badge(p.status || 'completed')}</td>
+      <td>${pid(p.razorpay_payment_id)}</td>
+      <td class="date-cell">${fmtDate(p.created_at)}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderConsultRows(tbodyId, rows){
@@ -733,8 +932,8 @@ function exportCSV(type){
     rows=emailRecords.map(u=>[u.email || u.phone, u.candidate_name||u.name||'Google User', u.login_method||u.action||'GOOGLE_SIGNIN_SUCCESS', u.created_at||u.logged_at]);
     filename='SRA_Verified_Email_Accounts.csv';
   } else if(type==='users'){
-    headers=['Mobile / Email','Candidate Name','DOB','TOB','Location','Latitude','Longitude','Logged Date'];
-    rows=D.users.map(u=>[u.phone, u.candidate_name||u.name, u.dob, u.tob, u.location, u.latitude||u.lat, u.longitude||u.lon, u.created_at||u.logged_at]);
+    headers=['Mobile Number','Candidate Name','Auth / Login Method','DOB','TOB','Location','Latitude','Longitude','Logged Date'];
+    rows=D.users.map(u=>[u.phone, u.candidate_name||u.name||'User', u.login_method||u.action||'OTP_VERIFIED', u.dob, u.tob, u.location, u.latitude||u.lat, u.longitude||u.lon, u.created_at||u.logged_at]);
     filename='SRA_Registered_Users.csv';
   } else {
     headers=['Name','Phone','Email','DOB','Place','Question','Date'];

@@ -1669,6 +1669,22 @@
         }
       }
 
+      // Log payment to central API
+      try {
+        fetch('api/save_payment.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpay_payment_id: paymentId || ('RZP_DHAN_' + Date.now()),
+            student_name: (pendingDhanInput && pendingDhanInput.name) ? pendingDhanInput.name : 'धन योग जातक',
+            student_phone: localStorage.getItem('sra_verified_mobile') || '',
+            plan_name: 'Dhana Yoga & Sampatti Analysis (₹299)',
+            report_type: 'dhana_yoga_report',
+            amount: 299
+          })
+        }).catch(err => console.warn('Payment log note:', err));
+      } catch(e) {}
+
       closeDhanPaymentModal();
       updateCalculateButtonLabel(pendingDhanInput);
       executeDhanCalculation(pendingDhanInput, true);

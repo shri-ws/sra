@@ -2199,6 +2199,22 @@
         } catch(e) {}
       }
 
+      // Log payment to central API
+      try {
+        fetch('api/save_payment.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpay_payment_id: paymentId || ('RZP_MANGAL_' + Date.now()),
+            student_name: currentSelectedKundali ? currentSelectedKundali.name : 'मांगलिक जातक',
+            student_phone: localStorage.getItem('sra_verified_mobile') || '',
+            plan_name: 'Manglik Dosh & 21 Parihar Report (₹199)',
+            report_type: 'manglik_report',
+            amount: 199
+          })
+        }).catch(err => console.warn('Payment log note:', err));
+      } catch(e) {}
+
       closeManglikPaymentModal();
       const btnLabel = document.getElementById('btnCalculateLabel');
       if (btnLabel) btnLabel.textContent = '🔥 मंगल दोष एवं २१ परिहार रिपोर्ट देखें';

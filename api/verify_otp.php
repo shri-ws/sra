@@ -60,17 +60,35 @@ if ($validOtp && $submittedOtp === $validOtp) {
         "phone" => $phone,
         "name" => isset($data['name']) ? $data['name'] : "Verified User",
         "action" => "OTP_VERIFIED",
+        "login_method" => "OTP_VERIFIED",
         "created_at" => date('Y-m-d H:i:s')
     ];
 
+    // Always dual-write to persistent local JSON backup
+    $jsonFile = __DIR__ . '/user_queries_log.json';
+    $existing = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
+    if (!is_array($existing)) $existing = [];
+    $existing[] = $savePayload;
+    if (count($existing) > 1000) $existing = array_slice($existing, -1000);
+    @file_put_contents($jsonFile, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
     // Log to Hostinger DB
-    require_once __DIR__ . '/db_config.php';
+    $configFile = __DIR__ . '/db_config.php';
+    if (file_exists($configFile)) {
+        require_once $configFile;
+    } else {
+        $db_host = "localhost";
+        $db_user = "u928471928_sra_user";
+        $db_pass = "SraAstro360#2026";
+        $db_name = "u928471928_sra_db";
+    }
 
     $conn = @new mysqli($db_host, $db_user, $db_pass, $db_name);
     if (!$conn->connect_error) {
         $createTableSql = "CREATE TABLE IF NOT EXISTS sra_user_queries (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            phone VARCHAR(20) NOT NULL,
+            phone VARCHAR(50) NOT NULL,
+            email VARCHAR(150) DEFAULT '',
             candidate_name VARCHAR(100),
             dob VARCHAR(20),
             tob VARCHAR(20),
@@ -78,21 +96,16 @@ if ($validOtp && $submittedOtp === $validOtp) {
             latitude VARCHAR(20),
             longitude VARCHAR(20),
             timezone VARCHAR(20),
+            login_method VARCHAR(50) DEFAULT 'OTP_VERIFIED',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         $conn->query($createTableSql);
 
         $escapedPhone = $conn->real_escape_string($phone);
         $escapedName = $conn->real_escape_string($savePayload['name']);
-        $insertSql = "INSERT INTO sra_user_queries (phone, candidate_name) VALUES ('$escapedPhone', '$escapedName')";
+        $insertSql = "INSERT INTO sra_user_queries (phone, candidate_name, login_method) VALUES ('$escapedPhone', '$escapedName', 'OTP_VERIFIED')";
         $conn->query($insertSql);
         $conn->close();
-    } else {
-        $jsonFile = __DIR__ . '/user_queries_log.json';
-        $existing = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
-        if (!is_array($existing)) $existing = [];
-        $existing[] = $savePayload;
-        file_put_contents($jsonFile, json_encode($existing, JSON_PRETTY_PRINT));
     }
 
     echo json_encode([

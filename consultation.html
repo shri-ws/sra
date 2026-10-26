@@ -1739,6 +1739,24 @@
                 console.warn("Database save fallback active.");
             }
 
+            // Central server payment logging
+            try {
+                fetch('api/save_payment.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_payment_id: data.razorpay_payment_id || ('RZP_CONSULT_' + Date.now()),
+                        student_name: data.client_name,
+                        student_phone: data.phone,
+                        student_email: data.email,
+                        plan_name: `1-on-1 Consultation Session (${data.reserved_date})`,
+                        report_type: 'consultation',
+                        amount: data.amount_paid || 5100,
+                        status: 'completed'
+                    })
+                }).catch(err => console.warn('Payment logging note:', err));
+            } catch(e) {}
+
             // LocalStorage backup
             let localCon = JSON.parse(localStorage.getItem('sra_consultation_db') || '[]');
             localCon.push(payload);

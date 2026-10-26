@@ -7309,12 +7309,28 @@ function closeParasharaPaymentModal() {
 function unlockParasharaReport(reportType, paymentId) {
   try {
     let key = 'sra_unlocked_report_rajyoga_199';
-    if (reportType === 'vahan') key = 'sra_unlocked_report_vahan_199';
-    if (reportType === 'mangal') key = 'sra_unlocked_report_mangal_199';
+    let reportTitle = '👑 Raajyoga Strength / Rashmi Bal रिपोर्ट';
+    if (reportType === 'vahan') { key = 'sra_unlocked_report_vahan_199'; reportTitle = '🚗 पाराशर वाहन एवं जनबल रिपोर्ट'; }
+    if (reportType === 'mangal') { key = 'sra_unlocked_report_mangal_199'; reportTitle = '🔥 मंगल दोष एवं परिहार रिपोर्ट'; }
     localStorage.setItem(key, 'true');
     localStorage.setItem('sra_parashara_' + reportType + '_unlock_time', new Date().toISOString());
     if (paymentId) {
       localStorage.setItem('sra_parashara_' + reportType + '_pay_id', paymentId);
+    }
+
+    // Log payment transaction to central database
+    const clientMobile = localStorage.getItem('sra_verified_mobile') || '';
+    const clientName = (document.getElementById('inName') ? document.getElementById('inName').value : '') || 'पाराशर जातक';
+    if (typeof logPaymentToServer === 'function') {
+      logPaymentToServer({
+        razorpay_payment_id: paymentId || ('VIP_' + (reportType || 'PARASHARA').toUpperCase() + '_' + Date.now()),
+        student_name: clientName,
+        student_phone: clientMobile,
+        student_email: localStorage.getItem('sra_verified_email') || '',
+        plan_name: reportTitle + ' (₹199)',
+        report_type: reportType || 'parashara_report',
+        amount: 199
+      });
     }
   } catch(e) {
     console.error("Storage error:", e);
@@ -10150,18 +10166,35 @@ async function verifyMobileOtp() {
   }
 }
 
+async function logPaymentToServer(paymentData) {
+  try {
+    paymentData.status = paymentData.status || 'completed';
+    paymentData.created_at = paymentData.created_at || new Date().toISOString();
+    await fetch("api/save_payment.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(paymentData)
+    });
+  } catch(e) {
+    console.warn("Payment server logging fallback note:", e);
+  }
+}
+
 async function logUserToDatabase(payload) {
   try {
     const phone = localStorage.getItem("sra_verified_mobile") || payload.phone || "ANONYMOUS";
     const data = {
       phone: phone,
-      name: payload.name || (document.getElementById("inName") ? document.getElementById("inName").value : ""),
+      email: payload.email || (phone.includes('@') ? phone : (localStorage.getItem("sra_verified_email") || "")),
+      name: payload.name || (document.getElementById("inName") ? document.getElementById("inName").value : "वेरिफाइड जातक"),
       dob: payload.dob || (document.getElementById("inDate") ? document.getElementById("inDate").value : ""),
       tob: payload.tob || (document.getElementById("inTime") ? document.getElementById("inTime").value : ""),
       location: payload.location || (document.getElementById("inCitySearch") ? document.getElementById("inCitySearch").value : ""),
       lat: payload.lat || (document.getElementById("inLat") ? document.getElementById("inLat").value : ""),
       lon: payload.lon || (document.getElementById("inLon") ? document.getElementById("inLon").value : ""),
-      tz: payload.tz || (document.getElementById("inTz") ? document.getElementById("inTz").value : "")
+      tz: payload.tz || (document.getElementById("inTz") ? document.getElementById("inTz").value : ""),
+      action: payload.action || "OTP_VERIFIED",
+      login_method: payload.action || "OTP_VERIFIED"
     };
 
     let localDb = JSON.parse(localStorage.getItem("sra_user_db") || "[]");
