@@ -1720,11 +1720,20 @@
   };
 
   window.openAuthModal = function() {
-    const modal = document.getElementById("modalMobileOtp");
-    if (modal) {
-      modal.style.display = "flex";
+    const loginModal = document.getElementById("loginModal");
+    const modalOtp = document.getElementById("modalMobileOtp");
+    if (loginModal) {
+      if (typeof window.openModal === 'function') {
+        window.openModal('loginModal');
+      } else {
+        loginModal.classList.add('open');
+      }
+      try { document.body.style.overflow = 'hidden'; } catch(e) {}
+    } else if (modalOtp) {
+      modalOtp.style.display = "flex";
       const err = document.getElementById("otpErrMsg");
       if (err) err.textContent = "";
+      try { document.body.style.overflow = 'hidden'; } catch(e) {}
     } else {
       window.location.href = "patrika.html?login=1";
     }
@@ -1798,6 +1807,9 @@
         btn.classList.add('logged-in');
       }
     });
+    if (typeof window.updateIndexUserUI === 'function') {
+      window.updateIndexUserUI();
+    }
   }
   window.updateNavUserPill = updateNavUserPill;
 
@@ -2056,8 +2068,11 @@
       btn.onclick = window.toggleNavDrawer;
     });
 
-    // 2b. Ensure User Status Pill button is present in top navigation
+    // 2b. Ensure User Status Pill button is present in top navigation (unless page already has dedicated #navAuthArea)
     document.querySelectorAll('nav:not(.mobile-bottom-nav)').forEach(nav => {
+      if (nav.querySelector('#navAuthArea')) {
+        return;
+      }
       if (!nav.querySelector('.nav-user-pill-btn')) {
         const hamburger = nav.querySelector('.hamburger');
         const targetContainer = hamburger ? hamburger.parentNode : (nav.querySelector('.nav-btns') || nav.querySelector('.nav-actions') || nav);

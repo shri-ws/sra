@@ -160,6 +160,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" />
   </noscript>
   <script src="theme.js" defer></script>
+  <!-- Google Identity Services (GIS) API & Firebase SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
 
   <style>
     /* ACCESSIBILITY UTILITY */
@@ -972,8 +976,8 @@
     .price-card-emi { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 16px; }
 
     /* MODAL */
-    .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(5,3,10,.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; transition: opacity .3s; }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-overlay { position: fixed; inset: 0; z-index: 100000 !important; background: rgba(5,3,10,.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .modal-overlay.open { opacity: 1 !important; pointer-events: all !important; }
     .modal { background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 32px 24px; max-width: 460px; width: 100%; position: relative; transform: translateY(16px); transition: transform .3s; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
     .modal-overlay.open .modal { transform: translateY(0); }
     .modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
@@ -3673,9 +3677,15 @@
       <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--heading-color);text-align:center;margin-bottom:4px">Create Account</h2>
       <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px">Access 360° Vedic Astrology Platform</p>
       
-      <button class="modal-btn" type="button" onclick="loginWithGoogleGIS()" style="background:#ffffff;color:#374151;border:1px solid #d1d5db;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);width:100%;cursor:pointer;">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-        <span style="font-weight:700;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;">Sign Up with Google</span>
+      <!-- GOOGLE 1-CLICK SIGN UP BUTTON -->
+      <button class="modal-btn" type="button" onclick="loginWithGoogleGIS()" style="background:#ffffff;color:#3c4043;border:1px solid #dadce0;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,0.12);width:100%;cursor:pointer;border-radius:10px;padding:12px 16px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" style="flex-shrink:0;">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span style="font-weight:700;font-size:14px;font-family:'Plus Jakarta Sans',Roboto,sans-serif;">Google से 1-क्लिक खाता बनाएं (Sign Up)</span>
       </button>
 
       <div style="display:flex;align-items:center;margin:12px 0 16px;gap:10px;">
@@ -3711,9 +3721,15 @@
       <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--heading-color);text-align:center;margin-bottom:4px">Welcome Back</h2>
       <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px">Login to your account</p>
       
-      <button class="modal-btn" type="button" onclick="loginWithGoogleGIS()" style="background:#ffffff;color:#374151;border:1px solid #d1d5db;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);width:100%;cursor:pointer;">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-        <span style="font-weight:700;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;">Sign In with Google</span>
+      <!-- GOOGLE 1-CLICK SIGN IN BUTTON -->
+      <button class="modal-btn" type="button" onclick="loginWithGoogleGIS()" style="background:#ffffff;color:#3c4043;border:1px solid #dadce0;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,0.12);width:100%;cursor:pointer;border-radius:10px;padding:12px 16px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" style="flex-shrink:0;">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span style="font-weight:700;font-size:14px;font-family:'Plus Jakarta Sans',Roboto,sans-serif;">Google से 1-क्लिक प्रवेश (Sign In)</span>
       </button>
 
       <div style="display:flex;align-items:center;margin:12px 0 16px;gap:10px;">
@@ -3852,12 +3868,346 @@
 
   function openModal(id) {
     const el = document.getElementById(id);
-    if(el) el.classList.add('open');
+    if(el) {
+      el.classList.add('open');
+      try { document.body.style.overflow = 'hidden'; } catch(e) {}
+    }
   }
   function closeModal(id) {
     const el = document.getElementById(id);
-    if(el) el.classList.remove('open');
+    if(el) {
+      el.classList.remove('open');
+      try { document.body.style.overflow = ''; } catch(e) {}
+    }
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // SRA AUTHENTICATION & GOOGLE 1-CLICK SIGN-IN SUITE
+  // ══════════════════════════════════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
+    authDomain: "shriramjiastro-cee67.firebaseapp.com",
+    projectId: "shriramjiastro-cee67",
+    storageBucket: "shriramjiastro-cee67.firebasestorage.app",
+    messagingSenderId: "743660238131",
+    appId: "1:743660238131:web:a0eebebc49e9185a4985a9"
+  };
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  } catch(e) {
+    console.warn("Firebase App init note:", e);
+  }
+
+  function showIndexToast(msg) {
+    let toast = document.getElementById("indexAuthToast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "indexAuthToast";
+      toast.style.cssText = "position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:rgba(20,24,33,0.95); border:1.5px solid var(--gold, #d4af37); color:#fff; padding:12px 24px; border-radius:30px; font-size:13.5px; font-weight:700; z-index:999999; box-shadow:0 8px 30px rgba(0,0,0,0.5); pointer-events:none; transition:opacity 0.3s ease; opacity:0; font-family:'Plus Jakarta Sans',sans-serif;";
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = msg;
+    toast.style.opacity = "1";
+    setTimeout(() => {
+      toast.style.opacity = "0";
+    }, 3800);
+  }
+  window.showIndexToast = showIndexToast;
+
+  function updateIndexUserUI() {
+    const user = (typeof window.getSraUser === 'function') ? window.getSraUser() : null;
+    const loginNavBtn = document.getElementById("loginNavBtn");
+    const regNavBtn = document.getElementById("regNavBtn");
+    const badge = document.getElementById("userProfileBadge");
+    const nameText = document.getElementById("userNameText");
+    const avatarImg = document.getElementById("userAvatarImg");
+
+    if (user && user.isLoggedIn) {
+      if (loginNavBtn) loginNavBtn.style.display = "none";
+      if (regNavBtn) regNavBtn.style.display = "none";
+      if (badge) badge.style.display = "inline-flex";
+      if (nameText) nameText.textContent = user.name || "User";
+      if (avatarImg) {
+        if (user.photo) {
+          avatarImg.src = user.photo;
+        } else {
+          avatarImg.src = "logo-nav.png";
+        }
+      }
+    } else {
+      if (loginNavBtn) loginNavBtn.style.display = "";
+      if (regNavBtn) regNavBtn.style.display = "";
+      if (badge) badge.style.display = "none";
+    }
+  }
+  window.updateIndexUserUI = updateIndexUserUI;
+
+  function handleIndexAuthSuccess(userData) {
+    console.log("handleIndexAuthSuccess:", userData);
+    try {
+      const userIdentifier = userData.email || userData.phone || userData.name || "verified_user";
+      localStorage.setItem("sra_verified_google_user", JSON.stringify(userData));
+      localStorage.setItem("sra_verified_mobile", userIdentifier);
+      if (userData.email) localStorage.setItem("sra_verified_email", userData.email);
+      if (userData.name) localStorage.setItem("sra_user_name", userData.name);
+
+      closeModal('loginModal');
+      closeModal('registerModal');
+
+      // Clear any previous error messages
+      const loginErr = document.getElementById("loginErr");
+      const regErr = document.getElementById("regErr");
+      if (loginErr) loginErr.textContent = "";
+      if (regErr) regErr.textContent = "";
+
+      // Log user to database backend
+      fetch('api/save_user.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: userIdentifier,
+          email: userData.email || (userIdentifier.includes('@') ? userIdentifier : ''),
+          name: userData.name || 'User',
+          action: userData.action || 'GOOGLE_SIGNIN_SUCCESS'
+        })
+      }).catch(e => console.warn("Save user log error:", e));
+
+      updateIndexUserUI();
+
+      if (typeof window.updateDrawerUserProfile === 'function') {
+        window.updateDrawerUserProfile();
+      }
+      if (typeof window.updateNavUserPill === 'function') {
+        window.updateNavUserPill();
+      }
+
+      showIndexToast(`🙏 स्वागत है, ${userData.name}! आप सफलतापूर्वक लॉगिन हो गए हैं।`);
+    } catch(e) {
+      console.error("Index auth success error:", e);
+    }
+  }
+
+  window.loginWithGoogleGIS = async function() {
+    console.log("loginWithGoogleGIS triggered on index.html");
+    const loginErr = document.getElementById("loginErr");
+    const regErr = document.getElementById("regErr");
+    const setErr = (msg) => {
+      if (loginErr) loginErr.innerHTML = msg;
+      if (regErr) regErr.innerHTML = msg;
+    };
+
+    setErr(`<span style="color:var(--gold);">⏳ गूगल से सुरक्षित साइन-इन हो रहा है...</span>`);
+
+    // 1. Try Firebase Google Auth Provider
+    try {
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('profile');
+        provider.addScope('email');
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        try {
+          const result = await firebase.auth().signInWithPopup(provider);
+          if (result && result.user) {
+            const u = result.user;
+            handleIndexAuthSuccess({
+              name: u.displayName || "Google User",
+              email: u.email || "",
+              photo: u.photoURL || "",
+              uid: u.uid || "",
+              phone: u.phoneNumber || "",
+              action: "FIREBASE_GOOGLE_POPUP_SUCCESS"
+            });
+            return;
+          }
+        } catch (popupErr) {
+          console.warn("Firebase popup error/blocked, attempting redirect:", popupErr);
+          if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request') {
+            try {
+              await firebase.auth().signInWithRedirect(provider);
+              return;
+            } catch(redirErr) {
+              console.warn("Firebase redirect sign-in note:", redirErr);
+            }
+          }
+        }
+      }
+    } catch(fbErr) {
+      console.warn("Firebase Auth Google Provider error:", fbErr);
+    }
+
+    // 2. Fallback: Google Identity Services OAuth2 Token Client
+    try {
+      const clientId = "743660238131-ns71r43gn7cdn106u55elcbonmuarb9b.apps.googleusercontent.com";
+      if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+          callback: (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              setErr(`<span style="color:var(--gold);">अकाउंट विवरण प्राप्त किया जा रहा है...</span>`);
+              fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                headers: { Authorization: "Bearer " + tokenResponse.access_token }
+              })
+              .then(res => res.json())
+              .then(userInfo => {
+                handleIndexAuthSuccess({
+                  name: userInfo.name || userInfo.given_name || "Google User",
+                  email: userInfo.email || "",
+                  photo: userInfo.picture || "",
+                  uid: userInfo.sub || "",
+                  action: "GOOGLE_GIS_TOKEN_SUCCESS"
+                });
+              })
+              .catch(e => {
+                console.error("Userinfo fetch error:", e);
+                setErr("प्रोफाइल डेटा प्राप्त करने में त्रुटि।");
+              });
+            } else {
+              setErr("गूगल साइन-इन रद्द कर दिया गया।");
+            }
+          }
+        });
+        tokenClient.requestAccessToken();
+        return;
+      }
+    } catch(e) {
+      console.warn("GIS oauth2 fallback error:", e);
+    }
+
+    setErr("गूगल साइन-इन सेवा अभी लोड हो रही है, कृपया 2 सेकंड बाद पुनः क्लिक करें।");
+  };
+
+  window.doLogin = function() {
+    const emailOrPhone = (document.getElementById("login_email")?.value || "").trim();
+    const pass = (document.getElementById("login_pass")?.value || "").trim();
+    const err = document.getElementById("loginErr");
+
+    if (!emailOrPhone) {
+      if (err) err.textContent = "कृपया अपना ईमेल या 10-अंकीय मोबाइल नंबर दर्ज करें।";
+      return;
+    }
+    const cleanDigits = emailOrPhone.replace(/[^0-9]/g, '');
+    const isPhone = cleanDigits.length === 10 || cleanDigits.length === 12;
+    const isEmail = emailOrPhone.includes('@') && emailOrPhone.includes('.');
+
+    if (!isPhone && !isEmail) {
+      if (err) err.textContent = "कृपया मान्य ईमेल अथवा 10-अंकीय मोबाइल नंबर दर्ज करें।";
+      return;
+    }
+    if (!pass || pass.length < 4) {
+      if (err) err.textContent = "कृपया पासवर्ड दर्ज करें (न्यूनतम 4 अक्षर)।";
+      return;
+    }
+
+    if (err) err.innerHTML = `<span style="color:var(--gold);">लॉगिन किया जा रहा है...</span>`;
+
+    const cleanPhone = isPhone ? cleanDigits.slice(-10) : '';
+    const cleanEmail = isEmail ? emailOrPhone : (cleanPhone ? cleanPhone + '@shriramjiastro.in' : '');
+    const nameFromEmail = isEmail ? cleanEmail.split('@')[0] : `जातक ${cleanPhone}`;
+    const displayName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+
+    handleIndexAuthSuccess({
+      name: localStorage.getItem("sra_user_name") || displayName,
+      email: isEmail ? cleanEmail : '',
+      phone: cleanPhone,
+      uid: 'sra_user_' + (cleanPhone || Date.now()),
+      action: "EMAIL_PASSWORD_LOGIN"
+    });
+  };
+
+  window.doRegister = function() {
+    const fname = (document.getElementById("reg_fname")?.value || "").trim();
+    const lname = (document.getElementById("reg_lname")?.value || "").trim();
+    const email = (document.getElementById("reg_email")?.value || "").trim();
+    const phone = (document.getElementById("reg_phone")?.value || "").trim();
+    const pass = (document.getElementById("reg_pass")?.value || "").trim();
+    const err = document.getElementById("regErr");
+
+    if (!fname) {
+      if (err) err.textContent = "कृपया अपना नाम दर्ज करें।";
+      return;
+    }
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      if (err) err.textContent = "कृपया मान्य ईमेल आईडी दर्ज करें।";
+      return;
+    }
+    const cleanDigits = phone ? phone.replace(/[^0-9]/g, '') : '';
+    if (phone && cleanDigits.length < 10) {
+      if (err) err.textContent = "कृपया 10-अंकीय वैध मोबाइल नंबर दर्ज करें।";
+      return;
+    }
+    if (!pass || pass.length < 6) {
+      if (err) err.textContent = "पासवर्ड न्यूनतम 6 अक्षरों का होना चाहिए।";
+      return;
+    }
+
+    const fullName = `${fname} ${lname}`.trim();
+    if (err) err.innerHTML = `<span style="color:var(--gold);">खाता तैयार किया जा रहा है...</span>`;
+
+    handleIndexAuthSuccess({
+      name: fullName,
+      email: email,
+      phone: cleanDigits ? cleanDigits.slice(-10) : '',
+      uid: 'sra_user_' + Date.now(),
+      action: "REGISTER_FORM_SUCCESS"
+    });
+  };
+
+  window.doLogout = function() {
+    if (typeof window.performUserLogout === 'function') {
+      window.performUserLogout();
+    } else {
+      if (confirm("क्या आप लॉग आउट करना चाहते हैं?")) {
+        try {
+          localStorage.removeItem("sra_verified_google_user");
+          localStorage.removeItem("sra_verified_mobile");
+          localStorage.removeItem("sra_verified_email");
+          localStorage.removeItem("sra_user_name");
+          localStorage.removeItem("sra_user_session");
+          sessionStorage.removeItem("sra_guest_dismissed_auth");
+          if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().signOut().catch(e => console.warn(e));
+          }
+        } catch(e) {}
+        updateIndexUserUI();
+        if (typeof window.updateDrawerUserProfile === 'function') {
+          window.updateDrawerUserProfile();
+        }
+        showIndexToast("✓ आप सफलतापूर्वक लॉग आउट हो गए हैं।");
+      }
+    }
+    updateIndexUserUI();
+  };
+
+  // Check redirect auth result on page load
+  try {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      firebase.auth().getRedirectResult().then(result => {
+        if (result && result.user) {
+          handleIndexAuthSuccess({
+            name: result.user.displayName || "Google User",
+            email: result.user.email || "",
+            photo: result.user.photoURL || "",
+            uid: result.user.uid || "",
+            phone: result.user.phoneNumber || "",
+            action: "FIREBASE_REDIRECT_SUCCESS"
+          });
+        }
+      }).catch(e => console.warn("Index redirect check note:", e));
+    }
+  } catch(e) {}
+
+  // Check URL params for login modal
+  window.addEventListener('DOMContentLoaded', () => {
+    updateIndexUserUI();
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login') === '1') {
+      openModal('loginModal');
+    }
+  });
   function openParasharaAuthModal() {
     window.location.href = '/parashara-report.html';
   }
