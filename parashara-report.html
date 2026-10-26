@@ -131,6 +131,19 @@
   }
   </script>
 
+  <!-- RAZORPAY CHECKOUT SCRIPT -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- HTML2PDF BUNDLE SCRIPT (FOR RELIABLE CLIENT-SIDE A4 PDF DOWNLOAD) -->
+  <script src="/html2pdf.bundle.min.js"></script>
+  <script>
+    if (typeof html2pdf === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      document.head.appendChild(s);
+    }
+  </script>
+
   <!-- Google Fonts: Royal Vedic & Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -759,6 +772,23 @@
     .print-only-header {
       display: none;
     }
+    #pdfLoadingMask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.90);
+      backdrop-filter: blur(6px);
+      z-index: 9999999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-align: center;
+      padding: 20px;
+    }
     @media print {
       @page {
         size: A4 portrait;
@@ -775,18 +805,27 @@
       }
       header, 
       .hero-banner, 
+      #highlightsSection,
+      #previewsSection,
+      #comparisonSection,
+      #kundaliSelectorSection,
       .kundali-card, 
       .action-row, 
+      .report-header-toolbar,
       .theme-toggle-btn, 
       #gateOverlay, 
       #modalNewKundali, 
+      #pdfLoadingMask,
       .btn-new-k, 
       .btn-generate,
       .btn-top-print,
+      #astronomicalFoundationSection,
+      #faqSection,
+      .site-global-footer,
       .print-hide {
         display: none !important;
       }
-      .container {
+      .container, main.container {
         max-width: 100% !important;
         width: 100% !important;
         padding: 0 !important;
@@ -794,6 +833,9 @@
       }
       #reportViewContainer {
         display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .print-only-header {
         display: block !important;
@@ -816,7 +858,8 @@
       .shloka-card, 
       .matrix-box, 
       .summary-executive-card, 
-      .pillar-box {
+      .pillar-box,
+      .phase-card {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
         box-shadow: none !important;
@@ -1349,7 +1392,21 @@
 </head>
 <body>
 
-  <!-- PAYMENT & UNLOCK MODAL (₹551 DAKSHINA FEE) -->
+  <!-- PDF GENERATION LOADING OVERLAY -->
+  <div id="pdfLoadingMask">
+    <div style="font-size:46px; margin-bottom:12px;">⏳</div>
+    <div style="font-size:21px; font-weight:900; color:#d4af37; font-family:'Cinzel', serif; letter-spacing:1px; margin-bottom:8px;">
+      श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO
+    </div>
+    <div style="font-size:16px; font-weight:800; color:#f1f5f9; margin-bottom:6px;">
+      प्रामाणिक A4 PDF रिपोर्ट तैयार की जा रही है...
+    </div>
+    <div style="font-size:13px; color:#cbd5e1; max-width:400px; line-height:1.6;">
+      कृपया २-३ सेकंड प्रतीक्षा करें • अखिल ९७ अध्याय, षोडशवर्ग एवं सर्वाष्टकवर्ग संकलित हो रहे हैं
+    </div>
+  </div>
+
+  <!-- PAYMENT & UNLOCK MODAL (₹1111 RAZORPAY GATEWAY) -->
   <div id="gateOverlay" class="gate-overlay">
     <div class="gate-card" style="max-width: 480px; padding: 28px 24px;">
       <button type="button" class="gate-close-btn" onclick="closeGateModal()">&times;</button>
@@ -1367,8 +1424,8 @@
         <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
           <span style="font-size: 13.5px; font-weight: 800; color: var(--text);">सांकेतिक दक्षिणा शुल्क:</span>
           <div style="text-align: right;">
-            <span style="font-size: 24px; font-weight: 900; color: var(--primary);">₹551</span>
-            <span style="font-size: 12px; text-decoration: line-through; color: var(--text-muted); margin-left: 6px;">₹2,100</span>
+            <span style="font-size: 24px; font-weight: 900; color: var(--primary);">₹1,111</span>
+            <span style="font-size: 12px; text-decoration: line-through; color: var(--text-muted); margin-left: 6px;">₹5,100</span>
           </div>
         </div>
         <div style="font-size: 12px; color: var(--text); line-height: 1.6; border-top: 1px dashed var(--border-gold); padding-top: 8px;">
@@ -1376,45 +1433,40 @@
           ✓ D1 से D60 षोडशवर्ग एवं वैशेषिकांश बल<br/>
           ✓ सर्वाष्टकवर्ग ३३७ बिंदु व आय-व्यय संतुलन<br/>
           ✓ विंशोत्तरी दशा सटीक कालक्रम (सौर वर्ष-मान)<br/>
-          ✓ ७-स्तंभ समग्र जीवन सार एवं सम्पूर्ण A4 PDF रिपोर्ट
+          ✓ ७-स्तंभ समग्र जीवन सार एवं सम्पूर्ण A4 PDF रिपोर्ट डाउनलोड
         </div>
       </div>
 
-      <!-- UPI PAYMENT SECTION -->
-      <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 18px;">
-        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
-          UPI द्वारा भुगतान करें (GPay, PhonePe, Paytm, BHIM):
+      <!-- PURE RAZORPAY PAYMENT SECTION -->
+      <div style="margin: 16px 0 14px;">
+        <button type="button" class="btn-hero-primary" onclick="triggerMegaParasharaRazorpayCheckout()" style="width: 100%; justify-content: center; padding: 15px 18px; font-size: 16.5px; border-radius: 12px; box-shadow: 0 6px 20px rgba(124, 19, 5, 0.35);">
+          <span>🔒 Razorpay द्वारा ₹1111 भुगतान करें</span>
+        </button>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 8px; text-align: center;">
+          🔒 100% सुरक्षित 256-bit Razorpay • Google Pay / PhonePe / Paytm / कार्ड / नेटबैंकिंग
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--card-bg); border: 1.5px dashed var(--border-gold); padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;">
-          <span style="font-size: 14.5px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px;" id="dispUpiId">shriramjiastro@upi</span>
-          <button type="button" onclick="copyUpiId()" style="background: var(--gold-light); border: 1px solid var(--border-gold); border-radius: 6px; padding: 3px 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; color: var(--gold-dark);">
-            📋 कॉपी करें
-          </button>
-        </div>
-        
-        <a href="upi://pay?pa=shriramjiastro@upi&pn=Shri%20Ramji%20Astro&am=551&cu=INR&tn=MegaParasharaReport" class="btn-hero-primary" style="display:block; padding: 10px; font-size: 14.5px; border-radius: 8px; text-align: center; text-decoration: none; margin-bottom: 6px;">
-          📲 सीधे UPI ऐप से ₹551 पे करें
-        </a>
       </div>
 
       <!-- ACCESS CODE VERIFICATION -->
-      <div style="text-align: left; margin-bottom: 14px;">
-        <label for="gatePasscodeInput" style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 6px;">
-          भुगतान के बाद प्राप्त एक्सेस कोड यहाँ दर्ज करें:
+      <div style="border-top: 1px dashed var(--border-gold); padding-top: 14px; margin-top: 14px; text-align: left;">
+        <label for="gatePasscodeInput" style="display: block; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px;">
+          क्या आपके पास पहले से अधिकृत एक्सेस कोड है?
         </label>
-        <input type="password" id="gatePasscodeInput" class="gate-input" placeholder="एक्सेस कोड दर्ज करें" style="margin-bottom: 8px;" autofocus />
-        <button type="button" class="gate-btn" onclick="verifyGatePasscode()">
-          🔓 रिपोर्ट अनलॉक करें (Unlock Report)
-        </button>
-        <div id="gateErrMsg" class="gate-err">
-          ❌ अमान्य एक्सेस कोड! कृपया सही कोड दर्ज करें अथवा व्हाट्सएप पर सहायता लें।
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="gatePasscodeInput" class="gate-input" placeholder="एक्सेस कोड दर्ज करें" style="margin-bottom: 0; flex: 1; padding: 10px 14px; font-size: 15px;" />
+          <button type="button" class="gate-btn" onclick="verifyGatePasscode()" style="width: auto; padding: 10px 16px; font-size: 14px; white-space: nowrap;">
+            सत्यापित करें
+          </button>
+        </div>
+        <div id="gateErrMsg" class="gate-err" style="margin-top: 6px;">
+          ❌ अमान्य एक्सेस कोड! कृपया सही कोड दर्ज करें अथवा भुगतान करें।
         </div>
       </div>
 
       <!-- WHATSAPP SUPPORT LINK -->
-      <div style="font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px;">
+      <div style="font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 12px; margin-top: 14px;">
         भुगतान या कोड संबंधी सहायता हेतु: 
-        <a href="https://api.whatsapp.com/send?phone=919876543210&text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87%2C%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%AE%E0%A5%87%E0%A4%97%E0%A4%BE%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%BE%E0%A4%B6%E0%A4%B0%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%20%E0%A4%95%E0%A5%87%20%E0%A4%B2%E0%A4%BF%E0%A4%8F%20%E2%82%B9551%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4" target="_blank" style="color: #166534; font-weight: 800; text-decoration: none;">
+        <a href="https://api.whatsapp.com/send?phone=919876543210&text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87%2C%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%AE%E0%A5%87%E0%A4%97%E0%A4%BE%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%BE%E0%A4%B6%E0%A4%B0%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%20%E0%A4%95%E0%A5%87%20%E0%A4%B2%E0%A4%BF%E0%A4%8F%20%E2%82%B91111%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4" target="_blank" style="color: #166534; font-weight: 800; text-decoration: none;">
           💬 व्हाट्सएप सहायता
         </a>
       </div>
@@ -1430,7 +1482,7 @@
       </a>
       <div class="header-actions">
         <button type="button" onclick="scrollToKundaliSection()" class="btn-hero-primary" style="padding: 7px 16px; font-size: 13.5px; box-shadow:none;">🔮 अभी रिपोर्ट देखें</button>
-        <span id="authStatusBadge" style="cursor:pointer; font-size:12px; font-weight:800; background:rgba(212,175,55,0.15); color:var(--gold-dark); padding:5px 12px; border-radius:999px; border:1px solid var(--border-gold);" onclick="openGateModal()">🔑 अनलॉक रिपोर्ट (₹551)</span>
+        <span id="authStatusBadge" style="cursor:pointer; font-size:12px; font-weight:800; background:rgba(212,175,55,0.15); color:var(--gold-dark); padding:5px 12px; border-radius:999px; border:1px solid var(--border-gold);" onclick="openGateModal()">🔑 अनलॉक रिपोर्ट (₹1111)</span>
         <button type="button" class="theme-toggle-btn" onclick="toggleTheme()">🌓 थीम</button>
       </div>
     </div>
@@ -1511,16 +1563,16 @@
       <!-- PRICE & UNLOCK HERO ACTION -->
       <div class="hero-unlock-card">
         <div class="price-pill-row">
-          <span class="price-tag">दक्षिणा शुल्क: केवल ₹551</span>
-          <span class="price-strikethrough">मूल्य: ₹2,100</span>
-          <span class="price-off-badge">७४% छूट</span>
+          <span class="price-tag">दक्षिणा शुल्क: केवल ₹1,111</span>
+          <span class="price-strikethrough">मूल्य: ₹5,100</span>
+          <span class="price-off-badge">७८% छूट</span>
         </div>
         <p class="unlock-benefit-text">
           ✨ सम्पूर्ण ९७ अध्याय श्लोक मिलान • D1-D60 षोडशवर्ग • ३३७ सर्वाष्टकवर्ग • दशा कालक्रम • ७-स्तंभ जीवन सार • A4 PDF डाउनलोड
         </p>
         <div class="hero-cta-group" style="margin-top:16px;">
           <button type="button" class="btn-hero-primary" onclick="openGateModal()">
-            <span>🔮 केवल ₹551 में सम्पूर्ण रिपोर्ट अनलॉक करें</span>
+            <span>🔮 केवल ₹1111 में सम्पूर्ण रिपोर्ट अनलॉक करें</span>
             <span style="font-size:20px;">🔓</span>
           </button>
           <button type="button" class="btn-hero-secondary" onclick="scrollToKundaliSection()">
@@ -1913,9 +1965,14 @@
           </h2>
           <span style="font-size:13px; color:var(--text-muted); font-weight:700;">सम्पूर्ण संहिता (अखिल ९७ अध्याय: पूर्व एवं उत्तर खण्ड) का विस्तृत फलितार्थ एवं आधुनिक विश्लेषण</span>
         </div>
-        <button type="button" class="btn-act btn-top-print" onclick="executePrintReport()">
-          <span>🖨️ रिपोर्ट प्रिंट / Save PDF</span>
-        </button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="btn-act btn-top-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534);">
+            <span>📥 A4 PDF डाउनलोड करें</span>
+          </button>
+          <button type="button" class="btn-act btn-top-print" onclick="executePrintReport()">
+            <span>🖨️ प्रिंट करें</span>
+          </button>
+        </div>
       </div>
 
       <!-- LIST OF SHLOKAS -->
@@ -1929,8 +1986,11 @@
 
       <!-- BOTTOM ACTION BUTTONS -->
       <div class="action-row">
+        <button type="button" class="btn-act btn-act-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534); box-shadow:0 4px 14px rgba(21,128,61,0.35);">
+          <span>📥 सम्पूर्ण रिपोर्ट A4 PDF डाउनलोड करें</span>
+        </button>
         <button type="button" class="btn-act btn-act-print" onclick="executePrintReport()">
-          <span>🖨️ सम्पूर्ण रिपोर्ट प्रिंट / PDF डाउनलोड करें</span>
+          <span>🖨️ सीधे प्रिंट करें (Print Report)</span>
         </button>
         <button type="button" class="btn-act btn-act-share" onclick="shareOnWhatsApp()">
           <span>💬 व्हाट्सएप पर साझा करें</span>
@@ -2192,6 +2252,65 @@
       return (urlKey && urlKey.toUpperCase() === SECRET_KEY) || savedAuth === 'true';
     }
 
+    // RAZORPAY CONFIGURATION (₹1111 DAKSHINA FEE)
+    const PARASHARA_RZP_KEY = 'rzp_live_SP6lQYYrNI0CYD';
+    const PARASHARA_PRICE_PAISE = 111100; // ₹1111 in paise
+
+    function triggerMegaParasharaRazorpayCheckout() {
+      if (typeof Razorpay === 'undefined') {
+        alert('Razorpay पेमेंट गेटवे लोड हो रहा है, कृपया २ सेकंड बाद पुनः प्रयास करें अथवा इंटरनेट जांचें।');
+        return;
+      }
+
+      const k = currentSelectedKundali || {};
+      const clientName = k.name || 'पाराशर जातक';
+      const clientMobile = localStorage.getItem('sra_verified_mobile') || '9517117775';
+
+      const options = {
+        key: PARASHARA_RZP_KEY,
+        amount: PARASHARA_PRICE_PAISE,
+        currency: "INR",
+        name: "श्री रामजी एस्ट्रो",
+        description: "मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय)",
+        image: "/assets/logo.png",
+        prefill: {
+          name: clientName,
+          contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
+        },
+        theme: {
+          color: "#7c1305"
+        },
+        notes: {
+          report_type: "mega_parashara_97_chapters",
+          report_title: "मेगा पाराशर संहिता कुण्डली रिपोर्ट",
+          amount: "1111"
+        },
+        handler: function (response) {
+          const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_MEGA_SUCCESS';
+          localStorage.setItem('sra_mpp_authorized', 'true');
+          localStorage.setItem('sra_mpkr_authorized', 'true');
+          localStorage.setItem('sra_mega_rzp_payid', payId);
+          closeGateModal();
+          updateAuthBadge();
+          alert("🎉 धन्यवाद! आपका ₹1111 का भुगतान सफल रहा। आपकी सम्पूर्ण ९७-अध्याय मेगा पाराशर रिपोर्ट अनलॉक हो चुकी है।");
+          generateMegaParasharaReport(true);
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Razorpay modal closed by user');
+          }
+        }
+      };
+
+      try {
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch(e) {
+        console.error("Razorpay Checkout Error:", e);
+        alert('Razorpay पेमेंट गेटवे त्रुटि। कृपया पुनः प्रयास करें अथवा व्हाट्सएप सहायता पर संपर्क करें।');
+      }
+    }
+
     function updateAuthBadge() {
       const badge = document.getElementById('authStatusBadge');
       if (!badge) return;
@@ -2201,7 +2320,7 @@
         badge.style.color = '#15803d';
         badge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
       } else {
-        badge.innerHTML = '🔑 अनलॉक रिपोर्ट (₹551)';
+        badge.innerHTML = '🔑 अनलॉक रिपोर्ट (₹1111)';
         badge.style.background = 'rgba(212, 175, 55, 0.15)';
         badge.style.color = 'var(--gold-dark)';
         badge.style.borderColor = 'var(--border-gold)';
@@ -2221,19 +2340,6 @@
     function closeGateModal() {
       const overlay = document.getElementById('gateOverlay');
       if (overlay) overlay.style.display = 'none';
-    }
-
-    function copyUpiId() {
-      const upiText = 'shriramjiastro@upi';
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(upiText).then(() => {
-          alert('UPI ID कॉपी हो गई: ' + upiText);
-        }).catch(() => {
-          prompt('UPI ID कॉपी करें:', upiText);
-        });
-      } else {
-        prompt('UPI ID कॉपी करें:', upiText);
-      }
     }
 
     function onHighlightClick(idx) {
@@ -3013,33 +3119,132 @@
       }
     }
 
-    // ROBUST PRINT REPORT / SAVE AS PDF HANDLER
+    // ROBUST HIGH-RESOLUTION A4 PDF DOWNLOAD (VIA HTML2PDF & MOBILE NATIVE SHARE)
+    async function downloadPdfReport() {
+      if (!currentParasharaReport) {
+        alert("कृपया पहले 'सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें' बटन दबाकर अपनी रिपोर्ट जनरेट करें।");
+        return;
+      }
+
+      const rep = currentParasharaReport;
+      const nativeName = (rep.name || 'जातक').replace(/[\/\\]/g, '_').trim();
+      const filename = `मेगा_पाराशर_कुण्डली_रिपोर्ट_${nativeName}.pdf`;
+
+      // Visual feedback mask
+      const mask = document.getElementById('pdfLoadingMask');
+      if (mask) mask.style.display = 'flex';
+
+      updatePrintHeaderData();
+
+      const repContainer = document.getElementById('reportViewContainer');
+      if (repContainer) repContainer.style.display = 'block';
+
+      const printHeader = document.getElementById('printOnlyHeader');
+      if (printHeader) printHeader.style.display = 'block';
+
+      // Small pause to allow render
+      await new Promise(r => setTimeout(r, 200));
+
+      // Wait if html2pdf is still loading
+      for (let i = 0; i < 20; i++) {
+        if (typeof html2pdf === 'function') break;
+        await new Promise(r => setTimeout(r, 100));
+      }
+
+      if (typeof html2pdf === 'function') {
+        try {
+          const opt = {
+            margin: [10, 8, 12, 8],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: '#ffffff',
+              scrollX: 0,
+              scrollY: 0
+            },
+            jsPDF: {
+              unit: 'mm',
+              format: 'a4',
+              orientation: 'portrait'
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          };
+
+          let delivered = false;
+
+          // Mobile device native share (iOS Safari & Android WebViews)
+          if (navigator.canShare && window.File) {
+            try {
+              const blob = await html2pdf().set(opt).from(repContainer).output('blob');
+              if (blob && blob instanceof Blob && blob.size > 2000) {
+                const file = new File([blob], filename, { type: 'application/pdf' });
+                if (navigator.canShare({ files: [file] })) {
+                  if (mask) mask.style.display = 'none';
+                  await navigator.share({
+                    files: [file],
+                    title: 'मेगा पाराशर कुण्डली रिपोर्ट',
+                    text: `श्री रामजी एस्ट्रो • ${nativeName} की सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट`
+                  });
+                  delivered = true;
+                }
+              }
+            } catch (shareErr) {
+              if (shareErr.name === 'AbortError') delivered = true;
+            }
+          }
+
+          if (!delivered) {
+            await html2pdf().set(opt).from(repContainer).save();
+          }
+
+          if (mask) mask.style.display = 'none';
+          if (printHeader) printHeader.style.display = '';
+          return;
+        } catch (pdfErr) {
+          console.error("html2pdf generation error:", pdfErr);
+        }
+      }
+
+      // Fallback to window.print() if html2pdf is unavailable or fails
+      if (mask) mask.style.display = 'none';
+      if (printHeader) printHeader.style.display = '';
+      executePrintReport();
+    }
+
+    // DIRECT BROWSER PRINT HANDLER
     function executePrintReport() {
       if (!currentParasharaReport) {
-        alert("कृपया पहले 'पाराशर संहिता श्लोक-मिलान रिपोर्ट जनरेट करें' बटन दबाकर रिपोर्ट जनरेट करें।");
+        alert("कृपया पहले 'सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें' बटन दबाकर अपनी रिपोर्ट जनरेट करें।");
         return;
       }
 
       const repContainer = document.getElementById('reportViewContainer');
       if (repContainer) repContainer.style.display = 'block';
 
-      // Set clean PDF filename via page title
       const prevTitle = document.title;
       const nativeName = (currentParasharaReport.name || 'जातक').replace(/[\/\\]/g, '_');
       document.title = `मेगा_पाराशर_कुण्डली_रिपोर्ट_${nativeName}`;
 
       updatePrintHeaderData();
 
-      // Initiate print with safe fallback
+      const printHeader = document.getElementById('printOnlyHeader');
+      if (printHeader) printHeader.style.display = 'block';
+
       try {
         window.focus();
         setTimeout(() => {
           window.print();
-          setTimeout(() => { document.title = prevTitle; }, 2000);
+          setTimeout(() => { 
+            document.title = prevTitle;
+            if (printHeader) printHeader.style.display = '';
+          }, 2000);
         }, 150);
       } catch (err) {
         console.error("Direct print invocation failed:", err);
-        alert("डायरेक्ट प्रिंट शुरू नहीं हो सका। कृपया अपने ब्राउज़र मेनू (⋮ या Share आइकन) से 'Print' या 'Save as PDF' का चयन करें।");
+        alert("ब्राउज़र प्रिंट शुरू नहीं हो सका। कृपया 'A4 PDF डाउनलोड करें' बटन दबाकर सीधे PDF फाइल डाउनलोड करें।");
       }
     }
 
