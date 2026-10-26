@@ -1,0 +1,491 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   UI-OVERRIDES.CSS: SRA DESIGN POLISH & ACCESSIBILITY SPECIFICATION
+   Universal visual polish layer across shriramjiastro.in
+   Linked LAST on every page. Rollback = remove one line.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. PALETTE DEFINITIONS & CARD BACKGROUND VARIABLES */
+:root {
+  --card-bg: #FFFFFF;
+  --theme-bg: #FCFBF7;
+  --theme-surface: #FFFFFF;
+  --theme-text: #1E293B;
+  --theme-muted: #64748B;
+  --theme-gold: #C5A059;
+  --theme-good: #10B981;
+  --theme-bad: #EF4444;
+  --font-display: 'Cinzel', 'Rozha One', 'Tiro Devanagari Hindi', serif;
+  --font-body: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+}
+
+[data-theme="night"] {
+  --card-bg: #140A2B !important;
+  --theme-bg: #0B0716 !important;
+  --theme-surface: #140A2B !important;
+  --theme-text: #F3EEFF !important;
+  --theme-muted: #B9ABD6 !important;
+  --theme-gold: #E8C766 !important;
+  --theme-good: #4ADE80 !important;
+  --theme-bad: #F87171 !important;
+
+  /* Global Framework Theme Sync */
+  --bg: #0B0716 !important;
+  --bg2: #140A2B !important;
+  --card: #140A2B !important;
+  --card2: #1D103A !important;
+  --text: #F3EEFF !important;
+  --muted: #B9ABD6 !important;
+  --heading-color: #F3EEFF !important;
+  --gold: #E8C766 !important;
+  --gold-dark: #E8C766 !important;
+  --gold2: #F1D98D !important;
+  --gold-border: rgba(232, 199, 102, 0.25) !important;
+  --gold-dim: rgba(232, 199, 102, 0.12) !important;
+  --green: #4ADE80 !important;
+  --red: #F87171 !important;
+}
+
+/* 2. NIGHT-MODE CONTRAST (>= 4.5:1) AND TINTED COMPONENT RECTIFICATION */
+[data-theme="night"] body {
+  background-color: #0B0716 !important;
+  color: #F3EEFF !important;
+}
+
+[data-theme="night"] #social-hub,
+[data-theme="night"] #desktopPanchangSection,
+[data-theme="night"] .seo-authority-block,
+[data-theme="night"] .app-glass-panel,
+[data-theme="night"] .boxed-card,
+[data-theme="night"] .report-card,
+[data-theme="night"] .social-block,
+[data-theme="night"] .app-service-card,
+[data-theme="night"] .scarcity-matrix-card,
+[data-theme="night"] .panchang-card,
+[data-theme="night"] .panchang-limb-box,
+[data-theme="night"] .daily-panchang-table,
+[data-theme="night"] .sra-master-ecosystem,
+[data-theme="night"] .sra-master-ecosystem div[style*="background:#fff"],
+[data-theme="night"] .sra-master-ecosystem div[style*="background: #fff"],
+[data-theme="night"] .hero,
+[data-theme="night"] .calendar-card,
+[data-theme="night"] .intake-card,
+[data-theme="night"] .cal-slot,
+[data-theme="night"] .slide-nav-btn,
+[data-theme="night"] .btn-lang,
+[data-theme="night"] .modal,
+[data-theme="night"] #modalMobileOtp > div {
+  background: #140A2B !important;
+  background-color: #140A2B !important;
+  border-color: rgba(232, 199, 102, 0.22) !important;
+  color: #F3EEFF !important;
+}
+
+/* Global Form Controls in Night Mode */
+[data-theme="night"] input,
+[data-theme="night"] select,
+[data-theme="night"] textarea,
+[data-theme="night"] .form-control {
+  background-color: #0B0716 !important;
+  color: #F3EEFF !important;
+  border-color: rgba(232, 199, 102, 0.3) !important;
+}
+
+/* Report-card prices & discounts */
+[data-theme="night"] .report-price-now {
+  color: #E8C766 !important;
+  font-weight: 800 !important;
+}
+[data-theme="night"] .report-price-old {
+  color: #B9ABD6 !important;
+  opacity: 0.8 !important;
+}
+[data-theme="night"] .report-discount-tag {
+  background: rgba(74, 222, 128, 0.18) !important;
+  color: #4ADE80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.45) !important;
+  font-weight: 700 !important;
+}
+[data-theme="night"] .report-card-badge {
+  color: #FFFFFF !important;
+}
+[data-theme="night"] .report-card-title,
+[data-theme="night"] .block-title {
+  color: #F3EEFF !important;
+}
+[data-theme="night"] .report-card-desc,
+[data-theme="night"] .block-sub {
+  color: #B9ABD6 !important;
+}
+
+/* YouTube & Instagram Outline Buttons */
+[data-theme="night"] .social-btn.yt-btn {
+  background: rgba(255, 107, 107, 0.12) !important;
+  border: 1px solid rgba(255, 107, 107, 0.45) !important;
+  color: #FF7B7B !important;
+}
+[data-theme="night"] .social-btn.yt-btn:hover {
+  background: #E11D48 !important;
+  color: #FFFFFF !important;
+}
+[data-theme="night"] .social-btn.insta-btn {
+  background: rgba(244, 114, 182, 0.12) !important;
+  border: 1px solid rgba(244, 114, 182, 0.45) !important;
+  color: #F472B6 !important;
+}
+[data-theme="night"] .social-btn.insta-btn:hover {
+  background: #D946EF !important;
+  color: #FFFFFF !important;
+}
+
+/* Sacred Protocol / Scarcity Small Lines */
+[data-theme="night"] div[style*="var(--gold-dark)"],
+[data-theme="night"] span[style*="var(--gold-dark)"] {
+  color: #E8C766 !important;
+}
+[data-theme="night"] div[style*="var(--green)"],
+[data-theme="night"] span[style*="var(--green)"] {
+  color: #4ADE80 !important;
+}
+[data-theme="night"] div[style*="var(--muted)"],
+[data-theme="night"] p[style*="var(--muted)"],
+[data-theme="night"] span[style*="var(--muted)"] {
+  color: #B9ABD6 !important;
+}
+
+/* Avakahada Last-Cell & Classical Strong Highlights */
+[data-theme="night"] #avakahadaTable strong,
+[data-theme="night"] .avakahada-table strong,
+[data-theme="night"] strong[style*="var(--primary"],
+[data-theme="night"] strong[style*="#7C1305"] {
+  color: #E8C766 !important;
+}
+[data-theme="night"] #avakahadaTable td,
+[data-theme="night"] .avakahada-table td {
+  color: #F3EEFF !important;
+  border-bottom: 1px solid rgba(232, 199, 102, 0.15) !important;
+}
+
+/* Panchang Tinted Tiles: Abhijit / Choghadiya / Rahu Kalam */
+[data-theme="night"] .muhurta-item {
+  background: #140A2B !important;
+  border-color: rgba(232, 199, 102, 0.2) !important;
+  color: #F3EEFF !important;
+}
+[data-theme="night"] .muhurta-item-name {
+  color: #F3EEFF !important;
+}
+[data-theme="night"] .muhurta-item-time {
+  color: #E8C766 !important;
+}
+[data-theme="night"] .muhurta-item[style*="#10b981"],
+[data-theme="night"] .muhurta-item[style*="16,185,129"] {
+  border: 1.5px solid rgba(74, 222, 128, 0.5) !important;
+  background: rgba(74, 222, 128, 0.12) !important;
+}
+[data-theme="night"] .muhurta-item[style*="#10b981"] .muhurta-item-name,
+[data-theme="night"] .muhurta-item[style*="16,185,129"] .muhurta-item-name {
+  color: #4ADE80 !important;
+}
+[data-theme="night"] .muhurta-item[style*="#ef4444"],
+[data-theme="night"] .muhurta-item[style*="239,68,68"] {
+  border: 1.5px solid rgba(248, 113, 113, 0.5) !important;
+  background: rgba(248, 113, 113, 0.12) !important;
+}
+[data-theme="night"] .muhurta-item[style*="#ef4444"] .muhurta-item-name,
+[data-theme="night"] .muhurta-item[style*="239,68,68"] .muhurta-item-name {
+  color: #F87171 !important;
+}
+[data-theme="night"] .badge-vishti-alert {
+  background: rgba(248, 113, 113, 0.18) !important;
+  color: #F87171 !important;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+}
+[data-theme="night"] .badge-limb-good {
+  background: rgba(74, 222, 128, 0.18) !important;
+  color: #4ADE80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.45) !important;
+}
+[data-theme="night"] .badge-limb-warn {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #FCD34D !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+}
+[data-theme="night"] .panchang-limb-box[style*="#fff5f5"],
+[data-theme="night"] .panchang-limb-box[style*="fff5f5"] {
+  background: rgba(248, 113, 113, 0.15) !important;
+  border-color: #F87171 !important;
+}
+[data-theme="night"] .quick-chip-btn {
+  background: #140A2B !important;
+  color: #F3EEFF !important;
+  border-color: rgba(232, 199, 102, 0.3) !important;
+}
+[data-theme="night"] .quick-chip-btn.active {
+  background: #E8C766 !important;
+  color: #0B0716 !important;
+}
+
+/* 3. FEWER BOXES & UNIFIED HIERARCHY */
+.boxed-card .boxed-inner-tray,
+.report-card > div > div[style*="border:"],
+.scarcity-matrix-card div[style*="background: var(--bg2)"],
+.app-glass-panel div[style*="border: 1px solid"] {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.muhurta-item {
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+.avakahada-table tr,
+.daily-panchang-table tr {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15) !important;
+}
+
+/* 4. TYPOGRAPHY DISCIPLINE (2 FONTS, MIN 12PX, DEVANAGARI >= 14PX) */
+body, input, select, textarea, button {
+  font-family: var(--font-body) !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.brand-title, .drawer-brand-title, .page-hero-title, .section-title {
+  font-family: var(--font-display) !important;
+  text-transform: none !important;
+  letter-spacing: 0.25px !important;
+}
+
+/* Floor minimum text size to 12px */
+small, .badge, .sub, .card-sub, .block-sub, .theme-label, .drawer-sub-hint {
+  font-size: max(12px, 0.75rem) !important;
+}
+
+/* Devanagari body text >= 14px */
+:lang(hi), [lang="hi"], [lang="hi"] p, [lang="hi"] span, [lang="hi"] div,
+.hindi-text, [data-i18n*="_desc"], [data-i18n*="_sub"] {
+  font-size: max(14px, 0.875rem) !important;
+  line-height: 1.6 !important;
+}
+
+/* 5. MOBILE POLISH & TOUCH ERGONOMICS */
+@media screen and (max-width: 768px) {
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    font-size: 16px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Phone input container safety */
+  .mfield, .mfield > div, form div[style*="display:flex"] {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  input#inMobileNum, input#preOrderPhoneInput, input#reg_phone {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Tap targets floor >= 44px */
+  button,
+  .btn,
+  .btn-nav,
+  .v-btn,
+  .modal-btn,
+  .lang-pill-btn,
+  .theme-toggle-container,
+  .hamburger,
+  .drawer-close-btn,
+  .modal-close,
+  .app-tab-chip {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  /* Viewport Units & Keyboard Safe Modals */
+  .modal-overlay {
+    height: 100vh;
+    height: 100dvh !important;
+    align-items: flex-start !important;
+    padding-top: max(20px, env(safe-area-inset-top)) !important;
+    padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal, #modalMobileOtp > div {
+    max-height: calc(100dvh - 36px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Backdrop blur prefix */
+  .modal-overlay, .nav-drawer-backdrop, .app-glass-panel {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+}
+
+/* 6. DRAWER SHADOW BLEED PROTECTION */
+.nav-drawer {
+  box-shadow: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateX(100%) !important;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s ease !important;
+}
+.nav-drawer.open {
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateX(0) !important;
+}
+
+/* 7. DESKTOP HEADER & CONTAINER CONSTRAINTS (~1366px - 1920px) */
+@media (min-width: 1025px) and (max-width: 1400px) {
+  nav {
+    padding: 0 16px !important;
+    gap: 8px !important;
+  }
+  .nav-links {
+    gap: 8px !important;
+  }
+  .nav-links a {
+    font-size: 11px !important;
+    padding: 4px 6px !important;
+  }
+  .nav-btns {
+    gap: 6px !important;
+  }
+  .btn-nav-app-download .nav-app-label {
+    display: none !important;
+  }
+  .btn-nav-app-download {
+    padding: 6px 10px !important;
+  }
+  .nav-vip-consult-pill {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* Cap width ~1200-1320px */
+.section-wrap,
+.hero-content,
+.social-hub-container,
+.main-container,
+#mainContent > div,
+.footer-wrap {
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Prose max-width <= 75ch */
+p, .article-body, .seo-authority-block p, .benchmark-desc {
+  max-width: 75ch !important;
+}
+
+/* 8. TABLET 700-1023px: 3-COLUMN TILE GRID */
+@media (min-width: 700px) and (max-width: 1023px) {
+  .app-services-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px !important;
+  }
+  .upcoming-reports-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+  .social-hub-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 9. ACCESSIBILITY: FOCUS-VISIBLE RING & PREFERS-REDUCED-MOTION */
+:focus-visible {
+  outline: 2px solid var(--gold, #E8C766) !important;
+  outline-offset: 3px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 10. PHASE 2: ACCESSIBLE COLLAPSIBLE ACCORDIONS (<details>/<summary>) */
+details.ui-collapsible {
+  border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
+  border-radius: 14px !important;
+  background: var(--card, #ffffff) !important;
+  margin-bottom: 20px !important;
+  overflow: hidden !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="night"] details.ui-collapsible {
+  background: #140A2B !important;
+  border-color: rgba(232, 199, 102, 0.25) !important;
+}
+
+details.ui-collapsible > summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 48px !important;
+  padding: 14px 20px !important;
+  cursor: pointer !important;
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  color: var(--heading-color) !important;
+  user-select: none !important;
+  list-style: none !important;
+  background: var(--bg2, rgba(212, 175, 55, 0.05)) !important;
+  transition: background 0.2s ease !important;
+}
+
+[data-theme="night"] details.ui-collapsible > summary {
+  background: rgba(232, 199, 102, 0.08) !important;
+  color: #F3EEFF !important;
+}
+
+details.ui-collapsible > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+details.ui-collapsible > summary::after {
+  content: "▾" !important;
+  font-size: 20px !important;
+  color: var(--gold, #c5a059) !important;
+  transition: transform 0.25s ease !important;
+  min-width: 24px !important;
+  text-align: right !important;
+  line-height: 1 !important;
+}
+
+details.ui-collapsible[open] > summary::after {
+  transform: rotate(180deg) !important;
+}
+
+details.ui-collapsible > summary:hover {
+  background: var(--gold-dim, rgba(212, 175, 55, 0.12)) !important;
+}
+
+details.ui-collapsible .collapsible-content {
+  padding: 16px 20px !important;
+}
+

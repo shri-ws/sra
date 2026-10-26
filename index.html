@@ -229,6 +229,7 @@
       --bg2: #FAF6EF;
       --bg3: #FFFFFF;
       --card: #FFFFFF;
+      --card-bg: #FFFFFF;
       --card-border: rgba(197, 160, 89, 0.35);
       --text: #1E293B;
       --heading-color: #4A0E17;
@@ -265,6 +266,7 @@
       --bg2: #120926;
       --bg3: #180b33;
       --card: #140a2b;
+      --card-bg: #140A2B;
       --card-border: rgba(201, 168, 76, 0.3);
       --text: #f3eeff;
       --heading-color: #ffd875;
@@ -2152,6 +2154,7 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="ui-overrides.css" />
 </head>
 <body>
 
@@ -2691,26 +2694,44 @@
           </div>
 
           <!-- 2. SOLAR & LUNAR DAY DYNAMICS (सौर व चान्द्र मान) -->
-          <h3 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h3>
-          <div class="muhurta-grid" id="landingPanchangSolar">
-            <!-- Dynamically populated -->
-          </div>
+          <details class="ui-collapsible">
+            <summary>
+              <span>☀️ सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</span>
+            </summary>
+            <div class="collapsible-content">
+              <div class="muhurta-grid" id="landingPanchangSolar">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </details>
 
           <!-- 3. AUSPICIOUS & INAUSPICIOUS TIMINGS (शुभ व अशुभ मुहूर्त) -->
-          <h3 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h3>
-          <div class="muhurta-grid" id="landingPanchangMuhurta">
-            <!-- Dynamically populated -->
-          </div>
+          <details class="ui-collapsible">
+            <summary>
+              <span>⏰ तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</span>
+            </summary>
+            <div class="collapsible-content">
+              <div class="muhurta-grid" id="landingPanchangMuhurta">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </details>
 
           <!-- 4. AVAKAHADA ATTRIBUTES (अवकहड़ा चक्र) -->
-          <h3 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h3>
-          <div style="overflow-x:auto;">
-            <table class="avakahada-table" id="landingAvakahadaTbl">
-              <tbody>
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
+          <details class="ui-collapsible">
+            <summary>
+              <span>📜 अवकहड़ा चक्र (Avakahada Chakra)</span>
+            </summary>
+            <div class="collapsible-content">
+              <div style="overflow-x:auto;">
+                <table class="avakahada-table" id="landingAvakahadaTbl">
+                  <tbody>
+                    <!-- Dynamically populated -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
 
           <!-- CTA BUTTON TO OPEN PATRIKA WITH THIS DATE -->
           <div style="margin-top:16px; text-align:center;">
@@ -3437,11 +3458,18 @@
             </div>
 
             <!-- YOUTUBE VIDEO GRID CONTAINER -->
-            <div id="yt-video-grid" class="yt-video-grid">
-              <div class="yt-skeleton-card"></div>
-              <div class="yt-skeleton-card"></div>
-              <div class="yt-skeleton-card"></div>
-            </div>
+            <details class="ui-collapsible" open>
+              <summary>
+                <span>Latest Academy Video Lessons (YouTube)</span>
+              </summary>
+              <div class="collapsible-content">
+                <div id="yt-video-grid" class="yt-video-grid">
+                  <div class="yt-skeleton-card"></div>
+                  <div class="yt-skeleton-card"></div>
+                  <div class="yt-skeleton-card"></div>
+                </div>
+              </div>
+            </details>
           </div>
 
           <a href="https://youtube.com/@astro_raamji" target="_blank" rel="noopener" class="social-btn yt-btn">
@@ -3472,7 +3500,14 @@
             </div>
 
             <!-- INSTAGRAM REELS CONTAINER -->
-            <div id="insta-reels-container" class="insta-reels-container"></div>
+            <details class="ui-collapsible" open>
+              <summary>
+                <span>Recent Reels &amp; Sacred Insights (Instagram)</span>
+              </summary>
+              <div class="collapsible-content">
+                <div id="insta-reels-container" class="insta-reels-container"></div>
+              </div>
+            </details>
           </div>
 
           <a href="https://instagram.com/astro_raamji" target="_blank" rel="noopener" class="social-btn insta-btn">
@@ -3638,36 +3673,39 @@
       </div>
 
       <!-- SCARCITY MATRIX CARD -->
-      <div style="background: var(--card); border: 1.5px solid var(--gold-border); border-radius: 20px; padding: 36px; max-width: 880px; margin: 0 auto 36px; box-shadow: 0 10px 35px rgba(197, 160, 89, 0.12); text-align: center;">
-        <div style="font-family: 'Cinzel', serif; font-size: 13px; font-weight: 800; letter-spacing: 2px; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 22px;">
-          SACRED SANCTUARY SCARCITY MATRIX
-        </div>
+      <div class="scarcity-matrix-card" style="background: var(--card); border: 1.5px solid var(--gold-border); border-radius: 20px; padding: 24px; max-width: 880px; margin: 0 auto 36px; box-shadow: 0 10px 35px rgba(197, 160, 89, 0.12); text-align: center;">
+        <details class="ui-collapsible" open>
+          <summary>
+            <span>✦ Sacred Sanctuary Scarcity Matrix (Strictly 1 Soul Per Solar Day)</span>
+          </summary>
+          <div class="collapsible-content">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 18px 0 24px;">
+              <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Daily Cap</div>
+                <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--heading-color); margin-top: 4px;">Strictly 1 Soul</div>
+                <div style="font-size: 11px; color: var(--gold-dark); margin-top: 2px; font-weight: 600;">Per Solar Day</div>
+              </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px;">
-          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Daily Cap</div>
-            <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--heading-color); margin-top: 4px;">Strictly 1 Soul</div>
-            <div style="font-size: 11px; color: var(--gold-dark); margin-top: 2px; font-weight: 600;">Per Solar Day</div>
+              <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Reservations</div>
+                <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--heading-color); margin-top: 4px;">Open Calendar</div>
+                <div style="font-size: 11px; color: var(--green); margin-top: 2px; font-weight: 700;">30 Open Solar Days</div>
+              </div>
+
+              <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Sacred Honorarium</div>
+                <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--gold-dark); margin-top: 4px;">₹5,100 / $99 USD</div>
+                <div style="font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600;">3-Hour Sacred Audit</div>
+              </div>
+            </div>
+
+            <p style="font-size: 13px; color: var(--muted); font-style: italic; max-width: 740px; margin: 0 auto 20px; line-height: 1.6;">
+              Includes: 90-Min Pre-Session Computational Audit (D1–D60) + 60-Min Private Sanctuary Session + Handcrafted Written PDF Remedies within 24 Hours.
+            </p>
           </div>
+        </details>
 
-          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Reservations</div>
-            <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--heading-color); margin-top: 4px;">Open Calendar</div>
-            <div style="font-size: 11px; color: var(--green); margin-top: 2px; font-weight: 700;">30 Open Solar Days</div>
-          </div>
-
-          <div style="background: var(--bg2); border: 1px solid var(--gold-border); border-radius: 12px; padding: 18px;">
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: 1px;">Sacred Honorarium</div>
-            <div style="font-family: 'Cinzel', serif; font-size: 20px; font-weight: 800; color: var(--gold-dark); margin-top: 4px;">₹5,100 / $99 USD</div>
-            <div style="font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600;">3-Hour Sacred Audit</div>
-          </div>
-        </div>
-
-        <p style="font-size: 13px; color: var(--muted); font-style: italic; max-width: 740px; margin: 0 auto 26px; line-height: 1.6;">
-          Includes: 90-Min Pre-Session Computational Audit (D1–D60) + 60-Min Private Sanctuary Session + Handcrafted Written PDF Remedies within 24 Hours.
-        </p>
-
-        <!-- CTA BUTTON -->
+        <!-- CTA BUTTON (KEPT OPEN) -->
         <a href="consultation.html" style="display: inline-block; background: linear-gradient(135deg, var(--gold2) 0%, var(--gold-dark) 100%); color: #FFFFFF; font-family: 'Cinzel', serif; font-weight: 800; font-size: 14.5px; letter-spacing: 1px; padding: 16px 38px; border-radius: 12px; text-decoration: none; box-shadow: 0 8px 30px rgba(140, 109, 43, 0.35); transition: all 0.25s ease;">
           ENTER THE PRIVATE SANCTUARY → (CHECK MONTHLY CALENDAR)
         </a>
@@ -3855,19 +3893,25 @@
   </div>
 
   <!-- SEO AUTHORITY BLOCK -->
-  <section class="seo-authority-block" style="padding: 40px 20px; background-color: var(--card-bg, #fcfbf7); border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border); margin-top: 40px;">
+  <section class="seo-authority-block" style="padding: 24px 20px; background-color: var(--card-bg, #fcfbf7); border-top: 1px solid var(--gold-border); border-bottom: 1px solid var(--gold-border); margin-top: 40px;">
     <div class="section-wrap">
-      <h2 style="font-size: 1.5rem; margin-bottom: 15px; color: var(--gold-dark); font-family: 'Cinzel', serif;">The Gold Standard in Classical Vedic Astrology & Precision Software</h2>
-      <p style="line-height: 1.6; margin-bottom: 12px; color: var(--text);">
-        Welcome to <strong>Shri Ramji Astro</strong>, a specialized digital ecosystem built for researchers, students, and professional astrologers who refuse to compromise on mathematical accuracy. Traditional commercial portals often rely on simplified district-level lookups and approximate ephemeris, introducing significant geodetic drift. Our flagship <strong>Patrika / Astro 360 engine</strong> eliminates these errors at the root.
-      </p>
-      <h3 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--gold-dark); font-family: 'Cinzel', serif;">Core Technological Advantages of Our Platform:</h3>
-      <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.8; color: var(--text);">
-        <li><strong>True Chitra Paksha Ayanamsa (Mode 27):</strong> Integrated with NASA JPL Swiss Ephemeris DE431 (&lt; 0.001'' arcseconds accuracy, Spica @ 180°00'00.000") for exact planetary positions.</li>
-        <li><strong>OpenStreetMap GPS Geocoding:</strong> Bypasses approximate zip-code tables by pinpointing exact latitude, longitude, and timezone coordinates for every birth or event location.</li>
-        <li><strong>Granth-Proven Automated Muhurta Scanners:</strong> Algorithmic validation of classical rules from <em>Brihat Parashara Hora Shastra</em>, <em>Muhurta Chintamani</em>, and <em>Phaladeepika</em>—scanning for 10 Maha Doshas and Tribala Shuddhi instantly.</li>
-        <li><strong>Advanced Divisional Charts:</strong> Deep-level D-chart calculations (up to D-60) designed for micro-analytical astrological research.</li>
-      </ul>
+      <details class="ui-collapsible">
+        <summary>
+          <span>The Gold Standard in Classical Vedic Astrology & Precision Software</span>
+        </summary>
+        <div class="collapsible-content">
+          <p style="line-height: 1.6; margin-bottom: 12px; color: var(--text);">
+            Welcome to <strong>Shri Ramji Astro</strong>, a specialized digital ecosystem built for researchers, students, and professional astrologers who refuse to compromise on mathematical accuracy. Traditional commercial portals often rely on simplified district-level lookups and approximate ephemeris, introducing significant geodetic drift. Our flagship <strong>Patrika / Astro 360 engine</strong> eliminates these errors at the root.
+          </p>
+          <h3 style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--gold-dark); font-family: 'Cinzel', serif;">Core Technological Advantages of Our Platform:</h3>
+          <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.8; color: var(--text);">
+            <li><strong>True Chitra Paksha Ayanamsa (Mode 27):</strong> Integrated with NASA JPL Swiss Ephemeris DE431 (&lt; 0.001'' arcseconds accuracy, Spica @ 180°00'00.000") for exact planetary positions.</li>
+            <li><strong>OpenStreetMap GPS Geocoding:</strong> Bypasses approximate zip-code tables by pinpointing exact latitude, longitude, and timezone coordinates for every birth or event location.</li>
+            <li><strong>Granth-Proven Automated Muhurta Scanners:</strong> Algorithmic validation of classical rules from <em>Brihat Parashara Hora Shastra</em>, <em>Muhurta Chintamani</em>, and <em>Phaladeepika</em>—scanning for 10 Maha Doshas and Tribala Shuddhi instantly.</li>
+            <li><strong>Advanced Divisional Charts:</strong> Deep-level D-chart calculations (up to D-60) designed for micro-analytical astrological research.</li>
+          </ul>
+        </div>
+      </details>
     </div>
   </section>
   </div>
