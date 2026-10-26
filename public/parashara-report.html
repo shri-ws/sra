@@ -334,6 +334,58 @@
       gap: 12px;
       flex-wrap: wrap;
     }
+    /* PATRIKA ENGINE FORM */
+    .patrika-form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    .patrika-field {
+      display: flex;
+      flex-direction: column;
+    }
+    .patrika-field label {
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .patrika-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border-gold);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .patrika-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(124, 19, 5, 0.15);
+    }
+    .btn-city-search {
+      background: linear-gradient(135deg, var(--primary), #991b1b);
+      color: #fff;
+      border: none;
+      padding: 0 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(124, 19, 5, 0.25);
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-city-search:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
     .btn-generate {
       width: 100%;
       margin-top: 20px;
@@ -1908,38 +1960,109 @@
       </div>
     </section>
 
-    <!-- SECTION 4: SELECTOR CARD (CHOOSE OR ADD KUNDALI) -->
+    <!-- SECTION 4: PATRIKA ENGINE KUNDALI INTAKE FORM -->
     <section id="kundaliSelectorSection">
       <div class="section-header-wrap" style="margin-top:20px;">
         <span class="section-pill">अपनी रिपोर्ट प्राप्त करें</span>
-        <h2 class="section-title">जातक कुण्डली चयन करें अथवा नई जोड़ें</h2>
+        <h2 class="section-title">जातक जन्म विवरण (प्रामाणिक पाराशरी गणना)</h2>
         <p class="section-sub">
-          अपनी सुरक्षित कुण्डली का चयन करें या नई जन्म पत्रिका जोड़कर तुरंत सम्पूर्ण ९७-अध्याय रिपोर्ट जनरेट करें
+          सटीक अक्षांश, देशांतर, समय व अयनांश पर आधारित सम्पूर्ण षोडशवर्ग एवं ९७-अध्याय संहिता फलित
         </p>
       </div>
 
       <div class="kundali-card">
         <div class="card-title-row">
-          <h3>🎯 जातक कुण्डली चयन</h3>
-          <button type="button" class="btn-new-k" onclick="openNewKundaliModal()">+ नई कुण्डली जोड़ें</button>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">📜</span>
+            <h3 style="margin:0; font-size:17px; color:var(--primary); font-weight:800;">जन्म कुण्डली विवरण</h3>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label for="selSavedKundali" style="font-size:12px; font-weight:700; color:var(--gold-dark); white-space:nowrap;">
+                📂 सुरक्षित कुण्डलियां:
+              </label>
+              <select id="selSavedKundali" class="sel-kundali" onchange="onSavedKundaliSelected()" style="max-width:240px; font-size:12.5px; padding:6px 10px;"></select>
+            </div>
+            <button type="button" class="btn-new-k" onclick="createNewKundaliEntry()" title="नया खाली फॉर्म भरें" style="padding:6px 12px; font-size:12px;">
+              <span>➕ नया फॉर्म</span>
+            </button>
+          </div>
         </div>
 
-        <div style="margin-bottom:12px;">
-          <label for="selSavedKundali" style="display:block; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--text);">
-            सुरक्षित कुण्डली सूची (<span id="savedKundaliCountBadge">0</span> उपलब्ध):
-          </label>
-          <select id="selSavedKundali" class="sel-kundali" onchange="onSavedKundaliSelected()"></select>
-        </div>
+        <form id="patrikaIntakeForm" onsubmit="event.preventDefault(); handleGenerateReportClick();">
+          <div class="patrika-form-grid">
+            <div class="patrika-field">
+              <label for="inName">जातक का नाम <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="inName" class="patrika-input" placeholder="उदा. श्रीधर मिश्र" required />
+            </div>
 
-        <div id="selectedKundaliDetailsBox" class="selected-details">
-          <span><strong>जातक:</strong> <span id="dispSelectedName" style="color:var(--primary); font-weight:800;">—</span></span>
-          <span><strong>जन्म:</strong> <span id="dispSelectedBirth">—</span></span>
-          <span><strong>स्थान:</strong> <span id="dispSelectedPlace">—</span></span>
-        </div>
+            <div class="patrika-field">
+              <label for="inGender">लिंग (Gender)</label>
+              <select id="inGender" class="patrika-input">
+                <option value="male">पुरुष (Male)</option>
+                <option value="female">स्त्री (Female)</option>
+              </select>
+            </div>
 
-        <button type="button" class="btn-generate" onclick="generateMegaParasharaReport()">
-          <span>📜 सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें</span>
-        </button>
+            <div class="patrika-field">
+              <label for="inDate">जन्म तिथि <span style="color:#dc2626;">*</span></label>
+              <input type="date" id="inDate" class="patrika-input" required />
+            </div>
+
+            <div class="patrika-field">
+              <label for="inTime">जन्म समय (24-Hour) <span style="color:#dc2626;">*</span></label>
+              <input type="time" id="inTime" step="1" class="patrika-input" required />
+            </div>
+
+            <div class="patrika-field" style="grid-column: 1 / -1;">
+              <label for="inCitySearch">जन्म स्थान (शहर / जिला) <span style="color:#dc2626;">*</span></label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inCitySearch" list="patrikaPresetCities" class="patrika-input" style="flex:1;" placeholder="उदा. लखनऊ, वाराणसी, सीतापुर, अयोध्या, दिल्ली, मुंबई, जयपुर, भोपाल, लंदन..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchCityLocation();}" oninput="handleCityInput(this.value)" required />
+                <button type="button" class="btn-city-search" onclick="searchCityLocation()" title="स्थान खोजें">
+                  <span>🔍 खोजें</span>
+                </button>
+              </div>
+              <datalist id="patrikaPresetCities"></datalist>
+            </div>
+          </div>
+
+          <!-- GEOGRAPHICAL COORDINATES -->
+          <div style="border-top:1px dashed var(--border-gold); padding-top:14px; margin-top:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+              <span style="font-size:12.5px; font-weight:700; color:var(--gold-dark); display:flex; align-items:center; gap:6px;">
+                <span>📍</span> <span>भौगोलिक निर्देशांक (अक्षांश / देशांतर / टाइमज़ोन)</span>
+              </span>
+              <span id="geoStatusText" style="font-size:12px; color:var(--primary); font-weight:600; background:rgba(180,83,9,0.08); padding:3px 10px; border-radius:12px; border:1px solid var(--border-gold);">
+                📍 जन्म स्थान चुनें अथवा खोजें
+              </span>
+            </div>
+
+            <div class="patrika-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+              <div class="patrika-field">
+                <label for="inLat">अक्षांश (°N)</label>
+                <input type="number" id="inLat" step="0.0001" class="patrika-input" placeholder="27.5667" required />
+              </div>
+              <div class="patrika-field">
+                <label for="inLon">देशांतर (°E)</label>
+                <input type="number" id="inLon" step="0.0001" class="patrika-input" placeholder="80.6833" required />
+              </div>
+              <div class="patrika-field">
+                <label for="inTz">टाइमज़ोन (UTC Offset)</label>
+                <input type="number" id="inTz" step="0.25" class="patrika-input" placeholder="5.5" value="5.5" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBMIT ACTION -->
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn-generate" id="btnGenerateReport">
+              <span id="btnGenerateReportText">📜 सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें (₹1,111 दक्षिणा)</span>
+            </button>
+            <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px;">
+              🔒 100% सुरक्षित 256-bit Razorpay • भुगतान उपरांत तत्काल सम्पूर्ण ९७ अध्याय, षोडशवर्ग, सर्वाष्टकवर्ग एवं A4 PDF अनलॉक
+            </div>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -2198,38 +2321,7 @@
     </div>
   </footer>
 
-  <!-- MODAL: ADD NEW KUNDALI -->
-  <div id="modalNewKundali" class="mangal-modal-overlay" onclick="if(event.target===this)closeNewKundaliModal()">
-    <div class="mangal-modal-card">
-      <h3 style="font-size:18px; color:var(--primary); font-weight:800; margin-bottom:14px;">+ नई जन्म कुण्डली विवरण</h3>
-      <form id="newKundaliForm" onsubmit="handleNewKundaliSubmit(event)">
-        <label style="font-size:12.5px; font-weight:700;">जातक का नाम:</label>
-        <input type="text" id="newKName" class="m-input" placeholder="उदा. राहुल शर्मा" required />
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label style="font-size:12.5px; font-weight:700;">जन्म तिथि:</label>
-            <input type="date" id="newKDob" class="m-input" required />
-          </div>
-          <div>
-            <label style="font-size:12.5px; font-weight:700;">जन्म समय:</label>
-            <input type="time" id="newKTob" class="m-input" required />
-          </div>
-        </div>
-
-        <label style="font-size:12.5px; font-weight:700;">जन्म स्थान (शहर):</label>
-        <input type="text" id="newKPlace" class="m-input" placeholder="उदा. Varanasi, Sitapur, New Delhi..." required />
-        <input type="hidden" id="newKLat" value="28.6139" />
-        <input type="hidden" id="newKLon" value="77.2090" />
-        <input type="hidden" id="newKTz" value="5.5" />
-
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:12px;">
-          <button type="button" onclick="closeNewKundaliModal()" style="padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:none; cursor:pointer;">रद्द करें</button>
-          <button type="submit" style="padding:8px 18px; border-radius:8px; border:none; background:var(--primary); color:#fff; font-weight:800; cursor:pointer;">सुरक्षित करें</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- SCRIPTS -->
   <script src="./patrikaEngineBridge.js"></script>
@@ -2246,10 +2338,203 @@
     // PASSCODE GATE (MPP1111)
     const SECRET_KEY = "MPP1111";
 
+    // PRESET CITIES (PATRIKA ENGINE CANONICAL CORPUS)
+    const PRESET_CITIES = [
+      { name: "सीतापुर", en: "Sitapur", state: "उत्तर प्रदेश", lat: 27.5667, lon: 80.6833, tz: 5.5 },
+      { name: "लखनऊ", en: "Lucknow", state: "उत्तर प्रदेश", lat: 26.8467, lon: 80.9462, tz: 5.5 },
+      { name: "वाराणसी", aliases: ["काशी", "बनारस", "Kashi", "Banaras"], en: "Varanasi", state: "उत्तर प्रदेश", lat: 25.3176, lon: 82.9739, tz: 5.5 },
+      { name: "अयोध्या", aliases: ["फैजाबाद", "Faizabad"], en: "Ayodhya", state: "उत्तर प्रदेश", lat: 26.7922, lon: 82.1998, tz: 5.5 },
+      { name: "प्रयागराज", aliases: ["इलाहाबाद", "Allahabad"], en: "Prayagraj", state: "उत्तर प्रदेश", lat: 25.4358, lon: 81.8463, tz: 5.5 },
+      { name: "कानपुर", en: "Kanpur", state: "उत्तर प्रदेश", lat: 26.4499, lon: 80.3319, tz: 5.5 },
+      { name: "मथुरा", en: "Mathura", state: "उत्तर प्रदेश", lat: 27.4924, lon: 77.6737, tz: 5.5 },
+      { name: "वृन्दावन", en: "Vrindavan", state: "उत्तर प्रदेश", lat: 27.5806, lon: 77.7006, tz: 5.5 },
+      { name: "हरिद्वार", en: "Haridwar", state: "उत्तराखंड", lat: 29.9457, lon: 78.1642, tz: 5.5 },
+      { name: "ऋषिकेश", en: "Rishikesh", state: "उत्तराखंड", lat: 30.0869, lon: 78.2676, tz: 5.5 },
+      { name: "उज्जैन", en: "Ujjain", state: "मध्य प्रदेश", lat: 23.1765, lon: 75.7885, tz: 5.5 },
+      { name: "इंदौर", en: "Indore", state: "मध्य प्रदेश", lat: 22.7196, lon: 75.8577, tz: 5.5 },
+      { name: "भोपाल", en: "Bhopal", state: "मध्य प्रदेश", lat: 23.2599, lon: 77.4126, tz: 5.5 },
+      { name: "गोरखपुर", en: "Gorakhpur", state: "उत्तर प्रदेश", lat: 26.7606, lon: 83.3732, tz: 5.5 },
+      { name: "आगरा", en: "Agra", state: "उत्तर प्रदेश", lat: 27.1767, lon: 78.0081, tz: 5.5 },
+      { name: "दिल्ली", aliases: ["नई दिल्ली", "New Delhi"], en: "Delhi", state: "दिल्ली", lat: 28.6139, lon: 77.2090, tz: 5.5 },
+      { name: "जयपुर", en: "Jaipur", state: "राजस्थान", lat: 26.9124, lon: 75.7873, tz: 5.5 },
+      { name: "जोधपुर", en: "Jodhpur", state: "राजस्थान", lat: 26.2389, lon: 73.0243, tz: 5.5 },
+      { name: "उदयपुर", en: "Udaipur", state: "राजस्थान", lat: 24.5854, lon: 73.7125, tz: 5.5 },
+      { name: "मुंबई", aliases: ["बॉम्बे", "Bombay"], en: "Mumbai", state: "महाराष्ट्र", lat: 19.0760, lon: 72.8777, tz: 5.5 },
+      { name: "पुणे", en: "Pune", state: "महाराष्ट्र", lat: 18.5204, lon: 73.8567, tz: 5.5 },
+      { name: "नागपुर", en: "Nagpur", state: "महाराष्ट्र", lat: 21.1458, lon: 79.0882, tz: 5.5 },
+      { name: "पटना", en: "Patna", state: "बिहार", lat: 25.5941, lon: 85.1376, tz: 5.5 },
+      { name: "गया", aliases: ["बोधगया", "Bodhgaya"], en: "Gaya", state: "बिहार", lat: 24.7914, lon: 85.0002, tz: 5.5 },
+      { name: "कोलकाता", aliases: ["कलकत्ता", "Calcutta"], en: "Kolkata", state: "पश्चिम बंगाल", lat: 22.5726, lon: 88.3639, tz: 5.5 },
+      { name: "अहमदाबाद", en: "Ahmedabad", state: "गुजरात", lat: 23.0225, lon: 72.5714, tz: 5.5 },
+      { name: "सूरत", en: "Surat", state: "गुजरात", lat: 21.1702, lon: 72.8311, tz: 5.5 },
+      { name: "बेंगलुरु", aliases: ["बैंगलोर", "Bangalore"], en: "Bengaluru", state: "कर्नाटक", lat: 12.9716, lon: 77.5946, tz: 5.5 },
+      { name: "हैदराबाद", en: "Hyderabad", state: "तेलंगाना", lat: 17.3850, lon: 78.4867, tz: 5.5 },
+      { name: "चेन्नई", aliases: ["मद्रास", "Madras"], en: "Chennai", state: "तमिलनाडु", lat: 13.0827, lon: 80.2707, tz: 5.5 },
+      { name: "चंडीगढ़", en: "Chandigarh", state: "पंजाब/हरियाणा", lat: 30.7333, lon: 76.7794, tz: 5.5 },
+      { name: "देहरादून", en: "Dehradun", state: "उत्तराखंड", lat: 30.3165, lon: 78.0322, tz: 5.5 },
+      { name: "शिमला", en: "Shimla", state: "हिमाचल प्रदेश", lat: 31.1048, lon: 77.1734, tz: 5.5 },
+      { name: "जम्मू", en: "Jammu", state: "जम्मू और कश्मीर", lat: 32.7266, lon: 74.8570, tz: 5.5 },
+      { name: "श्रीनगर", en: "Srinagar", state: "जम्मू और कश्मीर", lat: 34.0837, lon: 74.7973, tz: 5.5 },
+      { name: "रांची", en: "Ranchi", state: "झारखंड", lat: 23.3441, lon: 85.3096, tz: 5.5 },
+      { name: "रायपुर", en: "Raipur", state: "छत्तीसगढ़", lat: 21.2514, lon: 81.6296, tz: 5.5 },
+      { name: "भुवनेश्वर", en: "Bhubaneswar", state: "ओडिशा", lat: 20.2961, lon: 85.8245, tz: 5.5 },
+      { name: "पुरी", aliases: ["जगन्नाथ पुरी"], en: "Puri", state: "ओडिशा", lat: 19.8135, lon: 85.8312, tz: 5.5 },
+      { name: "गुवाहाटी", en: "Guwahati", state: "असम", lat: 26.1445, lon: 91.7362, tz: 5.5 },
+      { name: "काठमांडू", en: "Kathmandu", state: "नेपाल", lat: 27.7172, lon: 85.3240, tz: 5.75 },
+      { name: "लंदन", en: "London", state: "UK", lat: 51.5074, lon: -0.1278, tz: 0 },
+      { name: "न्यूयॉर्क", en: "New York", state: "USA", lat: 40.7128, lon: -74.0060, tz: -5 },
+      { name: "दुबई", en: "Dubai", state: "UAE", lat: 25.2048, lon: 55.2708, tz: 4 }
+    ];
+
+    function populateCityDatalist() {
+      const dl = document.getElementById('patrikaPresetCities');
+      if (!dl) return;
+      dl.innerHTML = '';
+      PRESET_CITIES.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = `${c.name}, ${c.state} (${c.en})`;
+        dl.appendChild(opt);
+      });
+    }
+
+    function findCityInPresets(query) {
+      if (!query) return null;
+      const q = query.trim().toLowerCase();
+      for (const c of PRESET_CITIES) {
+        if (c.name.toLowerCase() === q || c.en.toLowerCase() === q) return c;
+        if (c.aliases && c.aliases.some(a => a.toLowerCase() === q)) return c;
+        if (q.includes(c.name.toLowerCase()) || q.includes(c.en.toLowerCase())) return c;
+        if (c.name.toLowerCase().includes(q) || c.en.toLowerCase().includes(q)) return c;
+        if (c.aliases && c.aliases.some(a => q.includes(a.toLowerCase()) || a.toLowerCase().includes(q))) return c;
+      }
+      return null;
+    }
+
+    function applyCityLocation(lat, lon, tz, displayName) {
+      const latNum = parseFloat(lat);
+      const lonNum = parseFloat(lon);
+      if (isNaN(latNum) || isNaN(lonNum)) return;
+
+      const inLat = document.getElementById('inLat');
+      const inLon = document.getElementById('inLon');
+      const inTz = document.getElementById('inTz');
+      const statusEl = document.getElementById('geoStatusText');
+
+      if (inLat) inLat.value = latNum.toFixed(4);
+      if (inLon) inLon.value = lonNum.toFixed(4);
+
+      let tzHrs = 5.5;
+      if (tz !== null && tz !== undefined && !isNaN(parseFloat(tz))) {
+        tzHrs = parseFloat(tz);
+      } else if (latNum >= 6 && latNum <= 37 && lonNum >= 68 && lonNum <= 97) {
+        tzHrs = 5.5;
+      } else {
+        tzHrs = Math.round((lonNum / 15) * 4) / 4;
+      }
+      if (inTz) inTz.value = tzHrs.toString();
+
+      if (statusEl) {
+        statusEl.innerHTML = `📍 <strong>${displayName || 'चयनित स्थान'}</strong> (${latNum.toFixed(2)}°, ${lonNum.toFixed(2)}° | UTC ${tzHrs >= 0 ? '+' : ''}${tzHrs})`;
+      }
+    }
+
+    function handleCityInput(val) {
+      if (!val || val.length < 2) return;
+      const match = findCityInPresets(val);
+      if (match) {
+        applyCityLocation(match.lat, match.lon, match.tz, `${match.name} (${match.en}), ${match.state}`);
+      }
+    }
+
+    async function searchCityLocation() {
+      const cityInput = document.getElementById('inCitySearch');
+      const query = cityInput ? cityInput.value.trim() : '';
+      const statusEl = document.getElementById('geoStatusText');
+      if (!query) {
+        if (statusEl) statusEl.innerHTML = `<span style="color:#dc2626; font-weight:600;">कृपया शहर अथवा स्थान का नाम दर्ज करें।</span>`;
+        if (cityInput) cityInput.focus();
+        return false;
+      }
+
+      if (statusEl) statusEl.innerHTML = `<span>⏳ स्थान खोजा जा रहा है: <strong>${query}</strong>...</span>`;
+
+      // 1. Fast match in local preset database
+      const localMatch = findCityInPresets(query);
+      if (localMatch) {
+        applyCityLocation(localMatch.lat, localMatch.lon, localMatch.tz, `${localMatch.name} (${localMatch.en}), ${localMatch.state}`);
+        return true;
+      }
+
+      // 2. OpenStreetMap Nominatim Global Search
+      try {
+        const nomUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&addressdetails=1`;
+        const nomRes = await fetch(nomUrl, { headers: { 'Accept-Language': 'hi,en', 'User-Agent': 'ShriRamjiAstro/1.0' } });
+        if (nomRes.ok) {
+          const nomData = await nomRes.json();
+          if (nomData && nomData.length > 0) {
+            const item = nomData[0];
+            const lat = parseFloat(item.lat);
+            const lon = parseFloat(item.lon);
+            const label = item.display_name.split(',').slice(0, 3).join(', ');
+            applyCityLocation(lat, lon, null, label);
+            return true;
+          }
+        }
+      } catch(e) {
+        console.warn("Nominatim worldwide search fallback:", e);
+      }
+
+      // 3. Fallback to Open-Meteo Global Geocoder
+      try {
+        const omUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&format=json`;
+        const omRes = await fetch(omUrl);
+        if (omRes.ok) {
+          const omData = await omRes.json();
+          if (omData && omData.results && omData.results.length > 0) {
+            const item = omData.results[0];
+            const label = `${item.name}${item.admin1 ? ', ' + item.admin1 : ''}, ${item.country || ''}`;
+            applyCityLocation(item.latitude, item.longitude, null, label);
+            return true;
+          }
+        }
+      } catch(e) {
+        console.warn("Open-Meteo worldwide search fallback:", e);
+      }
+
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color:#b91c1c;">स्थान नहीं मिला — कृपया स्पेलिंग जांचें अथवा अक्षांश/देशांतर सीधे भरें</span>`;
+      }
+      return false;
+    }
+
+    // KUNDALI PAYMENT GATE
+    function getKundaliPaymentKey(k) {
+      if (!k) return 'default';
+      const name = (k.name || 'jataka').trim().toLowerCase();
+      const dob = (k.date || k.dob || '').trim();
+      const tob = (k.time || k.tob || '').trim();
+      return (k.id || (name + '_' + dob + '_' + tob)).replace(/[^a-zA-Z0-9_-]/g, '_');
+    }
+
+    function isKundaliPaid(k) {
+      if (!k) return false;
+      // 1. Session admin unlock via passcode
+      if (sessionStorage.getItem('sra_mpp_admin_unlocked') === 'true') return true;
+      // 2. URL admin bypass key
+      const urlKey = (new URLSearchParams(window.location.search).get('key') || '').toUpperCase();
+      if (urlKey === SECRET_KEY) {
+        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+        return true;
+      }
+      // 3. Verified Razorpay payment specifically for this Kundali
+      const key = getKundaliPaymentKey(k);
+      if (localStorage.getItem('sra_mega_paid_' + key) === 'true') return true;
+
+      return false;
+    }
+
     function isAuthorized() {
-      const urlKey = new URLSearchParams(window.location.search).get('key');
-      const savedAuth = localStorage.getItem('sra_mpp_authorized') || localStorage.getItem('sra_mpkr_authorized');
-      return (urlKey && urlKey.toUpperCase() === SECRET_KEY) || savedAuth === 'true';
+      return isKundaliPaid(currentSelectedKundali);
     }
 
     // RAZORPAY CONFIGURATION (₹1111 DAKSHINA FEE)
@@ -2271,7 +2556,7 @@
         amount: PARASHARA_PRICE_PAISE,
         currency: "INR",
         name: "श्री रामजी एस्ट्रो",
-        description: "मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय)",
+        description: `मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय) - ${clientName}`,
         image: "/assets/logo.png",
         prefill: {
           name: clientName,
@@ -2283,16 +2568,22 @@
         notes: {
           report_type: "mega_parashara_97_chapters",
           report_title: "मेगा पाराशर संहिता कुण्डली रिपोर्ट",
+          kundali_key: getKundaliPaymentKey(k),
           amount: "1111"
         },
         handler: function (response) {
           const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_MEGA_SUCCESS';
-          localStorage.setItem('sra_mpp_authorized', 'true');
-          localStorage.setItem('sra_mpkr_authorized', 'true');
-          localStorage.setItem('sra_mega_rzp_payid', payId);
+          const targetK = currentSelectedKundali;
+          if (targetK) {
+            const key = getKundaliPaymentKey(targetK);
+            localStorage.setItem('sra_mega_paid_' + key, 'true');
+            localStorage.setItem('sra_mega_payid_' + key, payId);
+          }
+          localStorage.setItem('sra_mega_last_payid', payId);
           closeGateModal();
           updateAuthBadge();
-          alert("🎉 धन्यवाद! आपका ₹1111 का भुगतान सफल रहा। आपकी सम्पूर्ण ९७-अध्याय मेगा पाराशर रिपोर्ट अनलॉक हो चुकी है।");
+          updateGenerateButtonState(currentSelectedKundali);
+          alert("🎉 धन्यवाद! आपका ₹1111 का दक्षिणा भुगतान सफल रहा। आपकी सम्पूर्ण ९७-अध्याय मेगा पाराशर रिपोर्ट अनलॉक हो चुकी है।");
           generateMegaParasharaReport(true);
         },
         modal: {
@@ -2343,20 +2634,20 @@
     }
 
     function onHighlightClick(idx) {
-      if (!isAuthorized()) {
-        openGateModal();
-      } else {
-        scrollToKundaliSection();
-      }
+      scrollToKundaliSection();
     }
 
     function checkAuthGate() {
+      // Clean up any stale unverified legacy test keys
+      try {
+        localStorage.removeItem('sra_mpkr_authorized');
+        localStorage.removeItem('sra_mpp_authorized');
+      } catch(e) {}
+
       const urlKey = (new URLSearchParams(window.location.search).get('key') || '').toUpperCase();
       if (urlKey === SECRET_KEY) {
-        localStorage.setItem('sra_mpp_authorized', 'true');
-        localStorage.setItem('sra_mpkr_authorized', 'true');
+        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
       }
-      updateAuthBadge();
       initPage();
     }
 
@@ -2365,11 +2656,11 @@
       const err = document.getElementById('gateErrMsg');
 
       if (input === SECRET_KEY) {
-        localStorage.setItem('sra_mpp_authorized', 'true');
-        localStorage.setItem('sra_mpkr_authorized', 'true');
+        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
         closeGateModal();
         updateAuthBadge();
-        // Immediately generate report upon unlocking
+        updateGenerateButtonState(currentSelectedKundali);
+        alert("✅ अधिकृत प्रशासनिक कोड सत्यापित! सम्पूर्ण रिपोर्ट प्रस्तुत की जा रही है।");
         generateMegaParasharaReport(true);
       } else {
         if (err) {
@@ -2411,12 +2702,13 @@
       document.body.classList.toggle('dark-mode');
     }
 
-    // SAVED KUNDALI MANAGEMENT
+    // SAVED KUNDALI MANAGEMENT (PATRIKA ENGINE STANDARD)
     let savedKundalisList = [];
     let currentSelectedKundali = null;
     let currentParasharaReport = null;
 
     function initPage() {
+      populateCityDatalist();
       loadSavedKundalis();
       updateAuthBadge();
     }
@@ -2435,16 +2727,14 @@
           date: '1993-10-26',
           time: '02:55',
           city: 'सीतापुर, उत्तर प्रदेश (Sitapur)',
-          lat: 27.57,
-          lon: 80.68,
+          lat: 27.5667,
+          lon: 80.6833,
           tz: 5.5
         }];
       }
 
       savedKundalisList = list;
       const sel = document.getElementById('selSavedKundali');
-      const badge = document.getElementById('savedKundaliCountBadge');
-      if (badge) badge.textContent = list.length;
 
       if (sel) {
         sel.innerHTML = '';
@@ -2454,55 +2744,209 @@
           opt.textContent = `${k.name || 'जातक'} • ${k.date || ''} (${k.city || ''})`;
           sel.appendChild(opt);
         });
+
+        const newOpt = document.createElement('option');
+        newOpt.value = 'new';
+        newOpt.textContent = '➕ नया फॉर्म भरें';
+        sel.appendChild(newOpt);
+
         sel.selectedIndex = 0;
         onSavedKundaliSelected();
+      }
+    }
+
+    function refreshSavedKundalisDropdown(selectedK) {
+      loadSavedKundalis();
+      if (selectedK && savedKundalisList) {
+        const sel = document.getElementById('selSavedKundali');
+        if (sel) {
+          const matchIdx = savedKundalisList.findIndex(x => 
+            x.name === selectedK.name && x.date === selectedK.date && x.time === selectedK.time
+          );
+          if (matchIdx >= 0) sel.selectedIndex = matchIdx;
+        }
       }
     }
 
     function onSavedKundaliSelected() {
       const sel = document.getElementById('selSavedKundali');
       if (!sel) return;
+      if (sel.value === 'new') {
+        createNewKundaliEntry();
+        return;
+      }
       const idx = parseInt(sel.value, 10);
       const k = savedKundalisList[idx];
       if (!k) return;
 
       currentSelectedKundali = k;
-      document.getElementById('dispSelectedName').textContent = k.name || 'जातक';
-      document.getElementById('dispSelectedBirth').textContent = `${k.date} (${k.time})`;
-      document.getElementById('dispSelectedPlace').textContent = k.city || '—';
+      document.getElementById('inName').value = k.name || '';
+      if (document.getElementById('inGender') && k.gender) {
+        document.getElementById('inGender').value = k.gender;
+      }
+      document.getElementById('inDate').value = k.date || '';
+      document.getElementById('inTime').value = k.time || '';
+      document.getElementById('inCitySearch').value = k.city || '';
+      document.getElementById('inLat').value = k.lat !== undefined ? k.lat : '';
+      document.getElementById('inLon').value = k.lon !== undefined ? k.lon : '';
+      document.getElementById('inTz').value = k.tz !== undefined ? k.tz : '5.5';
+
+      const statusEl = document.getElementById('geoStatusText');
+      if (statusEl) {
+        statusEl.innerHTML = `📍 <strong>${k.city || 'चयनित स्थान'}</strong> (${k.lat || 0}°, ${k.lon || 0}° | UTC +${k.tz || 5.5})`;
+      }
+
+      updateAuthBadge();
+      updateGenerateButtonState(k);
     }
 
-    // MODAL
-    function openNewKundaliModal() {
-      document.getElementById('modalNewKundali').style.display = 'flex';
+    function createNewKundaliEntry() {
+      currentSelectedKundali = null;
+      document.getElementById('inName').value = '';
+      document.getElementById('inGender').value = 'male';
+      const now = new Date();
+      document.getElementById('inDate').value = now.toISOString().split('T')[0];
+      document.getElementById('inTime').value = now.toTimeString().split(' ')[0].substring(0, 5);
+      document.getElementById('inCitySearch').value = '';
+      document.getElementById('inLat').value = '';
+      document.getElementById('inLon').value = '';
+      document.getElementById('inTz').value = '5.5';
+      const statusEl = document.getElementById('geoStatusText');
+      if (statusEl) statusEl.innerHTML = '📍 जन्म स्थान चुनें अथवा खोजें';
+
+      const sel = document.getElementById('selSavedKundali');
+      if (sel) sel.value = 'new';
+
+      const repContainer = document.getElementById('reportViewContainer');
+      if (repContainer) repContainer.style.display = 'none';
+
+      updateAuthBadge();
+      updateGenerateButtonState(null);
+      document.getElementById('inName').focus();
     }
-    function closeNewKundaliModal() {
-      document.getElementById('modalNewKundali').style.display = 'none';
+
+    function saveCurrentKundaliToStorage(k) {
+      try {
+        let guestList = [];
+        const raw = localStorage.getItem('sra_saved_kundalis_guest_user');
+        if (raw) guestList = JSON.parse(raw);
+        if (!Array.isArray(guestList)) guestList = [];
+
+        const existingIdx = guestList.findIndex(x => 
+          x.name && x.name.toLowerCase() === k.name.toLowerCase() && 
+          x.date === k.date && x.time === k.time
+        );
+        if (existingIdx >= 0) {
+          guestList[existingIdx] = k;
+        } else {
+          guestList.unshift(k);
+        }
+        localStorage.setItem('sra_saved_kundalis_guest_user', JSON.stringify(guestList));
+      } catch(e) {
+        console.warn("saveCurrentKundaliToStorage note:", e);
+      }
     }
-    function handleNewKundaliSubmit(e) {
-      e.preventDefault();
-      const k = {
-        name: document.getElementById('newKName').value.trim(),
-        date: document.getElementById('newKDob').value,
-        time: document.getElementById('newKTob').value,
-        city: document.getElementById('newKPlace').value.trim(),
-        lat: parseFloat(document.getElementById('newKLat').value) || 28.6139,
-        lon: parseFloat(document.getElementById('newKLon').value) || 77.2090,
-        tz: parseFloat(document.getElementById('newKTz').value) || 5.5
+
+    function updateGenerateButtonState(k) {
+      const btnText = document.getElementById('btnGenerateReportText');
+      if (!btnText) return;
+      if (k && isKundaliPaid(k)) {
+        btnText.innerHTML = `✨ सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट देखें (अनलॉक्ड)`;
+      } else {
+        btnText.innerHTML = `📜 सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें (₹1,111 दक्षिणा)`;
+      }
+    }
+
+    // FORM SUBMIT HANDLER
+    async function handleGenerateReportClick() {
+      const name = (document.getElementById('inName').value || '').trim();
+      const gender = document.getElementById('inGender') ? document.getElementById('inGender').value : 'male';
+      const date = (document.getElementById('inDate').value || '').trim();
+      const time = (document.getElementById('inTime').value || '').trim();
+      const city = (document.getElementById('inCitySearch').value || '').trim();
+      let latStr = (document.getElementById('inLat').value || '').trim();
+      let lonStr = (document.getElementById('inLon').value || '').trim();
+      let tzStr = (document.getElementById('inTz').value || '').trim();
+
+      if (!name) {
+        alert("कृपया जातक का नाम दर्ज करें।");
+        document.getElementById('inName').focus();
+        return;
+      }
+      if (!date) {
+        alert("कृपया जन्म तिथि दर्ज करें।");
+        document.getElementById('inDate').focus();
+        return;
+      }
+      if (!time) {
+        alert("कृपया जन्म समय दर्ज करें।");
+        document.getElementById('inTime').focus();
+        return;
+      }
+      if (!city) {
+        alert("कृपया जन्म स्थान (शहर/जिला) दर्ज करें।");
+        document.getElementById('inCitySearch').focus();
+        return;
+      }
+
+      // If coordinates are not yet resolved, search automatically
+      if (!latStr || !lonStr) {
+        const found = await searchCityLocation();
+        if (!found) {
+          alert("स्थान के निर्देशांक प्राप्त नहीं हो सके। कृपया सही शहर चुनें अथवा अक्षांश/देशांतर सीधे दर्ज करें।");
+          return;
+        }
+        latStr = document.getElementById('inLat').value.trim();
+        lonStr = document.getElementById('inLon').value.trim();
+        tzStr = document.getElementById('inTz').value.trim();
+      }
+
+      const lat = parseFloat(latStr);
+      const lon = parseFloat(lonStr);
+      const tz = parseFloat(tzStr || '5.5');
+
+      const currentK = {
+        id: 'knd_' + Date.now(),
+        name,
+        gender,
+        date,
+        time,
+        city,
+        lat,
+        lon,
+        tz
       };
-      savedKundalisList.unshift(k);
-      closeNewKundaliModal();
-      loadSavedKundalis();
-    }
 
-    // GENERATE REPORT
-    function generateMegaParasharaReport(bypassAuthCheck) {
-      if (!bypassAuthCheck && !isAuthorized()) {
+      currentSelectedKundali = currentK;
+      saveCurrentKundaliToStorage(currentK);
+      refreshSavedKundalisDropdown(currentK);
+
+      // Check Payment Gate: strictly block if not paid
+      if (!isKundaliPaid(currentK)) {
+        const repContainer = document.getElementById('reportViewContainer');
+        if (repContainer) repContainer.style.display = 'none';
+
         openGateModal();
         return;
       }
 
-      if (!currentSelectedKundali) return;
+      // If authorized / paid: generate full 97-chapter report!
+      generateMegaParasharaReport(true);
+    }
+
+    function generateMegaParasharaReport(bypassAuthCheck) {
+      if (!currentSelectedKundali) {
+        alert("कृपया पहले जातक जन्म विवरण भरें।");
+        return;
+      }
+
+      if (!bypassAuthCheck && !isKundaliPaid(currentSelectedKundali)) {
+        const repContainer = document.getElementById('reportViewContainer');
+        if (repContainer) repContainer.style.display = 'none';
+        openGateModal();
+        return;
+      }
+
       if (!window.PatrikaEngineBridge || !window.ParasharaEngine) {
         alert("इंजन लोड हो रहा है, कृपया २ सेकंड बाद पुनः प्रयास करें...");
         return;

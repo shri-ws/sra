@@ -3859,29 +3859,13 @@
     if(el) el.classList.remove('open');
   }
   function openParasharaAuthModal() {
-    const saved = localStorage.getItem('sra_mpp_authorized') || localStorage.getItem('sra_mpkr_authorized');
-    if (saved === 'true') {
-      window.location.href = '/parashara-report.html?key=MPP1111';
-      return;
-    }
-    const m = document.getElementById('parasharaAuthModal');
-    if (m) {
-      m.classList.add('open');
-      const inp = document.getElementById('indexParasharaPassInput');
-      if (inp) { inp.value = ''; inp.focus(); }
-    } else {
-      window.location.href = '/parashara-report.html';
-    }
+    window.location.href = '/parashara-report.html';
   }
   function submitParasharaAuthCode() {
     const inp = document.getElementById('indexParasharaPassInput');
     const err = document.getElementById('indexParasharaErrMsg');
     const val = (inp && inp.value ? inp.value.trim().toUpperCase() : '');
     if (val === "MPP1111") {
-      try { 
-        localStorage.setItem('sra_mpp_authorized', 'true'); 
-        localStorage.setItem('sra_mpkr_authorized', 'true'); 
-      } catch(e){}
       window.location.href = '/parashara-report.html?key=MPP1111';
     } else {
       if (err) {
