@@ -1304,6 +1304,182 @@
         padding: 12px 14px;
         margin: 14px 0;
       }
+
+      /* DRAWER USER PROFILE & TOP NAV USER PILL STYLES */
+      .drawer-user-section {
+        padding: 4px 0 12px 0;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--gold-border, rgba(212, 175, 55, 0.2));
+      }
+      .drawer-user-card {
+        background: var(--card, rgba(255,255,255,0.04));
+        border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25));
+        border-radius: 14px;
+        padding: 13px 14px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        transition: all 0.2s ease;
+      }
+      .drawer-user-card.logged-in {
+        background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(16,185,129,0.06) 100%);
+        border-color: rgba(212, 175, 55, 0.4);
+      }
+      .drawer-user-info-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .drawer-user-avatar {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #c5a059, #9a782e);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 18px;
+        font-family: 'Cinzel', serif;
+        box-shadow: 0 2px 8px rgba(197,160,89,0.3);
+        overflow: hidden;
+        border: 2px solid var(--gold, #d4af37);
+        flex-shrink: 0;
+      }
+      .drawer-user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .drawer-user-avatar.guest-avatar {
+        background: rgba(148, 163, 184, 0.15);
+        border-color: rgba(148, 163, 184, 0.3);
+        color: var(--muted, #94a3b8);
+        font-size: 20px;
+      }
+      .drawer-user-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .drawer-user-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--heading-color, var(--text, #f1f5f9));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+      }
+      .drawer-user-sub {
+        font-size: 11px;
+        color: var(--muted, #94a3b8);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+      }
+      .drawer-user-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 4px;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #10b981;
+      }
+      .user-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 6px rgba(16,185,129,0.8);
+        display: inline-block;
+      }
+      .drawer-user-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 11px;
+        padding-top: 10px;
+        border-top: 1px solid var(--gold-border, rgba(212,175,55,0.2));
+      }
+      .drawer-user-btn {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 11.5px;
+        font-weight: 700;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+        border: 1px solid transparent;
+      }
+      .drawer-user-btn-saved {
+        background: var(--gold-dim, rgba(212,175,55,0.15));
+        color: var(--gold-dark, #c5a059);
+        border-color: var(--gold-border, rgba(212,175,55,0.3));
+      }
+      .drawer-user-btn-saved:hover {
+        background: var(--gold-dim, rgba(212,175,55,0.25));
+      }
+      .drawer-user-btn-logout {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.25);
+      }
+      .drawer-user-btn-logout:hover {
+        background: rgba(239, 68, 68, 0.18);
+      }
+      .drawer-user-btn-login {
+        width: 100%;
+        margin-top: 10px;
+        background: linear-gradient(135deg, #d4af37, #b89326);
+        color: #0b0c10;
+        border: none;
+        padding: 9px 12px;
+        font-weight: 800;
+        box-shadow: 0 3px 10px rgba(212,175,55,0.25);
+      }
+      .drawer-user-btn-login:hover {
+        filter: brightness(1.08);
+      }
+      .nav-user-pill-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: var(--card, rgba(255,255,255,0.06));
+        border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.3));
+        color: var(--gold-dark, #c5a059);
+        font-size: 11.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+      }
+      .nav-user-pill-btn:hover {
+        background: var(--gold-dim, rgba(212, 175, 55, 0.15));
+      }
+      .nav-user-pill-btn.logged-in {
+        color: var(--heading-color, var(--text, #f1f5f9));
+        border-color: rgba(16, 185, 129, 0.4);
+      }
+      .nav-user-pill-btn .user-pill-dot {
+        color: #10b981;
+        font-size: 10px;
+      }
+      @media (max-width: 480px) {
+        .nav-user-pill-btn {
+          padding: 4px 8px;
+          font-size: 11px;
+        }
+      }
     `;
     document.head.appendChild(style);
   }
@@ -1378,6 +1554,9 @@
       injectNavDrawer();
       drawer = document.getElementById('navDrawer');
       backdrop = document.getElementById('navDrawerBackdrop');
+    }
+    if (typeof window.updateDrawerUserProfile === 'function') {
+      window.updateDrawerUserProfile();
     }
     // Dismiss legacy menus if present
     document.querySelectorAll('.mobile-menu').forEach(m => {
@@ -1480,6 +1659,213 @@
     }
   };
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // USER PROFILE & AUTHENTICATION STATE ADAPTER
+  // ══════════════════════════════════════════════════════════════════════════
+  window.getSraUser = function() {
+    let isGoogle = false;
+    let name = "";
+    let email = "";
+    let phone = "";
+    let photo = "";
+    let identifier = "";
+
+    try {
+      const googleRaw = localStorage.getItem("sra_verified_google_user");
+      if (googleRaw) {
+        const g = JSON.parse(googleRaw);
+        if (g && (g.email || g.name || g.uid)) {
+          isGoogle = true;
+          name = g.name || g.displayName || "";
+          email = g.email || "";
+          phone = g.phone || "";
+          photo = g.photo || g.photoURL || g.picture || "";
+          identifier = email || g.uid || phone || name;
+        }
+      }
+    } catch(e) {}
+
+    if (!identifier) {
+      const mob = localStorage.getItem("sra_verified_mobile") || "";
+      if (mob && mob !== "guest_user") {
+        phone = mob.includes('@') ? '' : mob;
+        email = mob.includes('@') ? mob : (localStorage.getItem("sra_verified_email") || "");
+        identifier = mob;
+      }
+      const savedName = localStorage.getItem("sra_user_name");
+      if (savedName) name = savedName;
+      const savedEmail = localStorage.getItem("sra_verified_email");
+      if (savedEmail && !email) email = savedEmail;
+    }
+
+    const isLoggedIn = !!(identifier && identifier !== "guest_user");
+    const isGuest = !isLoggedIn;
+
+    if (isLoggedIn && !name) {
+      if (email) name = email.split('@')[0];
+      else if (phone) name = `+91 ${phone}`;
+      else name = "जातक";
+    }
+
+    return {
+      isLoggedIn,
+      isGuest,
+      isGoogle,
+      name: name || "अतिथि जातक",
+      email,
+      phone,
+      photo,
+      identifier: identifier || "guest_user"
+    };
+  };
+
+  window.openAuthModal = function() {
+    const modal = document.getElementById("modalMobileOtp");
+    if (modal) {
+      modal.style.display = "flex";
+      const err = document.getElementById("otpErrMsg");
+      if (err) err.textContent = "";
+    } else {
+      window.location.href = "patrika.html?login=1";
+    }
+  };
+
+  window.performUserLogout = function() {
+    if (confirm("क्या आप इस खाते से लॉग आउट करना चाहते हैं?")) {
+      try {
+        localStorage.removeItem("sra_verified_google_user");
+        localStorage.removeItem("sra_verified_mobile");
+        localStorage.removeItem("sra_verified_email");
+        localStorage.removeItem("sra_user_name");
+        localStorage.removeItem("sra_user_session");
+        sessionStorage.removeItem("sra_guest_dismissed_auth");
+
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          firebase.auth().signOut().catch(e => console.warn("Firebase signout notice:", e));
+        }
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+          try { window.google.accounts.id.disableAutoSelect(); } catch(e) {}
+        }
+      } catch(e) {
+        console.warn("Logout error:", e);
+      }
+
+      if (typeof window.updateDrawerUserProfile === 'function') {
+        window.updateDrawerUserProfile();
+      }
+      if (typeof updateSavedKundaliBadge === 'function') {
+        updateSavedKundaliBadge();
+      }
+      if (typeof window.closeNavDrawer === 'function') {
+        window.closeNavDrawer();
+      }
+
+      if (typeof showKundaliToast === 'function') {
+        showKundaliToast("✓ आप सफलतापूर्वक लॉग आउट हो गए हैं।");
+      }
+
+      setTimeout(() => {
+        if (typeof window.openAuthModal === 'function') {
+          window.openAuthModal();
+        } else {
+          window.location.href = 'patrika.html?login=1';
+        }
+      }, 350);
+    }
+  };
+
+  function updateNavUserPill() {
+    const user = (typeof window.getSraUser === 'function') ? window.getSraUser() : null;
+    document.querySelectorAll('.nav-user-pill-btn').forEach(btn => {
+      if (!user || user.isGuest) {
+        btn.innerHTML = `<span>👤</span><span class="user-pill-name">लॉगिन</span>`;
+        btn.title = "लॉगिन करें (Sign In)";
+        btn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.openAuthModal();
+        };
+        btn.classList.remove('logged-in');
+      } else {
+        const firstName = user.name ? user.name.split(' ')[0] : 'जातक';
+        btn.innerHTML = `<span class="user-pill-dot">●</span><span>${firstName}</span>`;
+        btn.title = `${user.name} (${user.email || user.phone}) - मेनू खोलें`;
+        btn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.openNavDrawer();
+        };
+        btn.classList.add('logged-in');
+      }
+    });
+  }
+  window.updateNavUserPill = updateNavUserPill;
+
+  window.updateDrawerUserProfile = function() {
+    const container = document.getElementById('drawerUserProfileSection');
+    const user = (typeof window.getSraUser === 'function') ? window.getSraUser() : null;
+    if (!container || !user) return;
+
+    if (user.isLoggedIn) {
+      const initial = (user.name ? user.name.replace(/[^a-zA-Z\u0900-\u097F]/g, '').charAt(0) : 'U').toUpperCase() || 'U';
+      const avatarContent = user.photo 
+        ? `<img src="${user.photo}" alt="${user.name}" onerror="this.onerror=null; this.parentElement.innerHTML='<span>${initial}</span>';">` 
+        : `<span>${initial}</span>`;
+      
+      const subInfo = user.email || (user.phone ? `+91 ${user.phone}` : 'सत्यापित खाता');
+
+      container.innerHTML = `
+        <div class="drawer-user-card logged-in">
+          <div class="drawer-user-info-row">
+            <div class="drawer-user-avatar">
+              ${avatarContent}
+            </div>
+            <div class="drawer-user-meta">
+              <div class="drawer-user-name" title="${user.name}">${user.name}</div>
+              <div class="drawer-user-sub" title="${subInfo}">${subInfo}</div>
+              <div class="drawer-user-badge">
+                <span class="user-status-dot"></span>
+                <span>सक्रिय खाता (Active)</span>
+              </div>
+            </div>
+          </div>
+          <div class="drawer-user-actions">
+            <button type="button" onclick="closeNavDrawer(); if(typeof openSavedKundaliModal==='function') { openSavedKundaliModal(); } else { window.location.href='patrika.html?open=saved'; }" class="drawer-user-btn drawer-user-btn-saved" title="सुरक्षित कुण्डलियां देखें">
+              <span>📂</span>
+              <span>मेरी कुण्डलियां</span>
+            </button>
+            <button type="button" onclick="performUserLogout()" class="drawer-user-btn drawer-user-btn-logout" title="खाते से लॉग आउट करें">
+              <span>⎋</span>
+              <span>लॉग आउट</span>
+            </button>
+          </div>
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="drawer-user-card guest">
+          <div class="drawer-user-info-row">
+            <div class="drawer-user-avatar guest-avatar">
+              <span>👤</span>
+            </div>
+            <div class="drawer-user-meta">
+              <div class="drawer-user-name">अतिथि जातक (Guest)</div>
+              <div class="drawer-user-sub">कुण्डलियां सहेजने हेतु लॉगिन करें</div>
+            </div>
+          </div>
+          <button type="button" onclick="closeNavDrawer(); openAuthModal();" class="drawer-user-btn drawer-user-btn-login">
+            <span>🔑</span>
+            <span>Google / मोबाइल से लॉगिन करें</span>
+          </button>
+        </div>
+      `;
+    }
+
+    if (typeof updateNavUserPill === 'function') {
+      updateNavUserPill();
+    }
+  };
+
   function injectNavDrawer() {
     if (window.location.pathname.includes('admin.html')) return;
     if (document.getElementById('navDrawer')) return;
@@ -1496,6 +1882,9 @@
         </div>
 
         <div class="drawer-body">
+          <!-- USER PROFILE CARD -->
+          <div id="drawerUserProfileSection" class="drawer-user-section"></div>
+
           <!-- MUHURT ACCORDION -->
           <div class="drawer-accordion-group">
             <button type="button" class="drawer-accordion-btn" onclick="toggleDrawerAccordion('drawerMuhurtItems')" id="btnDrawerMuhurt">
@@ -1621,6 +2010,9 @@
     while (placeholder.firstChild) {
       document.body.appendChild(placeholder.firstChild);
     }
+    if (typeof window.updateDrawerUserProfile === 'function') {
+      window.updateDrawerUserProfile();
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1663,6 +2055,27 @@
     document.querySelectorAll('.hamburger').forEach(btn => {
       btn.onclick = window.toggleNavDrawer;
     });
+
+    // 2b. Ensure User Status Pill button is present in top navigation
+    document.querySelectorAll('nav:not(.mobile-bottom-nav)').forEach(nav => {
+      if (!nav.querySelector('.nav-user-pill-btn')) {
+        const hamburger = nav.querySelector('.hamburger');
+        const targetContainer = hamburger ? hamburger.parentNode : (nav.querySelector('.nav-btns') || nav.querySelector('.nav-actions') || nav);
+        if (targetContainer) {
+          const userBtn = document.createElement('button');
+          userBtn.type = 'button';
+          userBtn.className = 'nav-user-pill-btn';
+          if (hamburger && hamburger.parentNode === targetContainer) {
+            targetContainer.insertBefore(userBtn, hamburger);
+          } else {
+            targetContainer.appendChild(userBtn);
+          }
+        }
+      }
+    });
+    if (typeof updateNavUserPill === 'function') {
+      updateNavUserPill();
+    }
 
     // 3. Ensure App Install button is present in top navigation
     document.querySelectorAll('nav:not(.mobile-bottom-nav)').forEach(nav => {
@@ -2010,6 +2423,9 @@
     injectGlobalFooter();
     injectAppModalHtml();
     applyLanguage(getCurrentLanguage());
+    if (typeof window.updateDrawerUserProfile === 'function') {
+      window.updateDrawerUserProfile();
+    }
   }
 
   if (document.readyState === 'loading') {
