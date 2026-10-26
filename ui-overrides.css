@@ -380,3 +380,67 @@ p, .article-body, .seo-authority-block p, .benchmark-desc {
     scroll-behavior: auto !important;
   }
 }
+
+/* 10. PHASE 2: ACCESSIBLE COLLAPSIBLE ACCORDIONS (<details>/<summary>) */
+details.ui-collapsible {
+  border: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
+  border-radius: 14px !important;
+  background: var(--card, #ffffff) !important;
+  margin-bottom: 20px !important;
+  overflow: hidden !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="night"] details.ui-collapsible {
+  background: #140A2B !important;
+  border-color: rgba(232, 199, 102, 0.25) !important;
+}
+
+details.ui-collapsible > summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 48px !important;
+  padding: 14px 20px !important;
+  cursor: pointer !important;
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  color: var(--heading-color) !important;
+  user-select: none !important;
+  list-style: none !important;
+  background: var(--bg2, rgba(212, 175, 55, 0.05)) !important;
+  transition: background 0.2s ease !important;
+}
+
+[data-theme="night"] details.ui-collapsible > summary {
+  background: rgba(232, 199, 102, 0.08) !important;
+  color: #F3EEFF !important;
+}
+
+details.ui-collapsible > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+details.ui-collapsible > summary::after {
+  content: "▾" !important;
+  font-size: 20px !important;
+  color: var(--gold, #c5a059) !important;
+  transition: transform 0.25s ease !important;
+  min-width: 24px !important;
+  text-align: right !important;
+  line-height: 1 !important;
+}
+
+details.ui-collapsible[open] > summary::after {
+  transform: rotate(180deg) !important;
+}
+
+details.ui-collapsible > summary:hover {
+  background: var(--gold-dim, rgba(212, 175, 55, 0.12)) !important;
+}
+
+details.ui-collapsible .collapsible-content {
+  padding: 16px 20px !important;
+}
+
