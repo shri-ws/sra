@@ -2613,7 +2613,7 @@
             <div class="card-sub">२३ प्रामाणिक धन योग, इन्दु लग्न व लक्ष्मी योग</div>
           </a>
 
-          <!-- CARD: MEGA PARASHARA KUNDALI REPORT (RESTRICTED MPP1111) -->
+          <!-- CARD: MEGA PARASHARA KUNDALI REPORT -->
           <a href="/parashara-report.html" class="app-service-card" aria-label="मेगा पाराशर संहिता रिपोर्ट" style="text-decoration:none; cursor:pointer;">
             <div class="card-top-row">
               <div class="card-glyph">📜</div>
@@ -3909,7 +3909,7 @@
     </div>
   </div>
 
-  <!-- MODAL: PARASHARA REPORT AUTH GATE (CODE: MPP1111) -->
+  <!-- MODAL: PARASHARA REPORT AUTH GATE -->
   <div class="modal-overlay" id="parasharaAuthModal" onclick="if(event.target===this)closeModal('parasharaAuthModal')">
     <div class="modal" style="max-width:440px; text-align:center; padding:32px 24px;">
       <button class="modal-close" onclick="closeModal('parasharaAuthModal')" aria-label="Close">✕</button>
@@ -4340,13 +4340,29 @@
   function openParasharaAuthModal() {
     window.location.href = '/parashara-report.html';
   }
-  function submitParasharaAuthCode() {
+  async function submitParasharaAuthCode() {
     const inp = document.getElementById('indexParasharaPassInput');
     const err = document.getElementById('indexParasharaErrMsg');
-    const val = (inp && inp.value ? inp.value.trim().toUpperCase() : '');
-    if (val === "MPP1111") {
-      window.location.href = '/parashara-report.html?key=MPP1111';
-    } else {
+    const val = (inp && inp.value ? inp.value.trim() : '');
+    if (!val) return;
+    try {
+      const resp = await fetch("api/verify_payment.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "passcode", passcode: val })
+      });
+      const res = await resp.json();
+      if (res.verified || res.status === "success") {
+        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+        if (res.token) sessionStorage.setItem('sra_mpp_admin_token', res.token);
+        window.location.href = '/parashara-report.html';
+      } else {
+        if (err) {
+          err.style.display = 'block';
+          setTimeout(() => { err.style.display = 'none'; }, 3000);
+        }
+      }
+    } catch(e) {
       if (err) {
         err.style.display = 'block';
         setTimeout(() => { err.style.display = 'none'; }, 3000);

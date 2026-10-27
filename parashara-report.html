@@ -2066,8 +2066,8 @@
       <!-- WHATSAPP SUPPORT LINK -->
       <div style="font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px;">
         भुगतान या कोड संबंधी सहायता हेतु: 
-        <a href="https://api.whatsapp.com/send?phone=919876543210&text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87%2C%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%AE%E0%A5%87%E0%A4%97%E0%A4%BE%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%BE%E0%A4%B6%E0%A4%B0%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%20%E0%A4%95%E0%A5%87%20%E0%A4%B2%E0%A4%BF%E0%A4%8F%20%E2%82%B91111%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4" target="_blank" style="color: #166534; font-weight: 800; text-decoration: none;">
-          💬 व्हाट्सएप सहायता
+        <a href="https://api.whatsapp.com/send?phone=919517117775&text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87%2C%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%AE%E0%A5%87%E0%A4%97%E0%A4%BE%20%E0%A4%AA%E0%A4%BE%E0%A4%B0%E0%A4%BE%E0%A4%B6%E0%A4%B0%20%E0%A4%B0%E0%A4%BF%E0%A4%AA%E0%A5%8B%E0%A4%B0%E0%A5%8D%E0%A4%9F%20%E0%A4%95%E0%A5%87%20%E0%A4%B2%E0%A4%BF%E0%A4%8F%20%E2%82%B91111%20%E0%A4%95%E0%A4%BE%20%E0%A4%AD%E0%A5%81%E0%A4%97%E0%A4%A4%E0%A4%BE%E0%A4%A8%20%E0%A4%95%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%E0%A4%B9%E0%A5%88%E0%A5%A4" target="_blank" style="color: #166534; font-weight: 800; text-decoration: none;">
+          💬 व्हाट्सएप सहायता (+91 95171 17775)
         </a>
       </div>
     </div>
@@ -2942,9 +2942,6 @@
   <script src="./masterParasharaEngine.js"></script>
 
   <script>
-    // PASSCODE GATE (MPP1111)
-    const SECRET_KEY = "MPP1111";
-
     // PRESET CITIES (PATRIKA ENGINE CANONICAL CORPUS)
     const PRESET_CITIES = [
       { name: "सीतापुर", en: "Sitapur", state: "उत्तर प्रदेश", lat: 27.5667, lon: 80.6833, tz: 5.5 },
@@ -3125,15 +3122,9 @@
 
     function isKundaliPaid(k) {
       if (!k) return false;
-      // 1. Session admin unlock via passcode
+      // 1. Session admin unlock via verified server token
       if (sessionStorage.getItem('sra_mpp_admin_unlocked') === 'true') return true;
-      // 2. URL admin bypass key
-      const urlKey = (new URLSearchParams(window.location.search).get('key') || '').toUpperCase();
-      if (urlKey === SECRET_KEY) {
-        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
-        return true;
-      }
-      // 3. Verified Razorpay payment specifically for this Kundali
+      // 2. Verified Razorpay payment specifically for this Kundali
       const key = getKundaliPaymentKey(k);
       if (localStorage.getItem('sra_mega_paid_' + key) === 'true') return true;
 
@@ -3334,29 +3325,62 @@
         localStorage.removeItem('sra_mpkr_authorized');
         localStorage.removeItem('sra_mpp_authorized');
       } catch(e) {}
-
-      const urlKey = (new URLSearchParams(window.location.search).get('key') || '').toUpperCase();
-      if (urlKey === SECRET_KEY) {
-        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
-      }
       initPage();
     }
 
-    function verifyGatePasscode() {
-      const input = (document.getElementById('gatePasscodeInput').value || '').trim().toUpperCase();
+    async function verifyGatePasscode() {
+      const inp = document.getElementById('gatePasscodeInput');
+      const input = (inp ? inp.value : '').trim();
       const err = document.getElementById('gateErrMsg');
+      const btn = document.querySelector('.passcode-card button');
 
-      if (input === SECRET_KEY) {
-        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
-        closeGateModal();
-        updateAuthBadge();
-        updateGenerateButtonState(currentSelectedKundali);
-        alert("✅ अधिकृत प्रशासनिक कोड सत्यापित! सम्पूर्ण रिपोर्ट प्रस्तुत की जा रही है।");
-        generateMegaParasharaReport(true);
-      } else {
+      if (!input) {
         if (err) {
+          err.innerText = "❌ कृपया एक्सेस कोड दर्ज करें।";
+          err.style.display = 'block';
+          setTimeout(() => { err.style.display = 'none'; }, 3000);
+        }
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "सत्यापित किया जा रहा है...";
+      }
+
+      try {
+        const resp = await fetch("api/verify_payment.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "passcode", passcode: input })
+        });
+        const res = await resp.json();
+
+        if (res.verified || res.status === "success") {
+          sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+          if (res.token) sessionStorage.setItem('sra_mpp_admin_token', res.token);
+          closeGateModal();
+          updateAuthBadge();
+          updateGenerateButtonState(currentSelectedKundali);
+          alert("✅ अधिकृत प्रशासनिक कोड सत्यापित! सम्पूर्ण रिपोर्ट प्रस्तुत की जा रही है।");
+          generateMegaParasharaReport(true);
+        } else {
+          if (err) {
+            err.innerText = "❌ अमान्य एक्सेस कोड! कृपया सही कोड दर्ज करें अथवा भुगतान करें।";
+            err.style.display = 'block';
+            setTimeout(() => { err.style.display = 'none'; }, 4000);
+          }
+        }
+      } catch (e) {
+        if (err) {
+          err.innerText = "❌ सत्यापन सर्वर से संपर्क नहीं हो सका। कृपया इंटरनेट जांचें।";
           err.style.display = 'block';
           setTimeout(() => { err.style.display = 'none'; }, 4000);
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = "सत्यापित करें";
         }
       }
     }
