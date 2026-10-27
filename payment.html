@@ -588,6 +588,22 @@ async function pay(){
       config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'No Cost EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
       async handler(r){
         await dbPatch('payments','student_email=eq.'+encodeURIComponent(email)+'&status=eq.pending',{status:'completed',razorpay_payment_id:r.razorpay_payment_id});
+        try {
+          fetch('api/save_payment.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_payment_id: r.razorpay_payment_id,
+              student_name: fname + ' ' + lname,
+              student_phone: phone,
+              student_email: email,
+              plan_name: S.name,
+              report_type: 'vedic_academy_course',
+              amount: S.total,
+              status: 'completed'
+            })
+          }).catch(err => console.warn('Payment logging note:', err));
+        } catch(e) {}
         document.getElementById('successTitle').textContent = 'Payment Successful!';
         document.getElementById('successMsg').innerHTML = 'Your enrolment is confirmed.<br/>Shri Ramji Astro will contact you on WhatsApp within <strong style="color:var(--heading-color)">16–24 hours.</strong>';
         document.getElementById('payId').textContent=r.razorpay_payment_id;
