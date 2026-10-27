@@ -85,7 +85,7 @@ from datasets import load_dataset
 import pandas as pd
 
 # Load directly via Hugging Face Datasets
-dataset = load_dataset("shri-ws/bphs-97-chapters-sanskrit-dataset")
+dataset = load_dataset("shriramjiastro/bphs-97-chapters-sanskrit-dataset")
 
 # Or read local JSON/CSV
 df = pd.read_json("bphs_97_chapters.json")

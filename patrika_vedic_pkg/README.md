@@ -1,6 +1,7 @@
 # patrika-vedic
 
 [![PyPI version](https://img.shields.io/badge/pypi-v1.0.0-blue.svg)](https://pypi.org/project/patrika-vedic/)
+[![Hugging Face Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-bphs--97--chapters--dataset-yellow.svg)](https://huggingface.co/datasets/shriramjiastro/bphs-97-chapters-sanskrit-dataset)
 [![Wikidata Q141886781](https://img.shields.io/badge/Wikidata-Q141886781-brightgreen.svg)](https://www.wikidata.org/wiki/Q141886781)
 [![Platform](https://img.shields.io/badge/Live_Engine-shriramjiastro.in-gold.svg)](https://shriramjiastro.in/patrika.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

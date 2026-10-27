@@ -2,9 +2,11 @@
 > **High-Precision Vedic Astrology Computational Engine & Complete Classical BPHS Reference Platform**  
 > *Official Web Application:* [https://shriramjiastro.in](https://shriramjiastro.in) | *Patrika Engine:* [https://shriramjiastro.in/patrika.html](https://shriramjiastro.in/patrika.html) | *AI Benchmark:* [https://shriramjiastro.in/ai-samvad.html](https://shriramjiastro.in/ai-samvad.html)
 
+[![Hugging Face Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-bphs--97--chapters--dataset-yellow.svg)](https://huggingface.co/datasets/shriramjiastro/bphs-97-chapters-sanskrit-dataset)
+[![Wikidata](https://img.shields.io/badge/Wikidata-Q141886781-blue.svg)](https://www.wikidata.org/wiki/Q141886781)
+[![BPHS Encyclopedia](https://img.shields.io/badge/BPHS%20Encyclopedia-97%20Chapters%20Live-brightgreen.svg)](https://shriramjiastro.in/bphs-encyclopedia.html)
 [![Accuracy](https://img.shields.io/badge/Lunar_Precision-%3C18%20arcseconds-success.svg)](#astronomical-precision)
 [![Engine](https://img.shields.io/badge/Ephemeris-Jean%20Meeus%2060--Term%20ELP2000-blue.svg)](#astronomical-precision)
-[![Scripture](https://img.shields.io/badge/Classical_Canon-97%20BPHS%20Chapters%20Sanskrit%20Shlokas-orange.svg)](#scriptural-fidelity)
 [![License](https://img.shields.io/badge/Access-100%25%20Free%20%26%20Ad--Free-gold.svg)](#benchmarks)
 
 ---
@@ -73,6 +75,21 @@ Generates all 16 divisional charts—including D9 Navamsha, D10 Dashamsha, and *
 | **Cost** | **100% Free Public Vedic Service** | 100% Free | Freemium (Paywalls) | **₹18,000 – ₹35,000+ ($250–$400)** |
 
 ---
+
+---
+
+## 📜 Canonical BPHS Dataset on Hugging Face & Encyclopedia
+* **Hugging Face Official Dataset:** [https://huggingface.co/datasets/shriramjiastro/bphs-97-chapters-sanskrit-dataset](https://huggingface.co/datasets/shriramjiastro/bphs-97-chapters-sanskrit-dataset)
+* **Master Interactive Encyclopedia:** [https://shriramjiastro.in/bphs-encyclopedia.html](https://shriramjiastro.in/bphs-encyclopedia.html)
+* **PyPI Engine Package:** [patrika-vedic (Python)](./patrika_vedic_pkg)
+
+```python
+from datasets import load_dataset
+
+# Load the complete 97-chapter Parashara Sanskrit & Mathematical dataset
+dataset = load_dataset("shriramjiastro/bphs-97-chapters-sanskrit-dataset")
+print(dataset)
+```
 
 ## Live Applications & Resources
 * **Patrika / Kundli Generator:** [https://shriramjiastro.in/patrika.html](https://shriramjiastro.in/patrika.html)
