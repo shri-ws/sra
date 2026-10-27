@@ -1169,7 +1169,8 @@
     overflow-x: auto;
     white-space: nowrap;
     box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     position: sticky;
     top: 70px;
     z-index: 100;
@@ -1178,12 +1179,7 @@
   }
 
   .output-domain-nav::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .output-domain-nav::-webkit-scrollbar-thumb {
-    background: var(--gold-border);
-    border-radius: 4px;
+    display: none;
   }
 
   .domain-tab {
@@ -1222,7 +1218,7 @@
 
   .domain-panel {
     display: none;
-    animation: fadeInDomain 0.25s ease-out;
+    animation: fadeInDomain 0.18s ease-out;
   }
 
   .domain-panel.active {
@@ -1236,8 +1232,8 @@
   }
 
   @keyframes fadeInDomain {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateX(16px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   /* Chart Carousel Toolbar & Controls */
@@ -7091,6 +7087,11 @@ function switchOutputDomain(domainId) {
 
   ensureDomainRendered(domainId);
 
+  const activeBtn = document.getElementById(tabMap[domainId]);
+  if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
+    activeBtn.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+  }
+
   const navEl = document.getElementById("outputDomainNav");
   if (navEl && window.scrollY > navEl.offsetTop) {
     navEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -7119,6 +7120,67 @@ function toggleAllViewMode() {
     if (btnAllText) btnAllText.textContent = "पूर्ण दृश्य (All)";
     switchOutputDomain(currentOutputDomain);
   }
+}
+
+// -------------------------------------------------------------
+// HORIZONTAL DOMAIN SWIPE GESTURE CONTROLLER (6 DOMAINS)
+// -------------------------------------------------------------
+function initOutputDomainSwipe() {
+  const section = document.getElementById("outputSection");
+  if (!section) return;
+
+  const domains = ['charts', 'planets', 'panchang', 'dashas', 'analysis', 'reports'];
+  let startX = 0;
+  let startY = 0;
+  let distX = 0;
+  let distY = 0;
+  let isSwiping = false;
+  const minSwipe = 48;
+
+  section.addEventListener("touchstart", (e) => {
+    // Only trigger if swipe starts outside chart carousel track, varga strip, tables, inputs, selects, buttons
+    if (e.target.closest("#chartCarouselTrack, #vargaStrip, table, input, select, textarea, button, a")) {
+      return;
+    }
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    distX = 0;
+    distY = 0;
+    isSwiping = true;
+  }, { passive: true });
+
+  section.addEventListener("touchmove", (e) => {
+    if (!isSwiping) return;
+    const t = e.touches[0];
+    distX = t.clientX - startX;
+    distY = t.clientY - startY;
+  }, { passive: true });
+
+  section.addEventListener("touchend", () => {
+    if (!isSwiping) return;
+    isSwiping = false;
+
+    if (isAllViewMode) return;
+
+    const absX = Math.abs(distX);
+    const absY = Math.abs(distY);
+
+    if (absX >= minSwipe && absX > absY * 1.5) {
+      const curIdx = domains.indexOf(currentOutputDomain);
+      if (curIdx === -1) return;
+
+      if (distX < 0 && curIdx < domains.length - 1) {
+        switchOutputDomain(domains[curIdx + 1]);
+      } else if (distX > 0 && curIdx > 0) {
+        switchOutputDomain(domains[curIdx - 1]);
+      }
+    }
+  });
+
+  section.addEventListener("touchcancel", () => {
+    isSwiping = false;
+  });
 }
 
 function setChartStyle(styleMode) {
@@ -10965,6 +11027,7 @@ window.addEventListener('DOMContentLoaded', () => {
   checkMobileAuthStatus();
   switchDashaSystemTab('vim');
   initChartCarouselSwipe();
+  initOutputDomainSwipe();
   loadSessionState();
   if (typeof updateSavedKundaliBadge === 'function') {
     updateSavedKundaliBadge();
