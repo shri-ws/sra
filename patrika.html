@@ -33,7 +33,8 @@
   "@graph": [
     {
       "@type": "SoftwareApplication",
-      "@id": "https://shriramjiastro.in/patrika.html#software",`r`n      "sameAs": "https://www.wikidata.org/wiki/Q141886781",
+      "@id": "https://shriramjiastro.in/patrika.html#software",
+      "sameAs": "https://www.wikidata.org/wiki/Q141886781",
       "name": "Patrika by Shri Ram Ji Astro",
       "alternateName": ["SRA Patrika", "Astro 360", "Patrika Vedic Kundli Engine"],
       "applicationCategory": "AstrologicalScientificComputationApplication",
@@ -3491,7 +3492,7 @@
   <!-- Dynamic Output Section (Hidden by Default) -->
   <div id="outputSection">
     
-    <!-- Active Profile Summary Bar (Displays when input form is collapsed) -->
+    <!-- Active Profile Summary Bar: Minimal Header with Person Name -->
     <div id="candidateSummaryBar" class="candidate-summary-bar" style="display:none;">
       <div class="candidate-summary-main">
         <div class="candidate-avatar">👤</div>
@@ -3500,16 +3501,12 @@
             <span class="candidate-name" id="summaryCandidateName">जातक</span>
             <span class="candidate-tag">सक्रिय कुण्डली</span>
           </div>
-          <div class="candidate-sub-details" id="summaryCandidateDetails">
-            <span>📅 --/--/----</span>
-            <span class="dot-sep">•</span>
-            <span>⏰ --:--</span>
-            <span class="dot-sep">•</span>
-            <span>📍 --</span>
-          </div>
         </div>
       </div>
       <div class="candidate-summary-actions">
+        <button type="button" class="btn-summary-action" id="btnToggleCandidateDetails" onclick="toggleCandidateDetailsDropdown()" title="जन्म विवरण देखें / छुपाएं">
+          <span>ℹ️</span> <span id="lblToggleDetails">विवरण</span>
+        </button>
         <button type="button" class="btn-summary-action" onclick="toggleEditBirthDetails()" title="जन्म विवरण बदलें या पुनः देखें">
           <span>✏️</span> विवरण बदलें
         </button>
@@ -3520,67 +3517,27 @@
           <span>📂</span> कुण्डलियां (<span id="savedKundaliBadgeBar">0</span>)
         </button>
       </div>
+      <!-- Collapsible birth details drawer (hidden by default) -->
+      <div class="candidate-sub-details" id="summaryCandidateDetails" style="display:none;">
+        <span>📅 --/--/----</span>
+        <span class="dot-sep">•</span>
+        <span>⏰ --:--</span>
+        <span class="dot-sep">•</span>
+        <span>📍 --</span>
+      </div>
     </div>
 
-    <!-- TOP HORIZONTAL DOMAIN NAVIGATOR BAR -->
-    <div class="output-domain-nav" id="outputDomainNav">
-      <button type="button" class="domain-tab active" onclick="switchOutputDomain('charts')" id="btnDomainCharts">
-        <span class="d-icon">🎡</span>
-        <span class="d-text" data-i18n-hi="कुण्डली चक्र" data-i18n-en="Birth Charts">कुण्डली चक्र</span>
-      </button>
-      <button type="button" class="domain-tab" onclick="switchOutputDomain('planets')" id="btnDomainPlanets">
-        <span class="d-icon">🪐</span>
-        <span class="d-text" data-i18n-hi="ग्रह स्पष्ट" data-i18n-en="Planets Table">ग्रह स्पष्ट</span>
-      </button>
-      <button type="button" class="domain-tab" onclick="switchOutputDomain('panchang')" id="btnDomainPanchang">
-        <span class="d-icon">📿</span>
-        <span class="d-text" data-i18n-hi="जन्म पञ्चाङ्ग" data-i18n-en="Birth Panchang">जन्म पञ्चाङ्ग</span>
-      </button>
-      <button type="button" class="domain-tab" onclick="switchOutputDomain('dashas')" id="btnDomainDashas">
-        <span class="d-icon">📜</span>
-        <span class="d-text" data-i18n-hi="विंशोत्तरी दशा" data-i18n-en="Dasha Timeline">विंशोत्तरी दशा</span>
-      </button>
-      <button type="button" class="domain-tab" onclick="switchOutputDomain('analysis')" id="btnDomainAnalysis">
-        <span class="d-icon">🌊</span>
-        <span class="d-text" data-i18n-hi="जीवन विश्लेषण" data-i18n-en="Life Analysis">जीवन विश्लेषण</span>
-      </button>
-      <button type="button" class="domain-tab" onclick="switchOutputDomain('reports')" id="btnDomainReports">
-        <span class="d-icon">📊</span>
-        <span class="d-text" data-i18n-hi="पाराशर फलित" data-i18n-en="Parashara Reports">पाराशर फलित</span>
-      </button>
-      <button type="button" class="domain-tab" onclick="toggleAllViewMode()" id="btnDomainAll" title="सम्पूर्ण कुण्डली देखें">
-        <span class="d-icon">📑</span>
-        <span class="d-text" id="btnDomainAllText" data-i18n-hi="सम्पूर्ण कुण्डली" data-i18n-en="Complete View">सम्पूर्ण कुण्डली</span>
-      </button>
+    <!-- Minimal Active View Tab/Pill Indicator above the Chart -->
+    <div class="active-view-header" id="activeViewHeader">
+      <div class="active-view-pill" id="activeViewTitle">
+        <span class="active-view-dot">●</span>
+        <span class="active-view-text">लग्न कुण्डली (D1 राशि)</span>
+      </div>
     </div>
 
     <!-- DOMAIN 1: KUNDALI CHARTS CAROUSEL -->
     <div class="domain-panel active" id="domainPanelCharts">
-      <!-- Carousel Toolbar -->
-      <div class="chart-carousel-toolbar">
-        <div class="chart-selector-chips">
-          <button type="button" class="chip-btn active" onclick="goToChartSlide(0)" id="chipSlide0" data-i18n-hi="D1 लग्न कुण्डली" data-i18n-en="D1 Ascendant Chart">D1 लग्न कुण्डली</button>
-          <button type="button" class="chip-btn" onclick="goToChartSlide(1)" id="chipSlide1" data-i18n-hi="भाव चलित (श्रीपति)" data-i18n-en="Sripati Bhava Chalit">भाव चलित (श्रीपति)</button>
-          <button type="button" class="chip-btn" onclick="goToChartSlide(2)" id="chipSlide2" data-i18n-hi="D9 नवमांश" data-i18n-en="D9 Navamsha Chart">D9 नवमांश</button>
-          <button type="button" class="chip-btn" onclick="goToChartSlide(3)" id="chipSlide3">D10 दशमांश</button>
-          <button type="button" class="chip-btn" onclick="goToChartSlide(4)" id="chipSlide4">षोडशवर्ग (D1-D60)</button>
-        </div>
-
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-          <div class="chart-style-toggle">
-            <button type="button" class="style-toggle-btn active" onclick="setChartStyle('north')" id="btnStyleNorth">उत्तर भारतीय</button>
-            <button type="button" class="style-toggle-btn" onclick="setChartStyle('south')" id="btnStyleSouth">दक्षिण भारतीय</button>
-            <button type="button" class="style-toggle-btn" onclick="setChartStyle('both')" id="btnStyleBoth">दोनों शैलियाँ</button>
-          </div>
-          <div class="carousel-arrows">
-            <span class="swipe-hint-pill" title="उंगली से बाएँ या दाएँ स्वाइप करके चक्र बदलें">👆 स्वाइप ↔️</span>
-            <button type="button" class="carousel-arrow-btn" onclick="prevChartSlide()" title="पिछला चक्र">❮</button>
-            <button type="button" class="carousel-arrow-btn" onclick="nextChartSlide()" title="अगला चक्र">❯</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chart Carousel Wrapper with Style Class -->
+      <!-- 1. Chart Carousel Wrapper (Directly under Active View Pill!) -->
       <div class="chart-carousel-wrapper style-north-only" id="chartCarouselWrapper">
         <div class="chart-carousel-track" id="chartCarouselTrack">
         <!-- Slide 0: D1 Lagna Rasi -->
@@ -3671,16 +3628,13 @@
           </div>
         </div>
 
-        <!-- Slide 4: Shodashvarga Picker D1-D60 -->
+        <!-- Slide 4: Shodashvarga Picker D1-D60 & Gochar -->
         <div class="carousel-slide-card" id="chartSlide4">
           <div class="carousel-slide-header">
             <h3 class="carousel-slide-title" id="activeVargaTitle">षोडशवर्ग कुण्डली चयन — D1 राशि</h3>
             <span style="font-size:12px; color:var(--muted);">पराशर सम्मत सम्पूर्ण १६ सूक्ष्म वर्ग चक्र</span>
           </div>
-          <!-- Varga Selector Strip (Horizontal Scrolling) -->
-          <div class="varga-section" style="margin-bottom:14px; padding:10px 14px;">
-            <div class="varga-strip" id="vargaStrip" style="overflow-x:auto; flex-wrap:nowrap; padding-bottom:6px; scrollbar-width:thin;"></div>
-          </div>
+          <!-- Chart Display First -->
           <div class="carousel-chart-display">
             <div class="chart-viewport chart-view-north">
               <h4 id="vargaNorthHeading">चयनित वर्ग कुण्डली (उत्तर भारतीय)</h4>
@@ -3695,6 +3649,10 @@
               </div>
             </div>
           </div>
+          <!-- Varga Selector Strip placed UNDER the chart -->
+          <div class="varga-section" style="margin-top:14px; margin-bottom:6px; padding:10px 14px;">
+            <div class="varga-strip" id="vargaStrip" style="overflow-x:auto; flex-wrap:nowrap; padding-bottom:6px; scrollbar-width:thin;"></div>
+          </div>
         </div>
         </div>
 
@@ -3707,6 +3665,62 @@
           <span class="c-dot" onclick="goToChartSlide(4)"></span>
         </div>
       </div>
+
+      <!-- 2. Carousel Toolbar Placed BELOW the Chart -->
+      <div class="chart-carousel-toolbar" id="chartCarouselToolbar">
+        <div class="chart-selector-chips">
+          <button type="button" class="chip-btn active" onclick="goToChartSlide(0)" id="chipSlide0" data-i18n-hi="D1 लग्न कुण्डली" data-i18n-en="D1 Ascendant Chart">D1 लग्न कुण्डली</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(1)" id="chipSlide1" data-i18n-hi="भाव चलित (श्रीपति)" data-i18n-en="Sripati Bhava Chalit">भाव चलित (श्रीपति)</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(2)" id="chipSlide2" data-i18n-hi="D9 नवमांश" data-i18n-en="D9 Navamsha Chart">D9 नवमांश</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(3)" id="chipSlide3">D10 दशमांश</button>
+          <button type="button" class="chip-btn" onclick="goToChartSlide(4)" id="chipSlide4">षोडशवर्ग (D1-D60)</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div class="chart-style-toggle">
+            <button type="button" class="style-toggle-btn active" onclick="setChartStyle('north')" id="btnStyleNorth">उत्तर भारतीय</button>
+            <button type="button" class="style-toggle-btn" onclick="setChartStyle('south')" id="btnStyleSouth">दक्षिण भारतीय</button>
+            <button type="button" class="style-toggle-btn" onclick="setChartStyle('both')" id="btnStyleBoth">दोनों शैलियाँ</button>
+          </div>
+          <div class="carousel-arrows">
+            <span class="swipe-hint-pill" title="उंगली से बाएँ या दाएँ स्वाइप करके चक्र बदलें">👆 स्वाइप ↔️</span>
+            <button type="button" class="carousel-arrow-btn" onclick="prevChartSlide()" title="पिछला चक्र">❮</button>
+            <button type="button" class="carousel-arrow-btn" onclick="nextChartSlide()" title="अगला चक्र">❯</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHARED DOMAIN NAVIGATOR BAR (Placed below the Chart & Chart Controls) -->
+    <div class="output-domain-nav" id="outputDomainNav">
+      <button type="button" class="domain-tab active" onclick="switchOutputDomain('charts')" id="btnDomainCharts">
+        <span class="d-icon">🎡</span>
+        <span class="d-text" data-i18n-hi="कुण्डली चक्र" data-i18n-en="Birth Charts">कुण्डली चक्र</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('planets')" id="btnDomainPlanets">
+        <span class="d-icon">🪐</span>
+        <span class="d-text" data-i18n-hi="ग्रह स्पष्ट" data-i18n-en="Planets Table">ग्रह स्पष्ट</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('panchang')" id="btnDomainPanchang">
+        <span class="d-icon">📿</span>
+        <span class="d-text" data-i18n-hi="जन्म पञ्चाङ्ग" data-i18n-en="Birth Panchang">जन्म पञ्चाङ्ग</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('dashas')" id="btnDomainDashas">
+        <span class="d-icon">📜</span>
+        <span class="d-text" data-i18n-hi="विंशोत्तरी दशा" data-i18n-en="Dasha Timeline">विंशोत्तरी दशा</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('analysis')" id="btnDomainAnalysis">
+        <span class="d-icon">🌊</span>
+        <span class="d-text" data-i18n-hi="जीवन विश्लेषण" data-i18n-en="Life Analysis">जीवन विश्लेषण</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="switchOutputDomain('reports')" id="btnDomainReports">
+        <span class="d-icon">📊</span>
+        <span class="d-text" data-i18n-hi="पाराशर फलित" data-i18n-en="Parashara Reports">पाराशर फलित</span>
+      </button>
+      <button type="button" class="domain-tab" onclick="toggleAllViewMode()" id="btnDomainAll" title="सम्पूर्ण कुण्डली देखें">
+        <span class="d-icon">📑</span>
+        <span class="d-text" id="btnDomainAllText" data-i18n-hi="सम्पूर्ण कुण्डली" data-i18n-en="Complete View">सम्पूर्ण कुण्डली</span>
+      </button>
     </div>
 
     <!-- DOMAIN 2: PLANETS & ASTRONOMICAL TABLES -->
@@ -7074,6 +7088,70 @@ let isAllViewMode = false;
 let currentChartSlide = 0;
 let currentChartStyle = 'north';
 
+function updateActiveViewHeader(domain, slideIdx, vargaId) {
+  const titleEl = document.getElementById("activeViewTitle");
+  if (!titleEl) return;
+
+  let titleText = "लग्न कुण्डली (D1 राशि)";
+
+  if (isAllViewMode) {
+    titleText = "📑 सम्पूर्ण कुण्डली दर्शन";
+  } else if (domain === 'planets') {
+    titleText = "🪐 शास्त्रीय ग्रह स्पष्ट एवं नक्षत्र तालिका";
+  } else if (domain === 'panchang') {
+    titleText = "📿 जन्म पञ्चाङ्ग एवं मुहूर्त";
+  } else if (domain === 'dashas') {
+    titleText = "📜 विंशोत्तरी दशा चक्र";
+  } else if (domain === 'analysis') {
+    titleText = "🌊 जीवन विश्लेषण एवं योग";
+  } else if (domain === 'reports') {
+    titleText = "📊 पाराशर संहिता फलित रिपोर्ट";
+  } else {
+    // charts domain
+    const idx = (typeof slideIdx === 'number') ? slideIdx : currentChartSlide;
+    if (idx === 0) {
+      titleText = "लग्न कुण्डली (D1 राशि)";
+    } else if (idx === 1) {
+      titleText = "भाव चलित कुण्डली (श्रीपति विधान)";
+    } else if (idx === 2) {
+      titleText = "नवमांश कुण्डली (D9 नवमांश)";
+    } else if (idx === 3) {
+      titleText = "दशमांश कुण्डली (D10 दशमांश)";
+    } else if (idx === 4) {
+      const vId = (vargaId !== undefined) ? vargaId : selectedVarga;
+      if (String(vId) === "GOCHAR") {
+        titleText = "🌌 गोचर कुण्डली (Real-Time Transits)";
+      } else {
+        const cfg = (typeof VARGAS_CONFIG !== 'undefined' && Array.isArray(VARGAS_CONFIG))
+          ? (VARGAS_CONFIG.find(v => String(v.id) === String(vId)) || VARGAS_CONFIG[1])
+          : { name: `D${vId}` };
+        titleText = `${cfg.name} कुण्डली`;
+      }
+    }
+  }
+
+  const textEl = titleEl.querySelector('.active-view-text');
+  if (textEl) {
+    textEl.textContent = titleText;
+  } else {
+    titleEl.textContent = titleText;
+  }
+}
+
+function toggleCandidateDetailsDropdown() {
+  const detailsEl = document.getElementById("summaryCandidateDetails");
+  const lbl = document.getElementById("lblToggleDetails");
+  if (!detailsEl) return;
+  const isHidden = (detailsEl.style.display === "none" || !detailsEl.style.display);
+  if (isHidden) {
+    detailsEl.style.display = "flex";
+    if (lbl) lbl.textContent = "विवरण छुपाएं";
+  } else {
+    detailsEl.style.display = "none";
+    if (lbl) lbl.textContent = "विवरण";
+  }
+}
+
 function switchOutputDomain(domainId) {
   currentOutputDomain = domainId;
   isAllViewMode = false;
@@ -7125,14 +7203,18 @@ function switchOutputDomain(domainId) {
 
   ensureDomainRendered(domainId);
 
+  // Update top active view pill
+  if (typeof updateActiveViewHeader === 'function') {
+    updateActiveViewHeader(domainId, currentChartSlide);
+  }
+
   const activeBtn = document.getElementById(tabMap[domainId]);
   if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
     activeBtn.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
   }
 
-  const navEl = document.getElementById("outputDomainNav");
-  if (navEl && window.scrollY > navEl.offsetTop) {
-    navEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (outputSec && window.scrollY > outputSec.offsetTop + 100) {
+    outputSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
@@ -7157,6 +7239,10 @@ function toggleAllViewMode() {
     if (btnAll) btnAll.classList.remove("active");
     if (btnAllText) btnAllText.textContent = "पूर्ण दृश्य (All)";
     switchOutputDomain(currentOutputDomain);
+  }
+
+  if (typeof updateActiveViewHeader === 'function') {
+    updateActiveViewHeader(isAllViewMode ? 'all' : currentOutputDomain);
   }
 }
 
@@ -7267,6 +7353,10 @@ function setActiveChartSlide(idx) {
     activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 
+  if (typeof updateActiveViewHeader === 'function') {
+    updateActiveViewHeader('charts', idx);
+  }
+
   renderChartSlideContent(idx);
 
   // In idle time, pre-render idx + 1 if within range
@@ -7367,9 +7457,17 @@ function renderCandidateSummaryBar(details) {
       <span class="dot-sep">•</span>
       <span>📍 ${placeStr} <span style="font-size:11px; opacity:0.8;">${latLonStr}</span></span>
     `;
+    // Collapsed by default to keep the top view clean and focused on name & chart
+    metaEl.style.display = "none";
+    const lbl = document.getElementById("lblToggleDetails");
+    if (lbl) lbl.textContent = "विवरण";
   }
   const bar = document.getElementById("candidateSummaryBar");
   if (bar) bar.style.display = "flex";
+
+  if (typeof updateActiveViewHeader === 'function') {
+    updateActiveViewHeader(currentOutputDomain, currentChartSlide);
+  }
 }
 
 function toggleEditBirthDetails() {
@@ -9433,14 +9531,19 @@ function initVargaButtons() {
 function selectVarga(vId) {
   selectedVarga = vId;
   const cfg = VARGAS_CONFIG.find(v => String(v.id) === String(vId)) || VARGAS_CONFIG[1];
-  document.getElementById("activeVargaTitle").innerText = `षोडशवर्ग कुण्डली चयन — ${cfg.name}`;
+  const activeTitle = document.getElementById("activeVargaTitle");
+  if (activeTitle) activeTitle.innerText = `षोडशवर्ग कुण्डली चयन — ${cfg.name}`;
   
   if (String(vId) === "GOCHAR") {
-    document.getElementById("vargaNorthHeading").innerText = "गोचर कुण्डली — उत्तर भारतीय (Real-Time Transits)";
-    document.getElementById("vargaSouthHeading").innerText = "गोचर कुण्डली — दक्षिण भारतीय (Real-Time Transits)";
+    const vnh = document.getElementById("vargaNorthHeading");
+    const vsh = document.getElementById("vargaSouthHeading");
+    if (vnh) vnh.innerText = "गोचर कुण्डली — उत्तर भारतीय (Real-Time Transits)";
+    if (vsh) vsh.innerText = "गोचर कुण्डली — दक्षिण भारतीय (Real-Time Transits)";
   } else {
-    document.getElementById("vargaNorthHeading").innerText = `चयनित वर्ग: ${cfg.name} (उत्तर भारतीय)`;
-    document.getElementById("vargaSouthHeading").innerText = `चयनित वर्ग: ${cfg.name} (दक्षिण भारतीय)`;
+    const vnh = document.getElementById("vargaNorthHeading");
+    const vsh = document.getElementById("vargaSouthHeading");
+    if (vnh) vnh.innerText = `चयनित वर्ग: ${cfg.name} (उत्तर भारतीय)`;
+    if (vsh) vsh.innerText = `चयनित वर्ग: ${cfg.name} (दक्षिण भारतीय)`;
   }
   
   document.querySelectorAll('#vargaStrip .v-btn').forEach(btn => {
@@ -9455,6 +9558,11 @@ function selectVarga(vId) {
     renderGocharChart();
   } else {
     renderSelectedVargaCharts();
+  }
+
+  // Update top active view pill
+  if (typeof updateActiveViewHeader === 'function') {
+    updateActiveViewHeader('charts', 4, vId);
   }
 }
 
