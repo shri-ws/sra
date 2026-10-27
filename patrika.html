@@ -1391,39 +1391,10 @@
     transform: scale(1.06);
   }
 
-  /* Slide Cards */
-  .carousel-slide-card {
-    display: none;
-    animation: fadeInSlide 0.25s ease-out;
-    width: 100%;
-  }
-
-  .carousel-slide-card.active {
-    display: block;
-  }
-
-  .carousel-slide-card.slide-anim-right {
-    animation: slideInFromRight 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .carousel-slide-card.slide-anim-left {
-    animation: slideInFromLeft 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  @keyframes fadeInSlide {
-    from { opacity: 0; transform: scale(0.98); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes slideInFromRight {
-    from { opacity: 0; transform: translateX(35px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  @keyframes slideInFromLeft {
-    from { opacity: 0; transform: translateX(-35px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
+.chart-carousel-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.chart-carousel-track::-webkit-scrollbar{display:none}
+.carousel-slide-card{flex:0 0 100%;min-width:0;display:block;scroll-snap-align:start;scroll-snap-stop:always}
+#vargaStrip{overscroll-behavior-x:contain;touch-action:pan-x}
 
   .carousel-chart-display {
     display: flex;
@@ -3577,6 +3548,7 @@
 
       <!-- Chart Carousel Wrapper with Style Class -->
       <div class="chart-carousel-wrapper style-north-only" id="chartCarouselWrapper">
+        <div class="chart-carousel-track" id="chartCarouselTrack">
         <!-- Slide 0: D1 Lagna Rasi -->
         <div class="carousel-slide-card active" id="chartSlide0">
           <div class="carousel-slide-header">
@@ -3689,6 +3661,7 @@
               </div>
             </div>
           </div>
+        </div>
         </div>
 
         <!-- Carousel Dots -->
@@ -6681,6 +6654,7 @@ async function executeParasharaMaster() {
   // Reset lazy render domain cache for new Kundali calculation
   renderedDomains.clear();
   renderedDomains.add('charts');
+  drawnChartSlides.clear();
 
   const birthDateObj = new Date(y, m - 1, d, hh, mm, ss);
   const moonObj = planets.find(p => p.id === "Moon");
@@ -6743,7 +6717,7 @@ async function executeParasharaMaster() {
       switchOutputDomain(targetDomain);
     }
     if (typeof goToChartSlide === 'function') {
-      goToChartSlide(0);
+      goToChartSlide(0, true);
     }
   }
 
@@ -7165,25 +7139,21 @@ function setChartStyle(styleMode) {
   if (btnB) btnB.classList.toggle("active", styleMode === "both");
 }
 
-function goToChartSlide(idx, direction) {
+const drawnChartSlides = new Set();
+
+function goToChartSlide(idx, instant) {
+  const tr = document.getElementById('chartCarouselTrack');
+  if (!tr) return;
+  const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  tr.scrollTo({ left: idx * tr.clientWidth, behavior: (instant || rm) ? 'auto' : 'smooth' });
+}
+
+function setActiveChartSlide(idx) {
   currentChartSlide = idx;
   const totalSlides = 5;
 
   for (let i = 0; i < totalSlides; i++) {
-    const slide = document.getElementById(`chartSlide${i}`);
     const chip = document.getElementById(`chipSlide${i}`);
-    if (slide) {
-      slide.style.display = (i === idx) ? "block" : "none";
-      slide.classList.remove("active", "slide-anim-right", "slide-anim-left");
-      if (i === idx) {
-        slide.classList.add("active");
-        if (direction === 'left') {
-          slide.classList.add("slide-anim-right");
-        } else if (direction === 'right') {
-          slide.classList.add("slide-anim-left");
-        }
-      }
-    }
     if (chip) chip.classList.toggle("active", i === idx);
   }
 
@@ -7197,106 +7167,80 @@ function goToChartSlide(idx, direction) {
     activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 
+  renderChartSlideContent(idx);
+
+  // In idle time, pre-render idx + 1 if within range
+  if (idx + 1 < totalSlides) {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => renderChartSlideContent(idx + 1), { timeout: 1000 });
+    } else {
+      setTimeout(() => renderChartSlideContent(idx + 1), 200);
+    }
+  }
+}
+
+function renderChartSlideContent(idx) {
+  if (drawnChartSlides.has(idx)) return;
+  if (!currentCalculation || !currentCalculation.planets) return;
+
   if (idx === 2) {
-    drawSpecificVarga(9, "d9NorthSvg", "d9SouthSvg");
+    drawnChartSlides.add(2);
+    if (typeof drawSpecificVarga === 'function') {
+      drawSpecificVarga(9, "d9NorthSvg", "d9SouthSvg");
+    }
   } else if (idx === 3) {
-    drawSpecificVarga(10, "d10NorthSvg", "d10SouthSvg");
+    drawnChartSlides.add(3);
+    if (typeof drawSpecificVarga === 'function') {
+      drawSpecificVarga(10, "d10NorthSvg", "d10SouthSvg");
+    }
   } else if (idx === 4) {
-    renderSelectedVargaCharts();
+    drawnChartSlides.add(4);
+    if (typeof renderSelectedVargaCharts === 'function') {
+      renderSelectedVargaCharts();
+    }
   }
 }
 
 function nextChartSlide() {
-  goToChartSlide((currentChartSlide + 1) % 5, 'left');
+  goToChartSlide((currentChartSlide + 1) % 5);
 }
 
 function prevChartSlide() {
-  goToChartSlide((currentChartSlide - 1 + 5) % 5, 'right');
+  goToChartSlide((currentChartSlide - 1 + 5) % 5);
 }
 
 // -------------------------------------------------------------
-// TOUCH SWIPE & GESTURE CONTROLLER FOR CHART CAROUSEL
+// INTERSECTION OBSERVER FOR NATIVE SCROLL-SNAP CHART CAROUSEL
 // -------------------------------------------------------------
+let _chartCarouselObserver = null;
 function initChartCarouselSwipe() {
-  const wrapper = document.getElementById("chartCarouselWrapper");
-  if (!wrapper) return;
+  const track = document.getElementById("chartCarouselTrack");
+  if (!track) return;
 
-  let startX = 0;
-  let startY = 0;
-  let distX = 0;
-  let distY = 0;
-  let isSwiping = false;
-  let isMouseDown = false;
-  const minSwipe = 35; // minimum horizontal px to trigger slide
+  if (_chartCarouselObserver) {
+    _chartCarouselObserver.disconnect();
+    _chartCarouselObserver = null;
+  }
 
-  // Mobile Touch Events
-  wrapper.addEventListener("touchstart", (e) => {
-    // Ignore swipe on interactive controls or horizontally scrolling varga strip
-    if (e.target.closest("#vargaStrip, button, a, select, input, textarea")) return;
-    const touch = e.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-    distX = 0;
-    distY = 0;
-    isSwiping = true;
-  }, { passive: true });
+  if ('IntersectionObserver' in window) {
+    _chartCarouselObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          const match = id.match(/chartSlide(\d+)/);
+          if (match) {
+            const idx = parseInt(match[1], 10);
+            setActiveChartSlide(idx);
+          }
+        }
+      });
+    }, { root: track, threshold: 0.6 });
 
-  wrapper.addEventListener("touchmove", (e) => {
-    if (!isSwiping) return;
-    const touch = e.touches[0];
-    distX = touch.clientX - startX;
-    distY = touch.clientY - startY;
-  }, { passive: true });
-
-  wrapper.addEventListener("touchend", () => {
-    if (!isSwiping) return;
-    isSwiping = false;
-    const absX = Math.abs(distX);
-    const absY = Math.abs(distY);
-
-    // Dominant horizontal gesture triggers slide change
-    if (absX >= minSwipe && absX > absY * 1.25) {
-      if (distX < 0) {
-        nextChartSlide(); // Finger swiped left -> next chart (D1 -> Chalit -> D9 -> D10 -> Varga)
-      } else {
-        prevChartSlide(); // Finger swiped right -> previous chart
-      }
+    for (let i = 0; i < 5; i++) {
+      const slide = document.getElementById(`chartSlide${i}`);
+      if (slide) _chartCarouselObserver.observe(slide);
     }
-  });
-
-  wrapper.addEventListener("touchcancel", () => {
-    isSwiping = false;
-  });
-
-  // Desktop Mouse Drag Support
-  wrapper.addEventListener("mousedown", (e) => {
-    if (e.target.closest("#vargaStrip, button, a, select, input, textarea")) return;
-    isMouseDown = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    distX = 0;
-    distY = 0;
-  });
-
-  wrapper.addEventListener("mousemove", (e) => {
-    if (!isMouseDown) return;
-    distX = e.clientX - startX;
-    distY = e.clientY - startY;
-  });
-
-  window.addEventListener("mouseup", () => {
-    if (!isMouseDown) return;
-    isMouseDown = false;
-    const absX = Math.abs(distX);
-    const absY = Math.abs(distY);
-    if (absX >= minSwipe && absX > absY * 1.25) {
-      if (distX < 0) {
-        nextChartSlide();
-      } else {
-        prevChartSlide();
-      }
-    }
-  });
+  }
 }
 
 // -------------------------------------------------------------
