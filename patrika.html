@@ -113,24 +113,11 @@
 <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
 <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
 
-<!-- Leaflet CSS & JS for Interactive Pinpoint Map -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Mukta:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Mukta:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Rozha+One&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet" />
 
 <script src="theme.js"></script>
-<script src="data/shloka_database.js"></script>
-<script src="rashmiReportsService.js"></script>
-<script src="mangalDoshaService.js"></script>
-<script src="html2pdf.bundle.min.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<!-- Google Identity Services (GIS) API & Firebase SDK -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
 
 <style>
   /* DAY MODE (DEFAULT): Golden, Maroon, and White */
@@ -4123,6 +4110,48 @@
 </footer>
 
 <script>
+const _ls={};function loadScript(s){return _ls[s]||(_ls[s]=new Promise((ok,no)=>{const e=document.createElement('script');e.src=s;e.onload=ok;e.onerror=no;document.head.appendChild(e)}))}
+const _lcss={};function loadStyle(s){return _lcss[s]||(_lcss[s]=new Promise((ok,no)=>{const e=document.createElement('link');e.rel='stylesheet';e.href=s;e.onload=ok;e.onerror=no;document.head.appendChild(e)}))}
+
+let _leafletLoading = null;
+function ensureLeaflet() {
+  if (typeof L !== 'undefined') return Promise.resolve();
+  if (!_leafletLoading) {
+    _leafletLoading = Promise.all([
+      loadStyle('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'),
+      loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js')
+    ]);
+  }
+  return _leafletLoading;
+}
+
+let _mapInitialized = false;
+async function ensureLeafletAndInitMap() {
+  if (_mapInitialized) return;
+  _mapInitialized = true;
+  try {
+    await ensureLeaflet();
+    if (typeof initMap === 'function') initMap();
+  } catch(e) {
+    console.error('Failed to load Leaflet map:', e);
+  }
+}
+
+let _reportsLoading = null;
+function ensureReportScripts() {
+  if (typeof generateKundaliReports === 'function' && typeof calculateMangalDoshaReport === 'function') {
+    return Promise.resolve();
+  }
+  if (!_reportsLoading) {
+    _reportsLoading = Promise.all([
+      loadScript('data/shloka_database.js'),
+      loadScript('rashmiReportsService.js'),
+      loadScript('mangalDoshaService.js')
+    ]);
+  }
+  return _reportsLoading;
+}
+
 const SIGNS = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुम्भ", "मीन"];
 const NAKSHATRAS = [
   "अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा",
@@ -7425,7 +7454,14 @@ function unlockParasharaReport(reportType, paymentId) {
   showParasharaToast(`🎉 बधाई! ${title} सफलतापूर्वक अनलॉक हो चुकी है।`);
 }
 
-function triggerParasharaRazorpayCheckout() {
+async function triggerParasharaRazorpayCheckout() {
+  if (typeof Razorpay === 'undefined') {
+    try {
+      await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+    } catch(e) {
+      console.error('Failed to load Razorpay SDK:', e);
+    }
+  }
   if (typeof Razorpay === 'undefined') {
     alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट जांचें या VIP कोड का प्रयोग करें।');
     return;
@@ -7471,6 +7507,9 @@ function triggerParasharaRazorpayCheckout() {
   };
 
   try {
+    if (typeof Razorpay === 'undefined') {
+      await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+    }
     const rzp = new Razorpay(options);
     rzp.open();
   } catch(e) {
@@ -7788,7 +7827,14 @@ async function printParasharaReport(reportType) {
     mask.style.display = 'flex';
   }
 
-  // 3. Fallback if html2pdf is unavailable
+  // 3. Ensure html2pdf is loaded
+  if (typeof html2pdf !== 'function') {
+    try {
+      await loadScript('/html2pdf.bundle.min.js').catch(() => loadScript('html2pdf.bundle.min.js'));
+    } catch(e) {
+      console.warn('Could not load html2pdf:', e);
+    }
+  }
   if (typeof html2pdf !== 'function') {
     if (mask) mask.style.display = 'none';
     if (btn) {
@@ -7962,6 +8008,9 @@ async function printParasharaReport(reportType) {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
+    if (typeof html2pdf !== 'function') {
+      await loadScript('/html2pdf.bundle.min.js').catch(() => loadScript('html2pdf.bundle.min.js'));
+    }
     await html2pdf().set(opt).from(container).save();
 
     // 7. Success state on button
@@ -8012,9 +8061,17 @@ function focusBirthInputForm() {
   }
 }
 
-function renderParasharaReports() {
+async function renderParasharaReports() {
   const container = document.getElementById("parasharaReportsContent");
   if (!container) return;
+
+  if (typeof generateKundaliReports !== 'function' || typeof calculateMangalDoshaReport !== 'function') {
+    try {
+      await ensureReportScripts();
+    } catch(e) {
+      console.error('Error loading report scripts:', e);
+    }
+  }
 
   if (!currentCalculation || !currentCalculation.planets) {
     // If birth inputs exist in form, auto-trigger master calculation
@@ -9942,14 +9999,43 @@ const firebaseConfig = {
   measurementId: "G-0KZ45B2HL7"
 };
 
-try {
-  if (typeof firebase !== 'undefined' && firebase.apps) {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+let _authSdkPromise = null;
+function ensureAuthSdk() {
+  if (typeof firebase !== 'undefined' && firebase.auth && firebase.apps && firebase.apps.length) {
+    return Promise.resolve();
   }
-} catch(e) {
-  console.warn("Firebase App Initialization note:", e);
+  if (!_authSdkPromise) {
+    _authSdkPromise = (async () => {
+      try {
+        await Promise.all([
+          loadScript('https://accounts.google.com/gsi/client').catch(e => console.warn('GIS client load note:', e)),
+          loadScript('https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js')
+        ]);
+        await loadScript('https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js');
+        if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          firebase.auth().getRedirectResult().then((result) => {
+            if (result && result.user) {
+              const u = result.user;
+              performLoginSuccess({
+                name: u.displayName || "Google User",
+                email: u.email || "",
+                photo: u.photoURL || "",
+                uid: u.uid || "",
+                phone: u.phoneNumber || "",
+                action: "FIREBASE_GOOGLE_REDIRECT_SUCCESS"
+              });
+            }
+          }).catch(e => console.warn("Firebase redirect check note:", e));
+        }
+      } catch(e) {
+        console.error("ensureAuthSdk failed:", e);
+      }
+    })();
+  }
+  return _authSdkPromise;
 }
 
 let currentGeneratedOtp = "";
@@ -9972,13 +10058,32 @@ function checkMobileAuthStatus() {
   const modal = document.getElementById("modalMobileOtp");
   const urlParams = new URLSearchParams(window.location.search);
   const isExplicitLogin = (urlParams.get('login') === '1');
-  
+  const hasSavedSession = localStorage.getItem('sra_verified_google_user') || localStorage.getItem('sra_verified_mobile');
+
+  if (hasSavedSession || isExplicitLogin) {
+    ensureAuthSdk();
+  }
+
   if (isExplicitLogin && modal) {
     modal.style.display = "flex";
   } else if (modal) {
     modal.style.display = "none";
   }
 }
+
+const _origOpenAuth = window.openAuthModal;
+window.openAuthModal = function() {
+  ensureAuthSdk();
+  if (typeof _origOpenAuth === 'function') {
+    _origOpenAuth();
+  } else {
+    const modal = document.getElementById("modalMobileOtp");
+    if (modal) {
+      modal.style.display = "flex";
+      try { document.body.style.overflow = 'hidden'; } catch(e) {}
+    }
+  }
+};
 
 function toggleMobileLoginView() {
   const stepPhone = document.getElementById("otpStepPhone");
@@ -10041,6 +10146,12 @@ window.triggerDirectGoogleSignIn = async function() {
   console.log("triggerDirectGoogleSignIn triggered");
   const err = document.getElementById("otpErrMsg");
   if (err) err.innerHTML = `<span style="color:var(--gold);">⏳ गूगल से सुरक्षित साइन-इन विंडो खोली जा रही है...</span>`;
+
+  try {
+    await ensureAuthSdk();
+  } catch(e) {
+    console.warn("Auth SDK loading failed:", e);
+  }
 
   // 1. Try Firebase Auth Google Provider (works seamlessly with Google Popup/Redirect)
   try {
@@ -10219,6 +10330,12 @@ async function sendMobileOtp() {
     return;
   }
   if (err) err.textContent = "मोबाइल पर SMS OTP भेजा जा रहा है...";
+
+  try {
+    await ensureAuthSdk();
+  } catch(e) {
+    console.warn("Auth SDK load error:", e);
+  }
 
   try {
     if (typeof firebase !== 'undefined' && firebase.auth) {
@@ -10806,7 +10923,26 @@ function createNewKundaliEntry() {
 
 // Auto-initialize map & session when DOM is loaded
 window.addEventListener('DOMContentLoaded', () => {
-  initMap();
+  // Deferred Leaflet loading on proximity or search focus
+  const mapEl = document.getElementById('map');
+  const cityInp = document.getElementById('inCitySearch');
+  if (cityInp) {
+    cityInp.addEventListener('focus', () => ensureLeafletAndInitMap(), { once: true });
+  }
+  if (mapEl && 'IntersectionObserver' in window) {
+    const mapObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          ensureLeafletAndInitMap();
+          mapObs.disconnect();
+        }
+      });
+    }, { rootMargin: '300px' });
+    mapObs.observe(mapEl);
+  } else {
+    setTimeout(ensureLeafletAndInitMap, 2000);
+  }
+
   checkMobileAuthStatus();
   switchDashaSystemTab('vim');
   initChartCarouselSwipe();
