@@ -2654,8 +2654,8 @@
       <!-- ─── TAB 1: DAILY PANCHANG VIEW (CLASSICAL EPHEMERIS & CALENDAR) ─── -->
       <section class="view-page" id="viewPanchang" role="tabpanel" aria-label="Daily Panchang View">
         <div class="page-hero-header">
-          <h2 class="page-hero-title">📿 दैनिक शास्त्रीय पञ्चाङ्ग (Daily Panchang)</h2>
-          <p class="page-hero-sub">तिथि, वार, नक्षत्र, योग, करण (विष्टि/भद्रा), सूर्योदय व तात्कालिक मुहूर्त</p>
+          <h2 class="page-hero-title">दैनिक शास्त्रीय पञ्चाङ्ग</h2>
+          <p class="page-hero-sub">तिथि, वार, नक्षत्र, योग, करण, सूर्योदय एवं तात्कालिक मुहूर्त</p>
         </div>
 
         <!-- DATE & CALENDAR PICKER CARD -->
@@ -2663,13 +2663,13 @@
           <div style="display:flex; flex-direction:column; gap:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
               <label class="app-form-label" style="margin:0; font-weight:700;">
-                📅 पञ्चाङ्ग तिथि चयन (Select Date):
+                पञ्चाङ्ग तिथि चयन:
               </label>
               <!-- QUICK CHIPS -->
               <div style="display:flex; gap:6px;">
-                <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(-1)">◀ पिछला</button>
+                <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(-1)">‹ पिछला</button>
                 <button type="button" class="quick-chip-btn active" onclick="setLandingPanchangToday()">आज</button>
-                <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(1)">अगला ▶</button>
+                <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(1)">अगला ›</button>
               </div>
             </div>
 
@@ -2679,19 +2679,19 @@
                 <input type="date" id="inLandingPanchangDate" class="app-form-input" aria-label="पञ्चाङ्ग दिनांक (Panchang Date)" onchange="calculateLandingPanchang()" required>
               </div>
               <div>
-                <label for="inLandingPanchangTime" class="app-form-label">समय (Time - Default Sunrise)</label>
+                <label for="inLandingPanchangTime" class="app-form-label">समय (Time)</label>
                 <input type="time" id="inLandingPanchangTime" class="app-form-input" value="06:00" aria-label="पञ्चाङ्ग समय (Panchang Time)" onchange="calculateLandingPanchang()">
               </div>
             </div>
 
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <label for="inLandingPanchangCity" class="app-form-label" style="margin:0;">स्थान (City / Location)</label>
+                <label for="inLandingPanchangCity" class="app-form-label" style="margin:0;">स्थान (Location / City)</label>
                 <span id="panchangCityCoords" style="font-size:11px; color:var(--muted);">28.6139° N, 77.2090° E</span>
               </div>
               <div style="display:flex; gap:8px;">
                 <input type="text" id="inLandingPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" placeholder="स्थान दर्ज करें..." aria-label="स्थान अथवा शहर (Location/City)" onchange="onLandingPanchangCityChange()" style="flex:1;">
-                <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" title="वर्तमान स्थान उपयोग करें" aria-label="वर्तमान स्थान उपयोग करें">📍</button>
+                <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" title="वर्तमान स्थान उपयोग करें" aria-label="वर्तमान स्थान उपयोग करें">जीपीएस</button>
               </div>
               <!-- QUICK CITY CHIPS -->
               <div style="display:flex; gap:5px; margin-top:8px; overflow-x:auto; padding-bottom:2px;">
@@ -2706,8 +2706,8 @@
           </div>
         </div>
 
-        <!-- MAIN PANCHANG CARD -->
-        <div class="panchang-card">
+        <!-- MAIN PANCHANG CARD (WRAPPED, SOPHISTICATED ON-DEMAND DISCLOSURE) -->
+        <div class="panchang-card" id="mobilePanchangCard">
           <!-- TOP HEADER WITH SAMVAT & VISHTI BADGE -->
           <div class="panchang-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
@@ -2719,60 +2719,54 @@
               </div>
             </div>
             <div id="landingPanchangVishtiBadge">
-              <!-- Vishti / Bhadra Alert -->
+              <!-- Vishti / Bhadra Status -->
             </div>
           </div>
 
-          <!-- 1. 5 CORE LIMBS (पञ्चाङ्ग के ५ प्रधान अंग) -->
-          <h3 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h3>
-          <div class="panchang-grid-5" id="landingPanchangLimbs">
-            <!-- Dynamically populated -->
+          <!-- ON-DEMAND CATEGORY SELECTOR (WRAPPED NAVIGATION) -->
+          <div class="panchang-segment-nav" role="tablist" aria-label="पञ्चाङ्ग विभाग">
+            <button type="button" class="panchang-seg-btn active" data-sec="limbs" onclick="switchLandingPanchangSection('limbs', this)" role="tab" aria-selected="true">मुख्य ५ अंग</button>
+            <button type="button" class="panchang-seg-btn" data-sec="muhurta" onclick="switchLandingPanchangSection('muhurta', this)" role="tab" aria-selected="false">मुहूर्त एवं काल</button>
+            <button type="button" class="panchang-seg-btn" data-sec="solar" onclick="switchLandingPanchangSection('solar', this)" role="tab" aria-selected="false">सौर-चान्द्र मान</button>
+            <button type="button" class="panchang-seg-btn" data-sec="avakahada" onclick="switchLandingPanchangSection('avakahada', this)" role="tab" aria-selected="false">अवकहड़ा चक्र</button>
           </div>
 
-          <!-- 2. SOLAR & LUNAR DAY DYNAMICS (सौर व चान्द्र मान) -->
-          <details class="ui-collapsible">
-            <summary>
-              <span>☀️ सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</span>
-            </summary>
-            <div class="collapsible-content">
-              <div class="muhurta-grid" id="landingPanchangSolar">
-                <!-- Dynamically populated -->
-              </div>
+          <!-- SECTION 1: 5 CORE LIMBS (पञ्चाङ्ग के ५ प्रधान अंग) -->
+          <div class="panchang-section-panel" data-section="limbs" style="display:block;">
+            <div class="panchang-grid-wrapped" id="landingPanchangLimbs">
+              <!-- Dynamically populated with wrapped accordion items -->
             </div>
-          </details>
+          </div>
 
-          <!-- 3. AUSPICIOUS & INAUSPICIOUS TIMINGS (शुभ व अशुभ मुहूर्त) -->
-          <details class="ui-collapsible">
-            <summary>
-              <span>⏰ तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</span>
-            </summary>
-            <div class="collapsible-content">
-              <div class="muhurta-grid" id="landingPanchangMuhurta">
-                <!-- Dynamically populated -->
-              </div>
+          <!-- SECTION 2: AUSPICIOUS & INAUSPICIOUS TIMINGS (शुभ व अशुभ मुहूर्त) -->
+          <div class="panchang-section-panel" data-section="muhurta" style="display:none;">
+            <div class="panchang-grid-wrapped" id="landingPanchangMuhurta">
+              <!-- Dynamically populated with wrapped accordion items -->
             </div>
-          </details>
+          </div>
 
-          <!-- 4. AVAKAHADA ATTRIBUTES (अवकहड़ा चक्र) -->
-          <details class="ui-collapsible">
-            <summary>
-              <span>📜 अवकहड़ा चक्र (Avakahada Chakra)</span>
-            </summary>
-            <div class="collapsible-content">
-              <div style="overflow-x:auto;">
-                <table class="avakahada-table" id="landingAvakahadaTbl">
-                  <tbody>
-                    <!-- Dynamically populated -->
-                  </tbody>
-                </table>
-              </div>
+          <!-- SECTION 3: SOLAR & LUNAR DAY DYNAMICS (सौर व चान्द्र मान) -->
+          <div class="panchang-section-panel" data-section="solar" style="display:none;">
+            <div class="panchang-grid-wrapped" id="landingPanchangSolar">
+              <!-- Dynamically populated -->
             </div>
-          </details>
+          </div>
+
+          <!-- SECTION 4: AVAKAHADA ATTRIBUTES (अवकहड़ा चक्र) -->
+          <div class="panchang-section-panel" data-section="avakahada" style="display:none;">
+            <div style="overflow-x:auto;">
+              <table class="panchang-avakahada-clean-tbl" id="landingAvakahadaTbl">
+                <tbody>
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           <!-- CTA BUTTON TO OPEN PATRIKA WITH THIS DATE -->
-          <div style="margin-top:16px; text-align:center;">
+          <div style="margin-top:20px; text-align:center;">
             <button type="button" class="app-primary-btn" onclick="openPatrikaFromPanchang()">
-              ✨ इस तिथि का पूर्ण जन्म चक्र / पत्रिका देखें ➔
+              इस तिथि का सम्पूर्ण जन्म चक्र देखें ➔
             </button>
           </div>
         </div>
@@ -3157,7 +3151,7 @@
     <div class="section-wrap" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
       <div class="section-header" style="text-align: center; margin-bottom: 28px;">
         <div class="ornament-line"></div>
-        <h2 style="font-family: 'Rozha One', serif; font-size: 32px; color: var(--heading-color); margin-bottom: 8px;">📿 दैनिक शास्त्रीय पञ्चाङ्ग (Vedic Panchang)</h2>
+        <h2 style="font-family: 'Rozha One', serif; font-size: 32px; color: var(--heading-color); margin-bottom: 8px;">दैनिक शास्त्रीय पञ्चाङ्ग</h2>
         <p style="color: var(--muted); font-size: 15px;">पञ्चाङ्ग के ५ प्रधान अंग (तिथि, वार, नक्षत्र, योग, करण), सूर्योदय-सूर्यास्त, चौघड़िया, होरा, विष्टि (भद्रा) व अवकहड़ा चक्र</p>
       </div>
 
@@ -3165,26 +3159,26 @@
       <div class="app-glass-panel" style="padding: 20px; border-radius: 14px; margin-bottom: 24px; background: var(--card-bg, #ffffff); border: 1.5px solid var(--gold-border, rgba(197, 160, 89, 0.35));">
         <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between;">
           <div style="flex: 1; min-width: 240px;">
-            <label for="inDesktopPanchangDate" class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">📅 पञ्चाङ्ग तिथि चयन (Select Date)</label>
+            <label for="inDesktopPanchangDate" class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">पञ्चाङ्ग तिथि चयन</label>
             <div style="display: flex; gap: 8px;">
               <input type="date" id="inDesktopPanchangDate" class="app-form-input" aria-label="पञ्चाङ्ग दिनांक (Panchang Date)" onchange="syncAndCalculatePanchang('desktop')" style="flex: 1;">
-              <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(-1)">◀ पिछला</button>
+              <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(-1)">‹ पिछला</button>
               <button type="button" class="quick-chip-btn active" onclick="setLandingPanchangToday()">आज</button>
-              <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(1)">अगला ▶</button>
+              <button type="button" class="quick-chip-btn" onclick="changeLandingPanchangDateOffset(1)">अगला ›</button>
             </div>
           </div>
           <div style="flex: 1; min-width: 180px;">
-            <label for="inDesktopPanchangTime" class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">⏰ समय (Time - Default Sunrise)</label>
+            <label for="inDesktopPanchangTime" class="app-form-label" style="font-weight: 700; margin-bottom: 6px;">समय</label>
             <input type="time" id="inDesktopPanchangTime" class="app-form-input" value="06:00" aria-label="पञ्चाङ्ग समय (Panchang Time)" onchange="syncAndCalculatePanchang('desktop')">
           </div>
           <div style="flex: 1.2; min-width: 260px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-              <label for="inDesktopPanchangCity" class="app-form-label" style="font-weight: 700; margin:0;">📍 स्थान (Location / City)</label>
+              <label for="inDesktopPanchangCity" class="app-form-label" style="font-weight: 700; margin:0;">स्थान (Location / City)</label>
               <span id="panchangDesktopCoords" style="font-size:11px; color:var(--muted);">28.6139° N, 77.2090° E</span>
             </div>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="inDesktopPanchangCity" class="app-form-input" value="नई दिल्ली (New Delhi)" aria-label="स्थान अथवा शहर (Location/City)" onchange="onDesktopCityChange()" style="flex: 1;">
-              <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" aria-label="वर्तमान जीपीएस स्थान">📍 जीपीएस</button>
+              <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" aria-label="वर्तमान जीपीएस स्थान">जीपीएस</button>
             </div>
           </div>
         </div>
@@ -4901,153 +4895,318 @@
     const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const dateFormatted = calDate.toLocaleDateString('hi-IN', optionsDate);
 
-    // Build 5 Limbs HTML
+    // Build 5 Limbs HTML (Wrapped on-demand accordion disclosure, zero icons)
     const limbsHtml = `
-      <div class="panchang-limb-box">
-        <div class="limb-label"><span>🌙</span> तिथि (Tithi)</div>
-        <div class="limb-value">${isShukla ? 'शुक्ल' : 'कृष्ण'} ${tithiName}</div>
-        <div class="limb-sub">
-          पक्ष: <strong>${isShukla ? 'शुक्ल पक्ष' : 'कृष्ण पक्ष'}</strong> (${tithiElapsedPercent}% व्यतीत)<br>
-          संज्ञा: <strong>${tithiType}</strong> • स्वामी: <strong>${tithiLord}</strong>
+      <div class="panchang-wrapped-item is-open" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">तिथि (Tithi)</div>
+            <div class="panchang-item-value">${isShukla ? 'शुक्ल' : 'कृष्ण'} ${tithiName}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span>${isShukla ? 'शुक्ल पक्ष' : 'कृष्ण पक्ष'} (${tithiElapsedPercent}%)</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">पक्ष</span><span class="drawer-val">${isShukla ? 'शुक्ल पक्ष' : 'कृष्ण पक्ष'}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">संज्ञा</span><span class="drawer-val">${tithiType}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">स्वामी</span><span class="drawer-val">${tithiLord}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">व्यतीत मान</span><span class="drawer-val">${tithiElapsedPercent}%</span></div>
+          </div>
         </div>
       </div>
-      <div class="panchang-limb-box">
-        <div class="limb-label"><span>📅</span> वार (Vedic Vara)</div>
-        <div class="limb-value">${vedicDayName.split(' ')[0]}</div>
-        <div class="limb-sub">
-          वारेश: <strong>${vedicDayLord}</strong><br>
-          ${isBeforeSunrise ? '<span class="badge-limb-warn">सूर्योदय पूर्व (अहोरात्र पूर्व वार)</span>' : '<span class="badge-limb-good">सूर्योदय उपरान्त</span>'}
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">वार (Vedic Vara)</div>
+            <div class="panchang-item-value">${vedicDayName.split(' ')[0]}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span>${isBeforeSunrise ? 'सूर्योदय पूर्व' : 'सूर्योदय उपरान्त'}</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">वार स्वामी</span><span class="drawer-val">${vedicDayLord}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">अहोरात्र स्थिति</span><span class="drawer-val">${isBeforeSunrise ? 'सूर्योदय पूर्व (अहोरात्र पूर्व वार)' : 'सूर्योदय उपरान्त शुद्ध वार'}</span></div>
+          </div>
         </div>
       </div>
-      <div class="panchang-limb-box">
-        <div class="limb-label"><span>✨</span> नक्षत्र (Nakshatra)</div>
-        <div class="limb-value">${nakInfo.name} (चरण ${pada})</div>
-        <div class="limb-sub">
-          स्वामी: <strong>${nakInfo.lord}</strong> • देवता: <strong>${nakInfo.deity}</strong><br>
-          नामाक्षर: <strong style="color:var(--primary,#7C1305); font-size:14px;">"${birthLetter}"</strong> (${nakElapsedPercent}% भुक्त)
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">नक्षत्र (Nakshatra)</div>
+            <div class="panchang-item-value">${nakInfo.name}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span>चरण ${pada} • अक्षर "${birthLetter}"</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">चरण</span><span class="drawer-val">${pada}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">नक्षत्र स्वामी</span><span class="drawer-val">${nakInfo.lord}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">अधिष्ठाता देवता</span><span class="drawer-val">${nakInfo.deity}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">जन्म नामाक्षर</span><span class="drawer-val">"${birthLetter}"</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">भुक्त मान</span><span class="drawer-val">${nakElapsedPercent}% भुक्त</span></div>
+          </div>
         </div>
       </div>
-      <div class="panchang-limb-box">
-        <div class="limb-label"><span>🔯</span> नित्य योग (Yoga)</div>
-        <div class="limb-value">${yogaInfo.name}</div>
-        <div class="limb-sub">
-          प्रकृति: <strong>${yogaInfo.shubh ? 'शुभ फलप्रद' : 'अशुभ / सावधानी'}</strong> • स्वामी: ${yogaInfo.lord}<br>
-          ${yogaInfo.shubh ? '<span class="badge-limb-good">✓ शुभ योग</span>' : '<span class="badge-vishti-alert">⚠️ अशुभ योग</span>'}
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">नित्य योग (Yoga)</div>
+            <div class="panchang-item-value">${yogaInfo.name}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill ${yogaInfo.shubh ? 'shubh' : 'varjya'}">${yogaInfo.shubh ? 'शुभ फल' : 'सावधानी'}</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">प्रकृति</span><span class="drawer-val">${yogaInfo.shubh ? 'शुभ फलप्रद योग' : 'अशुभ / सावधानी योग'}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">योग स्वामी</span><span class="drawer-val">${yogaInfo.lord}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">व्यतीत मान</span><span class="drawer-val">${yogaElapsedPercent}%</span></div>
+          </div>
         </div>
       </div>
-      <div class="panchang-limb-box" style="${karanaInfo.isVishti ? 'border: 2px solid #ef4444; background: #fff5f5;' : ''}">
-        <div class="limb-label" style="${karanaInfo.isVishti ? 'color:#b91c1c;' : ''}"><span>⚙️</span> करण (Karana)</div>
-        <div class="limb-value" style="${karanaInfo.isVishti ? 'color:#b91c1c;' : ''}">${karanaInfo.name}</div>
-        <div class="limb-sub">
-          प्रकार: <strong>${karanaInfo.type}</strong> • स्वामी: <strong>${karanaInfo.lord}</strong><br>
-          ${karanaInfo.isVishti 
-            ? '<span class="badge-vishti-alert">⚠️ विष्टि (भद्रा) सक्रिय</span>' 
-            : '<span class="badge-limb-good">✓ शुभ व सौम्य करण</span>'}
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">करण (Karana)</div>
+            <div class="panchang-item-value">${karanaInfo.name}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill ${karanaInfo.isVishti ? 'varjya' : 'shubh'}">${karanaInfo.isVishti ? 'विष्टि (भद्रा)' : 'सौम्य करण'}</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">प्रकार</span><span class="drawer-val">${karanaInfo.type}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">करण स्वामी</span><span class="drawer-val">${karanaInfo.lord}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">भद्रा निर्णय</span><span class="drawer-val">${karanaInfo.isVishti ? 'विष्टि (भद्रा) सक्रिय — मांगलिक व नवीन कार्य त्याज्य' : 'भद्रारहित शुभ व सौम्य करण'}</span></div>
+          </div>
         </div>
       </div>
     `;
 
-    // Solar Dynamics HTML
+    // Solar Dynamics HTML (Clean data rows, zero icons)
     const solarHtml = `
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🌅 सूर्योदय (Sunrise)</span>
-        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(sunriseHrs)}</span>
-      </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🌇 सूर्यास्त (Sunset)</span>
-        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(sunsetHrs)}</span>
-      </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">⏱️ दिनमान (Dinamana)</span>
-        <span class="muhurta-item-time">${dinamanaHrs.toFixed(2)}h (${formatGhatisAndPalas(dinamanaHrs * 2.5).split(' ')[0]} घटी)</span>
-      </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🌌 रात्रिमान (Ratrimana)</span>
-        <span class="muhurta-item-time">${ratrimanaHrs.toFixed(2)}h (${formatGhatisAndPalas(ratrimanaHrs * 2.5).split(' ')[0]} घटी)</span>
-      </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🕯️ इष्टकाल (Ishta Kala)</span>
-        <span class="muhurta-item-time">${formatGhatisAndPalas(ishtaGhati)}</span>
-      </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🧭 अयन (Ayana)</span>
-        <span class="muhurta-item-time">${isUttarayan ? 'उत्तरायण (Uttarayan)' : 'दक्षिणायन (Dakshinayan)'}</span>
-      </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🌸 वैदिक ऋतु (Season)</span>
-        <span class="muhurta-item-time">${RITU_NAMES[rituIdx]}</span>
-      </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🌕 चान्द्र मास (Lunar Month)</span>
-        <span class="muhurta-item-time">${CHANDRA_MASA[sunSign]} मास (${isShukla ? 'शुक्ल' : 'कृष्ण'})</span>
+      <div class="panchang-data-table-wrap">
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">सूर्योदय (Sunrise)</span>
+          <span class="data-row-val">${formatTimeDecimalToAMPM(sunriseHrs)}</span>
+        </div>
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">सूर्यास्त (Sunset)</span>
+          <span class="data-row-val">${formatTimeDecimalToAMPM(sunsetHrs)}</span>
+        </div>
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">दिनमान (Dinamana)</span>
+          <span class="data-row-val">${dinamanaHrs.toFixed(2)} घण्टे (${formatGhatisAndPalas(dinamanaHrs * 2.5).split(' ')[0]} घटी)</span>
+        </div>
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">रात्रिमान (Ratrimana)</span>
+          <span class="data-row-val">${ratrimanaHrs.toFixed(2)} घण्टे (${formatGhatisAndPalas(ratrimanaHrs * 2.5).split(' ')[0]} घटी)</span>
+        </div>
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">इष्टकाल (Ishta Kala)</span>
+          <span class="data-row-val">${formatGhatisAndPalas(ishtaGhati)}</span>
+        </div>
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">सूर्य अयन (Ayana)</span>
+          <span class="data-row-val">${isUttarayan ? 'उत्तरायण (Uttarayan)' : 'दक्षिणायन (Dakshinayan)'}</span>
+        </div>
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">वैदिक ऋतु (Season)</span>
+          <span class="data-row-val">${RITU_NAMES[rituIdx]}</span>
+        </div>
+        <div class="panchang-data-row">
+          <span class="data-row-lbl">चान्द्र मास (Lunar Month)</span>
+          <span class="data-row-val">${CHANDRA_MASA[sunSign]} मास (${isShukla ? 'शुक्ल पक्ष' : 'कृष्ण पक्ष'})</span>
+        </div>
       </div>
     `;
 
-    // Muhurtas HTML
+    // Muhurtas HTML (Wrapped on-demand items, calm status tags, zero icons)
     const muhurtaHtml = `
-      <div class="muhurta-item" style="border:1.5px solid #10b981; background:rgba(16,185,129,0.06);">
-        <span class="muhurta-item-name">🌟 अभिजित मुहूर्त (Abhijit)</span>
-        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(abhijitStart)} – ${formatTimeDecimalToAMPM(abhijitEnd)}</span>
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">अभिजित मुहूर्त (Abhijit)</div>
+            <div class="panchang-item-value">${formatTimeDecimalToAMPM(abhijitStart)} – ${formatTimeDecimalToAMPM(abhijitEnd)}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill shubh">सर्वकार्य शुभ</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">मुहूर्त मान</span><span class="drawer-val">${formatTimeDecimalToAMPM(abhijitStart)} से ${formatTimeDecimalToAMPM(abhijitEnd)}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">शास्त्रीय निर्देश</span><span class="drawer-val">मध्याह्न का अष्टम मुहूर्त। समस्त दोषों का शमन कर विजय प्रदान करने वाला काल।</span></div>
+          </div>
+        </div>
       </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🪔 ब्रह्म मुहूर्त (Brahma Muhurta)</span>
-        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(brahmaStart)} – ${formatTimeDecimalToAMPM(brahmaEnd)}</span>
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">ब्रह्म मुहूर्त (Brahma Muhurta)</div>
+            <div class="panchang-item-value">${formatTimeDecimalToAMPM(brahmaStart)} – ${formatTimeDecimalToAMPM(brahmaEnd)}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill shubh">साधना व विद्या</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">मुहूर्त मान</span><span class="drawer-val">${formatTimeDecimalToAMPM(brahmaStart)} से ${formatTimeDecimalToAMPM(brahmaEnd)}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">शास्त्रीय निर्देश</span><span class="drawer-val">सूर्योदय से दो घटी पूर्व। आत्मचिन्तन, मन्त्र साधना एवं अध्ययन हेतु सर्वश्रेष्ठ।</span></div>
+          </div>
+        </div>
       </div>
-      <div class="muhurta-item" style="${choghadiyaObj.isGood ? 'border:1px solid #10b981; background:rgba(16,185,129,0.06);' : 'border:1px solid #ef4444; background:rgba(239,68,68,0.06);'}">
-        <span class="muhurta-item-name">⌛ चौघड़िया (Choghadiya)</span>
-        <span class="muhurta-item-time"><strong>${choghadiyaObj.name}</strong> (${choghadiyaObj.nature})</span>
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">तात्कालिक चौघड़िया (Choghadiya)</div>
+            <div class="panchang-item-value">${choghadiyaObj.name} (${choghadiyaObj.nature})</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill ${choghadiyaObj.isGood ? 'shubh' : 'varjya'}">${choghadiyaObj.isGood ? 'शुभ फल' : 'त्याज्य'}</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">प्रकृति</span><span class="drawer-val">${choghadiyaObj.name} — ${choghadiyaObj.nature}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">उपयोग</span><span class="drawer-val">${choghadiyaObj.isGood ? 'यात्रा एवं नवीन कार्य आरम्भ हेतु अनुकूल' : 'महत्वपूर्ण कार्य आरम्भ में परिहार रखें'}</span></div>
+          </div>
+        </div>
       </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">⏳ तात्कालिक होरा (Hora)</span>
-        <span class="muhurta-item-time"><strong>${currentHoraName}</strong></span>
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">तात्कालिक होरा (Hora)</div>
+            <div class="panchang-item-value">${currentHoraName}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill saumya">सक्रिय</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">होरा अधिपति</span><span class="drawer-val">${currentHoraName}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">शास्त्रीय निर्देश</span><span class="drawer-val">तत्-ग्रह सम्बन्धी कार्य एवं विचार में विशेष फलदायी।</span></div>
+          </div>
+        </div>
       </div>
-      <div class="muhurta-item" style="border:1px solid #ef4444; background:rgba(239,68,68,0.06);">
-        <span class="muhurta-item-name">⚠️ राहु काल (Rahu Kalam)</span>
-        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(rahuStart)} – ${formatTimeDecimalToAMPM(rahuEnd)}</span>
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">राहु काल (Rahu Kalam)</div>
+            <div class="panchang-item-value">${formatTimeDecimalToAMPM(rahuStart)} – ${formatTimeDecimalToAMPM(rahuEnd)}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill varjya">अशुभ / वर्जित</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">काल मान</span><span class="drawer-val">${formatTimeDecimalToAMPM(rahuStart)} से ${formatTimeDecimalToAMPM(rahuEnd)}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">शास्त्रीय निर्देश</span><span class="drawer-val">दिन का राहु अष्टमांश। नवीन आरम्भ, यात्रा एवं शुभ अनुष्ठान वर्जित हैं।</span></div>
+          </div>
+        </div>
       </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">⚡ यमघण्ट काल (Yamaghanta)</span>
-        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(yamaStart)} – ${formatTimeDecimalToAMPM(yamaEnd)}</span>
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">यमघण्ट काल (Yamaghanta)</div>
+            <div class="panchang-item-value">${formatTimeDecimalToAMPM(yamaStart)} – ${formatTimeDecimalToAMPM(yamaEnd)}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill varjya">वर्जित</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">काल मान</span><span class="drawer-val">${formatTimeDecimalToAMPM(yamaStart)} से ${formatTimeDecimalToAMPM(yamaEnd)}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">शास्त्रीय निर्देश</span><span class="drawer-val">अनिष्ट फलप्रद काल। विशेषकर प्रस्थान व यात्रा में परिहार रखें।</span></div>
+          </div>
+        </div>
       </div>
-      <div class="muhurta-item">
-        <span class="muhurta-item-name">🛡️ गुलिक काल (Gulika Kalam)</span>
-        <span class="muhurta-item-time">${formatTimeDecimalToAMPM(gulikaStart)} – ${formatTimeDecimalToAMPM(gulikaEnd)}</span>
+
+      <div class="panchang-wrapped-item" onclick="togglePanchangWrappedItem(this)">
+        <div class="panchang-wrapped-header">
+          <div>
+            <div class="panchang-item-label">गुलिक काल (Gulika Kalam)</div>
+            <div class="panchang-item-value">${formatTimeDecimalToAMPM(gulikaStart)} – ${formatTimeDecimalToAMPM(gulikaEnd)}</div>
+          </div>
+          <div class="panchang-item-meta">
+            <span class="panchang-status-pill saumya">मध्यम</span>
+            <span class="panchang-chevron">▾</span>
+          </div>
+        </div>
+        <div class="panchang-drawer">
+          <div class="panchang-drawer-grid">
+            <div class="drawer-cell"><span class="drawer-lbl">काल मान</span><span class="drawer-val">${formatTimeDecimalToAMPM(gulikaStart)} से ${formatTimeDecimalToAMPM(gulikaEnd)}</span></div>
+            <div class="drawer-cell"><span class="drawer-lbl">शास्त्रीय निर्देश</span><span class="drawer-val">मांदि प्रभाव काल। स्थायी प्रकृति के कार्यों में ग्राह्य।</span></div>
+          </div>
+        </div>
       </div>
     `;
 
-    // Avakahada Table HTML
+    // Avakahada Table HTML (Clean, zero icons)
     const moonVarna = VARNAS[moonSign] || "—";
     const avakahadaHtml = `
       <tr>
-        <td>वर्ण (Varna)</td>
-        <td><strong>${moonVarna}</strong></td>
-        <td>वश्य (Vashya)</td>
-        <td><strong>${nakInfo.vashya}</strong></td>
+        <td class="av-lbl">वर्ण (Varna)</td>
+        <td class="av-val">${moonVarna}</td>
+        <td class="av-lbl">वश्य (Vashya)</td>
+        <td class="av-val">${nakInfo.vashya}</td>
       </tr>
       <tr>
-        <td>योनि (Yoni)</td>
-        <td><strong>${nakInfo.yoni}</strong></td>
-        <td>गण (Gana)</td>
-        <td><strong>${nakInfo.gana} गण</strong></td>
+        <td class="av-lbl">योनि (Yoni)</td>
+        <td class="av-val">${nakInfo.yoni}</td>
+        <td class="av-lbl">गण (Gana)</td>
+        <td class="av-val">${nakInfo.gana} गण</td>
       </tr>
       <tr>
-        <td>नाड़ी (Nadi)</td>
-        <td><strong>${nakInfo.nadi} नाड़ी</strong></td>
-        <td>चन्द्र राशि (Moon)</td>
-        <td><strong>${SIGNS[moonSign]} (${formatDMS(moonSid % 30)})</strong></td>
+        <td class="av-lbl">नाड़ी (Nadi)</td>
+        <td class="av-val">${nakInfo.nadi} नाड़ी</td>
+        <td class="av-lbl">चन्द्र राशि (Moon)</td>
+        <td class="av-val">${SIGNS[moonSign]} (${formatDMS(moonSid % 30)})</td>
       </tr>
       <tr>
-        <td>सूर्य राशि (Sun)</td>
-        <td><strong>${SIGNS[sunSign]} (${formatDMS(sunSid % 30)})</strong></td>
-        <td>नक्षत्र व नामाक्षर</td>
-        <td><strong style="color:var(--primary,#7C1305);">${nakInfo.name} चरण ${pada} — अक्षर "${birthLetter}"</strong></td>
+        <td class="av-lbl">सूर्य राशि (Sun)</td>
+        <td class="av-val">${SIGNS[sunSign]} (${formatDMS(sunSid % 30)})</td>
+        <td class="av-lbl">नक्षत्र व नामाक्षर</td>
+        <td class="av-val">${nakInfo.name} चरण ${pada} — अक्षर "${birthLetter}"</td>
       </tr>
     `;
 
-    // Vishti Badge
+    // Vishti Badge (Clean hairline pill tag, zero icons, no neon colors)
     const vishtiBadgeHtml = karanaInfo.isVishti
-      ? `<span class="badge-vishti-alert">⚠️ विष्टि (भद्रा) सक्रिय</span>`
-      : `<span class="badge-limb-good">✓ शुभ भद्रारहित काल</span>`;
+      ? `<span class="panchang-status-pill varjya">विष्टि (भद्रा) सक्रिय</span>`
+      : `<span class="panchang-status-pill shubh">भद्रारहित शुभ काल</span>`;
 
     const samvatHtml = `विक्रम संवत् ${toDevanagariNumerals(vikramSamvat)} • शक संवत् ${toDevanagariNumerals(sakaSamvat)} • ${CHANDRA_MASA[sunSign]} मास (${isShukla ? 'शुक्ल' : 'कृष्ण'}) • ${RITU_NAMES[rituIdx]}`;
 
@@ -5075,14 +5234,14 @@
     const mAvakahada = document.getElementById('landingAvakahadaTbl');
     if (mAvakahada) mAvakahada.innerHTML = `<tbody>${avakahadaHtml}</tbody>`;
 
-    // Update Desktop Paneling
+    // Update Desktop Paneling (Wrapped on-demand segmented interface, zero icons)
     const deskWrap = document.getElementById('desktopPanchangDisplayWrap');
     if (deskWrap) {
       deskWrap.innerHTML = `
         <div class="panchang-card">
           <div class="panchang-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             <div>
-              <div style="font-size:19px; font-weight:800; color:var(--heading-color); font-family:var(--font-heading-serif);">
+              <div style="font-size:20px; font-weight:800; color:var(--heading-color); font-family:var(--font-heading-serif);">
                 ${dateFormatted} — ${landingPanchangState.city}
               </div>
               <div style="font-size:13px; color:var(--gold-dark); font-weight:600; margin-top:4px;">
@@ -5094,33 +5253,42 @@
             </div>
           </div>
 
-          <h3 class="panchang-section-title"><span>🌟</span> पञ्चाङ्ग के ५ प्रधान अंग (Five Core Limbs)</h3>
-          <div class="panchang-grid-5">
-            ${limbsHtml}
+          <div class="panchang-segment-nav" role="tablist" aria-label="पञ्चाङ्ग विभाग">
+            <button type="button" class="panchang-seg-btn active" data-sec="limbs" onclick="switchLandingPanchangSection('limbs', this)" role="tab" aria-selected="true">मुख्य ५ अंग</button>
+            <button type="button" class="panchang-seg-btn" data-sec="muhurta" onclick="switchLandingPanchangSection('muhurta', this)" role="tab" aria-selected="false">मुहूर्त एवं काल</button>
+            <button type="button" class="panchang-seg-btn" data-sec="solar" onclick="switchLandingPanchangSection('solar', this)" role="tab" aria-selected="false">सौर-चान्द्र मान</button>
+            <button type="button" class="panchang-seg-btn" data-sec="avakahada" onclick="switchLandingPanchangSection('avakahada', this)" role="tab" aria-selected="false">अवकहड़ा चक्र</button>
           </div>
 
-          <h3 class="panchang-section-title"><span>☀️</span> सौर-चान्द्र मान एवं दिन विभाजन (Solar & Lunar Dynamics)</h3>
-          <div class="muhurta-grid">
+          <div class="panchang-section-panel" data-section="limbs" style="display:block;">
+            <div class="panchang-grid-wrapped">
+              ${limbsHtml}
+            </div>
+          </div>
+
+          <div class="panchang-section-panel" data-section="muhurta" style="display:none;">
+            <div class="panchang-grid-wrapped">
+              ${muhurtaHtml}
+            </div>
+          </div>
+
+          <div class="panchang-section-panel" data-section="solar" style="display:none;">
             ${solarHtml}
           </div>
 
-          <h3 class="panchang-section-title"><span>⏰</span> तात्कालिक मुहूर्त एवं कालवेला (Muhurta Timings)</h3>
-          <div class="muhurta-grid">
-            ${muhurtaHtml}
-          </div>
-
-          <h3 class="panchang-section-title"><span>📜</span> अवकहड़ा चक्र (Avakahada Chakra)</h3>
-          <div style="overflow-x:auto;">
-            <table class="avakahada-table">
-              <tbody>
-                ${avakahadaHtml}
-              </tbody>
-            </table>
+          <div class="panchang-section-panel" data-section="avakahada" style="display:none;">
+            <div style="overflow-x:auto;">
+              <table class="panchang-avakahada-clean-tbl">
+                <tbody>
+                  ${avakahadaHtml}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div style="margin-top:24px; text-align:center;">
             <button type="button" class="app-primary-btn" onclick="openPatrikaFromPanchang()" style="max-width:380px; margin:0 auto; padding:12px 24px; font-size:15px;">
-              ✨ इस तिथि का पूर्ण जन्म चक्र / पत्रिका देखें ➔
+              इस तिथि का सम्पूर्ण जन्म चक्र देखें ➔
             </button>
           </div>
         </div>
@@ -5253,6 +5421,45 @@
   window.onDesktopCityChange = onDesktopCityChange;
   window.useCurrentLocationPanchang = useCurrentLocationPanchang;
   window.calculateLandingPanchang = calculateLandingPanchang;
+
+  function switchLandingPanchangSection(sectionKey, btn) {
+    const container = btn.closest ? btn.closest('.panchang-card') : null;
+    const root = container || document;
+    const allBtns = root.querySelectorAll('.panchang-seg-btn');
+    allBtns.forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+
+    const panels = root.querySelectorAll('.panchang-section-panel');
+    panels.forEach(p => {
+      if (p.getAttribute('data-section') === sectionKey) {
+        p.style.display = 'block';
+      } else {
+        p.style.display = 'none';
+      }
+    });
+  }
+
+  function togglePanchangWrappedItem(targetEl) {
+    const item = targetEl.closest ? targetEl.closest('.panchang-wrapped-item') : targetEl;
+    if (!item) return;
+    const wasOpen = item.classList.contains('is-open');
+    const container = item.closest ? (item.closest('.panchang-grid-wrapped') || item.parentElement) : item.parentElement;
+    if (container) {
+      container.querySelectorAll('.panchang-wrapped-item').forEach(el => {
+        el.classList.remove('is-open');
+      });
+    }
+    if (!wasOpen) {
+      item.classList.add('is-open');
+    }
+  }
+
+  window.switchLandingPanchangSection = switchLandingPanchangSection;
+  window.togglePanchangWrappedItem = togglePanchangWrappedItem;
 
   // AUTO-OPEN PREORDER MODAL IF REDIRECTED WITH URL PARAM
   window.addEventListener('DOMContentLoaded', () => {

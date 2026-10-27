@@ -905,88 +905,395 @@ nav {
   border-color: rgba(232, 199, 102, 0.3) !important;
 }
 
-/* ── 11.4 CELESTIAL OBSERVATORY DEDICATED PANCHANG ── */
+/* ── 11.4 CELESTIAL OBSERVATORY DEDICATED PANCHANG (WRAPPED & ULTRA-SOPHISTICATED) ── */
 #desktopPanchangSection {
-  padding: 64px 0 !important;
+  padding: 56px 0 !important;
   position: relative !important;
 }
 
 .panchang-card {
-  border-radius: 18px !important;
-  border: 1px solid var(--gold-border) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04) !important;
-  padding: 24px !important;
-}
-
-[data-theme="night"] .panchang-card {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
-}
-
-.panchang-grid-5 {
-  display: grid !important;
-  grid-template-columns: repeat(5, 1fr) !important;
-  gap: 12px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--gold-border, rgba(197, 160, 89, 0.3)) !important;
+  background: var(--card-bg, #ffffff) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04) !important;
+  padding: 20px !important;
   margin-bottom: 24px !important;
 }
 
-@media (max-width: 900px) {
-  .panchang-grid-5 {
-    grid-template-columns: repeat(2, 1fr) !important;
+@media (max-width: 600px) {
+  .panchang-card {
+    padding: 14px !important;
+    border-radius: 14px !important;
   }
 }
 
-.panchang-limb-box {
-  background: var(--bg2) !important;
-  border: 1px solid var(--gold-border) !important;
-  border-radius: 14px !important;
-  padding: 14px 16px !important;
+[data-theme="night"] .panchang-card {
+  background: #140A2B !important;
+  border-color: rgba(232, 199, 102, 0.2) !important;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Category Segment Nav (Wrapped Navigation Bar) */
+.panchang-segment-nav {
+  display: flex !important;
+  gap: 6px !important;
+  background: var(--bg2, #f5efe6) !important;
+  padding: 4px !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--border, rgba(197, 160, 89, 0.22)) !important;
+  margin: 16px 0 14px 0 !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+}
+
+.panchang-segment-nav::-webkit-scrollbar {
+  display: none !important;
+}
+
+.panchang-seg-btn {
+  flex: 1 !important;
+  min-width: max-content !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--text-muted, #78716c) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 7px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+.panchang-seg-btn.active {
+  background: var(--card, #ffffff) !important;
+  color: var(--heading-color, #2c1a0e) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="night"] .panchang-segment-nav {
+  background: #0d071b !important;
+  border-color: rgba(232, 199, 102, 0.16) !important;
+}
+
+[data-theme="night"] .panchang-seg-btn {
+  color: #b9abd6 !important;
+}
+
+[data-theme="night"] .panchang-seg-btn.active {
+  background: #1f113d !important;
+  color: #F3EEFF !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Panels */
+.panchang-section-panel {
+  animation: panchangFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes panchangFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Wrapped Accordion Items (Progressive On-Demand Revelation) */
+.panchang-grid-wrapped {
   display: flex !important;
   flex-direction: column !important;
-  transition: all 0.2s ease !important;
+  gap: 8px !important;
 }
 
-.panchang-limb-box:hover {
-  transform: translateY(-2px) !important;
-  border-color: var(--gold) !important;
-  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.15) !important;
+.panchang-wrapped-item {
+  background: var(--card, #ffffff) !important;
+  border: 1px solid var(--border, rgba(197, 160, 89, 0.2)) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  cursor: pointer !important;
 }
 
-[data-theme="night"] .panchang-limb-box {
+.panchang-wrapped-item:hover {
+  border-color: var(--gold, #C5A059) !important;
+}
+
+.panchang-wrapped-item.is-open {
+  border-color: var(--gold, #C5A059) !important;
+  box-shadow: 0 4px 14px rgba(197, 160, 89, 0.1) !important;
+}
+
+[data-theme="night"] .panchang-wrapped-item {
   background: #140A2B !important;
-  border-color: rgba(232, 199, 102, 0.22) !important;
+  border-color: rgba(232, 199, 102, 0.16) !important;
 }
 
-.limb-label {
+[data-theme="night"] .panchang-wrapped-item:hover,
+[data-theme="night"] .panchang-wrapped-item.is-open {
+  border-color: rgba(232, 199, 102, 0.4) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.panchang-wrapped-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 11px 14px !important;
+  gap: 12px !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.panchang-item-label {
   font-family: var(--font-display, 'Cinzel', serif) !important;
   font-size: 11px !important;
   font-weight: 700 !important;
-  color: var(--gold-dark) !important;
-  letter-spacing: 1px !important;
+  color: var(--gold-dark, #8C6D2B) !important;
+  letter-spacing: 0.5px !important;
   text-transform: uppercase !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 2px !important;
 }
 
-[data-theme="night"] .limb-label {
+[data-theme="night"] .panchang-item-label {
   color: #E8C766 !important;
 }
 
-.limb-value {
+.panchang-item-value {
   font-family: 'Rozha One', 'Tiro Devanagari Hindi', serif !important;
-  font-size: 18px !important;
+  font-size: 16px !important;
   font-weight: 700 !important;
   color: var(--heading-color) !important;
   line-height: 1.3 !important;
 }
 
-[data-theme="night"] .limb-value {
+[data-theme="night"] .panchang-item-value {
   color: #F3EEFF !important;
 }
 
+.panchang-item-meta {
+  font-size: 12px !important;
+  color: var(--muted, #78716c) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+}
+
+[data-theme="night"] .panchang-item-meta {
+  color: #b9abd6 !important;
+}
+
+.panchang-chevron {
+  font-size: 11px !important;
+  color: var(--muted, #78716c) !important;
+  transition: transform 0.2s ease !important;
+  display: inline-block !important;
+}
+
+.panchang-wrapped-item.is-open .panchang-chevron {
+  transform: rotate(180deg) !important;
+}
+
+/* Expandable Drawer inside wrapped items */
+.panchang-drawer {
+  display: none !important;
+  padding: 12px 14px !important;
+  border-top: 1px solid var(--border-subtle, rgba(197, 160, 89, 0.15)) !important;
+  background: var(--bg2, #faf7f2) !important;
+  font-size: 12.5px !important;
+  color: var(--text) !important;
+  animation: panchangFadeIn 0.2s ease !important;
+}
+
+.panchang-wrapped-item.is-open .panchang-drawer {
+  display: block !important;
+}
+
+[data-theme="night"] .panchang-drawer {
+  background: #0d071d !important;
+  border-color: rgba(232, 199, 102, 0.12) !important;
+  color: #F3EEFF !important;
+}
+
+.panchang-drawer-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+  gap: 10px 14px !important;
+}
+
+.drawer-cell {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.drawer-lbl {
+  font-size: 10.5px !important;
+  color: var(--muted, #78716c) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+}
+
+[data-theme="night"] .drawer-lbl {
+  color: #b9abd6 !important;
+}
+
+.drawer-val {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--heading-color) !important;
+}
+
+[data-theme="night"] .drawer-val {
+  color: #F3EEFF !important;
+}
+
+/* Status Pills (Minimal, Hairline, Calm) */
+.panchang-status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+  border: 1px solid currentColor !important;
+  background: transparent !important;
+  line-height: 1.4 !important;
+}
+
+.panchang-status-pill.shubh {
+  color: #2e6f40 !important;
+  border-color: rgba(46, 111, 64, 0.35) !important;
+}
+
+.panchang-status-pill.varjya {
+  color: #8e2818 !important;
+  border-color: rgba(142, 40, 24, 0.35) !important;
+}
+
+.panchang-status-pill.saumya {
+  color: var(--muted, #78716c) !important;
+  border-color: rgba(120, 113, 108, 0.3) !important;
+}
+
+[data-theme="night"] .panchang-status-pill.shubh {
+  color: #4ade80 !important;
+  border-color: rgba(74, 222, 128, 0.35) !important;
+}
+
+[data-theme="night"] .panchang-status-pill.varjya {
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.35) !important;
+}
+
+[data-theme="night"] .panchang-status-pill.saumya {
+  color: #b9abd6 !important;
+  border-color: rgba(185, 171, 214, 0.25) !important;
+}
+
+/* Solar & Lunar Clean Rows */
+.panchang-data-table-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.panchang-data-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 10px 14px !important;
+  background: var(--card, #ffffff) !important;
+  border: 1px solid var(--border, rgba(197, 160, 89, 0.18)) !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+}
+
+[data-theme="night"] .panchang-data-row {
+  background: #140A2B !important;
+  border-color: rgba(232, 199, 102, 0.16) !important;
+}
+
+.data-row-lbl {
+  color: var(--muted, #78716c) !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="night"] .data-row-lbl {
+  color: #b9abd6 !important;
+}
+
+.data-row-val {
+  color: var(--heading-color) !important;
+  font-weight: 700 !important;
+  font-family: 'Rozha One', 'Tiro Devanagari Hindi', serif !important;
+  font-size: 14px !important;
+}
+
+[data-theme="night"] .data-row-val {
+  color: #F3EEFF !important;
+}
+
+/* Clean Avakahada Table */
+.panchang-avakahada-clean-tbl {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 1px solid var(--border, rgba(197, 160, 89, 0.22)) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  font-size: 12.5px !important;
+  background: var(--card, #ffffff) !important;
+}
+
+.panchang-avakahada-clean-tbl td {
+  padding: 10px 12px !important;
+  border-bottom: 1px solid var(--border-subtle, rgba(197, 160, 89, 0.12)) !important;
+}
+
+.panchang-avakahada-clean-tbl tr:last-child td {
+  border-bottom: none !important;
+}
+
+.panchang-avakahada-clean-tbl .av-lbl {
+  font-weight: 600 !important;
+  color: var(--muted, #78716c) !important;
+  width: 22% !important;
+  background: var(--bg2, #faf7f2) !important;
+  border-right: 1px solid var(--border-subtle, rgba(197, 160, 89, 0.12)) !important;
+}
+
+.panchang-avakahada-clean-tbl .av-val {
+  font-weight: 700 !important;
+  color: var(--heading-color) !important;
+  width: 28% !important;
+}
+
+[data-theme="night"] .panchang-avakahada-clean-tbl {
+  background: #140A2B !important;
+  border-color: rgba(232, 199, 102, 0.16) !important;
+}
+
+[data-theme="night"] .panchang-avakahada-clean-tbl .av-lbl {
+  background: #0d071d !important;
+  color: #b9abd6 !important;
+  border-color: rgba(232, 199, 102, 0.12) !important;
+}
+
+[data-theme="night"] .panchang-avakahada-clean-tbl .av-val {
+  color: #F3EEFF !important;
+  border-color: rgba(232, 199, 102, 0.12) !important;
+}
+
+/* Quick chip buttons in date pickers */
 .quick-chip-btn {
-  padding: 8px 14px !important;
+  padding: 7px 12px !important;
   border-radius: 8px !important;
   font-size: 12px !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   border: 1px solid var(--gold-border) !important;
   background: var(--card) !important;
   color: var(--text) !important;
@@ -1000,13 +1307,13 @@ nav {
 }
 
 .quick-chip-btn.active {
-  background: linear-gradient(135deg, var(--gold2), var(--gold-dark)) !important;
+  background: var(--heading-color) !important;
   color: #FFFFFF !important;
   border-color: transparent !important;
 }
 
 [data-theme="night"] .quick-chip-btn.active {
-  background: linear-gradient(135deg, #E8C766, #9E7A20) !important;
+  background: #E8C766 !important;
   color: #07040D !important;
 }
 
