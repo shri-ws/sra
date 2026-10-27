@@ -1715,3 +1715,328 @@ footer,
   color: #8C7FA5 !important;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   SRA SACRED SURYA-SWASTIKA VEDIC LOADER (ROTATING SUN & STATIONARY SWASTIKA)
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes sraSuryaRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sraSolarHaloPulse {
+  0%, 100% {
+    transform: scale(0.95);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
+}
+
+@keyframes sraSolarLoaderBreathe {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.45));
+  }
+  50% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 32px rgba(245, 158, 11, 0.75));
+  }
+}
+
+.sra-sacred-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999999;
+  background: radial-gradient(circle at center, rgba(30, 15, 8, 0.92) 0%, rgba(15, 23, 42, 0.97) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: 'Noto Sans Devanagari', 'Cinzel', system-ui, sans-serif;
+  text-align: center;
+  padding: 24px;
+  box-sizing: border-box;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.sra-sacred-loader-overlay.sra-loader-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.sra-surya-loader-graphic {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: sraSolarLoaderBreathe 4s ease-in-out infinite;
+  margin-bottom: 22px;
+}
+
+.sra-solar-halo {
+  transform-origin: 100px 100px;
+  animation: sraSolarHaloPulse 3.2s ease-in-out infinite;
+}
+
+/* Background Sun Rays rotate slowly, smoothly & elegantly (16s cycle) */
+.sra-surya-rotating-rays {
+  transform-origin: 100px 100px;
+  animation: sraSuryaRotate 16s linear infinite;
+  will-change: transform;
+}
+
+/* Central Solar Disc and Auspicious Swastika remain steady, upright and stationary */
+.sra-swastika-stationary-core {
+  transform-origin: 100px 100px;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.sra-loader-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #fef08a;
+  letter-spacing: 0.6px;
+  margin: 0 0 6px 0;
+  font-family: 'Noto Sans Devanagari', 'Cinzel', serif;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.sra-loader-subtitle {
+  font-size: 13.5px;
+  color: #cbd5e1;
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.sra-loader-progress-bar {
+  width: 150px;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 3px;
+  margin: 16px auto 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.sra-loader-progress-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, #f59e0b, #fef08a, transparent);
+  animation: sraLoaderLineGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes sraLoaderLineGlow {
+  0% { left: -45%; }
+  100% { left: 145%; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SRA INDEX LIVING & MOVING ELEMENTS (MEGA REPORT & VALUE PROP TYPEWRITER)
+   ══════════════════════════════════════════════════════════════════════════ */
+.mega-parashara-featured-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  background: linear-gradient(135deg, rgba(124,19,5,0.08) 0%, rgba(180,83,9,0.14) 50%, rgba(124,19,5,0.06) 100%) !important;
+  border: 2px solid var(--gold) !important;
+  border-radius: 20px !important;
+  padding: 28px !important;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.08), 0 0 20px rgba(212,175,55,0.18) !important;
+  animation: sraMegaCardGlow 4.5s ease-in-out infinite;
+}
+
+@keyframes sraMegaCardGlow {
+  0%, 100% {
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08), 0 0 18px rgba(212,175,55,0.18);
+    border-color: var(--gold);
+  }
+  50% {
+    box-shadow: 0 14px 42px rgba(124,19,5,0.16), 0 0 34px rgba(245,158,11,0.38);
+    border-color: #f59e0b;
+  }
+}
+
+/* Moving Light Beam / Shimmer across Mega Card */
+.mega-parashara-featured-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.02) 35%,
+    rgba(254, 240, 138, 0.18) 50%,
+    rgba(255, 255, 255, 0.02) 65%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  animation: sraShimmerPass 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes sraShimmerPass {
+  0% {
+    left: -60%;
+  }
+  32%, 100% {
+    left: 140%;
+  }
+}
+
+/* Flashing Beacon on Flagship Badge */
+.sra-flagship-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #7c1305, #b45309);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 5px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(124,19,5,0.35);
+  letter-spacing: 0.5px;
+}
+
+.sra-live-beacon {
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-shadow: 0 0 8px #ef4444;
+  flex-shrink: 0;
+}
+
+.sra-live-beacon::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ef4444;
+  animation: sraBeaconWave 1.6s ease-out infinite;
+}
+
+@keyframes sraBeaconWave {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Typewriter Container & Flashing Cursor */
+.sra-typewriter-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 12px;
+  font-size: 13.5px;
+  font-family: 'Noto Sans Devanagari', system-ui, sans-serif;
+  font-weight: 700;
+  color: var(--heading-color);
+  background: rgba(180, 83, 9, 0.08);
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  border-left: 4px solid #d97706;
+  padding: 7px 14px;
+  border-radius: 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 2px 10px rgba(180,83,9,0.06);
+}
+
+.sra-typewriter-cursor {
+  display: inline-block;
+  color: #d97706;
+  font-weight: 900;
+  margin-left: 2px;
+  animation: sraCursorBlink 0.75s step-start infinite;
+}
+
+@keyframes sraCursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Radiant Sheen on Mega Report CTA Button */
+.sra-btn-mega-radiant {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.sra-btn-mega-radiant:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124,19,5,0.4) !important;
+}
+
+.sra-btn-mega-radiant::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent, rgba(255,255,255,0.45), transparent);
+  transform: rotate(25deg);
+  animation: sraBtnSheen 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes sraBtnSheen {
+  0% { left: -60%; }
+  35%, 100% { left: 140%; }
+}
+
+/* Live Badge Soft Pulsing */
+.report-card-badge,
+.report-discount-tag {
+  animation: sraBadgeLivePulse 2.8s ease-in-out infinite;
+}
+
+@keyframes sraBadgeLivePulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.04);
+    filter: brightness(1.12);
+  }
+}
+
+

@@ -8015,34 +8015,44 @@ async function printParasharaReport(reportType) {
     btn.style.opacity = '0.7';
   }
 
-  // Show professional non-blocking loading mask
-  let mask = document.getElementById('pdf_gen_loading_mask');
-  if (!mask) {
-    mask = document.createElement('div');
-    mask.id = 'pdf_gen_loading_mask';
-    mask.style.position = 'fixed';
-    mask.style.top = '0';
-    mask.style.left = '0';
-    mask.style.width = '100vw';
-    mask.style.height = '100vh';
-    mask.style.zIndex = '999999';
-    mask.style.background = 'rgba(15, 23, 42, 0.85)';
-    mask.style.backdropFilter = 'blur(4px)';
-    mask.style.display = 'flex';
-    mask.style.flexDirection = 'column';
-    mask.style.alignItems = 'center';
-    mask.style.justifyContent = 'center';
-    mask.style.color = '#ffffff';
-    mask.style.fontFamily = "'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif";
-    mask.innerHTML = `
-      <div style="font-size:42px; margin-bottom:12px;">📥</div>
-      <div style="font-size:20px; font-weight:800; color:#fbbf24; font-family:'Cinzel', serif; letter-spacing:1px;">श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO</div>
-      <div style="font-size:16px; font-weight:700; margin-top:8px;">${isHi ? 'प्रामाणिक A4 PDF रिपोर्ट तैयार की जा रही है...' : 'Compiling High-Resolution A4 PDF...'}</div>
-      <div style="font-size:12.5px; color:#cbd5e1; margin-top:4px;">${isHi ? 'कृपया २-३ सेकंड प्रतीक्षा करें • सभी २१ परिहार व शास्त्रीय सूत्र संकलित हो रहे हैं' : 'Please wait 2-3 seconds • Certified Astrological Document'}</div>
-    `;
-    document.body.appendChild(mask);
+  // Show professional sacred loading mask (Rotating Sun & Stationary Swastika)
+  if (window.SRA_Loader && typeof window.SRA_Loader.show === 'function') {
+    window.SRA_Loader.show(
+      isHi ? 'प्रामाणिक A4 PDF रिपोर्ट तैयार की जा रही है...' : 'Compiling High-Resolution A4 PDF...',
+      isHi ? 'कृपया २-३ सेकंड प्रतीक्षा करें • सभी २१ परिहार व शास्त्रीय सूत्र संकलित हो रहे हैं' : 'Please wait 2-3 seconds • Certified Astrological Document'
+    );
   } else {
-    mask.style.display = 'flex';
+    let mask = document.getElementById('pdf_gen_loading_mask');
+    if (!mask) {
+      mask = document.createElement('div');
+      mask.id = 'pdf_gen_loading_mask';
+      mask.className = 'sra-sacred-loader-overlay';
+      mask.innerHTML = `
+        <div class="sra-surya-loader-graphic">
+          <svg class="sra-surya-loader-svg" viewBox="0 0 200 200" width="130" height="130" aria-label="श्री रामजी सूर्य-स्वास्तिक लोडर" style="overflow:visible;">
+            <circle cx="100" cy="100" r="98" fill="rgba(245,158,11,0.25)" class="sra-solar-halo" />
+            <g class="sra-surya-rotating-rays">
+              <circle cx="100" cy="100" r="50" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6, 6" />
+            </g>
+            <g class="sra-swastika-stationary-core">
+              <circle cx="100" cy="100" r="44" fill="#fef3c7" stroke="#b45309" stroke-width="2.5" />
+              <g stroke="#7c1305" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M 100 78 L 100 122 M 100 78 L 118 78 M 100 122 L 82 122 M 78 100 L 122 100 M 122 100 L 122 118 M 78 100 L 78 82" />
+              </g>
+              <circle cx="89" cy="89" r="2.8" fill="#7c1305" />
+              <circle cx="111" cy="89" r="2.8" fill="#7c1305" />
+              <circle cx="111" cy="111" r="2.8" fill="#7c1305" />
+              <circle cx="89" cy="111" r="2.8" fill="#7c1305" />
+            </g>
+          </svg>
+        </div>
+        <div class="sra-loader-title">${isHi ? 'प्रामाणिक A4 PDF रिपोर्ट तैयार की जा रही है...' : 'Compiling High-Resolution A4 PDF...'}</div>
+        <div class="sra-loader-subtitle">${isHi ? 'कृपया २-३ सेकंड प्रतीक्षा करें • सभी २१ परिहार व शास्त्रीय सूत्र संकलित हो रहे हैं' : 'Please wait 2-3 seconds • Certified Astrological Document'}</div>
+      `;
+      document.body.appendChild(mask);
+    } else {
+      mask.style.display = 'flex';
+    }
   }
 
   // 3. Ensure html2pdf is loaded
@@ -8054,6 +8064,8 @@ async function printParasharaReport(reportType) {
     }
   }
   if (typeof html2pdf !== 'function') {
+    if (window.SRA_Loader) window.SRA_Loader.hide();
+    const mask = document.getElementById('pdf_gen_loading_mask');
     if (mask) mask.style.display = 'none';
     if (btn) {
       btn.innerHTML = originalBtnHtml;
@@ -8259,6 +8271,10 @@ async function printParasharaReport(reportType) {
     if (container && container.parentNode) {
       container.parentNode.removeChild(container);
     }
+    if (window.SRA_Loader) {
+      window.SRA_Loader.hide();
+    }
+    const mask = document.getElementById('pdf_gen_loading_mask');
     if (mask) {
       mask.style.display = 'none';
     }

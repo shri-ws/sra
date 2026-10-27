@@ -2456,6 +2456,164 @@
     document.body.appendChild(modal);
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // SRA SACRED SURYA-SWASTIKA VEDIC LOADER (ROTATING SUN & STATIONARY SWASTIKA)
+  // ══════════════════════════════════════════════════════════════════════════
+  function getSuryaSwastikaSVG(size) {
+    size = size || 120;
+    const cx = 100, cy = 100;
+    let r1 = "";
+    for (let i = 0; i < 16; i++) {
+      const aMid = (i * 360 / 16) * Math.PI / 180;
+      const a1 = aMid - (9 * Math.PI / 180);
+      const a2 = aMid + (9 * Math.PI / 180);
+      const xBase1 = (cx + 50 * Math.cos(a1)).toFixed(2);
+      const yBase1 = (cy + 50 * Math.sin(a1)).toFixed(2);
+      const xBase2 = (cx + 50 * Math.cos(a2)).toFixed(2);
+      const yBase2 = (cy + 50 * Math.sin(a2)).toFixed(2);
+      const xTip = (cx + 94 * Math.cos(aMid)).toFixed(2);
+      const yTip = (cy + 94 * Math.sin(aMid)).toFixed(2);
+      const cp1x = (cx + 68 * Math.cos(aMid - 0.07)).toFixed(2);
+      const cp1y = (cy + 68 * Math.sin(aMid - 0.07)).toFixed(2);
+      const cp2x = (cx + 68 * Math.cos(aMid + 0.07)).toFixed(2);
+      const cp2y = (cy + 68 * Math.sin(aMid + 0.07)).toFixed(2);
+      r1 += `M ${xBase1} ${yBase1} Q ${cp1x} ${cp1y} ${xTip} ${yTip} Q ${cp2x} ${cp2y} ${xBase2} ${yBase2} Z `;
+    }
+
+    let r2 = "";
+    for (let i = 0; i < 16; i++) {
+      const aMid = ((i + 0.5) * 360 / 16) * Math.PI / 180;
+      const a1 = aMid - (5.5 * Math.PI / 180);
+      const a2 = aMid + (5.5 * Math.PI / 180);
+      const xBase1 = (cx + 50 * Math.cos(a1)).toFixed(2);
+      const yBase1 = (cy + 50 * Math.sin(a1)).toFixed(2);
+      const xBase2 = (cx + 50 * Math.cos(a2)).toFixed(2);
+      const yBase2 = (cy + 50 * Math.sin(a2)).toFixed(2);
+      const xTip = (cx + 76 * Math.cos(aMid)).toFixed(2);
+      const yTip = (cy + 76 * Math.sin(aMid)).toFixed(2);
+      r2 += `M ${xBase1} ${yBase1} L ${xTip} ${yTip} L ${xBase2} ${yBase2} Z `;
+    }
+
+    return `<svg class="sra-surya-loader-svg" viewBox="0 0 200 200" width="${size}" height="${size}" aria-label="श्री रामजी सूर्य-स्वास्तिक लोडर" style="overflow:visible;">
+  <defs>
+    <radialGradient id="sraHaloGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4" />
+      <stop offset="50%" stop-color="#b45309" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#7c1305" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="sraRayGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#f59e0b" />
+      <stop offset="75%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="sraRayGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb" />
+      <stop offset="40%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <radialGradient id="sraCoreDiscGrad" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#fffdf7" />
+      <stop offset="40%" stop-color="#fef3c7" />
+      <stop offset="85%" stop-color="#fde68a" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </radialGradient>
+    <linearGradient id="sraSwastikRedGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991b1b" />
+      <stop offset="45%" stop-color="#7c1305" />
+      <stop offset="80%" stop-color="#b45309" />
+      <stop offset="100%" stop-color="#7c1305" />
+    </linearGradient>
+    <filter id="sraGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <circle cx="100" cy="100" r="98" fill="url(#sraHaloGrad)" class="sra-solar-halo" />
+
+  <!-- 1. Rotating Sun Rays (पीछे का सूर्य जो धीरे-धीरे स्लो घूमता है) -->
+  <g class="sra-surya-rotating-rays">
+    <path d="${r1}" fill="url(#sraRayGrad1)" filter="url(#sraGlowFilter)" />
+    <path d="${r2}" fill="url(#sraRayGrad2)" opacity="0.95" />
+    <circle cx="100" cy="100" r="51" fill="none" stroke="url(#sraRayGrad1)" stroke-width="2.5" />
+    <circle cx="100" cy="100" r="47.5" fill="none" stroke="#fef08a" stroke-width="1.2" stroke-dasharray="2.5, 3.5" />
+  </g>
+
+  <!-- 2. Stationary Central Disc & Sacred Swastika (स्वास्तिक एज इट इज / स्थिर रहता है) -->
+  <g class="sra-swastika-stationary-core">
+    <circle cx="100" cy="100" r="44" fill="url(#sraCoreDiscGrad)" stroke="#b45309" stroke-width="2.8" filter="url(#sraGlowFilter)" />
+    <circle cx="100" cy="100" r="40" fill="none" stroke="#d97706" stroke-width="1" stroke-dasharray="2, 3" />
+
+    <g stroke="url(#sraSwastikRedGold)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M 100 78 L 100 122" />
+      <path d="M 100 78 L 118 78" />
+      <path d="M 100 122 L 82 122" />
+      <path d="M 78 100 L 122 100" />
+      <path d="M 122 100 L 122 118" />
+      <path d="M 78 100 L 78 82" />
+    </g>
+
+    <circle cx="89" cy="89" r="2.8" fill="url(#sraSwastikRedGold)" />
+    <circle cx="111" cy="89" r="2.8" fill="url(#sraSwastikRedGold)" />
+    <circle cx="111" cy="111" r="2.8" fill="url(#sraSwastikRedGold)" />
+    <circle cx="89" cy="111" r="2.8" fill="url(#sraSwastikRedGold)" />
+    <circle cx="100" cy="100" r="1.8" fill="#fffbeb" opacity="0.9" />
+  </g>
+</svg>`;
+  }
+
+  window.SRA_Loader = {
+    getSuryaSwastikaSVG: getSuryaSwastikaSVG,
+    show: function(title, subtitle) {
+      const defaultTitle = "श्री रामजी एस्ट्रो • वैदिक गणना एवं साधन";
+      const defaultSubtitle = "खगोलीय परिशुद्धता के साथ ग्रह स्थिति व शास्त्रीय सूत्रों का संकलन...";
+      let overlay = document.getElementById('sra_sacred_loader_overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'sra_sacred_loader_overlay';
+        overlay.className = 'sra-sacred-loader-overlay';
+        overlay.innerHTML = `
+          <div class="sra-surya-loader-graphic">
+            ${getSuryaSwastikaSVG(130)}
+          </div>
+          <div class="sra-loader-title" id="sraLoaderTitle">${title || defaultTitle}</div>
+          <div class="sra-loader-subtitle" id="sraLoaderSubtitle">${subtitle || defaultSubtitle}</div>
+          <div class="sra-loader-progress-bar">
+            <div class="sra-loader-progress-line"></div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+      } else {
+        const tEl = document.getElementById('sraLoaderTitle');
+        const sEl = document.getElementById('sraLoaderSubtitle');
+        if (tEl) tEl.textContent = title || defaultTitle;
+        if (sEl) sEl.textContent = subtitle || defaultSubtitle;
+      }
+      overlay.classList.remove('sra-loader-hidden');
+      overlay.style.display = 'flex';
+      overlay.style.opacity = '1';
+      overlay.style.visibility = 'visible';
+    },
+    update: function(title, subtitle) {
+      const tEl = document.getElementById('sraLoaderTitle');
+      const sEl = document.getElementById('sraLoaderSubtitle');
+      if (tEl && title) tEl.textContent = title;
+      if (sEl && subtitle) sEl.textContent = subtitle;
+    },
+    hide: function() {
+      const overlay = document.getElementById('sra_sacred_loader_overlay');
+      if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.visibility = 'hidden';
+        setTimeout(() => {
+          overlay.classList.add('sra-loader-hidden');
+          overlay.style.display = 'none';
+        }, 320);
+      }
+    }
+  };
+
   function initAll() {
     // Ensure viewport-fit=cover for iOS safe area insets globally
     try {
