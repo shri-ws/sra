@@ -414,13 +414,18 @@
       z-index: 100000 !important;
       display: flex !important;
       flex-direction: column !important;
-      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
+      box-shadow: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
       transform: translateX(100%) !important;
-      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s ease !important;
       box-sizing: border-box !important;
     }
     .nav-drawer.open {
       transform: translateX(0) !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.45) !important;
     }
     .drawer-header {
       padding: 14px 18px !important;
@@ -1952,6 +1957,29 @@
       }
     }
   </style>
+    <link rel="stylesheet" href="ui-overrides.css" />
+  <style id="sra-layout">
+    /* पाराशर रिपोर्ट पृष्ठ: सरल ऊपरी लेआउट (केवल नई क्लास, बाकी CSS अछूता) */
+    .sra-hero{max-width:760px;margin:0 auto;padding:36px 4px 8px;text-align:left}
+    .sra-hero h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.3;margin:0 0 10px;color:var(--primary)}
+    .sra-hero-sub{font-size:1.02rem;line-height:1.8;color:var(--text-muted);margin:0 0 20px;max-width:62ch}
+    .sra-get{list-style:none;margin:0 0 22px;padding:16px 0;border-block:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px 28px}
+    .sra-get li{position:relative;padding-left:18px;font-size:.95rem;color:var(--text)}
+    .sra-get li::before{content:"";position:absolute;left:0;top:.85em;width:8px;height:1px;background:var(--gold-dark)}
+    .sra-steps{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:12px;counter-reset:sra}
+    .sra-steps li{counter-increment:sra;display:grid;grid-template-columns:32px 1fr;column-gap:12px;align-items:start}
+    .sra-steps li::before{content:counter(sra);grid-row:1/3;width:30px;height:30px;border:1px solid var(--gold-dark);border-radius:50%;display:grid;place-items:center;color:var(--gold-dark);font-weight:700;font-size:.9rem}
+    .sra-steps b{font-weight:700;color:var(--text)}
+    .sra-steps span{font-size:.88rem;color:var(--text-muted)}
+    .sra-price-line{font-size:.9rem;color:var(--text-muted);margin:0 0 8px}
+    #kundaliSelectorSection{max-width:760px;margin-inline:auto}
+    .sra-more{max-width:980px;margin:48px auto 0;border-top:1px solid var(--border)}
+    .sra-more>summary{cursor:pointer;padding:16px 4px;font-weight:700;color:var(--primary);list-style:none}
+    .sra-more>summary::-webkit-details-marker{display:none}
+    .sra-more>summary::before{content:"+";display:inline-block;width:1.2em;color:var(--gold-dark)}
+    .sra-more[open]>summary::before{content:"\2212"}
+    @media(max-width:560px){.sra-get{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
 
@@ -2193,98 +2221,187 @@
 
   <!-- MAIN CONTENT -->
   <main class="container">
-    <section class="hero-banner">
-      <div class="hero-badge">📜 बृहत्पाराशरहोराशास्त्रम् — सम्पूर्ण संहिता (अखिल ९७ अध्याय: पूर्व एवं उत्तर खण्ड)</div>
-      <h1>मेगा पाराशर संहिता कुण्डली रिपोर्ट</h1>
-      <p style="font-size:16px; max-width:820px; margin:0 auto 20px; color:var(--text-muted); line-height:1.75;">
-        महर्षि पराशर प्रणीत मूल संहिता के आधार पर आपकी जन्म कुंडली के ग्रहों, लग्नों, षोडशवर्ग, सर्वाष्टकवर्ग, विंशोत्तरी दशा, अरिष्ट-भंग व वैदिक महा-शान्ति का शत-प्रतिशत प्रामाणिक फलित।
-      </p>
+    <section class="sra-hero" aria-labelledby="sraHeroTitle">
+      <h1 id="sraHeroTitle">मेगा पाराशर संहिता कुण्डली रिपोर्ट</h1>
+      <p class="sra-hero-sub">आपकी जन्म कुण्डली पर बृहत्पाराशरहोराशास्त्रम् के श्लोक, उनका सरल हिन्दी अर्थ और आपके लिए निष्कर्ष, एक ही रिपोर्ट में।</p>
+      <ul class="sra-get">
+        <li>हर निष्कर्ष के साथ मूल श्लोक और अध्याय</li>
+        <li>षोडशवर्ग (D1 से D60) और सर्वाष्टकवर्ग</li>
+        <li>वर्तमान विंशोत्तरी महादशा और अन्तर्दशा</li>
+        <li>शान्ति के उपाय, और A4 PDF</li>
+      </ul>
+      <ol class="sra-steps">
+        <li><b>जन्म विवरण भरें</b><span>नई कुण्डली लिखें या सहेजी हुई चुनें</span></li>
+        <li><b>₹1,111 भुगतान करें</b><span>UPI, कार्ड या नेटबैंकिंग (Razorpay)</span></li>
+        <li><b>रिपोर्ट इसी पृष्ठ पर खुलेगी</b><span>वहीं से PDF सहेजें</span></li>
+      </ol>
+      <p class="sra-price-line">हर कुण्डली की रिपोर्ट के लिए ₹1,111, भुगतान सफल होने के बाद ही रिपोर्ट खुलती है।</p>
+    </section>
 
-      <!-- 6 HIGH-IMPACT CLICKABLE REPORT HIGHLIGHTS (सबसे टॉप पर) -->
-      <div class="top-highlights-grid">
-        <!-- Highlight 1 -->
-        <div class="top-hl-card" onclick="onHighlightClick(1)" title="अखिल ९७ अध्याय मूल श्लोक मिलान देखें">
-          <div class="top-hl-icon">📜</div>
-          <div class="top-hl-body">
-            <h4>अखिल ९७ अध्याय मूल श्लोक</h4>
-            <p>आपकी जन्म कुंडली के आधार पर महर्षि पराशर के मूल संस्कृत श्लोकों से १००% प्रामाणिक मिलान।</p>
-          </div>
-          <span class="top-hl-arrow">➔</span>
-        </div>
-
-        <!-- Highlight 2 -->
-        <div class="top-hl-card" onclick="onHighlightClick(2)" title="D1 से D60 षोडशवर्ग चक्र देखें">
-          <div class="top-hl-icon">📊</div>
-          <div class="top-hl-body">
-            <h4>D1 से D60 षोडशवर्ग चक्र</h4>
-            <p>करियर (D10), दाम्पत्य (D9) से संचित प्रारब्ध (D60) तक १६ वर्गों का वैशेषिकांश बल।</p>
-          </div>
-          <span class="top-hl-arrow">➔</span>
-        </div>
-
-        <!-- Highlight 3 -->
-        <div class="top-hl-card" onclick="onHighlightClick(3)" title="सर्वाष्टकवर्ग ३३७ बिंदु चक्र देखें">
-          <div class="top-hl-icon">💰</div>
-          <div class="top-hl-body">
-            <h4>सर्वाष्टकवर्ग ३३७ बिंदु चक्र</h4>
-            <p>११वें भाव (लाभ) बनाम १२वें भाव (व्यय) का वित्तीय गणित — क्या आपके पास धन संचय होगा?</p>
-          </div>
-          <span class="top-hl-arrow">➔</span>
-        </div>
-
-        <!-- Highlight 4 -->
-        <div class="top-hl-card" onclick="onHighlightClick(4)" title="विंशोत्तरी दशा सटीक कालक्रम देखें">
-          <div class="top-hl-icon">⏱️</div>
-          <div class="top-hl-body">
-            <h4>विंशोत्तरी दशा सटीक कालक्रम</h4>
-            <p>वर्तमान महादशा, अन्तर्दशा एवं प्रत्यन्तर्दशा का दिन-प्रतिदिन काल-निर्णय व सटीक दिशा-निर्देश।</p>
-          </div>
-          <span class="top-hl-arrow">➔</span>
-        </div>
-
-        <!-- Highlight 5 -->
-        <div class="top-hl-card" onclick="onHighlightClick(5)" title="७-स्तंभ समग्र जीवन सार देखें">
-          <div class="top-hl-icon">🌟</div>
-          <div class="top-hl-body">
-            <h4>७-स्तंभ समग्र जीवन सार</h4>
-            <p>करियर, अकूत संपदा, नेतृत्व, सामाजिक प्रतिष्ठा व चुनौतियों पर आज के युग में सटीक कार्ययोजना।</p>
-          </div>
-          <span class="top-hl-arrow">➔</span>
-        </div>
-
-        <!-- Highlight 6 -->
-        <div class="top-hl-card" onclick="onHighlightClick(6)" title="वैदिक महा-शान्ति एवं रक्षा-कवच देखें">
-          <div class="top-hl-icon">🕉️</div>
-          <div class="top-hl-body">
-            <h4>वैदिक महा-शान्ति व रक्षा-कवच</h4>
-            <p>अनिष्ट ग्रह शान्ति, नवग्रह समिधा होम, ईष्टदेव साधना व महामृत्युंजय कलश-स्थापन विधान।</p>
-          </div>
-          <span class="top-hl-arrow">➔</span>
-        </div>
+    <!-- SECTION 4: PATRIKA ENGINE KUNDALI INTAKE FORM -->
+    <section id="kundaliSelectorSection">
+      <div class="section-header-wrap" style="margin-top:20px;">
+        
+        <h2 class="section-title">जन्म विवरण</h2>
+        <p class="section-sub">
+          सही जन्म समय और स्थान से ही सही रिपोर्ट बनती है।
+        </p>
       </div>
 
-      <!-- PRICE & UNLOCK HERO ACTION -->
-      <div class="hero-unlock-card">
-        <div class="price-pill-row">
-          <span class="price-tag">दक्षिणा शुल्क: केवल ₹1,111</span>
-          <span class="price-strikethrough">मूल्य: ₹5,100</span>
-          <span class="price-off-badge">७८% छूट</span>
+      <div class="kundali-card">
+        <div class="card-title-row">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">📜</span>
+            <h3 style="margin:0; font-size:17px; color:var(--primary); font-weight:800;">जन्म कुण्डली विवरण</h3>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label for="selSavedKundali" style="font-size:12px; font-weight:700; color:var(--gold-dark); white-space:nowrap;">
+                📂 सुरक्षित कुण्डलियां:
+              </label>
+              <select id="selSavedKundali" class="sel-kundali" onchange="onSavedKundaliSelected()" style="max-width:240px; font-size:12.5px; padding:6px 10px;"></select>
+            </div>
+            <button type="button" class="btn-new-k" onclick="createNewKundaliEntry()" title="नया खाली फॉर्म भरें" style="padding:6px 12px; font-size:12px;">
+              <span>➕ नया फॉर्म</span>
+            </button>
+          </div>
         </div>
-        <p class="unlock-benefit-text">
-          ✨ सम्पूर्ण ९७ अध्याय श्लोक मिलान • D1-D60 षोडशवर्ग • ३३७ सर्वाष्टकवर्ग • दशा कालक्रम • ७-स्तंभ जीवन सार • A4 PDF डाउनलोड
-        </p>
-        <div class="hero-cta-group" style="margin-top:16px;">
-          <button type="button" class="btn-hero-primary" onclick="openGateModal()">
-            <span>🔮 केवल ₹1111 में सम्पूर्ण रिपोर्ट अनलॉक करें</span>
-            <span style="font-size:20px;">🔓</span>
-          </button>
-          <button type="button" class="btn-hero-secondary" onclick="scrollToKundaliSection()">
-            <span>🎯 जन्म कुण्डली चुनें ⬇️</span>
-          </button>
-        </div>
+
+        <form id="patrikaIntakeForm" onsubmit="event.preventDefault(); handleGenerateReportClick();">
+          <div class="patrika-form-grid">
+            <div class="patrika-field">
+              <label for="inName">जातक का नाम <span style="color:#dc2626;">*</span></label>
+              <input type="text" id="inName" class="patrika-input" placeholder="उदा. श्रीधर मिश्र" required />
+            </div>
+
+            <div class="patrika-field">
+              <label for="inGender">लिंग (Gender)</label>
+              <select id="inGender" class="patrika-input">
+                <option value="male">पुरुष (Male)</option>
+                <option value="female">स्त्री (Female)</option>
+              </select>
+            </div>
+
+            <div class="patrika-field">
+              <label for="inDate">जन्म तिथि <span style="color:#dc2626;">*</span></label>
+              <input type="date" id="inDate" class="patrika-input" required />
+            </div>
+
+            <div class="patrika-field">
+              <label for="inTime">जन्म समय (24-Hour) <span style="color:#dc2626;">*</span></label>
+              <input type="time" id="inTime" step="1" class="patrika-input" required />
+            </div>
+
+            <div class="patrika-field" style="grid-column: 1 / -1;">
+              <label for="inCitySearch">जन्म स्थान (शहर / जिला) <span style="color:#dc2626;">*</span></label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inCitySearch" list="patrikaPresetCities" class="patrika-input" style="flex:1;" placeholder="उदा. लखनऊ, वाराणसी, सीतापुर, अयोध्या, दिल्ली, मुंबई, जयपुर, भोपाल, लंदन..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchCityLocation();}" oninput="handleCityInput(this.value)" required />
+                <button type="button" class="btn-city-search" onclick="searchCityLocation()" title="स्थान खोजें">
+                  <span>🔍 खोजें</span>
+                </button>
+              </div>
+              <datalist id="patrikaPresetCities"></datalist>
+            </div>
+          </div>
+
+          <!-- GEOGRAPHICAL COORDINATES -->
+          <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+              <span style="font-size:12.5px; font-weight:700; color:var(--gold-dark); display:flex; align-items:center; gap:6px;">
+                <span>📍</span> <span>भौगोलिक निर्देशांक (अक्षांश / देशांतर / टाइमज़ोन)</span>
+              </span>
+              <span id="geoStatusText" style="font-size:12px; color:var(--primary); font-weight:600; background:rgba(180,83,9,0.08); padding:3px 10px; border-radius:12px; border:1px solid var(--border-gold);">
+                📍 जन्म स्थान चुनें अथवा खोजें
+              </span>
+            </div>
+
+            <div class="patrika-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+              <div class="patrika-field">
+                <label for="inLat">अक्षांश (°N)</label>
+                <input type="number" id="inLat" step="0.0001" class="patrika-input" placeholder="27.5667" required />
+              </div>
+              <div class="patrika-field">
+                <label for="inLon">देशांतर (°E)</label>
+                <input type="number" id="inLon" step="0.0001" class="patrika-input" placeholder="80.6833" required />
+              </div>
+              <div class="patrika-field">
+                <label for="inTz">टाइमज़ोन (UTC Offset)</label>
+                <input type="number" id="inTz" step="0.25" class="patrika-input" placeholder="5.5" value="5.5" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBMIT ACTION -->
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn-generate" id="btnGenerateReport">
+              <span id="btnGenerateReportText">📜 सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें (₹1,111 दक्षिणा)</span>
+            </button>
+            <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px;">
+              🔒 100% सुरक्षित 256-bit Razorpay • भुगतान उपरांत तत्काल सम्पूर्ण ९७ अध्याय, षोडशवर्ग, सर्वाष्टकवर्ग एवं A4 PDF अनलॉक
+            </div>
+          </div>
+        </form>
       </div>
     </section>
 
+    <!-- REPORT VIEW -->
+    <section id="reportViewContainer" style="display:none;">
+      
+      <!-- PRINT ONLY HEADER (Visible only on print/PDF) -->
+      <div class="print-only-header" id="printOnlyHeader">
+        <div style="font-size:22pt; font-weight:900; color:#7c1305; font-family:'Cinzel', serif;">श्री रामजी एस्ट्रो</div>
+        <div style="font-size:15pt; font-weight:800; color:#b45309; margin-top:3pt;">मेगा पाराशर संहिता कुण्डली रिपोर्ट</div>
+        <div style="font-size:9.5pt; color:#64748b; margin-top:2pt;">बृहत्पाराशरहोराशास्त्रम् अखिल ९७ अध्याय (पूर्व एवं उत्तर खण्ड) — शत-प्रतिशत प्रामाणिक फलित व आधुनिक मार्गदर्शिका</div>
+        <div class="print-meta-grid" id="printMetaGrid"></div>
+      </div>
+
+      <!-- SUMMARY MATRIX -->
+      <div class="summary-matrix" id="summaryMatrix"></div>
+
+      <!-- MATCHED SHLOKAS TOOLBAR -->
+      <div class="report-header-toolbar">
+        <div>
+          <h2 style="font-size:22px; color:var(--primary); font-weight:900;">
+            📜 कुंडली में मैच हुए पाराशर श्लोक (<span id="countBadge">0</span>)
+          </h2>
+          <span style="font-size:13px; color:var(--text-muted); font-weight:700;">सम्पूर्ण संहिता (अखिल ९७ अध्याय: पूर्व एवं उत्तर खण्ड) का विस्तृत फलितार्थ एवं आधुनिक विश्लेषण</span>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="btn-act btn-top-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534);">
+            <span>📥 A4 PDF डाउनलोड करें</span>
+          </button>
+          <button type="button" class="btn-act btn-top-print" onclick="executePrintReport()">
+            <span>🖨️ प्रिंट करें</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- LIST OF SHLOKAS -->
+      <div id="shlokasList"></div>
+
+      <!-- 7-PILLAR EXECUTIVE LIFE SUMMARY (लास्ट में समग्र सार) -->
+      <div id="executiveSummaryContainer"></div>
+
+      <!-- 97-CHAPTER ADVANCED PARASHARA PHASES (PHASES 1, 2, 3) -->
+      <div id="advancedParasharaSuiteContainer"></div>
+
+      <!-- BOTTOM ACTION BUTTONS -->
+      <div class="action-row">
+        <button type="button" class="btn-act btn-act-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534); box-shadow:0 4px 14px rgba(21,128,61,0.35);">
+          <span>📥 सम्पूर्ण रिपोर्ट A4 PDF डाउनलोड करें</span>
+        </button>
+        <button type="button" class="btn-act btn-act-print" onclick="executePrintReport()">
+          <span>🖨️ सीधे प्रिंट करें (Print Report)</span>
+        </button>
+        <button type="button" class="btn-act btn-act-share" onclick="shareOnWhatsApp()">
+          <span>💬 व्हाट्सएप पर साझा करें</span>
+        </button>
+      </div>
+
+    </section>
+
+    <details class="sra-more" id="sraMore">
+      <summary>रिपोर्ट के बारे में विस्तार से: विशेषताएँ, नमूना, गणना का आधार, प्रश्नोत्तर</summary>
     <!-- SECTION 1: 10 DIVINE HIGHLIGHTS OF MEGA PARASHARA REPORT -->
     <section id="highlightsSection">
       <div class="section-header-wrap">
@@ -2611,168 +2728,6 @@
       </div>
     </section>
 
-    <!-- SECTION 4: PATRIKA ENGINE KUNDALI INTAKE FORM -->
-    <section id="kundaliSelectorSection">
-      <div class="section-header-wrap" style="margin-top:20px;">
-        <span class="section-pill">अपनी रिपोर्ट प्राप्त करें</span>
-        <h2 class="section-title">जातक जन्म विवरण (प्रामाणिक पाराशरी गणना)</h2>
-        <p class="section-sub">
-          सटीक अक्षांश, देशांतर, समय व अयनांश पर आधारित सम्पूर्ण षोडशवर्ग एवं ९७-अध्याय संहिता फलित
-        </p>
-      </div>
-
-      <div class="kundali-card">
-        <div class="card-title-row">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:22px;">📜</span>
-            <h3 style="margin:0; font-size:17px; color:var(--primary); font-weight:800;">जन्म कुण्डली विवरण</h3>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <label for="selSavedKundali" style="font-size:12px; font-weight:700; color:var(--gold-dark); white-space:nowrap;">
-                📂 सुरक्षित कुण्डलियां:
-              </label>
-              <select id="selSavedKundali" class="sel-kundali" onchange="onSavedKundaliSelected()" style="max-width:240px; font-size:12.5px; padding:6px 10px;"></select>
-            </div>
-            <button type="button" class="btn-new-k" onclick="createNewKundaliEntry()" title="नया खाली फॉर्म भरें" style="padding:6px 12px; font-size:12px;">
-              <span>➕ नया फॉर्म</span>
-            </button>
-          </div>
-        </div>
-
-        <form id="patrikaIntakeForm" onsubmit="event.preventDefault(); handleGenerateReportClick();">
-          <div class="patrika-form-grid">
-            <div class="patrika-field">
-              <label for="inName">जातक का नाम <span style="color:#dc2626;">*</span></label>
-              <input type="text" id="inName" class="patrika-input" placeholder="उदा. श्रीधर मिश्र" required />
-            </div>
-
-            <div class="patrika-field">
-              <label for="inGender">लिंग (Gender)</label>
-              <select id="inGender" class="patrika-input">
-                <option value="male">पुरुष (Male)</option>
-                <option value="female">स्त्री (Female)</option>
-              </select>
-            </div>
-
-            <div class="patrika-field">
-              <label for="inDate">जन्म तिथि <span style="color:#dc2626;">*</span></label>
-              <input type="date" id="inDate" class="patrika-input" required />
-            </div>
-
-            <div class="patrika-field">
-              <label for="inTime">जन्म समय (24-Hour) <span style="color:#dc2626;">*</span></label>
-              <input type="time" id="inTime" step="1" class="patrika-input" required />
-            </div>
-
-            <div class="patrika-field" style="grid-column: 1 / -1;">
-              <label for="inCitySearch">जन्म स्थान (शहर / जिला) <span style="color:#dc2626;">*</span></label>
-              <div style="display:flex; gap:8px;">
-                <input type="text" id="inCitySearch" list="patrikaPresetCities" class="patrika-input" style="flex:1;" placeholder="उदा. लखनऊ, वाराणसी, सीतापुर, अयोध्या, दिल्ली, मुंबई, जयपुर, भोपाल, लंदन..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchCityLocation();}" oninput="handleCityInput(this.value)" required />
-                <button type="button" class="btn-city-search" onclick="searchCityLocation()" title="स्थान खोजें">
-                  <span>🔍 खोजें</span>
-                </button>
-              </div>
-              <datalist id="patrikaPresetCities"></datalist>
-            </div>
-          </div>
-
-          <!-- GEOGRAPHICAL COORDINATES -->
-          <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-              <span style="font-size:12.5px; font-weight:700; color:var(--gold-dark); display:flex; align-items:center; gap:6px;">
-                <span>📍</span> <span>भौगोलिक निर्देशांक (अक्षांश / देशांतर / टाइमज़ोन)</span>
-              </span>
-              <span id="geoStatusText" style="font-size:12px; color:var(--primary); font-weight:600; background:rgba(180,83,9,0.08); padding:3px 10px; border-radius:12px; border:1px solid var(--border-gold);">
-                📍 जन्म स्थान चुनें अथवा खोजें
-              </span>
-            </div>
-
-            <div class="patrika-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
-              <div class="patrika-field">
-                <label for="inLat">अक्षांश (°N)</label>
-                <input type="number" id="inLat" step="0.0001" class="patrika-input" placeholder="27.5667" required />
-              </div>
-              <div class="patrika-field">
-                <label for="inLon">देशांतर (°E)</label>
-                <input type="number" id="inLon" step="0.0001" class="patrika-input" placeholder="80.6833" required />
-              </div>
-              <div class="patrika-field">
-                <label for="inTz">टाइमज़ोन (UTC Offset)</label>
-                <input type="number" id="inTz" step="0.25" class="patrika-input" placeholder="5.5" value="5.5" required />
-              </div>
-            </div>
-          </div>
-
-          <!-- SUBMIT ACTION -->
-          <div style="margin-top:20px;">
-            <button type="submit" class="btn-generate" id="btnGenerateReport">
-              <span id="btnGenerateReportText">📜 सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें (₹1,111 दक्षिणा)</span>
-            </button>
-            <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px;">
-              🔒 100% सुरक्षित 256-bit Razorpay • भुगतान उपरांत तत्काल सम्पूर्ण ९७ अध्याय, षोडशवर्ग, सर्वाष्टकवर्ग एवं A4 PDF अनलॉक
-            </div>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- REPORT VIEW -->
-    <section id="reportViewContainer" style="display:none;">
-      
-      <!-- PRINT ONLY HEADER (Visible only on print/PDF) -->
-      <div class="print-only-header" id="printOnlyHeader">
-        <div style="font-size:22pt; font-weight:900; color:#7c1305; font-family:'Cinzel', serif;">श्री रामजी एस्ट्रो</div>
-        <div style="font-size:15pt; font-weight:800; color:#b45309; margin-top:3pt;">मेगा पाराशर संहिता कुण्डली रिपोर्ट</div>
-        <div style="font-size:9.5pt; color:#64748b; margin-top:2pt;">बृहत्पाराशरहोराशास्त्रम् अखिल ९७ अध्याय (पूर्व एवं उत्तर खण्ड) — शत-प्रतिशत प्रामाणिक फलित व आधुनिक मार्गदर्शिका</div>
-        <div class="print-meta-grid" id="printMetaGrid"></div>
-      </div>
-
-      <!-- SUMMARY MATRIX -->
-      <div class="summary-matrix" id="summaryMatrix"></div>
-
-      <!-- MATCHED SHLOKAS TOOLBAR -->
-      <div class="report-header-toolbar">
-        <div>
-          <h2 style="font-size:22px; color:var(--primary); font-weight:900;">
-            📜 कुंडली में मैच हुए पाराशर श्लोक (<span id="countBadge">0</span>)
-          </h2>
-          <span style="font-size:13px; color:var(--text-muted); font-weight:700;">सम्पूर्ण संहिता (अखिल ९७ अध्याय: पूर्व एवं उत्तर खण्ड) का विस्तृत फलितार्थ एवं आधुनिक विश्लेषण</span>
-        </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button type="button" class="btn-act btn-top-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534);">
-            <span>📥 A4 PDF डाउनलोड करें</span>
-          </button>
-          <button type="button" class="btn-act btn-top-print" onclick="executePrintReport()">
-            <span>🖨️ प्रिंट करें</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- LIST OF SHLOKAS -->
-      <div id="shlokasList"></div>
-
-      <!-- 7-PILLAR EXECUTIVE LIFE SUMMARY (लास्ट में समग्र सार) -->
-      <div id="executiveSummaryContainer"></div>
-
-      <!-- 97-CHAPTER ADVANCED PARASHARA PHASES (PHASES 1, 2, 3) -->
-      <div id="advancedParasharaSuiteContainer"></div>
-
-      <!-- BOTTOM ACTION BUTTONS -->
-      <div class="action-row">
-        <button type="button" class="btn-act btn-act-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534); box-shadow:0 4px 14px rgba(21,128,61,0.35);">
-          <span>📥 सम्पूर्ण रिपोर्ट A4 PDF डाउनलोड करें</span>
-        </button>
-        <button type="button" class="btn-act btn-act-print" onclick="executePrintReport()">
-          <span>🖨️ सीधे प्रिंट करें (Print Report)</span>
-        </button>
-        <button type="button" class="btn-act btn-act-share" onclick="shareOnWhatsApp()">
-          <span>💬 व्हाट्सएप पर साझा करें</span>
-        </button>
-      </div>
-
-    </section>
-
     <!-- SECTION: ASTRONOMICAL & MATHEMATICAL FOUNDATION (पेज के एकदम नीचे) -->
     <section id="astronomicalFoundationSection" style="margin-top: 50px; margin-bottom: 30px;">
       <div class="section-header-wrap">
@@ -2930,6 +2885,7 @@
         </div>
       </div>
     </section>
+    </details>
   </main>
 
   <!-- SITE GLOBAL FOOTER -->
@@ -3414,6 +3370,8 @@
     }
 
     function scrollToHighlights() {
+      const more = document.getElementById('sraMore');
+      if (more) more.open = true;
       const el = document.getElementById('highlightsSection');
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
