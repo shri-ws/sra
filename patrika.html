@@ -6366,6 +6366,49 @@ function closeUploadedBooksModal(e) {
 }
 
 // -------------------------------------------------------------
+// PROGRESSIVE DOMAIN RENDERING ENGINE
+// -------------------------------------------------------------
+const renderedDomains = new Set();
+let domainRenderers = {};
+
+function ensureDomainRendered(domainId) {
+  if (renderedDomains.has(domainId)) return;
+  if (domainRenderers[domainId]) {
+    renderedDomains.add(domainId);
+    try {
+      domainRenderers[domainId]();
+    } catch(e) {
+      console.error(`Error rendering domain ${domainId}:`, e);
+    }
+  }
+}
+
+function scheduleIdleDomainRendering() {
+  const domainsToRender = ['planets', 'panchang', 'dashas', 'analysis', 'reports'];
+  let idx = 0;
+  function renderNext() {
+    while (idx < domainsToRender.length && renderedDomains.has(domainsToRender[idx])) {
+      idx++;
+    }
+    if (idx >= domainsToRender.length) return;
+    const d = domainsToRender[idx++];
+    ensureDomainRendered(d);
+    if (idx < domainsToRender.length) {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(renderNext, { timeout: 1500 });
+      } else {
+        setTimeout(renderNext, 200);
+      }
+    }
+  }
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(renderNext, { timeout: 1000 });
+  } else {
+    setTimeout(renderNext, 150);
+  }
+}
+
+// -------------------------------------------------------------
 // MASTER EXECUTION CONTROLLER
 // -------------------------------------------------------------
 async function executeParasharaMaster() {
@@ -6414,6 +6457,16 @@ async function executeParasharaMaster() {
     tzStr = "5.5";
     if (document.getElementById("inTz")) document.getElementById("inTz").value = tzStr;
   }
+
+  // Pre-paint indicator so UI does not feel frozen during heavy calculations
+  const calcBtn = document.getElementById("btnExecuteParashara") || document.querySelector("button[onclick*='executeParasharaMaster']") || document.querySelector(".btn-submit");
+  let origBtnHtml = "";
+  if (calcBtn) {
+    origBtnHtml = calcBtn.innerHTML;
+    calcBtn.disabled = true;
+    calcBtn.innerHTML = `<span>⏳</span> गणना हो रही है...`;
+  }
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
 
   saveSessionState();
   if (typeof logUserToDatabase === 'function') logUserToDatabase({});
@@ -6620,26 +6673,44 @@ async function executeParasharaMaster() {
 
   document.getElementById("outputSection").style.display = "block";
 
+  // Immediate rendering: Sandhi alerts, Rasi & Chalit charts, and Varga buttons
   renderSandhiAlerts(planets);
-  renderAllTables();
-  computeAndRenderBirthPanchang();
   renderRasiAndChalitCharts();
   initVargaButtons();
-  renderSelectedVargaCharts();
+
+  // Reset lazy render domain cache for new Kundali calculation
+  renderedDomains.clear();
+  renderedDomains.add('charts');
 
   const birthDateObj = new Date(y, m - 1, d, hh, mm, ss);
   const moonObj = planets.find(p => p.id === "Moon");
-  if (moonObj) {
-    compute5LevelVimshottari(birthDateObj, moonObj.abs);
-    computeJaiminiCharaDasha(lagnaSign, birthDateObj);
-    computeYoginiDasha(moonObj.abs, birthDateObj);
-  }
 
-  checkGraphLockState();
+  domainRenderers = {
+    planets: () => {
+      renderAllTables();
+    },
+    panchang: () => {
+      computeAndRenderBirthPanchang();
+    },
+    dashas: () => {
+      if (moonObj) {
+        compute5LevelVimshottari(birthDateObj, moonObj.abs);
+        computeJaiminiCharaDasha(lagnaSign, birthDateObj);
+        computeYoginiDasha(moonObj.abs, birthDateObj);
+      }
+    },
+    analysis: () => {
+      checkGraphLockState();
+    },
+    reports: () => {
+      if (typeof renderParasharaReports === 'function') {
+        renderParasharaReports();
+      }
+    }
+  };
 
-  if (typeof renderParasharaReports === 'function') {
-    renderParasharaReports();
-  }
+  // Schedule deferred rendering during idle browser frames
+  scheduleIdleDomainRendering();
 
   // Hide input form and introductory header post-generation to prioritize charts
   const pageHeader = document.getElementById("pageHeader") || document.querySelector(".header");
@@ -6674,6 +6745,11 @@ async function executeParasharaMaster() {
     if (typeof goToChartSlide === 'function') {
       goToChartSlide(0);
     }
+  }
+
+  if (calcBtn && origBtnHtml) {
+    calcBtn.disabled = false;
+    calcBtn.innerHTML = origBtnHtml;
   }
 }
 
@@ -7039,9 +7115,7 @@ function switchOutputDomain(domainId) {
     }
   });
 
-  if (domainId === 'reports' && typeof renderParasharaReports === 'function') {
-    renderParasharaReports();
-  }
+  ensureDomainRendered(domainId);
 
   const navEl = document.getElementById("outputDomainNav");
   if (navEl && window.scrollY > navEl.offsetTop) {
@@ -7064,6 +7138,7 @@ function toggleAllViewMode() {
       const p = document.getElementById(id);
       if (p) p.style.display = "block";
     });
+    ['charts', 'planets', 'panchang', 'dashas', 'analysis', 'reports'].forEach(ensureDomainRendered);
   } else {
     if (outputSec) outputSec.classList.remove("all-view-mode");
     if (btnAll) btnAll.classList.remove("active");
