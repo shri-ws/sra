@@ -792,6 +792,7 @@
     }
     /* SAVED KUNDALI SELECTOR & SNAPSHOT STYLES */
     .saved-kundali-selector-card {
+      display: none !important; /* Hidden: User request to avoid manual calculate friction */
       background: var(--card-bg);
       border: 1.5px solid var(--border-gold);
       border-radius: 16px;
@@ -1448,8 +1449,8 @@
         <p>100% Accurate Manglik Dosha Calculator (त्रि-लग्न, नवांश D9 व २१ शास्त्रीय परिहार)</p>
       </div>
 
-      <!-- SAVED KUNDALI SELECTION & ACTION CARD -->
-      <div class="saved-kundali-selector-card" id="savedKundaliSelectorCard">
+      <!-- SAVED KUNDALI SELECTION & ACTION CARD (Hidden: Report is auto-rendered directly) -->
+      <div class="saved-kundali-selector-card" id="savedKundaliSelectorCard" style="display:none !important;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
           <div>
             <div style="font-size:12px; font-weight:800; color:var(--gold-dark); text-transform:uppercase; letter-spacing:0.8px;">
@@ -1847,6 +1848,16 @@
         </p>
       </div>
 
+      <!-- Quick Switch from Saved Kundalis if any exist -->
+      <div id="modalSavedKundaliQuickSwitch" style="margin-bottom:14px; display:none;">
+        <label for="selModalSavedKundali" style="display:block; font-size:12.5px; font-weight:700; margin-bottom:4px; color:var(--text);">
+          📁 सुरक्षित कुण्डली में से चुनें:
+        </label>
+        <select id="selModalSavedKundali" onchange="onModalSavedKundaliPicked()" style="width:100%; padding:10px 12px; border-radius:8px; border:1.5px solid var(--border-gold); background:var(--card-bg); color:var(--text); font-size:13.5px; font-family:var(--font-hindi); font-weight:600;">
+        </select>
+        <div style="text-align:center; margin:12px 0 8px; font-size:11.5px; color:var(--text-muted); font-weight:700;">— अथवा नई जन्म पत्रिका का विवरण भरें —</div>
+      </div>
+
       <form id="newKundaliForm" onsubmit="handleNewKundaliSubmit(event)">
         <div class="form-group" style="margin-bottom:10px;">
           <label for="newKName" style="font-size:13px; font-weight:700;">जातक का नाम</label>
@@ -1991,7 +2002,36 @@
 
     function openNewOrPatrikaKundaliModal() {
       const modal = document.getElementById('modalNewKundaliInput');
-      if (modal) modal.classList.add('active');
+      if (modal) {
+        modal.classList.add('active');
+        const quickSwitch = document.getElementById('modalSavedKundaliQuickSwitch');
+        const selModal = document.getElementById('selModalSavedKundali');
+        if (quickSwitch && selModal && savedKundalisList && savedKundalisList.length > 0) {
+          selModal.innerHTML = '';
+          savedKundalisList.forEach((k, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = `${k.name || 'जातक'} • ${k.date || ''} (${k.city || ''})`;
+            if (currentSelectedKundali && (k.id === currentSelectedKundali.id || (k.name === currentSelectedKundali.name && k.date === currentSelectedKundali.date))) {
+              opt.selected = true;
+            }
+            selModal.appendChild(opt);
+          });
+          quickSwitch.style.display = 'block';
+        }
+      }
+    }
+
+    function onModalSavedKundaliPicked() {
+      const selModal = document.getElementById('selModalSavedKundali');
+      if (!selModal) return;
+      const idx = parseInt(selModal.value, 10);
+      const sel = document.getElementById('selSavedKundali');
+      if (sel) {
+        sel.selectedIndex = idx;
+      }
+      closeNewKundaliModal();
+      onSavedKundaliSelected();
     }
 
     function closeNewKundaliModal() {
@@ -2125,16 +2165,8 @@
         }
       }
 
-      // Hide report if switching to another kundali whose report hasn't been generated yet
-      const container = document.getElementById('unlockedManglikReportView');
-      if (container) {
-        const key = getKundaliPaymentKey(k);
-        if (isUnlocked && container.dataset.renderedKundaliId === key) {
-          container.style.display = 'block';
-        } else {
-          container.style.display = 'none';
-        }
-      }
+      // Automatically calculate and render Manglik report directly without requiring manual calculate click
+      calculateAndRenderManglikReport();
     }
 
     // Trigger Primary Generation Flow
@@ -2236,7 +2268,7 @@
 
       const k = currentSelectedKundali;
       if (!window.PatrikaEngineBridge || !window.MangalDoshaEngine) {
-        alert("गणना इंजन लोड हो रहा है, कृपया पुनः प्रयास करें...");
+        setTimeout(calculateAndRenderManglikReport, 100);
         return;
       }
 
@@ -2534,7 +2566,7 @@
               <span>📥</span> <span>A4 PDF डाउनलोड करें</span>
             </button>
             <button type="button" onclick="generateNewReport()" style="background:#fff; border:1.5px solid var(--border); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
-              <span>🔄</span> <span>नई रिपोर्ट</span>
+              <span>🔄</span> <span>कुण्डली बदलें</span>
             </button>
             <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fffcf6; border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
               <span>✨</span> <span>पत्रिका (D1-D60) ➔</span>
@@ -2569,34 +2601,9 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Return back to Kundali selector to generate a new report
+    // Change Kundali or enter new details to view report (No manual calculate button)
     function generateNewReport() {
-      // Re-show hero
-      const heroEl = document.querySelector('header.hero');
-      if (heroEl) heroEl.style.display = 'block';
-
-      // Re-show calculator header & selector card
-      const calcHeaderEl = document.querySelector('.calculator-header');
-      if (calcHeaderEl) calcHeaderEl.style.display = 'block';
-
-      const selectorCardEl = document.getElementById('savedKundaliSelectorCard');
-      if (selectorCardEl) selectorCardEl.style.display = 'block';
-
-      // Remove report mode class from calculator section
-      const calcSection = document.getElementById('calculator-section');
-      if (calcSection) calcSection.classList.remove('report-mode');
-
-      // Re-show editorial & FAQ sections below (maintaining full SEO)
-      const belowSections = document.querySelectorAll('.content-section, .content-img-wrap, .faq-section');
-      belowSections.forEach(el => el.style.display = 'block');
-
-      // Hide the report container
-      const container = document.getElementById('unlockedManglikReportView');
-      if (container) container.style.display = 'none';
-
-      // Smooth scroll back to selection card
-      const selBox = document.getElementById('savedKundaliSelectorCard');
-      if (selBox) selBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      openNewOrPatrikaKundaliModal();
     }
 
     // Instant WhatsApp Share for Manglik Dosha Certificate
