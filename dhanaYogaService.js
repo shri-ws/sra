@@ -1537,62 +1537,65 @@
   ];
 
   function getVargaSign(sign, deg, varga) {
-    const eps = 0.00001;
-    switch(varga) {
-      case 1: return sign;
+    const v = parseInt(varga, 10);
+    const s = parseInt(sign, 10);
+    const d = Math.max(0, Math.min(29.999999, parseFloat(deg) || 0));
+
+    switch(v) {
+      case 1: return s;
       case 2:
-        if (sign % 2 === 0) return deg < 15 ? 4 : 3;
-        return deg < 15 ? 3 : 4;
+        if (s % 2 === 0) return d < 15 ? 4 : 3;
+        return d < 15 ? 3 : 4;
       case 3: {
-        const dPart = Math.floor((deg - eps) / 10);
+        const dPart = Math.floor(d / 10);
         const shift = dPart === 0 ? 0 : (dPart === 1 ? 4 : 8);
-        return (sign + shift) % 12;
+        return (s + shift) % 12;
       }
       case 4:
-        return (sign + Math.floor((deg - eps) / 7.5) * 3) % 12;
+        return (s + Math.floor(d / 7.5) * 3) % 12;
       case 7: {
-        const sStart = (sign % 2 === 0) ? sign : (sign + 6) % 12;
-        return (sStart + Math.floor((deg - eps) / (30/7))) % 12;
+        const sStart = (s % 2 === 0) ? s : (s + 6) % 12;
+        return (sStart + Math.floor(d / (30/7))) % 12;
       }
       case 9: {
-        let nStart = (sign % 3 === 0) ? sign : (sign % 3 === 1 ? (sign + 8) % 12 : (sign + 4) % 12);
-        return (nStart + Math.floor((deg - eps) / (3 + 20/60))) % 12;
+        let nStart = (s % 3 === 0) ? s : (s % 3 === 1 ? (s + 8) % 12 : (s + 4) % 12);
+        return (nStart + Math.floor(d / (10/3))) % 12;
       }
       case 10: {
-        let dsStart = (sign % 2 === 0) ? sign : (sign + 8) % 12;
-        return (dsStart + Math.floor((deg - eps) / 3.0)) % 12;
+        let dsStart = (s % 2 === 0) ? s : (s + 8) % 12;
+        return (dsStart + Math.floor(d / 3.0)) % 12;
       }
       case 12:
-        return (sign + Math.floor((deg - eps) / 2.5)) % 12;
+        return (s + Math.floor(d / 2.5)) % 12;
       case 16: {
-        let shStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 4 : 8);
-        return (shStart + Math.floor((deg - eps) / 1.875)) % 12;
+        let shStart = (s % 3 === 0) ? 0 : (s % 3 === 1 ? 4 : 8);
+        return (shStart + Math.floor(d / 1.875)) % 12;
       }
       case 20: {
-        let vStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 8 : 4);
-        return (vStart + Math.floor((deg - eps) / 1.5)) % 12;
+        let vStart = (s % 3 === 0) ? 0 : (s % 3 === 1 ? 8 : 4);
+        return (vStart + Math.floor(d / 1.5)) % 12;
       }
       case 24: {
-        let sidStart = (sign % 2 === 0) ? 4 : 3;
-        return (sidStart + Math.floor((deg - eps) / 1.25)) % 12;
+        let sidStart = (s % 2 === 0) ? 4 : 3;
+        return (sidStart + Math.floor(d / 1.25)) % 12;
       }
       case 27:
-        return ((sign % 4) * 3 + Math.floor((deg - eps) / (1 + 7/60))) % 12;
+        return ((s % 4) * 3 + Math.floor(d / (30/27))) % 12;
       case 30:
-        if (sign % 2 === 0) {
-          if (deg < 5) return 0; if (deg < 10) return 10; if (deg < 18) return 8; if (deg < 25) return 2; return 6;
+        if (s % 2 === 0) {
+          if (d < 5) return 0; if (d < 10) return 10; if (d < 18) return 8; if (d < 25) return 2; return 6;
         } else {
-          if (deg < 5) return 1; if (deg < 12) return 5; if (deg < 20) return 11; if (deg < 25) return 9; return 7;
+          if (d < 5) return 1; if (d < 12) return 5; if (d < 20) return 11; if (d < 25) return 9; return 7;
         }
       case 40:
-        return (((sign % 2 === 0) ? 0 : 6) + Math.floor((deg - eps) / 0.75)) % 12;
+        return (((s % 2 === 0) ? 0 : 6) + Math.floor(d / 0.75)) % 12;
       case 45: {
-        let akStart = (sign % 3 === 0) ? 0 : (sign % 3 === 1 ? 4 : 8);
-        return (akStart + Math.floor((deg - eps) / (30/45))) % 12;
+        let akStart = (s % 3 === 0) ? 0 : (s % 3 === 1 ? 4 : 8);
+        return (akStart + Math.floor(d / (30/45))) % 12;
       }
       case 60:
-        return (sign + Math.floor((deg * 2) - eps) % 12) % 12;
-      default: return sign;
+        return (s + Math.floor(d * 2)) % 12;
+      default: return s;
     }
   }
 
