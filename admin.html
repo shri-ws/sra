@@ -455,12 +455,21 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <div class="social-phone-frame">
             <video id="socialReelVideo" controls poster="/media/social/2026-10-29/thumbnail.jpg">
               <source src="/media/social/2026-10-29/reel_1080x1920.mp4" type="video/mp4">
+              <source src="social_agent/output/2026-10-29/reel_1080x1920.mp4" type="video/mp4">
               वीडियो लोड नहीं हो सका।
             </video>
           </div>
-          <a id="socialDownloadBtn" href="/media/social/2026-10-29/reel_1080x1920.mp4" download="SRA_Reel_Today.mp4" class="social-btn social-btn-primary" style="width:100%;justify-content:center;text-decoration:none">
-            📥 MP4 HD रील डाउनलोड करें
-          </a>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+            <a id="socialDownloadBtn" href="/media/social/2026-10-29/reel_1080x1920.mp4" download="SRA_Reel_Today.mp4" class="social-btn social-btn-primary" style="width:100%;justify-content:center;text-decoration:none">
+              📥 MP4 HD रील डाउनलोड करें
+            </a>
+            <a href="https://youtube.com/shorts/IvsN8Pd92HU" target="_blank" class="social-btn" style="width:100%;justify-content:center;text-decoration:none;border-color:var(--gold);color:var(--gold)">
+              ▶️ यूट्यूब पर लाइव देखें (#Shorts)
+            </a>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;word-break:break-all">
+              📁 लोकल फ़ाइल: <code>social_agent/output/2026-10-29/reel_1080x1920.mp4</code>
+            </div>
+          </div>
         </div>
 
         <!-- Right: Multi-Platform Tabs -->
@@ -1242,7 +1251,7 @@ async function loadSocialStatus() {
       
       // Video
       if (pkg.media && pkg.media.video_path) {
-        const videoDate = pkg.date || '2026-10-28';
+        const videoDate = pkg.date || '2026-10-29';
         const vUrl = `/media/social/${videoDate}/reel_1080x1920.mp4`;
         const vPoster = `/media/social/${videoDate}/thumbnail.jpg`;
         const vid = document.getElementById('socialReelVideo');
@@ -1314,6 +1323,16 @@ async function triggerSocialRun(generateOnly, dryRun) {
         dry_run: dryRun
       })
     });
+    if (!res.ok) {
+      let errText = "सर्वर त्रुटि (" + res.status + ")";
+      try {
+        const errJson = await res.json();
+        errText = errJson.detail || errJson.error || errText;
+      } catch (e) {
+        errText += ": कृपया dev-server.js व parashara_canonical_engine चालू रखें।";
+      }
+      throw new Error(errText);
+    }
     const result = await res.json();
     alert("सफलता! प्रक्रिया पूर्ण हुई।");
     loadSocialStatus();
