@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Admin — Shri Ramji Astro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="theme.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root, [data-theme="day"] {
+  --gold: #b48220;
+  --bg: #fdfbf7;
+  --card: #ffffff;
+  --border: rgba(124,19,5,0.18);
+  --text: #2c0a06;
+  --muted: #6e594d;
+  --green: #15803d;
+  --red: #b91c1c;
+  --yellow: #d97706;
+  --toggle-bg: #efe4d3;
+  --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
+}
+[data-theme="night"] {
+  --gold: #c9a84c;
+  --bg: #090514;
+  --card: #140a2b;
+  --border: rgba(201,168,76,0.3);
+  --text: #f3eeff;
+  --muted: #9d8cb8;
+  --green: #4ade80;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --toggle-bg: #1a0b36;
+  --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
+}
+
+/* ELEGANT TOGGLE SWITCH STYLING (NO ICONS) */
+.theme-toggle-container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 86px;
+  height: 30px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  padding: 2px;
+  user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.theme-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 40px;
+  height: 24px;
+  background: var(--toggle-slider-bg);
+  border-radius: 14px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+[data-theme="night"] .theme-slider {
+  transform: translateX(40px);
+}
+.theme-label {
+  flex: 1;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+[data-theme="day"] .label-day, :root:not([data-theme="night"]) .label-day { color: #ffffff; }
+[data-theme="day"] .label-night, :root:not([data-theme="night"]) .label-night { color: var(--muted); }
+[data-theme="night"] .label-day { color: var(--muted); }
+[data-theme="night"] .label-night { color: #000000; }
+
+body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-size:14px;min-height:100vh;transition:background 0.3s ease, color 0.3s ease}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:48px 40px;max-width:360px;width:100%;text-align:center}
+.login-box h2{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--muted);margin-bottom:28px}
+.lf{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;text-align:left}
+.lf label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.lf input{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:12px 14px;font-family:'Lato',sans-serif;font-size:14px;outline:none;width:100%;transition:all .2s}
+.lf input:focus{border-color:var(--gold);box-shadow:0 0 8px rgba(201,168,76,0.3)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#8b6a1a);border:none;border-radius:9px;color:#ffffff;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.login-btn:hover{filter:brightness(1.1)}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
+
+/* LAYOUT */
+#app{display:none}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.sidebar-logo-text{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold);display:block}
+.sidebar-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:3px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted);border:1px solid transparent;transition:all .15s}
+.nav-item:hover{background:rgba(201,168,76,0.08);color:var(--text)}
+.nav-item.active{background:rgba(201,168,76,0.1);border-color:var(--border);color:var(--gold)}
+.sidebar-footer{padding:14px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Lato',sans-serif;font-size:12px;cursor:pointer;transition:all .2s}
+.logout-btn:hover{border-color:rgba(248,113,113,.4);color:var(--red)}
+.main{margin-left:220px;padding:28px;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.topbar h1{font-family:'Cinzel',serif;font-size:20px;color:var(--text)}
+.refresh-btn{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--gold);font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.refresh-btn:hover{background:rgba(201,168,76,0.1)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:2px}
+.stat-sub{font-size:11px;color:var(--muted)}
+.stat-card.gold .stat-val{color:var(--gold)}
+.stat-card.green .stat-val{color:var(--green)}
+
+/* TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.table-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:rgba(201,168,76,0.03)}
+.table-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.search-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 12px;font-family:'Lato',sans-serif;font-size:13px;outline:none;width:200px;transition:border-color .2s}
+.search-box:focus{border-color:var(--gold)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:11px 16px;text-align:left;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(201,168,76,0.02);white-space:nowrap}
+.tbl td{padding:12px 16px;border-bottom:1px solid rgba(201,168,76,0.05);font-size:13px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(201,168,76,0.02)}
+.name-cell{font-weight:700;color:var(--text)}
+.email-cell{color:var(--muted);font-size:12px}
+.date-cell{color:var(--muted);font-size:12px;white-space:nowrap}
+.wa-link{color:var(--gold);text-decoration:none;font-size:12px}
+.wa-link:hover{text-decoration:underline}
+.amount-cell{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge.completed{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:var(--green)}
+.badge.pending{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);color:var(--yellow)}
+.badge.failed{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red)}
+.empty-row{text-align:center;padding:40px;color:var(--muted);font-style:italic}
+.loading-row{text-align:center;padding:30px;color:var(--muted)}
+.export-btn{padding:7px 14px;background:rgba(201,168,76,0.08);border:1px solid var(--border);border-radius:7px;color:var(--gold);font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.export-btn:hover{background:rgba(201,168,76,0.15)}
+
+/* DEBUG */
+.debug-box{background:#0a0816;border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:14px;margin-bottom:20px;font-family:monospace;font-size:12px;color:#f87171;display:none}
+.debug-box.show{display:block}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+
+/* ══ SOCIAL MEDIA AI AGENT PANEL STYLING ══ */
+.social-status-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:22px}
+.social-badge-active{background:rgba(74,222,128,0.15);border:1px solid var(--green);color:var(--green);font-size:11px;padding:4px 10px;border-radius:20px;font-weight:700;letter-spacing:0.5px}
+.social-actions-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.social-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:all .2s}
+.social-btn:hover{border-color:var(--gold)}
+.social-btn-primary{background:linear-gradient(135deg,var(--gold),#8a6210);border:none;color:#fff}
+.social-btn-primary:hover{opacity:0.92;transform:translateY(-1px)}
+.social-split{display:grid;grid-template-columns:330px 1fr;gap:22px;margin-bottom:24px}
+@media(max-width:960px){.social-split{grid-template-columns:1fr}}
+.social-phone-frame{width:100%;max-width:290px;height:515px;background:#000;border-radius:24px;margin:0 auto 14px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.3);border:3px solid rgba(201,168,76,0.35)}
+.social-phone-frame video{width:100%;height:100%;object-fit:cover}
+.social-tabs-nav{display:flex;gap:6px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;overflow-x:auto}
+.social-tab-btn{padding:7px 12px;border-radius:6px;background:transparent;border:1px solid transparent;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted)}
+.social-tab-btn.active{background:rgba(201,168,76,0.12);border-color:var(--border);color:var(--gold)}
+.social-tab-content{display:none}
+.social-tab-content.active{display:block}
+.social-copy-box{background:var(--bg);border:1px solid var(--border);padding:14px;border-radius:8px;font-family:inherit;font-size:13px;line-height:1.6;white-space:pre-wrap;max-height:380px;overflow-y:auto;margin-bottom:10px}
+.social-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:14px}
+.social-form-group label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
+.social-form-group input,.social-form-group select{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none}
+.social-form-group input:focus{border-color:var(--gold)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:40px;margin-bottom:14px">🔐</div>
+    <h2>Admin Login</h2>
+    <p>Shri Ramji Astro Dashboard</p>
+    <div class="lf"><label>Username</label><input type="text" id="lu" placeholder="Username" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-text">🪐 Shri Ramji Astro</span>
+      <span class="sidebar-logo-sub">Admin Dashboard</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item active" onclick="showPanel('overview', this)">📊 &nbsp;Overview</div>
+      <div class="nav-item" onclick="showPanel('emails', this)">📧 &nbsp;Verified Email Logins</div>
+      <div class="nav-item" onclick="showPanel('users', this)">📱 &nbsp;Registered Users & Queries</div>
+      <div class="nav-item" onclick="showPanel('students', this)">🎓 &nbsp;Students</div>
+      <div class="nav-item" onclick="showPanel('payments', this)">💰 &nbsp;Payments</div>
+      <div class="nav-item" onclick="showPanel('consultations', this)">🔮 &nbsp;Consultations</div>
+      <div class="nav-item" onclick="showPanel('forum', this)">💬 &nbsp;Forum Posts</div>
+      <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
+      <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="panelTitle">Overview</h1>
+      <div style="display:flex;gap:10px;align-items:center">
+        <!-- ELEGANT DAY / NIGHT THEME TOGGLE SWITCH -->
+        <div class="theme-toggle-container" onclick="toggleTheme()" id="themeToggleBtn" title="Switch Day/Night Mode">
+          <span class="theme-label label-day">DAY</span>
+          <span class="theme-slider"></span>
+          <span class="theme-label label-night">NIGHT</span>
+        </div>
+        <span id="lastSync" style="font-size:11px;color:var(--muted)"></span>
+        <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+      </div>
+    </div>
+
+    <!-- Debug box -->
+    <div class="debug-box" id="debugBox"></div>
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats-grid">
+        <div class="stat-card gold"><div class="stat-label">Total Revenue</div><div class="stat-val" id="s-revenue">—</div><div class="stat-sub">Completed payments</div></div>
+        <div class="stat-card green"><div class="stat-label">Paid Customers</div><div class="stat-val" id="s-paid">—</div><div class="stat-sub">Successful paid orders</div></div>
+        <div class="stat-card"><div class="stat-label">Registered / Logins</div><div class="stat-val" id="s-students">—</div><div class="stat-sub">OTP & Google verified accounts</div></div>
+        <div class="stat-card"><div class="stat-label">Kundli Queries</div><div class="stat-val" id="s-posts">—</div><div class="stat-sub">Total calculated charts</div></div>
+      </div>
+
+      <!-- Social Media AI Agent Quick Banner in Overview -->
+      <div class="table-wrap" style="margin-bottom: 24px; padding: 18px 20px; background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(124,19,5,0.05)); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="font-size:32px;">🤖</div>
+          <div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px; flex-wrap:wrap;">
+              <h3 style="font-family:'Cinzel',serif; font-size:15px; color:var(--gold); margin:0;">Autonomous Social Media AI Agent</h3>
+              <span class="social-badge-active" style="font-size:10px; padding:2px 8px;">⚡ 07:00 AM (IST) DAILY ACTIVE</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); margin:0;">
+              दैनिक पराशर सूत्र, वैदिक ज्ञान एवं 1080x1920 रील वीडियो (Reddit, Quora, FB, Instagram Reels, YouTube Shorts)
+            </p>
+          </div>
+        </div>
+        <button class="social-btn social-btn-primary" onclick="showPanel('social', document.querySelector('.nav-item-social'))" style="font-size:12px; padding:8px 16px;">
+          ओपन सोशल एजेंट डैशबोर्ड ➔
+        </button>
+      </div>
+
+      <!-- Recent Payments Overview -->
+      <div class="table-wrap" style="margin-bottom: 24px;">
+        <div class="table-header">
+          <span class="table-title">💰 Recent Customer Payments</span>
+          <button class="export-btn" onclick="showPanel('payments', document.querySelectorAll('.nav-item')[4])">View All Payments ➔</button>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Customer Name</th><th>Phone (WhatsApp)</th><th>Plan / Report</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Date</th></tr></thead>
+          <tbody id="recent-payments-tbody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- Recent User Logins Overview -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">📱 Recent Mobile OTP Logins & Kundli Queries</span>
+          <button class="export-btn" onclick="showPanel('users', document.querySelectorAll('.nav-item')[2])">View All Users ➔</button>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Mobile Number (WhatsApp)</th><th>Candidate Name</th><th>Login / Auth Method</th><th>Location</th><th>Logged Date / Time</th></tr></thead>
+          <tbody id="recent-users-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="panel" id="panel-students">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">All Students</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search..." oninput="filterTable('students-tbody',this.value)"/>
+            <button class="export-btn" onclick="exportCSV('students')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Interest</th><th>Joined</th></tr></thead>
+          <tbody id="students-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="panel" id="panel-payments">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">All Payments</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search..." oninput="filterTable('payments-tbody',this.value)"/>
+            <button class="export-btn" onclick="exportCSV('payments')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Date</th></tr></thead>
+          <tbody id="payments-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- CONSULTATIONS -->
+    <div class="panel" id="panel-consultations">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">Consultation Requests</span>
+          <button class="export-btn" onclick="exportCSV('consultations')">⬇ CSV</button>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>DOB</th><th>Place</th><th>Question</th><th>Date</th></tr></thead>
+          <tbody id="consultations-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- FORUM -->
+    <div class="panel" id="panel-forum">
+      <div class="table-wrap">
+        <div class="table-header"><span class="table-title">Forum Posts</span></div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Likes</th><th>Date</th></tr></thead>
+          <tbody id="forum-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- VERIFIED GOOGLE EMAIL ACCOUNTS -->
+    <div class="panel" id="panel-emails">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">📧 Verified Google Email Accounts & Logins (Hostinger DB)</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search Email / Name..." oninput="filterTable('emails-tbody',this.value)"/>
+            <button class="export-btn" onclick="exportCSV('emails')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Email Address</th><th>Candidate Name</th><th>Verification</th><th>Auth Action</th><th>Date / Time</th><th>Actions</th></tr></thead>
+          <tbody id="emails-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- REGISTERED USERS & KUNDLI QUERY LOG -->
+    <div class="panel" id="panel-users">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">📱 Registered Users & Kundli Query Log (Hostinger DB)</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search Mobile / Candidate..." oninput="filterTable('users-tbody',this.value)"/>
+            <button class="export-btn" onclick="exportCSV('users')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Login / Auth Method</th><th>DOB & Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th><th>WhatsApp</th></tr></thead>
+          <tbody id="users-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- CLIENT REVIEWS APPROVAL PANEL -->
+    <div class="panel" id="panel-reviews">
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title">⭐ Client Consultation Reviews (Pending & Approved)</span>
+          <div style="display:flex;gap:8px">
+            <input class="search-box" placeholder="Search Author / Review..." oninput="filterTable('reviews-tbody',this.value)"/>
+          </div>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl">
+          <thead><tr><th>Author Name</th><th>Role / Profession</th><th>Rating</th><th>Review Content</th><th>Status</th><th>Submitted Date</th><th>Admin Actions</th></tr></thead>
+          <tbody id="reviews-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: AUTONOMOUS SOCIAL MEDIA AI AGENT ══ -->
+    <div class="panel" id="panel-social">
+      <!-- Status Card -->
+      <div class="social-status-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+          <div>
+            <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--gold);margin-bottom:4px">🤖 Autonomous Social Media AI Agent</h2>
+            <p style="font-size:12px;color:var(--muted)">महर्षि पराशर सूत्र एवं वैदिक ज्ञान पर आधारित दैनिक पोस्ट्स, रील्स एवं शॉर्ट्स ऑटोमेशन</p>
+          </div>
+          <span class="social-badge-active" id="socialAgentBadge">⚡ 07:00 AM (IST) DAILY ACTIVE</span>
+        </div>
+        <div class="stats-grid" style="margin-bottom:0">
+          <div class="stat-card">
+            <div class="stat-label">दैनिक समय (Cadence)</div>
+            <div class="stat-val" style="font-size:18px">प्रातः 07:00 AM</div>
+            <div class="stat-sub">Asia/Kolkata (IST)</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-label">आज का BPHS विषय</div>
+            <div class="stat-val" style="font-size:15px;line-height:1.3" id="socialTodayTheme">लोड हो रहा है...</div>
+            <div class="stat-sub" id="socialChapterSub">बृहत्पाराशरहोराशास्त्रम्</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">रील / शॉर्ट्स स्थिति</div>
+            <div class="stat-val" style="font-size:16px" id="socialVideoStatus">✓ 1080x1920 MP4</div>
+            <div class="stat-sub">नेचुरल हिंदी वॉइसओवर सहित</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">सक्रिय प्लेटफॉर्म्स</div>
+            <div class="stat-val" style="font-size:18px">5 चैनल्स</div>
+            <div class="stat-sub">Reddit, Quora, FB, IG, YT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="social-actions-bar">
+        <button class="social-btn social-btn-primary" onclick="triggerSocialRun(true, false)">🎯 आज का कंटेंट व वीडियो अभी जनरेट करें</button>
+        <button class="social-btn" onclick="triggerSocialRun(false, true)">🧪 टेस्ट रन (Dry Run Simulate)</button>
+        <button class="social-btn" style="border-color:var(--green);color:var(--green)" onclick="triggerSocialRun(false, false)">🚀 लाइव सोशल मीडिया पर पोस्ट करें</button>
+        <button class="social-btn" onclick="toggleSocialSettings()">⚙️ क्रेडेंशियल्स व API सेटिंग्स</button>
+      </div>
+
+      <!-- Split View: Mobile Reel Player + Multi-Platform Copy Tabs -->
+      <div class="social-split">
+        <!-- Left: Phone Video Mockup -->
+        <div class="table-wrap" style="padding:18px;text-align:center">
+          <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px">📱 INSTAGRAM REEL & YOUTUBE SHORTS</div>
+          <div class="social-phone-frame">
+            <video id="socialReelVideo" controls poster="/media/social/2026-10-28/thumbnail.jpg">
+              <source src="/media/social/2026-10-28/reel_1080x1920.mp4" type="video/mp4">
+              वीडियो लोड नहीं हो सका।
+            </video>
+          </div>
+          <a id="socialDownloadBtn" href="/media/social/2026-10-28/reel_1080x1920.mp4" download="SRA_Reel_Today.mp4" class="social-btn social-btn-primary" style="width:100%;justify-content:center;text-decoration:none">
+            📥 MP4 रील डाउनलोड करें
+          </a>
+        </div>
+
+        <!-- Right: Multi-Platform Tabs -->
+        <div class="table-wrap" style="padding:18px">
+          <div class="social-tabs-nav">
+            <button class="social-tab-btn active" onclick="switchSocialTab('reddit', this)">🔴 Reddit (r/vedicastrology)</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('quora', this)">🔴 Quora Q&A</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('facebook', this)">🔵 Facebook पोस्ट</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('instagram', this)">📸 Instagram कैप्शन</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('youtube', this)">▶️ YouTube #Shorts</button>
+          </div>
+
+          <!-- Reddit Tab -->
+          <div id="social-tab-reddit" class="social-tab-content active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong id="socialRedditTitle" style="font-size:13px;color:var(--text)">Reddit शीर्षक</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialRedditBody')">📋 कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialRedditBody">लोड हो रहा है...</div>
+          </div>
+
+          <!-- Quora Tab -->
+          <div id="social-tab-quora" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong id="socialQuoraQuestion" style="font-size:13px;color:var(--text)">Quora प्रश्न</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialQuoraAnswer')">📋 उत्तर कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialQuoraAnswer">लोड हो रहा है...</div>
+          </div>
+
+          <!-- Facebook Tab -->
+          <div id="social-tab-facebook" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong style="font-size:13px;color:var(--text)">Facebook पोस्ट विवरण</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialFbText')">📋 कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialFbText">लोड हो रहा है...</div>
+          </div>
+
+          <!-- Instagram Tab -->
+          <div id="social-tab-instagram" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong style="font-size:13px;color:var(--text)">Instagram कैप्शन व हैशटैग्स</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialIgCaption')">📋 कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialIgCaption">लोड हो रहा है...</div>
+          </div>
+
+          <!-- YouTube Tab -->
+          <div id="social-tab-youtube" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong id="socialYtTitle" style="font-size:13px;color:var(--text)">YouTube #Shorts शीर्षक</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialYtDesc')">📋 विवरण कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialYtDesc">लोड हो रहा है...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Collapsible Card -->
+      <div class="table-wrap" id="socialSettingsBox" style="padding:22px;display:none;margin-bottom:22px">
+        <h3 style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold);margin-bottom:4px">⚙️ API क्रेडेंशियल्स एवं प्लेटफॉर्म सेटिंग्स</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">यहाँ अपनी API कीज जोड़ें। एजेंट प्रतिदिन प्रातः 07:00 AM बजे स्वतः इन सभी प्लेटफॉर्म्स पर सामग्री पोस्ट करेगा।</p>
+        
+        <div class="social-form-grid">
+          <div class="social-form-group">
+            <label>Google Gemini API Key</label>
+            <input type="password" id="socialGeminiKey" placeholder="AIzaSy..."/>
+          </div>
+          <div class="social-form-group">
+            <label>Reddit Client ID & Secret</label>
+            <input type="text" id="socialRedditClientId" placeholder="Client ID"/>
+          </div>
+          <div class="social-form-group">
+            <label>Meta Facebook Page ID</label>
+            <input type="text" id="socialFbPageId" placeholder="Facebook Page ID"/>
+          </div>
+          <div class="social-form-group">
+            <label>Meta Graph Access Token (FB & IG)</label>
+            <input type="password" id="socialMetaToken" placeholder="EAA..."/>
+          </div>
+          <div class="social-form-group">
+            <label>Instagram User ID (Business/Creator)</label>
+            <input type="text" id="socialIgUserId" placeholder="Instagram User ID"/>
+          </div>
+          <div class="social-form-group">
+            <label>दैनिक स्वचालित समय (IST)</label>
+            <select id="socialScheduleTime">
+              <option value="07:00" selected>07:00 AM (प्रातः काल - रिकमेंडेड)</option>
+              <option value="08:00">08:00 AM</option>
+              <option value="06:00">06:00 AM (सूर्योदय)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:12px;align-items:center">
+          <button class="social-btn social-btn-primary" onclick="saveSocialSettings()">💾 सेटिंग्स सुरक्षित करें</button>
+          <span id="socialSaveNotice" style="font-size:12px;color:var(--green);font-weight:bold"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ CONFIG ══ */
+const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
+const ADMIN_USER = 'panditji';
+
+/* ══ DATA CACHE ══ */
+let D = { students:[], payments:[], consultations:[], forum:[], users:[] };
+
+/* ══ LOGIN & AUTH RESTORATION ══ */
+async function hashPass(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Valid password hashes: SRA@Admin2025, 7775, 95171, astroraamji
+const VALID_AUTH_HASHES = [
+  '79c1e7a552834b6b19d44f77c617b0709b82aaedfb7d1d2938a1649a21d15bf1', // SRA@Admin2025
+  'faee8c187f66a87756f082e666a7b746366f07f4e7c7a25037d4e5f7b8893d56', // 7775
+  'df01b7a702741d48c087955f26938d21c3fa6759fa20b57e4e1dfcbdb88d75ea', // 95171
+  '3a9856f6e80b2a3f91807d8985160e1d0f5c1d3f6a2b8e90141a0529d89004d8'  // astroraamji
+];
+
+async function doLogin(){
+  try {
+    const lu = document.getElementById('lu');
+    const lp = document.getElementById('lp');
+    const u = lu ? lu.value.trim() : '';
+    const p = lp ? lp.value.trim() : '';
+    const err = document.getElementById('loginErr');
+    
+    // Direct check or hashed check
+    const pHash = await hashPass(p);
+    const isValid = (u.toLowerCase() === 'panditji' || u.toLowerCase() === 'admin') && 
+                    (p === 'SRA@Admin2025' || p === '7775' || p === '95171' || VALID_AUTH_HASHES.includes(pHash));
+
+    if(isValid){
+      sessionStorage.setItem('sra_admin_auth', 'true');
+      sessionStorage.setItem('sra_admin_token', p || '7775');
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      if (err) err.textContent = '';
+      loadAll();
+    } else {
+      if (err) err.textContent = 'Invalid credentials. Username or Password incorrect.';
+    }
+  } catch(e) {
+    console.error("doLogin error:", e);
+    const err = document.getElementById('loginErr');
+    if (err) err.textContent = 'Login error. Please check inputs.';
+  }
+}
+
+function checkAdminAuth() {
+  if (sessionStorage.getItem('sra_admin_auth') === 'true') {
+    const loginScr = document.getElementById('loginScreen');
+    const appScr = document.getElementById('app');
+    if (loginScr) loginScr.style.display = 'none';
+    if (appScr) appScr.style.display = 'block';
+    loadAll();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  checkAdminAuth();
+});
+
+function doLogout(){
+  sessionStorage.removeItem('sra_admin_auth');
+  sessionStorage.removeItem('sra_admin_token');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+/* ══ FETCH ══ */
+async function fetchTable(table){
+  try {
+    const url = `${SUPA_URL}/rest/v1/${table}?select=*&order=created_at.desc&limit=500`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    const text = await res.text();
+    if(!res.ok){
+      showDebug(`ℹ️ ${table}: Server database paused or unavailable.`);
+      return [];
+    }
+    const data = JSON.parse(text);
+    if(!Array.isArray(data)){
+      return [];
+    }
+    return data;
+  } catch(e){
+    // Graceful handling when Supabase free tier project is paused or network unreachable
+    showDebug(`⚡ ${table}: Remote database currently offline or paused. Displaying cached records.`);
+    return [];
+  }
+}
+
+function showDebug(msg){
+  const el=document.getElementById('debugBox');
+  el.classList.add('show');
+  el.innerHTML += msg + '<br/>';
+}
+
+async function fetchPayments(){
+  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  let serverPayments = [];
+  try {
+    const res = await fetch('api/get_payments.php?admin_key=' + encodeURIComponent(adminToken), {
+      headers: {
+        'X-Admin-Auth': adminToken
+      }
+    });
+    if(res.ok){
+      const json = await res.json();
+      if(json && json.data) serverPayments = json.data;
+    }
+  } catch(e){
+    console.warn("api/get_payments.php note:", e);
+  }
+
+  // Also query Supabase if reachable
+  let supaPayments = [];
+  try {
+    supaPayments = await fetchTable('payments');
+  } catch(e) {}
+
+  // Check any local unlocks/payments stored in localStorage on this device
+  const localPayments = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('sra_mega_payid_') || key.startsWith('sra_parashara_') || key.startsWith('sra_dhan_pay_id_') || key.startsWith('sra_mangal_pay_id_'))) {
+        const payId = localStorage.getItem(key);
+        if (payId && (payId.startsWith('pay_') || payId.startsWith('RZP_'))) {
+          localPayments.push({
+            razorpay_payment_id: payId,
+            student_name: 'वेरिफाइड जातक',
+            student_phone: localStorage.getItem('sra_verified_mobile') || '',
+            plan_name: key.includes('mega') ? 'मेगा पाराशर संहिता कुण्डली रिपोर्ट (९७ अध्याय)' : (key.includes('dhan') ? 'Dhana Yoga & Sampatti Analysis (₹299)' : 'Parashara Vedic Report (₹199)'),
+            amount: key.includes('mega') ? 1111 : (key.includes('dhan') ? 299 : 199),
+            status: 'completed',
+            created_at: new Date().toISOString()
+          });
+        }
+      }
+    }
+  } catch(e) {}
+
+  // Merge and deduplicate by razorpay_payment_id
+  const merged = [...serverPayments];
+  const seen = new Set(serverPayments.map(p => p.razorpay_payment_id));
+  [...supaPayments, ...localPayments].forEach(p => {
+    if (p.razorpay_payment_id && !seen.has(p.razorpay_payment_id)) {
+      merged.push(p);
+      seen.add(p.razorpay_payment_id);
+    }
+  });
+
+  merged.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return merged;
+}
+
+async function fetchUserQueries(){
+  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  let serverData = [];
+  try {
+    const res = await fetch('api/get_users.php?admin_key=' + encodeURIComponent(adminToken), {
+      headers: {
+        'X-Admin-Auth': adminToken
+      }
+    });
+    if(res.ok){
+      const json = await res.json();
+      if(json && json.data) serverData = json.data;
+    }
+  } catch(e){
+    showDebug(`ℹ️ Registered Users DB endpoint fallback active.`);
+  }
+
+  let local = [];
+  try {
+    local = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
+  } catch(e) {}
+
+  // Merge server + local
+  const combined = [...serverData];
+  const seen = new Set();
+  serverData.forEach(u => {
+    seen.add((u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16));
+  });
+  local.forEach(u => {
+    const k = (u.phone || '').trim() + '_' + (u.logged_at || '').slice(0,16);
+    if (!seen.has(k)) {
+      combined.push({
+        id: 'local_' + Math.random().toString(36).substring(7),
+        phone: u.phone,
+        email: u.email,
+        candidate_name: u.name,
+        dob: u.dob,
+        tob: u.tob,
+        location: u.location,
+        latitude: u.lat,
+        longitude: u.lon,
+        timezone: u.tz,
+        login_method: u.action || u.login_method || 'OTP_VERIFIED',
+        created_at: u.logged_at || new Date().toISOString()
+      });
+      seen.add(k);
+    }
+  });
+
+  combined.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return combined;
+}
+
+async function fetchConsultations(){
+  let supaCon = [];
+  try {
+    supaCon = await fetchTable('consultations');
+  } catch(e) {}
+  const localCon = JSON.parse(localStorage.getItem('sra_consultation_db') || '[]');
+  const combined = [...(supaCon || [])];
+  const seen = new Set((supaCon || []).map(c => (c.phone || '') + '_' + (c.created_at || '').slice(0,16)));
+  localCon.forEach(c => {
+    const k = (c.phone || '') + '_' + (c.created_at || '').slice(0,16);
+    if (!seen.has(k)) {
+      combined.push(c);
+      seen.add(k);
+    }
+  });
+  combined.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  return combined;
+}
+
+async function fetchReviews(){
+  try {
+    const data = await fetchTable('reviews');
+    if (data && data.length) return data;
+  } catch(e) {}
+  const pending = JSON.parse(localStorage.getItem('sra_pending_reviews_db') || '[]');
+  const approved = JSON.parse(localStorage.getItem('sra_approved_reviews_db') || '[]');
+  return [...pending, ...approved];
+}
+
+async function loadAll(){
+  document.getElementById('debugBox').innerHTML='';
+  document.getElementById('debugBox').classList.remove('show');
+  document.getElementById('lastSync').textContent='Loading...';
+
+  setLoading();
+
+  const [students, payments, consultations, forum, users, reviews] = await Promise.all([
+    fetchTable('students'),
+    fetchPayments(),
+    fetchConsultations(),
+    fetchTable('forum_posts'),
+    fetchUserQueries(),
+    fetchReviews()
+  ]);
+
+  D.students     = students;
+  D.payments     = payments;
+  D.consultations= consultations;
+  D.forum        = forum;
+  D.users        = users;
+  D.reviews      = reviews;
+
+  renderAll();
+
+  const t = new Date();
+  document.getElementById('lastSync').textContent =
+    'Updated ' + t.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+function setLoading(){
+  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-payments-tbody','recent-users-tbody','reviews-tbody'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=`<tr><td colspan="10" class="loading-row"><span class="spin"></span> Loading...</td></tr>`;
+  });
+}
+
+/* ══ RENDER ══ */
+const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+const fmtAmt  = n => n ? '₹'+Number(n).toLocaleString('en-IN') : '—';
+const wa      = p => {
+  if (!p) return '—';
+  const clean = p.replace(/\D/g,'').slice(-10);
+  return clean ? `<a class="wa-link" href="https://wa.me/91${clean}" target="_blank">📱 ${p}</a>` : p;
+};
+const badge   = s => `<span class="badge ${s||'completed'}">${s||'completed'}</span>`;
+const pid     = id=> id ? `<span style="font-size:10px;font-family:monospace;color:var(--muted)">${id.slice(0,18)}...</span>` : '—';
+const safe    = s => (s||'—');
+
+function getAuthMethodBadge(m) {
+  const method = String(m || '').toUpperCase();
+  if (method.includes('PAID') || method.includes('PURCHASE')) {
+    return `<span class="badge" style="background:rgba(180,130,32,0.15);color:var(--gold);border:1px solid rgba(180,130,32,0.3)">💎 Paid Report</span>`;
+  }
+  if (method.includes('SMS') || method.includes('FIREBASE')) {
+    return `<span class="badge" style="background:rgba(217,119,6,0.15);color:var(--yellow);border:1px solid rgba(217,119,6,0.3)">🔥 SMS OTP</span>`;
+  }
+  if (method.includes('OTP')) {
+    return `<span class="badge completed">📱 OTP Verified</span>`;
+  }
+  if (method.includes('GOOGLE')) {
+    return `<span class="badge" style="background:rgba(59,130,246,0.15);color:#2563eb;border:1px solid rgba(59,130,246,0.3)">🌐 Google Login</span>`;
+  }
+  if (method.includes('KUNDLI')) {
+    return `<span class="badge" style="background:rgba(124,19,5,0.12);color:var(--gold);border:1px solid rgba(124,19,5,0.25)">🪐 Kundli Query</span>`;
+  }
+  return `<span class="badge completed">${safe(m || 'OTP Verified')}</span>`;
+}
+
+function renderAll(){
+  /* Stats */
+  const completed = D.payments.filter(p=>p.status==='completed' || !p.status);
+  const revenue   = completed.reduce((s,p)=>s+(Number(p.amount)||0),0);
+  document.getElementById('s-revenue').textContent  = fmtAmt(revenue);
+  document.getElementById('s-paid').textContent     = completed.length;
+
+  const uniqueUsers = new Set(D.users.map(u => (u.phone || u.email || '').trim()).filter(Boolean));
+  document.getElementById('s-students').textContent = Math.max(uniqueUsers.size, D.users.length);
+  document.getElementById('s-posts').textContent    = D.users.length;
+
+  /* Overview Recent tables */
+  renderRecentPaymentRows('recent-payments-tbody', D.payments.slice(0,8));
+  renderRecentUserRows('recent-users-tbody', D.users.slice(0,8));
+
+  /* Full tables */
+  renderStudentRows('students-tbody', D.students.length ? D.students : D.users.slice(0, 50));
+  renderPaymentRows('payments-tbody', D.payments);
+  renderConsultRows('consultations-tbody', D.consultations);
+  renderForumRows('forum-tbody', D.forum);
+  renderUserQueryRows('users-tbody', D.users);
+  renderEmailRows('emails-tbody', D.users);
+  renderReviewRows('reviews-tbody', D.reviews);
+}
+
+function renderRecentPaymentRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!el) return;
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(p=>`<tr>
+    <td><div class="name-cell">${safe(p.student_name || 'जातक')}</div><div class="email-cell">${safe(p.student_email)}</div></td>
+    <td>${wa(p.student_phone)}</td>
+    <td style="font-size:12px;max-width:180px;font-weight:600">${safe(p.plan_name)}</td>
+    <td class="amount-cell" style="color:var(--gold);font-weight:800">${fmtAmt(p.amount)}</td>
+    <td>${badge(p.status || 'completed')}</td>
+    <td>${pid(p.razorpay_payment_id)}</td>
+    <td class="date-cell">${fmtDate(p.created_at)}</td>
+  </tr>`).join('');
+}
+
+function renderRecentUserRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!el) return;
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="5" class="empty-row">No mobile logins or queries recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(u=>{
+    const methodBadge = getAuthMethodBadge(u.login_method || u.action);
+    return `<tr>
+      <td>${wa(u.phone)}</td>
+      <td><div class="name-cell">${safe(u.candidate_name || u.name || 'जातक')}</div></td>
+      <td>${methodBadge}</td>
+      <td style="font-size:12px">${safe(u.location)}</td>
+      <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderReviewRows(tbodyId, rows){
+  const el = document.getElementById(tbodyId);
+  if (!el) return;
+  if (!rows || !rows.length) { el.innerHTML = `<tr><td colspan="7" class="empty-row">No consultation reviews submitted yet</td></tr>`; return; }
+
+  el.innerHTML = rows.map((r, idx) => `<tr>
+    <td><div class="name-cell">${safe(r.author_name || r.name)}</div></td>
+    <td style="font-size:12px">${safe(r.role)}</td>
+    <td style="color:var(--gold);font-weight:bold">${'★'.repeat(r.rating||5)}</td>
+    <td style="font-size:12px;max-width:240px;color:var(--text)">"${safe(r.comment)}"</td>
+    <td>${badge(r.status||'pending')}</td>
+    <td class="date-cell">${fmtDate(r.created_at)}</td>
+    <td>
+      ${(r.status === 'approved') ? 
+        '<span style="color:var(--green);font-weight:bold;font-size:11px;">✓ Approved</span>' : 
+        `<button onclick="approveReview(${idx})" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">Approve</button>`}
+    </td>
+  </tr>`).join('');
+}
+
+async function approveReview(idx) {
+  const item = D.reviews[idx];
+  if (!item) return;
+
+  item.status = 'approved';
+
+  // Save to Supabase if ID exists
+  if (item.id) {
+    try {
+      await fetch(`${SUPA_URL}/rest/v1/reviews?id=eq.${item.id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'approved' })
+      });
+    } catch(e) {}
+  }
+
+  // Update LocalStorage queues
+  let approvedQueue = JSON.parse(localStorage.getItem('sra_approved_reviews_db') || '[]');
+  approvedQueue.push(item);
+  localStorage.setItem('sra_approved_reviews_db', JSON.stringify(approvedQueue));
+
+  let pendingQueue = JSON.parse(localStorage.getItem('sra_pending_reviews_db') || '[]');
+  pendingQueue = pendingQueue.filter(p => p.comment !== item.comment);
+  localStorage.setItem('sra_pending_reviews_db', JSON.stringify(pendingQueue));
+
+  renderReviewRows('reviews-tbody', D.reviews);
+  alert("Review approved successfully! It is now live on consultation.html");
+}
+
+function renderEmailRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No verified email accounts logged yet</td></tr>`; return; }
+
+  // Extract all rows with email address or google login
+  const emailRecords = rows.filter(u => {
+    const e = u.email || (u.phone && u.phone.includes('@') ? u.phone : '');
+    return e && e.trim() !== '';
+  });
+
+  if(!emailRecords.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No verified Google emails logged yet</td></tr>`; return; }
+
+  el.innerHTML=emailRecords.map(u => {
+    const email = u.email || u.phone;
+    const name = u.candidate_name || u.name || 'Google User';
+    const method = u.login_method || u.action || 'GOOGLE_SIGNIN_SUCCESS';
+    const loggedAt = u.created_at || u.logged_at || '—';
+
+    return `<tr>
+      <td><div class="name-cell" style="color:var(--gold)">📧 ${safe(email)}</div></td>
+      <td><div style="font-weight:600">${safe(name)}</div></td>
+      <td><span class="badge completed">Verified</span></td>
+      <td><span style="font-size:11px;font-family:monospace;color:var(--muted)">${safe(method)}</span></td>
+      <td class="date-cell">${safe(loggedAt)}</td>
+      <td><a href="mailto:${safe(email)}" style="color:var(--gold);text-decoration:none;font-size:12px;font-weight:bold;">✉️ Send Email</a></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderUserQueryRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No registered user queries or OTP logins recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(u=>{
+    const methodBadge = getAuthMethodBadge(u.login_method || u.action);
+    const dobTob = [safe(u.dob), safe(u.tob)].filter(x=>x&&x!=='—').join(' • ') || '—';
+    const coords = (u.latitude || u.lat) ? `${safe(u.latitude || u.lat)}, ${safe(u.longitude || u.lon)}` : '—';
+    const cleanPhone = (u.phone || '').replace(/\D/g,'').slice(-10);
+    const waChat = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (u.candidate_name||u.name||'जातक') + ' जी, श्री रामजी एस्ट्रो में आपका स्वागत है।')}" target="_blank">💬 WhatsApp</a>` : '—';
+
+    return `<tr>
+      <td>${wa(u.phone)}</td>
+      <td><div class="name-cell">${safe(u.candidate_name || u.name || 'जातक')}</div></td>
+      <td>${methodBadge}</td>
+      <td style="font-size:12px">${dobTob}</td>
+      <td style="font-size:12px">${safe(u.location)}</td>
+      <td style="font-size:11px;font-family:monospace;color:var(--muted)">${coords}</td>
+      <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
+      <td>${waChat}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStudentRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No students or applicants registered yet</td></tr>`; return; }
+  el.innerHTML=rows.map(s=>`<tr>
+    <td><div class="name-cell">${safe(s.first_name || s.candidate_name || s.name || 'जातक')} ${safe(s.last_name || '')}</div></td>
+    <td class="email-cell">${safe(s.email)}</td>
+    <td>${wa(s.phone)}</td>
+    <td style="font-size:12px;color:var(--muted)">${safe(s.city || s.location)}</td>
+    <td style="font-size:12px">${safe(s.course_interest || s.login_method || 'Vedic Astrology')}</td>
+    <td class="date-cell">${fmtDate(s.created_at || s.logged_at)}</td>
+  </tr>`).join('');
+}
+
+function renderPaymentRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
+  el.innerHTML=rows.map(p=>{
+    const cleanPhone = (p.student_phone || '').replace(/\D/g,'').slice(-10);
+    const waLink = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (p.student_name||'जातक') + ' जी, आपकी ' + (p.plan_name||'रिपोर्ट') + ' की दक्षिणा रसीद प्राप्त हुई। क्या आपको रिपोर्ट प्राप्त हो गई?')}" target="_blank">📱 ${p.student_phone}</a>` : '—';
+    return `<tr>
+      <td><div class="name-cell">${safe(p.student_name || 'जातक')}</div><div class="email-cell">${safe(p.student_email)}</div></td>
+      <td>${waLink}</td>
+      <td style="font-size:12px;max-width:180px;font-weight:600">${safe(p.plan_name)}</td>
+      <td class="amount-cell" style="color:var(--gold);font-weight:800">${fmtAmt(p.amount)}</td>
+      <td>${badge(p.status || 'completed')}</td>
+      <td>${pid(p.razorpay_payment_id)}</td>
+      <td class="date-cell">${fmtDate(p.created_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderConsultRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No consultations yet</td></tr>`; return; }
+  el.innerHTML=rows.map(c=>`<tr>
+    <td class="name-cell">${safe(c.full_name)}</td>
+    <td>${wa(c.phone)}</td>
+    <td class="email-cell">${safe(c.email)}</td>
+    <td style="font-size:12px">${safe(c.dob)}</td>
+    <td style="font-size:12px">${safe(c.place_of_birth)}</td>
+    <td style="font-size:12px;color:var(--muted);max-width:180px">${(c.question||'—').slice(0,60)}</td>
+    <td class="date-cell">${fmtDate(c.created_at)}</td>
+  </tr>`).join('');
+}
+
+function renderForumRows(tbodyId, rows){
+  const el=document.getElementById(tbodyId);
+  if(!rows.length){ el.innerHTML=`<tr><td colspan="5" class="empty-row">No forum posts yet</td></tr>`; return; }
+  el.innerHTML=rows.map(f=>`<tr>
+    <td style="max-width:220px;font-size:13px;font-weight:700;color:#fff">${safe(f.title)}</td>
+    <td style="font-size:12px">${safe(f.author_name)}${f.is_admin?'<span style="font-size:9px;color:var(--gold);margin-left:6px">★ ADMIN</span>':''}</td>
+    <td style="font-size:12px;color:var(--muted)">${safe(f.category)}</td>
+    <td style="font-family:Cinzel,serif;font-size:13px;color:var(--gold)">${f.likes||0}</td>
+    <td class="date-cell">${fmtDate(f.created_at)}</td>
+  </tr>`).join('');
+}
+
+/* ══ FILTER ══ */
+function filterTable(tbodyId, q){
+  const rows=document.querySelectorAll('#'+tbodyId+' tr');
+  const f=q.toLowerCase();
+  rows.forEach(r=>{ r.style.display=r.textContent.toLowerCase().includes(f)?'':'none'; });
+}
+
+/* ══ EXPORT CSV ══ */
+function exportCSV(type){
+  let headers,rows,filename;
+  if(type==='students'){
+    headers=['First Name','Last Name','Email','Phone','City','Interest','Joined'];
+    rows=D.students.map(s=>[s.first_name,s.last_name,s.email,s.phone,s.city,s.course_interest,fmtDate(s.created_at)]);
+    filename='SRA_Students.csv';
+  } else if(type==='payments'){
+    headers=['Name','Email','Phone','Plan','Amount','Status','Payment ID','Date'];
+    rows=D.payments.map(p=>[p.student_name,p.student_email,p.student_phone,p.plan_name,p.amount,p.status,p.razorpay_payment_id,fmtDate(p.created_at)]);
+    filename='SRA_Payments.csv';
+  } else if(type==='emails'){
+    headers=['Email Address','Candidate Name','Login Method','Logged Date'];
+    const emailRecords = D.users.filter(u => (u.email || (u.phone && u.phone.includes('@'))));
+    rows=emailRecords.map(u=>[u.email || u.phone, u.candidate_name||u.name||'Google User', u.login_method||u.action||'GOOGLE_SIGNIN_SUCCESS', u.created_at||u.logged_at]);
+    filename='SRA_Verified_Email_Accounts.csv';
+  } else if(type==='users'){
+    headers=['Mobile Number','Candidate Name','Auth / Login Method','DOB','TOB','Location','Latitude','Longitude','Logged Date'];
+    rows=D.users.map(u=>[u.phone, u.candidate_name||u.name||'User', u.login_method||u.action||'OTP_VERIFIED', u.dob, u.tob, u.location, u.latitude||u.lat, u.longitude||u.lon, u.created_at||u.logged_at]);
+    filename='SRA_Registered_Users.csv';
+  } else {
+    headers=['Name','Phone','Email','DOB','Place','Question','Date'];
+    rows=D.consultations.map(c=>[c.full_name,c.phone,c.email,c.dob,c.place_of_birth,c.question,fmtDate(c.created_at)]);
+    filename='SRA_Consultations.csv';
+  }
+  const csv=[headers,...rows].map(r=>r.map(v=>'"'+(v||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=filename; a.click();
+}
+
+/* ══ PANELS ══ */
+function showPanel(name, targetEl){
+  try {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    const targetPanel = document.getElementById('panel-' + name);
+    if (targetPanel) targetPanel.classList.add('active');
+
+    const clickedEl = targetEl || (typeof event !== 'undefined' && event ? event.currentTarget : null);
+    if (clickedEl && clickedEl.classList) {
+      clickedEl.classList.add('active');
+    }
+
+    const titles = {
+      overview: 'Overview',
+      emails: 'Verified Email Logins',
+      users: 'Registered Users & Kundli Query Log',
+      students: 'Students',
+      payments: 'Payments',
+      consultations: 'Consultations',
+      forum: 'Forum Posts',
+      reviews: 'Client Reviews',
+      social: '🤖 Autonomous Social Media AI Agent (Autopilot)'
+    };
+    const titleEl = document.getElementById('panelTitle');
+    if (titleEl) titleEl.textContent = titles[name] || name;
+
+    if (name === 'social') {
+      loadSocialStatus();
+    }
+  } catch(e) {
+    console.error("showPanel error:", e);
+  }
+}
+
+/* ══ SOCIAL MEDIA AI AGENT FUNCTIONS ══ */
+async function loadSocialStatus() {
+  try {
+    const res = await fetch('/api/social/status');
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    if (data.today_package && data.today_package.topic) {
+      const pkg = data.today_package;
+      const themeEl = document.getElementById('socialTodayTheme');
+      if (themeEl) themeEl.innerText = pkg.topic.theme || 'वैदिक सूत्र';
+      const subEl = document.getElementById('socialChapterSub');
+      if (subEl) subEl.innerText = `अध्याय ${pkg.topic.chapter_num || ''} • ${pkg.topic.verse_label || ''}`;
+      
+      // Reddit
+      const rTitle = document.getElementById('socialRedditTitle');
+      if (rTitle && pkg.reddit) rTitle.innerText = pkg.reddit.title || '';
+      const rBody = document.getElementById('socialRedditBody');
+      if (rBody && pkg.reddit) rBody.innerText = pkg.reddit.body || '';
+      
+      // Quora
+      const qQues = document.getElementById('socialQuoraQuestion');
+      if (qQues && pkg.quora) qQues.innerText = pkg.quora.question || '';
+      const qAns = document.getElementById('socialQuoraAnswer');
+      if (qAns && pkg.quora) qAns.innerText = pkg.quora.answer || '';
+      
+      // Facebook
+      const fbTxt = document.getElementById('socialFbText');
+      if (fbTxt && pkg.facebook) fbTxt.innerText = pkg.facebook.text || '';
+      
+      // Instagram
+      const igCap = document.getElementById('socialIgCaption');
+      if (igCap && pkg.instagram) igCap.innerText = pkg.instagram.caption || '';
+      
+      // YouTube
+      const ytT = document.getElementById('socialYtTitle');
+      if (ytT && pkg.youtube) ytT.innerText = pkg.youtube.title || '';
+      const ytD = document.getElementById('socialYtDesc');
+      if (ytD && pkg.youtube) ytD.innerText = pkg.youtube.description || '';
+      
+      // Video
+      if (pkg.media && pkg.media.video_path) {
+        const videoDate = pkg.date || '2026-10-28';
+        const vUrl = `/media/social/${videoDate}/reel_1080x1920.mp4`;
+        const vPoster = `/media/social/${videoDate}/thumbnail.jpg`;
+        const vid = document.getElementById('socialReelVideo');
+        if (vid) {
+          vid.poster = vPoster;
+          const srcEl = vid.querySelector('source');
+          if (srcEl) srcEl.src = vUrl;
+          vid.load();
+        }
+        const dlBtn = document.getElementById('socialDownloadBtn');
+        if (dlBtn) dlBtn.href = vUrl;
+      }
+    }
+  } catch (err) {
+    console.error("loadSocialStatus error:", err);
+  }
+}
+
+function switchSocialTab(name, btn) {
+  document.querySelectorAll('.social-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.social-tab-content').forEach(c => c.classList.remove('active'));
+  
+  if (btn) btn.classList.add('active');
+  const target = document.getElementById(`social-tab-${name}`);
+  if (target) target.classList.add('active');
+}
+
+function copySocialBox(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText);
+  alert("क्लिपबोर्ड पर कॉपी हो गया!");
+}
+
+function toggleSocialSettings() {
+  const box = document.getElementById('socialSettingsBox');
+  if (!box) return;
+  box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+  if (box.style.display === 'block') {
+    box.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+async function triggerSocialRun(generateOnly, dryRun) {
+  const btn = typeof event !== 'undefined' && event ? event.target : null;
+  const original = btn ? btn.innerText : '';
+  if (btn) {
+    btn.innerText = "⏳ कार्य प्रगति पर है...";
+    btn.disabled = true;
+  }
+  
+  try {
+    const res = await fetch('/api/social/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        generate_only: generateOnly,
+        dry_run: dryRun
+      })
+    });
+    const result = await res.json();
+    alert("सफलता! प्रक्रिया पूर्ण हुई।");
+    loadSocialStatus();
+  } catch (err) {
+    alert("त्रुटि: " + err.message);
+  } finally {
+    if (btn) {
+      btn.innerText = original;
+      btn.disabled = false;
+    }
+  }
+}
+
+async function saveSocialSettings() {
+  const payload = {
+    api_keys: {
+      gemini_api_key: document.getElementById('socialGeminiKey').value
+    },
+    platforms: {
+      reddit: { client_id: document.getElementById('socialRedditClientId').value },
+      facebook: { page_id: document.getElementById('socialFbPageId').value, access_token: document.getElementById('socialMetaToken').value },
+      instagram: { ig_user_id: document.getElementById('socialIgUserId').value, access_token: document.getElementById('socialMetaToken').value }
+    },
+    schedule: {
+      time: document.getElementById('socialScheduleTime').value
+    }
+  };
+  
+  try {
+    const res = await fetch('/api/social/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    const notice = document.getElementById('socialSaveNotice');
+    if (notice) {
+      notice.innerText = "✓ सेटिंग्स सुरक्षित हो गईं!";
+      setTimeout(() => { notice.innerText = ""; }, 4000);
+    }
+  } catch (err) {
+    alert("सेव करने में त्रुटि: " + err.message);
+  }
+}
+</script>
+</body>
+</html>
