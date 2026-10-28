@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>सोशल मीडिया AI एजेंट — Shri Ramji Astro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet"/>
+<script src="theme.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root, [data-theme="day"] {
+  --gold: #b48220;
+  --gold-light: #d4a017;
+  --bg: #fdfbf7;
+  --card: #ffffff;
+  --border: rgba(124,19,5,0.15);
+  --text: #2c0a06;
+  --muted: #6e594d;
+  --green: #15803d;
+  --red: #b91c1c;
+  --blue: #1d4ed8;
+  --tag-bg: rgba(180,130,32,0.1);
+}
+[data-theme="night"] {
+  --gold: #c9a84c;
+  --gold-light: #f5d061;
+  --bg: #090514;
+  --card: #140a2b;
+  --border: rgba(201,168,76,0.25);
+  --text: #f3eeff;
+  --muted: #a394bf;
+  --green: #4ade80;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --tag-bg: rgba(201,168,76,0.15);
+}
+
+body {
+  font-family: 'Noto Sans Devanagari', 'Lato', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.header-title h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  color: var(--gold);
+}
+.header-title .badge {
+  background: var(--green);
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Status Banner */
+.status-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.stat-box {
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  padding: 14px;
+  border-radius: 10px;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.stat-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* Action Controls */
+.actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), #8a6210);
+  color: #fff;
+}
+.btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-secondary:hover { border-color: var(--gold); }
+
+/* Main Split View */
+.split-view {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+@media(max-width: 900px) {
+  .split-view { grid-template-columns: 1fr; }
+}
+
+/* Video Player Frame */
+.video-preview-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+.phone-mockup {
+  width: 100%;
+  max-width: 310px;
+  height: 550px;
+  background: #000;
+  border-radius: 28px;
+  margin: 0 auto 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border: 4px solid #222;
+  position: relative;
+}
+.phone-mockup video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Platform Content Tabs */
+.content-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+.tabs-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+}
+.tab-btn.active {
+  background: var(--tag-bg);
+  border-color: var(--border);
+  color: var(--gold);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.copy-box {
+  background: rgba(0,0,0,0.03);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+/* Settings Form */
+.settings-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-top: 30px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header-bar">
+    <div class="header-title">
+      <h1>SRA AUTONOMOUS SOCIAL AGENT</h1>
+      <span class="badge" id="agentBadge">⚡ 07:00 AM DAILY ACTIVE</span>
+    </div>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <a href="admin.html" class="btn btn-secondary" style="text-decoration:none;">← मुख्य एडमिन</a>
+    </div>
+  </div>
+
+  <!-- Status Card -->
+  <div class="status-card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="font-size:18px; color:var(--gold);">🤖 एजेंट संचालन एवं आज की स्थिति</h2>
+      <span id="lastUpdated" style="font-size:12px; color:var(--muted);">सिस्टम रेडी</span>
+    </div>
+    <div class="status-grid">
+      <div class="stat-box">
+        <div class="stat-label">दैनिक समय (Schedule)</div>
+        <div class="stat-val">प्रातः 07:00 AM (IST)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">आज का BPHS विषय</div>
+        <div class="stat-val" id="todayTheme">धन योग सूत्र (Ch. 42)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">रील/शॉर्ट्स वीडियो स्थिति</div>
+        <div class="stat-val" style="color:var(--green);" id="videoStatus">✓ 1080x1920 MP4 तैयार</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">कंटेंट थीम</div>
+        <div class="stat-val">वैदिक ज्ञान एवं पराशर सूत्र</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Controls -->
+  <div class="actions-bar">
+    <button class="btn btn-primary" onclick="triggerRun(true, false)">🎯 आज का कंटेंट व वीडियो अभी जनरेट करें</button>
+    <button class="btn btn-secondary" onclick="triggerRun(false, true)">🧪 टेस्ट रन (Dry Run Simulate)</button>
+    <button class="btn btn-secondary" style="border-color:var(--green); color:var(--green);" onclick="triggerRun(false, false)">🚀 लाइव सोशल मीडिया पर पोस्ट करें</button>
+    <button class="btn btn-secondary" onclick="scrollToSettings()">⚙️ API कीज एवं प्लेटफॉर्म सेटिंग्स</button>
+  </div>
+
+  <!-- Main Split View: Video Reel Player + Multi-Platform Copy -->
+  <div class="split-view">
+    <!-- Left: Video Player Mockup -->
+    <div class="video-preview-card">
+      <h3 style="font-size:15px; margin-bottom:12px; color:var(--gold);">📱 इंस्टाग्राम रील व यूट्यूब शॉर्ट्स</h3>
+      <div class="phone-mockup">
+        <video id="reelVideo" controls poster="social_agent/output/2026-10-28/thumbnail.jpg">
+          <source src="/media/social/2026-10-28/reel_1080x1920.mp4" type="video/mp4">
+          आपका ब्राउज़र वीडियो टैग को सपोर्ट नहीं करता।
+        </video>
+      </div>
+      <a id="downloadVideoBtn" href="/media/social/2026-10-28/reel_1080x1920.mp4" download="SRA_Daily_Reel.mp4" class="btn btn-primary" style="width:100%; justify-content:center; text-decoration:none;">
+        📥 MP4 रील डाउनलोड करें
+      </a>
+    </div>
+
+    <!-- Right: Multi-Platform Post Previews -->
+    <div class="content-card">
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('reddit')">🔴 Reddit (r/vedicastrology)</button>
+        <button class="tab-btn" onclick="switchTab('quora')">🔴 Quora Q&A</button>
+        <button class="tab-btn" onclick="switchTab('facebook')">🔵 Facebook पोस्ट</button>
+        <button class="tab-btn" onclick="switchTab('instagram')">📸 Instagram कैप्शन</button>
+        <button class="tab-btn" onclick="switchTab('youtube')">▶️ YouTube #Shorts</button>
+      </div>
+
+      <!-- Reddit Tab -->
+      <div id="tab-reddit" class="tab-content active">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <strong id="redditTitle">Reddit शीर्षक</strong>
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="copyBox('redditBody')">📋 कॉपी करें</button>
+        </div>
+        <div class="copy-box" id="redditBody">लोड हो रहा है...</div>
+      </div>
+
+      <!-- Quora Tab -->
+      <div id="tab-quora" class="tab-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <strong id="quoraQuestion">Quora प्रश्न</strong>
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="copyBox('quoraAnswer')">📋 उत्तर कॉपी करें</button>
+        </div>
+        <div class="copy-box" id="quoraAnswer">लोड हो रहा है...</div>
+      </div>
+
+      <!-- Facebook Tab -->
+      <div id="tab-facebook" class="tab-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <strong>फेसबुक पेज पोस्ट</strong>
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="copyBox('fbText')">📋 कॉपी करें</button>
+        </div>
+        <div class="copy-box" id="fbText">लोड हो रहा है...</div>
+      </div>
+
+      <!-- Instagram Tab -->
+      <div id="tab-instagram" class="tab-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <strong>इंस्टाग्राम रील कैप्शन व हैशटैग्स</strong>
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="copyBox('igCaption')">📋 कॉपी करें</button>
+        </div>
+        <div class="copy-box" id="igCaption">लोड हो रहा है...</div>
+      </div>
+
+      <!-- YouTube Tab -->
+      <div id="tab-youtube" class="tab-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <strong id="ytTitle">YouTube Shorts शीर्षक</strong>
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="copyBox('ytDesc')">📋 विवरण कॉपी करें</button>
+        </div>
+        <div class="copy-box" id="ytDesc">लोड हो रहा है...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Section -->
+  <div class="settings-section" id="settingsSection">
+    <h3 style="font-size:18px; color:var(--gold); margin-bottom:6px;">⚙️ API क्रेडेंशियल्स एवं प्लेटफॉर्म सेटिंग्स</h3>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:18px;">
+      यहाँ अपनी API कीज जोड़ें। एजेंट प्रतिदिन प्रातः 07:00 AM बजे स्वतः इन सभी प्लेटफॉर्म्स पर सामग्री पोस्ट करेगा।
+    </p>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Google Gemini API Key (कंटेंट परिमार्जन हेतु)</label>
+        <input type="password" id="geminiApiKey" placeholder="AIzaSy..."/>
+      </div>
+      <div class="form-group">
+        <label>Reddit Client ID & Secret</label>
+        <input type="text" id="redditClientId" placeholder="Reddit App Client ID"/>
+      </div>
+      <div class="form-group">
+        <label>Meta Facebook Page ID</label>
+        <input type="text" id="fbPageId" placeholder="1029384756..."/>
+      </div>
+      <div class="form-group">
+        <label>Meta Graph Access Token (FB & IG)</label>
+        <input type="password" id="metaToken" placeholder="EAA..."/>
+      </div>
+      <div class="form-group">
+        <label>Instagram User ID (Business/Creator)</label>
+        <input type="text" id="igUserId" placeholder="178414..."/>
+      </div>
+      <div class="form-group">
+        <label>दैनिक स्वचालित समय (IST)</label>
+        <select id="scheduleTime">
+          <option value="07:00" selected>07:00 AM (प्रातः काल - रिकमेंडेड)</option>
+          <option value="08:00">08:00 AM</option>
+          <option value="06:00">06:00 AM (सूर्योदय)</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; display:flex; gap:12px;">
+      <button class="btn btn-primary" onclick="saveSettings()">💾 सेटिंग्स सुरक्षित करें (Save Config)</button>
+      <span id="saveNotice" style="align-self:center; font-size:13px; color:var(--green); font-weight:bold;"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadStatus() {
+  try {
+    const res = await fetch('/api/social/status');
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    if (data.today_package) {
+      const pkg = data.today_package;
+      document.getElementById('todayTheme').innerText = pkg.topic.theme;
+      
+      // Reddit
+      document.getElementById('redditTitle').innerText = pkg.reddit.title;
+      document.getElementById('redditBody').innerText = pkg.reddit.body;
+      
+      // Quora
+      document.getElementById('quoraQuestion').innerText = pkg.quora.question;
+      document.getElementById('quoraAnswer').innerText = pkg.quora.answer;
+      
+      // Facebook
+      document.getElementById('fbText').innerText = pkg.facebook.text;
+      
+      // Instagram
+      document.getElementById('igCaption').innerText = pkg.instagram.caption;
+      
+      // YouTube
+      document.getElementById('ytTitle').innerText = pkg.youtube.title;
+      document.getElementById('ytDesc').innerText = pkg.youtube.description;
+      
+      // Video
+      if (pkg.media && pkg.media.video_path) {
+        const videoDate = pkg.date || '2026-10-28';
+        const vUrl = `/media/social/${videoDate}/reel_1080x1920.mp4`;
+        const vPoster = `/media/social/${videoDate}/thumbnail.jpg`;
+        const vid = document.getElementById('reelVideo');
+        vid.poster = vPoster;
+        vid.querySelector('source').src = vUrl;
+        vid.load();
+        document.getElementById('downloadVideoBtn').href = vUrl;
+      }
+    }
+  } catch (err) {
+    console.log("Status fetch note:", err);
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  const target = document.getElementById(`tab-${name}`);
+  if (target) target.classList.add('active');
+}
+
+function copyBox(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text);
+  alert("क्लिपबोर्ड पर कॉपी हो गया!");
+}
+
+function scrollToSettings() {
+  document.getElementById('settingsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function triggerRun(generateOnly, dryRun) {
+  const btn = event.target;
+  const original = btn.innerText;
+  btn.innerText = "⏳ कार्य प्रगति पर है...";
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch('/api/social/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        generate_only: generateOnly,
+        dry_run: dryRun
+      })
+    });
+    const result = await res.json();
+    alert("सफलता! प्रक्रिया पूर्ण हुई।");
+    loadStatus();
+  } catch (err) {
+    alert("त्रुटि: " + err.message);
+  } finally {
+    btn.innerText = original;
+    btn.disabled = false;
+  }
+}
+
+async function saveSettings() {
+  const payload = {
+    api_keys: {
+      gemini_api_key: document.getElementById('geminiApiKey').value
+    },
+    platforms: {
+      reddit: { client_id: document.getElementById('redditClientId').value },
+      facebook: { page_id: document.getElementById('fbPageId').value, access_token: document.getElementById('metaToken').value },
+      instagram: { ig_user_id: document.getElementById('igUserId').value, access_token: document.getElementById('metaToken').value }
+    },
+    schedule: {
+      time: document.getElementById('scheduleTime').value
+    }
+  };
+  
+  try {
+    const res = await fetch('/api/social/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    const notice = document.getElementById('saveNotice');
+    notice.innerText = "✓ सेटिंग्स सफलतापूर्वक सुरक्षित की गईं!";
+    setTimeout(() => { notice.innerText = ""; }, 4000);
+  } catch (err) {
+    alert("सेव करने में त्रुटि: " + err.message);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', loadStatus);
+</script>
+</body>
+</html>

@@ -130,7 +130,8 @@ const server = http.createServer((req, res) => {
     urlPath.startsWith('/timezone?') ||
     urlPath === '/transit' ||
     urlPath.startsWith('/transit?') ||
-    urlPath.startsWith('/api/')
+    urlPath.startsWith('/api/') ||
+    urlPath.startsWith('/media/social')
   ) {
     const proxyReq = http.request({
       host: '127.0.0.1',

@@ -1595,6 +1595,88 @@ except Exception as _e_import:
     pass
 
 
+# =============================================================================
+# 11. AUTONOMOUS SOCIAL AGENT API ENDPOINTS
+# =============================================================================
+try:
+    from fastapi.staticfiles import StaticFiles
+    from social_agent.config import load_config, save_config, OUTPUT_DIR
+    from social_agent.orchestrator import run_daily_pipeline, LATEST_STATUS_FILE, HISTORY_FILE
+
+    # Mount static files for social media outputs (videos, images)
+    app.mount("/media/social", StaticFiles(directory=str(OUTPUT_DIR)), name="social_media")
+
+    @app.get("/api/social/status")
+    def get_social_agent_status():
+        config = load_config()
+        latest = {}
+        if LATEST_STATUS_FILE.exists():
+            try:
+                with open(LATEST_STATUS_FILE, "r", encoding="utf-8") as f:
+                    latest = json.load(f)
+            except Exception:
+                pass
+        
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        today_dir = OUTPUT_DIR / today_str
+        today_pkg = {}
+        if (today_dir / "social_package.json").exists():
+            try:
+                with open(today_dir / "social_package.json", "r", encoding="utf-8") as f:
+                    today_pkg = json.load(f)
+            except Exception:
+                pass
+
+        return {
+            "status": "ready",
+            "schedule": config.get("schedule", {}),
+            "platforms": {
+                k: {"enabled": v.get("enabled", False), "configured": bool(v.get("access_token") or v.get("client_id") or v.get("client_secrets_file"))}
+                for k, v in config.get("platforms", {}).items()
+            },
+            "gemini_configured": bool(config.get("api_keys", {}).get("gemini_api_key")),
+            "latest_run": latest,
+            "today_generated": bool(today_pkg),
+            "today_package": today_pkg
+        }
+
+    class SocialActionRequest(BaseModel):
+        dry_run: bool = False
+        generate_only: bool = False
+        publish_only: bool = False
+        date: Optional[str] = None
+
+    @app.post("/api/social/run")
+    def trigger_social_agent_run(req: SocialActionRequest):
+        try:
+            target_dt = datetime.strptime(req.date, "%Y-%m-%d").date() if req.date else None
+            result = run_daily_pipeline(
+                target_date=target_dt,
+                dry_run=req.dry_run,
+                generate_only=req.generate_only,
+                publish_only=req.publish_only
+            )
+            return {"status": "success", "result": result}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Social agent execution error: {str(e)}")
+
+    @app.post("/api/social/settings")
+    def update_social_agent_settings(req: dict):
+        try:
+            current = load_config()
+            for k, v in req.items():
+                if isinstance(v, dict) and k in current:
+                    current[k].update(v)
+                else:
+                    current[k] = v
+            save_config(current)
+            return {"status": "success", "config": current}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Settings save error: {str(e)}")
+except Exception as _e_social:
+    print(f"[SocialAgent] Route mount notice: {_e_social}")
+
+
 if __name__ == "__main__":
     import uvicorn
     print("Starting SRA Parashara Canonical Microservice on http://0.0.0.0:8000 ...")
