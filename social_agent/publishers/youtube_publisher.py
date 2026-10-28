@@ -47,6 +47,16 @@ def publish_to_youtube_shorts(yt_payload: dict, video_path: str, config: dict, d
             with open(token_pickle, "rb") as token:
                 credentials = pickle.load(token)
                 
+        if credentials and credentials.expired and credentials.refresh_token:
+            try:
+                from google.auth.transport.requests import Request
+                credentials.refresh(Request())
+                with open(token_pickle, "wb") as token:
+                    pickle.dump(credentials, token)
+                print("[YouTubePublisher] OAuth token successfully refreshed!")
+            except Exception as _e_ref:
+                print(f"[YouTubePublisher] Token refresh error: {_e_ref}")
+
         if not credentials or not credentials.valid:
             print("[YouTubePublisher] YouTube OAuth token requires refresh or initial browser authorization.")
             return {
