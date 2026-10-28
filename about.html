@@ -1280,11 +1280,13 @@
             <!-- CATEGORY TABS -->
             <div class="category-tabs-bar" id="categoryTabsBar">
                 <button class="category-tab-btn active" data-tab="all" onclick="switchCategoryTab('all', this)">🔥 सभी शोध आलेख (All)</button>
-                <button class="category-tab-btn" data-tab="ephemeris" onclick="switchCategoryTab('ephemeris', this)">🪐 खगोल एवं सिद्धांत (Ephemeris Math)</button>
-                <button class="category-tab-btn" data-tab="muhurta" onclick="switchCategoryTab('muhurta', this)">📅 वास्तु एवं मुहूर्त (Vastu & Muhurta)</button>
-                <button class="category-tab-btn" data-tab="admin_blogs" onclick="switchCategoryTab('admin_blogs', this)">🚩 एस्ट्रो रामजी के आलेख (Official Blogs)</button>
-                <button class="category-tab-btn" data-tab="verified" onclick="switchCategoryTab('verified', this)">✓ सत्यापित प्रश्न-उत्तर (Verified Q&A)</button>
-                <button class="category-tab-btn" data-tab="my" onclick="switchCategoryTab('my', this)">👤 मेरे पोस्ट (My Posts)</button>
+                <button class="category-tab-btn" data-tab="gochar" onclick="switchCategoryTab('gochar', this)">🔮 ग्रह गोचर (Transits)</button>
+                <button class="category-tab-btn" data-tab="rajyoga" onclick="switchCategoryTab('rajyoga', this)">👑 राजयोग व धनयोग</button>
+                <button class="category-tab-btn" data-tab="vivah" onclick="switchCategoryTab('vivah', this)">💍 विवाह व 10 महादोष</button>
+                <button class="category-tab-btn" data-tab="shanti" onclick="switchCategoryTab('shanti', this)">🪔 वैदिक शांति व परिहार</button>
+                <button class="category-tab-btn" data-tab="ephemeris" onclick="switchCategoryTab('ephemeris', this)">🪐 खगोल गणित (Ephemeris)</button>
+                <button class="category-tab-btn" data-tab="muhurta" onclick="switchCategoryTab('muhurta', this)">📅 मुहूर्त विज्ञान (Muhurta)</button>
+                <button class="category-tab-btn" data-tab="admin_blogs" onclick="switchCategoryTab('admin_blogs', this)">🚩 आधिकारिक आलेख</button>
             </div>
 
             <!-- LEAD FEATURED STORY SPOTLIGHT -->
@@ -1847,6 +1849,15 @@
             } else if (cat === 'gochar' || cat.includes('गोचर')) {
                 cls = 'badge-cat-transit';
                 label = '🔮 ग्रह गोचर';
+            } else if (cat === 'rajyoga' || cat.includes('राजयोग')) {
+                cls = 'badge-cat-official';
+                label = '👑 शास्त्रीय राजयोग';
+            } else if (cat === 'vivah' || cat.includes('विवाह')) {
+                cls = 'badge-cat-muhurta';
+                label = '💍 विवाह व 10 महादोष';
+            } else if (cat === 'shanti' || cat.includes('शांति')) {
+                cls = 'badge-cat-transit';
+                label = '🪔 वैदिक शांति व परिहार';
             }
             return '<span class="badge-cat-pill ' + cls + '">' + label + '</span>';
         }
@@ -1862,8 +1873,16 @@
             // 1. Filter by active category tab
             if (activeCategoryTab === 'ephemeris') {
                 items = items.filter(q => q && (q.category === 'ephemeris' || (q.title && (q.title.includes('Ephemeris') || q.title.includes('Certainty') || q.title.includes('Boundaries') || q.title.includes('वैदिक गणित')))));
+            } else if (activeCategoryTab === 'gochar') {
+                items = items.filter(q => q && (q.category === 'gochar' || (q.title && q.title.includes('गोचर'))));
+            } else if (activeCategoryTab === 'rajyoga') {
+                items = items.filter(q => q && (q.category === 'rajyoga' || (q.title && (q.title.includes('राजयोग') || q.title.includes('धन')))));
+            } else if (activeCategoryTab === 'vivah') {
+                items = items.filter(q => q && (q.category === 'vivah' || (q.title && (q.title.includes('विवाह') || q.title.includes('मांगलिक')))));
+            } else if (activeCategoryTab === 'shanti') {
+                items = items.filter(q => q && (q.category === 'shanti' || (q.title && (q.title.includes('शांति') || q.title.includes('दोष') || q.title.includes('स्तोत्र')))));
             } else if (activeCategoryTab === 'muhurta') {
-                items = items.filter(q => q && (q.category === 'muhurta' || (q.title && (q.title.includes('नींव') || q.title.includes('मुहूर्त') || q.title.includes('Transit')))));
+                items = items.filter(q => q && (q.category === 'muhurta' || (q.title && (q.title.includes('नींव') || q.title.includes('मुहूर्त')))));
             } else if (activeCategoryTab === 'admin_blogs') {
                 items = items.filter(q => q && (q.isAdmin || q.isBlog));
             } else if (activeCategoryTab === 'verified') {
@@ -1871,7 +1890,6 @@
             } else if (activeCategoryTab === 'my') {
                 items = (currentUser && currentUser.name) ? items.filter(q => q.author && q.author.includes(currentUser.name)) : items;
             }
-
             // 2. Filter by search query
             if (searchQuery && searchQuery.trim() !== '') {
                 const qLower = searchQuery.toLowerCase();
@@ -1953,6 +1971,7 @@
             // Render remaining articles in the grid
             feedContainer.innerHTML = gridArticles.map(q => `
                 <article class="article-card" id="card-${q.id}">
+                    ${q.image ? `<div class="article-card-thumb" style="margin:-18px -18px 14px -18px; border-radius:12px 12px 0 0; overflow:hidden; border-bottom:1px solid rgba(212,175,55,0.25); cursor:pointer;" onclick="openArticleReader(${q.id})"><img src="${q.image}" alt="${q.title}" style="width:100%; height:160px; object-fit:cover; display:block;" loading="lazy"></div>` : ''}
                     <div>
                         <div class="article-card-meta">
                             ${getCategoryPillHtml(q.category, q.categoryTitle)}
@@ -2047,7 +2066,8 @@
             }
 
             // Format body content
-            document.getElementById('readerContentBody').innerHTML = formatArticleBody(article.body);
+            const heroImg = article.image ? `<div style="margin:20px 0; border-radius:12px; overflow:hidden; border:1px solid rgba(212,175,55,0.3);"><img src="${article.image}" alt="${article.title}" style="width:100%; max-height:440px; object-fit:cover; display:block;"></div>` : '';
+            document.getElementById('readerContentBody').innerHTML = heroImg + formatArticleBody(article.body);
             document.getElementById('readerUpvoteCount').innerText = '(' + (article.upvotes || 1) + ')';
 
             // Recommended Next / Previous Articles
@@ -2349,9 +2369,7 @@
             const hasAuthenticBlogs = cleanLocal.some(b => b && b.id === 1790234177012);
 
             const map = new Map();
-            const primaryList = hasAuthenticBlogs 
-                ? [...cleanLocal, ...masterBlogs, ...FALLBACK_BLOGS, ...cleanCloud] 
-                : [...FALLBACK_BLOGS, ...masterBlogs, ...cleanLocal, ...cleanCloud];
+            const primaryList = [...masterBlogs, ...cleanLocal, ...cleanCloud, ...FALLBACK_BLOGS];
 
             primaryList.forEach(item => {
                 if (item && item.id && !map.has(String(item.id))) {
