@@ -1,7 +1,7 @@
 """
 Shri Ramji Astro (SRA) - BPHS Vedic Content Curator
 Curates authentic shlokas, yogas, kundli tips, and remedies from Brihat Parashara Hora Shastra (BPHS),
-and synthesizes tailored content for Reddit, Quora, Facebook, Instagram Reels, and YouTube Shorts.
+and synthesizes high-CTR, high-engagement content for YouTube Shorts, Instagram Reels, Facebook, WhatsApp Channel, Quora, and Reddit.
 """
 
 import json
@@ -58,84 +58,70 @@ def select_daily_topic(date_seed: datetime.date = None) -> dict:
     # Pick a high-value verse with valid shloka and bhashya
     valid_verses = [v for v in verses if v.get("shloka") and len(v.get("shloka", "").strip()) > 15]
     if not valid_verses:
-        # Fallback to any verse
         valid_verses = verses if verses else [{
             "verse_label": "श्लोक १",
             "shloka": "शान्तो विनीतः सत्यवादी जितक्रोधो जितेन्द्रियः। दैवज्ञः सर्वशास्त्रज्ञो लोकोपकारकारकः॥",
             "bhashya": "सच्चा दैवज्ञ शांत, विनम्र, सत्यवादी और सर्वशास्त्र का ज्ञाता होकर लोक-कल्याण करने वाला होता है।"
         }]
     
-    # Pick verse based on day_num
     selected_verse = valid_verses[day_num % len(valid_verses)]
     
     return {
         "date": date_seed.isoformat(),
         "chapter_num": curated["ch"],
         "chapter_title": chapter_data.get("chapter_title_sanskrit", curated["theme"]),
-        "chapter_english": chapter_data.get("chapter_title_english", ""),
+        "chapter_english": chapter_data.get("chapter_title_english", "Vedic Wisdom"),
         "theme": curated["theme"],
-        "verse_label": selected_verse.get("verse_label", "महर्षि पराशर सूत्र"),
-        "shloka": selected_verse.get("shloka", "").strip(),
-        "bhashya": selected_verse.get("bhashya", "").strip(),
+        "verse_label": selected_verse.get("verse_label", "श्लोक"),
+        "shloka": selected_verse.get("shloka", ""),
+        "bhashya": selected_verse.get("bhashya", ""),
         "tags": curated["tags"]
     }
 
 def call_gemini_api(api_key: str, model: str, prompt: str) -> str:
-    """Call Gemini REST API for content synthesis with model fallback."""
-    candidate_models = [model, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-flash-latest"]
-    # Deduplicate while preserving order
-    models_to_try = []
-    for m in candidate_models:
-        if m and m not in models_to_try:
-            models_to_try.append(m)
-            
+    """Call Google Gemini REST API directly."""
+    if not api_key:
+        return ""
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 2048}
+        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 8192}
     }
     data = json.dumps(payload).encode("utf-8")
-    
-    for m in models_to_try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
-        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                res_json = json.loads(resp.read().decode("utf-8"))
-                return res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
-        except Exception as e:
-            print(f"[Curator] Gemini API error with {m}: {e}")
-            continue
-            
-    return ""
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            res_json = json.loads(resp.read().decode("utf-8"))
+            return res_json["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception as e:
+        print(f"[Curator] Gemini API error ({model}): {e}")
+        return ""
 
-def synthesize_daily_social_package(topic_data: dict = None) -> dict:
+def generate_social_package(topic_data: dict = None) -> dict:
     """
-    Generate complete tailored content package for:
-    1. Reddit (Markdown post for r/vedicastrology)
-    2. Quora (Question & detailed Answer)
-    3. Facebook (Engaging card post)
-    4. Instagram Reel & YouTube Short (Script + Voiceover cues + Subtitle cards)
+    Generate an authoritative, captivating, multi-platform social media package.
+    Includes YouTube Shorts, Instagram Reels, Facebook, WhatsApp Channel, Quora, and Reddit.
+    Always includes prominent website links and trending astrological hashtags.
     """
     config = load_config()
     if not topic_data:
         topic_data = select_daily_topic()
     
     api_key = config["api_keys"].get("gemini_api_key", "").strip()
-    model = config["api_keys"].get("gemini_model", "gemini-2.0-flash")
+    model = config["api_keys"].get("gemini_model", "gemini-3.5-flash")
     
-    # Extract core facts
     shloka = topic_data["shloka"]
     bhashya = topic_data["bhashya"]
     theme = topic_data["theme"]
+    short_theme = theme.split("(")[0].strip()
     ch_num = topic_data["chapter_num"]
     verse_lbl = topic_data["verse_label"]
     
-    # 1. Clean script for vertical 9:16 video (approx 45 seconds narration in Hindi)
-    # 4 distinct slides/segments for visual engine
-    slide_1_hook = f"क्या आपकी कुंडली में भी {theme.split('(')[0].strip()} का प्रभाव है?"
-    slide_2_shloka = f"{verse_lbl}: {shloka[:100]}..." if len(shloka) > 100 else f"{verse_lbl}: {shloka}"
-    slide_3_analysis = f"महर्षि पराशर के अनुसार: {bhashya[:140]}..." if len(bhashya) > 140 else bhashya
-    slide_4_remedy = "अपनी जन्मपत्रिका में इस योग की स्थिति और सटीक वैदिक उपाय जानने के लिए श्री रामजी एस्ट्रो पर विजिट करें।"
+    # 4 distinct slides for visual engine
+    slide_1_hook = f"क्या आपकी कुंडली में भी {short_theme} का प्रभाव है?"
+    slide_2_shloka = f"{verse_lbl}:\n{shloka}"
+    slide_3_analysis = f"महर्षि पराशर सूत्र:\n{bhashya[:130]}..." if len(bhashya) > 130 else f"महर्षि पराशर सूत्र:\n{bhashya}"
+    slide_4_remedy = "सटीक वैदिक उपाय:\n१. नित्य वैदिक मंत्र जप व सात्विक आचरण।\n२. लग्नेश व भाव-चलित की स्थिति जांचें।\n३. अपनी कुंडली shri-ramji-astro.org पर देखें।"
     
     voice_script = (
         f"नमस्ते। आज हम जानेंगे बृहत्पाराशरहोराशास्त्रम् के अध्याय {ch_num} का एक अत्यंत गोपनीय सूत्र। "
@@ -145,61 +131,76 @@ def synthesize_daily_social_package(topic_data: dict = None) -> dict:
         f"अपनी जन्मपत्रिका की सटीक जांच के लिए आज ही श्री रामजी एस्ट्रो पर जाएं।"
     )
 
-    # 2. Reddit Markdown post
-    reddit_title = f"[BPHS Chapter {ch_num}] {theme} — Deep Vedic Principles & Kundli Analysis"
-    reddit_body = f"""## बृहत्पाराशरहोराशास्त्रम् (BPHS) — {theme}
-**अध्याय {ch_num} • {verse_lbl}**
+    # Standard trending hashtags
+    trending_hashtags = "#jyotish #vedicastrology #astrology #kundli #rashifal #horoscope #parashara #shriramjiastro #astrologytips #sanatandharma #shorts #viralastrology"
+    ig_hashtags = "#jyotish #vedicastrology #reels #kundli #astrology #rashifal #horoscope #parashara #shriramjiastro #trending #viralreels #astrologytips"
 
-### 📜 मूल संस्कृत श्लोक:
-```text
+    # 1. YouTube Title & Description
+    yt_title = f"{short_theme} का रहस्य | महर्षि पराशर सूत्र #Shorts #Jyotish"
+    if len(yt_title) > 95:
+        yt_title = f"{short_theme} | पराशर सूत्र #Shorts #Jyotish"
+
+    yt_description = f"""✨ महर्षि पराशर सूत्र: {theme} (BPHS अध्याय {ch_num}) ✨
+
+📜 मूल संस्कृत श्लोक ({verse_lbl}):
 {shloka}
-```
 
-### 🔍 शास्त्रीय अन्वय एवं भावार्थ:
+🔍 शास्त्रीय भावार्थ एवं कुंडली रहस्य:
 {bhashya}
 
----
+💡 कुंडली विश्लेषण एवं अचूक वैदिक उपाय:
+✔️ अपनी लग्न कुंडली और श्रीपति भाव-चलित में संबंधित ग्रहों की वास्तविक स्थिति जांचें।
+✔️ शुभ ग्रहों (गुरु, शुक्र) की दृष्टि और लग्नेश के बल का विचार करें।
+✔️ नवग्रह शांति एवं वैदिक मंत्र जप से शुभ फलों में वृद्धि करें।
 
-### 🏛️ कुंडली में इस योग की पहचान कैसे करें? (Analysis Guide)
-1. **लग्न एवं भावेश की स्थिति**: इस योग के पूर्ण फलित होने के लिए लग्नेश का बली होना अनिवार्य है।
-2. **दृष्टि एवं युति संबंध**: शुभ ग्रहों (गुरु, शुक्र, बली बुध) की दृष्टि इसके फल को कई गुना बढ़ा देती है।
-3. **भाव-चलित स्थिति**: श्रीपति भाव-चलित में ग्रह की वास्तविक स्थिति अवश्य जांचें कि ग्रह संधि पर तो नहीं है।
+🌐 अपनी संपूर्ण जन्मपत्रिका (100% प्रामाणिक स्विस एफेमेरिस DE431 गणना आधारित) अभी देखें:
+👉 https://shri-ramji-astro.org
 
-### 🕉️ महर्षि पराशर निर्देशित कल्याणकारी उपाय:
-- संबंधित ग्रह के मंत्र का नित्य जप एवं सात्विक आचरण।
-- अनुकूल समिधा द्वारा नवग्रह पूजन एवं योग्य विप्र का सम्मान।
-
-*क्या आपकी कुंडली में भी यह योग उपस्थित है? कमेंट्स में अपनी लग्न व ग्रह स्थिति साझा करें।*
-
----
-🌐 *Authentic Parashara Calculations powered by Swiss Ephemeris (JPL DE431) at [Shri Ramji Astro](https://shri-ramji-astro.org)*
+{trending_hashtags}
 """
 
-    # 3. Quora Question & Answer
-    quora_question = f"कुंडली में '{theme.split('(')[0].strip()}' का क्या महत्व है और महर्षि पराशर इसके बारे में क्या बताते हैं?"
-    quora_answer = f"""महर्षि पराशर द्वारा रचित 'बृहत्पाराशरहोराशास्त्रम्' वैदिक ज्योतिष का सर्वोच्च प्रमाणिक ग्रंथ है। अध्याय {ch_num} ({verse_lbl}) में पराशर मुनि स्पष्ट निर्देश देते हैं:
+    # 2. Instagram Caption
+    ig_caption = f"""✨ {short_theme} ✨
+📖 बृहत्पाराशरहोराशास्त्रम् (अध्याय {ch_num} • {verse_lbl})
 
-**मूल श्लोक:**
-> *{shloka}*
+🕉️ श्लोक:
+{shloka}
 
-**सरल व्याख्या व व्यावहारिक प्रभाव:**
+🔍 रहस्य व फलित:
 {bhashya}
 
-**जातक को इसे अपनी कुंडली में कैसे देखना चाहिए?**
-अक्सर लोग केवल लग्न कुंडली (D1) देखकर निर्णय ले लेते हैं, जबकि पराशर संहिता के अनुसार:
-1. **नवमांश (D9)** में ग्रह की शक्ति जांचें।
-2. **षड्बल** में ग्रह का स्थान-बल और दिग्बल देखें।
-3. **श्रीपति भाव-चलित** में सुनिश्चित करें कि ग्रह भाव-मध्य के निकट है या भाव-संधि पर।
+💡 फलित सूत्र: केवल राशि नहीं, बल्कि श्रीपति भाव-चलित में ग्रह की वास्तविक स्थिति और लग्नेश का बल अवश्य देखें।
 
-यदि यह योग शुभ अवस्था में हो तो जातक को जीवन में असाधारण सफलता, आत्म-बल और प्रतिष्ठा प्राप्त होती है।
+👉 अपनी संपूर्ण जन्मपत्रिका जांचें: https://shri-ramji-astro.org
 
-*अधिक शास्त्रीय अध्ययन एवं अपनी व्यक्तिगत जन्मपत्रिका के निःशुल्क विश्लेषण के लिए आप श्री रामजी एस्ट्रो (Shri Ramji Astro) के प्रामाणिक कैलकुलेटर देख सकते हैं।*
+{ig_hashtags}
+"""
+
+    # 3. WhatsApp Channel Post
+    whatsapp_post = f"""✨ *आज का वैदिक ज्योतिष सूत्र | श्री रामजी एस्ट्रो* ✨
+📖 *विषय:* {short_theme} (BPHS अध्याय {ch_num})
+
+🕉️ *मूल श्लोक ({verse_lbl}):*
+_{shloka}_
+
+🔍 *गूढ़ अर्थ एवं कुंडली सूत्र:*
+{bhashya}
+
+🌿 *अचूक वैदिक उपाय:*
+✔️ अपनी लग्न कुंडली में लग्नेश और संबंधित भावेश की दृष्टि अवश्य देखें।
+✔️ श्रीपति भाव-चलित में ग्रह की संधि स्थिति जांचें।
+✔️ शुभ फलों की प्राप्ति हेतु नित्य वैदिक मंत्र जप करें।
+
+🌐 *अपनी संपूर्ण कुंडली व सटीक फलादेश अभी देखें:*
+👉 https://shri-ramji-astro.org
+
+#jyotish #vedicastrology #astrology #kundli #parashara #shriramjiastro
 """
 
     # 4. Facebook Post
     fb_post = f"""✨ आज का वैदिक ज्योतिष सूत्र | बृहत्पाराशरहोराशास्त्रम् ✨
 
-📖 {theme} (अध्याय {ch_num})
+📖 {theme} (अध्याय {ch_num} • {verse_lbl})
 
 श्लोक:
 "{shloka}"
@@ -215,25 +216,63 @@ def synthesize_daily_social_package(topic_data: dict = None) -> dict:
 🌐 अपनी कुंडली का 100% प्रामाणिक स्विस एफेमेरिस आधारित विश्लेषण करने के लिए आज ही विजिट करें:
 👉 https://shri-ramji-astro.org
 
-#VedicAstrology #Kundli #BPHS #Jyotish #ShriRamjiAstro #AstrologyTips
+{trending_hashtags}
+"""
+
+    # 5. Quora Q&A
+    quora_question = f"कुंडली में '{short_theme}' का क्या महत्व है और महर्षि पराशर इसके बारे में क्या कहते हैं?"
+    quora_answer = f"""बृहत्पाराशरहोराशास्त्रम् (BPHS) वैदिक ज्योतिष का सबसे प्रमाणिक ग्रंथ है। अध्याय {ch_num} ({verse_lbl}) में पराशर मुनि स्पष्ट निर्देश देते हैं:
+
+**मूल श्लोक:**
+> *{shloka}*
+
+**सरल व्याख्या व व्यावहारिक प्रभाव:**
+{bhashya}
+
+**जातक को इसे अपनी कुंडली में कैसे देखना चाहिए?**
+1. **नवमांश (D9)** में ग्रह की शक्ति जांचें।
+2. **षड्बल** में ग्रह का स्थान-बल और दिग्बल देखें।
+3. **श्रीपति भाव-चलित** में सुनिश्चित करें कि ग्रह भाव-मध्य के निकट है या भाव-संधि पर।
+
+🌐 *अधिक शास्त्रीय अध्ययन एवं अपनी व्यक्तिगत जन्मपत्रिका के सटीक विश्लेषण के लिए आप [श्री रामजी एस्ट्रो (Shri Ramji Astro)](https://shri-ramji-astro.org) देख सकते हैं।*
+"""
+
+    # 6. Reddit Markdown post
+    reddit_title = f"[BPHS Chapter {ch_num}] {short_theme} — Deep Vedic Principles & Kundli Analysis"
+    reddit_body = f"""## बृहत्पाराशरहोराशास्त्रम् (BPHS) — {theme}
+**अध्याय {ch_num} • {verse_lbl}**
+
+### 📜 मूल संस्कृत श्लोक:
+```text
+{shloka}
+```
+
+### 🔍 शास्त्रीय अन्वय एवं भावार्थ:
+{bhashya}
+
+---
+🌐 *Authentic Parashara Calculations powered by Swiss Ephemeris (JPL DE431) at [Shri Ramji Astro](https://shri-ramji-astro.org)*
 """
 
     # If Gemini API key is available, enhance with AI refinement
     if api_key:
         try:
             prompt = f"""
-You are the Chief Vedic Astrologer at Shri Ramji Astro. Enhance the following daily social media content package based on this BPHS shloka:
-Topic: {theme} (BPHS Chapter {ch_num})
+You are the Chief Vedic Astrologer at Shri Ramji Astro. Enhance the following daily social media content package based on this authentic BPHS shloka:
+Theme: {theme} (BPHS Chapter {ch_num}, {verse_lbl})
 Shloka: {shloka}
 Bhashya: {bhashya}
 
+Website to promote: https://shri-ramji-astro.org
+Required Hashtags: #jyotish #vedicastrology #astrology #kundli #parashara #shriramjiastro
+
 Return a valid JSON object with exact keys:
-1. "reddit_title": compelling post title for Reddit
-2. "reddit_body": detailed markdown post with shloka, breakdown, and question
-3. "quora_question": viral inquisitive question
-4. "quora_answer": rich, educational answer citing BPHS
-5. "facebook_post": formatted Facebook post with emojis and clean lines
-6. "voice_script": clear, smooth 45-second Hindi narration script for an Instagram Reel / YouTube Short.
+1. "youtube_title": Catchy, curiosity-inducing YouTube Shorts title under 95 characters (must end with "#Shorts #Jyotish")
+2. "youtube_description": Full, highly engaging description with hook, shloka, meaning, tips, website link, and tags
+3. "instagram_caption": Engaging Instagram caption with hook, shloka, takeaways, website link, and trending reels tags
+4. "whatsapp_post": Beautifully formatted message with *bold* headers and emojis for WhatsApp Channel
+5. "facebook_post": Formatted Facebook post with emojis and clean line breaks
+6. "voice_script": Smooth, natural 45-second Hindi narration script for vertical video
 DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
 """
             gemini_resp = call_gemini_api(api_key, model, prompt)
@@ -246,21 +285,26 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
                 if clean_json.endswith("```"):
                     clean_json = clean_json[:-3]
                 enhanced = json.loads(clean_json.strip(), strict=False)
-                reddit_title = enhanced.get("reddit_title", reddit_title)
-                reddit_body = enhanced.get("reddit_body", reddit_body)
-                quora_question = enhanced.get("quora_question", quora_question)
-                quora_answer = enhanced.get("quora_answer", quora_answer)
+                
+                yt_title = enhanced.get("youtube_title", yt_title)
+                yt_description = enhanced.get("youtube_description", yt_description)
+                ig_caption = enhanced.get("instagram_caption", ig_caption)
+                whatsapp_post = enhanced.get("whatsapp_post", whatsapp_post)
                 fb_post = enhanced.get("facebook_post", fb_post)
                 voice_script = enhanced.get("voice_script", voice_script)
                 print("[Curator] Content successfully enhanced via Gemini AI!")
         except Exception as e:
             print(f"[Curator] Note: Using built-in canonical BPHS synthesis ({e})")
 
+    # Safety check on YouTube title length
+    if len(yt_title) > 98:
+        yt_title = yt_title[:95]
+
     return {
         "date": topic_data["date"],
         "topic": topic_data,
         "video": {
-            "title": f"BPHS सूत्र: {theme.split('(')[0].strip()}",
+            "title": f"BPHS सूत्र: {short_theme}",
             "voice_script": voice_script,
             "slides": [
                 {"heading": "⚡ क्या आप जानते हैं?", "body": slide_1_hook, "duration": 6},
@@ -269,25 +313,31 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
                 {"heading": "🕉️ अचूक वैदिक उपाय", "body": slide_4_remedy, "duration": 10}
             ]
         },
-        "reddit": {
-            "title": reddit_title,
-            "body": reddit_body,
-            "subreddits": config["platforms"]["reddit"]["target_subreddits"]
+        "youtube": {
+            "title": yt_title,
+            "description": yt_description,
+            "tags": ["Shorts", "Jyotish", "VedicAstrology", "Astrology", "Kundli", "Rashifal", "Horoscope", "BPHS", "Parashara", "ShriRamjiAstro"]
+        },
+        "instagram": {
+            "caption": ig_caption
+        },
+        "whatsapp": {
+            "text": whatsapp_post
+        },
+        "facebook": {
+            "text": fb_post
         },
         "quora": {
             "question": quora_question,
             "answer": quora_answer,
             "topics": ["Vedic Astrology", "Horoscopes", "Hinduism", "Astrology Tips"]
         },
-        "facebook": {
-            "text": fb_post
-        },
-        "youtube": {
-            "title": f"{theme.split('(')[0].strip()} | पराशर ज्योतिष रहस्य #Shorts",
-            "description": f"{bhashya}\n\n#Shorts #VedicAstrology #Kundli #ShriRamjiAstro\nVisit: https://shri-ramji-astro.org",
-            "tags": ["Shorts", "VedicAstrology", "Astrology", "BPHS", "Kundli", "Jyotish"]
-        },
-        "instagram": {
-            "caption": f"✨ {theme.split('(')[0].strip()} ✨\n\nमहर्षि पराशर के अनुसार: {bhashya[:200]}...\n\n👉 अपनी जन्मपत्रिका जांचें: shri-ramji-astro.org\n\n#reels #vedicastrology #astrology #kundli #parashara #shriramjiastro"
+        "reddit": {
+            "title": reddit_title,
+            "body": reddit_body,
+            "subreddits": config["platforms"]["reddit"]["target_subreddits"]
         }
     }
+
+# Alias for orchestrator compatibility
+synthesize_daily_social_package = generate_social_package

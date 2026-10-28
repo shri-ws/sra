@@ -433,8 +433,8 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           </div>
           <div class="stat-card">
             <div class="stat-label">सक्रिय प्लेटफॉर्म्स</div>
-            <div class="stat-val" style="font-size:18px">5 चैनल्स</div>
-            <div class="stat-sub">Reddit, Quora, FB, IG, YT</div>
+            <div class="stat-val" style="font-size:16px">4 प्रमुख चैनल्स</div>
+            <div class="stat-sub">YouTube, Instagram, FB, WhatsApp</div>
           </div>
         </div>
       </div>
@@ -443,7 +443,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="social-actions-bar">
         <button class="social-btn social-btn-primary" onclick="triggerSocialRun(true, false)">🎯 आज का कंटेंट व वीडियो अभी जनरेट करें</button>
         <button class="social-btn" onclick="triggerSocialRun(false, true)">🧪 टेस्ट रन (Dry Run Simulate)</button>
-        <button class="social-btn" style="border-color:var(--green);color:var(--green)" onclick="triggerSocialRun(false, false)">🚀 लाइव सोशल मीडिया पर पोस्ट करें</button>
+        <button class="social-btn" style="border-color:var(--green);color:var(--green)" onclick="triggerSocialRun(false, false)">🚀 यूट्यूब पर अपलोड करें (Live Post)</button>
         <button class="social-btn" onclick="toggleSocialSettings()">⚙️ क्रेडेंशियल्स व API सेटिंग्स</button>
       </div>
 
@@ -453,42 +453,52 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
         <div class="table-wrap" style="padding:18px;text-align:center">
           <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px">📱 INSTAGRAM REEL & YOUTUBE SHORTS</div>
           <div class="social-phone-frame">
-            <video id="socialReelVideo" controls poster="/media/social/2026-10-28/thumbnail.jpg">
-              <source src="/media/social/2026-10-28/reel_1080x1920.mp4" type="video/mp4">
+            <video id="socialReelVideo" controls poster="/media/social/2026-10-29/thumbnail.jpg">
+              <source src="/media/social/2026-10-29/reel_1080x1920.mp4" type="video/mp4">
               वीडियो लोड नहीं हो सका।
             </video>
           </div>
-          <a id="socialDownloadBtn" href="/media/social/2026-10-28/reel_1080x1920.mp4" download="SRA_Reel_Today.mp4" class="social-btn social-btn-primary" style="width:100%;justify-content:center;text-decoration:none">
-            📥 MP4 रील डाउनलोड करें
+          <a id="socialDownloadBtn" href="/media/social/2026-10-29/reel_1080x1920.mp4" download="SRA_Reel_Today.mp4" class="social-btn social-btn-primary" style="width:100%;justify-content:center;text-decoration:none">
+            📥 MP4 HD रील डाउनलोड करें
           </a>
         </div>
 
         <!-- Right: Multi-Platform Tabs -->
         <div class="table-wrap" style="padding:18px">
           <div class="social-tabs-nav">
-            <button class="social-tab-btn active" onclick="switchSocialTab('reddit', this)">🔴 Reddit (r/vedicastrology)</button>
-            <button class="social-tab-btn" onclick="switchSocialTab('quora', this)">🔴 Quora Q&A</button>
-            <button class="social-tab-btn" onclick="switchSocialTab('facebook', this)">🔵 Facebook पोस्ट</button>
+            <button class="social-tab-btn active" onclick="switchSocialTab('youtube', this)">▶️ YouTube #Shorts</button>
             <button class="social-tab-btn" onclick="switchSocialTab('instagram', this)">📸 Instagram कैप्शन</button>
-            <button class="social-tab-btn" onclick="switchSocialTab('youtube', this)">▶️ YouTube #Shorts</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('whatsapp', this)">🟢 WhatsApp चैनल</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('facebook', this)">🔵 Facebook पोस्ट</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('quora', this)">🔴 Quora Q&A</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('reddit', this)">🔴 Reddit</button>
           </div>
 
-          <!-- Reddit Tab -->
-          <div id="social-tab-reddit" class="social-tab-content active">
+          <!-- YouTube Tab (Default Active) -->
+          <div id="social-tab-youtube" class="social-tab-content active">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <strong id="socialRedditTitle" style="font-size:13px;color:var(--text)">Reddit शीर्षक</strong>
-              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialRedditBody')">📋 कॉपी करें</button>
+              <strong id="socialYtTitle" style="font-size:13px;color:var(--text)">YouTube #Shorts शीर्षक</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialYtDesc')">📋 विवरण कॉपी करें</button>
             </div>
-            <div class="social-copy-box" id="socialRedditBody">लोड हो रहा है...</div>
+            <div class="social-copy-box" id="socialYtDesc">लोड हो रहा है...</div>
           </div>
 
-          <!-- Quora Tab -->
-          <div id="social-tab-quora" class="social-tab-content">
+          <!-- Instagram Tab -->
+          <div id="social-tab-instagram" class="social-tab-content">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <strong id="socialQuoraQuestion" style="font-size:13px;color:var(--text)">Quora प्रश्न</strong>
-              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialQuoraAnswer')">📋 उत्तर कॉपी करें</button>
+              <strong style="font-size:13px;color:var(--text)">Instagram कैप्शन व हैशटैग्स (Meta Business Suite हेतु)</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialIgCaption')">📋 कैप्शन कॉपी करें</button>
             </div>
-            <div class="social-copy-box" id="socialQuoraAnswer">लोड हो रहा है...</div>
+            <div class="social-copy-box" id="socialIgCaption">लोड हो रहा है...</div>
+          </div>
+
+          <!-- WhatsApp Channel Tab -->
+          <div id="social-tab-whatsapp" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong style="font-size:13px;color:var(--text)">🟢 WhatsApp चैनल संदेश (*Bold* व इमोजी सहित)</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px;border-color:var(--green);color:var(--green)" onclick="copySocialBox('socialWhatsappText')">📋 WhatsApp संदेश कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialWhatsappText">लोड हो रहा है...</div>
           </div>
 
           <!-- Facebook Tab -->
@@ -500,23 +510,25 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
             <div class="social-copy-box" id="socialFbText">लोड हो रहा है...</div>
           </div>
 
-          <!-- Instagram Tab -->
-          <div id="social-tab-instagram" class="social-tab-content">
+          <!-- Quora Tab -->
+          <div id="social-tab-quora" class="social-tab-content">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <strong style="font-size:13px;color:var(--text)">Instagram कैप्शन व हैशटैग्स</strong>
-              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialIgCaption')">📋 कॉपी करें</button>
+              <strong id="socialQuoraQuestion" style="font-size:13px;color:var(--text)">Quora प्रश्न</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialQuoraAnswer')">📋 उत्तर कॉपी करें</button>
             </div>
-            <div class="social-copy-box" id="socialIgCaption">लोड हो रहा है...</div>
+            <div class="social-copy-box" id="socialQuoraAnswer">लोड हो रहा है...</div>
           </div>
 
-          <!-- YouTube Tab -->
-          <div id="social-tab-youtube" class="social-tab-content">
+          <!-- Reddit Tab -->
+          <div id="social-tab-reddit" class="social-tab-content">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <strong id="socialYtTitle" style="font-size:13px;color:var(--text)">YouTube #Shorts शीर्षक</strong>
-              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialYtDesc')">📋 विवरण कॉपी करें</button>
+              <strong id="socialRedditTitle" style="font-size:13px;color:var(--text)">Reddit शीर्षक</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialRedditBody')">📋 कॉपी करें</button>
             </div>
-            <div class="social-copy-box" id="socialYtDesc">लोड हो रहा है...</div>
+            <div class="social-copy-box" id="socialRedditBody">लोड हो रहा है...</div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
 
@@ -1223,6 +1235,10 @@ async function loadSocialStatus() {
       if (ytT && pkg.youtube) ytT.innerText = pkg.youtube.title || '';
       const ytD = document.getElementById('socialYtDesc');
       if (ytD && pkg.youtube) ytD.innerText = pkg.youtube.description || '';
+      
+      // WhatsApp
+      const waTxt = document.getElementById('socialWhatsappText');
+      if (waTxt && pkg.whatsapp) waTxt.innerText = pkg.whatsapp.text || '';
       
       // Video
       if (pkg.media && pkg.media.video_path) {
