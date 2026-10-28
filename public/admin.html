@@ -1240,6 +1240,17 @@ async function loadSocialStatus() {
         if (dlBtn) dlBtn.href = vUrl;
       }
     }
+
+    if (data.saved_accounts) {
+      const fbEl = document.getElementById('socialFbPageId');
+      if (fbEl && data.saved_accounts.fb_page_id) fbEl.value = data.saved_accounts.fb_page_id;
+      const igEl = document.getElementById('socialIgUserId');
+      if (igEl && data.saved_accounts.ig_user_id) igEl.value = data.saved_accounts.ig_user_id;
+      const rEl = document.getElementById('socialRedditClientId');
+      if (rEl && data.saved_accounts.reddit_username && !rEl.value) {
+        rEl.placeholder = `User: ${data.saved_accounts.reddit_username} (Client ID)`;
+      }
+    }
   } catch (err) {
     console.error("loadSocialStatus error:", err);
   }

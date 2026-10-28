@@ -1637,7 +1637,13 @@ try:
             "gemini_configured": bool(config.get("api_keys", {}).get("gemini_api_key")),
             "latest_run": latest,
             "today_generated": bool(today_pkg),
-            "today_package": today_pkg
+            "today_package": today_pkg,
+            "saved_accounts": {
+                "fb_page_id": config.get("platforms", {}).get("facebook", {}).get("page_id", ""),
+                "ig_user_id": config.get("platforms", {}).get("instagram", {}).get("ig_user_id", ""),
+                "reddit_username": config.get("platforms", {}).get("reddit", {}).get("username", ""),
+                "youtube_client_id": config.get("platforms", {}).get("youtube", {}).get("client_id", "")
+            }
         }
 
     class SocialActionRequest(BaseModel):
