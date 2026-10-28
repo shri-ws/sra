@@ -37,7 +37,7 @@ def publish_to_instagram_reels(ig_payload: dict, video_path: str, config: dict, 
         # Step 1: Create Container
         # Note: Meta Graph API requires a publicly accessible video URL
         if not public_video_url:
-            public_video_url = f"https://shri-ramji-astro.org/media/{Path(video_path).name}"
+            public_video_url = f"https://shriramjiastro.in/media/{Path(video_path).name}"
             
         create_url = f"https://graph.facebook.com/v19.0/{ig_user_id}/media"
         data = urllib.parse.urlencode({

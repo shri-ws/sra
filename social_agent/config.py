@@ -31,7 +31,7 @@ DEFAULT_CONFIG = {
         "language": "hi",
         "include_shloka": True,
         "include_remedy": True,
-        "branding": "श्री रामजी एस्ट्रो • shri-ramji-astro.org"
+        "branding": "श्री रामजी एस्ट्रो • shriramjiastro.in"
     },
     "api_keys": {
         "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),

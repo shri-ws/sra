@@ -277,7 +277,7 @@ def render_slide_chrome(
   <div class="footer">
     <div class="cta-btn">अपनी जन्मपत्रिका अभी देखें 👉</div>
     <div class="website-link">
-      <span class="website-highlight">shri-ramji-astro.org</span> • प्रामाणिक स्विस एफेमेरिस (DE431)
+      <span class="website-highlight">shriramjiastro.in</span> • प्रामाणिक स्विस एफेमेरिस (DE431)
     </div>
   </div>
 </body>
@@ -369,7 +369,7 @@ def render_slide_pil_fallback(
     draw.text((width // 2, 1672), "अपनी जन्मपत्रिका अभी देखें 👉", font=font_cta, fill=(10, 15, 25), anchor="mm")
     
     font_footer = get_devanagari_font(28)
-    draw.text((width // 2, 1770), "shri-ramji-astro.org • स्विस एफेमेरिस DE431", font=font_footer, fill=(160, 170, 195), anchor="mm")
+    draw.text((width // 2, 1770), "shriramjiastro.in • स्विस एफेमेरिस DE431", font=font_footer, fill=(160, 170, 195), anchor="mm")
     
     img.save(output_path, quality=95)
 

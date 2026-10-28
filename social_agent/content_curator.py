@@ -121,7 +121,7 @@ def generate_social_package(topic_data: dict = None) -> dict:
     slide_1_hook = f"क्या आपकी कुंडली में भी {short_theme} का प्रभाव है?"
     slide_2_shloka = f"{verse_lbl}:\n{shloka}"
     slide_3_analysis = f"महर्षि पराशर सूत्र:\n{bhashya[:130]}..." if len(bhashya) > 130 else f"महर्षि पराशर सूत्र:\n{bhashya}"
-    slide_4_remedy = "सटीक वैदिक उपाय:\n१. नित्य वैदिक मंत्र जप व सात्विक आचरण।\n२. लग्नेश व भाव-चलित की स्थिति जांचें।\n३. अपनी कुंडली shri-ramji-astro.org पर देखें।"
+    slide_4_remedy = "सटीक वैदिक उपाय:\n१. नित्य वैदिक मंत्र जप व सात्विक आचरण।\n२. लग्नेश व भाव-चलित की स्थिति जांचें।\n३. अपनी कुंडली shriramjiastro.in पर देखें।"
     
     voice_script = (
         f"नमस्ते। आज हम जानेंगे बृहत्पाराशरहोराशास्त्रम् के अध्याय {ch_num} का एक अत्यंत गोपनीय सूत्र। "
@@ -154,7 +154,7 @@ def generate_social_package(topic_data: dict = None) -> dict:
 ✔️ नवग्रह शांति एवं वैदिक मंत्र जप से शुभ फलों में वृद्धि करें।
 
 🌐 अपनी संपूर्ण जन्मपत्रिका (100% प्रामाणिक स्विस एफेमेरिस DE431 गणना आधारित) अभी देखें:
-👉 https://shri-ramji-astro.org
+👉 https://shriramjiastro.in
 
 {trending_hashtags}
 """
@@ -171,7 +171,7 @@ def generate_social_package(topic_data: dict = None) -> dict:
 
 💡 फलित सूत्र: केवल राशि नहीं, बल्कि श्रीपति भाव-चलित में ग्रह की वास्तविक स्थिति और लग्नेश का बल अवश्य देखें।
 
-👉 अपनी संपूर्ण जन्मपत्रिका जांचें: https://shri-ramji-astro.org
+👉 अपनी संपूर्ण जन्मपत्रिका जांचें: https://shriramjiastro.in
 
 {ig_hashtags}
 """
@@ -192,7 +192,7 @@ _{shloka}_
 ✔️ शुभ फलों की प्राप्ति हेतु नित्य वैदिक मंत्र जप करें।
 
 🌐 *अपनी संपूर्ण कुंडली व सटीक फलादेश अभी देखें:*
-👉 https://shri-ramji-astro.org
+👉 https://shriramjiastro.in
 
 #jyotish #vedicastrology #astrology #kundli #parashara #shriramjiastro
 """
@@ -214,7 +214,7 @@ _{shloka}_
 ✔️ शुभ फलों की प्राप्ति हेतु नित्य वैदिक मंत्र जप करें।
 
 🌐 अपनी कुंडली का 100% प्रामाणिक स्विस एफेमेरिस आधारित विश्लेषण करने के लिए आज ही विजिट करें:
-👉 https://shri-ramji-astro.org
+👉 https://shriramjiastro.in
 
 {trending_hashtags}
 """
@@ -234,7 +234,7 @@ _{shloka}_
 2. **षड्बल** में ग्रह का स्थान-बल और दिग्बल देखें।
 3. **श्रीपति भाव-चलित** में सुनिश्चित करें कि ग्रह भाव-मध्य के निकट है या भाव-संधि पर।
 
-🌐 *अधिक शास्त्रीय अध्ययन एवं अपनी व्यक्तिगत जन्मपत्रिका के सटीक विश्लेषण के लिए आप [श्री रामजी एस्ट्रो (Shri Ramji Astro)](https://shri-ramji-astro.org) देख सकते हैं।*
+🌐 *अधिक शास्त्रीय अध्ययन एवं अपनी व्यक्तिगत जन्मपत्रिका के सटीक विश्लेषण के लिए आप [श्री रामजी एस्ट्रो (Shri Ramji Astro)](https://shriramjiastro.in) देख सकते हैं।*
 """
 
     # 6. Reddit Markdown post
@@ -251,7 +251,7 @@ _{shloka}_
 {bhashya}
 
 ---
-🌐 *Authentic Parashara Calculations powered by Swiss Ephemeris (JPL DE431) at [Shri Ramji Astro](https://shri-ramji-astro.org)*
+🌐 *Authentic Parashara Calculations powered by Swiss Ephemeris (JPL DE431) at [Shri Ramji Astro](https://shriramjiastro.in)*
 """
 
     # If Gemini API key is available, enhance with AI refinement
@@ -263,7 +263,7 @@ Theme: {theme} (BPHS Chapter {ch_num}, {verse_lbl})
 Shloka: {shloka}
 Bhashya: {bhashya}
 
-Website to promote: https://shri-ramji-astro.org
+Website to promote: https://shriramjiastro.in
 Required Hashtags: #jyotish #vedicastrology #astrology #kundli #parashara #shriramjiastro
 
 Return a valid JSON object with exact keys:
