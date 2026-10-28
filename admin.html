@@ -161,6 +161,29 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+
+/* ══ SOCIAL MEDIA AI AGENT PANEL STYLING ══ */
+.social-status-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:22px}
+.social-badge-active{background:rgba(74,222,128,0.15);border:1px solid var(--green);color:var(--green);font-size:11px;padding:4px 10px;border-radius:20px;font-weight:700;letter-spacing:0.5px}
+.social-actions-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.social-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:all .2s}
+.social-btn:hover{border-color:var(--gold)}
+.social-btn-primary{background:linear-gradient(135deg,var(--gold),#8a6210);border:none;color:#fff}
+.social-btn-primary:hover{opacity:0.92;transform:translateY(-1px)}
+.social-split{display:grid;grid-template-columns:330px 1fr;gap:22px;margin-bottom:24px}
+@media(max-width:960px){.social-split{grid-template-columns:1fr}}
+.social-phone-frame{width:100%;max-width:290px;height:515px;background:#000;border-radius:24px;margin:0 auto 14px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.3);border:3px solid rgba(201,168,76,0.35)}
+.social-phone-frame video{width:100%;height:100%;object-fit:cover}
+.social-tabs-nav{display:flex;gap:6px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;overflow-x:auto}
+.social-tab-btn{padding:7px 12px;border-radius:6px;background:transparent;border:1px solid transparent;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted)}
+.social-tab-btn.active{background:rgba(201,168,76,0.12);border-color:var(--border);color:var(--gold)}
+.social-tab-content{display:none}
+.social-tab-content.active{display:block}
+.social-copy-box{background:var(--bg);border:1px solid var(--border);padding:14px;border-radius:8px;font-family:inherit;font-size:13px;line-height:1.6;white-space:pre-wrap;max-height:380px;overflow-y:auto;margin-bottom:10px}
+.social-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:14px}
+.social-form-group label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
+.social-form-group input,.social-form-group select{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none}
+.social-form-group input:focus{border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -194,7 +217,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item" onclick="showPanel('consultations', this)">🔮 &nbsp;Consultations</div>
       <div class="nav-item" onclick="showPanel('forum', this)">💬 &nbsp;Forum Posts</div>
       <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
-      <a href="admin-social.html" style="text-decoration:none;"><div class="nav-item" style="color:var(--gold); font-weight:bold;">🤖 &nbsp;Social Media AI Agent</div></a>
+      <div class="nav-item" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold;">🤖 &nbsp;Social AI Agent (Autopilot)</div>
     </div>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
@@ -359,6 +382,165 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <thead><tr><th>Author Name</th><th>Role / Profession</th><th>Rating</th><th>Review Content</th><th>Status</th><th>Submitted Date</th><th>Admin Actions</th></tr></thead>
           <tbody id="reviews-tbody"></tbody>
         </table></div>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: AUTONOMOUS SOCIAL MEDIA AI AGENT ══ -->
+    <div class="panel" id="panel-social">
+      <!-- Status Card -->
+      <div class="social-status-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+          <div>
+            <h2 style="font-family:'Cinzel',serif;font-size:18px;color:var(--gold);margin-bottom:4px">🤖 Autonomous Social Media AI Agent</h2>
+            <p style="font-size:12px;color:var(--muted)">महर्षि पराशर सूत्र एवं वैदिक ज्ञान पर आधारित दैनिक पोस्ट्स, रील्स एवं शॉर्ट्स ऑटोमेशन</p>
+          </div>
+          <span class="social-badge-active" id="socialAgentBadge">⚡ 07:00 AM (IST) DAILY ACTIVE</span>
+        </div>
+        <div class="stats-grid" style="margin-bottom:0">
+          <div class="stat-card">
+            <div class="stat-label">दैनिक समय (Cadence)</div>
+            <div class="stat-val" style="font-size:18px">प्रातः 07:00 AM</div>
+            <div class="stat-sub">Asia/Kolkata (IST)</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-label">आज का BPHS विषय</div>
+            <div class="stat-val" style="font-size:15px;line-height:1.3" id="socialTodayTheme">लोड हो रहा है...</div>
+            <div class="stat-sub" id="socialChapterSub">बृहत्पाराशरहोराशास्त्रम्</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">रील / शॉर्ट्स स्थिति</div>
+            <div class="stat-val" style="font-size:16px" id="socialVideoStatus">✓ 1080x1920 MP4</div>
+            <div class="stat-sub">नेचुरल हिंदी वॉइसओवर सहित</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">सक्रिय प्लेटफॉर्म्स</div>
+            <div class="stat-val" style="font-size:18px">5 चैनल्स</div>
+            <div class="stat-sub">Reddit, Quora, FB, IG, YT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="social-actions-bar">
+        <button class="social-btn social-btn-primary" onclick="triggerSocialRun(true, false)">🎯 आज का कंटेंट व वीडियो अभी जनरेट करें</button>
+        <button class="social-btn" onclick="triggerSocialRun(false, true)">🧪 टेस्ट रन (Dry Run Simulate)</button>
+        <button class="social-btn" style="border-color:var(--green);color:var(--green)" onclick="triggerSocialRun(false, false)">🚀 लाइव सोशल मीडिया पर पोस्ट करें</button>
+        <button class="social-btn" onclick="toggleSocialSettings()">⚙️ क्रेडेंशियल्स व API सेटिंग्स</button>
+      </div>
+
+      <!-- Split View: Mobile Reel Player + Multi-Platform Copy Tabs -->
+      <div class="social-split">
+        <!-- Left: Phone Video Mockup -->
+        <div class="table-wrap" style="padding:18px;text-align:center">
+          <div style="font-family:'Cinzel',serif;font-size:12px;letter-spacing:1.5px;color:var(--gold);margin-bottom:12px">📱 INSTAGRAM REEL & YOUTUBE SHORTS</div>
+          <div class="social-phone-frame">
+            <video id="socialReelVideo" controls poster="/media/social/2026-10-28/thumbnail.jpg">
+              <source src="/media/social/2026-10-28/reel_1080x1920.mp4" type="video/mp4">
+              वीडियो लोड नहीं हो सका।
+            </video>
+          </div>
+          <a id="socialDownloadBtn" href="/media/social/2026-10-28/reel_1080x1920.mp4" download="SRA_Reel_Today.mp4" class="social-btn social-btn-primary" style="width:100%;justify-content:center;text-decoration:none">
+            📥 MP4 रील डाउनलोड करें
+          </a>
+        </div>
+
+        <!-- Right: Multi-Platform Tabs -->
+        <div class="table-wrap" style="padding:18px">
+          <div class="social-tabs-nav">
+            <button class="social-tab-btn active" onclick="switchSocialTab('reddit', this)">🔴 Reddit (r/vedicastrology)</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('quora', this)">🔴 Quora Q&A</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('facebook', this)">🔵 Facebook पोस्ट</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('instagram', this)">📸 Instagram कैप्शन</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('youtube', this)">▶️ YouTube #Shorts</button>
+          </div>
+
+          <!-- Reddit Tab -->
+          <div id="social-tab-reddit" class="social-tab-content active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong id="socialRedditTitle" style="font-size:13px;color:var(--text)">Reddit शीर्षक</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialRedditBody')">📋 कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialRedditBody">लोड हो रहा है...</div>
+          </div>
+
+          <!-- Quora Tab -->
+          <div id="social-tab-quora" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong id="socialQuoraQuestion" style="font-size:13px;color:var(--text)">Quora प्रश्न</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialQuoraAnswer')">📋 उत्तर कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialQuoraAnswer">लोड हो रहा है...</div>
+          </div>
+
+          <!-- Facebook Tab -->
+          <div id="social-tab-facebook" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong style="font-size:13px;color:var(--text)">Facebook पोस्ट विवरण</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialFbText')">📋 कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialFbText">लोड हो रहा है...</div>
+          </div>
+
+          <!-- Instagram Tab -->
+          <div id="social-tab-instagram" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong style="font-size:13px;color:var(--text)">Instagram कैप्शन व हैशटैग्स</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialIgCaption')">📋 कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialIgCaption">लोड हो रहा है...</div>
+          </div>
+
+          <!-- YouTube Tab -->
+          <div id="social-tab-youtube" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong id="socialYtTitle" style="font-size:13px;color:var(--text)">YouTube #Shorts शीर्षक</strong>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialYtDesc')">📋 विवरण कॉपी करें</button>
+            </div>
+            <div class="social-copy-box" id="socialYtDesc">लोड हो रहा है...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Collapsible Card -->
+      <div class="table-wrap" id="socialSettingsBox" style="padding:22px;display:none;margin-bottom:22px">
+        <h3 style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold);margin-bottom:4px">⚙️ API क्रेडेंशियल्स एवं प्लेटफॉर्म सेटिंग्स</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">यहाँ अपनी API कीज जोड़ें। एजेंट प्रतिदिन प्रातः 07:00 AM बजे स्वतः इन सभी प्लेटफॉर्म्स पर सामग्री पोस्ट करेगा।</p>
+        
+        <div class="social-form-grid">
+          <div class="social-form-group">
+            <label>Google Gemini API Key</label>
+            <input type="password" id="socialGeminiKey" placeholder="AIzaSy..."/>
+          </div>
+          <div class="social-form-group">
+            <label>Reddit Client ID & Secret</label>
+            <input type="text" id="socialRedditClientId" placeholder="Client ID"/>
+          </div>
+          <div class="social-form-group">
+            <label>Meta Facebook Page ID</label>
+            <input type="text" id="socialFbPageId" placeholder="Facebook Page ID"/>
+          </div>
+          <div class="social-form-group">
+            <label>Meta Graph Access Token (FB & IG)</label>
+            <input type="password" id="socialMetaToken" placeholder="EAA..."/>
+          </div>
+          <div class="social-form-group">
+            <label>Instagram User ID (Business/Creator)</label>
+            <input type="text" id="socialIgUserId" placeholder="Instagram User ID"/>
+          </div>
+          <div class="social-form-group">
+            <label>दैनिक स्वचालित समय (IST)</label>
+            <select id="socialScheduleTime">
+              <option value="07:00" selected>07:00 AM (प्रातः काल - रिकमेंडेड)</option>
+              <option value="08:00">08:00 AM</option>
+              <option value="06:00">06:00 AM (सूर्योदय)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:12px;align-items:center">
+          <button class="social-btn social-btn-primary" onclick="saveSocialSettings()">💾 सेटिंग्स सुरक्षित करें</button>
+          <span id="socialSaveNotice" style="font-size:12px;color:var(--green);font-weight:bold"></span>
+        </div>
       </div>
     </div>
   </div>
@@ -968,12 +1150,166 @@ function showPanel(name, targetEl){
       students: 'Students',
       payments: 'Payments',
       consultations: 'Consultations',
-      forum: 'Forum Posts'
+      forum: 'Forum Posts',
+      reviews: 'Client Reviews',
+      social: '🤖 Autonomous Social Media AI Agent (Autopilot)'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
+
+    if (name === 'social') {
+      loadSocialStatus();
+    }
   } catch(e) {
     console.error("showPanel error:", e);
+  }
+}
+
+/* ══ SOCIAL MEDIA AI AGENT FUNCTIONS ══ */
+async function loadSocialStatus() {
+  try {
+    const res = await fetch('/api/social/status');
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    if (data.today_package && data.today_package.topic) {
+      const pkg = data.today_package;
+      const themeEl = document.getElementById('socialTodayTheme');
+      if (themeEl) themeEl.innerText = pkg.topic.theme || 'वैदिक सूत्र';
+      const subEl = document.getElementById('socialChapterSub');
+      if (subEl) subEl.innerText = `अध्याय ${pkg.topic.chapter_num || ''} • ${pkg.topic.verse_label || ''}`;
+      
+      // Reddit
+      const rTitle = document.getElementById('socialRedditTitle');
+      if (rTitle && pkg.reddit) rTitle.innerText = pkg.reddit.title || '';
+      const rBody = document.getElementById('socialRedditBody');
+      if (rBody && pkg.reddit) rBody.innerText = pkg.reddit.body || '';
+      
+      // Quora
+      const qQues = document.getElementById('socialQuoraQuestion');
+      if (qQues && pkg.quora) qQues.innerText = pkg.quora.question || '';
+      const qAns = document.getElementById('socialQuoraAnswer');
+      if (qAns && pkg.quora) qAns.innerText = pkg.quora.answer || '';
+      
+      // Facebook
+      const fbTxt = document.getElementById('socialFbText');
+      if (fbTxt && pkg.facebook) fbTxt.innerText = pkg.facebook.text || '';
+      
+      // Instagram
+      const igCap = document.getElementById('socialIgCaption');
+      if (igCap && pkg.instagram) igCap.innerText = pkg.instagram.caption || '';
+      
+      // YouTube
+      const ytT = document.getElementById('socialYtTitle');
+      if (ytT && pkg.youtube) ytT.innerText = pkg.youtube.title || '';
+      const ytD = document.getElementById('socialYtDesc');
+      if (ytD && pkg.youtube) ytD.innerText = pkg.youtube.description || '';
+      
+      // Video
+      if (pkg.media && pkg.media.video_path) {
+        const videoDate = pkg.date || '2026-10-28';
+        const vUrl = `/media/social/${videoDate}/reel_1080x1920.mp4`;
+        const vPoster = `/media/social/${videoDate}/thumbnail.jpg`;
+        const vid = document.getElementById('socialReelVideo');
+        if (vid) {
+          vid.poster = vPoster;
+          const srcEl = vid.querySelector('source');
+          if (srcEl) srcEl.src = vUrl;
+          vid.load();
+        }
+        const dlBtn = document.getElementById('socialDownloadBtn');
+        if (dlBtn) dlBtn.href = vUrl;
+      }
+    }
+  } catch (err) {
+    console.error("loadSocialStatus error:", err);
+  }
+}
+
+function switchSocialTab(name, btn) {
+  document.querySelectorAll('.social-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.social-tab-content').forEach(c => c.classList.remove('active'));
+  
+  if (btn) btn.classList.add('active');
+  const target = document.getElementById(`social-tab-${name}`);
+  if (target) target.classList.add('active');
+}
+
+function copySocialBox(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText);
+  alert("क्लिपबोर्ड पर कॉपी हो गया!");
+}
+
+function toggleSocialSettings() {
+  const box = document.getElementById('socialSettingsBox');
+  if (!box) return;
+  box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+  if (box.style.display === 'block') {
+    box.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+async function triggerSocialRun(generateOnly, dryRun) {
+  const btn = typeof event !== 'undefined' && event ? event.target : null;
+  const original = btn ? btn.innerText : '';
+  if (btn) {
+    btn.innerText = "⏳ कार्य प्रगति पर है...";
+    btn.disabled = true;
+  }
+  
+  try {
+    const res = await fetch('/api/social/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        generate_only: generateOnly,
+        dry_run: dryRun
+      })
+    });
+    const result = await res.json();
+    alert("सफलता! प्रक्रिया पूर्ण हुई।");
+    loadSocialStatus();
+  } catch (err) {
+    alert("त्रुटि: " + err.message);
+  } finally {
+    if (btn) {
+      btn.innerText = original;
+      btn.disabled = false;
+    }
+  }
+}
+
+async function saveSocialSettings() {
+  const payload = {
+    api_keys: {
+      gemini_api_key: document.getElementById('socialGeminiKey').value
+    },
+    platforms: {
+      reddit: { client_id: document.getElementById('socialRedditClientId').value },
+      facebook: { page_id: document.getElementById('socialFbPageId').value, access_token: document.getElementById('socialMetaToken').value },
+      instagram: { ig_user_id: document.getElementById('socialIgUserId').value, access_token: document.getElementById('socialMetaToken').value }
+    },
+    schedule: {
+      time: document.getElementById('socialScheduleTime').value
+    }
+  };
+  
+  try {
+    const res = await fetch('/api/social/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    const notice = document.getElementById('socialSaveNotice');
+    if (notice) {
+      notice.innerText = "✓ सेटिंग्स सुरक्षित हो गईं!";
+      setTimeout(() => { notice.innerText = ""; }, 4000);
+    }
+  } catch (err) {
+    alert("सेव करने में त्रुटि: " + err.message);
   }
 }
 </script>
