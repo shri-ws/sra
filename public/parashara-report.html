@@ -409,6 +409,10 @@
       bottom: 0 !important;
       width: 320px !important;
       max-width: 88vw !important;
+      height: 100% !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      overflow: hidden !important;
       background: var(--nav-bg) !important;
       border-left: 1px solid var(--border) !important;
       z-index: 100000 !important;
@@ -488,13 +492,18 @@
       background: rgba(0,0,0,0.06) !important;
     }
     .drawer-body {
-      flex: 1 !important;
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
       overflow-y: auto !important;
+      overflow-x: hidden !important;
       padding: 12px 14px !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 6px !important;
       -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
+      touch-action: pan-y !important;
     }
     .drawer-item {
       display: flex !important;
@@ -524,6 +533,7 @@
       border-radius: 10px !important;
       overflow: hidden !important;
       background: var(--card-bg) !important;
+      flex-shrink: 0 !important;
     }
     .drawer-accordion-btn {
       width: 100% !important;
@@ -554,6 +564,11 @@
       flex-direction: column !important;
       background: var(--card-subtle) !important;
       border-top: 1px solid var(--border) !important;
+      max-height: 360px !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
     }
     .drawer-accordion-panel.open {
       display: flex !important;
@@ -604,6 +619,25 @@
       border-top: 1px solid var(--border) !important;
       background: var(--card-bg) !important;
       flex-shrink: 0 !important;
+    }
+    .drawer-body::-webkit-scrollbar,
+    .drawer-accordion-panel::-webkit-scrollbar {
+      width: 5px !important;
+    }
+    .drawer-body::-webkit-scrollbar-track,
+    .drawer-accordion-panel::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.12) !important;
+      border-radius: 4px !important;
+    }
+    .drawer-body::-webkit-scrollbar-thumb,
+    .drawer-accordion-panel::-webkit-scrollbar-thumb {
+      background: var(--gold, #d4af37) !important;
+      border-radius: 4px !important;
+    }
+    .drawer-body,
+    .drawer-accordion-panel {
+      scrollbar-width: thin !important;
+      scrollbar-color: var(--gold, #d4af37) rgba(0, 0, 0, 0.12) !important;
     }
 
     /* HERO BANNER — CLEAN & MINIMALIST */

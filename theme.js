@@ -1019,6 +1019,10 @@
         bottom: 0 !important;
         width: 320px !important;
         max-width: 88vw !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
         background: var(--nav-bg, #11141a) !important;
         border-left: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
         z-index: 100000 !important;
@@ -1133,8 +1137,14 @@
         background: var(--gold-dim, rgba(197, 160, 89, 0.15)) !important;
       }
       .drawer-body {
-        flex: 1;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: 100%;
         overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
         padding: 16px 14px;
         display: flex;
         flex-direction: column;
@@ -1162,6 +1172,7 @@
         border-radius: 12px;
         overflow: hidden;
         background: var(--card, #14171f);
+        flex-shrink: 0;
       }
       .drawer-accordion-btn {
         width: 100%;
@@ -1202,6 +1213,11 @@
         padding: 4px 8px 10px;
         background: var(--bg2, #0d1017);
         border-top: 1px solid var(--gold-border, rgba(212, 175, 55, 0.15));
+        max-height: 360px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
       }
       .drawer-accordion-panel.open {
         display: flex;
@@ -1243,6 +1259,26 @@
         padding: 16px 20px calc(16px + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid var(--gold-border, rgba(212, 175, 55, 0.2));
         background: var(--card, #14171f);
+        flex-shrink: 0;
+      }
+      .drawer-body::-webkit-scrollbar,
+      .drawer-accordion-panel::-webkit-scrollbar {
+        width: 5px;
+      }
+      .drawer-body::-webkit-scrollbar-track,
+      .drawer-accordion-panel::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.12);
+        border-radius: 4px;
+      }
+      .drawer-body::-webkit-scrollbar-thumb,
+      .drawer-accordion-panel::-webkit-scrollbar-thumb {
+        background: var(--gold, #d4af37);
+        border-radius: 4px;
+      }
+      .drawer-body,
+      .drawer-accordion-panel {
+        scrollbar-width: thin;
+        scrollbar-color: var(--gold, #d4af37) rgba(0, 0, 0, 0.12);
       }
 
       /* APP-LIKE MOBILE HERO QUICK ACTION GRID (< 768px) */
@@ -1661,6 +1697,11 @@
     } else {
       panel.classList.add('open');
       if (btn) btn.classList.add('expanded');
+      setTimeout(() => {
+        if (panel && typeof panel.scrollIntoView === 'function') {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 50);
     }
   };
 
@@ -1997,6 +2038,46 @@
                     <span class="drop-badge">लाइव ₹199</span>
                   </div>
                   <span class="drawer-sub-hint">100% Accurate 21 Classical Pariharas</span>
+                </div>
+              </a>
+              <a href="/dhan-yoga-calculator" onclick="closeNavDrawer()" class="drawer-sub-item">
+                <span class="drawer-sub-icon">🪙</span>
+                <div class="drawer-sub-text">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="drawer-sub-title">Most Accurate Dhan Yoga Calculator</span>
+                    <span class="drop-badge">लाइव</span>
+                  </div>
+                  <span class="drawer-sub-hint">२३ प्रामाणिक धन योग, इन्दु लग्न व लक्ष्मी योग</span>
+                </div>
+              </a>
+              <a href="bphs-encyclopedia.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+                <span class="drawer-sub-icon">📖</span>
+                <div class="drawer-sub-text">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="drawer-sub-title">BPHS 97 अध्याय विश्वकोश</span>
+                    <span class="drop-badge">ज्ञानकोश</span>
+                  </div>
+                  <span class="drawer-sub-hint">सम्पूर्ण ९७ अध्याय व खगोलीय गणित</span>
+                </div>
+              </a>
+              <a href="ai-samvad.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+                <span class="drawer-sub-icon">🤖</span>
+                <div class="drawer-sub-text">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="drawer-sub-title">गुरु-शिष्य AI महासंवाद</span>
+                    <span class="drop-badge">लाइव AI</span>
+                  </div>
+                  <span class="drawer-sub-hint">सॉफ्टवेयर व शास्त्रीय तुलनात्मक अध्ययन</span>
+                </div>
+              </a>
+              <a href="/parashara-report.html" onclick="closeNavDrawer()" class="drawer-sub-item">
+                <span class="drawer-sub-icon">📜</span>
+                <div class="drawer-sub-text">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="drawer-sub-title">मेगा पाराशर संहिता रिपोर्ट</span>
+                    <span class="drop-badge">🔒 MPKR</span>
+                  </div>
+                  <span class="drawer-sub-hint">बृहत्पाराशरहोराशास्त्रम् मूल श्लोक मिलान</span>
                 </div>
               </a>
               <a href="javascript:void(0)" onclick="openReportPreOrder('रत्न और उपाय रिपोर्ट', '249')" class="drawer-sub-item">

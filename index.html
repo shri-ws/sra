@@ -535,6 +535,10 @@
       bottom: 0 !important;
       width: 320px !important;
       max-width: 88vw !important;
+      height: 100% !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      overflow: hidden !important;
       background: var(--nav-bg, #11141a) !important;
       border-left: 1px solid var(--gold-border, rgba(212, 175, 55, 0.25)) !important;
       z-index: 100000 !important;
@@ -624,8 +628,14 @@
       background: var(--gold-dim, rgba(197, 160, 89, 0.15)) !important;
     }
     .drawer-body {
-      flex: 1 !important;
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
       overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
+      touch-action: pan-y !important;
       padding: 16px 14px !important;
       display: flex !important;
       flex-direction: column !important;
@@ -653,6 +663,7 @@
       border-radius: 12px !important;
       overflow: hidden !important;
       background: var(--card, #14171f) !important;
+      flex-shrink: 0 !important;
     }
     .drawer-accordion-btn {
       width: 100% !important;
@@ -693,6 +704,11 @@
       padding: 4px 8px 10px !important;
       background: var(--bg2, #0d1017) !important;
       border-top: 1px solid var(--gold-border, rgba(212, 175, 55, 0.15)) !important;
+      max-height: 360px !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
     }
     .drawer-accordion-panel.open {
       display: flex !important;
@@ -734,6 +750,26 @@
       padding: 16px 20px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
       border-top: 1px solid var(--gold-border, rgba(212, 175, 55, 0.2)) !important;
       background: var(--card, #14171f) !important;
+      flex-shrink: 0 !important;
+    }
+    .drawer-body::-webkit-scrollbar,
+    .drawer-accordion-panel::-webkit-scrollbar {
+      width: 5px !important;
+    }
+    .drawer-body::-webkit-scrollbar-track,
+    .drawer-accordion-panel::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.12) !important;
+      border-radius: 4px !important;
+    }
+    .drawer-body::-webkit-scrollbar-thumb,
+    .drawer-accordion-panel::-webkit-scrollbar-thumb {
+      background: var(--gold, #d4af37) !important;
+      border-radius: 4px !important;
+    }
+    .drawer-body,
+    .drawer-accordion-panel {
+      scrollbar-width: thin !important;
+      scrollbar-color: var(--gold, #d4af37) rgba(0, 0, 0, 0.12) !important;
     }
 
     /* ADAPTIVE BOTTOM-SHEET MODAL (< 768px) */
