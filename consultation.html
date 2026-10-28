@@ -1522,6 +1522,10 @@
         const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
         const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
 
+        // ── Google Apps Script Web App URL ─────────────────────────────
+        // TODO: After deploying booking_calendar.gs, paste the Web App URL here:
+        const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+
         // BILINGUAL DATA DICTIONARY
         const DICT = {
             en: {
@@ -2080,7 +2084,7 @@
 
         async function saveConsultationBooking(data) {
             const msgBox = document.getElementById('bookingResultMsg');
-            msgBox.innerHTML = '<div style="color:var(--gold-dark); font-weight:700;">Saving your sacred booking...</div>';
+            msgBox.innerHTML = '<div style="color:var(--gold-dark); font-weight:700; text-align:center; padding:16px;">⏳ बुकिंग प्रोसेस हो रही है... Google Calendar event बन रहा है...</div>';
 
             const payload = {
                 full_name: data.client_name,
@@ -2095,7 +2099,43 @@
                 created_at: new Date().toISOString()
             };
 
-            // Save to Supabase consultations table
+            // ── 1. Create Google Calendar Event + Meet Link ───────────────────
+            let meetLink = null;
+            let calendarBooked = false;
+
+            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'PASTE_YOUR_APPS_SCRIPT_URL_HERE') {
+                try {
+                    const calRes = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name:       data.client_name,
+                            email:      data.email,
+                            phone:      data.phone,
+                            dob:        data.dob,
+                            tob:        data.tob,
+                            place:      data.location,
+                            query:      data.context,
+                            inquiry:    data.inquiry,
+                            date:       data.reserved_date,   // YYYY-MM-DD
+                            payment_id: data.razorpay_payment_id
+                        })
+                    });
+                    const calJson = await calRes.json();
+                    if (calJson.success) {
+                        meetLink = calJson.meetLink;
+                        calendarBooked = true;
+                        payload.meet_link = meetLink;
+                        console.log('✅ Google Calendar event created:', calJson);
+                    } else {
+                        console.warn('Calendar booking note:', calJson.message);
+                    }
+                } catch (calErr) {
+                    console.warn('Calendar API note:', calErr.message);
+                }
+            }
+
+            // ── 2. Save to Supabase consultations table ────────────────────────
             try {
                 await fetch(`${SUPA_URL}/rest/v1/consultations`, {
                     method: 'POST',
@@ -2111,7 +2151,7 @@
                 console.warn("Database save fallback active.");
             }
 
-            // Central server payment logging
+            // ── 3. Central server payment logging ─────────────────────────────
             try {
                 fetch('api/save_payment.php', {
                     method: 'POST',
@@ -2129,15 +2169,19 @@
                 }).catch(err => console.warn('Payment logging note:', err));
             } catch(e) {}
 
-            // LocalStorage backup
+            // ── 4. LocalStorage backup ────────────────────────────────────────
             let localCon = JSON.parse(localStorage.getItem('sra_consultation_db') || '[]');
             localCon.push(payload);
             localStorage.setItem('sra_consultation_db', JSON.stringify(localCon));
 
             const amtPaidStr = (data.amount_paid !== undefined) ? `₹${Number(data.amount_paid).toLocaleString('en-IN')}` : '₹5,100';
 
-            // Format WhatsApp Confirmation Message
-            const waMessage = 
+            // ── 5. WhatsApp Message (with Meet link if available) ─────────────
+            const meetInfo = meetLink
+                ? `🎥 *Google Meet Link:* ${meetLink}`
+                : `📱 *WhatsApp:* कृपया Meet link के लिए WhatsApp करें`;
+
+            const waMessage =
                 `🚩 *SACRED CONSULTATION BOOKING CONFIRMED* 🚩\n` +
                 `*Shri Ramji Astro (shriramjiastro.in)*\n\n` +
                 `📅 *Reserved Date:* ${data.reserved_date}\n` +
@@ -2147,20 +2191,33 @@
                 `🎂 *DOB:* ${data.dob} | ⏰ *TOB:* ${data.tob}\n` +
                 `📍 *Birth Location:* ${data.location}\n` +
                 `🎯 *Inquiry:* ${data.inquiry}\n` +
+                `${meetInfo}\n` +
                 `💳 *Payment ID:* ${data.razorpay_payment_id}\n\n` +
-                `🙏🏻 Namaste Astro Raamji, my payment of ${amtPaidStr} is complete. Please share session connection details.`;
+                `🙏🏻 Namaste Astro Raamji, my payment of ${amtPaidStr} is complete.`;
 
             const waUrl = `https://api.whatsapp.com/send?phone=919517117775&text=${encodeURIComponent(waMessage)}`;
 
+            // ── 6. Show success message ──────────────────────────────────────
             msgBox.innerHTML = `
-                <div style="background: rgba(21, 128, 61, 0.08); border: 1.5px solid var(--pass-green); padding: 20px; border-radius: 14px; text-align: center;">
+                <div style="background: rgba(21, 128, 61, 0.08); border: 1.5px solid var(--pass-green); padding: 22px; border-radius: 14px; text-align: center;">
                     <h3 style="color: var(--pass-green); font-family:'Cinzel',serif; margin-bottom: 8px;">✅ Booking & Payment Successful!</h3>
-                    <p style="font-size: 13.5px; color: var(--charcoal); margin-bottom: 14px;">
+                    <p style="font-size: 13.5px; color: var(--charcoal); margin-bottom: 6px;">
                         Payment Reference ID: <b>${data.razorpay_payment_id}</b> (${amtPaidStr})<br>
-                        Reserved Session Date: <b>${data.reserved_date}</b>
+                        Reserved Session Date: <b>${data.reserved_date}</b> · 10:00 AM IST (90 Min)
                     </p>
-                    <a href="${waUrl}" target="_blank" style="display:inline-block; background: #25D366; color: #FFF; font-weight: 800; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-size: 14px; box-shadow: 0 4px 15px rgba(37,211,102,0.3);">
-                        📱 Open WhatsApp to Confirm Session (+91 95171 17775)
+                    ${calendarBooked && meetLink ? `
+                    <div style="background:#f0fdf4; border:1.5px solid #16a34a; border-radius:10px; padding:14px; margin:12px 0; text-align:left;">
+                        <div style="font-weight:700; color:#15803d; margin-bottom:6px;">🎥 Your Google Meet Link:</div>
+                        <a href="${meetLink}" target="_blank" style="color:#1d4ed8; font-weight:700; word-break:break-all;">${meetLink}</a>
+                        <div style="font-size:12px; color:#666; margin-top:6px;">📧 यही link आपके Email पर भी भेज दिया गया है।</div>
+                    </div>
+                    ` : `
+                    <div style="background:#fffbeb; border:1.5px solid #d97706; border-radius:10px; padding:10px; margin:10px 0; font-size:12.5px; color:#92400e;">
+                        ⚠️ Calendar event setup हो रहा है। Meet link WhatsApp/Email से मिलेगा।
+                    </div>
+                    `}
+                    <a href="${waUrl}" target="_blank" style="display:inline-block; background: #25D366; color: #FFF; font-weight: 800; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-size: 14px; box-shadow: 0 4px 15px rgba(37,211,102,0.3); margin-top:8px;">
+                        📱 WhatsApp पर Confirm करें (+91 95171 17775)
                     </a>
                 </div>
             `;
