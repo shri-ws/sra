@@ -81,21 +81,32 @@ def select_daily_topic(date_seed: datetime.date = None) -> dict:
     }
 
 def call_gemini_api(api_key: str, model: str, prompt: str) -> str:
-    """Call Gemini REST API for content synthesis."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    """Call Gemini REST API for content synthesis with model fallback."""
+    candidate_models = [model, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-flash-latest"]
+    # Deduplicate while preserving order
+    models_to_try = []
+    for m in candidate_models:
+        if m and m not in models_to_try:
+            models_to_try.append(m)
+            
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"temperature": 0.7, "maxOutputTokens": 2048}
     }
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            res_json = json.loads(resp.read().decode("utf-8"))
-            return res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
-    except Exception as e:
-        print(f"[Curator] Gemini API error: {e}")
-        return ""
+    
+    for m in models_to_try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                res_json = json.loads(resp.read().decode("utf-8"))
+                return res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except Exception as e:
+            print(f"[Curator] Gemini API error with {m}: {e}")
+            continue
+            
+    return ""
 
 def synthesize_daily_social_package(topic_data: dict = None) -> dict:
     """
@@ -230,9 +241,11 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
                 clean_json = gemini_resp.strip()
                 if clean_json.startswith("```json"):
                     clean_json = clean_json[7:]
+                elif clean_json.startswith("```"):
+                    clean_json = clean_json[3:]
                 if clean_json.endswith("```"):
                     clean_json = clean_json[:-3]
-                enhanced = json.loads(clean_json.strip())
+                enhanced = json.loads(clean_json.strip(), strict=False)
                 reddit_title = enhanced.get("reddit_title", reddit_title)
                 reddit_body = enhanced.get("reddit_body", reddit_body)
                 quora_question = enhanced.get("quora_question", quora_question)
