@@ -18,6 +18,7 @@ Validates all canonical laws specified in the mission requirements:
 import unittest
 import math
 import time
+import json
 from pathlib import Path
 
 import swisseph as swe
@@ -28,12 +29,15 @@ from parashara_canonical_engine import (
     HAS_FULL_JPL_EPHE,
     DEFAULT_AYANAMSA_ID,
     SOLAR_YEAR_DAYS,
+    PLANET_IDS,
     calculate_canonical_astronomy,
     calculate_canonical_vimshottari,
     calculate_shodashavarga,
     calculate_ashtakavarga,
     calculate_canonical_chart,
     ChartRequest,
+    BatchChartRequest,
+    calculate_batch_post,
     root,
     health,
     calculate_post,
@@ -111,7 +115,7 @@ class TestParasharaCanonicalEngine(unittest.TestCase):
         swe.set_sid_mode(DEFAULT_AYANAMSA_ID, 0, 0)
 
     def test_04_geocentric_sidereal_frame_and_antipodal_nodes(self):
-        """Verify 100% geocentric sidereal frame and strictly antipodal True Nodes (Rahu / Ketu)."""
+        """Verify 100% geocentric sidereal frame and strictly antipodal Mean Nodes (Rahu / Ketu)."""
         chart = calculate_canonical_chart(
             year=self.bench_y, month=self.bench_m, day=self.bench_d,
             hour=self.bench_hh, minute=self.bench_mm, second=self.bench_ss,
@@ -124,9 +128,9 @@ class TestParasharaCanonicalEngine(unittest.TestCase):
 
         # Antipodal check: (Ketu - Rahu) % 360 == 180°
         node_diff = norm360(ketu["abs"] - rahu["abs"])
-        print(f"\n   [Test 4] Rahu: {rahu['abs']:.6f}°, Ketu: {ketu['abs']:.6f}°, Diff: {node_diff:.6f}°")
-        self.assertAlmostEqual(node_diff, 180.0, places=5, msg="Ketu must be exactly 180° opposite to True Rahu")
-        self.assertTrue(rahu["retro"], "True Rahu must be marked retrograde")
+        print(f"\n   [Test 4] Mean Rahu: {rahu['abs']:.6f}°, Mean Ketu: {ketu['abs']:.6f}°, Diff: {node_diff:.6f}°")
+        self.assertAlmostEqual(node_diff, 180.0, places=5, msg="Ketu must be exactly 180° opposite to Mean Rahu")
+        self.assertTrue(rahu["retro"], "Mean Rahu must be marked retrograde")
         self.assertTrue(ketu["retro"], "Ketu must be marked retrograde")
         self.assertEqual(rahu["speed"], ketu["speed"], "Ketu speed must match Rahu speed")
 
@@ -191,14 +195,14 @@ class TestParasharaCanonicalEngine(unittest.TestCase):
         print("\n   [Test 7] High-latitude polar test passed (69.6° N and 78.2° N computed stably)")
 
     def test_08_vimshottari_dasa_solar_year_standard(self):
-        """Verify Vimshottari Dasa calculates using exact Tropical Solar Year (365.2425 days)."""
+        """Verify Vimshottari Dasa calculates using canonical Julian Solar Year (365.25 days)."""
         chart = calculate_canonical_chart(
             year=self.bench_y, month=self.bench_m, day=self.bench_d,
             hour=self.bench_hh, minute=self.bench_mm, second=self.bench_ss,
             lat=self.bench_lat, lon=self.bench_lon, tz=self.bench_tz
         )
         dasa = chart["vimshottariDasa"]
-        self.assertEqual(dasa["yearLengthDays"], SOLAR_YEAR_DAYS, "Year length must be 365.2425 days")
+        self.assertEqual(dasa["yearLengthDays"], 365.25, "Year length must be exactly 365.25 days")
         self.assertIn("timeline", dasa)
         self.assertEqual(len(dasa["timeline"]), 9, "Must contain all 9 Mahadashas in cycle")
 
@@ -284,6 +288,105 @@ class TestParasharaCanonicalEngine(unittest.TestCase):
         avg_ms = elapsed_total / iterations
         print(f"\n   [Test 11] {iterations} Complete Canonical Charts executed in {elapsed_total:.2f} ms ({avg_ms:.2f} ms / chart)")
         self.assertLess(avg_ms, 15.0, "Average chart calculation time must be < 15 ms")
+
+    def test_12_eight_epoch_direct_swisseph_validation(self):
+        """
+        Verify all 8 epochs (1900, 1950, 1975, 1990, 2000, 2010, 2026, 2040)
+        against direct Swiss Ephemeris calc_ut and houses_ex:
+        - 7 classical planets, Mean Rahu, Ketu
+        - Lagna & Sripati cusps (Porphyry 'O' cusps and sandhis)
+        - Vimshottari year standard 365.25 days
+        """
+        epochs = [
+            (1900, 1, 1, 12, 0, 0, 28.6139, 77.2090, 5.5, "1900 New Century"),
+            (1950, 6, 15, 8, 30, 0, 19.0760, 72.8777, 5.5, "1950 Mid-Century"),
+            (1975, 3, 21, 18, 45, 0, 13.0827, 80.2707, 5.5, "1975 Equinox"),
+            (1990, 11, 14, 6, 15, 0, 22.5726, 88.3639, 5.5, "1990 Post-Cold War"),
+            (2000, 1, 1, 0, 1, 0, 27.5667, 80.6833, 5.5, "2000 Millennium"),
+            (2010, 10, 10, 10, 10, 0, 25.3176, 82.9739, 5.5, "2010 Decade Anchor"),
+            (2026, 10, 28, 11, 45, 0, 26.8467, 80.9462, 5.5, "2026 Contemporary"),
+            (2040, 8, 15, 15, 30, 0, 12.9716, 77.5946, 5.5, "2040 Future Independence Day")
+        ]
+
+        swe.set_ephe_path(str(EPHE_DIR))
+        swe.set_sid_mode(DEFAULT_AYANAMSA_ID, 0, 0)
+        core_flags = swe.FLG_SWIEPH | swe.FLG_SPEED | swe.FLG_SIDEREAL
+
+        print("\n   [Test 12] Validating 8 Historical & Future Epochs directly with Swiss Ephemeris:")
+        for y, m, d, hh, mm, ss, lat, lon, tz, label in epochs:
+            chart = calculate_canonical_chart(
+                year=y, month=m, day=d, hour=hh, minute=mm, second=ss,
+                lat=lat, lon=lon, tz=tz
+            )
+            jd_ut = swe.julday(y, m, d, (hh + mm / 60.0 + ss / 3600.0) - tz, swe.GREG_CAL)
+
+            # 1. Verify Planets
+            for p in chart["planets"]:
+                pid = p["id"]
+                if pid == "Lagna":
+                    _, ascmc = swe.houses_ex(jd_ut, lat, lon, b'O', swe.FLG_SIDEREAL)
+                    expected_lagna = norm360(ascmc[0])
+                    diff = abs(p["abs"] - expected_lagna)
+                    self.assertLess(diff, 1e-4, f"Lagna mismatch at {y} ({label}): diff={diff}")
+                elif pid == "Ketu":
+                    res_node, _ = swe.calc_ut(jd_ut, swe.MEAN_NODE, core_flags)
+                    expected_ketu = norm360(res_node[0] + 180.0)
+                    diff = abs(p["abs"] - expected_ketu)
+                    self.assertLess(diff, 1e-4, f"Ketu mismatch at {y} ({label}): diff={diff}")
+                else:
+                    swe_pid = PLANET_IDS[pid]
+                    res_p, _ = swe.calc_ut(jd_ut, swe_pid, core_flags)
+                    expected_p = norm360(res_p[0])
+                    diff = abs(p["abs"] - expected_p)
+                    self.assertLess(diff, 1e-4, f"{pid} mismatch at {y} ({label}): diff={diff}")
+
+            # 2. Verify Sripati Cusps (Porphyry 'O' houses)
+            expected_houses, _ = swe.houses_ex(jd_ut, lat, lon, b'O', swe.FLG_SIDEREAL)
+            for h_idx in range(12):
+                h_data = chart["sripatiBhavas"][h_idx]
+                expected_mid = norm360(expected_houses[h_idx])
+                diff_mid = abs(h_data["mid"] - expected_mid)
+                self.assertLess(diff_mid, 1e-4, f"House {h_idx+1} mid mismatch at {y}: diff={diff_mid}")
+
+                # Sandhis must be exact midpoints between consecutive cusps
+                prev_mid = norm360(expected_houses[(h_idx - 1 + 12) % 12])
+                next_mid = norm360(expected_houses[(h_idx + 1) % 12])
+                exp_s1 = norm360(prev_mid + norm360(expected_mid - prev_mid) / 2.0)
+                exp_s2 = norm360(expected_mid + norm360(next_mid - expected_mid) / 2.0)
+                self.assertLess(abs(h_data["sandhi1"] - exp_s1), 1e-4)
+                self.assertLess(abs(h_data["sandhi2"] - exp_s2), 1e-4)
+
+            # 3. Verify Vimshottari Dasa Year Standard & Sequence
+            dasa = chart["vimshottariDasa"]
+            self.assertEqual(dasa["yearLengthDays"], 365.25, f"Vimshottari year standard must be 365.25 at {y}")
+            self.assertEqual(len(dasa["timeline"]), 9, f"Must have 9 Mahadashas at {y}")
+
+            print(f"      ✓ Epoch {y} ({label}) verified 100% against direct swe.calc_ut & swe.houses_ex")
+
+    def test_13_batch_and_realtime_transits(self):
+        """
+        Verify batch calculation endpoint and real-time transits contract.
+        """
+        # 1. Transits presence in canonical chart
+        chart = calculate_canonical_chart(2000, 1, 1, 12, 0, 0, lat=28.6139, lon=77.2090, tz=5.5)
+        self.assertIn("transits", chart)
+        self.assertEqual(len(chart["transits"]), 10)  # Lagna + 9 planets
+
+        # 2. Batch endpoint validation
+        batch_req = BatchChartRequest(
+            dates=["2026-11-01", "2026-11-02", "2026-11-03"],
+            time="10:30:00",
+            lat=28.6139,
+            lon=77.2090,
+            tz=5.5
+        )
+        batch_res = calculate_batch_post(batch_req)
+        self.assertEqual(batch_res.status_code, 200)
+        body = json.loads(batch_res.body.decode("utf-8"))
+        self.assertEqual(body["status"], "ok")
+        self.assertEqual(body["count"], 3)
+        self.assertEqual(len(body["results"]), 3)
+        print("   [Test 13] Real-time transits & batch calculation (3 dates) verified.")
 
 
 if __name__ == "__main__":

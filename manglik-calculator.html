@@ -60,7 +60,7 @@
         "name": "मंगल दोष एवं परिहार कैलकुलेटर कैसे काम करता है?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "हमारा मंगल दोष एवं परिहार कैलकुलेटर NASA JPL Swiss Ephemeris (<0.001\" परिशुद्धता) एवं ट्रू चित्रा पक्ष अयनांश (Mode 27) पर आधारित है। यह केवल लग्न ही नहीं, बल्कि चंद्रमा और शुक्र से मंगल की स्थिति, D9 नवांश वर्गोत्तम बल और 21 शास्त्रीय परिहार नियमों को स्वतः स्कैन कर नेट दोष प्रतिशत निकालता है।"
+          "text": "हमारा मंगल दोष एवं परिहार कैलकुलेटर Swiss Ephemeris (JPL DE431 आधारित) (<0.001\" परिशुद्धता) एवं ट्रू चित्रा पक्ष अयनांश (Mode 27) पर आधारित है। यह केवल लग्न ही नहीं, बल्कि चंद्रमा और शुक्र से मंगल की स्थिति, D9 नवांश वर्गोत्तम बल और 21 शास्त्रीय परिहार नियमों को स्वतः स्कैन कर नेट दोष प्रतिशत निकालता है।"
         }
       },
       {
@@ -1495,7 +1495,7 @@
             <span>➔</span>
           </button>
           <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">
-            🔒 100% सुरक्षित 256-bit Razorpay • NASA JPL व सत्य चित्रा पक्ष अयनांश • २१ शास्त्रीय परिहार व A4 PDF
+            🔒 100% सुरक्षित 256-bit Razorpay • Swiss Ephemeris (JPL DE431 आधारित) व सत्य चित्रा पक्ष अयनांश • २१ शास्त्रीय परिहार व A4 PDF
           </div>
         </div>
       </div>
@@ -1742,7 +1742,7 @@
             <span>▾</span>
           </button>
           <div class="faq-answer">
-            हमारा मंगल दोष एवं परिहार कैलकुलेटर NASA JPL Swiss Ephemeris (&lt;0.001" परिशुद्धता) एवं सत्य चित्रा पक्ष अयनांश (Mode 27) पर आधारित है। यह केवल लग्न ही नहीं, बल्कि चंद्रमा और शुक्र से मंगल की स्थिति, D9 नवांश वर्गोत्तम बल और 21 शास्त्रीय परिहार नियमों को स्वतः स्कैन कर नेट दोष प्रतिशत निकालता है।
+            हमारा मंगल दोष एवं परिहार कैलकुलेटर Swiss Ephemeris (JPL DE431 आधारित) (&lt;0.001" परिशुद्धता) एवं सत्य चित्रा पक्ष अयनांश (Mode 27) पर आधारित है। यह केवल लग्न ही नहीं, बल्कि चंद्रमा और शुक्र से मंगल की स्थिति, D9 नवांश वर्गोत्तम बल और 21 शास्त्रीय परिहार नियमों को स्वतः स्कैन कर नेट दोष प्रतिशत निकालता है।
           </div>
         </div>
 
@@ -1807,7 +1807,7 @@
       <div>
         <div class="footer-title">SHRI RAMJI ASTRO (SRA)</div>
         <p style="font-size:13px; line-height:1.6; color:#94a3b8;">
-          NASA JPL Swiss Ephemeris (&lt;0.001" परिशुद्धता), सत्य चित्रा पक्ष अयनांश (Mode 27) एवं प्राचीन संहिता ग्रंथों पर आधारित भारत का सर्वाधिक प्रामाणिक वैदिक ज्योतिष संस्थान।
+          Swiss Ephemeris (JPL DE431 आधारित) (&lt;0.001" परिशुद्धता), सत्य चित्रा पक्ष अयनांश (Mode 27) एवं प्राचीन संहिता ग्रंथों पर आधारित भारत का सर्वाधिक प्रामाणिक वैदिक ज्योतिष संस्थान।
         </p>
       </div>
       <div>
@@ -2263,7 +2263,7 @@
     }
 
     // High Precision Calculation & A4 Report Rendering
-    function calculateAndRenderManglikReport() {
+    async function calculateAndRenderManglikReport() {
       if (!currentSelectedKundali) return;
 
       const k = currentSelectedKundali;
@@ -2272,27 +2272,28 @@
         return;
       }
 
-      // Step 1: Calculate precise astronomical planetary positions using Patrika Engine Bridge
-      const calc = window.PatrikaEngineBridge.calculatePatrikaPlanets({
-        name: k.name,
-        gender: k.gender || 'male',
-        date: k.date,
-        time: k.time,
-        city: k.city,
-        lat: k.lat,
-        lon: k.lon,
-        tz: k.tz || 5.5
-      });
+      try {
+        // Step 1: Calculate precise astronomical planetary positions using Patrika Engine Bridge (Swiss Ephemeris JPL DE431)
+        const calc = await window.PatrikaEngineBridge.calculatePatrikaPlanets({
+          name: k.name,
+          gender: k.gender || 'male',
+          date: k.date,
+          time: k.time,
+          city: k.city,
+          lat: k.lat,
+          lon: k.lon,
+          tz: k.tz || 5.5
+        });
 
-      window.currentManglikCalc = calc;
+        window.currentManglikCalc = calc;
 
-      // Step 2: Extract contract and run 21 classical parihara rules engine
-      const contract = window.MangalDoshaEngine.extractMangalDoshaContract(calc, { name: k.name });
-      const rep = window.MangalDoshaEngine.calculateMangalDoshaReport(contract, 'hi');
-      window.currentManglikReport = rep;
+        // Step 2: Extract contract and run 21 classical parihara rules engine
+        const contract = window.MangalDoshaEngine.extractMangalDoshaContract(calc, { name: k.name });
+        const rep = window.MangalDoshaEngine.calculateMangalDoshaReport(contract, 'hi');
+        window.currentManglikReport = rep;
 
-      // Step 3: Generate North Indian SVG Chart Snapshot with Mars Highlighted
-      const svgChartHtml = window.PatrikaEngineBridge.renderNorthIndianChartSVG(calc, 'Mars');
+        // Step 3: Generate North Indian SVG Chart Snapshot with Mars Highlighted
+        const svgChartHtml = window.PatrikaEngineBridge.renderNorthIndianChartSVG(calc, 'Mars');
 
       // Step 4: Render Full A4 Report Certificate
       const container = document.getElementById('unlockedManglikReportView');
@@ -2599,7 +2600,11 @@
 
       // 5. Scroll smoothly to top of the report
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('Manglik calculation error:', err);
+      alert(err.message || 'ग्रह गणना में त्रुटि उत्पन्न हुई।');
     }
+  }
 
     // Change Kundali or enter new details to view report (No manual calculate button)
     function generateNewReport() {

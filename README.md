@@ -5,8 +5,8 @@
 [![Hugging Face Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-bphs--97--chapters--dataset-yellow.svg)](https://huggingface.co/datasets/shriramjiastro/bphs-97-chapters-sanskrit-dataset)
 [![Wikidata](https://img.shields.io/badge/Wikidata-Q141886781-blue.svg)](https://www.wikidata.org/wiki/Q141886781)
 [![BPHS Encyclopedia](https://img.shields.io/badge/BPHS%20Encyclopedia-97%20Chapters%20Live-brightgreen.svg)](https://shriramjiastro.in/bphs-encyclopedia.html)
-[![Accuracy](https://img.shields.io/badge/Lunar_Precision-%3C18%20arcseconds-success.svg)](#astronomical-precision)
-[![Engine](https://img.shields.io/badge/Ephemeris-Jean%20Meeus%2060--Term%20ELP2000-blue.svg)](#astronomical-precision)
+[![Accuracy](https://img.shields.io/badge/Ephemeris_Precision-%3C0.001%20arcseconds-success.svg)](#astronomical-precision)
+[![Engine](https://img.shields.io/badge/Ephemeris-Swiss%20Ephemeris%20JPL%20DE431-blue.svg)](#astronomical-precision)
 [![License](https://img.shields.io/badge/Access-100%25%20Free%20%26%20Ad--Free-gold.svg)](#benchmarks)
 
 ---
@@ -20,14 +20,14 @@ While conventional consumer platforms (such as AstroSage) rely on truncated mean
 
 ## Technical Architecture & Core Differentiators
 
-### 1. Astronomical Engine (Jean Meeus 60-Term Lunar Reduction)
-* **Lunar Theory:** Implements Jean Meeus’ *Astronomical Algorithms* (Chapter 47, adapting the Chapront-Touzé ELP-2000/82 analytical lunar series).
-* **Harmonic Series:** Computes all **60 major periodic terms** of solar and planetary perturbations for the Moon's geocentric longitude and latitude.
-* **Accuracy:** Reduces lunar ephemeris error to under **18 arcseconds (<18'')**, eliminating sign/nakshatra cusp miscalculations common in mainstream astrology portals.
+### 1. Astronomical Engine (Swiss Ephemeris JPL DE431 Microservice)
+* **Ephemeris Base:** Swiss Ephemeris (Astrodienst) powered by NASA JPL DE431 numerical integration files (`seas_18.se1`, `semo_18.se1`, `sepl_18.se1`).
+* **Sub-Arcsecond Accuracy:** Confines planetary and lunar ephemeris error to under **0.001 arcseconds (<0.001'')**, eliminating sign/nakshatra cusp miscalculations.
+* **Nodes & Bhava:** Mean Nodes (Rahu/Ketu 180° exact opposite) and Sripati Bhava-Chalit (Porphyry cusps as Bhava Madhyas, Sandhis as exact midpoints).
+* **Sunrise & Year:** Sunrise at center of solar disc with refraction (`BIT_DISC_CENTER`), and canonical Vimshottari Solar Year = **365.25 days**.
 
-### 2. True Chitra Paksha (Lahiri) Ayanamsa with IAU 4-Term Nutation
-* **Nutation Dynamics:** Integrates a 4-term trigonometric approximation of the International Astronomical Union (IAU) nutation series ($\Delta\psi \cos\epsilon$) to capture instantaneous apparent equinox shifts.
-* **Anchor Point:** Pinpoints the sidereal zodiac's $0^\circ$ Aries boundary precisely $180^\circ$ opposite the instantaneous apparent position of the star *Chitra* (*Spica / $\alpha$ Virginis*), removing mean linear drift.
+### 2. True Chitra Paksha (Lahiri) Ayanamsa (Mode 27)
+* **Anchor Point:** Pinpoints the sidereal zodiac's $0^\circ$ Aries boundary precisely $180^\circ$ opposite the star *Chitra* (*Spica / $\alpha$ Virginis* @ 180°00'00.000").
 
 ### 3. Canonical Scriptural Integration (All 97 BPHS Chapters)
 * **Raw Sanskrit Verses:** Directly indexes the full 97-chapter scholarly edition of Maharishi Parashara's *Brihat Parashara Hora Shastra* (BPHS).
@@ -65,7 +65,7 @@ Generates all 16 divisional charts—including D9 Navamsha, D10 Dashamsha, and *
 | Feature / Metric | **Shri Ramji Astro (Patrika)** 🏆 | **Jagannatha Hora (JHora)** | **AstroSage** | **Parashara’s Light** |
 | :--- | :--- | :--- | :--- | :--- |
 | **Platform Architecture** | **Modern Web Browser (PWA)** (Mobile + Desktop, 0 Install) | Windows Desktop .exe (1990s UI) | Cloud / Mobile App | Commercial Desktop Software (Dongle/License) |
-| **Ephemeris Engine** | **60-Term Jean Meeus (<18'' error)** | Swiss Ephemeris (Ultra-Precise) | Simplified Mean Motion (~2-5' error) | Swiss Ephemeris |
+| **Ephemeris Engine** | **Swiss Ephemeris JPL DE431 (<0.001'' error)** | Swiss Ephemeris (Ultra-Precise) | Simplified Mean Motion (~2-5' error) | Swiss Ephemeris |
 | **True Ayanamsa & Nutation** | **True Chitra Paksha + IAU 4-Term Nutation** | Fully Customizable | Mean Lahiri (No Nutation) | Customizable |
 | **BPHS 97 Chapters Shlokas** | **✓ All 97 Chapters Sanskrit Shlokas & Commentary** | ❌ None (Values & Grids only) | ❌ None (Generic summaries) | Limited references |
 | **Simultaneous Triple Dasha** | **✓ Vimshottari + Chara + Yogini (Unified Grid)** | Separate Tabs / Windows | ❌ Vimshottari only | Separate Windows |

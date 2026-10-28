@@ -43,6 +43,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="patrikaEngineBridge.js"></script>
     <script src="theme.js"></script>
     <style>
         /* DAY MODE (DEFAULT): Golden, Maroon, and White */
@@ -882,160 +883,27 @@
         function torad(deg) { return deg * Math.PI / 180; }
         function todeg(rad) { return rad * 180 / Math.PI; }
 
-        function toJulianDay(y, m, d, hourUTC) {
-            if (m <= 2) { y -= 1; m += 12; }
-            const A = Math.floor(y / 100);
-            const B = 2 - A + Math.floor(A / 4);
-            return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + hourUTC / 24 + B - 1524.5;
-        }
-
-        function lahiriAyanamsa(T) {
-            const DEG = Math.PI / 180;
-            const meanAyanamsa = 23.85307 + 1.396822 * T + 0.000308 * T * T;
-            const Omega  = (125.04452 - 1934.136261 * T + 0.0020708 * T * T) * DEG;
-            const L_sun  = (280.4665 + 36000.7698 * T) * DEG;
-            const L_moon = (218.3165 + 481267.8813 * T) * DEG;
-            const dPsi = -17.20 * Math.sin(Omega) - 1.32 * Math.sin(2 * L_sun) - 0.23 * Math.sin(2 * Omega) + 0.21 * Math.sin(2 * L_moon);
-            const eps = (23.439291 - 0.0130042 * T) * DEG;
-            return meanAyanamsa + ((dPsi / 3600.0) * Math.cos(eps));
-        }
-
-        function computeMeeusMoonLongitudeBPHS(T) {
-            const DEG = Math.PI / 180;
-            const L_prime = 218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + (T * T * T) / 538841.0;
-            const D       = 297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + (T * T * T) / 545868.0;
-            const M       = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000.0;
-            const M_prime = 134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + (T * T * T) / 69699.0;
-            const F       = 93.2720950 + 483202.0175273 * T - 0.0036539 * T * T - (T * T * T) / 3526000.0;
-            const E = 1.0 - 0.002516 * T - 0.0000074 * T * T;
-
-            const moonTerms = [
-                [ 0,  0,  1,  0, 6288774, 0], [ 2,  0, -1,  0, 1274027, 0], [ 2,  0,  0,  0,  658314, 0],
-                [ 0,  0,  2,  0,  213618, 0], [ 0,  1,  0,  0, -185116, 1], [ 0,  0,  0,  2, -114332, 0],
-                [ 2,  0,  1,  0,   58793, 0], [ 2, -1, -1,  0,   57066, 1], [ 2,  0, -2,  0,   53322, 0],
-                [ 2,  1, -1,  0,   45758, 1], [ 2, -1,  0,  0,  -40923, 1], [ 0,  1,  1,  0,  -34720, 1]
-            ];
-
-            let sumSigmaL = 0;
-            for (let i = 0; i < moonTerms.length; i++) {
-                const t = moonTerms[i];
-                const arg = (t[0] * D + t[1] * M + t[2] * M_prime + t[3] * F) * DEG;
-                let factor = t[4];
-                if (t[5] === 1) factor *= E;
-                sumSigmaL += factor * Math.sin(arg);
-            }
-            return normalizeDegrees(L_prime + (sumSigmaL / 1000000.0));
-        }
-
-        const BPHS_DEG = Math.PI / 180;
-        const BPHS_RAD = 180 / Math.PI;
-
-        function bphsSolveKepler(M, e) {
-            let E = M;
-            for (let i = 0; i < 15; i++) {
-                const dE = (E - e * Math.sin(E) - M) / (1.0 - e * Math.cos(E));
-                E -= dE;
-                if (Math.abs(dE) < 1e-7) break;
-            }
-            return E;
-        }
-
-        const BPHS_ORBITAL_DATA = {
-            Earth: { a: [1.00000261, 0.00000562], e: [0.01671123, -0.00004392], I: [0.00001531, -0.01294668], L: [100.46457166, 35999.37244981], w: [102.93768193, 0.32327364], node: [0.0, 0.0] },
-            Mercury: { a: [0.38709927, 0.00000037], e: [0.20563593, 0.00001906], I: [7.00497902, -0.00594749], L: [252.25032350, 149472.67411175], w: [77.45779628, 0.16047689], node: [48.33076593, -0.12534081] },
-            Venus: { a: [0.72333566, 0.00000390], e: [0.00677672, -0.00004107], I: [3.39467605, -0.00078890], L: [181.97909950, 58517.81538729], w: [131.60246718, 0.00268329], node: [76.67984255, -0.27769418] },
-            Mars: { a: [1.52371034, 0.00001847], e: [0.09339410, 0.00007882], I: [1.84969142, -0.00813131], L: [-4.55343205, 19140.30268499], w: [-20.69234015, 0.44441088], node: [49.55953891, -0.29257343] },
-            Jupiter: { a: [5.20288700, -0.00011607], e: [0.04838624, -0.00013253], I: [1.30439695, -0.00183714], L: [34.39644051, 3034.74612775], w: [14.72847983, 0.21252668], node: [100.47390909, 0.20469106] },
-            Saturn: { a: [9.53667594, -0.00125060], e: [0.05386179, -0.00050991], I: [2.48599187, 0.00193609], L: [49.95424423, 1222.49362201], w: [92.59887831, -0.41897216], node: [113.66242448, -0.28867794] }
-        };
-
-        function getPlanetHeliocentricBPHS(elements, T) {
-            const a = elements.a[0] + elements.a[1] * T;
-            const e = elements.e[0] + elements.e[1] * T;
-            const I = (elements.I[0] + elements.I[1] * T) * BPHS_DEG;
-            const L = normalizeDegrees(elements.L[0] + elements.L[1] * T) * BPHS_DEG;
-            const longPeri = normalizeDegrees(elements.w[0] + elements.w[1] * T) * BPHS_DEG;
-            const node = normalizeDegrees(elements.node[0] + elements.node[1] * T) * BPHS_DEG;
-
-            const M = normalizeDegrees((L - longPeri) * BPHS_RAD) * BPHS_DEG;
-            const E = bphsSolveKepler(M, e);
-
-            const x_orb = a * (Math.cos(E) - e);
-            const y_orb = a * Math.sqrt(1.0 - e * e) * Math.sin(E);
-
-            const periNode = longPeri - node;
-            const cosNode = Math.cos(node), sinNode = Math.sin(node);
-            const cosPeri = Math.cos(periNode), sinPeri = Math.sin(periNode);
-            const cosI = Math.cos(I);
-
-            const Px = cosNode * cosPeri - sinNode * sinPeri * cosI;
-            const Py = sinNode * cosPeri + cosNode * sinPeri * cosI;
-            const Qx = -cosNode * sinPeri - sinNode * cosPeri * cosI;
-            const Qy = -sinNode * sinPeri + cosNode * cosPeri * cosI;
-
-            const x = x_orb * Px + y_orb * Qx;
-            const y = x_orb * Py + y_orb * Qy;
-            const z = (x_orb * sinPeri + y_orb * cosPeri) * Math.sin(I);
-            return { x, y, z };
-        }
-
-        function computeSiderealGeocentricLongitudeBPHS(T, ayanamsa) {
-            const earth = getPlanetHeliocentricBPHS(BPHS_ORBITAL_DATA.Earth, T);
-            const sunX = -earth.x, sunY = -earth.y;
-            const sunTrop = normalizeDegrees(Math.atan2(sunY, sunX) * BPHS_RAD);
-            const sunSid = normalizeDegrees(sunTrop - ayanamsa);
-
-            const result = { Sun: sunSid };
-            ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn'].forEach(pName => {
-                const pHelio = getPlanetHeliocentricBPHS(BPHS_ORBITAL_DATA[pName], T);
-                let geoX = pHelio.x - earth.x, geoY = pHelio.y - earth.y;
-                const pTrop = normalizeDegrees(Math.atan2(geoY, geoX) * BPHS_RAD);
-                result[pName] = normalizeDegrees(pTrop - ayanamsa);
+        function adaptCanonicalChartToMuhurtPlanets(chart) {
+            const getP = (id) => (chart.planets && chart.planets.find(p => p.id === id)) || { abs: 0, sign: 0, deg: 0 };
+            const fmt = (pl) => ({
+                sayana: normalizeDegrees(pl.abs + (chart.ayanamsa || 0)),
+                sidereal: pl.abs,
+                rashi: pl.sign + 1,
+                deg: pl.deg
             });
-
-            const moonTrop = computeMeeusMoonLongitudeBPHS(T);
-            result.Moon = normalizeDegrees(moonTrop - ayanamsa);
-            const nodeTrop = 125.04452 - 1934.136261 * T + 0.0020708 * T * T;
-            result.Rahu = normalizeDegrees(nodeTrop - ayanamsa);
-            result.Ketu = normalizeDegrees(result.Rahu + 180);
-            return result;
-        }
-
-        function computeAscendantBPHS(RAMC, latDeg, eps, ayanamsa) {
-            const phi = latDeg * BPHS_DEG, epsRad = eps * BPHS_DEG, ramcRad = RAMC * BPHS_DEG;
-            const ascRad = Math.atan2(Math.cos(ramcRad), -Math.sin(ramcRad) * Math.cos(epsRad) - Math.tan(phi) * Math.sin(epsRad));
-            return normalizeDegrees(normalizeDegrees(ascRad * BPHS_RAD) - ayanamsa);
-        }
-
-        function computePlanets(y, m, d, hourUTC, latDeg = 25.3176, lonDeg = 82.9739) {
-            const JD = toJulianDay(y, m, d, hourUTC);
-            const T = (JD - 2451545.0) / 36525.0;
-            const ayanamsa = lahiriAyanamsa(T);
-            const pos = computeSiderealGeocentricLongitudeBPHS(T, ayanamsa);
-            const eps = 23.439291 - 0.0130042 * T;
-            let GMST = normalizeDegrees(280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T);
-            const RAMC = normalizeDegrees(GMST + lonDeg);
-            const ascSid = computeAscendantBPHS(RAMC, latDeg, eps, ayanamsa);
-
-            const formatObj = (sid) => ({
-                sayana: normalizeDegrees(sid + ayanamsa),
-                sidereal: sid,
-                rashi: Math.floor(sid / 30) + 1,
-                deg: sid % 30
-            });
-
+            const ascObj = getP('Lagna');
             return {
-                JD, T, ayanamsa,
-                sun: formatObj(pos.Sun),
-                moon: formatObj(pos.Moon),
-                mars: formatObj(pos.Mars),
-                mercury: formatObj(pos.Mercury),
-                jupiter: formatObj(pos.Jupiter),
-                venus: formatObj(pos.Venus),
-                saturn: formatObj(pos.Saturn),
-                rahu: formatObj(pos.Rahu),
-                ketu: formatObj(pos.Ketu),
-                asc: { deg: ascSid, rashi: Math.floor(ascSid / 30) + 1 }
+                ayanamsa: chart.ayanamsa,
+                sun: fmt(getP('Sun')),
+                moon: fmt(getP('Moon')),
+                mars: fmt(getP('Mars')),
+                mercury: fmt(getP('Mercury')),
+                jupiter: fmt(getP('Jupiter')),
+                venus: fmt(getP('Venus')),
+                saturn: fmt(getP('Saturn')),
+                rahu: fmt(getP('Rahu')),
+                ketu: fmt(getP('Ketu')),
+                asc: { deg: ascObj.abs, rashi: ascObj.sign + 1 }
             };
         }
 
@@ -1081,62 +949,72 @@
             document.getElementById(containerId).innerHTML = svgContent;
         }
 
-        function handleChildChange() {
-            childProfile = calculateProfile('child');
+        async function handleChildChange() {
+            childProfile = await calculateProfile('child');
         }
 
-        function calculateProfile(type) {
+        async function calculateProfile(type) {
             const dob = document.getElementById(type + 'Dob').value;
             const time = document.getElementById(type + 'Time').value;
             const lat = parseFloat(document.getElementById(type + 'Lat').value);
             const lon = parseFloat(document.getElementById(type + 'Lon').value);
             if (!dob || !time || isNaN(lat) || isNaN(lon)) return null;
 
-            const [y, m, d] = dob.split('-').map(Number);
-            const [hh, mm] = time.split(':').map(Number);
             const tz = parseFloat(document.getElementById(type + 'Tz').value) || 5.5;
-            const hourUTC = hh + mm / 60.0 - tz;
 
-            const p = computePlanets(y, m, d, hourUTC, lat, lon);
-            const moonNakIndex = Math.floor(p.moon.sidereal / (360 / 27));
-            const pada = Math.floor((p.moon.sidereal % (360 / 27)) / (360 / 108)) + 1;
+            try {
+                const chart = await window.PatrikaEngineBridge.calculatePatrikaPlanets({
+                    date: dob,
+                    time: time,
+                    lat: lat,
+                    lon: lon,
+                    tz: tz
+                });
+                const p = adaptCanonicalChartToMuhurtPlanets(chart);
+                const moonNakIndex = Math.floor(p.moon.sidereal / (360 / 27));
+                const pada = Math.floor((p.moon.sidereal % (360 / 27)) / (360 / 108)) + 1;
 
-            const profile = {
-                dob, time, lat, lon,
-                planets: p,
-                moonRashi: p.moon.rashi,
-                sunRashi: p.sun.rashi,
-                jupRashi: p.jupiter.rashi,
-                ascRashi: p.asc.rashi,
-                nakshatraIdx: moonNakIndex + 1,
-                pada: pada
-            };
+                const profile = {
+                    dob, time, lat, lon,
+                    planets: p,
+                    moonRashi: p.moon.rashi,
+                    sunRashi: p.sun.rashi,
+                    jupRashi: p.jupiter.rashi,
+                    ascRashi: p.asc.rashi,
+                    nakshatraIdx: moonNakIndex + 1,
+                    pada: pada
+                };
 
-            const derivedDiv = document.getElementById(type + 'DerivedInfo');
-            derivedDiv.style.display = 'block';
-            derivedDiv.innerHTML = `
-                👶 <b>${RASHI_NAMES[p.moon.rashi]} ${currentLang === 'hi'?'जन्म राशि':'Natal Moon Sign'}</b> | 
-                <b>${NAKSHATRAS_27[moonNakIndex]}</b> (${pada} ${I18N[currentLang].padaTxt}) | 
-                Lagna: <b>${RASHI_NAMES[p.asc.rashi]}</b>
-            `;
+                const derivedDiv = document.getElementById(type + 'DerivedInfo');
+                derivedDiv.style.display = 'block';
+                derivedDiv.innerHTML = `
+                    👶 <b>${RASHI_NAMES[p.moon.rashi]} ${currentLang === 'hi'?'जन्म राशि':'Natal Moon Sign'}</b> | 
+                    <b>${NAKSHATRAS_27[moonNakIndex]}</b> (${pada} ${I18N[currentLang].padaTxt}) | 
+                    Lagna: <b>${RASHI_NAMES[p.asc.rashi]}</b>
+                `;
 
-            document.getElementById(type + 'ChartBox').style.display = 'block';
-            const isHi = currentLang === 'hi';
-            const planetList = [
-                { name: isHi ? 'ल' : 'Asc', rashi: p.asc.rashi },
-                { name: isHi ? 'सू' : 'Su', rashi: p.sun.rashi },
-                { name: isHi ? 'च' : 'Mo', rashi: p.moon.rashi },
-                { name: isHi ? 'मं' : 'Ma', rashi: p.mars.rashi },
-                { name: isHi ? 'बु' : 'Me', rashi: p.mercury.rashi },
-                { name: isHi ? 'गु' : 'Ju', rashi: p.jupiter.rashi },
-                { name: isHi ? 'शु' : 'Ve', rashi: p.venus.rashi },
-                { name: isHi ? 'श' : 'Sa', rashi: p.saturn.rashi },
-                { name: isHi ? 'रा' : 'Ra', rashi: p.rahu.rashi },
-                { name: isHi ? 'के' : 'Ke', rashi: ((p.rahu.rashi + 5) % 12) + 1 }
-            ];
+                document.getElementById(type + 'ChartBox').style.display = 'block';
+                const isHi = currentLang === 'hi';
+                const planetList = [
+                    { name: isHi ? 'ल' : 'Asc', rashi: p.asc.rashi },
+                    { name: isHi ? 'सू' : 'Su', rashi: p.sun.rashi },
+                    { name: isHi ? 'च' : 'Mo', rashi: p.moon.rashi },
+                    { name: isHi ? 'मं' : 'Ma', rashi: p.mars.rashi },
+                    { name: isHi ? 'बु' : 'Me', rashi: p.mercury.rashi },
+                    { name: isHi ? 'गु' : 'Ju', rashi: p.jupiter.rashi },
+                    { name: isHi ? 'शु' : 'Ve', rashi: p.venus.rashi },
+                    { name: isHi ? 'श' : 'Sa', rashi: p.saturn.rashi },
+                    { name: isHi ? 'रा' : 'Ra', rashi: p.rahu.rashi },
+                    { name: isHi ? 'के' : 'Ke', rashi: ((p.rahu.rashi + 5) % 12) + 1 }
+                ];
 
-            renderNorthIndianChart(type + 'ChartContainer', p.asc.rashi, planetList);
-            return profile;
+                renderNorthIndianChart(type + 'ChartContainer', p.asc.rashi, planetList);
+                return profile;
+            } catch (err) {
+                console.error("calculateProfile error:", err);
+                alert("गणना सर्वर अनुपलब्ध है। कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।");
+                return null;
+            }
         }
 
         // WORLD SEARCH AUTOCOMPLETE
@@ -1214,8 +1092,8 @@
         }
 
         // EXECUTE SCAN - 14 MUNDAN RULES EVALUATION ENGINE
-        function executeScan() {
-            if (!childProfile) childProfile = calculateProfile('child');
+        async function executeScan() {
+            if (!childProfile) childProfile = await calculateProfile('child');
             if (!childProfile) {
                 alert(I18N[currentLang].alertBirthDetails);
                 return;
@@ -1235,13 +1113,47 @@
                 dates.push(document.getElementById('targetDate').value || '2027-04-15');
             }
 
+            const scanBtn = document.getElementById('btnScan');
+            const oldScanText = scanBtn ? scanBtn.innerHTML : '';
+            if (scanBtn) {
+                scanBtn.innerHTML = '<span>⏳ Swiss Ephemeris गणना जारी है...</span>';
+                scanBtn.disabled = true;
+            }
+
+            let charts = [];
+            try {
+                const batchItems = dates.map(dStr => ({
+                    date: dStr,
+                    time: "12:00:00",
+                    lat: childProfile.lat || 25.3176,
+                    lon: childProfile.lon || 82.9739,
+                    tz: 5.5
+                }));
+                const batchRes = await window.PatrikaEngineBridge.calculateBatchPlanets(batchItems);
+                charts = batchRes.charts || [];
+            } catch (err) {
+                console.error("Batch calculation failed:", err);
+                alert("गणना सर्वर अनुपलब्ध है। कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।");
+                if (scanBtn) {
+                    scanBtn.innerHTML = oldScanText;
+                    scanBtn.disabled = false;
+                }
+                return;
+            } finally {
+                if (scanBtn) {
+                    scanBtn.innerHTML = oldScanText;
+                    scanBtn.disabled = false;
+                }
+            }
+
             let totalCount = dates.length;
             let zeroDoshCount = 0, uttamCount = 0, madhyamCount = 0, rejectCount = 0;
             let tableHtml = '';
 
-            dates.forEach(dStr => {
+            dates.forEach((dStr, idx) => {
                 const [y, m, d] = dStr.split('-').map(Number);
-                const p = computePlanets(y, m, d, 6.5); // 12:00 IST = 06:30 UTC
+                const chart = charts[idx];
+                const p = adaptCanonicalChartToMuhurtPlanets(chart);
 
                 const dObj = new Date(y, m - 1, d);
                 const vaarIndex = dObj.getDay();

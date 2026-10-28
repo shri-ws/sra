@@ -50,6 +50,7 @@
     <!-- FIREBASE COMPAT SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="patrikaEngineBridge.js"></script>
     <script src="supabase-integration.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -941,9 +942,9 @@
             appendUserMessage(`जन्म स्थान: ${userBirthData.placeName}`);
             showTypingIndicator();
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 removeTypingIndicator();
-                const chart = calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
+                const chart = await calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
                 
                 document.getElementById('customMsgInput').disabled = false;
                 document.getElementById('btnMicMsg').disabled = false;
@@ -981,13 +982,13 @@
             sendUserQuestion(qText);
         }
 
-        function sendUserQuestion(qText) {
+        async function sendUserQuestion(qText) {
             appendUserMessage(qText);
             showTypingIndicator();
 
             const apiKey = localStorage.getItem('sra_gemini_api_key');
             if (apiKey && isAstrologyOrSpiritualQuery(qText)) {
-                const chart = calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
+                const chart = await calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
                 const model = localStorage.getItem('sra_gemini_model') || 'gemini-1.5-flash';
                 
                 const systemPrompt = `
@@ -1045,143 +1046,6 @@ STRICT CONVERSATIONAL RULES:
             const min = Math.floor(minFull);
             const sec = Math.floor((minFull - min) * 60);
             return `${deg}°${min < 10 ? '0' : ''}${min}'${sec < 10 ? '0' : ''}${sec}"`;
-        }
-
-        function getJD(year, month, day, hourUTC) {
-            if (month <= 2) { year -= 1; month += 12; }
-            const A = Math.floor(year / 100);
-            const B = 2 - A + Math.floor(A / 4);
-            return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5 + hourUTC / 24.0;
-        }
-
-        function solveKepler(M, e) {
-            let E = M;
-            for (let i = 0; i < 15; i++) {
-                const dE = (E - e * Math.sin(E) - M) / (1.0 - e * Math.cos(E));
-                E -= dE;
-                if (Math.abs(dE) < 1e-7) break;
-            }
-            return E;
-        }
-
-        const ORBITAL_DATA = {
-            Earth: { a: [1.00000261, 0.00000562], e: [0.01671123, -0.00004392], I: [0.00001531, -0.01294668], L: [100.46457166, 35999.37244981], w: [102.93768193, 0.32327364], node: [0.0, 0.0] },
-            Mercury: { a: [0.38709927, 0.00000037], e: [0.20563593, 0.00001906], I: [7.00497902, -0.00594749], L: [252.25032350, 149472.67411175], w: [77.45779628, 0.16047689], node: [48.33076593, -0.12534081] },
-            Venus: { a: [0.72333566, 0.00000390], e: [0.00677672, -0.00004107], I: [3.39467605, -0.00078890], L: [181.97909950, 58517.81538729], w: [131.60246718, 0.00268329], node: [76.67984255, -0.27769418] },
-            Mars: { a: [1.52371034, 0.00001847], e: [0.09339410, 0.00007882], I: [1.84969142, -0.00813131], L: [-4.55343205, 19140.30268499], w: [-20.69234015, 0.44441088], node: [49.55953891, -0.29257343] },
-            Jupiter: { a: [5.20288700, -0.00011607], e: [0.04838624, -0.00013253], I: [1.30439695, -0.00183714], L: [34.39644051, 3034.74612775], w: [14.72847983, 0.21252668], node: [100.47390909, 0.20469106] },
-            Saturn: { a: [9.53667594, -0.00125060], e: [0.05386179, -0.00050991], I: [2.48599187, 0.00193609], L: [49.95424423, 1222.49362201], w: [92.59887831, -0.41897216], node: [113.66242448, -0.28867794] }
-        };
-
-        function getPlanetHeliocentric(elements, T) {
-            const a = elements.a[0] + elements.a[1] * T;
-            const e = elements.e[0] + elements.e[1] * T;
-            const I = (elements.I[0] + elements.I[1] * T) * DEG;
-            const L = norm360(elements.L[0] + elements.L[1] * T) * DEG;
-            const longPeri = norm360(elements.w[0] + elements.w[1] * T) * DEG;
-            const node = norm360(elements.node[0] + elements.node[1] * T) * DEG;
-
-            const M = norm360((L - longPeri) * RAD) * DEG;
-            const E = solveKepler(M, e);
-
-            const x_orb = a * (Math.cos(E) - e);
-            const y_orb = a * Math.sqrt(1.0 - e * e) * Math.sin(E);
-
-            const periNode = longPeri - node;
-            const cosNode = Math.cos(node), sinNode = Math.sin(node);
-            const cosPeri = Math.cos(periNode), sinPeri = Math.sin(periNode);
-            const cosI = Math.cos(I);
-
-            const Px = cosNode * cosPeri - sinNode * sinPeri * cosI;
-            const Py = sinNode * cosPeri + cosNode * sinPeri * cosI;
-            const Qx = -cosNode * sinPeri - sinNode * cosPeri * cosI;
-            const Qy = -sinNode * sinPeri + cosNode * cosPeri * cosI;
-
-            return {
-                x: x_orb * Px + y_orb * Qx,
-                y: x_orb * Py + y_orb * Qy,
-                z: 0.0
-            };
-        }
-
-        function getTrueLahiriAyanamsa(T) {
-            const meanAyanamsa = 23.853056 + 1.39604167 * T + 0.0003074 * T * T;
-            const omega = norm360(125.04452 - 1934.136261 * T) * DEG;
-            const L0 = norm360(280.4665 + 36000.7698 * T) * DEG;
-            const nutationInLong = (-17.20 * Math.sin(omega) - 1.32 * Math.sin(2 * L0)) / 3600.0;
-            return meanAyanamsa + nutationInLong;
-        }
-
-        function computeMeeusMoonLongitude(T) {
-            const L_prime = norm360(218.3164477 + 481267.88123421 * T);
-            const D = norm360(297.8501921 + 445267.1114034 * T) * DEG;
-            const M = norm360(357.5291092 + 35999.0502909 * T) * DEG;
-            const M_prime = norm360(134.9633964 + 477198.8675055 * T) * DEG;
-            const F = norm360(93.2720950 + 483202.0175233 * T) * DEG;
-
-            let SumL = 6288774 * Math.sin(M_prime)
-                + 1274027 * Math.sin(2 * D - M_prime)
-                + 658314 * Math.sin(2 * D)
-                + 213618 * Math.sin(2 * M_prime)
-                - 185116 * Math.sin(M)
-                - 114332 * Math.sin(2 * F)
-                + 58793 * Math.sin(2 * D - 2 * M_prime)
-                + 57066 * Math.sin(2 * D - M - M_prime)
-                + 53322 * Math.sin(2 * D + M_prime)
-                + 45758 * Math.sin(2 * D - M);
-
-            const tropMoon = norm360(L_prime + SumL / 1000000.0);
-            return norm360(tropMoon - 0.71);
-        }
-
-        function checkTrueRetrograde(planetName, T, ayanamsa) {
-            if (["Sun", "Moon", "Rahu", "Ketu"].includes(planetName)) return false;
-            const dt = 0.0001;
-            const T2 = T + dt;
-            const ayanamsa2 = getTrueLahiriAyanamsa(T2);
-            const pos1 = computeSiderealGeocentricLongitude(T, ayanamsa);
-            const pos2 = computeSiderealGeocentricLongitude(T2, ayanamsa2);
-            let diff = pos2[planetName] - pos1[planetName];
-            if (diff > 180) diff -= 360;
-            if (diff < -180) diff += 360;
-            return diff < 0;
-        }
-
-        function computeSiderealGeocentricLongitude(T, ayanamsa) {
-            const earth = getPlanetHeliocentric(ORBITAL_DATA.Earth, T);
-            const planets = {};
-            const names = ["Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
-
-            names.forEach(p => {
-                const pos = getPlanetHeliocentric(ORBITAL_DATA[p], T);
-                const dx = pos.x - earth.x;
-                const dy = pos.y - earth.y;
-                let tropical = Math.atan2(dy, dx) * RAD;
-                planets[p] = norm360(tropical - ayanamsa);
-            });
-
-            const sunTrop = norm360(Math.atan2(-earth.y, -earth.x) * RAD);
-            planets.Sun = norm360(sunTrop - ayanamsa);
-
-            const moonTrop = computeMeeusMoonLongitude(T);
-            planets.Moon = norm360(moonTrop - ayanamsa);
-
-            const omega = norm360(125.04452 - 1934.136261 * T);
-            planets.Rahu = norm360(omega - ayanamsa);
-            planets.Ketu = norm360(planets.Rahu + 180);
-
-            return planets;
-        }
-
-        function computeLagnaFromRAMC(RAMC, lat, eps, ayanamsa) {
-            const RAMC_rad = RAMC * DEG;
-            const eps_rad = eps * DEG;
-            const lat_rad = lat * DEG;
-
-            const y = Math.cos(RAMC_rad);
-            const x = -Math.sin(RAMC_rad) * Math.cos(eps_rad) - Math.tan(lat_rad) * Math.sin(eps_rad);
-            const ascTrop = norm360(Math.atan2(y, x) * RAD);
-            return norm360(ascTrop - ayanamsa);
         }
 
         // DIVISIONAL CHARTS (D7, D9, D10, D12)
@@ -1467,64 +1331,57 @@ STRICT CONVERSATIONAL RULES:
             };
         }
 
-        function computeLiveGocharAnalysis(natalMoonSid) {
-            const now = new Date();
-            const y = now.getUTCFullYear(), m = now.getUTCMonth() + 1, d = now.getUTCDate();
-            const utcHrs = now.getUTCHours() + now.getUTCMinutes() / 60.0;
-
-            const JD = getJD(y, m, d, utcHrs);
-            const T = (JD - 2451545.0) / 36525.0;
-            const ayanamsa = getTrueLahiriAyanamsa(T);
-            const nowPos = computeSiderealGeocentricLongitude(T, ayanamsa);
-
-            const natalMoonRashiIdx = Math.floor(natalMoonSid / 30);
-            const saturnRashiIdx = Math.floor(nowPos.Saturn / 30);
-            const jupiterRashiIdx = Math.floor(nowPos.Jupiter / 30);
-
-            const satFromMoon = (saturnRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
+        function computeLiveGocharAnalysis(natalMoonSid, chartData) {
             let saturnStatus = "";
-            if (satFromMoon === 12 || satFromMoon === 1 || satFromMoon === 2) {
-                saturnStatus = `साढ़े साती (${satFromMoon === 12 ? 'प्रथम चरण' : satFromMoon === 1 ? 'द्वितीय चरण' : 'तृतीय चरण'})`;
-            } else if (satFromMoon === 4 || satFromMoon === 8) {
-                saturnStatus = `शनि ढैय्या (${satFromMoon}वें भाव में)`;
-            } else {
-                saturnStatus = `शनि गोचर चंद्र से ${satFromMoon}वें भाव में (अनुकूल)`;
+            let jupiterStatus = "";
+            if (chartData && chartData.transits) {
+                const satObj = chartData.transits.planets.find(p => p.id === 'Saturn');
+                const jupObj = chartData.transits.planets.find(p => p.id === 'Jupiter');
+                const natalMoonRashiIdx = Math.floor(natalMoonSid / 30);
+                const saturnRashiIdx = satObj ? satObj.sign : 10;
+                const jupiterRashiIdx = jupObj ? jupObj.sign : 1;
+
+                const satFromMoon = (saturnRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
+                if (satFromMoon === 12 || satFromMoon === 1 || satFromMoon === 2) {
+                    saturnStatus = `साढ़े साती (${satFromMoon === 12 ? 'प्रथम चरण' : satFromMoon === 1 ? 'द्वितीय चरण' : 'तृतीय चरण'})`;
+                } else if (satFromMoon === 4 || satFromMoon === 8) {
+                    saturnStatus = `शनि ढैय्या (${satFromMoon}वें भाव में)`;
+                } else {
+                    saturnStatus = `शनि गोचर चंद्र से ${satFromMoon}वें भाव में (अनुकूल)`;
+                }
+
+                const jupFromMoon = (jupiterRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
+                const isJupGood = [1, 2, 5, 7, 9, 11].includes(jupFromMoon);
+                jupiterStatus = `बृहस्पति गोचर चंद्र से ${jupFromMoon}वें भाव (${RASHIS_PLAIN_HINDI[jupiterRashiIdx]}) में — ${isJupGood ? 'अत्यंत शुभ व भाग्योदय कारक' : 'सामान्य/मध्यम'}`;
             }
-
-            const jupFromMoon = (jupiterRashiIdx - natalMoonRashiIdx + 12) % 12 + 1;
-            const isJupGood = [1, 2, 5, 7, 9, 11].includes(jupFromMoon);
-            const jupiterStatus = `बृहस्पति गोचर चंद्र से ${jupFromMoon}वें भाव (${RASHIS_PLAIN_HINDI[jupiterRashiIdx]}) में — ${isJupGood ? 'अत्यंत शुभ व भाग्योदय कारक' : 'सामान्य/मध्यम'}`;
-
             return { saturnStatus: saturnStatus, jupiterStatus: jupiterStatus };
         }
 
-        function calculateFullAstrologicalChart(dobStr, tobStr, lat, lon) {
+        async function calculateFullAstrologicalChart(dobStr, tobStr, lat, lon) {
+            if (!dobStr || !tobStr) { dobStr = "1998-01-15"; tobStr = "10:30"; }
+
+            const chartData = await window.PatrikaEngineBridge.calculatePatrikaPlanets({
+                date: dobStr,
+                time: tobStr,
+                lat: lat || 25.3176,
+                lon: lon || 82.9739,
+                tz: 5.5
+            });
+
             const rashis = ["मेष (Aries)", "वृषभ (Taurus)", "मिथुन (Gemini)", "कर्क (Cancer)", "सिंह (Leo)", "कन्या (Virgo)", "तुला (Libra)", "वृश्चिक (Scorpio)", "धनु (Sagittarius)", "मकर (Capricorn)", "कुंभ (Aquarius)", "मीन (Pisces)"];
             const nakshatras = ["अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा", "पुनर्वसु", "पुष्य", "अश्लेषा", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा", "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"];
 
-            if (!dobStr || !tobStr) { dobStr = "1998-01-15"; tobStr = "10:30"; }
+            const getPl = (id) => chartData.planets.find(p => p.id === id) || { abs: 0, sign: 0, deg: 0, retro: false };
+            const ascObj = getPl('Lagna');
+            const sunObj = getPl('Sun');
+            const moonObj = getPl('Moon');
 
-            const [year, month, day] = dobStr.split('-').map(Number);
-            const [hh, mm] = tobStr.split(':').map(Number);
-            const birthLocalHrs = hh + (mm || 0) / 60.0;
-            const utcHrs = birthLocalHrs - 5.5;
-
-            const JD = getJD(year, month, day, utcHrs);
-            const T = (JD - 2451545.0) / 36525.0;
-
-            const ayanamsa = getTrueLahiriAyanamsa(T);
-            const eps = 23.439291 - 0.0130042 * T;
-            const pos = computeSiderealGeocentricLongitude(T, ayanamsa);
-
-            const GMST = norm360(280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T);
-            const RAMC = norm360(GMST + (lon || 82.9739));
-            const ascSid = computeLagnaFromRAMC(RAMC, lat || 25.3176, eps, ayanamsa);
-
-            const lagnaRashiIdx = Math.floor(ascSid / 30);
-            const moonSid = pos.Moon;
-            const moonRashiIdx = Math.floor(moonSid / 30);
-            const sunSid = pos.Sun;
-            const sunRashiIdx = Math.floor(sunSid / 30);
+            const ascSid = ascObj.abs;
+            const lagnaRashiIdx = ascObj.sign;
+            const moonSid = moonObj.abs;
+            const moonRashiIdx = moonObj.sign;
+            const sunSid = sunObj.abs;
+            const sunRashiIdx = sunObj.sign;
 
             const nakIdx = Math.floor(moonSid / (360 / 27));
             const pada = Math.floor((moonSid % (360 / 27)) / (360 / 108)) + 1;
@@ -1546,14 +1403,15 @@ STRICT CONVERSATIONAL RULES:
             ];
 
             pNames.forEach((pn, i) => {
-                const degVal = pos[pn];
-                const rIdx = Math.floor(degVal / 30);
+                const pl = getPl(pn);
+                const degVal = pl.abs;
+                const rIdx = pl.sign;
                 const d7 = computeD7Saptamsha(degVal);
                 const d9 = computeD9Navamsha(degVal);
                 const d10 = computeD10Dasamsha(degVal);
                 const d12 = computeD12Dwadasamsha(degVal);
                 const isCombust = checkCombustion(pHindi[i], degVal, sunSid);
-                const isVaki = checkTrueRetrograde(pn, T, ayanamsa);
+                const isVaki = pl.retro;
 
                 if (d9.isVargottama) vargottamaPlanets.push(`${pIcons[i]} ${pHindi[i]}`);
 
@@ -1575,9 +1433,11 @@ STRICT CONVERSATIONAL RULES:
 
             const jaiminiKarakas = computeJaiminiKarakas(planetList);
             const houseLords = getHouseLords(lagnaRashiIdx);
+            const [year, month, day] = dobStr.split('-').map(Number);
+            const [hh, mm] = tobStr.split(':').map(Number);
             const birthDateObj = new Date(year, month - 1, day, hh || 12, mm || 0);
             const dashaInfo = calculateVimshottariDasha(moonSid, birthDateObj);
-            const gocharInfo = computeLiveGocharAnalysis(moonSid);
+            const gocharInfo = computeLiveGocharAnalysis(moonSid, chartData);
             const savPoints = computeAshtakvargaPoints({ lagnaRashiIdx });
             const shadbala = computeShadbalaMetrics();
 
@@ -1591,7 +1451,7 @@ STRICT CONVERSATIONAL RULES:
                 sunDegFormatted: formatDegMinSec(sunSid),
                 nakshatra: nakshatras[nakIdx],
                 pada: `पद ${pada}`,
-                ayanamsaFormatted: `${Math.floor(ayanamsa)}°${Math.floor((ayanamsa % 1) * 60)}'`,
+                ayanamsaFormatted: `${Math.floor(chartData.ayanamsa || 24)}°${Math.floor(((chartData.ayanamsa || 24) % 1) * 60)}'`,
                 planetList: planetList,
                 jaiminiKarakas: jaiminiKarakas,
                 vargottamaPlanets: vargottamaPlanets,

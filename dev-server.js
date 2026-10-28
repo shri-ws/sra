@@ -121,6 +121,44 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // 1.5. REVERSE PROXY TO SRA PARASHARA CANONICAL ENGINE (FastAPI / Swiss Ephemeris on :8000)
+  if (
+    urlPath === '/calculate' ||
+    urlPath.startsWith('/calculate/') ||
+    urlPath.startsWith('/calculate?') ||
+    urlPath === '/timezone' ||
+    urlPath.startsWith('/timezone?') ||
+    urlPath === '/transit' ||
+    urlPath.startsWith('/transit?') ||
+    urlPath.startsWith('/api/')
+  ) {
+    const proxyReq = http.request({
+      host: '127.0.0.1',
+      port: 8000,
+      path: req.url,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: '127.0.0.1:8000'
+      }
+    }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (err) => {
+      res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({
+        status: 'error',
+        error: 'SRA Parashara Canonical Microservice (:8000) is offline or unreachable.',
+        detail: err.message
+      }));
+    });
+
+    req.pipe(proxyReq);
+    return;
+  }
+
   // 2. STATIC FILE RESOLUTION
   let safePath = path.normalize(decodeURIComponent(urlPath)).replace(/^(\.\.[\/\\])+/, '');
   if (safePath === '/' || safePath === '\\') {

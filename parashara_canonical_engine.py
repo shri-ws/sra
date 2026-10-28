@@ -15,10 +15,9 @@ Features:
   using CALC_RISE | BIT_DISC_CENTER.
 - Special Lagnas: Hora Lagna (HL) and Ghati Lagna (GL) derived deterministically
   from exact Ishtakaal without drift.
-- House System: Vedic Whole Sign / Equal Bhava (House 1 = Entire rising sign, flag 'E').
-  Immune to high-latitude polar coordinate collapse (>66.5° N/S).
-- Lunar Nodes: True Node (TRUE_NODE) and antipodal Ketu ((Rahu + 180°) % 360°).
-- Vimshottari Dasa: Exact Tropical Solar Year standard (365.2425 days / year).
+- House System: Sripati Bhava-Chalit (Porphyry quadrant trisection flag 'O' with Sandhis as midpoints).
+- Lunar Nodes: Mean Node (MEAN_NODE) and antipodal Ketu ((Rahu + 180°) % 360°).
+- Vimshottari Dasa: Julian Solar Year standard (365.25 days / year).
 - Shodashavarga (D1 to D60), Ashtakavarga (337 points + reductions), Shadbala,
   Special Lagnas, and Arudha Padas.
 - Microservice: Ultra-fast FastAPI REST API + direct Python library import.
@@ -32,6 +31,13 @@ import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
+
+try:
+    from timezonefinder import TimezoneFinder
+    TF_ENGINE = TimezoneFinder()
+except Exception:
+    TF_ENGINE = None
 
 import swisseph as swe
 from fastapi import FastAPI, Query, HTTPException, Request
@@ -71,7 +77,7 @@ PLANET_IDS = {
     "Jupiter": swe.JUPITER,
     "Venus": swe.VENUS,
     "Saturn": swe.SATURN,
-    "Rahu": swe.TRUE_NODE
+    "Rahu": swe.MEAN_NODE
 }
 
 PLANET_NAMES_HI = {
@@ -111,7 +117,7 @@ DASHA_YEARS = {
     "Saturn": 19.0,
     "Mercury": 17.0
 }
-SOLAR_YEAR_DAYS = 365.2425  # Exact Tropical Solar Year Standard
+SOLAR_YEAR_DAYS = 365.25  # Canonical Julian Solar Year Standard (365.25 days / year)
 
 # Exaltation & Debilitation Degrees
 EXALTATION_POINTS = {
@@ -188,6 +194,62 @@ def parse_date_time(
     return y, m, d, hh, mm, ss
 
 
+def resolve_timezone_and_offset(
+    lat: float,
+    lon: float,
+    year: int,
+    month: int,
+    day: int,
+    hour: int,
+    minute: int,
+    second: float = 0.0,
+    user_tz: Optional[float] = None
+) -> tuple[str, float, str]:
+    """
+    Deterministically resolves IANA timezone from lat/lon via TimezoneFinder,
+    and exact historical/contemporary UTC offset via zoneinfo.
+    Returns (tz_name, offset_hours, display_label).
+    If user explicitly provided user_tz, that offset is respected.
+    """
+    tz_name = "Asia/Kolkata"
+    if TF_ENGINE is not None:
+        try:
+            found = TF_ENGINE.timezone_at(lat=lat, lng=lon)
+            if found:
+                tz_name = found
+            elif 6.0 <= lat <= 37.0 and 68.0 <= lon <= 97.0:
+                tz_name = "Asia/Kolkata"
+            else:
+                tz_name = "UTC"
+        except Exception:
+            tz_name = "Asia/Kolkata" if (6.0 <= lat <= 37.0 and 68.0 <= lon <= 97.0) else "UTC"
+
+    offset_hours = 5.5
+    try:
+        zi = ZoneInfo(tz_name)
+        hh = min(max(hour, 0), 23)
+        mm = min(max(minute, 0), 59)
+        sec_int = int(min(max(second, 0.0), 59.0))
+        dt = datetime(year, month, day, hh, mm, sec_int, tzinfo=zi)
+        offset_hours = dt.utcoffset().total_seconds() / 3600.0
+    except Exception:
+        if user_tz is not None:
+            offset_hours = float(user_tz)
+        else:
+            offset_hours = 5.5 if tz_name == "Asia/Kolkata" else round((lon / 15.0) * 2.0) / 2.0
+
+    if user_tz is not None:
+        offset_hours = float(user_tz)
+
+    sign = "+" if offset_hours >= 0 else "-"
+    abs_h = abs(offset_hours)
+    h_int = int(abs_h)
+    m_int = int(round((abs_h - h_int) * 60))
+    display_label = f"UTC{sign}{h_int}:{m_int:02d} (इस तारीख पर)"
+
+    return tz_name, offset_hours, display_label
+
+
 # =============================================================================
 # 3. CANONICAL ASTRONOMICAL CORE (NASA JPL SWISS EPHEMERIS)
 # =============================================================================
@@ -207,10 +269,10 @@ def calculate_canonical_astronomy(
     Computes absolute deterministic coordinates according to Parashara canon:
     - True Chitra Paksha Ayanamsa (Mode 27 default, Spica = 180°00'00.000")
     - 100% Geocentric Sidereal Frame (<0.001" precision)
-    - Apparent Refracted Semi-Diameter Sunrise (h0 = -50')
+    - Apparent Refracted Semi-Diameter Sunrise & Sunset (h0 = -50')
     - Deterministic Ishtakaal (Ghati/Pala/Vipala) & Special Lagnas (Hora/Ghati)
-    - Whole Sign Bhava Cusps immune to polar coordinate collapse
-    - True Node Rahu and antipodal Ketu
+    - Sripati Bhava-Chalit (Porphyry cusps 'O' with Sandhis as midpoints)
+    - Mean Node Rahu and antipodal Ketu
     """
     # 1. Decimal UTC Hours & Julian Day (UT)
     local_hours = hour + minute / 60.0 + second / 3600.0
@@ -278,9 +340,9 @@ def calculate_canonical_astronomy(
     planets.append(ketu_data)
     planet_map["Ketu"] = ketu_data
 
-    # 5. Ascendant (Lagna) & Whole Sign Houses (Flag 'E' - Equal/Whole Sign)
-    # High-latitude safe: Equal house system 'E' never collapses above 66.5°
-    houses, ascmc = swe.houses_ex(jd_ut, lat, lon, b'E', swe.FLG_SIDEREAL)
+    # 5. Ascendant (Lagna) & Sripati Bhava-Chalit (Flag 'O' - Porphyry)
+    # Porphyry cusps (houses[0..11]) are the exact Bhava-Madhyas of Sripati system
+    houses, ascmc = swe.houses_ex(jd_ut, lat, lon, b'O', swe.FLG_SIDEREAL)
     lagna_abs = norm360(ascmc[0])
     mc_abs = norm360(ascmc[1])
     lagna_sign = int(lagna_abs // 30)
@@ -303,40 +365,77 @@ def calculate_canonical_astronomy(
     planets.insert(0, lagna_data)
     planet_map["Lagna"] = lagna_data
 
-    # Assign House numbers (Whole Sign: House 1 = Entire Rising Sign)
-    for p in planets:
-        p["rasiHouse"] = (p["sign"] - lagna_sign + 12) % 12 + 1
-        p["chalitHouse"] = p["rasiHouse"]
+    # 6. Sripati Bhava-Chalit: Cusps = Bhava Madhyas, Sandhis = Midpoints between consecutive cusps
+    sripati_bhavas = []
+    for h in range(12):
+        prev_h = (h - 1 + 12) % 12
+        next_h = (h + 1) % 12
+        mid_cur = norm360(houses[h])
+        mid_prev = norm360(houses[prev_h])
+        mid_next = norm360(houses[next_h])
 
-    # 6. Build 12 Bhavas (Whole Sign & Equal Cusps)
-    bhavas = []
-    for h in range(1, 13):
-        h_sign = (lagna_sign + (h - 1)) % 12
-        cusp_equal = norm360(houses[h - 1])
-        bhavas.append({
-            "house": h,
-            "sign": h_sign,
-            "rashi": RASHI_NAMES_HI[h_sign],
-            "lord": RASHI_LORDS[h_sign],
-            "start": float(h_sign * 30),
-            "mid": float(h_sign * 30 + 15),
-            "end": float((h_sign + 1) * 30),
-            "equalCusp": cusp_equal
+        arc_prev = norm360(mid_cur - mid_prev)
+        sandhi1 = norm360(mid_prev + arc_prev / 2.0)
+
+        arc_next = norm360(mid_next - mid_cur)
+        sandhi2 = norm360(mid_cur + arc_next / 2.0)
+
+        s_sign = int(mid_cur // 30)
+        sripati_bhavas.append({
+            "house": h + 1,
+            "mid": mid_cur,
+            "sandhi1": sandhi1,
+            "sandhi2": sandhi2,
+            "sign": s_sign,
+            "rashi": RASHI_NAMES_HI[s_sign],
+            "lord": RASHI_LORDS[s_sign],
+            "midSign": s_sign,
+            "midDeg": mid_cur % 30.0,
+            "sandhi1Sign": int(sandhi1 // 30),
+            "sandhi1Deg": sandhi1 % 30.0,
+            "sandhi2Sign": int(sandhi2 // 30),
+            "sandhi2Deg": sandhi2 % 30.0,
+            "dms": dms_str(mid_cur % 30.0)
         })
 
-    # 7. Sunrise & Ishtakaal Model (दृश्य बिम्बार्धोदय: h0 = -50' = -0.833333°)
-    # Refraction = 34', Semi-diameter = 16'
-    # Flags: CALC_RISE | BIT_DISC_CENTER with standard atmosphere
-    rsmi_flags = swe.CALC_RISE | swe.BIT_DISC_CENTER
+    # Assign Rasi and Chalit House numbers + Sandhi alert for all planets
+    for p in planets:
+        p["rasiHouse"] = (p["sign"] - lagna_sign + 12) % 12 + 1
+        p_abs = p["abs"]
+        chalit_h = 1
+        for b in sripati_bhavas:
+            s1 = b["sandhi1"]
+            s2 = b["sandhi2"]
+            if s1 < s2:
+                if s1 <= p_abs < s2:
+                    chalit_h = b["house"]
+                    break
+            else:
+                if p_abs >= s1 or p_abs < s2:
+                    chalit_h = b["house"]
+                    break
+        p["chalitHouse"] = chalit_h
+
+        # Sandhi proximity (within 1.5° of either Sandhi boundary)
+        is_sandhi = False
+        for b in sripati_bhavas:
+            d1 = abs((p_abs - b["sandhi1"] + 180.0) % 360.0 - 180.0)
+            d2 = abs((p_abs - b["sandhi2"] + 180.0) % 360.0 - 180.0)
+            if d1 <= 1.5 or d2 <= 1.5:
+                is_sandhi = True
+                break
+        p["isSandhi"] = is_sandhi
+
+    # 7. Sunrise & Sunset Model (BIT_DISC_CENTER with standard atmospheric refraction)
+    rsmi_rise = swe.CALC_RISE | swe.BIT_DISC_CENTER
+    rsmi_set = swe.CALC_SET | swe.BIT_DISC_CENTER
     geopos = (lon, lat, 0.0)
 
-    # Search for sunrise of day-of-birth and previous-day to handle pre-sunrise births
     jd_local_midnight = swe.julday(year, month, day, 0.0 - tz, swe.GREG_CAL)
     ret_curr, tret_curr = swe.rise_trans(
-        jd_local_midnight, swe.SUN, rsmi_flags, geopos,
+        jd_local_midnight, swe.SUN, rsmi_rise, geopos,
         atpress=1013.25, attemp=15.0, flags=swe.FLG_SWIEPH
     )
-    # If circumpolar (polar day / polar night, ret != 0), fallback to mean 06:00 AM local time
     if ret_curr == 0 and tret_curr[0] > 0.0:
         sunrise_curr_jd = tret_curr[0]
         is_circumpolar = False
@@ -344,8 +443,17 @@ def calculate_canonical_astronomy(
         sunrise_curr_jd = jd_local_midnight + (6.0 - tz) / 24.0
         is_circumpolar = True
 
+    ret_set, tret_set = swe.rise_trans(
+        jd_local_midnight, swe.SUN, rsmi_set, geopos,
+        atpress=1013.25, attemp=15.0, flags=swe.FLG_SWIEPH
+    )
+    if ret_set == 0 and tret_set[0] > 0.0:
+        sunset_curr_jd = tret_set[0]
+    else:
+        sunset_curr_jd = jd_local_midnight + (18.0 - tz) / 24.0
+
     ret_prev, tret_prev = swe.rise_trans(
-        jd_local_midnight - 1.0, swe.SUN, rsmi_flags, geopos,
+        jd_local_midnight - 1.0, swe.SUN, rsmi_rise, geopos,
         atpress=1013.25, attemp=15.0, flags=swe.FLG_SWIEPH
     )
     if ret_prev == 0 and tret_prev[0] > 0.0:
@@ -369,20 +477,30 @@ def calculate_canonical_astronomy(
     ishta_pala = int(rem_pala)
     ishta_vipala = (rem_pala - ishta_pala) * 60.0
 
-    # Local Sunrise Time Representation
-    sunrise_utc_h = (effective_sunrise_jd - math.floor(effective_sunrise_jd - 0.5) - 0.5) * 24.0
-    sunrise_local_h = (sunrise_utc_h + tz) % 24.0
-    s_h = int(sunrise_local_h)
-    s_m = int((sunrise_local_h - s_h) * 60.0)
-    s_s = int(((sunrise_local_h - s_h) * 60.0 - s_m) * 60.0)
-    sunrise_time_str = f"{s_h:02d}:{s_m:02d}:{s_s:02d}"
+    # Local Sunrise & Sunset Times
+    def jd_to_local_time(jd_val: float, tz_offset: float) -> tuple[float, str]:
+        utc_h = (jd_val - math.floor(jd_val - 0.5) - 0.5) * 24.0
+        local_h = (utc_h + tz_offset) % 24.0
+        hh = int(local_h)
+        mm = int((local_h - hh) * 60.0)
+        ss = int(((local_h - hh) * 60.0 - mm) * 60.0)
+        return local_h, f"{hh:02d}:{mm:02d}:{ss:02d}"
+
+    sunrise_local_hrs, sunrise_time_str = jd_to_local_time(effective_sunrise_jd, tz)
+    sunset_local_hrs, sunset_time_str = jd_to_local_time(sunset_curr_jd, tz)
+
+    dinamana_hrs = (sunset_curr_jd - sunrise_curr_jd) * 24.0
+    if dinamana_hrs < 0:
+        dinamana_hrs += 24.0
+    ratrimana_hrs = 24.0 - dinamana_hrs
+    is_day_birth = (effective_sunrise_jd <= jd_ut < sunset_curr_jd)
 
     # 8. Special Lagnas Derived Deterministically From Ishtakaal
-    # Calculate Sun's longitude at the exact moment of effective sunrise
     sun_rise_res, _ = swe.calc_ut(effective_sunrise_jd, swe.SUN, core_flags)
     sun_sunrise_lon = norm360(sun_rise_res[0])
+    sun_abs = planet_map["Sun"]["abs"]
+    moon_abs = planet_map["Moon"]["abs"]
 
-    # Canonical BPHS Rules:
     # Hora Lagna (HL): 1 Rashi per Hora (2.5 ghatis = 30° -> 12° per ghati)
     hora_lagna_abs = norm360(sun_sunrise_lon + ishtakaal_ghatis_total * 12.0)
     hl_sign = int(hora_lagna_abs // 30)
@@ -396,11 +514,18 @@ def calculate_canonical_astronomy(
     bl_sign = int(bhava_lagna_abs // 30)
 
     # Sree Lagna (SL): Moon longitude + (Moon speed / day) * (fraction of nakshatra)
-    moon_abs = planet_map["Moon"]["abs"]
-    nakshatra_idx = int(moon_abs / (40.0 / 3.0))
-    nakshatra_deg = moon_abs % (40.0 / 3.0)
     sree_lagna_abs = norm360(lagna_abs + (moon_abs * 12.0))
     sl_sign = int(sree_lagna_abs // 30)
+
+    # Pranapada Lagna (BPHS Ch. 3)
+    prana_base = (ishtakaal_ghatis_total * 60.0) / 15.0 * 30.0
+    sun_sign_idx = int(sun_abs // 30)
+    if sun_sign_idx % 3 == 1:
+        prana_base += 240.0
+    elif sun_sign_idx % 3 == 2:
+        prana_base += 120.0
+    pranapada_abs = norm360(sun_abs + prana_base)
+    pranapada_sign = int(pranapada_abs // 30)
 
     # Indu Lagna: (9th Lord Kala + Moon 9th Lord Kala) counted from Moon
     KALA_VALUES = {"Sun": 30, "Moon": 16, "Mars": 6, "Mercury": 8, "Jupiter": 10, "Venus": 12, "Saturn": 1}
@@ -419,9 +544,9 @@ def calculate_canonical_astronomy(
         lord_sign = planet_map[lord_name]["sign"]
         distance = (lord_sign - ref_sign + 12) % 12
         if distance == 0:
-            arudha = (ref_sign + 9) % 12  # Canonical exception for same sign
+            arudha = (ref_sign + 9) % 12
         elif distance == 6:
-            arudha = (ref_sign + 9) % 12  # Canonical exception for 7th house
+            arudha = (ref_sign + 9) % 12
         else:
             arudha = (lord_sign + distance) % 12
         return arudha
@@ -458,6 +583,15 @@ def calculate_canonical_astronomy(
             "dms": dms_str(bhava_lagna_abs),
             "house": (bl_sign - lagna_sign + 12) % 12 + 1
         },
+        "Pranapada": {
+            "name": "प्राणपद लग्न (Pranapada)",
+            "abs": pranapada_abs,
+            "sign": pranapada_sign,
+            "rashi": RASHI_NAMES_HI[pranapada_sign],
+            "deg": pranapada_abs % 30.0,
+            "dms": dms_str(pranapada_abs),
+            "house": (pranapada_sign - lagna_sign + 12) % 12 + 1
+        },
         "SreeLagna": {
             "name": "श्री लग्न (SL)",
             "abs": sree_lagna_abs,
@@ -487,7 +621,128 @@ def calculate_canonical_astronomy(
         }
     }
 
-    # 9. Spica Fixstar Verification (Precision Health Anchor)
+    # 9. BPHS Aprakasha Upagrahas & Kalavelas (BPHS Ch. 3)
+    dhooma = norm360(sun_abs + 133.0 + 20.0 / 60.0)
+    vyatipata = norm360(360.0 - dhooma)
+    parivesha = norm360(vyatipata + 180.0)
+    indrachapa = norm360(360.0 - parivesha)
+    upaketu = norm360(indrachapa + 16.0 + 40.0 / 60.0)
+
+    # Gulika & Yamaghantaka
+    weekday_idx = (int(effective_sunrise_jd + 0.5 + tz / 24.0) + 1) % 7
+    portion_span = (dinamana_hrs / 8.0) if is_day_birth else (ratrimana_hrs / 8.0)
+    DAY_GULIKA = [6, 5, 4, 3, 2, 1, 0]
+    NIGHT_GULIKA = [2, 1, 0, 6, 5, 4, 3]
+    gulika_part = DAY_GULIKA[weekday_idx] if is_day_birth else NIGHT_GULIKA[weekday_idx]
+    gulika_elapsed = gulika_part * portion_span
+    gulika_base_jd = effective_sunrise_jd if is_day_birth else sunset_curr_jd
+    gulika_event_jd = gulika_base_jd + gulika_elapsed / 24.0
+    _, gulika_ascmc = swe.houses_ex(gulika_event_jd, lat, lon, b'O', swe.FLG_SIDEREAL)
+    gulika_abs = norm360(gulika_ascmc[0])
+
+    mandi_event_jd = gulika_base_jd + (gulika_elapsed + portion_span / 2.0) / 24.0
+    _, mandi_ascmc = swe.houses_ex(mandi_event_jd, lat, lon, b'O', swe.FLG_SIDEREAL)
+    mandi_abs = norm360(mandi_ascmc[0])
+
+    DAY_YAMA = [4, 3, 2, 1, 0, 6, 5]
+    NIGHT_YAMA = [0, 6, 5, 4, 3, 2, 1]
+    yama_part = DAY_YAMA[weekday_idx] if is_day_birth else NIGHT_YAMA[weekday_idx]
+    yama_elapsed = yama_part * portion_span
+    yama_base_jd = effective_sunrise_jd if is_day_birth else sunset_curr_jd
+    yama_event_jd = yama_base_jd + yama_elapsed / 24.0
+    _, yama_ascmc = swe.houses_ex(yama_event_jd, lat, lon, b'O', swe.FLG_SIDEREAL)
+    yamaghantaka_abs = norm360(yama_ascmc[0])
+
+    upagrahas_list = [
+        {"name": "धूम (Dhooma)", "abs": dhooma, "sign": int(dhooma // 30), "deg": dhooma % 30.0},
+        {"name": "व्यतीपात (Vyatipata)", "abs": vyatipata, "sign": int(vyatipata // 30), "deg": vyatipata % 30.0},
+        {"name": "परिवेष (Parivesha)", "abs": parivesha, "sign": int(parivesha // 30), "deg": parivesha % 30.0},
+        {"name": "इन्द्रचाप (Indrachapa)", "abs": indrachapa, "sign": int(indrachapa // 30), "deg": indrachapa % 30.0},
+        {"name": "उपकेतु (Upaketu)", "abs": upaketu, "sign": int(upaketu // 30), "deg": upaketu % 30.0},
+        {"name": "गुलिक (Gulika - आरंभ लग्न)", "abs": gulika_abs, "sign": int(gulika_abs // 30), "deg": gulika_abs % 30.0},
+        {"name": "मांदि (Mandi - मध्य लग्न)", "abs": mandi_abs, "sign": int(mandi_abs // 30), "deg": mandi_abs % 30.0},
+        {"name": "यमघण्टक (Yamaghantaka)", "abs": yamaghantaka_abs, "sign": int(yamaghantaka_abs // 30), "deg": yamaghantaka_abs % 30.0}
+    ]
+
+    # 10. Canonical Vedic Panchang (Tithi, Vaar, Nakshatra, Yoga, Karana)
+    tithi_diff = norm360(moon_abs - sun_abs)
+    tithi_val = tithi_diff / 12.0
+    tithi_idx = int(tithi_val)
+    is_shukla = (tithi_idx < 15)
+    tithi_ord = tithi_idx % 15
+    tithi_num = tithi_ord + 1
+    tithi_elapsed_pct = round((tithi_val - tithi_idx) * 100.0, 2)
+    PANCHANG_TITHI_NAMES = [
+        "प्रतिपदा (Pratipada)", "द्वितीया (Dwitiya)", "तृतीया (Tritiya)", "चतुर्थी (Chaturthi)",
+        "पंचमी (Panchami)", "षष्ठी (Shashthi)", "सप्तमी (Saptami)", "अष्टमी (Ashtami)",
+        "नवमी (Navami)", "दशमी (Dashami)", "एकादशी (Ekadashi)", "द्वादशी (Dwadashi)",
+        "त्रयोदशी (Trayodashi)", "चतुर्दशी (Chaturdashi)", "पूर्णिमा (Purnima)"
+    ]
+    tithi_name = ("पूर्णिमा (Purnima)" if is_shukla else "अमावस्या (Amavasya)") if tithi_ord == 14 else PANCHANG_TITHI_NAMES[tithi_ord]
+
+    nak_span = 40.0 / 3.0
+    nak_idx = int(moon_abs / nak_span) % 27
+    nak_pos = moon_abs % nak_span
+    pada = int(nak_pos / (nak_span / 4.0)) + 1
+    nak_elapsed_pct = round((nak_pos / nak_span) * 100.0, 2)
+
+    yoga_span = 40.0 / 3.0
+    yoga_sum = norm360(sun_abs + moon_abs)
+    yoga_idx = int(yoga_sum / yoga_span) % 27
+    PANCHANG_YOGA_NAMES = [
+        "विष्कुम्भ", "प्रीति", "आयुष्मान", "सौभाग्य", "शोभन", "अतिगण्ड", "सुकर्मा", "धृति",
+        "शूल", "गण्ड", "वृद्धि", "ध्रुव", "व्याघात", "हर्षण", "वज्र", "सिद्धि",
+        "व्यतीपात", "वरीयान्", "परिघ", "शिव", "सिद्ध", "साध्य", "शुभ", "शुक्ल",
+        "ब्रह्म", "ऐन्द्र", "वैधृति"
+    ]
+    yoga_name = PANCHANG_YOGA_NAMES[yoga_idx]
+
+    karana_val = tithi_diff / 6.0
+    karana_idx = int(karana_val) % 60
+    MOVABLE_KARANAS = ["बव", "बालव", "कौलव", "तैतिल", "गर", "वणिज", "विष्टि (भद्रा)"]
+    if karana_idx == 0:
+        karana_name = "किंस्तुघ्न"
+    elif karana_idx >= 57:
+        fixed_idx = karana_idx - 57
+        FIXED_KARANAS = ["शकुनि", "चतुष्पद", "नाग"]
+        karana_name = FIXED_KARANAS[min(fixed_idx, 2)]
+    else:
+        karana_name = MOVABLE_KARANAS[(karana_idx - 1) % 7]
+
+    WEEKDAYS_HI = ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"]
+    gregorian_day_idx = (int(jd_ut + 0.5 + tz / 24.0) + 1) % 7
+    vedic_day_idx = weekday_idx
+    panchang_data = {
+        "tithi": {
+            "index": tithi_idx,
+            "number": tithi_num,
+            "name": tithi_name,
+            "paksha": "शुक्ल पक्ष" if is_shukla else "कृष्ण पक्ष",
+            "isShukla": is_shukla,
+            "elapsedPercent": tithi_elapsed_pct
+        },
+        "nakshatra": {
+            "index": nak_idx + 1,
+            "name": NAKSHATRA_NAMES_HI[nak_idx],
+            "pada": pada,
+            "elapsedPercent": nak_elapsed_pct
+        },
+        "yoga": {
+            "index": yoga_idx + 1,
+            "name": yoga_name
+        },
+        "karana": {
+            "index": karana_idx + 1,
+            "name": karana_name
+        },
+        "vaar": {
+            "gregorian": WEEKDAYS_HI[gregorian_day_idx],
+            "vedic": WEEKDAYS_HI[vedic_day_idx],
+            "vedicDayIndex": vedic_day_idx
+        }
+    }
+
+    # 11. Spica Fixstar Verification (Precision Health Anchor)
     spica_res, star_name, _ = swe.fixstar_ut("Spica", jd_ut, swe.FLG_SWIEPH | swe.FLG_SIDEREAL)
     spica_lon = spica_res[0]
     spica_error_arcsec = abs(spica_lon - 180.0) * 3600.0
@@ -503,13 +758,24 @@ def calculate_canonical_astronomy(
         "planet_map": planet_map,
         "lagna_sign": lagna_sign,
         "lagna_abs": lagna_abs,
-        "bhavas": bhavas,
+        "bhavas": sripati_bhavas,
+        "sripatiBhavas": sripati_bhavas,
         "sunrise": {
             "effective_jd": effective_sunrise_jd,
+            "sunrise_jd": sunrise_curr_jd,
+            "sunrise_local_hrs": sunrise_local_hrs,
             "sunrise_time_str": sunrise_time_str,
             "is_pre_sunrise": is_pre_sunrise,
             "sun_sunrise_lon": sun_sunrise_lon,
             "sun_sunrise_dms": dms_str(sun_sunrise_lon)
+        },
+        "sunset": {
+            "sunset_jd": sunset_curr_jd,
+            "sunset_local_hrs": sunset_local_hrs,
+            "sunset_time_str": sunset_time_str,
+            "dinamana_hrs": dinamana_hrs,
+            "ratrimana_hrs": ratrimana_hrs,
+            "is_day_birth": is_day_birth
         },
         "ishtakaal": {
             "hours": ishtakaal_hours,
@@ -519,12 +785,14 @@ def calculate_canonical_astronomy(
             "vipala": round(ishta_vipala, 2),
             "formatted": f"{ishta_ghati} घटी {ishta_pala} पल {round(ishta_vipala, 1)} विपल"
         },
-        "special_lagnas": special_lagnas
+        "special_lagnas": special_lagnas,
+        "upagrahas": upagrahas_list,
+        "panchang": panchang_data
     }
 
 
 # =============================================================================
-# 4. VIMSHOTTARI DASA ENGINE (SOLAR YEAR: 365.2425 DAYS)
+# 4. VIMSHOTTARI DASA ENGINE (SOLAR YEAR: 365.25 DAYS)
 # =============================================================================
 def calculate_canonical_vimshottari(
     moon_lon: float,
@@ -533,7 +801,7 @@ def calculate_canonical_vimshottari(
     max_cycles: int = 1
 ) -> Dict[str, Any]:
     """
-    Computes exact Vimshottari Dasa timeline with Tropical Solar Year standard (365.2425 days).
+    Computes exact Vimshottari Dasa timeline with standard Julian Solar Year (365.25 days).
     Eliminates the 360-day Savana drift to ensure long-term mathematical accuracy.
     """
     nakshatra_span = 40.0 / 3.0  # 13° 20' = 13.333333°
@@ -644,7 +912,7 @@ def calculate_canonical_vimshottari(
 
     return {
         "yearLengthDays": SOLAR_YEAR_DAYS,
-        "standard": "Exact Tropical Solar Year (सौर वर्ष-मान: 365.2425 days)",
+        "standard": "Canonical Julian Solar Year (सौर वर्ष-मान: 365.25 days)",
         "birthNakshatra": NAKSHATRA_NAMES_HI[nakshatra_idx],
         "birthNakshatraIndex": nakshatra_idx + 1,
         "janmaDashaLord": start_lord,
@@ -925,6 +1193,19 @@ def calculate_ashtakavarga(planet_map: Dict[str, Any], lagna_sign: int) -> Dict[
     }
 
 
+def calculate_canonical_transits(lat: float = 28.6139, lon: float = 77.2090, ayanamsa_id: int = DEFAULT_AYANAMSA_ID) -> List[Dict[str, Any]]:
+    """
+    Computes current real-time Gochar (Transit) planetary coordinates using Swiss Ephemeris JPL DE431.
+    """
+    now_utc = datetime.now(timezone.utc)
+    astro = calculate_canonical_astronomy(
+        year=now_utc.year, month=now_utc.month, day=now_utc.day,
+        hour=now_utc.hour, minute=now_utc.minute, second=float(now_utc.second),
+        lat=lat, lon=lon, tz=0.0, ayanamsa_id=ayanamsa_id
+    )
+    return astro["planets"]
+
+
 # =============================================================================
 # 7. HIGH-PERFORMANCE UNIFIED CHART CALCULATION
 # =============================================================================
@@ -937,7 +1218,7 @@ def calculate_canonical_chart(
     second: float = 0.0,
     lat: float = 27.5667,
     lon: float = 80.6833,
-    tz: float = 5.5,
+    tz: Optional[float] = None,
     ayanamsa_id: int = DEFAULT_AYANAMSA_ID,
     name: str = "जातक",
     place: str = "जन्म स्थान"
@@ -947,23 +1228,33 @@ def calculate_canonical_chart(
     - Swiss Ephemeris JPL DE431 numerical integration (<0.001" precision)
     - True Chitra Paksha Ayanamsa (Mode 27 default)
     - Geocentric Sidereal Frame
-    - Refracted Semi-Diameter Sunrise & Deterministic Ishtakaal
-    - Special Lagnas (Hora/Ghati/Bhava/Sree/Indu/Arudha/Upapada)
-    - Whole Sign Bhava Cusps
-    - Vimshottari Dasa (365.2425 days/year)
+    - Refracted Semi-Diameter Sunrise & Sunset (h0 = -50')
+    - Deterministic Ishtakaal & Special Lagnas
+    - Sripati Bhava-Chalit (Porphyry cusps 'O' with Sandhis as midpoints)
+    - Mean Node Rahu and antipodal Ketu
+    - Vimshottari Dasa (365.25 days/year)
     - Shodashavarga (D1 to D60)
     - Ashtakavarga (337 points, Reductions, Shodhita Pindas)
+    - Canonical Panchang (Tithi, Vaar, Nakshatra, Yoga, Karana)
+    - BPHS Aprakasha Upagrahas & Kalavelas
     """
     t_start = time.perf_counter()
 
+    # Resolve timezone & UTC offset if tz is not explicitly given or for metadata
+    iana_tz, computed_tz, tz_display = resolve_timezone_and_offset(
+        lat=lat, lon=lon, year=year, month=month, day=day,
+        hour=hour, minute=minute, second=second, user_tz=tz
+    )
+    effective_tz = computed_tz
+
     # 1. Astronomical Engine
     astro = calculate_canonical_astronomy(
-        year, month, day, hour, minute, second, lat, lon, tz, ayanamsa_id
+        year, month, day, hour, minute, second, lat, lon, effective_tz, ayanamsa_id
     )
 
     # 2. Vimshottari Engine
     moon_abs = astro["planet_map"]["Moon"]["abs"]
-    dasa = calculate_canonical_vimshottari(moon_abs, astro["jd_ut"], tz)
+    dasa = calculate_canonical_vimshottari(moon_abs, astro["jd_ut"], effective_tz)
 
     # 3. Shodashavarga
     vargas = calculate_shodashavarga(astro["planet_map"])
@@ -971,12 +1262,16 @@ def calculate_canonical_chart(
     # 4. Ashtakavarga
     ashtaka = calculate_ashtakavarga(astro["planet_map"], astro["lagna_sign"])
 
+    # 5. Real-Time Transits (Swiss Ephemeris JPL DE431)
+    transits = calculate_canonical_transits(lat, lon, ayanamsa_id)
+
     t_elapsed_ms = (time.perf_counter() - t_start) * 1000.0
 
     return {
         "engine": "SRA Parashara Canonical Engine",
         "canon": "बृहत्पाराशरहोराशास्त्रम् (Brihat Parashara Hora Shastra - Sudha Tika)",
-        "precision": 'NASA JPL DE431 (<0.001" arcsec)',
+        "precision": 'Swiss Ephemeris (JPL DE431 आधारित) (<0.001" arcsec)',
+        "disclosure": "ग्रह-स्थिति: Swiss Ephemeris (Astrodienst), JPL DE431 आधारित · सत्य चित्रा पक्ष अयनांश · मध्य राहु-केतु · श्रीपति भाव-चलित · सूर्योदय: सूर्य-बिम्ब का केन्द्र · विंशोत्तरी वर्ष 365.25 दिन",
         "executionTimeMs": round(t_elapsed_ms, 3),
         "native": {
             "name": name,
@@ -989,7 +1284,9 @@ def calculate_canonical_chart(
             "second": second,
             "lat": lat,
             "lon": lon,
-            "tz": tz
+            "tz": effective_tz,
+            "timezoneName": iana_tz,
+            "timezoneDisplay": tz_display
         },
         "astronomy": {
             "jd_ut": astro["jd_ut"],
@@ -1000,13 +1297,17 @@ def calculate_canonical_chart(
             "spica_lon": astro["spica_lon"],
             "spica_error_arcsec": astro["spica_error_arcsec"],
             "sunrise": astro["sunrise"],
+            "sunset": astro["sunset"],
             "ishtakaal": astro["ishtakaal"]
         },
         "lagnaSign": astro["lagna_sign"],
         "lagnaRashi": RASHI_NAMES_HI[astro["lagna_sign"]],
         "planets": astro["planets"],
-        "bhavas": astro["bhavas"],
-        "sripatiBhavas": astro["bhavas"],
+        "bhavas": astro["sripatiBhavas"],
+        "sripatiBhavas": astro["sripatiBhavas"],
+        "panchang": astro["panchang"],
+        "upagrahas": astro["upagrahas"],
+        "specialLagnas": astro["special_lagnas"],
         "birthDetails": {
             "year": year,
             "month": month,
@@ -1016,18 +1317,26 @@ def calculate_canonical_chart(
             "second": second,
             "lat": lat,
             "lon": lon,
-            "tz": tz,
+            "tz": effective_tz,
             "birthLocalHrs": hour + minute / 60.0 + second / 3600.0,
-            "weekday": (int(astro["jd_ut"] + 0.5 + tz / 24.0) + 1) % 7,
+            "sunriseHrs": astro["sunrise"]["sunrise_local_hrs"],
+            "sunsetHrs": astro["sunset"]["sunset_local_hrs"],
+            "dinamanaHrs": astro["sunset"]["dinamana_hrs"],
+            "ratrimanaHrs": astro["sunset"]["ratrimana_hrs"],
+            "weekday": astro["panchang"]["vaar"]["vedicDayIndex"],
+            "ishtaGhati": astro["ishtakaal"]["ghatis_float"],
+            "isDayBirth": astro["sunset"]["is_day_birth"],
             "JD": astro["jd_ut"],
             "ayanamsa": astro["ayanamsa_value"],
             "candidateName": name,
-            "placeName": place
+            "placeName": place,
+            "timezoneName": iana_tz,
+            "timezoneDisplay": tz_display
         },
-        "specialLagnas": astro["special_lagnas"],
         "vimshottariDasa": dasa,
         "shodashavarga": vargas,
-        "ashtakavarga": ashtaka
+        "ashtakavarga": ashtaka,
+        "transits": transits
     }
 
 
@@ -1062,12 +1371,22 @@ class ChartRequest(BaseModel):
     tob: Optional[str] = None
     lat: float = Field(27.5667, description="Latitude in decimal degrees")
     lon: float = Field(80.6833, description="Longitude in decimal degrees")
-    tz: float = Field(5.5, description="Timezone offset from UTC")
+    tz: Optional[float] = Field(None, description="Timezone offset from UTC (auto-derived if omitted)")
     ayanamsa_id: Optional[int] = Field(DEFAULT_AYANAMSA_ID, description="Ayanamsa ID (Mode 27: True Chitra)")
     name: Optional[str] = "जातक"
     candidate_name: Optional[str] = None
     place: Optional[str] = "सीतापुर, उत्तर प्रदेश"
     city: Optional[str] = None
+
+
+class BatchChartRequest(BaseModel):
+    items: Optional[List[ChartRequest]] = None
+    dates: Optional[List[str]] = None
+    time: Optional[str] = "12:00:00"
+    lat: float = Field(28.6139, description="Latitude in decimal degrees")
+    lon: float = Field(77.2090, description="Longitude in decimal degrees")
+    tz: Optional[float] = Field(None, description="Timezone offset from UTC")
+    ayanamsa_id: Optional[int] = Field(DEFAULT_AYANAMSA_ID, description="Ayanamsa ID")
 
 
 @app.get("/")
@@ -1076,13 +1395,14 @@ def root():
         "status": "online",
         "engine": "SRA Parashara Canonical Engine",
         "version": "2.0.0",
-        "precision": "NASA JPL DE431 (<0.001 arcsec)",
+        "precision": "Swiss Ephemeris (JPL DE431 आधारित)",
         "default_ayanamsa": "Mode 27 (True Chitra Paksha)",
         "jpl_ephe_files_active": HAS_FULL_JPL_EPHE,
         "endpoints": {
             "health": "/health",
+            "timezone": "/timezone?lat=27.57&lon=80.68&date=1993-10-26&time=02:55",
             "calculate_post": "/calculate",
-            "calculate_get": "/calculate?date=1993-10-26&time=02:55&lat=27.57&lon=80.68&tz=5.5"
+            "calculate_get": "/calculate?date=1993-10-26&time=02:55&lat=27.57&lon=80.68"
         }
     }
 
@@ -1097,6 +1417,30 @@ def health():
         "jpl_active": HAS_FULL_JPL_EPHE,
         "default_ayanamsa_id": DEFAULT_AYANAMSA_ID
     }
+
+
+@app.get("/timezone")
+def timezone_get(
+    lat: float = Query(27.5667, description="Latitude"),
+    lon: float = Query(80.6833, description="Longitude"),
+    date: Optional[str] = Query(None, description="YYYY-MM-DD"),
+    time_val: Optional[str] = Query(None, alias="time", description="HH:MM:SS"),
+    user_tz: Optional[float] = Query(None, description="Manual TZ override")
+):
+    try:
+        y, m, d, hh, mm, ss = parse_date_time(date_str=date, time_str=time_val)
+        iana_tz, offset_hours, display_label = resolve_timezone_and_offset(
+            lat=lat, lon=lon, year=y, month=m, day=d,
+            hour=hh, minute=mm, second=ss, user_tz=user_tz
+        )
+        return {
+            "status": "ok",
+            "timezone": iana_tz,
+            "utc_offset": offset_hours,
+            "display": display_label
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/calculate")
@@ -1128,7 +1472,7 @@ def calculate_get(
     time_val: Optional[str] = Query(None, alias="time", description="HH:MM:SS"),
     lat: float = Query(27.5667, description="Latitude"),
     lon: float = Query(80.6833, description="Longitude"),
-    tz: float = Query(5.5, description="Timezone"),
+    tz: Optional[float] = Query(None, description="Timezone (auto-derived if omitted)"),
     ayanamsa_id: int = Query(DEFAULT_AYANAMSA_ID, description="Ayanamsa ID"),
     name: str = Query("जातक", description="Native Name"),
     place: str = Query("सीतापुर, उत्तर प्रदेश", description="Native Place")
@@ -1143,6 +1487,112 @@ def calculate_get(
         return JSONResponse(content=result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/calculate/batch")
+def calculate_batch_post(req: BatchChartRequest):
+    try:
+        results = []
+        if req.items:
+            for item in req.items:
+                date_str = item.date or item.dob
+                time_str = item.time or item.tob
+                y, m, d, hh, mm, ss = parse_date_time(
+                    item.year, item.month, item.day, item.hour, item.minute, item.second,
+                    date_str, time_str
+                )
+                c_name = item.candidate_name or item.name or "जातक"
+                c_place = item.city or item.place or "जन्म स्थान"
+                ayan_id = item.ayanamsa_id if item.ayanamsa_id is not None else DEFAULT_AYANAMSA_ID
+                res = calculate_canonical_chart(
+                    year=y, month=m, day=d, hour=hh, minute=mm, second=ss,
+                    lat=item.lat, lon=item.lon, tz=item.tz, ayanamsa_id=ayan_id,
+                    name=c_name, place=c_place
+                )
+                results.append(res)
+        elif req.dates:
+            for date_str in req.dates:
+                y, m, d, hh, mm, ss = parse_date_time(date_str=date_str, time_str=req.time)
+                ayan_id = req.ayanamsa_id if req.ayanamsa_id is not None else DEFAULT_AYANAMSA_ID
+                res = calculate_canonical_chart(
+                    year=y, month=m, day=d, hour=hh, minute=mm, second=ss,
+                    lat=req.lat, lon=req.lon, tz=req.tz, ayanamsa_id=ayan_id,
+                    name="मुहूर्त", place="स्थान"
+                )
+                results.append(res)
+        return JSONResponse(content={"status": "ok", "count": len(results), "results": results})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/transit")
+def transit_get(
+    lat: float = Query(28.6139, description="Latitude"),
+    lon: float = Query(77.2090, description="Longitude"),
+    ayanamsa_id: int = Query(DEFAULT_AYANAMSA_ID, description="Ayanamsa ID")
+):
+    try:
+        transits = calculate_canonical_transits(lat, lon, ayanamsa_id)
+        return JSONResponse(content={"status": "ok", "transits": transits})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+try:
+    from services.muhurta_api.yajnopavita_engine import scan_yajnopavita_window, calculate_natal_kundli
+
+    @app.get("/api/muhurta/yajnopavita")
+    def get_yajnopavita_muhurta(
+        moon_sign: Optional[int] = Query(None, ge=1, le=12, description="Child's natal Moon sign (1-12)"),
+        child_dob: Optional[str] = Query(None, description="Child's birth date (YYYY-MM-DD)"),
+        child_tob: Optional[str] = Query("12:00", description="Child's birth time (HH:MM 24-hr)"),
+        child_lat: Optional[float] = Query(None, description="Child's birth latitude"),
+        child_lon: Optional[float] = Query(None, description="Child's birth longitude"),
+        child_tz: Optional[float] = Query(5.5, description="Child's birth timezone offset in hours"),
+        lat: float = Query(26.8467, ge=-90.0, le=90.0, description="Muhurta search location latitude"),
+        lon: float = Query(80.9462, ge=-180.0, le=180.0, description="Muhurta search location longitude"),
+        start_date: str = Query(..., description="Search start date (YYYY-MM-DD)"),
+        days: int = Query(30, ge=1, le=90, description="Scan duration in days")
+    ):
+        natal_summary = None
+        if child_dob and child_lat is not None and child_lon is not None:
+            try:
+                natal_summary = calculate_natal_kundli(
+                    dob_str=child_dob,
+                    tob_str=child_tob or "12:00",
+                    lat=child_lat,
+                    lon=child_lon,
+                    tz_offset_hours=child_tz or 5.5
+                )
+                moon_sign = natal_summary["moon_sign"]
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Error calculating Child's Natal Kundli: {str(e)}")
+
+        if not moon_sign:
+            moon_sign = 1
+
+        try:
+            dt_start = datetime.strptime(start_date, "%Y-%m-%d")
+            slots = scan_yajnopavita_window(
+                start_date=dt_start,
+                days=days,
+                lat=lat,
+                lon=lon,
+                child_moon_sign=moon_sign
+            )
+            return JSONResponse(content={
+                "status": "success",
+                "moon_sign": moon_sign,
+                "start_date": start_date,
+                "days_scanned": days,
+                "total_found": len(slots),
+                "natal_kundli": natal_summary,
+                "results": slots
+            })
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Upanayana calculation error: {str(e)}")
+except Exception as _e_import:
+    pass
 
 
 if __name__ == "__main__":

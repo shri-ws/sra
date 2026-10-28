@@ -1361,7 +1361,7 @@
           <strong>2. शुद्ध चाप-सेकंड परिशुद्धता:</strong> 30 अंश की राशि सीमा और अस्त-दूरी की गणना बिना फ्लोट एरर के पूर्णांक चाप-सेकंड में की जाती है।<br>
           <strong>3. स्व-युति सुरक्षा:</strong> जब एक ही ग्रह दो भावों का स्वामी हो, तो उसे काल्पनिक युति नहीं माना जाता।<br>
           <strong>4. इन्दु व आरूढ़ लग्न अपवाद:</strong> यदि आरूढ़ उसी भाव या 7वें में पड़े तो जैमिनी सूत्रानुसार 10वें भाव में प्रक्षेप नियम स्वतः लागू होता है।<br>
-          <strong>5. NASA JPL Swiss Ephemeris & सत्य अयनांश:</strong> समस्त ग्रह-स्पष्ट नासा JPL DE431 (&lt;0.001" परिशुद्धता), ट्रू चित्रा पक्षीय अयनांश (Mode 27 / स्पिका 180°), 100% भू-केन्द्रीय नाक्षत्र फ्रेम, तथा दृश्य बिम्बार्धोदय सूर्योदय (h₀ = -50') पर आकलित हैं।
+          <strong>5. Swiss Ephemeris (JPL DE431 आधारित) & सत्य अयनांश:</strong> समस्त ग्रह-स्पष्ट Swiss Ephemeris (Astrodienst), JPL DE431 आधारित (&lt;0.001" परिशुद्धता), सत्य चित्रा पक्ष अयनांश (Mode 27 / स्पिका 180°), मध्य राहु-केतु, श्रीपति भाव-चलित, तथा सूर्योदय: सूर्य-बिम्ब का केन्द्र (अपवर्तन सहित) पर आकलित हैं। विंशोत्तरी दशा ३६५.२५ दिन प्रति वर्ष मानक पर आधारित है।
         </p>
       </div>
 
@@ -1698,10 +1698,10 @@
       btn.innerHTML = '<span>⏳ गणना जारी है...</span>';
       btn.disabled = true;
 
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
-          // Step 1: Calculate Host Planetary Longitudes via pristine Patrika Engine Bridge
-          const calc = window.PatrikaEngineBridge.calculatePatrikaPlanets(input);
+          // Step 1: Calculate Host Planetary Longitudes via Swiss Ephemeris JPL DE431 microservice
+          const calc = await window.PatrikaEngineBridge.calculatePatrikaPlanets(input);
           currentCalcData = calc;
 
           // Step 2: Run Dhana Yoga Analysis Engine

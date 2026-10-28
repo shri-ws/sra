@@ -1689,7 +1689,8 @@
     "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"
   ];
 
-  const MS_PER_SOLAR_YEAR = 365.242199 * 86400 * 1000;
+  // Canonical Vimshottari Solar Year Standard: 365.25 Julian days
+  const MS_PER_SOLAR_YEAR = 365.25 * 86400 * 1000;
 
   function computeVimshottariDasha(calcResult, targetDate = new Date()) {
     const moonObj = calcResult.planets.find(p => p.id === 'Moon');

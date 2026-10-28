@@ -1046,7 +1046,7 @@
         <div>
           <h3 style="color: #e2b04a; font-family: 'Cinzel', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; letter-spacing: 0.5px;">Shri Ramji Astro (Patrika)</h3>
           <p style="font-size: 0.88rem; line-height: 1.65; color: #94a3b8; margin: 0;">
-            The gold standard in classical Vedic astrology software. Powered by True Chitra Paksha (Lahiri) Ayanamsa, 60-Term Meeus Lunar Expansion, and precise OpenStreetMap GPS Geocoding.
+            ग्रह-स्थिति: Swiss Ephemeris (Astrodienst), JPL DE431 आधारित · सत्य चित्रा पक्ष अयनांश · मध्य राहु-केतु · श्रीपति भाव-चलित · सूर्योदय: सूर्य-बिम्ब का केन्द्र · विंशोत्तरी वर्ष 365.25 दिन।
           </p>
         </div>
         <div>
@@ -1169,11 +1169,27 @@
                     }
                     renderResults(data.results || [], data.moon_sign);
                 } else {
-                    runClientEngine(childName, childDob, childTob, parseFloat(lat), parseFloat(lon), parseFloat(tz), startDate, parseInt(days));
+                    loader.style.display = 'none';
+                    content.innerHTML = `
+                        <div style="background:#fee2e2; border:1px solid #ef4444; color:#991b1b; padding:16px 20px; border-radius:12px; margin:20px 0; text-align:center;">
+                            <h4 style="margin:0 0 8px 0; font-size:16px;">⚠️ गणना सर्वर (Swiss Ephemeris Microservice) अनुपलब्ध है</h4>
+                            <p style="margin:0; font-size:13px; line-height:1.6;">
+                                यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। कृपया कुछ समय पश्चात पुनः प्रयास करें।
+                            </p>
+                        </div>
+                    `;
                 }
             } catch (err) {
-                console.warn("API fetch error, running JS client engine:", err);
-                runClientEngine(childName, childDob, childTob, parseFloat(lat), parseFloat(lon), parseFloat(tz), startDate, parseInt(days));
+                console.error("API fetch error:", err);
+                loader.style.display = 'none';
+                content.innerHTML = `
+                    <div style="background:#fee2e2; border:1px solid #ef4444; color:#991b1b; padding:16px 20px; border-radius:12px; margin:20px 0; text-align:center;">
+                        <h4 style="margin:0 0 8px 0; font-size:16px;">⚠️ गणना सर्वर (Swiss Ephemeris Microservice) अनुपलब्ध है</h4>
+                        <p style="margin:0; font-size:13px; line-height:1.6;">
+                            यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। कृपया कुछ समय पश्चात पुनः प्रयास करें।
+                        </p>
+                    </div>
+                `;
             }
         }
 
@@ -1429,306 +1445,6 @@
             `).join('');
 
             content.innerHTML = html;
-        }
-
-        function runClientEngine(name, dob, tob, lat, lon, tz, startDateStr, days) {
-            const loader = document.getElementById('loader');
-            loader.style.display = 'none';
-
-            const dobParts = dob.split('-').map(Number);
-            const tobParts = tob.split(':').map(Number);
-            const localTotalMins = (tobParts[0] * 60 + tobParts[1]) - (tz * 60);
-            const dobDate = new Date(Date.UTC(dobParts[0], dobParts[1] - 1, dobParts[2], 0, localTotalMins));
-            
-            const hourUTC = dobDate.getUTCHours() + dobDate.getUTCMinutes() / 60.0;
-            const jdNatal = toJulianDay(dobDate.getUTCFullYear(), dobDate.getUTCMonth() + 1, dobDate.getUTCDate(), hourUTC);
-            const TNatal = (jdNatal - 2451545.0) / 36525.0;
-            const ayanamsaNatal = 23.77 + (TNatal * 100) * 0.013972;
-
-            const moonNatal = getMoonSidereal(TNatal, ayanamsaNatal);
-            const sunNatal = getSunSidereal(TNatal, ayanamsaNatal);
-            const marsNatal = getGeocentricPlanet('mars', TNatal, ayanamsaNatal);
-            const mercNatal = getGeocentricPlanet('mercury', TNatal, ayanamsaNatal);
-            const jupNatal = getGeocentricPlanet('jupiter', TNatal, ayanamsaNatal);
-            const venNatal = getGeocentricPlanet('venus', TNatal, ayanamsaNatal);
-            const satNatal = getGeocentricPlanet('saturn', TNatal, ayanamsaNatal);
-            const ascNatal = computeAscendant(jdNatal, TNatal, hourUTC, lat, lon, ayanamsaNatal);
-
-            const rahuSid = normalizeDegrees(125.04452 - 1934.136261 * TNatal - ayanamsaNatal);
-            const ketuSid = normalizeDegrees(rahuSid + 180.0);
-
-            const childMoonSign = moonNatal.rashi;
-            const nakNum = Math.floor(moonNatal.sidereal / (360 / 27)) + 1;
-            const nakDegree = moonNatal.sidereal % (360 / 27);
-            const pada = Math.floor(nakDegree / (360 / 27 / 4)) + 1;
-
-            function formatPlanetObj(key, pname, hi, sidereal, isRetro) {
-                const sign = Math.floor(sidereal / 30) + 1;
-                const degFloat = sidereal % 30;
-                const deg = Math.floor(degFloat);
-                const min = Math.floor((degFloat - deg) * 60);
-                const nakN = Math.floor(sidereal / (360 / 27)) + 1;
-                const nakD = sidereal % (360 / 27);
-                const pd = Math.floor(nakD / (360 / 27 / 4)) + 1;
-                const house = ((sign - ascNatal.rashi + 12) % 12) + 1;
-
-                return {
-                    key: key,
-                    name: pname,
-                    hi_name: hi,
-                    sign: sign,
-                    sign_name: RASHI_NAMES[sign],
-                    lon: sidereal,
-                    deg: deg,
-                    min: min,
-                    is_retro: !!isRetro,
-                    nakshatra: NAKSHATRAS_27[nakN] || '#' + nakN,
-                    pada: pd,
-                    house: house
-                };
-            }
-
-            function getPlanetRetrograde(planetKey, T, ayanamsa) {
-                if (planetKey === 'sun' || planetKey === 'moon') return false;
-                if (planetKey === 'rahu' || planetKey === 'ketu') return true;
-                const dT = 0.05 / 36525.0;
-                const p1 = getGeocentricPlanet(planetKey, T - dT, ayanamsa);
-                const p2 = getGeocentricPlanet(planetKey, T + dT, ayanamsa);
-                let diff = p2.sidereal - p1.sidereal;
-                while (diff < -180) diff += 360;
-                while (diff > 180) diff -= 360;
-                return diff < 0;
-            }
-
-            const planetsList = [
-                formatPlanetObj('Asc', 'Lagna', 'लग्न', ascNatal.deg, false),
-                formatPlanetObj('Sun', 'Sun', 'सूर्य', sunNatal.sidereal, false),
-                formatPlanetObj('Moon', 'Moon', 'चन्द्र', moonNatal.sidereal, false),
-                formatPlanetObj('Mars', 'Mars', 'मंगल', marsNatal.sidereal, getPlanetRetrograde('mars', TNatal, ayanamsaNatal)),
-                formatPlanetObj('Mercury', 'Mercury', 'बुध', mercNatal.sidereal, getPlanetRetrograde('mercury', TNatal, ayanamsaNatal)),
-                formatPlanetObj('Jupiter', 'Jupiter', 'गुरु', jupNatal.sidereal, getPlanetRetrograde('jupiter', TNatal, ayanamsaNatal)),
-                formatPlanetObj('Venus', 'Venus', 'शुक्र', venNatal.sidereal, getPlanetRetrograde('venus', TNatal, ayanamsaNatal)),
-                formatPlanetObj('Saturn', 'Saturn', 'शनि', satNatal.sidereal, getPlanetRetrograde('saturn', TNatal, ayanamsaNatal)),
-                formatPlanetObj('Rahu', 'Rahu', 'राहु', rahuSid, true),
-                formatPlanetObj('Ketu', 'Ketu', 'केतु', ketuSid, true)
-            ];
-
-            renderNatalKundliCard(name, {
-                moon_sign: childMoonSign,
-                moon_sign_name: RASHI_NAMES[childMoonSign],
-                nakshatra: nakNum,
-                nakshatra_name: NAKSHATRAS_27[nakNum] || '#' + nakNum,
-                pada: pada,
-                lagna_sign: ascNatal.rashi,
-                lagna_name: RASHI_NAMES[ascNatal.rashi],
-                sun_sign: sunNatal.rashi,
-                sun_sign_name: RASHI_NAMES[sunNatal.rashi],
-                jup_sign: jupNatal.rashi,
-                jup_sign_name: RASHI_NAMES[jupNatal.rashi],
-                planets: planetsList
-            });
-
-            const UPANAYANA_NAKSHATRAS = new Set([1, 4, 5, 7, 8, 12, 13, 14, 15, 16, 17, 21, 23, 26, 27]);
-            const SUPREME_NAKSHATRAS = new Set([4, 8, 12, 13, 14, 15, 21, 26, 27]);
-            const PROHIBITED_TITHIS = new Set([4, 6, 8, 9, 12, 14, 19, 21, 23, 24, 27, 29, 30]);
-            const PERMISSIBLE_WEEKDAYS = new Set([0, 1, 3, 4, 5]);
-
-            const startDt = new Date(startDateStr + 'T07:00:00Z');
-            const endDt = new Date(startDt.getTime() + days * 24 * 3600 * 1000);
-            const results = [];
-
-            let cur = new Date(startDt);
-            while (cur < endDt) {
-                const hour = cur.getUTCHours();
-                if (hour >= 6 && hour <= 17) {
-                    const jd = toJulianDay(cur.getUTCFullYear(), cur.getUTCMonth() + 1, cur.getUTCDate(), cur.getUTCHours() + cur.getUTCMinutes() / 60.0);
-                    const T = (jd - 2451545.0) / 36525.0;
-                    const ayanamsa = 23.85 + (T * 100) * 0.013972;
-
-                    const sun = getSunSidereal(T, ayanamsa);
-                    const moon = getMoonSidereal(T, ayanamsa);
-                    const jup = getGeocentricPlanet('jupiter', T, ayanamsa);
-
-                    const isUttarayana = [10, 11, 12, 1, 2, 3].includes(sun.rashi);
-                    const elongation = (moon.sidereal - sun.sidereal + 360) % 360;
-                    const tithi = Math.floor(elongation / 12) + 1;
-                    const nakshatra = Math.floor(moon.sidereal / (360 / 27)) + 1;
-                    const weekday = (cur.getUTCDay());
-
-                    const jupBala = ((jup.rashi - childMoonSign + 12) % 12) + 1;
-                    const moonBala = ((moon.rashi - childMoonSign + 12) % 12) + 1;
-                    const sunBala = ((sun.rashi - childMoonSign + 12) % 12) + 1;
-
-                    if (isUttarayana && PERMISSIBLE_WEEKDAYS.has(weekday) && UPANAYANA_NAKSHATRAS.has(nakshatra) && !PROHIBITED_TITHIS.has(tithi)) {
-                        if (![4, 8, 12].includes(jupBala) && ![4, 8, 12].includes(moonBala) && ![4, 8, 12].includes(sunBala)) {
-                            let score = 65.0;
-                            if ([2, 5, 7, 9, 11].includes(jupBala)) score += 15.0;
-                            else if ([1, 3, 6, 10].includes(jupBala)) score += 8.0;
-
-                            if ([3, 6, 10, 11].includes(sunBala)) score += 10.0;
-                            if ([1, 3, 6, 7, 10, 11].includes(moonBala)) score += 10.0;
-                            if (SUPREME_NAKSHATRAS.has(nakshatra)) score += 5.0;
-
-                            score = Math.min(100.0, Math.round(score));
-                            let grade = score >= 95 ? "Grade A+ (सर्वथा निर्दोष - Flawless VIP)" : (score >= 85 ? "Grade A (उत्तम - High Quality)" : "Grade B (मध्यम)");
-
-                            const asc = computeAscendant(jd, T, cur.getUTCHours(), lat, lon, ayanamsa);
-                            results.push({
-                                datetime: cur.toISOString().replace('T', ' ').substring(0, 16),
-                                tithi: tithi,
-                                tithi_name: 'Tithi #' + tithi,
-                                nakshatra: nakshatra,
-                                nakshatra_name: NAKSHATRAS_27[nakshatra] || '#' + nakshatra,
-                                lagna_sign: asc.rashi,
-                                lagna_name: RASHI_NAMES[asc.rashi] || '#' + asc.rashi,
-                                guru_bala_house: jupBala,
-                                sun_bala_house: sunBala,
-                                moon_bala_house: moonBala,
-                                score: score,
-                                rank_grade: grade,
-                                status: 'Śuddha Yajñopavīta Muhūrta'
-                            });
-                            cur.setTime(cur.getTime() + 90 * 60 * 1000);
-                            continue;
-                        }
-                    }
-                }
-                cur.setTime(cur.getTime() + 30 * 60 * 1000);
-            }
-
-            results.sort((a, b) => b.score - a.score);
-            results.forEach((r, idx) => r.rank = idx + 1);
-
-            renderResults(results, childMoonSign);
-        }
-
-        function normalizeDegrees(x) { x = x % 360; return x < 0 ? x + 360 : x; }
-        function torad(deg) { return deg * Math.PI / 180; }
-        function todeg(rad) { return rad * 180 / Math.PI; }
-        function toJulianDay(y, m, d, hourUTC) {
-            if (m <= 2) { y -= 1; m += 12; }
-            const A = Math.floor(y / 100);
-            const B = 2 - A + Math.floor(A / 4);
-            return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + hourUTC / 24 + B - 1524.5;
-        }
-
-        const ORBIT_ELEMENTS = {
-            earth:   [1.00000261, 0.00000562, 0.01671123, -0.00004392, 0.000015, -0.012946, 100.464571, 35999.372449, 102.937681, 0.323273, 0.0, 0.0],
-            mercury: [0.38709927, 0.00000037, 0.20563593, 0.00001906, 7.004979, -0.005947, 252.250323, 149472.674111, 77.457796, 0.160476, 48.330765, -0.125349],
-            venus:   [0.72333566, 0.00000000, 0.00677672, -0.00004107, 3.394676, -0.000857, 181.979099, 58517.815387, 131.602467, 0.002683, 76.679842, -0.277693],
-            mars:    [1.52371034, 0.00001847, 0.09339410, 0.00007882, 1.849691, -0.000813, -4.553432, 19140.302684, -23.943629, 0.444410, 49.559538, -0.292573],
-            jupiter: [5.20288700, -0.00011607, 0.04838624, -0.00013257, 1.304396, -0.001837, 34.396440, 3034.746128, 14.728479, 0.212526, 100.473909, 0.204691],
-            saturn:  [9.53667594, -0.00125060, 0.05386179, -0.00050991, 2.485991, 0.001936, 49.954244, 1222.493622, 92.598878, -0.418972, 113.662424, -0.288677]
-        };
-
-        function solveKepler(M_deg, e) {
-            const M_rad = torad(M_deg);
-            let E_rad = M_rad;
-            for (let i = 0; i < 15; i++) {
-                let dE = (E_rad - e * Math.sin(E_rad) - M_rad) / (1 - e * Math.cos(E_rad));
-                E_rad -= dE;
-                if (Math.abs(dE) < 1e-7) break;
-            }
-            return E_rad;
-        }
-
-        function getHeliocentricPos(planetKey, T) {
-            const el = ORBIT_ELEMENTS[planetKey];
-            if (!el) return { x: 0, y: 0, z: 0 };
-            const a = el[0] + el[1] * T;
-            const e = el[2] + el[3] * T;
-            const I = el[4] + el[5] * T;
-            const L = normalizeDegrees(el[6] + el[7] * T);
-            const w = normalizeDegrees(el[8] + el[9] * T);
-            const O = normalizeDegrees(el[10] + el[11] * T);
-
-            const omega = normalizeDegrees(w - O);
-            const M = normalizeDegrees(L - w);
-            const E_rad = solveKepler(M, e);
-            const x_prime = a * (Math.cos(E_rad) - e);
-            const y_prime = a * Math.sqrt(1 - e * e) * Math.sin(E_rad);
-
-            const r = Math.sqrt(x_prime * x_prime + y_prime * y_prime);
-            const v = Math.atan2(y_prime, x_prime);
-            const u = v + torad(omega);
-            const Ir = torad(I);
-            const Or = torad(O);
-
-            const x = r * (Math.cos(Or) * Math.cos(u) - Math.sin(Or) * Math.sin(u) * Math.cos(Ir));
-            const y = r * (Math.sin(Or) * Math.cos(u) + Math.cos(Or) * Math.sin(u) * Math.cos(Ir));
-            const z = r * (Math.sin(u) * Math.sin(Ir));
-            return { x, y, z };
-        }
-
-        function getSunSidereal(T, ayanamsa) {
-            const e = getHeliocentricPos('earth', T);
-            const lambda = normalizeDegrees(todeg(Math.atan2(-e.y, -e.x)));
-            const sidereal = normalizeDegrees(lambda - ayanamsa);
-            return { sayana: lambda, sidereal: sidereal, rashi: Math.floor(sidereal / 30) + 1 };
-        }
-
-        function getGeocentricPlanet(planetKey, T, ayanamsa) {
-            const p = getHeliocentricPos(planetKey, T);
-            const e = getHeliocentricPos('earth', T);
-            const x_geo = p.x - e.x;
-            const y_geo = p.y - e.y;
-            let lambda = normalizeDegrees(todeg(Math.atan2(y_geo, x_geo)));
-            let sidereal = normalizeDegrees(lambda - ayanamsa);
-            return { sayana: lambda, sidereal: sidereal, rashi: Math.floor(sidereal / 30) + 1 };
-        }
-
-        function getMoonSidereal(T, ayanamsa) {
-            const DEG = Math.PI / 180;
-            const L_prime = 218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + (T * T * T) / 538841.0;
-            const D       = 297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + (T * T * T) / 545868.0;
-            const M       = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000.0;
-            const M_prime = 134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + (T * T * T) / 69699.0;
-            const F       = 93.2720950 + 483202.0175273 * T - 0.0036539 * T * T - (T * T * T) / 3526000.0;
-            const E = 1.0 - 0.002516 * T - 0.0000074 * T * T;
-
-            const moonTerms = [
-                [ 0,  0,  1,  0, 6288774, 0], [ 2,  0, -1,  0, 1274027, 0], [ 2,  0,  0,  0,  658314, 0],
-                [ 0,  0,  2,  0,  213618, 0], [ 0,  1,  0,  0, -185116, 1], [ 0,  0,  0,  2, -114332, 0],
-                [ 2,  0,  1,  0,   58793, 0], [ 2, -1, -1,  0,   57066, 1], [ 2,  0, -2,  0,   53322, 0],
-                [ 2,  1, -1,  0,   45758, 1], [ 2, -1,  0,  0,  -40923, 1], [ 0,  1,  1,  0,  -34720, 1],
-                [ 1,  0,  0,  0,  -30383, 0], [ 0,  1, -1,  0,   15327, 1], [ 2,  0,  0, -2,  -12528, 0],
-                [ 0,  0,  1,  2,   10980, 0], [ 0,  0,  3,  0,   10675, 0], [ 4,  0, -1,  0,   10075, 0],
-                [ 0,  0,  1, -2,    8548, 0], [ 2,  1,  0,  0,   -7888, 1], [ 2,  1,  1,  0,   -6766, 1],
-                [ 4,  0, -2,  0,   -5163, 0], [ 2,  0, -3,  0,    4987, 0], [ 2, -1,  1,  0,    4036, 1],
-                [ 2,  0,  2,  0,    3994, 0], [ 4,  0,  0,  0,    3861, 0], [ 2,  0, -1, -2,    3665, 0]
-            ];
-            let sumSigmaL = 0;
-            for (let i = 0; i < moonTerms.length; i++) {
-                const t = moonTerms[i];
-                const arg = (t[0] * D + t[1] * M + t[2] * M_prime + t[3] * F) * DEG;
-                let factor = t[4];
-                if (t[5] === 1) factor *= E;
-                sumSigmaL += factor * Math.sin(arg);
-            }
-            const lambda = normalizeDegrees(L_prime + sumSigmaL / 1000000.0);
-            const sidereal = normalizeDegrees(lambda - ayanamsa);
-            return { sayana: lambda, sidereal: sidereal, rashi: Math.floor(sidereal / 30) + 1 };
-        }
-
-        function computeAscendant(JD, T, hourUTC, latDeg, lonDeg, ayanamsa) {
-            const JD0 = Math.floor(JD - 0.5) + 0.5;
-            const T0 = (JD0 - 2451545.0) / 36525.0;
-            let GMST0 = 100.46061837 + 36000.770053608 * T0 + 0.000387933 * T0 * T0;
-            GMST0 = normalizeDegrees(GMST0);
-            const LMST = normalizeDegrees(GMST0 + (hourUTC * 15.04106864) + lonDeg);
-            const eps = 23.43929111 - 0.013004167 * T;
-
-            const ramcR = torad(LMST);
-            const epsR = torad(eps);
-            const phiR = torad(latDeg);
-
-            const y = Math.cos(ramcR);
-            const x = - (Math.sin(ramcR) * Math.cos(epsR) + Math.tan(phiR) * Math.sin(epsR));
-
-            let ascSayana = todeg(Math.atan2(y, x));
-            ascSayana = normalizeDegrees(ascSayana);
-            const ascNirayana = normalizeDegrees(ascSayana - ayanamsa);
-            return { deg: ascNirayana, rashi: Math.floor(ascNirayana / 30) + 1 };
         }
 
         /* ══════════════════════════════════════════════════════════════════

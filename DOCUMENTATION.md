@@ -3,7 +3,7 @@
 > **System Designation**: Shri Ramji Astro (SRA) Unified Vedic Astrological Computing Suite  
 > **Engineering Level**: Dot-by-Dot Production & Mathematical Precision  
 > **Target Platforms**: Web (Desktop & Mobile), Android PWA/APK (v2.4), Apple iOS Safari WebApp  
-> **Core Astronomical Standard**: NASA JPL Swiss Ephemeris (DE431, <0.001" Precision) + True Chitra Paksha Ayanamsa (Mode 27 / Spica @ 180°00'00.000") + Apparent Refracted Sunrise (h0 = -50') + Tropical Solar Year (365.2425 days) Vimshottari  
+> **Core Astronomical Standard**: ग्रह-स्थिति: Swiss Ephemeris (Astrodienst), JPL DE431 आधारित · सत्य चित्रा पक्ष अयनांश · मध्य राहु-केतु · श्रीपति भाव-चलित · सूर्योदय: सूर्य-बिम्ब का केन्द्र · विंशोत्तरी वर्ष 365.25 दिन  
 > **Scriptural Canonical Authorities**: *Brihat Parashara Hora Shastra* (BPHS), *Muhurta Chintamani*, *Jaimini Upadesha Sutras*, *Phaladeepika*, *Saravali*
 
 ---
@@ -38,7 +38,7 @@ flowchart TD
     end
 
     subgraph AstroCore ["Astronomical Core Engine (Client-Side JS)"]
-        Meeus["Jean Meeus Ch. 47 (Moon 60-Term Series)"]
+        Swiss["Swiss Ephemeris JPL DE431 Microservice"]
         VSOP["VSOP87 Planetary Coordinate Reductions"]
         Lahiri["True Chitra Paksha Ayanamsa (IAU Nutation)"]
         CentralDiff["Central Difference Velocity (dλ/dt -> True Retrograde)"]
@@ -66,7 +66,7 @@ flowchart TD
 ```
 
 ### मुख्य डिज़ाइन सिद्धांत (Core Design Principles):
-1. **शून्य सर्वर लेटेंसी (Zero Server Latency)**: संपूर्ण जटिल गणित (Meeus श्रृंखला, अयनांश, श्रीपति भाव, षोडशवर्ग, त्रिदशा, रश्मि-बल) उपयोगकर्ता के ब्राउज़र में मिलीसेकंड्स में निष्पादित होता है।
+1. **खगोलीय सर्वोच्च परिशुद्धता**: संपूर्ण गणित Swiss Ephemeris (Astrodienst), JPL DE431 आधारित कोर, सत्य चित्रा पक्ष अयनांश, मध्य राहु-केतु, श्रीपति भाव-चलित और ३६५.२५ दिन सौर वर्ष-मान पर संचालित है।
 2. **शुद्ध भाषा निष्ठा (Zero Bilingual Clutter)**: हिन्दी और अंग्रेज़ी के मध्य कोई हाइब्रिड या कोष्ठक-युक्त मिश्रण नहीं। टॉगल करते ही पूरा एप्लिकेशन 100% शुद्ध भाषा में रूपांतरित होता है।
 3. **फ़्लैट मिनिमलिस्ट लेआउट (Flattened Architecture)**: नेस्टेड बॉर्डर्स, डैश-लाइन्स तथा गैर-ज़रूरी सजावटी इमोजी को समाप्त कर साफ़, मॉडर्न डेटा-कार्ड आधारित डिज़ाइन।
 4. **अपरिवर्तनीय शास्त्रीय सत्यता (Deterministic Classical Rigor)**: महर्षि पाराशर एवं जैमिनी के मूल श्लोकों का अक्षरशः गणितीय कार्यान्वयन।
@@ -75,20 +75,17 @@ flowchart TD
 
 ## 2. खगोलीय गणना एवं एफेमेरिस कोर इंजन
 
-### 2.0 SRA Parashara Canonical Engine (NASA JPL Swiss Ephemeris DE431 Microservice)
-प्रणाली का प्राथमिक बैकएंड एवं उच्च-परिशुद्धता खगोलीय कोर `parashara_canonical_engine.py` द्वारा संचालित है, जो नासा JPL स्विस एफिमेरिस बाइनरी डेटा फाइलों (`./ephe/` में `seas_18.se1`, `semo_18.se1`, `sepl_18.se1`) से सीधे संख्यात्मक समाकलन (Numerical Integration) निष्पादित करता है।
+### 2.0 SRA Parashara Canonical Engine (Swiss Ephemeris JPL DE431 आधारित Microservice)
+प्रणाली का प्राथमिक बैकएंड एवं उच्च-परिशुद्धता खगोलीय कोर `parashara_canonical_engine.py` द्वारा संचालित है, जो Swiss Ephemeris बाइनरी डेटा फाइलों (`./ephe/` में `seas_18.se1`, `semo_18.se1`, `sepl_18.se1`) से सीधे संख्यात्मक समाकलन (Numerical Integration) निष्पादित करता है।
 
 - **खगोलीय परिशुद्धता**: $<0.001''$ आर्कसेकंड (DE431 JPL Integration via `swe.FLG_SWIEPH`)
 - **कैनोनिकल अयनांश**: सत्य चित्रा पक्ष अयनांश (Mode ID: 27 / `SIDM_TRUE_CITRA`) — चित्रा नक्षत्र के मुख्य तारे स्पिका (α Virginis) को ठीक $180^\circ 00' 00.000''$ पर स्थिर रखता है।
-- **भू-केन्द्रीय नाक्षत्र फ्रेम**: 100% Geocentric Sidereal (`FLG_SWIEPH | FLG_SPEED | FLG_SIDEREAL`), जन्मकालीन चन्द्रमा पर शून्य टॉपोसेंट्रिक विचलन।
-- **दृश्य बिम्बार्धोदय सूर्योदय ($h_0 = -50'$)**: वायुमंडलीय अपवर्तन (34') एवं सौर अर्धव्यास (16') के संयुक्त प्रभाव सम्मत सूर्योदय (`CALC_RISE | BIT_DISC_CENTER`), जिससे शुद्ध इष्टकाल (घटी, पल, विपल) प्राप्त होता है।
-- **विशेष लग्न निष्पत्ति**: होरा लग्न (HL) और घटी लग्न (GL) को इष्टकाल से पूर्णतः शुद्ध गणितीय रूप से बिना किसी ड्रिफ्ट के निकाला जाता है:
-  $$HL = (\text{Sun}_{\text{sunrise}} + \text{Ishta}_{\text{ghatis}} \times 12^\circ) \pmod{360^\circ}$$
-  $$GL = (\text{Sun}_{\text{sunrise}} + \text{Ishta}_{\text{ghatis}} \times 30^\circ) \pmod{360^\circ}$$
-- **विंशोत्तरी सौर वर्ष-मान**: उष्णकटिबंधीय सौर वर्ष ($\text{Year Length} = 365.2425 \text{ दिन}$) मानक द्वारा विंशोत्तरी महादशा, अन्तर्दशा एवं प्रत्यन्तर्दशा का निर्धारण, जिससे ३६०-दिन के सावन वर्ष का ड्रिफ्ट समाप्त होता है।
-- **समभाव / सम-राशि चक्र (Whole Sign / Equal Bhava)**: स्विस एफिमेरिस `'E'` फ्लैग द्वारा उच्च अक्षांशों ($>66.5^\circ$ N/S ध्रुवीय क्षेत्र) में भी अक्षुण्ण स्थिरता।
-- **सटीक राहु व सम्मुख केतु**: `TRUE_NODE` आधारित राहु तथा ठीक सम्मुख $(\text{Rahu} + 180^\circ) \pmod{360^\circ}$ पर केतु।
-- **क्लाइंट-साइड रेजिलिएंट फॉलबैक**: `patrikaEngineBridge.js` में `calculatePatrikaPlanetsAsync` द्वारा माइक्रोसर्विस से रीयल-टाइम डेटा फेच, तथा ऑफलाइन स्थिति में ब्राउज़र-आधारित मीउस इंजन पर सहज रूप से फॉलबैक।
+- **भू-केन्द्रीय नाक्षत्र फ्रेम**: 100% Geocentric Sidereal (`FLG_SWIEPH | FLG_SPEED | FLG_SIDEREAL`), जन्मकालीन ग्रहों पर शून्य टॉपोसेंट्रिक विचलन।
+- **मध्य राहु व सम्मुख केतु**: `swe.MEAN_NODE` आधारित मध्य राहु तथा ठीक १८०° सम्मुख $(\text{Rahu} + 180^\circ) \pmod{360^\circ}$ पर केतु।
+- **श्रीपति भाव-चलित (Porphyry b'O')**: लग्न और दशम भाव के चतुर्थांश को ३ समान भागों में विभाजित करने वाला शास्त्रीय श्रीपति भाव चक्र। भाव-मध्य = Porphyry cusps, तथा भाव-संधि = दो क्रमिक भाव-मध्यों का ठीक मध्य बिन्दु।
+- **सूर्योदय मानक (सूर्य-बिम्ब का केन्द्र, अपवर्तन सहित)**: `BIT_DISC_CENTER` एवं वायुमंडलीय अपवर्तन सम्मत सूर्योदय व सूर्यास्त, जिससे दिनमान, रात्रिमान और शुद्ध इष्टकाल प्राप्त होता है।
+- **विंशोत्तरी सौर वर्ष-मान**: ३६५.२५ दिन (Canonical Julian Solar Year) मानक द्वारा विंशोत्तरी महादशा, अन्तर्दशा एवं प्रत्यन्तर्दशा का निर्धारण।
+- **एकल एकीकृत एंडपॉइंट**: समस्त पृष्ठ (`patrika.html`, `parashara-report.html`, `manglik-calculator.html`, `dhana-yoga-calculator.html`, `mmm.html`, `vmm.html`, `yajnopavita.html`, `vastu-muhurta.html`, `srai.html`) एकल `/calculate` व `/calculate/batch` एंडपॉइंट द्वारा संचालित हैं।
 
 ### 2.1 जूलियन डे एवं एपोच गणना (Julian Day & Ephemeris Time $T$)
 किसी भी ग्रेगोरियन जन्म तिथि व समय $(Y, M, D, H, Min, Sec)$ को UT (Universal Time) में परिवर्तित कर जूलियन डे ($JD$) की गणना की जाती है:
