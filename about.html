@@ -1500,12 +1500,13 @@
                         <label>10-अंकों का मोबाइल नंबर (10-Digit Mobile Number):</label>
                         <input type="tel" id="authPhone" placeholder="Enter Mobile Number (e.g. 9876543210)" maxlength="10">
                     </div>
-                    <button class="btn-submit-post" onclick="sendOtpRequest()">📲 OTP भेजें (Send OTP via SMS)</button>
+                    <button class="btn-submit-post" id="btnSendOtp" onclick="sendOtpRequest()">📲 OTP भेजें (Send OTP via SMS)</button>
+                    <div id="recaptcha-container"></div>
                 </div>
                 <div id="otpStep2" style="display:none;">
                     <div class="form-group">
-                        <label>4-अंकों का OTP दर्ज करें (Enter 4-Digit OTP):</label>
-                        <input type="number" id="authOtpCode" placeholder="Enter 4-Digit OTP">
+                        <label>6-अंकों का OTP दर्ज करें (Enter 6-Digit OTP):</label>
+                        <input type="text" id="authOtpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Enter 6-Digit OTP">
                     </div>
                     <button class="btn-submit-post" onclick="verifyOtpRequest()">✓ OTP सत्यापित करें (Verify OTP)</button>
                 </div>
@@ -2460,55 +2461,97 @@
             });
         }
 
+        // Phone OTP through Firebase Authentication (Google), same project as patrika.html:
+        // Google sends a real 6-digit SMS and verifies it; no server of ours is involved.
+        const SRA_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
+            authDomain: "shriramjiastro-cee67.firebaseapp.com",
+            projectId: "shriramjiastro-cee67",
+            storageBucket: "shriramjiastro-cee67.firebasestorage.app",
+            messagingSenderId: "918915221342",
+            appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf",
+            measurementId: "G-0KZ45B2HL7"
+        };
+        let firebaseSdkPromise = null;
+        let otpConfirmation = null;
+
+        function loadFirebaseScript(src) {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src; s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+
+        function ensureFirebaseAuth() {
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.apps.length) return Promise.resolve();
+            if (!firebaseSdkPromise) {
+                firebaseSdkPromise = (async () => {
+                    await loadFirebaseScript('https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js');
+                    await loadFirebaseScript('https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js');
+                    if (!firebase.apps.length) firebase.initializeApp(SRA_FIREBASE_CONFIG);
+                    firebase.auth().languageCode = 'hi';
+                })();
+                firebaseSdkPromise.catch(() => { firebaseSdkPromise = null; });
+            }
+            return firebaseSdkPromise;
+        }
+
         async function sendOtpRequest() {
             const phone = document.getElementById('authPhone').value.trim();
-            if (phone.length !== 10 || isNaN(phone)) {
+            if (!/^[6-9]\d{9}$/.test(phone)) {
                 alert("कृपया 10-अंकों का वैध मोबाइल नंबर दर्ज करें");
                 return;
             }
-            // Real OTP from the server (api/send_otp.php); it is checked on the server too.
+            const btn = document.getElementById('btnSendOtp');
+            if (btn) btn.disabled = true;
             try {
-                const resp = await fetch('api/send_otp.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone })
-                });
-                const res = await resp.json();
-                if (res.status !== 'success') {
-                    alert("❌ " + (res.message || "OTP भेजा नहीं जा सका। कृपया पुनः प्रयास करें।"));
-                    return;
+                await ensureFirebaseAuth();
+                if (!window.recaptchaVerifier) {
+                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
                 }
+                otpConfirmation = await firebase.auth().signInWithPhoneNumber('+91' + phone, window.recaptchaVerifier);
                 document.getElementById('otpStep1').style.display = 'none';
                 document.getElementById('otpStep2').style.display = 'block';
-                // Until an SMS gateway key is set in api/send_otp.php the server returns the code here.
-                alert(res.demo_otp ? "✓ OTP (परीक्षण मोड): " + res.demo_otp : "✓ OTP आपके मोबाइल पर भेज दिया गया है।");
+                document.getElementById('authOtpCode').value = '';
+                alert("✓ 6-अंकों का OTP +91 " + phone + " पर SMS से भेज दिया गया है।");
             } catch (e) {
-                alert("❌ OTP सेवा उपलब्ध नहीं है। कृपया बाद में प्रयास करें।");
+                console.warn('Firebase phone OTP error:', e);
+                // A used/expired reCAPTCHA must be rebuilt before the next attempt
+                try { window.recaptchaVerifier && window.recaptchaVerifier.clear(); } catch (_) {}
+                window.recaptchaVerifier = null;
+                const msg = e && e.code === 'auth/too-many-requests'
+                    ? "बहुत अधिक प्रयास हुए। कृपया कुछ देर बाद पुनः प्रयास करें।"
+                    : "OTP भेजा नहीं जा सका। कृपया पुनः प्रयास करें या Google Sign-In चुनें।";
+                alert("❌ " + msg);
+            } finally {
+                if (btn) btn.disabled = false;
             }
         }
 
         async function verifyOtpRequest() {
             const otp = document.getElementById('authOtpCode').value.trim();
             const phone = document.getElementById('authPhone').value.trim();
-            let verified = false;
+            if (!otpConfirmation) {
+                alert("कृपया पहले OTP भेजें।");
+                return;
+            }
+            if (!/^\d{6}$/.test(otp)) {
+                alert("कृपया SMS में आया 6-अंकों का OTP दर्ज करें।");
+                return;
+            }
             try {
-                const resp = await fetch('api/verify_otp.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, otp })
-                });
-                const res = await resp.json();
-                verified = res.status === 'success' || res.verified === true;
-            } catch (e) {}
-            if (verified) {
+                const result = await otpConfirmation.confirm(otp);
+                otpConfirmation = null;
                 setSessionAndProceed({
                     name: `यूजर (${phone.slice(-4)})`,
                     phone: phone,
+                    uid: result.user ? result.user.uid : '',
                     picture: `https://api.dicebear.com/7.x/bottts/svg?seed=${phone}`,
                     isVerified: true,
                     type: "phone"
                 });
-            } else {
+            } catch (e) {
                 alert("❌ गलत OTP! कृपया सही OTP दर्ज करें।");
             }
         }
