@@ -234,3 +234,22 @@ SRA_I18N.add([
   ["50 से अधिक नई अति-विशिष्ट शास्त्रीय रिपोर्ट्स", "more than 50 new, highly specialised classical reports"],
   ["(अरिष्ट-भंग, दशमांश करियर, कालसर्प 12 प्रकार, सर्वतोभद्र चक्र वेध) जोड़ी जा रही हैं।", "(Arishta-bhanga, Dashamsha career, the 12 Kaal Sarp types, Sarvatobhadra Chakra vedha)."]
 ]);
+SRA_I18N.add([
+  ["📚 सम्पूर्ण रिपोर्ट्स", "📚 All reports"],
+  ["इसी कुण्डली से — दोबारा जन्म विवरण भरने की आवश्यकता नहीं", "From this same kundali — no need to enter birth details again"],
+  ["पराशरी मेगा रिपोर्ट", "Parashari Mega Report"],
+  ["सम्पूर्ण ९७ अध्याय फलित", "Predictions from all 97 chapters"],
+  ["मंगल दोष एवं २१ परिहार", "Manglik Dosha & 21 cancellations"],
+  ["त्रि-लग्न व नवांश परीक्षण", "Tri-lagna & Navamsha check"],
+  ["धन योग विश्लेषण", "Dhan Yoga analysis"],
+  ["धन योग एवं इन्दु लग्न", "Dhan Yoga & Indu Lagna"],
+  ["राजयोग सामर्थ्य / रश्मि-बल", "Rajyoga strength / Rashmi Bala"],
+  ["इसी पृष्ठ पर", "On this page"],
+  ["वाहन एवं जनबल रिपोर्ट", "Vehicle & Janabala report"],
+  ["मंगल दोष सारांश", "Manglik Dosha summary"],
+  ["🪔 मुहूर्त (अतिरिक्त विवरण आवश्यक)", "🪔 Muhurta (extra details needed)"],
+  ["विवाह मुहूर्त व मिलान", "Marriage Muhurta & Matching"],
+  ["वास्तु व गृह प्रवेश", "Vastu & Griha Pravesh"],
+  ["यज्ञोपवीत (उपनयन)", "Yajnopavita (Upanayana)"],
+  ["चूड़ाकर्म (मुंडन)", "Chudakarma (Mundan)"]
+]);

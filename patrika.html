@@ -4177,6 +4177,40 @@
 
     <!-- DOMAIN 5: PARASHARA FALIT REPORTS (Rashmi-Bala & Gomutrika) -->
     <div class="domain-panel" id="domainPanelReports">
+      <!-- Every report in the software, opened with the kundali generated above -->
+      <section class="sra-reports-hub" id="sraReportsHub">
+        <div class="sra-rh-head">
+          <h3>📚 सम्पूर्ण रिपोर्ट्स</h3>
+          <p>इसी कुण्डली से — दोबारा जन्म विवरण भरने की आवश्यकता नहीं<span id="sraRhName"></span></p>
+        </div>
+        <div class="sra-rh-grid">
+          <a class="sra-rh-card" href="parashara-report.html">
+            <span class="sra-rh-ico">📖</span><b>पराशरी मेगा रिपोर्ट</b><small>सम्पूर्ण ९७ अध्याय फलित</small><em>₹1111</em>
+          </a>
+          <a class="sra-rh-card" href="manglik-dosh-calculator.html">
+            <span class="sra-rh-ico">🔥</span><b>मंगल दोष एवं २१ परिहार</b><small>त्रि-लग्न व नवांश परीक्षण</small><em>₹199</em>
+          </a>
+          <a class="sra-rh-card" href="dhan-yoga-calculator.html">
+            <span class="sra-rh-ico">💰</span><b>धन योग विश्लेषण</b><small>धन योग एवं इन्दु लग्न</small>
+          </a>
+          <button type="button" class="sra-rh-card" onclick="openHubReport('rajyoga')">
+            <span class="sra-rh-ico">👑</span><b>राजयोग सामर्थ्य / रश्मि-बल</b><small>इसी पृष्ठ पर</small>
+          </button>
+          <button type="button" class="sra-rh-card" onclick="openHubReport('vahan')">
+            <span class="sra-rh-ico">🐘</span><b>वाहन एवं जनबल रिपोर्ट</b><small>इसी पृष्ठ पर</small>
+          </button>
+          <button type="button" class="sra-rh-card" onclick="openHubReport('mangal')">
+            <span class="sra-rh-ico">🔴</span><b>मंगल दोष सारांश</b><small>इसी पृष्ठ पर</small>
+          </button>
+        </div>
+        <div class="sra-rh-sub">🪔 मुहूर्त (अतिरिक्त विवरण आवश्यक)</div>
+        <div class="sra-rh-grid sra-rh-grid-sm">
+          <a class="sra-rh-card" href="vmm.html"><span class="sra-rh-ico">💍</span><b>विवाह मुहूर्त व मिलान</b></a>
+          <a class="sra-rh-card" href="vastu-muhurta.html"><span class="sra-rh-ico">🏡</span><b>वास्तु व गृह प्रवेश</b></a>
+          <a class="sra-rh-card" href="yajnopavita.html"><span class="sra-rh-ico">🧵</span><b>यज्ञोपवीत (उपनयन)</b></a>
+          <a class="sra-rh-card" href="mmm.html"><span class="sra-rh-ico">✂️</span><b>चूड़ाकर्म (मुंडन)</b></a>
+        </div>
+      </section>
       <div id="parasharaReportsContent">
         <div style="text-align:center; padding:40px 20px; color:var(--muted);">
           <div style="font-size:36px; margin-bottom:12px;">📊</div>
@@ -6483,6 +6517,9 @@ async function executeParasharaMaster() {
   renderedDomains.add('charts');
   drawnChartSlides.clear();
 
+  // Birth date parts (dropped in the server migration; the dasha renderers need them)
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [hh, mm, ss] = (timeStr + ":00").split(':').slice(0, 3).map(Number);
   const birthDateObj = new Date(y, m - 1, d, hh, mm, ss);
   const moonObj = planets.find(p => p.id === "Moon");
 
@@ -6522,6 +6559,8 @@ async function executeParasharaMaster() {
   if (typeof renderCandidateSummaryBar === 'function') {
     renderCandidateSummaryBar(currentCalculation.birthDetails);
   }
+  const hubName = document.getElementById('sraRhName');
+  if (hubName) hubName.textContent = ' • ' + candidateName;
 
   // Smooth scroll directly to the top so chart & tabs are in immediate view
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6742,7 +6781,9 @@ function renderAllTables() {
 
   const tblSpecialLagnasBody = document.querySelector("#tblSpecialLagnas tbody");
   if (tblSpecialLagnasBody && specialLagnas) {
-    tblSpecialLagnasBody.innerHTML = specialLagnas.map(l => `<tr>
+    // The Swiss Ephemeris server returns { HoraLagna: {...}, Pranapada: {...}, ... }
+    const lagnaList = Array.isArray(specialLagnas) ? specialLagnas : Object.values(specialLagnas);
+    tblSpecialLagnasBody.innerHTML = lagnaList.map(l => `<tr>
       <td data-label="संज्ञा"><b>${l.name}</b></td>
       <td data-label="राशि">${SIGNS[Math.floor(l.abs / 30)]}</td>
       <td data-label="अंश-कला-विकला" style="font-weight:700; color:var(--gold);">${formatDMS(l.abs % 30)}</td>
@@ -7609,6 +7650,13 @@ function triggerPartnerMangalRecalc() {
     };
   }
   renderParasharaReports();
+}
+
+// "सम्पूर्ण रिपोर्ट्स" cards: open an on-page report and bring it into view
+function openHubReport(reportType) {
+  switchParasharaReport(reportType);
+  const target = document.getElementById('parasharaReportsContent');
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function switchParasharaReport(reportType) {

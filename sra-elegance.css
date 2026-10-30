@@ -802,3 +802,26 @@ html.sra-gd-lock, html.sra-gd-lock body { overflow: hidden !important; }
   :root body .sra-gn-brand-txt { display: none; }
 }
 @media print { :root body .sra-gnav, :root body .sra-gdrawer, :root body .sra-gbackdrop { display: none !important; } }
+
+/* 13. PATRIKA: "सम्पूर्ण रिपोर्ट्स" HUB IN THE REPORTS TAB ─────────────── */
+:root body .sra-reports-hub { margin: 0 0 22px; padding: 20px; border: 1px solid var(--sra-hair-strong); border-radius: 16px; background: var(--sra-vellum); box-shadow: var(--sra-shadow); }
+:root body .sra-rh-head h3 { margin: 0 0 4px; font-family: var(--sra-display); font-size: 24px; color: var(--sra-kumkum); }
+:root body .sra-rh-head p { margin: 0 0 16px; font-size: 13.5px; color: var(--sra-muted); }
+:root body .sra-rh-head p span { color: var(--sra-gold-deep); font-weight: 700; }
+:root body .sra-rh-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+:root body .sra-rh-grid-sm { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+:root body .sra-rh-card {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+  padding: 14px 14px 14px 56px; min-height: 74px; border: 1px solid var(--sra-hair); border-radius: 12px;
+  background: var(--sra-paper); color: var(--sra-ink); text-decoration: none; cursor: pointer; font: inherit;
+  transition: transform .2s var(--sra-ease), border-color .2s, box-shadow .2s;
+}
+:root body .sra-rh-card:hover { transform: translateY(-2px); border-color: var(--sra-gold); box-shadow: var(--sra-shadow-lift); }
+:root body .sra-rh-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; display: grid; place-items: center; font-size: 20px; border-radius: 50%; background: var(--sra-wash); filter: sepia(.25); }
+:root body .sra-rh-card b { font-size: 14.5px; font-weight: 700; color: var(--sra-kumkum); line-height: 1.3; }
+:root body .sra-rh-card small { font-size: 12px; color: var(--sra-muted); }
+:root body .sra-rh-card em { position: absolute; top: 10px; right: 10px; font-style: normal; font-size: 11px; font-weight: 700; color: var(--sra-gold-deep); border: 1px solid var(--sra-hair-strong); border-radius: 20px; padding: 1px 8px; }
+:root body .sra-rh-grid-sm .sra-rh-card { min-height: 56px; justify-content: center; }
+:root body .sra-rh-card:has(em) b { padding-right: 58px; }  /* keep the title clear of the price tag */
+:root body .sra-rh-sub { margin: 18px 0 10px; font-size: 13px; font-weight: 700; color: var(--sra-muted); letter-spacing: .3px; }
+@media (max-width: 600px) { :root body .sra-reports-hub { padding: 14px; } :root body .sra-rh-grid { grid-template-columns: 1fr; } :root body .sra-rh-grid-sm { grid-template-columns: 1fr 1fr; } }

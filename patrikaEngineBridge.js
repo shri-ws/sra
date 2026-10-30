@@ -452,6 +452,9 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
     } catch(e) {
       console.warn("getAllSavedKundalis note:", e);
     }
+    // Newest first: the report pages open the first entry, which must be the
+    // kundali the visitor just generated on patrika.html (savedTimestamp is set on every save).
+    list.sort((a, b) => (b.savedTimestamp || 0) - (a.savedTimestamp || 0));
     return list;
   }
 
