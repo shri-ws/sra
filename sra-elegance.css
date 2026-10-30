@@ -5,7 +5,7 @@
    Rollback = remove one <link> line.
    ══════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+Devanagari:wght@500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+Devanagari:wght@500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Rozha+One&family=Cinzel:wght@600;700&display=swap');
 
 /* 1. DESIGN TOKENS ─────────────────────────────────────────────────────── */
 :root {
@@ -948,3 +948,21 @@ html.sra-auth-lock, html.sra-auth-lock body { overflow: hidden !important; }
 /* The account card covers login on phones: the page's own account buttons are not repeated there */
 :root body .sra-gd-account .nav-user-pill-btn, :root body .sra-gd-account #navAuthArea { display: none !important; }
 :root body .sra-gd-account:not(:has(> :not(.nav-user-pill-btn):not(#navAuthArea))) { display: none; }
+
+/* 16. BRAND NAME: पत्रिका in Rozha One, PATRIKA in Cinzel, following the selected language */
+:root body .sra-gn-brand-txt b.sra-gn-brand-name {
+  font-family: 'Rozha One', var(--sra-display) !important; font-weight: 400 !important;
+  font-size: 28px !important; line-height: 1 !important; letter-spacing: .3px;
+  background: linear-gradient(180deg, #6B1A22 0%, #3A0D16 100%); -webkit-background-clip: text; background-clip: text; color: transparent !important;
+}
+html[lang="en"] body .sra-gn-brand-txt b.sra-gn-brand-name {
+  font-family: 'Cinzel', 'Cormorant Garamond', serif !important; font-weight: 700 !important;
+  font-size: 21px !important; letter-spacing: 3px; text-transform: uppercase;
+}
+:root body .sra-gn-brand-sub { margin-top: 3px; font-size: 11.5px !important; letter-spacing: .6px; color: var(--sra-gold-deep) !important; font-weight: 600; }
+html[lang="en"] body .sra-gn-brand-sub { font-family: 'Cormorant Garamond', serif; font-size: 13px !important; font-style: italic; letter-spacing: .4px; }
+[data-theme="night"] body .sra-gn-brand-txt b.sra-gn-brand-name { background: linear-gradient(180deg, #F4DFA6 0%, #D4B36A 100%); -webkit-background-clip: text; background-clip: text; }
+@media (max-width: 760px) {
+  :root body .sra-gn-brand-txt b.sra-gn-brand-name { font-size: 25px !important; }
+  html[lang="en"] body .sra-gn-brand-txt b.sra-gn-brand-name { font-size: 18px !important; letter-spacing: 2px; }
+}

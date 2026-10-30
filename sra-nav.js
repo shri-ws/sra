@@ -37,6 +37,7 @@
   ];
   const T = {
     brand: L('श्री रामजी एस्ट्रो', 'Shri Ramji Astro'),
+    patrika: L('पत्रिका', 'Patrika'),
     home: L('मुख्य पृष्ठ', 'Home'),
     menu: L('मेनू', 'Menu'),
     close: L('बंद करें', 'Close'),
@@ -98,7 +99,7 @@
       <div class="sra-gn-inner" role="navigation" aria-label="Main">
         <a class="sra-gn-brand" href="index.html">
           <img src="logo.png" alt="" width="38" height="38">
-          <span class="sra-gn-brand-txt"><b>पत्रिका</b><small class="sra-gn-brand-sub"></small></span>
+          <span class="sra-gn-brand-txt"><b class="sra-gn-brand-name"></b><small class="sra-gn-brand-sub"></small></span>
         </a>
         <div class="sra-gn-links"></div>
         <div class="sra-gn-actions">
@@ -180,6 +181,7 @@
 
   function render() {
     header.querySelector('.sra-gn-links').innerHTML = desktopLinks();
+    header.querySelector('.sra-gn-brand-name').textContent = t(T.patrika);
     header.querySelector('.sra-gn-brand-sub').textContent = t(T.brand);
     header.querySelector('.sra-gn-brand').setAttribute('aria-label', t(T.home));
     header.querySelectorAll('.sra-gn-app').forEach(b => {
