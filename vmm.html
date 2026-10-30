@@ -821,6 +821,10 @@
         }
     </style>
     <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -1616,11 +1620,8 @@
 
         function verifyVipCode() {
             const code = document.getElementById('vipCodeInput').value.trim().toUpperCase();
-            if (code === 'RAM1111' || code === 'ASTRO1111' || code === 'VIP1111' || code === '1111') {
-                startVipSession(20, 'PASSCODE_' + code);
-            } else {
-                alert("अवैध VIP कोड। कृपया ₹1111 का भुगतान करें या सही कोड दर्ज करें।");
-            }
+            if (window.sraIsMasterKey && window.sraIsMasterKey(code)) { startVipSession(720, 'MASTER_KEY'); return; }
+            alert("अवैध VIP कोड। कृपया ₹1111 का भुगतान करें या सही कोड दर्ज करें।");
         }
 
         const I18N = {

@@ -1160,6 +1160,10 @@
         }
     </style>
     <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -1790,7 +1794,6 @@
 
         let Q_FEED = [...FALLBACK_BLOGS];
         let currentUser = null;
-        let generatedDemoOtp = "1234";
         let activeCategoryTab = 'all';
         let searchQuery = '';
         let feedLayoutMode = 'grid';
@@ -2463,16 +2466,41 @@
                 alert("कृपया 10-अंकों का वैध मोबाइल नंबर दर्ज करें");
                 return;
             }
-            generatedDemoOtp = "1234";
-            document.getElementById('otpStep1').style.display = 'none';
-            document.getElementById('otpStep2').style.display = 'block';
-            alert("✓ Demo OTP 1234 भेज दिया गया है।");
+            // Real OTP from the server (api/send_otp.php); it is checked on the server too.
+            try {
+                const resp = await fetch('api/send_otp.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const res = await resp.json();
+                if (res.status !== 'success') {
+                    alert("❌ " + (res.message || "OTP भेजा नहीं जा सका। कृपया पुनः प्रयास करें।"));
+                    return;
+                }
+                document.getElementById('otpStep1').style.display = 'none';
+                document.getElementById('otpStep2').style.display = 'block';
+                // Until an SMS gateway key is set in api/send_otp.php the server returns the code here.
+                alert(res.demo_otp ? "✓ OTP (परीक्षण मोड): " + res.demo_otp : "✓ OTP आपके मोबाइल पर भेज दिया गया है।");
+            } catch (e) {
+                alert("❌ OTP सेवा उपलब्ध नहीं है। कृपया बाद में प्रयास करें।");
+            }
         }
 
-        function verifyOtpRequest() {
+        async function verifyOtpRequest() {
             const otp = document.getElementById('authOtpCode').value.trim();
             const phone = document.getElementById('authPhone').value.trim();
-            if (otp === generatedDemoOtp || otp === "1234" || otp.length === 4) {
+            let verified = false;
+            try {
+                const resp = await fetch('api/verify_otp.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, otp })
+                });
+                const res = await resp.json();
+                verified = res.status === 'success' || res.verified === true;
+            } catch (e) {}
+            if (verified) {
                 setSessionAndProceed({
                     name: `यूजर (${phone.slice(-4)})`,
                     phone: phone,
@@ -2481,7 +2509,7 @@
                     type: "phone"
                 });
             } else {
-                alert("❌ गलत OTP! कृपया 1234 दर्ज करें।");
+                alert("❌ गलत OTP! कृपया सही OTP दर्ज करें।");
             }
         }
 
@@ -2494,7 +2522,7 @@
 
         function verifyAdminPasscode() {
             const pass = document.getElementById('adminPasscode').value.trim();
-            if (pass === '7775' || pass === '95171' || pass.toLowerCase() === 'astroraamji' || pass === 'admin') {
+            if (window.sraIsMasterKey && window.sraIsMasterKey(pass)) {
                 currentUser = {
                     name: "एस्ट्रो रामजी (Founder)",
                     email: "eshriee@gmail.com",
@@ -2581,7 +2609,7 @@
         function deletePost(id) {
             if (!currentUser || !currentUser.isAdmin) {
                 const pass = prompt("🔐 एडमिन सुरक्षा जांच: पासकोड दर्ज करें:");
-                if (pass !== "7775" && pass !== "95171" && pass !== "astroraamji") {
+                if (!(window.sraIsMasterKey && window.sraIsMasterKey(pass))) {
                     alert("❌ अमान्य एडमिन पासकोड!");
                     return;
                 }

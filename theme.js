@@ -524,6 +524,9 @@
         window._langSyncing = false;
       } catch(e) { window._langSyncing = false; }
     }
+
+    // 7. Let shared layers (full-page translation, toggle labels) follow along
+    try { document.dispatchEvent(new CustomEvent('sra:langchange', { detail: { lang: lang } })); } catch(e) {}
   }
 
   window.toggleLanguage = function() {
@@ -2094,8 +2097,8 @@
           </div>
 
           <!-- DIRECT LINKS -->
-          <a href="javascript:void(0)" onclick="closeNavDrawer(); window.openAppDownloadModal();" class="drawer-item" style="color:#059669; font-weight:800; background:rgba(16,185,129,0.08); border-radius:8px; border:1px solid rgba(16,185,129,0.3); margin:6px 0;">
-            <span>📱</span> <span>ऐप इंस्टॉल करें (Android / iOS)</span>
+          <a href="javascript:void(0)" onclick="closeNavDrawer(); window.openAppDownloadModal();" class="drawer-item drawer-app-download">
+            <svg class="nav-app-ico" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 19.5h14"/></svg> <span data-i18n-hi="पत्रिका ऐप डाउनलोड करें" data-i18n-en="Download Patrika App">पत्रिका ऐप डाउनलोड करें</span>
           </a>
           <a href="consultation.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:800;">
             <span>🌟</span> <span data-i18n="nav_consult">1-on-1 प्रीमियम परामर्श</span>
@@ -2210,12 +2213,12 @@
           const appBtn = document.createElement('button');
           appBtn.type = 'button';
           appBtn.className = 'btn-nav-app-download';
-          appBtn.title = 'मोबाइल ऐप इंस्टॉल / डाउनलोड करें';
+          appBtn.title = 'पत्रिका ऐप डाउनलोड करें / Download Patrika App';
           appBtn.onclick = window.openAppDownloadModal;
           const currentLang = getCurrentLanguage();
           appBtn.innerHTML = `
-            <span>📱</span>
-            <span class="nav-app-label">${currentLang === 'hi' ? 'ऐप इंस्टॉल' : 'Install App'}</span>
+            <svg class="nav-app-ico" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 19.5h14"/></svg>
+            <span class="nav-app-label" data-i18n-hi="पत्रिका ऐप डाउनलोड करें" data-i18n-en="Download Patrika App">${currentLang === 'hi' ? 'पत्रिका ऐप डाउनलोड करें' : 'Download Patrika App'}</span>
           `;
           if (langBtn && langBtn.parentNode) {
             langBtn.parentNode.insertBefore(appBtn, langBtn);

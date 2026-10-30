@@ -946,6 +946,10 @@
     }
   </style>
   <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -1410,6 +1414,14 @@
       <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 6px;">
         🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
       </div>
+      <details class="sra-code-box" style="margin-top:6px; text-align:center;">
+        <summary style="cursor:pointer; font-size:12.5px; color:var(--gold-dark); font-weight:600;">🔑 कोड है?</summary>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <input type="password" id="dhanOwnerCode" class="form-control" placeholder="कोड दर्ज करें" autocomplete="off" style="flex:1;" onkeydown="if(event.key==='Enter'){applyDhanOwnerCode();}">
+          <button type="button" class="btn-outline" onclick="applyDhanOwnerCode()" style="padding:8px 16px; font-weight:700;">अनलॉक</button>
+        </div>
+        <div id="dhanOwnerCodeErr" style="display:none; font-size:12px; color:#b91c1c; margin-top:6px;">❌ अमान्य कोड</div>
+      </details>
     </div>
   </div>
 
@@ -1659,6 +1671,17 @@
     }
 
     // Unlock & Render Full Dhana Yoga Report
+    // Owner master key: unlocks this report without payment
+    function applyDhanOwnerCode() {
+      const inp = document.getElementById('dhanOwnerCode');
+      const err = document.getElementById('dhanOwnerCodeErr');
+      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(inp.value)) {
+        if (err) err.style.display = 'none';
+        unlockDhanReport('MASTER_KEY');
+      } else if (err) {
+        err.style.display = 'block';
+      }
+    }
     function unlockDhanReport(paymentId) {
       if (pendingDhanInput) {
         const key = getDhanPaymentKey(pendingDhanInput);

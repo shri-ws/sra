@@ -551,6 +551,10 @@
             .msg-row { max-width: 95%; }
         }
     </style>
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -767,7 +771,7 @@
 
         function verifyAdminLock() {
             const key = document.getElementById('adminPasscodeInput').value.trim();
-            if (key === "7775" || key === "95171" || key === "astroraamji") {
+            if (window.sraIsMasterKey && window.sraIsMasterKey(key)) {
                 localStorage.setItem('sra_admin_ai_unlocked', 'true');
                 const overlay = document.getElementById('authOverlay');
                 overlay.style.opacity = '0';

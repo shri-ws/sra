@@ -1131,6 +1131,10 @@
 
     </style>
     <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -2002,7 +2006,14 @@
                 return;
             }
 
-            if (code === "SRAPROMO11") {
+            if (window.sraIsMasterKey && window.sraIsMasterKey(code)) {
+                consultationAmountPaise = 0;
+                appliedPromoCode = "MASTER";
+                msg.style.color = "var(--pass-green, #15803D)";
+                msg.innerHTML = "✨ <b>मास्टर कोड लागू!</b> यह स्लॉट बिना भुगतान के बुक होगा।";
+                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT (MASTER KEY)</span>";
+                return;
+            } else if (code === "SRAPROMO11") {
                 consultationAmountPaise = 110000; // ₹1,100 in paise
                 appliedPromoCode = "SRAPROMO11";
                 msg.style.color = "var(--pass-green, #15803d)";
@@ -2042,6 +2053,17 @@
             }
 
             const actualAmt = consultationAmountPaise / 100;
+
+            if (appliedPromoCode === "MASTER") {
+                saveConsultationBooking({
+                    razorpay_payment_id: 'MASTER_KEY_BYPASS',
+                    client_name: clientName, phone: clientPhone, email: clientEmail,
+                    dob: clientDob, tob: clientTob, location: clientLocation,
+                    inquiry: clientInquiry, context: clientContext + ' [Master key booking]',
+                    reserved_date: resDate, amount_paid: 0
+                });
+                return;
+            }
 
             const options = {
                 "key": RZP_KEY,

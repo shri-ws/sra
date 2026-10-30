@@ -676,6 +676,10 @@
   }
 </style>
 <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -1832,11 +1836,8 @@ function verifyPaymentUTR() {
 
 function verifyVipCode() {
   let pin = document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '';
-  if (['7775', '95171', 'astroraamji', 'panditji', 'SRAVIP', '1111'].includes(pin) || pin.length >= 4) {
-    startVipSession(20, 'PIN_' + pin);
-  } else {
-    alert("अमान्य VIP कोड! सही 4-अंकीय कोड या ₹1,111 भुगतान विकल्प का प्रयोग करें।");
-  }
+  if (window.sraIsMasterKey && window.sraIsMasterKey(pin)) { startVipSession(720, 'MASTER_KEY'); return; }
+  alert("अमान्य VIP कोड! सही कोड या ₹1,111 भुगतान विकल्प का प्रयोग करें।");
 }
 
 window.addEventListener('DOMContentLoaded', () => {

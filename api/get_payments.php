@@ -30,16 +30,12 @@ $providedToken = $_SERVER['HTTP_X_ADMIN_AUTH']
     ?? $_POST['admin_key'] 
     ?? '';
 
-$validKeys = [
-    $admin_auth_token ?? 'SRA_Admin_Master_Token_7775_95171',
-    '7775',
-    '95171',
-    'astroraamji',
-    'panditji',
-    'SRA@Admin2025'
-];
+$validKeys = array_filter([
+    getenv('ADMIN_AUTH_TOKEN') ?: null
+]);
 
-if (!in_array(trim($providedToken), $validKeys)) {
+require_once __DIR__ . '/master_key.php';
+if (!in_array(trim($providedToken), $validKeys) && !sra_is_master_key($providedToken)) {
     http_response_code(401);
     echo json_encode(["status" => "error", "message" => "Unauthorized access: Valid Admin Passcode / Token required."]);
     exit();

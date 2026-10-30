@@ -3196,6 +3196,10 @@
   }
 </style>
 <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -3300,9 +3304,9 @@
   </div>
   <div style="display:flex; align-items:center; gap:8px;">
     <!-- APP DOWNLOAD BUTTON -->
-    <button type="button" class="btn-nav-app-download" onclick="openAppDownloadModal()" title="मोबाइल ऐप इंस्टॉल / डाउनलोड करें">
-      <span>📱</span>
-      <span class="nav-app-label" data-i18n-hi="ऐप इंस्टॉल" data-i18n-en="Install App">ऐप इंस्टॉल</span>
+    <button type="button" class="btn-nav-app-download" onclick="openAppDownloadModal()" title="पत्रिका ऐप डाउनलोड करें / Download Patrika App">
+      <svg class="nav-app-ico" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 19.5h14"/></svg>
+      <span class="nav-app-label" data-i18n-hi="पत्रिका ऐप डाउनलोड करें" data-i18n-en="Download Patrika App">पत्रिका ऐप डाउनलोड करें</span>
     </button>
     <!-- PERSISTENT SAVED KUNDALIS BUTTON -->
     <button type="button" class="btn-nav-saved-kundali" onclick="openSavedKundaliModal()" title="सुरक्षित कुण्डलियां खोलें">
@@ -5584,7 +5588,7 @@ function evaluateBPHS10Factors(activeDashaChain, natalData) {
 // -------------------------------------------------------------
 // ADMIN GRAPH FEATURE PASSWORD PROTECTION ENGINE
 // -------------------------------------------------------------
-const VALID_GRAPH_PASSWORDS = ["sra360", "ramji360", "admin360", "123456"];
+const VALID_GRAPH_PASSWORDS = []; // owner master key only (sra-master.js)
 
 function checkGraphLockState() {
   const isUnlocked = sessionStorage.getItem("sra_graph_unlocked") === "true";
@@ -5611,7 +5615,7 @@ function unlockGraphFeature() {
   if (!passInput) return;
 
   const inputVal = passInput.value.trim();
-  if (VALID_GRAPH_PASSWORDS.includes(inputVal)) {
+  if (VALID_GRAPH_PASSWORDS.includes(inputVal) || (window.sraIsMasterKey && window.sraIsMasterKey(inputVal))) {
     sessionStorage.setItem("sra_graph_unlocked", "true");
     if (errMsg) errMsg.innerText = "";
     checkGraphLockState();
@@ -7530,25 +7534,17 @@ function verifyParasharaPasscode() {
   const errBox = document.getElementById('parasharaVipErrMsg');
   if (!input) return;
   const val = input.value.trim().toUpperCase();
-
-  const rajyogaCodes = ['RAJYOGA199', 'RAJYOGA', 'PARASHAR199', 'PARASHAR', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
-  const vahanCodes = ['VAHAN199', 'VAHAN', 'GOMUTRIKA199', 'GOMUTRIKA', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
-  const mangalCodes = ['MANGAL199', 'MANGAL', 'BHAUMA199', 'BHAUMA', 'MANGLIK199', 'MANGLIK', 'SHRIRAM', 'SHRIRAM199', 'RAMJI199', 'VIP199', 'ASTRO199', 'ADMIN199', 'SRA199'];
-
-  let validCodes = rajyogaCodes;
-  if (currentPayingReport === 'vahan') validCodes = vahanCodes;
-  if (currentPayingReport === 'mangal') validCodes = mangalCodes;
-
-  if (validCodes.includes(val)) {
+  if (window.sraIsMasterKey && window.sraIsMasterKey(val)) {
     if (errBox) errBox.style.display = 'none';
-    unlockParasharaReport(currentPayingReport, 'VIP_CODE_' + val);
+    unlockParasharaReport(currentPayingReport, 'MASTER_KEY');
+    return;
+  }
+
+  if (errBox) {
+    errBox.textContent = '❌ अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।';
+    errBox.style.display = 'block';
   } else {
-    if (errBox) {
-      errBox.textContent = '❌ अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।';
-      errBox.style.display = 'block';
-    } else {
-      alert('अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।');
-    }
+    alert('अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।');
   }
 }
 
@@ -11304,7 +11300,7 @@ window.setLanguage = function(lang) {
         🔑 VIP / प्रोमो कोड है?
       </div>
       <div class="vip-code-flex">
-        <input type="text" id="parasharaVipCodeInput" class="vip-code-inp" placeholder="उदा. PARASHAR199" onkeydown="if(event.key==='Enter')verifyParasharaPasscode()">
+        <input type="text" id="parasharaVipCodeInput" class="vip-code-inp" placeholder="कोड दर्ज करें" onkeydown="if(event.key==='Enter')verifyParasharaPasscode()">
         <button type="button" class="btn-vip-submit" onclick="verifyParasharaPasscode()">लागू करें</button>
       </div>
       <div id="parasharaVipErrMsg" style="display:none; color:#ef4444; font-size:11.5px; margin-top:6px; font-weight:600;"></div>

@@ -1992,6 +1992,10 @@
     }
   </style>
     <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
   <style id="sra-layout">
     /* पाराशर रिपोर्ट पृष्ठ: सरल ऊपरी लेआउट (केवल नई क्लास, बाकी CSS अछूता) */
     .sra-hero{max-width:760px;margin:0 auto;padding:36px 4px 8px;text-align:left}
@@ -3381,6 +3385,15 @@
           err.style.display = 'block';
           setTimeout(() => { err.style.display = 'none'; }, 3000);
         }
+        return;
+      }
+
+      if (window.sraIsMasterKey && window.sraIsMasterKey(input)) {
+        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+        closeGateModal();
+        updateAuthBadge();
+        updateGenerateButtonState(currentSelectedKundali);
+        generateMegaParasharaReport(true);
         return;
       }
 

@@ -25,15 +25,11 @@ $type = !empty($data['type']) ? trim($data['type']) : 'passcode';
 if ($type === 'passcode') {
     $code = !empty($data['passcode']) ? trim($data['passcode']) : '';
     
-    // Server-side master passcodes
-    $validPasscodes = [
-        'MPP1111',
-        'SRA2026',
-        'ASTRORAAMJI7775',
-        'PARASHARA97'
-    ];
+    // Owner master key only (api/master_key.php)
+    $validPasscodes = [];
     
-    if (in_array(strtoupper($code), $validPasscodes)) {
+    require_once __DIR__ . '/master_key.php';
+    if (in_array(strtoupper($code), $validPasscodes) || sra_is_master_key($code)) {
         // Ephemeral daily salted token for the verified session
         $sessionToken = hash('sha256', $code . '_sra_secure_salt_' . date('Y-m-d'));
         echo json_encode([

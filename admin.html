@@ -185,6 +185,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .social-form-group input,.social-form-group select{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none}
 .social-form-group input:focus{border-color:var(--gold)}
 </style>
+<script src="sra-master.js" defer></script>
 </head>
 <body>
 
@@ -601,13 +602,7 @@ async function hashPass(str) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Valid password hashes: SRA@Admin2025, 7775, 95171, astroraamji
-const VALID_AUTH_HASHES = [
-  '79c1e7a552834b6b19d44f77c617b0709b82aaedfb7d1d2938a1649a21d15bf1', // SRA@Admin2025
-  'faee8c187f66a87756f082e666a7b746366f07f4e7c7a25037d4e5f7b8893d56', // 7775
-  'df01b7a702741d48c087955f26938d21c3fa6759fa20b57e4e1dfcbdb88d75ea', // 95171
-  '3a9856f6e80b2a3f91807d8985160e1d0f5c1d3f6a2b8e90141a0529d89004d8'  // astroraamji
-];
+// Login: owner master key only (sra-master.js / api/master_key.php)
 
 async function doLogin(){
   try {
@@ -618,13 +613,12 @@ async function doLogin(){
     const err = document.getElementById('loginErr');
     
     // Direct check or hashed check
-    const pHash = await hashPass(p);
-    const isValid = (u.toLowerCase() === 'panditji' || u.toLowerCase() === 'admin') && 
-                    (p === 'SRA@Admin2025' || p === '7775' || p === '95171' || VALID_AUTH_HASHES.includes(pHash));
+    const isMaster = !!(window.sraIsMasterKey && window.sraIsMasterKey(p));
+    const isValid = isMaster;
 
     if(isValid){
       sessionStorage.setItem('sra_admin_auth', 'true');
-      sessionStorage.setItem('sra_admin_token', p || '7775');
+      sessionStorage.setItem('sra_admin_token', p);
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       if (err) err.textContent = '';
@@ -703,7 +697,7 @@ function showDebug(msg){
 }
 
 async function fetchPayments(){
-  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  const adminToken = sessionStorage.getItem('sra_admin_token') || '';
   let serverPayments = [];
   try {
     const res = await fetch('api/get_payments.php?admin_key=' + encodeURIComponent(adminToken), {
@@ -762,7 +756,7 @@ async function fetchPayments(){
 }
 
 async function fetchUserQueries(){
-  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  const adminToken = sessionStorage.getItem('sra_admin_token') || '';
   let serverData = [];
   try {
     const res = await fetch('api/get_users.php?admin_key=' + encodeURIComponent(adminToken), {

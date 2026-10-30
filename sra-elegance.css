@@ -1,0 +1,645 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   SRA-ELEGANCE.CSS: "RAJKIYA PANDULIPI" (ROYAL MANUSCRIPT) DESIGN LAYER
+   Pure presentation layer. Linked AFTER ui-overrides.css on every page.
+   Touches no markup hooks, no IDs, no calculation logic.
+   Rollback = remove one <link> line.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Noto+Serif+Devanagari:wght@500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* 1. DESIGN TOKENS ─────────────────────────────────────────────────────── */
+:root {
+  --sra-paper: #FAF6EE;
+  --sra-paper-2: #F3ECDF;
+  --sra-vellum: #FFFDF8;
+  --sra-ink: #1F1A17;
+  --sra-ink-soft: #4A4038;
+  --sra-muted: #6E6257;
+  --sra-kumkum: #3A0D16;
+  --sra-sindoor: #8E1B1B;
+  --sra-gold: #B08D3E;
+  --sra-gold-leaf: #D6B76A;
+  --sra-gold-deep: #7A5A1C;
+  --sra-hair: rgba(122, 90, 28, 0.20);
+  --sra-hair-strong: rgba(122, 90, 28, 0.38);
+  --sra-wash: rgba(176, 141, 62, 0.08);
+  --sra-shadow: 0 1px 2px rgba(58, 13, 22, 0.04), 0 10px 30px -12px rgba(58, 13, 22, 0.12);
+  --sra-shadow-lift: 0 2px 4px rgba(58, 13, 22, 0.05), 0 22px 44px -18px rgba(58, 13, 22, 0.22);
+  /* Exactly two families site-wide: one for headings, one for everything else. */
+  --sra-display: 'Cormorant Garamond', 'Noto Serif Devanagari', Georgia, serif;
+  --sra-deva-display: var(--sra-display);
+  --sra-body: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+  --sra-caps: var(--sra-body);
+  --sra-radius: 12px;
+  --sra-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="night"] {
+  --sra-paper: #0E0C10;
+  --sra-paper-2: #15121A;
+  --sra-vellum: #1A1620;
+  --sra-ink: #EFE8DA;
+  --sra-ink-soft: #D6CCBB;
+  --sra-muted: #A79C8C;
+  --sra-kumkum: #F2DFB0;
+  --sra-sindoor: #E07A6A;
+  --sra-gold: #D4B36A;
+  --sra-gold-leaf: #E9CF8E;
+  --sra-gold-deep: #E2C27A;
+  --sra-hair: rgba(212, 179, 106, 0.16);
+  --sra-hair-strong: rgba(212, 179, 106, 0.34);
+  --sra-wash: rgba(212, 179, 106, 0.07);
+  --sra-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -14px rgba(0, 0, 0, 0.6);
+  --sra-shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 24px 48px -18px rgba(0, 0, 0, 0.75);
+}
+
+/* Map every page's own variable names onto the manuscript palette (day). */
+:root:not([data-theme="night"]) {
+  --bg: var(--sra-paper); --bg2: var(--sra-paper-2); --bg3: var(--sra-vellum);
+  --bg-body: var(--sra-paper); --bg-body-alt: var(--sra-paper-2); --theme-bg: var(--sra-paper);
+  --card: var(--sra-vellum); --card2: var(--sra-paper-2); --card-bg: var(--sra-vellum);
+  --bg-card: var(--sra-vellum); --card-bg-elevated: var(--sra-vellum); --theme-surface: var(--sra-vellum);
+  --text: var(--sra-ink); --text-main: var(--sra-ink); --theme-text: var(--sra-ink); --charcoal: var(--sra-ink);
+  --muted: var(--sra-muted); --text-muted: var(--sra-muted); --theme-muted: var(--sra-muted);
+  --heading-color: var(--sra-kumkum); --primary: var(--sra-kumkum); --maroon-deep: var(--sra-kumkum);
+  --gold: var(--sra-gold); --gold2: var(--sra-gold); --gold-base: var(--sra-gold); --theme-gold: var(--sra-gold);
+  --gold-dark: var(--sra-gold-deep);
+  --gold-border: var(--sra-hair-strong); --card-border: var(--sra-hair); --border-color: var(--sra-hair);
+  --gold-dim: var(--sra-wash);
+  --nav-bg: rgba(250, 246, 238, 0.86);
+  --footer-bg: var(--sra-paper-2);
+  --input-bg: var(--sra-vellum);
+  --hero-bg: var(--sra-paper);
+  --toggle-slider-bg: linear-gradient(135deg, #B08D3E, #7A5A1C);
+}
+
+[data-theme="night"] {
+  --bg: var(--sra-paper) !important; --bg2: var(--sra-paper-2) !important; --bg3: var(--sra-vellum) !important;
+  --card: var(--sra-vellum) !important; --card2: var(--sra-paper-2) !important; --card-bg: var(--sra-vellum) !important;
+  --theme-bg: var(--sra-paper) !important; --theme-surface: var(--sra-vellum) !important;
+  --text: var(--sra-ink) !important; --theme-text: var(--sra-ink) !important;
+  --muted: var(--sra-muted) !important; --theme-muted: var(--sra-muted) !important;
+  --heading-color: var(--sra-kumkum) !important;
+  --gold: var(--sra-gold) !important; --gold2: var(--sra-gold-leaf) !important; --gold-dark: var(--sra-gold-deep) !important;
+  --theme-gold: var(--sra-gold) !important;
+  --gold-border: var(--sra-hair-strong) !important; --gold-dim: var(--sra-wash) !important;
+  --nav-bg: rgba(14, 12, 16, 0.86) !important;
+  --footer-bg: #09080B !important;
+}
+
+/* Night surfaces: replace ui-overrides' hardcoded violet with warm ink-black. */
+[data-theme="night"] #desktopPanchangSection,
+[data-theme="night"] #social-hub,
+[data-theme="night"] .seo-authority-block,
+[data-theme="night"] .sra-master-ecosystem {
+  background: var(--sra-paper-2) !important; background-color: var(--sra-paper-2) !important;
+  border-color: var(--sra-hair) !important;
+}
+[data-theme="night"] #modalMobileOtp > div, [data-theme="night"] .app-glass-panel, [data-theme="night"] .app-quick-tile,
+[data-theme="night"] .app-service-card, [data-theme="night"] .boxed-card, [data-theme="night"] .btn-lang,
+[data-theme="night"] .cal-slot, [data-theme="night"] .calendar-card, [data-theme="night"] .daily-panchang-table,
+[data-theme="night"] .intake-card, [data-theme="night"] .modal, [data-theme="night"] .panchang-avakahada-clean-tbl,
+[data-theme="night"] .panchang-card, [data-theme="night"] .panchang-data-row, [data-theme="night"] .panchang-limb-box,
+[data-theme="night"] .panchang-wrapped-item, [data-theme="night"] .pillar-card, [data-theme="night"] .quick-chip-btn,
+[data-theme="night"] .report-card, [data-theme="night"] .scarcity-matrix-card, [data-theme="night"] .slide-nav-btn,
+[data-theme="night"] .social-block, [data-theme="night"] .muhurta-item, [data-theme="night"] details.ui-collapsible,
+[data-theme="night"] .sra-master-ecosystem div[style*="background:#fff"],
+[data-theme="night"] .sra-master-ecosystem div[style*="background: #fff"] {
+  background: var(--sra-vellum) !important; background-color: var(--sra-vellum) !important;
+  border-color: var(--sra-hair) !important;
+}
+[data-theme="night"] input, [data-theme="night"] select, [data-theme="night"] textarea, [data-theme="night"] .form-control {
+  background-color: var(--sra-paper) !important; border-color: var(--sra-hair-strong) !important; color: var(--sra-ink) !important;
+}
+[data-theme="night"] .quick-chip-btn.active { background: var(--sra-gold) !important; color: #120E09 !important; }
+
+
+/* 1b. TYPOGRAPHY SYSTEM: ONE HEADING FACE, ONE BODY FACE, EVERY PAGE ─────── */
+:root body :where(*):not(code, pre, kbd, samp) { font-family: var(--sra-body) !important; }
+:root body :is(h1, h2, h3, h4, h5, h6, .section-title,
+  [class*="-title"]:not([class*="sub"]):not([class*="drawer"]):not(.brand-title):not(.nav-app-label),
+  [class*="heading"] > h2, [class*="heading"] > h3) {
+  font-family: var(--sra-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.005em !important;
+  text-transform: none !important;
+}
+:root body .brand-title { font-family: 'Cinzel', var(--sra-display) !important; }
+:root body [style*="monospace"] { font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important; }
+
+/* 2. CANVAS & TYPE ─────────────────────────────────────────────────────── */
+html { -webkit-text-size-adjust: 100%; }
+body {
+  color: var(--sra-ink);
+  font-family: var(--sra-body) !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+[data-theme="night"] body { background-color: var(--sra-paper) !important; color: var(--sra-ink) !important; }
+
+::selection { background: rgba(176, 141, 62, 0.28); color: inherit; }
+
+h1, h2, h3 {
+  font-family: var(--sra-display) !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--heading-color, var(--sra-kumkum));
+}
+h2 { line-height: 1.2; }
+
+/* The loud display faces become quiet manuscript serifs, even where set inline. */
+[style*="Rozha One"] { font-family: var(--sra-deva-display) !important; font-weight: 600 !important; }
+h1[style*="Cinzel"], h2[style*="Cinzel"], h3[style*="Cinzel"] {
+  font-family: var(--sra-display) !important; font-weight: 600 !important; letter-spacing: 0.02em !important;
+}
+
+a { text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--sra-gold); outline-offset: 2px; border-radius: 4px; }
+
+/* Ornament line: a fine double rule with a lozenge, like a manuscript margin. */
+.ornament-line {
+  width: 140px !important; height: 7px !important; margin: 0 auto 18px !important;
+  background:
+    linear-gradient(var(--sra-gold), var(--sra-gold)) left 50% / 56px 1px no-repeat,
+    linear-gradient(var(--sra-gold), var(--sra-gold)) right 50% / 56px 1px no-repeat,
+    linear-gradient(45deg, transparent 40%, var(--sra-gold) 40% 60%, transparent 60%) center / 7px 7px no-repeat !important;
+  border: 0 !important; opacity: 0.9;
+}
+
+/* 3. NAVIGATION ────────────────────────────────────────────────────────── */
+nav {
+  background: var(--nav-bg) !important;
+  backdrop-filter: saturate(140%) blur(16px) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(16px) !important;
+  border-bottom: 1px solid var(--sra-hair) !important;
+  box-shadow: none !important;
+}
+.nav-links a {
+  font-family: var(--sra-body) !important;
+  font-size: 12.5px !important; font-weight: 500 !important;
+  letter-spacing: 0.02em !important; text-transform: none !important;
+  color: var(--sra-ink-soft) !important;
+  border-radius: 999px !important;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--sra-kumkum) !important; background: var(--sra-wash) !important; }
+
+/* 4. BUTTONS ───────────────────────────────────────────────────────────── */
+.btn-hero, .btn-primary, .btn-gold, .btn-cta, .submit-btn, .btn-submit, .v-btn {
+  transition: transform .35s var(--sra-ease), box-shadow .35s var(--sra-ease), background-color .25s, color .25s, border-color .25s !important;
+}
+.btn-hero {
+  font-family: var(--sra-body) !important;
+  font-size: 13.5px !important; font-weight: 600 !important;
+  letter-spacing: 0.02em !important; text-transform: none !important;
+  padding: 14px 26px !important; border-radius: 999px !important;
+  background: transparent !important;
+  border: 1px solid var(--sra-hair-strong) !important;
+  color: var(--sra-kumkum) !important;
+  box-shadow: none !important;
+}
+.btn-hero:hover { background: var(--sra-wash) !important; border-color: var(--sra-gold) !important; transform: translateY(-1px) !important; box-shadow: none !important; }
+.btn-hero.highlight {
+  background: var(--sra-kumkum) !important; color: #F6E7C1 !important;
+  border-color: var(--sra-kumkum) !important;
+  box-shadow: 0 10px 28px -12px rgba(58, 13, 22, 0.55) !important;
+}
+.btn-hero.highlight:hover { background: #4C1520 !important; box-shadow: 0 16px 34px -14px rgba(58, 13, 22, 0.6) !important; }
+[data-theme="night"] .btn-hero.highlight { background: var(--sra-gold) !important; color: #120E09 !important; border-color: var(--sra-gold) !important; }
+
+/* 5. SURFACES ──────────────────────────────────────────────────────────── */
+.app-glass-panel, .boxed-card, .report-card, .app-service-card, .highlight-card, .pillar-card,
+.rule-card, .blog-card, .panchang-card, .calendar-card, .intake-card, .scarcity-matrix-card {
+  border-radius: var(--sra-radius) !important;
+  border: 1px solid var(--sra-hair) !important;
+  box-shadow: var(--sra-shadow) !important;
+  transition: transform .45s var(--sra-ease), box-shadow .45s var(--sra-ease), border-color .3s !important;
+}
+.app-service-card:hover, .highlight-card:hover, .pillar-card:hover, .blog-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: var(--sra-shadow-lift) !important;
+  border-color: var(--sra-hair-strong) !important;
+}
+
+/* 6. FORMS ─────────────────────────────────────────────────────────────── */
+input[type="text"], input[type="date"], input[type="time"], input[type="email"], input[type="tel"],
+input[type="number"], input[type="search"], select, textarea {
+  border-radius: 10px;
+  border-color: var(--sra-hair-strong);
+  background-color: var(--input-bg, var(--sra-vellum));
+  transition: border-color .2s, box-shadow .2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--sra-gold) !important;
+  box-shadow: 0 0 0 4px rgba(176, 141, 62, 0.14) !important;
+  outline: none !important;
+}
+
+/* 7. FOOTER ────────────────────────────────────────────────────────────── */
+.site-global-footer { border-top: 1px solid var(--sra-hair) !important; background: var(--footer-bg) !important; }
+
+/* 8. HOMEPAGE: THE "EKMEV" HERO ────────────────────────────────────────── */
+section.hero.sra-ekmev-hero {
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(214, 183, 106, 0.16), transparent 70%),
+    var(--sra-paper) !important;
+  padding-top: clamp(96px, 12vw, 140px) !important;
+  padding-bottom: clamp(48px, 7vw, 88px) !important;
+  position: relative;
+}
+[data-theme="night"] section.hero.sra-ekmev-hero {
+  background: radial-gradient(60% 50% at 50% 0%, rgba(212, 179, 106, 0.10), transparent 70%), var(--sra-paper) !important;
+}
+.sra-ekmev-hero .hero-inner { max-width: 1080px !important; }
+
+.sra-ekmev-hero .sra-invocation {
+  font-family: var(--sra-deva-display) !important;
+  font-size: 14px; font-weight: 500;
+  color: var(--sra-gold-deep);
+  letter-spacing: 0.08em;
+  margin-bottom: 26px;
+}
+.sra-ekmev-hero .sra-seal {
+  display: inline-flex; align-items: center; gap: 12px;
+  font-family: var(--sra-caps) !important;
+  font-size: 11px !important; font-weight: 700; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--sra-gold-deep);
+  margin-bottom: 22px;
+}
+.sra-ekmev-hero .sra-seal::before, .sra-ekmev-hero .sra-seal::after { content: ""; width: 38px; height: 1px; background: var(--sra-gold); opacity: .7; }
+
+.sra-ekmev-hero h1.sra-hero-title {
+  font-family: var(--sra-display) !important;
+  font-weight: 500 !important;
+  font-size: clamp(40px, 7vw, 84px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--sra-kumkum) !important;
+  margin: 0 0 18px !important;
+}
+.sra-ekmev-hero h1.sra-hero-title span, .sra-ekmev-hero h1.sra-hero-title em {
+  display: inline !important; font-family: inherit !important; letter-spacing: inherit !important;
+  font-weight: inherit !important; font-size: 1em !important; line-height: inherit !important; margin: 0 !important;
+}
+.sra-ekmev-hero h1.sra-hero-title span { color: var(--sra-kumkum) !important; }
+.sra-ekmev-hero h1.sra-hero-title em { font-style: italic; color: var(--sra-gold-deep) !important; }
+.sra-ekmev-hero .sra-hero-deva {
+  font-family: var(--sra-deva-display) !important;
+  font-size: clamp(18px, 2.4vw, 25px) !important; font-weight: 500;
+  color: var(--sra-ink-soft);
+  margin-bottom: 22px;
+}
+.sra-ekmev-hero .hero-sub {
+  font-size: clamp(14.5px, 1.6vw, 16.5px) !important;
+  color: var(--sra-muted) !important;
+  max-width: 720px !important;
+  margin: 0 auto 48px !important;
+}
+
+/* Two pillars: the two things no one else in the world does. */
+.sra-ekmev-hero .sra-pillars {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  max-width: 940px; margin: 0 auto 46px;
+  text-align: left;
+  background: var(--sra-vellum);
+  border: 1px solid var(--sra-hair-strong);
+  border-radius: 18px;
+  box-shadow: var(--sra-shadow-lift);
+  position: relative;
+  overflow: hidden;
+}
+.sra-ekmev-hero .sra-pillars::before {
+  content: ""; position: absolute; inset: 7px; border: 1px solid var(--sra-hair);
+  border-radius: 12px; pointer-events: none;
+}
+.sra-ekmev-hero .sra-pillar { padding: 38px 40px 36px; position: relative; }
+.sra-ekmev-hero .sra-pillar + .sra-pillar { border-left: 1px solid var(--sra-hair); }
+.sra-ekmev-hero .sra-pillar-mark {
+  font-family: var(--sra-deva-display) !important;
+  font-size: 12.5px !important; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--sra-sindoor);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sra-ekmev-hero .sra-pillar-num {
+  font-family: var(--sra-display) !important; font-style: italic; font-weight: 600;
+  font-size: 15px; letter-spacing: 0; text-transform: none;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: inline-grid; place-items: center;
+  border: 1px solid var(--sra-hair-strong); color: var(--sra-gold-deep);
+}
+.sra-ekmev-hero .sra-pillar h2 {
+  font-family: var(--sra-deva-display) !important;
+  font-size: clamp(22px, 2.6vw, 28px) !important; font-weight: 600 !important;
+  line-height: 1.3 !important; color: var(--sra-kumkum) !important;
+  margin: 0 0 6px !important;
+}
+.sra-ekmev-hero .sra-pillar-en {
+  font-family: var(--sra-display) !important; font-style: italic;
+  font-size: 19px !important; color: var(--sra-gold-deep); margin-bottom: 14px;
+}
+.sra-ekmev-hero .sra-pillar p { font-size: 14px; line-height: 1.75; color: var(--sra-ink-soft); margin: 0; }
+.sra-ekmev-hero .sra-pillar p b { color: var(--sra-kumkum); font-weight: 700; }
+
+/* The decree becomes the closing line under the pillars. */
+.sra-ekmev-hero .hero-oath-card {
+  background: transparent !important; border: 0 !important; box-shadow: none !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  padding: 0 !important; max-width: 760px !important; margin: 0 auto 34px !important; text-align: center !important;
+}
+.sra-ekmev-hero .hero-oath-title { display: none !important; }
+.sra-ekmev-hero .hero-oath-desc {
+  font-family: var(--sra-display) !important; font-style: italic !important;
+  font-size: clamp(17px, 2vw, 21px) !important; line-height: 1.55 !important;
+  color: var(--sra-ink-soft) !important;
+}
+.sra-ekmev-hero .hero-oath-desc b { color: var(--sra-kumkum); font-weight: 700; font-style: normal; }
+
+.sra-ekmev-hero .hero-ctas { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; gap: 12px !important; }
+
+.sra-ekmev-hero .zodiac-ticker { border-color: var(--sra-hair) !important; opacity: .85; }
+
+@media (max-width: 767px) {
+  .sra-ekmev-hero .sra-pillars { grid-template-columns: 1fr; border-radius: 14px; }
+  .sra-ekmev-hero .sra-pillar { padding: 28px 24px 26px; }
+  .sra-ekmev-hero .sra-pillar + .sra-pillar { border-left: 0; border-top: 1px solid var(--sra-hair); }
+  .sra-ekmev-hero .sra-seal { letter-spacing: 0.22em; font-size: 10px !important; }
+  .sra-ekmev-hero .sra-seal::before, .sra-ekmev-hero .sra-seal::after { width: 22px; }
+  .sra-ekmev-hero .sra-invocation { margin-bottom: 18px; }
+}
+
+/* Mobile app home: the same two pillars, as one compact plaque. */
+#viewHome .sra-m-ekmev {
+  display: block; text-decoration: none; color: inherit;
+  margin: 4px 0 18px; padding: 22px 18px 18px;
+  text-align: center;
+  background: var(--sra-vellum);
+  border: 1px solid var(--sra-hair-strong);
+  border-radius: 16px;
+  box-shadow: var(--sra-shadow-lift);
+  position: relative;
+}
+#viewHome .sra-m-ekmev::before {
+  content: ""; position: absolute; inset: 5px; border: 1px solid var(--sra-hair);
+  border-radius: 12px; pointer-events: none;
+}
+#viewHome .sra-m-seal {
+  font-family: var(--sra-caps) !important; font-size: 9.5px !important; font-weight: 700;
+  letter-spacing: 0.26em; text-transform: uppercase; color: var(--sra-gold-deep); margin-bottom: 8px;
+}
+#viewHome .sra-m-title {
+  font-family: var(--sra-display) !important; font-size: 25px !important; font-weight: 500; line-height: 1.15;
+  color: var(--sra-kumkum); margin-bottom: 16px;
+}
+#viewHome .sra-m-title em { font-style: italic; color: var(--sra-gold-deep); font-size: 1em !important; font-family: inherit !important; }
+#viewHome .sacred-seal-badge {
+  background: transparent !important; border: 1px solid var(--sra-hair-strong) !important;
+  color: var(--sra-kumkum) !important; box-shadow: none !important;
+}
+#viewHome .sra-m-pillars { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--sra-hair); }
+#viewHome .sra-m-pillar { padding: 14px 6px 2px; }
+#viewHome .sra-m-pillar + .sra-m-pillar { border-left: 1px solid var(--sra-hair); }
+#viewHome .sra-m-num {
+  font-family: var(--sra-display) !important; font-style: italic; font-weight: 600; font-size: 13px !important;
+  width: 24px; height: 24px; margin: 0 auto 8px; border-radius: 50%;
+  display: grid; place-items: center; border: 1px solid var(--sra-hair-strong); color: var(--sra-gold-deep);
+}
+#viewHome .sra-m-head {
+  font-family: var(--sra-deva-display) !important; font-size: 15px !important; font-weight: 600; line-height: 1.35;
+  color: var(--sra-kumkum); margin-bottom: 4px;
+}
+#viewHome .sra-m-sub { font-size: 12px !important; color: var(--sra-muted); line-height: 1.4; }
+
+/* Mobile app service cards: quieter glyph frames and badges. */
+.app-service-card .card-glyph {
+  background: var(--sra-wash) !important; border: 1px solid var(--sra-hair) !important; border-radius: 50% !important;
+}
+.app-service-card .card-badge {
+  font-family: var(--sra-body) !important; font-weight: 600 !important; letter-spacing: 0.02em !important;
+  background: transparent !important; border: 1px solid var(--sra-hair-strong) !important; color: var(--sra-gold-deep) !important;
+}
+.app-service-card .card-title { color: var(--sra-kumkum) !important; }
+
+/* 8b. CONSULTATION: THE SANCTUARY PAGE ─────────────────────────────────── */
+.container > div > .protocol-pill, .protocol-pill {
+  font-family: var(--sra-caps) !important; font-size: 10.5px !important; letter-spacing: 0.28em !important;
+  background: transparent !important; border: 0 !important; box-shadow: none !important;
+  color: var(--sra-gold-deep) !important; padding: 6px 0 !important;
+}
+.container > .hero {
+  background: radial-gradient(70% 60% at 50% 0%, rgba(214, 183, 106, 0.14), transparent 70%), var(--sra-vellum) !important;
+  border: 1px solid var(--sra-hair-strong) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--sra-shadow-lift) !important;
+  outline: 1px solid var(--sra-hair); outline-offset: -8px;
+}
+.container > .hero .hero-pretitle {
+  font-family: var(--sra-caps) !important; font-size: 11px !important; letter-spacing: 0.3em !important;
+  color: var(--sra-gold-deep) !important; font-weight: 700 !important;
+}
+.container > .hero .hero-title {
+  font-family: var(--sra-display) !important; font-weight: 500 !important; text-transform: none !important;
+  font-size: clamp(34px, 5.4vw, 64px) !important; line-height: 1.08 !important; letter-spacing: -0.005em !important;
+  color: var(--sra-kumkum) !important; max-width: 860px; margin-left: auto !important; margin-right: auto !important;
+}
+.container > .hero .hero-subtitle {
+  font-size: clamp(15px, 1.6vw, 17px) !important; color: var(--sra-muted) !important;
+  max-width: 680px; margin-left: auto !important; margin-right: auto !important; line-height: 1.75 !important;
+}
+.container > .hero .oath-box {
+  background: transparent !important; border: 0 !important; border-left: 0 !important; box-shadow: none !important;
+  max-width: 780px; margin-left: auto !important; margin-right: auto !important;
+  padding: 28px 8px 4px !important; border-top: 1px solid var(--sra-hair) !important; border-radius: 0 !important;
+}
+.container > .hero .oath-box p {
+  font-family: var(--sra-display) !important; font-style: italic !important;
+  font-size: clamp(17px, 1.9vw, 21px) !important; line-height: 1.6 !important; color: var(--sra-ink-soft) !important;
+  text-align: center !important;
+}
+.container > .hero .oath-box > div { text-align: center !important; font-family: var(--sra-caps) !important; font-size: 11px !important; letter-spacing: 0.2em !important; }
+
+.section-heading h2, .daivagya-title {
+  font-family: var(--sra-display) !important; font-weight: 600 !important; text-transform: none !important;
+  font-size: clamp(28px, 3.6vw, 42px) !important; letter-spacing: 0 !important; line-height: 1.2 !important;
+  color: var(--sra-kumkum) !important;
+}
+.daivagya-title { font-family: var(--sra-deva-display) !important; font-size: clamp(24px, 3vw, 34px) !important; }
+.section-heading p, .daivagya-subtitle { color: var(--sra-muted) !important; }
+
+.anatomy-card, .pillar-card, .pricing-banner, .sanctuary-social-proof-card {
+  background: var(--sra-vellum) !important;
+  border: 1px solid var(--sra-hair) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--sra-shadow) !important;
+}
+.phase-badge, .pillar-meta {
+  font-family: var(--sra-caps) !important; font-size: 10px !important; letter-spacing: 0.22em !important;
+  background: transparent !important; border: 0 !important; padding: 0 !important; color: var(--sra-sindoor) !important;
+}
+.phase-title, .pillar-title {
+  font-family: var(--sra-display) !important; font-weight: 600 !important; text-transform: none !important;
+  font-size: 23px !important; letter-spacing: 0 !important; color: var(--sra-kumkum) !important; line-height: 1.25 !important;
+}
+.pillar-title { font-family: var(--sra-deva-display) !important; font-size: 19px !important; }
+.pricing-amount { font-family: var(--sra-display) !important; font-weight: 600 !important; color: var(--sra-kumkum) !important; }
+
+/* 9. SECTION HEADINGS SITE-WIDE ────────────────────────────────────────── */
+.section-header h2, .section-title {
+  font-family: var(--sra-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.005em !important;
+  color: var(--heading-color, var(--sra-kumkum)) !important;
+}
+
+
+/* 10. SURYA DEV / CHANDRA DEV TOGGLE ───────────────────────────────────── */
+:root body .sra-tt {
+  position: relative !important;
+  display: inline-flex !important; align-items: center !important; gap: 0 !important;
+  width: 74px !important; min-width: 74px !important; height: 36px !important;
+  padding: 3px !important; margin: 0 !important;
+  border-radius: 999px !important;
+  background: var(--sra-paper-2) !important;
+  border: 1px solid var(--sra-hair-strong) !important;
+  box-shadow: inset 0 1px 2px rgba(58, 13, 22, 0.06) !important;
+  cursor: pointer !important; font-size: 0 !important; color: var(--sra-gold-deep) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+:root body .sra-tt .sra-tt-knob {
+  position: absolute; top: 3px; left: 3px; width: 34px; height: 28px; border-radius: 999px;
+  background: linear-gradient(145deg, #E7C76F, #B08D3E);
+  box-shadow: 0 2px 8px -2px rgba(122, 90, 28, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: transform .5s var(--sra-ease), background .4s;
+}
+:root body .sra-tt .sra-tt-ico {
+  position: relative; z-index: 1; flex: 1; height: 28px;
+  display: grid; place-items: center; transition: color .4s, opacity .4s;
+}
+:root body .sra-tt svg { width: 22px; height: 22px; display: block; }
+:root body .sra-tt .sra-tt-sun { color: #4A2A05; }
+:root body .sra-tt .sra-tt-moon { color: var(--sra-muted); opacity: .75; }
+:root body .sra-tt .sra-tt-rays { transform-origin: 32px 32px; animation: sra-surya-turn 24s linear infinite; }
+[data-theme="night"] body .sra-tt .sra-tt-knob { transform: translateX(34px); background: linear-gradient(145deg, #EDE6D3, #A9B4C8); box-shadow: 0 0 14px rgba(230, 226, 210, 0.35); }
+[data-theme="night"] body .sra-tt .sra-tt-sun { color: var(--sra-muted); opacity: .6; }
+[data-theme="night"] body .sra-tt .sra-tt-moon { color: #1C1A2A; opacity: 1; }
+[data-theme="night"] body .sra-tt .sra-tt-rays { animation-play-state: paused; }
+:root body .sra-tt:hover { border-color: var(--sra-gold) !important; }
+@keyframes sra-surya-turn { to { transform: rotate(360deg); } }
+
+/* 11. "DOWNLOAD PATRIKA APP" BUTTON ────────────────────────────────────── */
+:root body .btn-nav-app-download {
+  display: inline-flex !important; align-items: center !important; gap: 7px !important;
+  height: 36px !important; padding: 0 14px !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  border: 1px solid var(--sra-hair-strong) !important;
+  color: var(--sra-kumkum) !important;
+  font-size: 12.5px !important; font-weight: 600 !important; letter-spacing: 0.01em !important;
+  box-shadow: none !important; white-space: nowrap !important; cursor: pointer !important;
+  transition: background .25s, border-color .25s !important;
+}
+:root body .btn-nav-app-download:hover { background: var(--sra-wash) !important; border-color: var(--sra-gold) !important; }
+:root body .btn-nav-app-download .nav-app-label { display: inline !important; font-size: 12.5px !important; color: inherit !important; }
+:root body .btn-nav-app-download .nav-app-ico { color: var(--sra-gold-deep); flex: none; }
+:root body .drawer-app-download {
+  color: var(--sra-kumkum) !important; font-weight: 700 !important;
+  border: 1px solid var(--sra-hair-strong) !important; border-radius: 10px !important;
+  background: var(--sra-wash) !important; margin: 6px 0 !important;
+  display: flex !important; align-items: center !important; gap: 10px !important;
+}
+@media (max-width: 767px) {
+  :root body nav .btn-nav-app-download { height: 32px !important; padding: 0 10px !important; gap: 5px !important; }
+  :root body nav .btn-nav-app-download .nav-app-label { font-size: 11px !important; }
+}
+@media (max-width: 480px) {
+  /* Narrow phones: the short form fits beside logo, language and login. */
+  :root body nav .btn-nav-app-download .nav-app-label { display: none !important; }
+  :root body nav .btn-nav-app-download::after { content: "पत्रिका ऐप"; font-size: 11px; font-weight: 600; }
+  html[lang="en"] body nav .btn-nav-app-download::after { content: "Patrika App"; font-size: 10.5px; }
+  :root body nav .btn-nav-app-download { padding: 0 8px !important; gap: 4px !important; }
+}
+
+/* 12. CALMER PALETTE: retire leftover loud greens, purples, reds, gradients ─ */
+:root body .card-badge, :root body .hl-badge, :root body .drop-badge, :root body .tags-badge,
+:root body .blog-cat-pill, :root body .panchang-status-pill, :root body .rule-lock-badge,
+:root body .city-quick-chip, :root body .chip-btn, :root body .p-chip, :root body .quick-chip-btn,
+:root body .daivagya-tag-pill, :root body .card-badge.vip, :root body .card-badge.meeus {
+  background: transparent !important; background-image: none !important;
+  border: 1px solid var(--sra-hair-strong) !important;
+  color: var(--sra-gold-deep) !important; box-shadow: none !important;
+}
+:root body .quick-chip-btn.active, :root body .chip-btn.active, :root body .city-quick-chip.active {
+  background: var(--sra-kumkum) !important; color: #F6E7C1 !important; border-color: var(--sra-kumkum) !important;
+}
+[data-theme="night"] body .quick-chip-btn.active, [data-theme="night"] body .chip-btn.active { background: var(--sra-gold) !important; color: #120E09 !important; }
+/* Decorative purple/blue fills → kumkum. Green (shubh) and red (ashubh) keep their meaning. */
+:root:not([data-theme="night"]) body [style*="background:#7c3aed"], :root:not([data-theme="night"]) body [style*="background: #7c3aed"],
+:root:not([data-theme="night"]) body [style*="background:#2563eb"], :root:not([data-theme="night"]) body [style*="background: #2563eb"] {
+  background: var(--sra-kumkum) !important; color: #F6E7C1 !important;
+}
+:root body [style*="linear-gradient(135deg, #C5A059"], :root body [style*="linear-gradient(135deg,#C5A059"],
+:root body [style*="linear-gradient(135deg, #c9a84c"], :root body [style*="linear-gradient(135deg,#c9a84c"],
+:root body [style*="linear-gradient(135deg, #D4AF37"], :root body [style*="linear-gradient(135deg, var(--gold"] {
+  background: var(--sra-kumkum) !important; background-image: none !important; color: #F6E7C1 !important; border-color: var(--sra-kumkum) !important;
+}
+[data-theme="night"] body [style*="linear-gradient(135deg, #C5A059"], [data-theme="night"] body [style*="linear-gradient(135deg,#C5A059"],
+[data-theme="night"] body [style*="linear-gradient(135deg, #c9a84c"], [data-theme="night"] body [style*="linear-gradient(135deg,#c9a84c"] {
+  background: var(--sra-gold) !important; color: #120E09 !important;
+}
+:root body .sacred-seal-badge { background: transparent !important; border: 1px solid var(--sra-hair-strong) !important; color: var(--sra-kumkum) !important; box-shadow: none !important; }
+:root body .live-dot { background: var(--sra-gold) !important; box-shadow: 0 0 0 0 rgba(176, 141, 62, 0.5); animation: sra-pulse 2.4s ease-out infinite; }
+/* Emoji glyphs inside icon frames: soften to sepia so they sit in the palette */
+:root body .card-glyph, :root body .app-quick-icon, :root body .pillar-icon, :root body .hl-icon, :root body .drawer-sub-icon {
+  filter: sepia(0.55) saturate(0.8);
+}
+
+/* 13. GENTLE MOVEMENT ──────────────────────────────────────────────────── */
+:root body .sra-reveal { opacity: 0; transform: translateY(14px); }
+:root body .sra-reveal.sra-in {
+  opacity: 1; transform: none;
+  transition: opacity .6s var(--sra-ease) var(--sra-delay, 0ms), transform .6s var(--sra-ease) var(--sra-delay, 0ms) !important;
+}
+/* Gold-leaf shimmer passing over the seals and section ornaments */
+.sra-ekmev-hero .sra-seal, #viewHome .sra-m-seal, .container > .hero .hero-pretitle, .protocol-pill {
+  background: linear-gradient(100deg, var(--sra-gold-deep) 0%, var(--sra-gold-deep) 40%, #E9CF8E 50%, var(--sra-gold-deep) 60%, var(--sra-gold-deep) 100%) !important;
+  background-size: 250% 100% !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: sra-shimmer 6s ease-in-out infinite;
+}
+.sra-ekmev-hero .sra-seal::before, .sra-ekmev-hero .sra-seal::after { -webkit-text-fill-color: initial; }
+@keyframes sra-shimmer { 0%, 30% { background-position: 120% 0; } 70%, 100% { background-position: -20% 0; } }
+/* The two pillars breathe softly, like a diya */
+.sra-ekmev-hero .sra-pillars, #viewHome .sra-m-ekmev { animation: sra-breathe 7s ease-in-out infinite; }
+@keyframes sra-breathe {
+  0%, 100% { box-shadow: var(--sra-shadow-lift); }
+  50% { box-shadow: 0 2px 4px rgba(58, 13, 22, 0.05), 0 26px 56px -18px rgba(176, 141, 62, 0.42); }
+}
+/* Pillar numerals glow in turn */
+.sra-ekmev-hero .sra-pillar-num, #viewHome .sra-m-num { animation: sra-glow 5s ease-in-out infinite; }
+.sra-ekmev-hero .sra-pillar + .sra-pillar .sra-pillar-num, #viewHome .sra-m-pillar + .sra-m-pillar .sra-m-num { animation-delay: 2.5s; }
+@keyframes sra-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(176, 141, 62, 0); } 50% { box-shadow: 0 0 0 5px rgba(176, 141, 62, 0.16); } }
+/* Primary call to action: a slow sheen */
+.btn-hero.highlight { position: relative; overflow: hidden; }
+.btn-hero.highlight::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 240, 200, 0.28) 50%, transparent 65%);
+  transform: translateX(-120%); animation: sra-sheen 5.5s ease-in-out infinite;
+}
+@keyframes sra-sheen { 0%, 55% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }
+@keyframes sra-pulse { 0% { box-shadow: 0 0 0 0 rgba(176, 141, 62, 0.5); } 80%, 100% { box-shadow: 0 0 0 8px rgba(176, 141, 62, 0); } }
+/* Ornament lozenge slowly turns */
+.ornament-line { animation: sra-ornament 9s ease-in-out infinite; }
+@keyframes sra-ornament { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  :root body .sra-reveal { opacity: 1 !important; transform: none !important; }
+  .sra-ekmev-hero .sra-seal, #viewHome .sra-m-seal, .sra-ekmev-hero .sra-pillars, #viewHome .sra-m-ekmev,
+  .btn-hero.highlight::after, :root body .sra-tt .sra-tt-rays, .ornament-line { animation: none !important; }
+}
+
+/* 14. NAV FIT: sra-ui.js tucks overflow links into the drawer so the right-side controls stay visible */
+:root body nav .nav-links > .sra-nav-tucked { display: none !important; }
+@media (min-width: 768px) {
+  :root body nav .nav-logo, :root body nav .nav-btns, :root body nav .nav-actions { flex: none !important; }
+  :root body nav .nav-links a { font-size: 12px !important; padding: 6px 9px !important; }
+}
