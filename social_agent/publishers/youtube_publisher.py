@@ -71,7 +71,9 @@ def publish_to_youtube_shorts(yt_payload: dict, video_path: str, config: dict, d
                 "title": title[:100],
                 "description": desc,
                 "tags": tags,
-                "categoryId": "22" # People & Blogs
+                "categoryId": "27", # Education
+                "defaultLanguage": "hi",
+                "defaultAudioLanguage": "hi"
             },
             "status": {
                 "privacyStatus": "public",

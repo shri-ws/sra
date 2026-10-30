@@ -4,6 +4,7 @@ Curates authentic shlokas, yogas, kundli tips, and remedies from Brihat Parashar
 and synthesizes high-CTR, high-engagement content for YouTube Shorts, Instagram Reels, Facebook, WhatsApp Channel, Quora, and Reddit.
 """
 
+import re
 import json
 import random
 import datetime
@@ -75,27 +76,71 @@ def select_daily_topic(date_seed: datetime.date = None) -> dict:
         "verse_label": selected_verse.get("verse_label", "श्लोक"),
         "shloka": selected_verse.get("shloka", ""),
         "bhashya": selected_verse.get("bhashya", ""),
+        "summary": chapter_data.get("shastra_summary_hindi", ""),
         "tags": curated["tags"]
     }
 
+GEMINI_FALLBACK_MODELS = ["gemini-flash-latest"]
+
 def call_gemini_api(api_key: str, model: str, prompt: str) -> str:
-    """Call Google Gemini REST API directly."""
+    """Call Google Gemini REST API directly; retries busy errors and falls back to other models."""
     if not api_key:
         return ""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    import time
+    models = [model] + [m for m in GEMINI_FALLBACK_MODELS if m != model]
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 8192}
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192, "responseMimeType": "application/json"}
     }
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            res_json = json.loads(resp.read().decode("utf-8"))
-            return res_json["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e:
-        print(f"[Curator] Gemini API error ({model}): {e}")
-        return ""
+    for m in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        for attempt in range(2):
+            req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    res_json = json.loads(resp.read().decode("utf-8"))
+                    return res_json["candidates"][0]["content"]["parts"][0]["text"]
+            except urllib.error.HTTPError as e:
+                print(f"[Curator] Gemini API error ({m}): {e}")
+                if e.code not in (429, 500, 503):
+                    break
+                time.sleep(8 * (attempt + 1))
+            except Exception as e:
+                print(f"[Curator] Gemini API error ({m}): {e}")
+                break
+    return ""
+
+def build_video_scenes(topic_data: dict, short_theme: str) -> list:
+    """
+    Five short scenes, each with its own narration, built for Shorts retention:
+    a question hook in the first 2 seconds, the shloka, the plain meaning,
+    one practical rule, and a subscribe + comment ending.
+    """
+    ch_num = topic_data["chapter_num"]
+    summary = (topic_data.get("summary") or "").rstrip("।. ")
+    shloka = topic_data["shloka"]
+    # Speak only the first line of the shloka (the full verse stays on screen) to keep the Short tight
+    first_line = re.split(r"[।\n]", shloka)[0]
+    shloka_spoken = re.sub(r"॥\s*[०-९\d]+\s*॥|[॥।]", " ", first_line).strip()
+    topic = re.sub(r"\s*(रहस्य|सूत्र|विचार)$", "", short_theme)
+    return [
+        {"kind": "hook", "badge": "⚡ क्या आप जानते हैं?",
+         "display": f"**{topic}**\nपर महर्षि पराशर का\nयह नियम जानते हैं?",
+         "narration": f"{topic} पर महर्षि पराशर का यह नियम बहुत कम लोग जानते हैं। अंत तक देखिए।"},
+        {"kind": "shloka", "badge": "📜 मूल श्लोक", "display": shloka,
+         "source": f"बृहत्पाराशरहोराशास्त्रम् • अध्याय {ch_num} • {topic_data['verse_label']}",
+         "narration": f"अध्याय {ch_num} में लिखा है — {shloka_spoken}।"},
+        {"kind": "meaning", "badge": "🔍 सरल अर्थ",
+         "display": summary or short_theme,
+         "narration": f"सरल शब्दों में — {summary or short_theme}।"},
+        {"kind": "tip", "badge": "💡 ज़रूरी नियम",
+         "display": "केवल राशि नहीं —\n**लग्नेश का बल** और\n**भाव-चलित** देखें",
+         "narration": "ध्यान रखिए — केवल राशि नहीं, लग्नेश का बल और भाव चलित में ग्रह की असली स्थिति देखिए।"},
+        {"kind": "cta", "badge": "🙏 आपकी बारी",
+         "display": "कमेंट में लिखें\n**अपना लग्न** 👇\nकुंडली देखें: **shriramjiastro.in**",
+         "narration": "अपनी कुंडली श्री रामजी एस्ट्रो डॉट इन पर देखिए। रोज़ एक शास्त्रीय सूत्र के लिए सब्सक्राइब कीजिए, और कमेंट में अपना लग्न लिखिए।"},
+    ]
 
 def generate_social_package(topic_data: dict = None) -> dict:
     """
@@ -136,7 +181,8 @@ def generate_social_package(topic_data: dict = None) -> dict:
     ig_hashtags = "#jyotish #vedicastrology #reels #kundli #astrology #rashifal #horoscope #parashara #shriramjiastro #trending #viralreels #astrologytips"
 
     # 1. YouTube Title & Description
-    yt_title = f"{short_theme} का रहस्य | महर्षि पराशर सूत्र #Shorts #Jyotish"
+    scenes = build_video_scenes(topic_data, short_theme)
+    yt_title = f"{re.sub(r'\s*(रहस्य|सूत्र|विचार)$', '', short_theme)} पर महर्षि पराशर का यह नियम 🔱 #Shorts #Jyotish"
     if len(yt_title) > 95:
         yt_title = f"{short_theme} | पराशर सूत्र #Shorts #Jyotish"
 
@@ -273,6 +319,12 @@ Return a valid JSON object with exact keys:
 4. "whatsapp_post": Beautifully formatted message with *bold* headers and emojis for WhatsApp Channel
 5. "facebook_post": Formatted Facebook post with emojis and clean line breaks
 6. "voice_script": Smooth, natural 45-second Hindi narration script for vertical video
+7. "hook_display": On-screen hook for the first 2 seconds of the Short: a Hindi question of at most 9 words about this theme that makes the viewer ask "is this in MY kundli?". Wrap the 1-3 key words in **double asterisks**. No fear-mongering, no invented statistics.
+8. "hook_narration": Spoken hook, Hindi, 1-2 short sentences (under 16 words), ends by telling the viewer to watch till the end.
+9. "meaning_narration": Plain, warm Hindi explanation of what this shloka/theme means for a person's chart (under 30 words). Stay faithful to the shloka and bhashya; do not invent rules.
+10. "tip_narration": One practical, classical rule the viewer can check in their own chart (under 26 words).
+10b. "tip_display": The same rule as on-screen text, at most 10 Hindi words, key words in **double asterisks**.
+11. "cta_narration": Hindi ending under 24 words: check your kundli at "श्री रामजी एस्ट्रो डॉट इन", subscribe for one classical sutra daily, and write your lagna in the comments.
 DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
 """
             gemini_resp = call_gemini_api(api_key, model, prompt)
@@ -292,6 +344,20 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
                 whatsapp_post = enhanced.get("whatsapp_post", whatsapp_post)
                 fb_post = enhanced.get("facebook_post", fb_post)
                 voice_script = enhanced.get("voice_script", voice_script)
+                limits = {"hook": ("hook_narration", 160), "meaning": ("meaning_narration", 300),
+                          "tip": ("tip_narration", 240), "cta": ("cta_narration", 240)}
+                tip_display = (enhanced.get("tip_display") or "").strip()
+                for sc in scenes:
+                    key, cap = limits.get(sc["kind"], (None, 0))
+                    val = (enhanced.get(key) or "").strip() if key else ""
+                    if val and len(val) <= cap:
+                        sc["narration"] = val
+                        # On-screen tip must say what the voice says
+                        if sc["kind"] == "tip":
+                            sc["display"] = tip_display if tip_display and len(tip_display) <= 80 else "💡 अपनी कुंडली में\n**यह नियम** जाँचें"
+                hook_display = (enhanced.get("hook_display") or "").strip()
+                if hook_display and len(hook_display) <= 70:
+                    scenes[0]["display"] = hook_display
                 print("[Curator] Content successfully enhanced via Gemini AI!")
         except Exception as e:
             print(f"[Curator] Note: Using built-in canonical BPHS synthesis ({e})")
@@ -306,6 +372,7 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
         "video": {
             "title": f"BPHS सूत्र: {short_theme}",
             "voice_script": voice_script,
+            "scenes": scenes,
             "slides": [
                 {"heading": "⚡ क्या आप जानते हैं?", "body": slide_1_hook, "duration": 6},
                 {"heading": "📜 महर्षि पराशर सूत्र", "body": slide_2_shloka, "duration": 14},

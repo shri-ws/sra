@@ -373,6 +373,243 @@ def render_slide_pil_fallback(
     
     img.save(output_path, quality=95)
 
+# ---------------------------------------------------------------------------
+# Scene-based engagement reel: hook in the first seconds, word-synced captions,
+# slow zoom + crossfades, soft tanpura drone, progress bar and a subscribe ending.
+# ---------------------------------------------------------------------------
+
+FPS = 30
+XFADE = 0.35                 # crossfade length between scenes (seconds)
+SCENE_TAIL = 0.30            # breath after each narration
+CAPTION_FONT = "Kohinoor Devanagari"
+CAPTION_FONT_DIR = "/System/Library/Fonts"
+CAPTION_SKIP_KINDS = {"shloka"}   # the shloka is already on screen
+
+def probe_duration(path: str) -> float:
+    exe = imageio_ffmpeg.get_ffmpeg_exe()
+    p = subprocess.run([exe, "-i", path], capture_output=True, text=True)
+    m = re.search(r"Duration:\s*(\d+):(\d+):([\d\.]+)", p.stderr or p.stdout)
+    if not m:
+        return 0.0
+    return float(m.group(1)) * 3600 + float(m.group(2)) * 60 + float(m.group(3))
+
+async def tts_with_words(text: str, output_path: str, voice: str, rate: str) -> list:
+    """Synthesize narration and return its word timings as (word, start_sec, end_sec)."""
+    communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
+    words = []
+    with open(output_path, "wb") as f:
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                f.write(chunk["data"])
+            elif chunk["type"] == "WordBoundary":
+                start = chunk["offset"] / 1e7
+                words.append((chunk["text"], start, start + chunk["duration"] / 1e7))
+    return words
+
+SCENE_CSS = """
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700;800;900&family=Noto+Serif+Devanagari:wght@600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1080px; height: 1920px; overflow: hidden; position: relative;
+    font-family: 'Noto Sans Devanagari', 'Kohinoor Devanagari', sans-serif; color: #fff;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255, 196, 61, 0.22) 0%, rgba(255, 196, 61, 0) 42%),
+      radial-gradient(ellipse at 50% 110%, #3a0d16 0%, rgba(58, 13, 22, 0) 60%),
+      linear-gradient(180deg, #120a1c 0%, #0a0d1c 55%, #07070f 100%);
+  }
+  .mandala {
+    position: absolute; left: 50%; top: 600px; width: 1500px; height: 1500px;
+    transform: translate(-50%, -50%); border-radius: 50%; opacity: 0.16;
+    background: repeating-conic-gradient(from 0deg, #d4af37 0deg 2deg, transparent 2deg 15deg);
+    -webkit-mask: radial-gradient(circle, transparent 22%, #000 23%, #000 48%, transparent 49%);
+  }
+  .ring { position: absolute; left: 50%; top: 600px; border-radius: 50%; transform: translate(-50%, -50%);
+          border: 2px solid rgba(212, 175, 55, 0.35); }
+  .frame { position: absolute; inset: 34px; border: 2px solid rgba(212, 175, 55, 0.55); border-radius: 28px; }
+  .top { position: absolute; top: 110px; width: 100%; text-align: center; }
+  .om { font-size: 74px; color: #ffd36b; text-shadow: 0 0 34px rgba(255, 200, 80, 0.8); line-height: 1; }
+  .brand { margin-top: 14px; font-size: 30px; font-weight: 700; letter-spacing: 1px; color: #f1d58a; }
+  .badge { display: inline-block; margin-top: 26px; padding: 12px 36px; border-radius: 60px; font-size: 32px; font-weight: 800;
+           color: #1a0d05; background: linear-gradient(135deg, #ffe08a, #e0a526); box-shadow: 0 10px 30px rgba(224, 165, 38, 0.45); }
+  .stage { position: absolute; top: 470px; left: 70px; right: 70px; height: 640px;
+           display: flex; align-items: center; justify-content: center; text-align: center; }
+  .display { font-weight: 900; line-height: 1.32; color: #fff; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.8); white-space: pre-line; }
+  .display em { font-style: normal; color: #ffd36b; text-shadow: 0 0 40px rgba(255, 200, 80, 0.6), 0 6px 30px rgba(0, 0, 0, 0.8); }
+  .shloka { font-family: 'Noto Serif Devanagari', serif; font-weight: 700; font-size: 54px; line-height: 1.7; color: #ffe6a8;
+            white-space: pre-line; padding: 50px 40px; border-radius: 30px;
+            background: rgba(20, 10, 24, 0.55); border: 2px solid rgba(212, 175, 55, 0.5); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6); }
+  .source { margin-top: 26px; font-size: 32px; color: #f1d58a; font-weight: 700; }
+  .foot { position: absolute; bottom: 120px; width: 100%; text-align: center; font-size: 34px; font-weight: 800; color: #ffd36b; letter-spacing: 1px; }
+  .sub { display: inline-flex; align-items: center; gap: 18px; padding: 26px 64px; border-radius: 80px; background: #e62117;
+         font-size: 58px; font-weight: 900; color: #fff; box-shadow: 0 18px 50px rgba(230, 33, 23, 0.55); }
+  .cta-lines { margin-top: 50px; font-size: 54px; font-weight: 800; line-height: 1.5; white-space: pre-line; }
+  .cta-lines em { font-style: normal; color: #ffd36b; }
+"""
+
+def _display_html(text: str) -> str:
+    """Escape text; **word** becomes the gold highlight."""
+    out = html.escape(text)
+    return re.sub(r"\*\*(.+?)\*\*", r"<em>\1</em>", out)
+
+def scene_html(scene: dict, branding: str) -> str:
+    kind = scene.get("kind", "meaning")
+    badge = html.escape(scene.get("badge", ""))
+    display = scene.get("display", "")
+    if kind == "shloka":
+        stage = f'<div><div class="shloka">{html.escape(display)}</div><div class="source">{html.escape(scene.get("source", ""))}</div></div>'
+    elif kind == "cta":
+        stage = ('<div><div class="sub">🔔 SUBSCRIBE</div>'
+                 f'<div class="cta-lines">{_display_html(display)}</div></div>')
+    else:
+        size = 96 if kind == "hook" else (78 if len(display) < 70 else 64)
+        stage = f'<div class="display" style="font-size:{size}px">{_display_html(display)}</div>'
+    rings = "".join(f'<div class="ring" style="width:{d}px;height:{d}px"></div>' for d in (760, 980))
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{SCENE_CSS}</style></head>
+<body><div class="mandala"></div>{rings}<div class="frame"></div>
+<div class="top"><div class="om">ॐ</div><div class="brand">{html.escape(branding)}</div>
+<div class="badge">{badge}</div></div>
+<div class="stage">{stage}</div>
+<div class="foot">shriramjiastro.in</div></body></html>"""
+
+def render_html_png(html_code: str, output_path: Path) -> bool:
+    chrome_bin = find_chrome_binary()
+    if not chrome_bin:
+        return False
+    temp_html = output_path.with_suffix(".temp.html")
+    try:
+        temp_html.write_text(html_code, encoding="utf-8")
+        cmd = [chrome_bin, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+               "--force-device-scale-factor=1", "--window-size=1080,1920",
+               "--virtual-time-budget=4000",          # let the web fonts load
+               f"--screenshot={output_path.resolve()}", str(temp_html.resolve())]
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        return proc.returncode == 0 and output_path.exists()
+    except Exception as e:
+        print(f"[VideoEngine] Chrome scene render error: {e}")
+        return False
+    finally:
+        if temp_html.exists():
+            temp_html.unlink()
+
+def _ass_time(t: float) -> str:
+    cs = int(round(t * 100))
+    return f"{cs // 360000}:{cs // 6000 % 60:02d}:{cs // 100 % 60:02d}.{cs % 100:02d}"
+
+def build_captions_ass(timed_scenes: list, ass_path: Path):
+    """Karaoke captions: 2-4 words at a time, each word fills white → gold as it is spoken."""
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Cap,{CAPTION_FONT},90,&H0036D3FF,&H00FFFFFF,&H00120A08,&H96000000,1,0,0,0,100,100,0,0,1,6,3,2,70,70,520,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    events = []
+    for sc in timed_scenes:
+        if sc["kind"] in CAPTION_SKIP_KINDS:
+            continue
+        words, base = sc["words"], sc["start"]
+        chunks, cur = [], []
+        for w in words:
+            cur.append(w)
+            if len(cur) >= 4 or re.search(r"[।?!,—:]$", w[0]) or (len(cur) >= 3 and sum(len(x[0]) for x in cur) > 16):
+                chunks.append(cur); cur = []
+        if cur:
+            chunks.append(cur)
+        for i, ch in enumerate(chunks):
+            start = base + ch[0][1]
+            nxt = base + chunks[i + 1][0][1] if i + 1 < len(chunks) else base + ch[-1][2] + 0.25
+            end = max(nxt, base + ch[-1][2])
+            parts, t = [], ch[0][1]
+            for word, ws, we in ch:
+                gap = max(0, ws - t)
+                parts.append((r"{\k%d}" % round(gap * 100) if gap > 0.02 else "") + r"{\kf%d}%s " % (max(1, round((we - ws) * 100)), word))
+                t = we
+            pop = r"{\fad(60,0)\t(0,120,\fscx108\fscy108)\t(120,220,\fscx100\fscy100)}"
+            events.append(f"Dialogue: 0,{_ass_time(start)},{_ass_time(end)},Cap,,0,0,0,,{pop}{''.join(parts).strip()}")
+    ass_path.write_text(header + "\n".join(events) + "\n", encoding="utf-8")
+
+def render_scene_reel(scenes: list, output_dir: Path, voice: str, branding: str) -> dict:
+    output_dir = Path(output_dir)
+    exe = imageio_ffmpeg.get_ffmpeg_exe()
+    rate = load_config()["content"].get("voice_rate", "+8%")
+
+    # 1. Narration per scene (exact scene lengths + word timings)
+    timed, t = [], 0.0
+    for i, sc in enumerate(scenes):
+        mp3 = str(output_dir / f"scene_{i}.mp3")
+        words = asyncio.run(tts_with_words(sc["narration"], mp3, voice, rate))
+        dur = probe_duration(mp3) + SCENE_TAIL
+        timed.append({**sc, "audio": mp3, "words": words, "start": t, "dur": dur})
+        t += dur
+    total = t
+    print(f"[VideoEngine] Narration: {len(scenes)} scenes, {total:.1f}s")
+
+    # 2. Scene artwork
+    for i, sc in enumerate(timed):
+        png = output_dir / f"scene_{i}.png"
+        if not render_html_png(scene_html(sc, branding), png):
+            render_slide_pil_fallback(i, sc.get("badge", ""), sc.get("display", ""), "", str(png), branding)
+        sc["png"] = str(png)
+    Image.open(timed[0]["png"]).convert("RGB").save(output_dir / "thumbnail.jpg", quality=95)
+
+    # 3. Captions
+    ass_path = output_dir / "captions.ass"
+    build_captions_ass(timed, ass_path)
+
+    # 4. One ffmpeg pass: zoom per scene → crossfades → progress bar → captions; voice + drone
+    n = len(timed)
+    cmd = [exe, "-y"]
+    for sc in timed:
+        cmd += ["-i", sc["png"]]
+    for sc in timed:
+        cmd += ["-i", sc["audio"]]
+    fc = []
+    for i, sc in enumerate(timed):
+        length = sc["dur"] + (XFADE if i < n - 1 else 0)
+        frames = int(round(length * FPS))
+        zoom = 0.10 if sc["kind"] == "hook" else 0.05
+        fc.append(f"[{i}:v]scale=1620:2880,zoompan=z='1+{zoom}*on/{frames}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+                  f":d={frames}:s=1080x1920:fps={FPS},setsar=1,format=yuv420p[v{i}]")
+    last, offset = "v0", 0.0
+    for i in range(1, n):
+        offset += timed[i - 1]["dur"]
+        fc.append(f"[{last}][v{i}]xfade=transition=fade:duration={XFADE}:offset={offset:.3f}[x{i}]")
+        last = f"x{i}"
+    fc.append(f"color=c=0xFFC83D:s=1080x12:r={FPS}[bar]")
+    fc.append(f"[{last}][bar]overlay=x='-w+w*t/{total:.3f}':y=0:shortest=1[vb]")
+    ass_arg = str(ass_path).replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'")
+    fc.append(f"[vb]ass='{ass_arg}':fontsdir={CAPTION_FONT_DIR}[vout]")
+    for i, sc in enumerate(timed):
+        fc.append(f"[{n + i}:a]aresample=44100,apad=whole_dur={sc['dur']:.3f}[a{i}]")
+    fc.append("".join(f"[a{i}]" for i in range(n)) + f"concat=n={n}:v=0:a=1[voice]")
+    # Soft tanpura-like drone on C# (Sa–Pa–Sa'), slowly breathing; synthesized, so no copyright issues.
+    drone = ("0.45*sin(2*PI*138.59*t)*(0.7+0.3*sin(2*PI*0.23*t))"
+             "+0.30*sin(2*PI*207.65*t)*(0.7+0.3*sin(2*PI*0.17*t+1))"
+             "+0.22*sin(2*PI*277.18*t)*(0.7+0.3*sin(2*PI*0.29*t+2))"
+             "+0.18*sin(2*PI*69.30*t)")
+    fc.append(f"aevalsrc='{drone}':s=44100:d={total:.3f},lowpass=f=1800,volume=0.09,"
+              f"afade=t=in:d=1.5,afade=t=out:st={max(0, total - 1.5):.3f}:d=1.5[drone]")
+    fc.append("[voice][drone]amix=inputs=2:normalize=0,alimiter=limit=0.95[aout]")
+    video_output_path = str(output_dir / "reel_1080x1920.mp4")
+    cmd += ["-filter_complex", ";".join(fc), "-map", "[vout]", "-map", "[aout]",
+            "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-maxrate", "8000k", "-bufsize", "12000k",
+            "-g", "60", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+            "-movflags", "+faststart", "-t", f"{total:.3f}", video_output_path]
+    print("[VideoEngine] Encoding scene reel (zoom, crossfades, captions, drone)...")
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(f"FFmpeg encoding failed: {proc.stderr[-3000:]}")
+    print(f"[VideoEngine] Successfully created reel: {video_output_path}")
+    return {"video_path": video_output_path, "thumbnail_path": str(output_dir / "thumbnail.jpg"),
+            "audio_path": None, "duration_sec": total}
+
 def render_vertical_video(
     video_data: dict,
     output_dir: Path
@@ -383,6 +620,17 @@ def render_vertical_video(
     """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    if video_data.get("scenes"):
+        config = load_config()
+        try:
+            return render_scene_reel(
+                video_data["scenes"], output_dir,
+                voice=config["content"].get("voice", "hi-IN-MadhurNeural"),
+                branding=config["content"].get("branding", "श्री रामजी एस्ट्रो"))
+        except Exception as e:
+            # Never lose the day's post: fall back to the classic slide reel below.
+            print(f"[VideoEngine] Scene reel failed, using classic slides: {e}")
     
     audio_path = str(output_dir / "voice.mp3")
     video_output_path = str(output_dir / "reel_1080x1920.mp4")

@@ -143,14 +143,67 @@ def run_daily_pipeline(
     print(f"=======================================================\n")
     return summary_record
 
+SCHEDULE_START = datetime.time(7, 0)     # first moment the daily post may go out
+SCHEDULE_CUTOFF = datetime.time(21, 0)   # after this a missed day is skipped, not posted at night
+MAX_ATTEMPTS_PER_DAY = 3
+LOCK_FILE = OUTPUT_DIR / ".daily_run.lock"
+ATTEMPTS_FILE = OUTPUT_DIR / ".attempts.json"
+
+def youtube_done_today(date_str: str) -> bool:
+    if not HISTORY_FILE.exists():
+        return False
+    try:
+        history = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    return any(r.get("date") == date_str and not r.get("dry_run")
+               and r.get("results", {}).get("youtube", {}).get("status") == "success"
+               for r in history)
+
+def run_scheduled() -> None:
+    """
+    launchd calls this at 07:00, at login/boot and every 30 minutes. It posts once per day:
+    if the Mac was off or asleep at 07:00 (e.g. a power cut), the next call catches up.
+    """
+    now = datetime.datetime.now()
+    date_str = now.date().isoformat()
+    if not (SCHEDULE_START <= now.time() <= SCHEDULE_CUTOFF):
+        return
+    if youtube_done_today(date_str):
+        return
+    attempts = {}
+    if ATTEMPTS_FILE.exists():
+        try:
+            attempts = json.loads(ATTEMPTS_FILE.read_text())
+        except Exception:
+            attempts = {}
+    if attempts.get(date_str, 0) >= MAX_ATTEMPTS_PER_DAY:
+        return
+    # One run at a time; a lock older than 2 hours is from a crashed run.
+    if LOCK_FILE.exists() and (now.timestamp() - LOCK_FILE.stat().st_mtime) < 7200:
+        return
+    LOCK_FILE.write_text(str(os.getpid()))
+    try:
+        ATTEMPTS_FILE.write_text(json.dumps({date_str: attempts.get(date_str, 0) + 1}))
+        late = "" if now.time() < datetime.time(7, 30) else f" (catch-up run at {now:%H:%M})"
+        print(f"[Scheduler] Starting daily post for {date_str}{late}")
+        # Reuse a reel already rendered today so a retry does not render a different one.
+        run_daily_pipeline(target_date=now.date(), publish_only=True)
+    finally:
+        LOCK_FILE.unlink(missing_ok=True)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SRA Autonomous Social Media Agent")
+    parser.add_argument("--scheduled", action="store_true", help="launchd entry: post once per day, catching up after missed 07:00 runs")
     parser.add_argument("--dry-run", action="store_true", help="Simulate publishing without external API calls")
     parser.add_argument("--generate-only", action="store_true", help="Only generate content and video reel, do not publish")
     parser.add_argument("--publish-only", action="store_true", help="Publish previously generated package for date")
     parser.add_argument("--date", type=str, default=None, help="Specific date in YYYY-MM-DD format")
     
     args = parser.parse_args()
+    if args.scheduled:
+        run_scheduled()
+        sys.exit(0)
     target_dt = datetime.date.fromisoformat(args.date) if args.date else None
     
     run_daily_pipeline(
