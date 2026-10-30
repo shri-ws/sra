@@ -16,9 +16,9 @@ if (file_exists($configFile)) {
 } else {
     $db_host = "localhost";
     $db_user = "u928471928_sra_user";
-    $db_pass = "SraAstro360#2026";
+    $db_pass = getenv('DB_PASS') ?: "";
     $db_name = "u928471928_sra_db";
-    $admin_auth_token = "SRA_Admin_Master_Token_7775_95171";
+    $admin_auth_token = getenv('ADMIN_AUTH_TOKEN') ?: "";
 }
 
 // Validate Admin Authentication Header / Parameter (Robust across Apache, Nginx, FastCGI)

@@ -16,7 +16,7 @@ if (file_exists($configFile)) {
 } else {
     $db_host = "localhost";
     $db_user = "u928471928_sra_user";
-    $db_pass = "SraAstro360#2026";
+    $db_pass = getenv('DB_PASS') ?: "";
     $db_name = "u928471928_sra_db";
 }
 
