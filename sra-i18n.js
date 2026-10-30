@@ -116,6 +116,10 @@
     root.querySelectorAll('[placeholder],[title],[aria-label],input[type=button],input[type=submit]').forEach(translateAttrs);
   }
 
+  // While Google translates the page into a third language (sra-translate.js), do not
+  // react to the text it rewrites (the page itself is first switched to English)
+  const machineTranslating = () => document.documentElement.classList.contains('sra-gt-active');
+
   function applyAll() {
     writing = true;
     try {
@@ -168,7 +172,7 @@
     let queue = [];
     let scheduled = false;
     new MutationObserver(mutations => {
-      if (writing) return;
+      if (writing || machineTranslating()) return;
       mutations.forEach(m => {
         if (m.type === 'characterData') queue.push(m.target);
         else m.addedNodes.forEach(n => queue.push(n));

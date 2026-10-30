@@ -42,7 +42,13 @@
     close: L('बंद करें', 'Close'),
     app: L('पत्रिका ऐप डाउनलोड करें', 'Download Patrika App'),
     appShort: L('पत्रिका ऐप', 'Patrika App'),
-    lang: L('भाषा बदलें', 'Switch language')
+    lang: L('भाषा बदलें', 'Switch language'),
+    languages: L('भाषा चुनें', 'Choose language'),
+    guest: L('अतिथि (Guest)', 'Guest'),
+    guestSub: L('कुण्डलियां खाते में सहेजने हेतु लॉगिन करें', 'Log in to keep your kundalis in your account'),
+    login: L('लॉगिन / रजिस्टर', 'Log in / Register'),
+    myKundalis: L('मेरी कुण्डलियां', 'My kundalis'),
+    logout: L('लॉग आउट', 'Log out')
   };
 
   const lang = () => (document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'hi');
@@ -97,6 +103,9 @@
         <div class="sra-gn-links"></div>
         <div class="sra-gn-actions">
           <span class="sra-gn-slot"></span>
+          <button type="button" class="sra-gn-globe notranslate" translate="no">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>
+          </button>
           <button type="button" class="sra-gn-app"></button>
           <button type="button" class="sra-gn-burger" aria-controls="sraGnDrawer" aria-expanded="false">
             <span></span><span></span><span></span>
@@ -142,6 +151,29 @@
     drawer.querySelector('.sra-gd-close').addEventListener('click', () => toggleDrawer(false));
     backdrop.addEventListener('click', () => toggleDrawer(false));
     [...document.querySelectorAll('.sra-gn-app')].forEach(b => b.addEventListener('click', openApp));
+    header.querySelector('.sra-gn-globe').addEventListener('click', () => {
+      toggleDrawer(true);
+      const langs = drawer.querySelector('#sraGdLangs');
+      if (langs) langs.scrollIntoView({ block: 'start' });
+    });
+    drawer.addEventListener('click', (e) => {
+      const chip = e.target.closest('.sra-gd-langs button');
+      if (!chip || !window.SRATranslate) return;
+      toggleDrawer(false);
+      window.SRATranslate.set(chip.dataset.lang);
+    });
+    document.addEventListener('sra:translate', () => render());
+    document.addEventListener('sra:auth', () => render());
+    drawer.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-auth]');
+      if (!b || !window.SRAAuth) return;
+      const act = b.dataset.auth;
+      toggleDrawer(false);
+      if (act === 'login') window.SRAAuth.open();
+      else if (act === 'logout') window.SRAAuth.logout();
+      else if (typeof window.openSavedKundaliModal === 'function') window.openSavedKundaliModal();
+      else location.href = 'patrika.html?open=saved';
+    });
     // Following a link, or pressing the page's login / kundali button, closes the drawer
     drawer.addEventListener('click', (e) => { if (e.target.closest('a, .sra-gd-account button, .sra-gd-account [onclick]')) toggleDrawer(false); });
   }
@@ -159,7 +191,10 @@
     burger.title = t(T.menu);
     drawer.querySelector('.sra-gd-title').textContent = t(T.menu);
     drawer.querySelector('.sra-gd-close').setAttribute('aria-label', t(T.close));
-    drawer.querySelector('.sra-gd-body').innerHTML = drawerLinks();
+    drawer.querySelector('.sra-gd-body').innerHTML = accountCard() + drawerLinks() + langChips();
+    const globe = header.querySelector('.sra-gn-globe');
+    globe.title = t(T.languages);
+    globe.setAttribute('aria-label', t(T.languages));
     const dApp = drawer.querySelector('.sra-gd-app');
     dApp.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg><span>${esc(t(T.app))}</span>`;
     const ownLang = header.querySelector('.sra-gn-lang');
@@ -169,6 +204,7 @@
       ownLang.querySelector('.lang-en').classList.toggle('active', lang() === 'en');
     }
     wireDropdowns();
+    requestAnimationFrame(fit);
   }
 
   // ── The page's own buttons move into the new bar ───────────────────────
@@ -215,6 +251,67 @@
     placeAccount();
     // Keep a stable order: saved kundali, account, language, theme
     [...slot.children].sort((a, b) => (+a.dataset.sraAdopt || 0) - (+b.dataset.sraAdopt || 0)).forEach(el => slot.appendChild(el));
+    slot.querySelectorAll('[data-sra-adopt="2"]').forEach(upgradeLang);
+    requestAnimationFrame(fit);
+  }
+
+  // Language switch drawn like the Surya / Chandra switch: a knob sliding हि ⇄ EN.
+  // The page's own click handler still does the switching; theme.js keeps toggling
+  // .active on the two labels.
+  function upgradeLang(btn) {
+    if (btn.dataset.sraLt) return;
+    btn.dataset.sraLt = '1';
+    btn.classList.add('sra-lt', 'notranslate');
+    btn.setAttribute('translate', 'no');
+    btn.innerHTML = '<span class="sra-lt-knob" aria-hidden="true"></span><span class="lang-hi">हि</span><span class="lang-en">EN</span>';
+    btn.querySelector('.lang-hi').classList.toggle('active', lang() === 'hi');
+    btn.querySelector('.lang-en').classList.toggle('active', lang() === 'en');
+    // While Google shows a third language, this switch brings the site's own Hindi / English back
+    btn.addEventListener('click', (e) => {
+      const st = window.SRATranslate;
+      if (st && !st.OWN.includes(st.current())) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        st.set(lang());
+      }
+    }, true);
+  }
+
+  // Account card at the top of the drawer (sra-auth.js keeps the login)
+  function accountCard() {
+    const auth = window.SRAAuth;
+    if (!auth) return '';
+    const u = auth.user();
+    if (!u) {
+      return `<div class="sra-gd-me sra-gd-me-guest">
+        <div class="sra-gd-me-row"><span class="sra-gd-me-av">👤</span>
+          <span class="sra-gd-me-meta"><b>${esc(t(T.guest))}</b><small>${esc(t(T.guestSub))}</small></span></div>
+        <button type="button" class="sra-gd-me-btn sra-gd-me-login" data-auth="login">🔑 ${esc(t(T.login))}</button>
+      </div>`;
+    }
+    const initial = (u.name || 'U').replace(/[^A-Za-zऀ-ॿ]/g, '').charAt(0).toUpperCase() || 'U';
+    const av = u.photo ? `<img src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer">` : esc(initial);
+    const sub = u.email && !/@shriramjiastro\.in$/.test(u.email) ? u.email : (u.phone ? '+91 ' + u.phone : '');
+    return `<div class="sra-gd-me">
+      <div class="sra-gd-me-row"><span class="sra-gd-me-av">${av}</span>
+        <span class="sra-gd-me-meta"><b>${esc(u.name)}</b><small>${esc(sub)}</small></span></div>
+      <div class="sra-gd-me-actions">
+        <button type="button" class="sra-gd-me-btn" data-auth="kundalis">📂 ${esc(t(T.myKundalis))}</button>
+        <button type="button" class="sra-gd-me-btn sra-gd-me-out" data-auth="logout">⎋ ${esc(t(T.logout))}</button>
+      </div>
+    </div>`;
+  }
+
+  function langChips() {
+    const st = window.SRATranslate;
+    if (!st) return '';
+    const cur = st.current();
+    return `<div class="sra-gd-group sra-gd-lang-group" id="sraGdLangs">
+      <div class="sra-gd-head">🌐 ${esc(t(T.languages))}</div>
+      <div class="sra-gd-langs notranslate" translate="no">
+        ${st.LANGS.map(([code, name]) => `<button type="button" data-lang="${code}"${code === cur ? ' aria-pressed="true"' : ''}>${name}</button>`).join('')}
+      </div>
+    </div>`;
   }
 
   // On phones the bar keeps only language, theme and the hamburger; the page's
@@ -265,6 +362,20 @@
     });
   }
 
+  // When the links and the page's buttons do not fit side by side (English labels,
+  // login + register, a narrow laptop), the links move into the hamburger drawer.
+  function fit() {
+    if (!header) return;
+    header.classList.remove('sra-gn-compact');
+    const links = header.querySelector('.sra-gn-links');
+    if (getComputedStyle(links).display === 'none') return;
+    const actions = header.querySelector('.sra-gn-actions');
+    const brand = header.querySelector('.sra-gn-brand');
+    const l = links.getBoundingClientRect(), a = actions.getBoundingClientRect(), b = brand.getBoundingClientRect();
+    const overlap = l.right > a.left - 8 || l.left < b.right + 8 || links.scrollWidth > links.clientWidth + 1;
+    header.classList.toggle('sra-gn-compact', overlap);
+  }
+
   // ── Drawer ──────────────────────────────────────────────────────────────
   function toggleDrawer(force) {
     const open = typeof force === 'boolean' ? force : !drawer.classList.contains('is-open');
@@ -295,12 +406,23 @@
     if (legacy) new MutationObserver(adoptControls).observe(legacy, { childList: true, subtree: true });
     window.addEventListener('load', adoptControls);
     phone.addEventListener('change', placeAccount);
+    let fitTimer;
+    window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fit, 80); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    setTimeout(fit, 0);
     document.addEventListener('sra:langchange', render);
     new MutationObserver(() => render()).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
     document.addEventListener('click', (e) => { if (!e.target.closest('.sra-gn-dd')) closeAllDd(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeAllDd(); toggleDrawer(false); } });
     // Old drawer openers on the page now open this drawer
-    window.toggleNavDrawer = () => toggleDrawer();
+    // Old drawer openers (theme.js account pill, page buttons) open this drawer
+    const claimDrawerApi = () => {
+      window.toggleNavDrawer = () => toggleDrawer();
+      window.openNavDrawer = () => toggleDrawer(true);
+      window.closeNavDrawer = () => toggleDrawer(false);
+    };
+    claimDrawerApi();
+    window.addEventListener('load', claimDrawerApi);
     window.SRANav = { open: () => toggleDrawer(true), close: () => toggleDrawer(false) };
   }
 

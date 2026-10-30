@@ -3,14 +3,14 @@
  * Enables PWA native installability and offline caching
  */
 
-const CACHE_NAME = 'sra-patrika-v21';
+const CACHE_NAME = 'sra-patrika-v23';
 const ASSETS_TO_CACHE = [
   '/',
   '/patrika.html',
   '/manifest.json',
   '/theme.js',
   '/sra-elegance.css',
-  '/sra-ui.js', '/sra-nav.js', '/sra-config.js',
+  '/sra-ui.js', '/sra-nav.js', '/sra-translate.js', '/sra-auth.js', '/sra-config.js',
   '/sra-i18n.js',
   '/sra-i18n/common.js',
   '/rashmiReportsService.js',

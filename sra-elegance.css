@@ -794,7 +794,6 @@ html.sra-gd-lock, html.sra-gd-lock body { overflow: hidden !important; }
   :root body .sra-gn-slot .nav-user-pill-btn > :not(:first-child),
   :root body .sra-gn-slot [onclick*="openSavedKundaliModal"] > :not(:first-child) { display: none !important; }
   :root body .sra-gn-slot .nav-user-pill-btn, :root body .sra-gn-slot [onclick*="openSavedKundaliModal"] { width: 34px; padding: 0 !important; justify-content: center; }
-  :root body .sra-gn-slot .sra-tt { transform: scale(.85); margin: 0 -5px !important; }
   :root body .sra-gn-burger { width: 38px !important; height: 38px !important; min-width: 0 !important; }
   :root body .sra-gn-brand-sub { display: none; }
 }
@@ -825,3 +824,127 @@ html.sra-gd-lock, html.sra-gd-lock body { overflow: hidden !important; }
 :root body .sra-rh-card:has(em) b { padding-right: 58px; }  /* keep the title clear of the price tag */
 :root body .sra-rh-sub { margin: 18px 0 10px; font-size: 13px; font-weight: 700; color: var(--sra-muted); letter-spacing: .3px; }
 @media (max-width: 600px) { :root body .sra-reports-hub { padding: 14px; } :root body .sra-rh-grid { grid-template-columns: 1fr; } :root body .sra-rh-grid-sm { grid-template-columns: 1fr 1fr; } }
+
+/* 14. LANGUAGE SWITCH (हि ⇄ EN), GLOBE AND LANGUAGE LIST ─────────────────
+   Same shape as the Surya / Chandra switch; one height for both on every screen. */
+:root body .sra-gn-slot .lang-pill-btn.sra-lt {
+  position: relative !important; display: inline-flex !important; align-items: center !important; gap: 0 !important;
+  width: 74px !important; min-width: 74px !important; height: 36px !important; padding: 3px !important; margin: 0 !important;
+  border-radius: 999px !important; border: 1px solid var(--sra-hair-strong) !important;
+  background: var(--sra-paper-2) !important; box-shadow: inset 0 1px 2px rgba(58, 13, 22, 0.06) !important;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+:root body .sra-lt .sra-lt-knob {
+  position: absolute; top: 3px; left: 3px; width: 34px; height: 28px; border-radius: 999px;
+  background: linear-gradient(145deg, #E7C76F, #B08D3E);
+  box-shadow: 0 2px 8px -2px rgba(122, 90, 28, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: transform .45s var(--sra-ease);
+}
+html[lang="en"] body .sra-lt .sra-lt-knob { transform: translateX(34px); }
+:root body .sra-gn-slot .sra-lt .lang-hi, :root body .sra-gn-slot .sra-lt .lang-en {
+  position: relative; z-index: 1; flex: 1; display: grid; place-items: center; height: 28px;
+  font: 700 13px/1 var(--sra-body) !important; color: var(--sra-muted) !important; transition: color .3s;
+}
+:root body .sra-gn-slot .sra-lt .lang-hi { font-size: 15px !important; }
+html:not([lang="en"]) body .sra-gn-slot .sra-lt .lang-hi, html[lang="en"] body .sra-gn-slot .sra-lt .lang-en { color: #3A1A05 !important; }
+:root body .sra-gn-slot .sra-lt:hover { border-color: var(--sra-gold) !important; }
+
+:root body .sra-gn-globe {
+  width: 36px; height: 36px; flex: none; display: inline-grid; place-items: center; padding: 0; cursor: pointer;
+  border: 1px solid var(--sra-hair-strong); border-radius: 50%; background: transparent; color: var(--sra-gold-deep);
+}
+:root body .sra-gn-globe svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+:root body .sra-gn-globe:hover { border-color: var(--sra-gold); background: var(--sra-wash); }
+
+:root body .sra-gd-langs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px 6px 10px; }
+:root body .sra-gd-langs button {
+  min-height: 40px; padding: 6px 4px; border: 1px solid var(--sra-hair); border-radius: 10px; background: var(--sra-paper);
+  font: 600 14px/1.2 var(--sra-body); color: var(--sra-ink); cursor: pointer;
+}
+:root body .sra-gd-langs button:hover { border-color: var(--sra-gold); }
+:root body .sra-gd-langs button[aria-pressed="true"] { background: var(--sra-wash); border-color: var(--sra-gold); color: var(--sra-kumkum); font-weight: 800; }
+
+/* Google's own bar and highlight boxes would push the page down */
+html.sra-gt-active body { top: 0 !important; position: static !important; }
+.goog-te-banner-frame, iframe.skiptranslate, .goog-te-balloon-frame, #goog-gt-tt, .goog-tooltip { display: none !important; }
+.goog-text-highlight { background: none !important; box-shadow: none !important; }
+
+/* Phones: both switches share one compact size so the row lines up */
+@media (max-width: 600px) {
+  :root body .sra-gn-slot .sra-tt, :root body .sra-gn-slot .lang-pill-btn.sra-lt {
+    width: 60px !important; min-width: 60px !important; height: 32px !important; padding: 2px !important;
+  }
+  :root body .sra-gn-slot .sra-tt .sra-tt-knob, :root body .sra-gn-slot .sra-lt .sra-lt-knob { top: 2px; left: 2px; width: 28px; height: 26px; }
+  :root body .sra-gn-slot .sra-tt .sra-tt-ico, :root body .sra-gn-slot .sra-lt .lang-hi, :root body .sra-gn-slot .sra-lt .lang-en { height: 26px; }
+  :root body .sra-gn-slot .sra-tt svg { width: 18px; height: 18px; }
+  [data-theme="night"] body .sra-gn-slot .sra-tt .sra-tt-knob, html[lang="en"] body .sra-gn-slot .sra-lt .sra-lt-knob { transform: translateX(28px); }
+  :root body .sra-gn-slot .sra-lt .lang-hi { font-size: 13px !important; }
+  :root body .sra-gn-slot .sra-lt .lang-en { font-size: 11.5px !important; }
+  :root body .sra-gn-globe { width: 32px; height: 32px; }
+  :root body .sra-gn-globe svg { width: 17px; height: 17px; }
+  :root body .sra-gn-slot { gap: 5px; }
+  :root body .sra-gn-actions { gap: 5px; }
+}
+/* Some pages give every button min-height: 44px; the bar's controls keep their own size */
+:root body .sra-gnav .sra-gn-slot > *, :root body .sra-gnav .sra-gn-globe, :root body .sra-gnav .sra-gn-burger,
+:root body .sra-gnav .sra-gn-app { min-height: 0 !important; min-width: 0 !important; box-sizing: border-box !important; }
+:root body .sra-gnav .sra-gn-globe { width: 36px !important; height: 36px !important; padding: 0 !important; }
+:root body .sra-gnav .sra-gn-slot .sra-tt, :root body .sra-gnav .sra-gn-slot .lang-pill-btn.sra-lt { min-width: 74px !important; }
+@media (max-width: 600px) {
+  :root body .sra-gnav .sra-gn-slot .sra-tt, :root body .sra-gnav .sra-gn-slot .lang-pill-btn.sra-lt { height: 32px !important; max-height: 32px !important; }
+  :root body .sra-gnav .sra-gn-globe { width: 32px !important; height: 32px !important; }
+  :root body .sra-gnav .sra-gn-burger { height: 38px !important; max-height: 38px !important; }
+  :root body .sra-gnav .sra-gn-slot .sra-tt, :root body .sra-gnav .sra-gn-slot .lang-pill-btn.sra-lt { min-width: 60px !important; }
+}
+:root body .sra-gnav.sra-gn-compact .sra-gn-links { display: none; }
+
+/* 15. ACCOUNT: LOGIN WINDOW (sra-auth.js) AND DRAWER ACCOUNT CARD ─────── */
+.sra-auth-overlay { position: fixed; inset: 0; z-index: 100500; display: none; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(20, 10, 12, .55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.sra-auth-overlay.is-open { display: flex; }
+html.sra-auth-lock, html.sra-auth-lock body { overflow: hidden !important; }
+.sra-auth-card { position: relative; width: min(400px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
+  padding: 28px 24px 20px; border-radius: 18px; background: var(--sra-paper); border: 1px solid var(--sra-hair-strong);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .35); font-family: var(--sra-body); color: var(--sra-ink); text-align: center; }
+.sra-auth-x { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--sra-hair-strong); background: transparent; color: var(--sra-ink); cursor: pointer; font-size: 14px; }
+.sra-auth-logo { width: 54px; height: 54px; border-radius: 50%; box-shadow: 0 0 0 1px var(--sra-hair-strong); }
+.sra-auth-title { margin: 10px 0 4px; font-family: var(--sra-display); font-size: 26px; color: var(--sra-kumkum); }
+.sra-auth-sub { margin: 0 0 18px; font-size: 13.5px; color: var(--sra-muted); line-height: 1.5; }
+.sra-auth-google { width: 100%; height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  border: 1px solid var(--sra-hair-strong); border-radius: 12px; background: #fff; color: #1f1f1f; cursor: pointer;
+  font: 600 15px/1 var(--sra-body); box-shadow: 0 1px 2px rgba(0, 0, 0, .06); }
+.sra-auth-google svg { width: 20px; height: 20px; }
+.sra-auth-or { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; font-size: 12px; color: var(--sra-muted); }
+.sra-auth-or::before, .sra-auth-or::after { content: ""; flex: 1; height: 1px; background: var(--sra-hair); }
+.sra-auth-phone { display: flex; align-items: center; height: 48px; border: 1px solid var(--sra-hair-strong); border-radius: 12px; overflow: hidden; background: var(--sra-vellum); }
+.sra-auth-phone span { padding: 0 12px; font-weight: 700; color: var(--sra-gold-deep); border-right: 1px solid var(--sra-hair); height: 100%; display: grid; place-items: center; }
+.sra-auth-phone input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; padding: 0 12px; background: transparent; font: 600 17px/1 var(--sra-body); color: var(--sra-ink); letter-spacing: .5px; }
+.sra-auth-code { width: 100%; height: 52px; border: 1px solid var(--sra-hair-strong); border-radius: 12px; background: var(--sra-vellum);
+  text-align: center; font: 800 24px/1 var(--sra-body); letter-spacing: 10px; color: var(--sra-kumkum); outline: 0; }
+.sra-auth-primary { width: 100%; height: 48px; margin-top: 10px; border: 0; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(135deg, #5A1A1F, #3A0D16); color: #F6E7C1; font: 700 15px/1 var(--sra-body); }
+.sra-auth-primary:disabled { opacity: .6; cursor: wait; }
+.sra-auth-link { margin-top: 8px; border: 0; background: none; color: var(--sra-gold-deep); cursor: pointer; font: 600 13px/1.4 var(--sra-body); }
+.sra-auth-msg { min-height: 20px; margin: 10px 0 0; font-size: 13px; color: #B42318; }
+.sra-auth-msg.ok { color: #1E7A46; }
+.sra-auth-note { margin: 6px 0 0; font-size: 12px; color: var(--sra-muted); line-height: 1.5; }
+[data-theme="night"] .sra-auth-primary { background: linear-gradient(135deg, #E9CF8E, #B08D3E); color: #1A1209; }
+
+:root body .sra-gd-me { margin: 4px 2px 10px; padding: 14px; border: 1px solid var(--sra-hair-strong); border-radius: 14px; background: var(--sra-vellum); }
+:root body .sra-gd-me-row { display: flex; align-items: center; gap: 12px; }
+:root body .sra-gd-me-av { width: 44px; height: 44px; flex: none; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+  background: linear-gradient(145deg, #E7C76F, #B08D3E); color: #3A1A05; font: 800 18px/1 var(--sra-body); }
+:root body .sra-gd-me-av img { width: 100%; height: 100%; object-fit: cover; }
+:root body .sra-gd-me-guest .sra-gd-me-av { background: var(--sra-wash); font-size: 20px; }
+:root body .sra-gd-me-meta { display: flex; flex-direction: column; min-width: 0; }
+:root body .sra-gd-me-meta b { font-size: 15px; color: var(--sra-kumkum); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root body .sra-gd-me-meta small { font-size: 12px; color: var(--sra-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root body .sra-gd-me-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+:root body .sra-gd-me-btn { min-height: 40px; padding: 0 10px; border: 1px solid var(--sra-hair-strong); border-radius: 10px; background: var(--sra-paper);
+  font: 600 13.5px/1.2 var(--sra-body); color: var(--sra-ink); cursor: pointer; }
+:root body .sra-gd-me-login { width: 100%; margin-top: 12px; background: linear-gradient(135deg, #5A1A1F, #3A0D16); color: #F6E7C1; border: 0; }
+:root body .sra-gd-me-out { color: #B42318; }
+/* The account card covers login on phones: the page's own account buttons are not repeated there */
+:root body .sra-gd-account .nav-user-pill-btn, :root body .sra-gd-account #navAuthArea { display: none !important; }
+:root body .sra-gd-account:not(:has(> :not(.nav-user-pill-btn):not(#navAuthArea))) { display: none; }
