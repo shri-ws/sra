@@ -289,24 +289,39 @@
     if (typeof window.showKundaliToast === 'function') window.showKundaliToast(toast);
   }
 
-  async function google() {
+  // The popup must open in the same tick as the click (Safari and Chrome block it after an
+  // await), so the already-loaded SDK is used directly; the SDK is preloaded on page load.
+  function google() {
     msg(tr('⏳ Google विंडो खुल रही है…', '⏳ Opening Google…'), true);
+    const fb = window.firebase;
+    if (fb && fb.apps && fb.apps.length && fb.auth) googleWith(fb);
+    else ensureFirebase().then(googleWith).catch(googleFailed);
+  }
+
+  async function googleWith(fb) {
+    const provider = new fb.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     try {
-      const fb = await ensureFirebase();
-      const provider = new fb.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      try {
-        const res = await fb.auth().signInWithPopup(provider);
-        done(res.user && res.user.displayName);
-      } catch (e) {
-        if (/popup-blocked|operation-not-supported|web-storage/.test(e.code || '')) await fb.auth().signInWithRedirect(provider);
-        else if (!/popup-closed|cancelled-popup/.test(e.code || '')) throw e;
-        else msg('');
-      }
+      const res = await fb.auth().signInWithPopup(provider);
+      done(res.user && res.user.displayName);
     } catch (e) {
-      console.warn('[SRA Auth] Google sign-in:', e);
-      msg(tr('Google लॉगिन नहीं हो सका। कृपया मोबाइल OTP से प्रयास करें।', 'Google sign-in failed. Please try mobile OTP.'));
+      const code = (e && e.code) || '';
+      if (/popup-closed|cancelled-popup/.test(code)) { msg(''); return; }
+      if (/popup-blocked/.test(code)) {
+        try { await fb.auth().signInWithRedirect(provider); return; } catch (e2) { googleFailed(e2); return; }
+      }
+      googleFailed(e);
     }
+  }
+
+  function googleFailed(e) {
+    console.warn('[SRA Auth] Google sign-in:', e);
+    const code = (e && e.code) || '';
+    msg(/operation-not-allowed/.test(code)
+      ? tr('Google लॉगिन अभी सक्षम नहीं है। कृपया मोबाइल OTP से लॉगिन करें।', 'Google sign-in is not enabled yet. Please use mobile OTP.')
+      : /unauthorized-domain/.test(code)
+        ? tr('यह वेबसाइट पता Google लॉगिन हेतु अधिकृत नहीं है। मोबाइल OTP से लॉगिन करें।', 'This web address is not authorised for Google sign-in. Please use mobile OTP.')
+        : tr('Google लॉगिन नहीं हो सका। कृपया मोबाइल OTP से प्रयास करें।', 'Google sign-in failed. Please try mobile OTP.'));
   }
 
   async function sendOtp() {
