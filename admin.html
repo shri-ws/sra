@@ -119,6 +119,13 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.acc-auth{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 20px}
+.acc-auth-title{font-weight:700;color:var(--gold);margin-bottom:4px}
+.acc-auth-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.acc-err{color:var(--red)}
+.acc-kund > td{background:rgba(201,168,76,0.05);padding:10px 16px !important}
+.acc-kund-tbl{margin:0;font-size:12.5px}
+.acc-empty{padding:14px;text-align:center;color:var(--muted);font-size:13px}
 .stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:2px}
 .stat-sub{font-size:11px;color:var(--muted)}
@@ -186,6 +193,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .social-form-group input:focus{border-color:var(--gold)}
 </style>
 <script src="sra-master.js" defer></script>
+<script src="admin-accounts.js" defer></script>
 </head>
 <body>
 
@@ -211,6 +219,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="showPanel('overview', this)">📊 &nbsp;Overview</div>
+      <div class="nav-item" onclick="showPanel('accounts', this)" style="color:var(--gold);font-weight:700">👤 &nbsp;Website Accounts</div>
       <div class="nav-item" onclick="showPanel('emails', this)">📧 &nbsp;Verified Email Logins</div>
       <div class="nav-item" onclick="showPanel('users', this)">📱 &nbsp;Registered Users & Queries</div>
       <div class="nav-item" onclick="showPanel('students', this)">🎓 &nbsp;Students</div>
@@ -352,6 +361,43 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Likes</th><th>Date</th></tr></thead>
           <tbody id="forum-tbody"></tbody>
         </table></div>
+      </div>
+    </div>
+
+    <!-- WEBSITE ACCOUNTS (Firebase login + kundalis saved to the account) -->
+    <div class="panel" id="panel-accounts">
+      <div class="table-wrap acc-auth">
+        <div>
+          <div class="acc-auth-title">🔐 Firebase admin access</div>
+          <div class="acc-auth-sub">Signed in: <b id="acc-who">—</b></div>
+          <div class="acc-auth-sub" id="acc-status">⏳ Loading…</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="refresh-btn" id="acc-signin" type="button">Sign in with Google</button>
+          <button class="export-btn" id="acc-signout" type="button" hidden>Sign out</button>
+        </div>
+      </div>
+      <div id="acc-body" hidden>
+        <div class="stats-grid">
+          <div class="stat-card gold"><div class="stat-label">Total accounts</div><div class="stat-val" id="acc-s-total">—</div><div class="stat-sub">Google + mobile OTP</div></div>
+          <div class="stat-card green"><div class="stat-label">New (7 days)</div><div class="stat-val" id="acc-s-new">—</div><div class="stat-sub">Accounts created</div></div>
+          <div class="stat-card"><div class="stat-label">Active (7 days)</div><div class="stat-val" id="acc-s-active">—</div><div class="stat-sub">Logged in recently</div></div>
+          <div class="stat-card"><div class="stat-label">Saved kundalis</div><div class="stat-val" id="acc-s-kund">—</div><div class="stat-sub">In all accounts</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">👤 Website accounts &amp; their kundalis (live from Firebase)</span>
+            <div style="display:flex;gap:8px">
+              <input class="search-box" id="acc-search" placeholder="Search name / email / mobile / kundali…"/>
+              <button class="export-btn" id="acc-refresh" type="button">↻ Refresh</button>
+              <button class="export-btn" id="acc-csv" type="button">⬇ CSV</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto"><table class="tbl">
+            <thead><tr><th>Name</th><th>Email / Mobile</th><th>Login method</th><th>Joined</th><th>Last login</th><th>Kundalis</th><th>UID</th></tr></thead>
+            <tbody id="acc-tbody"></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
 
@@ -1179,6 +1225,7 @@ function showPanel(name, targetEl){
 
     const titles = {
       overview: 'Overview',
+      accounts: 'Website Accounts (Firebase)',
       emails: 'Verified Email Logins',
       users: 'Registered Users & Kundli Query Log',
       students: 'Students',
