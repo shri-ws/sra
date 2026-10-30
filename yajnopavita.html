@@ -797,6 +797,7 @@
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
 <script src="sra-i18n.js" defer></script>
+  <script src="sra-config.js"></script>
 </head>
 <body>
 
@@ -1162,7 +1163,7 @@
             loader.style.display = 'block';
 
             try {
-                const url = `/api/muhurta/yajnopavita?child_dob=${childDob}&child_tob=${childTob}&child_lat=${lat}&child_lon=${lon}&child_tz=${tz}&lat=${lat}&lon=${lon}&start_date=${startDate}&days=${days}`;
+                const url = `${window.SRA_API_BASE || ""}/api/muhurta/yajnopavita?child_dob=${childDob}&child_tob=${childTob}&child_lat=${lat}&child_lon=${lon}&child_tz=${tz}&lat=${lat}&lon=${lon}&start_date=${startDate}&days=${days}`;
                 const response = await fetch(url);
                 
                 if (response.ok) {

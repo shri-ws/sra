@@ -1600,6 +1600,10 @@ except Exception as _e_import:
 # 11. AUTONOMOUS SOCIAL AGENT API ENDPOINTS
 # =============================================================================
 try:
+    # These routes read and change the agent config (API keys included) and start
+    # uploads, with no login: they are for the owner's Mac only, never a public host.
+    if os.getenv("SRA_PUBLIC_DEPLOY"):
+        raise RuntimeError("social agent routes are disabled on the public deployment")
     from fastapi.staticfiles import StaticFiles
     from social_agent.config import load_config, save_config, OUTPUT_DIR
     from social_agent.orchestrator import run_daily_pipeline, LATEST_STATUS_FILE, HISTORY_FILE

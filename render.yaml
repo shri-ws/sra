@@ -1,0 +1,18 @@
+# Render Blueprint: hosts the Swiss Ephemeris calculation server (parashara_canonical_engine.py)
+# that the calculators on shriramjiastro.in call (/calculate, /calculate/batch, /api/muhurta/*).
+# GitHub Pages serves the website; this service only answers calculation requests.
+services:
+  - type: web
+    name: sra-canonical-engine
+    runtime: python
+    plan: free            # free sleeps after 15 min idle (first request then takes ~1 min); "starter" stays awake
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn parashara_canonical_engine:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SRA_PUBLIC_DEPLOY   # turns off the owner-only social agent routes
+        value: "1"
