@@ -1,38 +1,190 @@
-<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8">
-<!-- Banner template for blog articles (assets/blog-og/<slug>.jpg). Open with ?t=title&s=subtitle&c=category,
-     screenshot at 1200x630 and save as JPG. --><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@600;800&family=Noto+Sans+Devanagari:wght@500;600&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="hi"><head><meta charset="utf-8">
+<!-- Banner for one blog article (assets/blog-og/<slug>.jpg), rendered by tools/render_blog_banners.py.
+     Query: t=title s=subtitle c=category g=centre word m=motif h=palette.
+     Everything is drawn in one 1200×630 SVG coordinate space, so nothing shifts between renders. -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@600;800&family=Noto+Sans+Devanagari:wght@500;600;700&family=Cinzel:wght@700&display=block" rel="stylesheet">
 <style>
-*{margin:0;box-sizing:border-box}
-body{width:1200px;height:630px;overflow:hidden;font-family:'Noto Sans Devanagari',sans-serif;
- background:radial-gradient(120% 140% at 85% 20%,#5a1522 0%,#3A0D16 45%,#1c070c 100%);color:#F7EEDB;position:relative}
-.frame{position:absolute;inset:26px;border:1.5px solid rgba(214,183,106,.55);border-radius:18px}
-.frame:after{content:"";position:absolute;inset:8px;border:1px solid rgba(214,183,106,.22);border-radius:12px}
-.wheel{position:absolute;right:-120px;top:50%;width:620px;height:620px;transform:translateY(-50%);opacity:.18}
-.brand{position:absolute;left:84px;top:74px;font-family:'Cinzel',serif;letter-spacing:6px;font-size:22px;color:#D6B76A}
-.cat{position:absolute;left:84px;top:120px;font-size:22px;font-weight:600;color:#3A0D16;background:#D6B76A;padding:4px 20px;border-radius:999px}
-h1{position:absolute;left:84px;right:330px;top:190px;font-family:'Noto Serif Devanagari',serif;font-weight:800;
- font-size:76px;line-height:1.25;color:#FFF7E6;text-shadow:0 2px 18px rgba(0,0,0,.35)}
-.sub{position:absolute;left:84px;bottom:118px;font-size:30px;font-weight:500;color:#E9CF8E}
-.foot{position:absolute;left:84px;right:84px;bottom:62px;display:flex;justify-content:space-between;font-size:20px;color:rgba(247,238,219,.75)}
-.om{position:absolute;right:150px;top:50%;transform:translateY(-50%);font-family:'Noto Serif Devanagari',serif;font-size:210px;color:#D6B76A;opacity:.9}
-</style></head><body>
-<div class="frame"></div>
-<svg class="wheel" viewBox="0 0 200 200"><g fill="none" stroke="#D6B76A" stroke-width=".8">
-<circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="70"/><circle cx="100" cy="100" r="40"/>
-<g id="s"><line x1="100" y1="4" x2="100" y2="30"/></g>
-</g><g stroke="#D6B76A" stroke-width=".8" id="spokes"></g></svg>
-<div class="brand">SHRI RAMJI ASTRO</div>
-<div class="cat" id="cat"></div>
-<h1 id="t"></h1>
-<div class="om">ॐ</div>
-<div class="sub" id="sub"></div>
-<div class="foot"><span>एस्ट्रो रामजी · शास्त्रीय वैदिक ज्योतिष</span><span>shriramjiastro.in</span></div>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #000; }
+  svg { display: block; }
+  .deva { font-family: 'Noto Sans Devanagari', sans-serif; }
+  .serif { font-family: 'Noto Serif Devanagari', serif; }
+  .caps { font-family: 'Cinzel', serif; }
+</style></head>
+<body>
+<svg id="b" xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"></svg>
 <script>
-const g=document.getElementById('spokes');
-for(let i=0;i<12;i++){const a=i*Math.PI/6;const l=document.createElementNS('http://www.w3.org/2000/svg','line');
-l.setAttribute('x1',100+40*Math.cos(a));l.setAttribute('y1',100+40*Math.sin(a));l.setAttribute('x2',100+96*Math.cos(a));l.setAttribute('y2',100+96*Math.sin(a));g.appendChild(l);}
-const p=new URLSearchParams(location.search);
-document.getElementById('t').textContent=p.get('t');document.getElementById('sub').textContent=p.get('s');document.getElementById('cat').textContent=p.get('c');
-// shrink long titles to fit
-const h=document.getElementById('t');let f=76;while(h.scrollHeight>300&&f>44){f-=4;h.style.fontSize=f+'px';}
-</script></body></html>
+// Fonts first: text widths decide where the title wraps
+Promise.all(['800 74px "Noto Serif Devanagari"', '600 28px "Noto Sans Devanagari"', '700 20px "Noto Sans Devanagari"', '700 21px Cinzel']
+  .map(spec => document.fonts.load(spec, 'शनि A'))).then(draw, draw);
+function draw() {
+const P = new URLSearchParams(location.search);
+const PALETTES = {           // [deep, mid, glow, accent, ink]
+  kumkum:  ['#21060b', '#4a0f1b', '#7a1d2b', '#e0b464', '#fff6e6'],
+  indigo:  ['#070a1f', '#141a46', '#2b3486', '#d9bb6e', '#f3f0ff'],
+  emerald: ['#04140f', '#0c3326', '#17604a', '#e2c174', '#effaf4'],
+  saffron: ['#1c0b02', '#4b2108', '#8a4210', '#f2cf7f', '#fff4e3'],
+  plum:    ['#16061a', '#3a1142', '#6a2470', '#eac37a', '#fbefff'],
+  bronze:  ['#140d04', '#3a2a10', '#6d5220', '#f0d58c', '#fff7e2'],
+  violet:  ['#0e0820', '#26185a', '#4b2fa0', '#e6c97c', '#f4efff'],
+  teal:    ['#031417', '#0b3640', '#15646f', '#e7c97d', '#ecfbfc'],
+  midnight:['#03070f', '#0b1a33', '#173a6b', '#e3c574', '#eef4ff'],
+  forest:  ['#060f06', '#16301a', '#2d5a2f', '#e6cc7e', '#f2faef'],
+};
+const [DEEP, MID, GLOW, GOLD, INK] = PALETTES[P.get('h')] || PALETTES.kumkum;
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('b');
+const el = (tag, attrs, parent = svg, text) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  parent.appendChild(n); return n;
+};
+const CX = 905, CY = 300, R = 185;            // the diagram's exact centre and radius
+const pt = (r, deg) => [CX + r * Math.cos((deg - 90) * Math.PI / 180), CY + r * Math.sin((deg - 90) * Math.PI / 180)];
+const f = (n) => n.toFixed(2);
+
+// background: soft radial light behind the diagram, darker on the title side
+const defs = el('defs', {});
+const bg = el('radialGradient', { id: 'bg', cx: CX / 1200, cy: 0.5, r: 0.85 }, defs);
+el('stop', { offset: '0', 'stop-color': GLOW }, bg);
+el('stop', { offset: '0.45', 'stop-color': MID }, bg);
+el('stop', { offset: '1', 'stop-color': DEEP }, bg);
+const halo = el('radialGradient', { id: 'halo' }, defs);
+el('stop', { offset: '0', 'stop-color': GOLD, 'stop-opacity': 0.28 }, halo);
+el('stop', { offset: '1', 'stop-color': GOLD, 'stop-opacity': 0 }, halo);
+el('rect', { width: 1200, height: 630, fill: 'url(#bg)' });
+el('circle', { cx: CX, cy: CY, r: R * 1.25, fill: 'url(#halo)' });
+
+// fine star field (fixed seed, so a banner always renders the same)
+let seed = [...(P.get('t') || 'x')].reduce((a, c) => a + c.charCodeAt(0), 7);
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+for (let i = 0; i < 90; i++) el('circle', { cx: f(rnd() * 1200), cy: f(rnd() * 630), r: f(0.4 + rnd() * 1.1), fill: INK, opacity: f(0.15 + rnd() * 0.45) });
+
+// double gold frame
+el('rect', { x: 24, y: 24, width: 1152, height: 582, rx: 18, fill: 'none', stroke: GOLD, 'stroke-opacity': 0.55, 'stroke-width': 1.5 });
+el('rect', { x: 33, y: 33, width: 1134, height: 564, rx: 13, fill: 'none', stroke: GOLD, 'stroke-opacity': 0.22 });
+
+// ---------- motifs: each article picks one, all centred on (CX, CY) ----------
+const g = el('g', { fill: 'none', stroke: GOLD, 'stroke-linecap': 'round' });
+const ring = (r, o = 0.6, w = 1.2) => el('circle', { cx: CX, cy: CY, r, 'stroke-opacity': o, 'stroke-width': w }, g);
+const line = (a, b, o = 0.5, w = 1) => el('line', { x1: f(a[0]), y1: f(a[1]), x2: f(b[0]), y2: f(b[1]), 'stroke-opacity': o, 'stroke-width': w }, g);
+const dot = (p, r, o = 0.9) => el('circle', { cx: f(p[0]), cy: f(p[1]), r, fill: GOLD, stroke: 'none', opacity: o }, g);
+const label = (p, text, size = 15, o = 0.75) => el('text', { x: f(p[0]), y: f(p[1]), 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'deva', 'font-size': size, fill: GOLD, stroke: 'none', opacity: o }, g, text);
+const RASHI = ['मेष', 'वृष', 'मिथुन', 'कर्क', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुंभ', 'मीन'];
+
+const MOTIFS = {
+  // zodiac wheel: 12 houses with rashi names
+  wheel() {
+    ring(R, 0.75, 1.6); ring(R - 38, 0.45); ring(R * 0.42, 0.55);
+    for (let i = 0; i < 12; i++) { line(pt(R * 0.42, i * 30), pt(R, i * 30), 0.4); label(pt(R - 19, i * 30 + 15), RASHI[i], 13); }
+  },
+  // North Indian kundali: square, diagonals and the inner diamond
+  kundali() {
+    const s = R * 1.32, x0 = CX - s / 2, y0 = CY - s / 2;
+    el('rect', { x: f(x0), y: f(y0), width: f(s), height: f(s), 'stroke-opacity': 0.8, 'stroke-width': 1.6 }, g);
+    line([x0, y0], [x0 + s, y0 + s], 0.55); line([x0 + s, y0], [x0, y0 + s], 0.55);
+    el('polygon', { points: [[CX, y0], [x0 + s, CY], [CX, y0 + s], [x0, CY]].map(p => p.map(f).join(',')).join(' '), 'stroke-opacity': 0.7, 'stroke-width': 1.3 }, g);
+    ring(R * 1.0, 0.18);
+  },
+  // three concentric orbits (three phases) with a planet on each
+  orbits() {
+    [R, R * 0.74, R * 0.48].forEach((r, i) => { ring(r, 0.65 - i * 0.12, 1.3); dot(pt(r, 40 + i * 110), 7 - i); });
+    for (let i = 0; i < 12; i++) line(pt(R + 6, i * 30), pt(R + 16, i * 30), 0.6);
+  },
+  // Rahu–Ketu axis: an eclipse orbit with two opposite nodes
+  axis() {
+    ring(R, 0.7, 1.5);
+    el('ellipse', { cx: CX, cy: CY, rx: R, ry: R * 0.38, transform: `rotate(-24 ${CX} ${CY})`, 'stroke-opacity': 0.55, 'stroke-width': 1.2 }, g);
+    const n1 = [CX + R * Math.cos(-24 * Math.PI / 180), CY + R * Math.sin(-24 * Math.PI / 180)];
+    const n2 = [2 * CX - n1[0], 2 * CY - n1[1]];
+    line(n1, n2, 0.5, 1); dot(n1, 9); el('circle', { cx: f(n2[0]), cy: f(n2[1]), r: 9, 'stroke-opacity': 0.9, 'stroke-width': 2 }, g);
+  },
+  // serpent: all planets on one side of the Rahu–Ketu line
+  serpent() {
+    ring(R, 0.6, 1.4);
+    line(pt(R, 0), pt(R, 180), 0.65, 1.4);
+    for (let i = 0; i < 7; i++) dot(pt(R * 0.78, 22 + i * 22.5), 4.5, 0.85);
+    let d = ''; for (let k = 0; k <= 40; k++) { const y = CY - R + (2 * R) * k / 40; const x = CX - 26 * Math.sin(k / 40 * Math.PI * 4); d += (k ? 'L' : 'M') + f(x) + ' ' + f(y); }
+    el('path', { d, 'stroke-opacity': 0.55, 'stroke-width': 1.6 }, g);
+  },
+  // two interlocking circles with an 8-petal ring (eight koots)
+  union() {
+    ring(R, 0.35);
+    el('circle', { cx: CX - 62, cy: CY, r: R * 0.62, 'stroke-opacity': 0.75, 'stroke-width': 1.5 }, g);
+    el('circle', { cx: CX + 62, cy: CY, r: R * 0.62, 'stroke-opacity': 0.75, 'stroke-width': 1.5 }, g);
+    for (let i = 0; i < 8; i++) dot(pt(R, i * 45), 5);
+  },
+  // lotus: 16 petals (tarpan, offering)
+  lotus() {
+    ring(R * 0.42, 0.7, 1.4); ring(R, 0.25);
+    for (let i = 0; i < 16; i++) {
+      const a = i * 22.5, tip = pt(R * 0.95, a), l = pt(R * 0.46, a - 9), r = pt(R * 0.46, a + 9), c1 = pt(R * 0.8, a - 11), c2 = pt(R * 0.8, a + 11);
+      el('path', { d: `M${f(l[0])} ${f(l[1])} Q${f(c1[0])} ${f(c1[1])} ${f(tip[0])} ${f(tip[1])} Q${f(c2[0])} ${f(c2[1])} ${f(r[0])} ${f(r[1])}`, 'stroke-opacity': 0.6, 'stroke-width': 1.2 }, g);
+    }
+  },
+  // shatkona yantra: rising and falling triangles
+  yantra() {
+    ring(R, 0.7, 1.5); ring(R * 0.9, 0.35);
+    const tri = (rot) => el('polygon', { points: [0, 120, 240].map(a => pt(R * 0.86, a + rot).map(f).join(',')).join(' '), 'stroke-opacity': 0.75, 'stroke-width': 1.4 }, g);
+    tri(0); tri(180); ring(R * 0.42, 0.5);
+  },
+  // nakshatra ring: 27 stars, 9 arcs sized by Vimshottari years
+  dasha() {
+    const YEARS = [7, 20, 6, 10, 7, 18, 16, 19, 17]; let a = 0;
+    YEARS.forEach((y, i) => {
+      const span = y * 3, p1 = pt(R, a + 1.2), p2 = pt(R, a + span - 1.2);
+      el('path', { d: `M${f(p1[0])} ${f(p1[1])} A${R} ${R} 0 ${span > 180 ? 1 : 0} 1 ${f(p2[0])} ${f(p2[1])}`, 'stroke-opacity': i % 2 ? 0.45 : 0.9, 'stroke-width': 5 }, g);
+      a += span;
+    });
+    for (let i = 0; i < 27; i++) dot(pt(R - 26, i * 360 / 27), 2.6, 0.75);
+    ring(R * 0.5, 0.5);
+  },
+  // three nadis: three waves through a ring of 27 nakshatras
+  nadi() {
+    ring(R, 0.6, 1.4);
+    for (let i = 0; i < 27; i++) dot(pt(R, i * 360 / 27), 3, 0.8);
+    [-1, 0, 1].forEach((k) => {
+      let d = ''; for (let s = 0; s <= 60; s++) { const x = CX - R * 0.8 + 1.6 * R * s / 60; const y = CY + k * 46 + 18 * Math.sin(s / 60 * Math.PI * 3 + k); d += (s ? 'L' : 'M') + f(x) + ' ' + f(y); }
+      el('path', { d, 'stroke-opacity': 0.75 - Math.abs(k) * 0.15, 'stroke-width': 1.6 }, g);
+    });
+  },
+};
+(MOTIFS[P.get('m')] || MOTIFS.wheel)();
+
+// centre medallion with the article's word, exactly at (CX, CY)
+el('circle', { cx: CX, cy: CY, r: 62, fill: DEEP, 'fill-opacity': 0.85, stroke: GOLD, 'stroke-opacity': 0.9, 'stroke-width': 1.5 });
+const word = P.get('g') || 'ॐ';
+el('text', { x: CX, y: CY, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'serif', 'font-weight': 800,
+  'font-size': word.length > 4 ? 26 : word.length > 2 ? 34 : 54, fill: GOLD }, svg, word);
+
+// title side
+el('text', { x: 84, y: 92, class: 'caps', 'font-size': 21, 'letter-spacing': 6, fill: GOLD }, svg, 'SHRI RAMJI ASTRO');
+const cat = P.get('c') || '';
+const catText = el('text', { x: 104, y: 137, 'dominant-baseline': 'central', class: 'deva', 'font-weight': 700, 'font-size': 20, fill: DEEP }, svg, cat);
+const cw = catText.getComputedTextLength();
+svg.insertBefore(el('rect', { x: 84, y: 120, width: f(cw + 40), height: 34, rx: 17, fill: GOLD }), catText);
+
+// title: wrap into at most 3 lines inside 560px, shrinking the size until it fits
+const title = (P.get('t') || '').split(' ');
+const tEl = el('text', { x: 84, class: 'serif', 'font-weight': 800, fill: INK });
+for (let size = 74; size >= 40; size -= 4) {
+  tEl.setAttribute('font-size', size); tEl.textContent = '';
+  const lines = []; let cur = '';
+  const probe = el('text', { class: 'serif', 'font-weight': 800, 'font-size': size, visibility: 'hidden' });
+  for (const w of title) { probe.textContent = cur ? cur + ' ' + w : w; if (probe.getComputedTextLength() > 560 && cur) { lines.push(cur); cur = w; } else cur = probe.textContent; }
+  lines.push(cur); probe.remove();
+  if (lines.length <= 3) {
+    const lh = size * 1.28, top = 290 - (lines.length - 1) * lh / 2;
+    lines.forEach((l, i) => el('tspan', { x: 84, y: f(top + i * lh), 'dominant-baseline': 'central' }, tEl, l));
+    break;
+  }
+}
+el('text', { x: 84, y: 470, class: 'deva', 'font-weight': 600, 'font-size': 28, fill: GOLD }, svg, P.get('s') || '');
+el('line', { x1: 84, y1: 512, x2: 1116, y2: 512, stroke: GOLD, 'stroke-opacity': 0.25 });
+el('text', { x: 84, y: 548, class: 'deva', 'font-weight': 500, 'font-size': 19, fill: INK, opacity: 0.75 }, svg, 'एस्ट्रो रामजी · शास्त्रीय वैदिक ज्योतिष');
+el('text', { x: 1116, y: 548, 'text-anchor': 'end', class: 'deva', 'font-weight': 600, 'font-size': 19, fill: INK, opacity: 0.8 }, svg, 'shriramjiastro.in');
+document.title = 'ready';
+}
+</script>
+</body></html>
