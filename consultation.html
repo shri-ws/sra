@@ -1531,7 +1531,7 @@
 
         // ── Google Apps Script Web App URL ─────────────────────────────
         // TODO: After deploying booking_calendar.gs, paste the Web App URL here:
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzC2CqT43HCDx4B97UNe85JjTnLdLwTr1TP3SDAUxq/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzJI59v2JpIrWebhM0ZIQ8b28FXYFlSYQ-38Bcx-O6dh9xmQUa9a0FFRfQfZXEMUrdCmQ/exec';
 
         // BILINGUAL DATA DICTIONARY
         const DICT = {
@@ -2130,9 +2130,11 @@
 
             if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'PASTE_YOUR_APPS_SCRIPT_URL_HERE') {
                 try {
+                    // text/plain keeps this a "simple" request: Apps Script can't answer
+                    // the CORS preflight a JSON content type triggers, so the browser would block it.
                     const calRes = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({
                             name:       data.client_name,
                             email:      data.email,
