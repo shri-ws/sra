@@ -30,6 +30,16 @@ const PALETTES = {           // [deep, mid, glow, accent, ink]
   teal:    ['#031417', '#0b3640', '#15646f', '#e7c97d', '#ecfbfc'],
   midnight:['#03070f', '#0b1a33', '#173a6b', '#e3c574', '#eef4ff'],
   forest:  ['#060f06', '#16301a', '#2d5a2f', '#e6cc7e', '#f2faef'],
+  ruby:    ['#1a0306', '#4d0a14', '#8f1426', '#f3cd7e', '#fff1ee'],
+  slate:   ['#07090c', '#1a2029', '#36404e', '#dcc79a', '#eef1f5'],
+  copper:  ['#160903', '#3e1d0c', '#7a3a18', '#f0c88a', '#fff2e6'],
+  rose:    ['#18050f', '#401229', '#78254d', '#efc989', '#fff0f6'],
+  maroon:  ['#120304', '#33090d', '#5e1a1e', '#e8c27a', '#fdf0ea'],
+  sapphire:['#030a1a', '#0a2050', '#1846a0', '#ecd08a', '#eef4ff'],
+  jade:    ['#03110d', '#0b2f27', '#17594a', '#ebd497', '#eefbf6'],
+  amber:   ['#140c02', '#3d2806', '#76500e', '#f6dc95', '#fff8e6'],
+  ocean:   ['#020c14', '#06283d', '#0f4f73', '#e9cd88', '#ecf7fd'],
+  olive:   ['#0c0d03', '#2a2c0c', '#55581c', '#ead48c', '#f8f8ea'],
 };
 const [DEEP, MID, GLOW, GOLD, INK] = PALETTES[P.get('h')] || PALETTES.kumkum;
 const NS = 'http://www.w3.org/2000/svg';
@@ -148,6 +158,86 @@ const MOTIFS = {
       let d = ''; for (let s = 0; s <= 60; s++) { const x = CX - R * 0.8 + 1.6 * R * s / 60; const y = CY + k * 46 + 18 * Math.sin(s / 60 * Math.PI * 3 + k); d += (s ? 'L' : 'M') + f(x) + ' ' + f(y); }
       el('path', { d, 'stroke-opacity': 0.75 - Math.abs(k) * 0.15, 'stroke-width': 1.6 }, g);
     });
+  },
+  // five great persons: a five-pointed star, a planet at each point
+  star() {
+    ring(R, 0.65, 1.5); ring(R * 0.4, 0.4);
+    const tips = [0, 1, 2, 3, 4].map(i => pt(R * 0.92, i * 72));
+    el('polygon', { points: [0, 2, 4, 1, 3].map(i => tips[i].map(f).join(',')).join(' '), 'stroke-opacity': 0.7, 'stroke-width': 1.4, 'stroke-linejoin': 'round' }, g);
+    tips.forEach(p => dot(p, 8));
+  },
+  // lone Moon: twelve houses, the two beside the Moon left empty
+  lonemoon() {
+    ring(R, 0.6, 1.4); ring(R - 34, 0.3);
+    for (let i = 0; i < 12; i++) line(pt(R - 34, i * 30 + 15), pt(R, i * 30 + 15), 0.35);
+    for (let a = 60; a <= 300; a += 30) dot(pt(R - 17, a), 4.5, 0.85);
+    [-30, 30].forEach(a => el('circle', { cx: f(pt(R - 17, a)[0]), cy: f(pt(R - 17, a)[1]), r: 6, 'stroke-opacity': 0.45, 'stroke-dasharray': '2 3' }, g));
+    const m = pt(R - 17, 0);
+    // crescent: outer arc of radius 13, inner arc of radius 16 through the same two horn tips
+    el('path', { d: `M${f(m[0])} ${f(m[1] - 13)} A13 13 0 1 0 ${f(m[0])} ${f(m[1] + 13)} A16 16 0 0 1 ${f(m[0])} ${f(m[1] - 13)}Z`, fill: GOLD, stroke: 'none' }, g);
+  },
+  // swapped places: twelve houses, full and hollow planets exchanged
+  swap() {
+    ring(R, 0.6, 1.4); ring(R * 0.62, 0.35);
+    for (let i = 0; i < 12; i++) {
+      const p = pt(R * 0.81, i * 30);
+      if (i % 3 === 0) el('circle', { cx: f(p[0]), cy: f(p[1]), r: 9, 'stroke-opacity': 0.85, 'stroke-width': 1.6 }, g); else dot(p, 4, 0.7);
+    }
+    [[0, 6], [3, 9]].forEach(([a, b]) => line(pt(R * 0.62, a * 30), pt(R * 0.62, b * 30), 0.3));
+  },
+  // arudha: the count from a house to its lord, repeated the same distance on
+  arudha() {
+    ring(R, 0.6, 1.4);
+    for (let i = 0; i < 12; i++) dot(pt(R, i * 30), 3, 0.6);
+    const a = pt(R, 330), b = pt(R, 90), c = pt(R, 210);
+    el('path', { d: `M${f(a[0])} ${f(a[1])} Q${CX} ${CY} ${f(b[0])} ${f(b[1])}`, 'stroke-opacity': 0.75, 'stroke-width': 1.6 }, g);
+    el('path', { d: `M${f(b[0])} ${f(b[1])} Q${CX} ${CY} ${f(c[0])} ${f(c[1])}`, 'stroke-opacity': 0.75, 'stroke-width': 1.6, 'stroke-dasharray': '6 5' }, g);
+    dot(a, 8); dot(b, 6, 0.8); el('circle', { cx: f(c[0]), cy: f(c[1]), r: 10, 'stroke-opacity': 0.95, 'stroke-width': 2 }, g);
+  },
+  // first and seventh house facing each other across the chart
+  mirror() {
+    ring(R, 0.4);
+    for (let i = 0; i < 12; i++) dot(pt(R, i * 30), 3.2, 0.6);
+    [270, 90].forEach(a => { const p = pt(R * 0.55, a); el('circle', { cx: f(p[0]), cy: f(p[1]), r: R * 0.36, 'stroke-opacity': 0.75, 'stroke-width': 1.5 }, g); });
+    line(pt(R, 270), pt(R, 90), 0.5, 1.2);
+  },
+  // trik houses: an inverted triangle joining the 6th, 8th and 12th
+  trik() {
+    ring(R, 0.6, 1.4);
+    const H = (n) => pt(R * 0.86, 180 + (n - 1) * 30);
+    for (let n = 1; n <= 12; n++) dot(H(n), [6, 8, 12].includes(n) ? 8 : 3, [6, 8, 12].includes(n) ? 0.95 : 0.5);
+    el('polygon', { points: [6, 8, 12].map(n => H(n).map(f).join(',')).join(' '), 'stroke-opacity': 0.75, 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, g);
+    ring(R * 0.42, 0.35);
+  },
+  // growing spiral: lineage, one generation after another
+  spiral() {
+    ring(R, 0.4);
+    let d = ''; for (let k = 0; k <= 240; k++) { const t = k / 240, a = t * 720, r = 70 + t * (R * 0.95 - 70); const p = pt(r, a); d += (k ? 'L' : 'M') + f(p[0]) + ' ' + f(p[1]); }
+    el('path', { d, 'stroke-opacity': 0.75, 'stroke-width': 1.6 }, g);
+    [0.25, 0.5, 0.75, 1].forEach(t => dot(pt(70 + t * (R * 0.95 - 70), t * 720), 3 + t * 4));
+  },
+  // 108 navamsas: twelve signs, each cut into nine
+  navamsa() {
+    ring(R, 0.75, 1.5); ring(R - 30, 0.45);
+    for (let i = 0; i < 108; i++) { const major = i % 9 === 0; line(pt(major ? R - 30 : R - 12, i * 360 / 108), pt(R, i * 360 / 108), major ? 0.7 : 0.4, major ? 1.3 : 0.8); }
+    for (let i = 0; i < 12; i++) label(pt(R - 50, i * 30 + 15), RASHI[i], 12, 0.6);
+  },
+  // eclipse: the Moon's disc crossing the Sun, with a corona
+  eclipse() {
+    for (let i = 0; i < 48; i++) { const long = i % 2 === 0; line(pt(R * 0.62, i * 7.5), pt(long ? R : R * 0.82, i * 7.5), long ? 0.45 : 0.3); }
+    ring(R * 0.55, 0.85, 1.6);
+    el('circle', { cx: CX + 34, cy: CY - 22, r: R * 0.52, fill: DEEP, 'fill-opacity': 0.9, 'stroke-opacity': 0.5 }, g);
+  },
+  // gandanta: three water–fire knots on the zodiac
+  gandanta() {
+    ring(R, 0.6, 1.4); ring(R - 30, 0.3);
+    for (let i = 0; i < 12; i++) label(pt(R - 15, i * 30 + 15), RASHI[i], 12, 0.6);
+    [120, 240, 360].forEach(a => {
+      const p = pt(R - 15, a);
+      el('circle', { cx: f(p[0]), cy: f(p[1]), r: 16, 'stroke-opacity': 0.95, 'stroke-width': 2 }, g); dot(p, 4.5);
+      line(pt(R * 0.42, a), pt(R - 31, a), 0.55, 1.2);
+    });
+    ring(R * 0.42, 0.45);
   },
 };
 (MOTIFS[P.get('m')] || MOTIFS.wheel)();
