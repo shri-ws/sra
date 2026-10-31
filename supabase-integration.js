@@ -50,76 +50,37 @@ window.saveConsultation = async (name, phone, email, dob, tob, pob, q) => {
   } catch (e) { console.error('Consult error:', e); }
 };
 
-// 📚 BLOGS & DISCUSSIONS PERMANENT CLOUD DATABASE ENGINE
+// 📚 ARTICLES: stored in Firestore forum_posts through sra-records.js (the Supabase project is gone).
+// The names stay the same because about.html calls them.
+const sraRecordsReady = () => new Promise((ok, no) => {
+  let tries = 0;
+  (function wait() { if (window.SRARecords) ok(window.SRARecords); else if (++tries > 100) no(new Error('sra-records.js not loaded')); else setTimeout(wait, 100); })();
+});
+
 window.saveBlogToSupabase = async (blogObj) => {
   try {
-    const payload = {
-      full_name: blogObj.author || "एस्ट्रो रामजी (Founder)",
-      phone: blogObj.category || "blog",
-      email: blogObj.avatar || "logo.png",
-      dob: (blogObj.title || "").substring(0, 100),
-      tob: String(blogObj.id || Date.now()),
-      place_of_birth: blogObj.cred || "Shri Ramji Astro Member",
-      question: JSON.stringify(blogObj),
-      status: 'published_blog'
-    };
-
-    const res = await fetch(`${SUPA_URL}/rest/v1/consultations`, {
-      method: 'POST',
-      headers: SUPA_HEADERS,
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) console.log('✅ Permanent Blog Post saved to Supabase Cloud DB!');
-    else console.error('❌ Supabase blog save failed:', await res.text());
-  } catch (e) { console.error('Blog cloud save error:', e); }
+    const status = await (await sraRecordsReady()).savePost(blogObj);
+    if (status === 'pending' && blogObj.isAdmin) {
+      alert('लेख सुरक्षित हो गया, पर अभी सबको नहीं दिख रहा। सीधे पब्लिश करने के लिए वेबसाइट पर अपने Google admin अकाउंट (eshriee@gmail.com) से लॉगिन करें, या Admin → Forum Posts में Approve करें।');
+    }
+  } catch (e) { console.error('Article save error:', e); }
 };
 
 window.fetchBlogsFromSupabase = async () => {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/consultations?status=eq.published_blog&order=created_at.desc`, {
-      headers: SUPA_HEADERS
-    });
-    if (res.ok) {
-      const rows = await res.json();
-      if (Array.isArray(rows) && rows.length > 0) {
-        const blogs = rows.map(r => {
-          try {
-            return JSON.parse(r.question);
-          } catch(e) {
-            return {
-              id: r.tob || Date.now(),
-              author: r.full_name,
-              avatar: r.email || "logo.png",
-              cred: r.place_of_birth,
-              title: r.dob,
-              body: r.question,
-              category: r.phone || "general",
-              isVerified: true,
-              isAdmin: r.full_name.includes("रामजी") || r.full_name.includes("Founder"),
-              isBlog: true,
-              upvotes: 1,
-              answers: [],
-              status: "approved",
-              created_at: r.created_at
-            };
-          }
-        });
-        return blogs;
-      }
-    }
-  } catch (e) { console.error('Fetch blogs cloud error:', e); }
+    const R = await sraRecordsReady();
+    const posts = await R.publishedPosts();
+    let local = [];
+    try { local = JSON.parse(localStorage.getItem('sra_blogs_database') || '[]'); } catch (e) {}
+    R.uploadLocalPosts(local, new Set(posts.map(p => String(p.id)))).catch(() => {});
+    return posts;
+  } catch (e) { console.error('Fetch articles error:', e); }
   return null;
 };
 
 window.deleteBlogFromSupabase = async (id) => {
-  try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/consultations?status=eq.published_blog&tob=eq.${id}`, {
-      method: 'DELETE',
-      headers: SUPA_HEADERS
-    });
-    if (res.ok) console.log('✅ Blog deleted from Supabase Cloud DB');
-  } catch (e) { console.error('Delete blog cloud error:', e); }
+  try { await (await sraRecordsReady()).deletePost(id); }
+  catch (e) { console.error('Delete article error:', e); alert('Firebase से हटाने के लिए Google admin अकाउंट से लॉगिन करें।'); }
 };
 
 // 🔥 ADMIN FETCH FUNCTIONS

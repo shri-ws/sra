@@ -369,7 +369,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="table-wrap">
         <div class="table-header"><span class="table-title">Forum Posts</span></div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Likes</th><th>Date</th></tr></thead>
+          <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
           <tbody id="forum-tbody"></tbody>
         </table></div>
       </div>
@@ -1098,14 +1098,22 @@ function renderConsultRows(tbodyId, rows){
 
 function renderForumRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows.length){ el.innerHTML=`<tr><td colspan="5" class="empty-row">No forum posts yet</td></tr>`; return; }
-  el.innerHTML=rows.map(f=>`<tr>
-    <td style="max-width:220px;font-size:13px;font-weight:700;color:#fff">${safe(f.title)}</td>
-    <td style="font-size:12px">${safe(f.author_name)}${f.is_admin?'<span style="font-size:9px;color:var(--gold);margin-left:6px">★ ADMIN</span>':''}</td>
+  if(!rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No articles yet — posts published on about.html appear here</td></tr>`; return; }
+  el.innerHTML=rows.map((f,i)=>`<tr>
+    <td style="max-width:260px;font-size:13px;font-weight:700"><a href="about.html?post=${encodeURIComponent(f.id)}" target="_blank" style="color:inherit">${safe(f.title)}</a></td>
+    <td style="font-size:12px">${safe(f.author || f.author_name)}${(f.isAdmin||f.is_admin)?'<span style="font-size:9px;color:var(--gold);margin-left:6px">★ ADMIN</span>':''}</td>
     <td style="font-size:12px;color:var(--muted)">${safe(f.category)}</td>
-    <td style="font-family:Cinzel,serif;font-size:13px;color:var(--gold)">${f.likes||0}</td>
+    <td>${badge(f.status||'pending')}</td>
     <td class="date-cell">${fmtDate(f.created_at)}</td>
+    <td>${f.status==='approved' ? '' : `<button onclick="approvePost(${i})" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">Approve</button>`}</td>
   </tr>`).join('');
+}
+
+async function approvePost(idx){
+  const f=D.forum[idx];
+  if(!f || !window.SRAAdminData) return;
+  try { await SRAAdminData.update('forum_posts', f.id, { status:'approved' }); f.status='approved'; renderForumRows('forum-tbody', D.forum); }
+  catch(e){ alert('Could not approve: '+(e.code||e.message)); }
 }
 
 /* ══ FILTER ══ */

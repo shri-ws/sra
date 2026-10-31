@@ -2365,7 +2365,7 @@
             let cloudBlogs = [];
             if (window.fetchBlogsFromSupabase) {
                 try {
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000));
                     const supaBlogs = await Promise.race([window.fetchBlogsFromSupabase(), timeoutPromise]);
                     if (supaBlogs && supaBlogs.length > 0) cloudBlogs = supaBlogs;
                 } catch(e) {}

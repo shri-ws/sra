@@ -59,6 +59,43 @@
       .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
   }
 
+  // ARTICLES (about.html): every post is a forum_posts document named by the post id.
+  // The admin's Google sign-in publishes straight away; anyone else's post waits for approval.
+  const ADMINS = ['eshriee@gmail.com', 'shriramjiastro7@gmail.com'];
+  const signedInAdmin = (fb) => { const u = fb.auth().currentUser; return !!(u && u.email && ADMINS.includes(u.email.toLowerCase())); };
+
+  async function savePost(post) {
+    const fb = await firebaseReady();
+    const status = signedInAdmin(fb) ? 'approved' : 'pending';
+    const rec = Object.assign(clean(post), {
+      body: String(post.body || ''), title: String(post.title || ''), status,
+      created_at: post.created_at || new Date().toISOString(),
+      createdAt: fb.firestore.FieldValue.serverTimestamp(), page: location.pathname
+    });
+    await fb.firestore().collection('forum_posts').doc(String(post.id || Date.now())).set(rec);
+    return status;
+  }
+  async function publishedPosts() {
+    const fb = await firebaseReady();
+    const snap = await fb.firestore().collection('forum_posts').where('status', '==', 'approved').get();
+    return snap.docs.map(d => d.data()).map(p => {
+      try { if (typeof p.answers === 'string') p.answers = JSON.parse(p.answers); } catch (e) { p.answers = []; }
+      return p;
+    });
+  }
+  // Posts the admin wrote earlier sit only in that browser; copy them up once the admin is signed in
+  async function uploadLocalPosts(list, knownIds) {
+    const fb = await firebaseReady();
+    if (!signedInAdmin(fb)) return 0;
+    const mine = (list || []).filter(p => p && p.id && p.isAdmin && !knownIds.has(String(p.id)));
+    for (const p of mine) await savePost(p);
+    return mine.length;
+  }
+  async function deletePost(id) {
+    const fb = await firebaseReady();
+    await fb.firestore().collection('forum_posts').doc(String(id)).delete();
+  }
+
   const json = (body, status) => new Response(JSON.stringify(body), { status: status || 200, headers: { 'Content-Type': 'application/json' } });
   function parseBody(init) {
     try { return typeof init.body === 'string' ? JSON.parse(init.body) : null; } catch (e) { return null; }
@@ -93,5 +130,5 @@
     return realFetch(input, init);
   };
 
-  window.SRARecords = { add, approvedReviews };
+  window.SRARecords = { add, approvedReviews, savePost, publishedPosts, uploadLocalPosts, deletePost, signedInAdmin: () => firebaseReady().then(signedInAdmin) };
 })();
