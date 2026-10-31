@@ -237,8 +237,12 @@ def update_blogs_hub(index):
                            category_hi=CATEGORY_HI.get(i['category'], ''), date_hi=f'{int(d)} {HI_MONTHS[int(m) - 1]} {y}',
                            snippet=esc(i['snippet'][:180].rsplit(' ', 1)[0] + '…'))
         page, n = re.subn(r'<article class="blog-card"[^>]*id="art-%s">.*?</article>' % i['id'], lambda _: card, page, flags=re.S)
-        if n != 1:
-            sys.exit(f"blogs.html has no card art-{i['id']}")
+        if n == 0:
+            # an article that was never on the hub (e.g. a forum post): add its card after the last card
+            last = list(re.finditer(r'<article class="blog-card".*?</article>', page, flags=re.S))[-1]
+            page = page[:last.end()] + '\n\n        ' + card + page[last.end():]
+        elif n != 1:
+            sys.exit(f"blogs.html has {n} cards art-{i['id']}")
     schema = {'@context': 'https://schema.org', '@type': 'CollectionPage', 'name': 'शोध ब्लॉग — Shri Ramji Astro',
               'url': f'{SITE}/blogs.html', 'inLanguage': 'hi',
               'mainEntity': {'@type': 'ItemList', 'itemListElement': [

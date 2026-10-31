@@ -60,6 +60,17 @@ const PALETTES = {           // [deep, mid, glow, accent, ink]
   sunrise: ['#180502', '#4e1306', '#a8360c', '#ffd98a', '#fff4e4'],
   gold:    ['#120c01', '#3b2a04', '#7a5a0a', '#ffe39a', '#fff9e8'],
   rosegold:['#160709', '#3f1a1f', '#7d3c3f', '#f3cf9e', '#fff2ef'],
+  lapis:   ['#030616', '#0b1745', '#1d3592', '#efd68e', '#eef1ff'],
+  ochre:   ['#130b01', '#3c2505', '#7c4d0b', '#fbdc92', '#fff7e6'],
+  orchid:  ['#12051a', '#311042', '#5e2479', '#f2cf8c', '#fbf0ff'],
+  sage:    ['#070c08', '#1b2a1e', '#36513b', '#e7d49b', '#f1f8f2'],
+  cocoa:   ['#0f0805', '#2c1b12', '#563626', '#ecca96', '#fbf3ec'],
+  lagoon:  ['#021013', '#062f36', '#0d5c66', '#ecd492', '#ebfbfc'],
+  scarlet: ['#170204', '#4a0710', '#931222', '#fdd281', '#fff0ee'],
+  sand:    ['#120e07', '#352a17', '#6b5530', '#f6e0a8', '#fffaf0'],
+  smoke:   ['#08080b', '#1b1b24', '#363648', '#dccba0', '#f2f2f7'],
+  berry:   ['#14040c', '#3a0d26', '#701a4a', '#f4cd8e', '#fff0f7'],
+  fern:    ['#030d06', '#0d2a15', '#1d532b', '#ecd690', '#effaf1'],
 };
 const [DEEP, MID, GLOW, GOLD, INK] = PALETTES[P.get('h')] || PALETTES.kumkum;
 const NS = 'http://www.w3.org/2000/svg';
@@ -435,6 +446,100 @@ const MOTIFS = {
     el('circle', { cx: f(m[0] - 6), cy: f(m[1] + 6), r, 'stroke-opacity': 0.9, 'stroke-width': 2 }, g);
     const t0 = [m[0] - 6 + r * 0.707, m[1] + 6 - r * 0.707], t1 = [t0[0] + 30, t0[1] - 30];
     line(t0, t1, 0.9, 2); line(t1, [t1[0] - 16, t1[1]], 0.9, 2); line(t1, [t1[0], t1[1] + 16], 0.9, 2);
+  },
+  // special lagnas: a clock face with three hands at the rates of bhava, hora and ghati lagna
+  clock() {
+    ring(R, 0.7, 1.5); ring(R - 22, 0.3);
+    for (let i = 0; i < 60; i++) line(pt(i % 5 ? R - 8 : R - 22, i * 6), pt(R, i * 6), i % 5 ? 0.3 : 0.7, i % 5 ? 0.8 : 1.4);
+    [[R * 0.5, 40, 3], [R * 0.68, 100, 2.2], [R * 0.84, 250, 1.4]].forEach(([len, a, w]) => { line(pt(62, a), pt(len, a), 0.9, w); dot(pt(len, a), w + 2.5); });
+  },
+  // indu lagna: seven planets as coins sized by their kala numbers (30, 16, 6, 8, 10, 12, 1)
+  coins() {
+    ring(R, 0.45);
+    [30, 16, 6, 8, 10, 12, 1].forEach((k, i) => { const p = pt(R * 0.74, i * 360 / 7); el('circle', { cx: f(p[0]), cy: f(p[1]), r: f(6 + k * 0.75), 'stroke-opacity': 0.85, 'stroke-width': 1.5 }, g); dot(p, 2.4); });
+  },
+  // day and night: a light half and a dark half, with odd and even sign markers
+  daynight() {
+    ring(R, 0.6, 1.4);
+    el('path', { d: `M${CX} ${CY - R} A${R} ${R} 0 0 1 ${CX} ${CY + R}Z`, fill: GOLD, 'fill-opacity': 0.14, stroke: 'none' }, g);
+    line([CX, CY - R], [CX, CY + R], 0.5);
+    for (let i = 0; i < 12; i++) { const p = pt(R - 18, i * 30 + 15); if (i % 2 === 0) dot(p, 5); else el('circle', { cx: f(p[0]), cy: f(p[1]), r: 5, 'stroke-opacity': 0.7, 'stroke-width': 1.3 }, g); }
+    const s = pt(R * 0.62, 90); for (let i = 0; i < 8; i++) line([s[0] + 13 * Math.cos(i * Math.PI / 4), s[1] + 13 * Math.sin(i * Math.PI / 4)], [s[0] + 19 * Math.cos(i * Math.PI / 4), s[1] + 19 * Math.sin(i * Math.PI / 4)], 0.8, 1.2); dot(s, 8);
+    const m = pt(R * 0.62, 270); el('path', { d: `M${f(m[0] + 2)} ${f(m[1] - 11)} A11 11 0 1 1 ${f(m[0] + 2)} ${f(m[1] + 11)} A14 14 0 0 0 ${f(m[0] + 2)} ${f(m[1] - 11)}Z`, fill: GOLD, stroke: 'none' }, g);
+  },
+  // pushkara navamsa: four element rings, nine parts each, with the two pushkara parts lit
+  pushkar() {
+    const lit = [[7, 9], [3, 5], [6, 8], [1, 3]];
+    lit.forEach((pair, k) => {
+      const r = R - k * 30;
+      ring(r, 0.4);
+      for (let n = 1; n <= 9; n++) {
+        const a1 = (n - 1) * 40 + 2, a2 = n * 40 - 2, p1 = pt(r, a1), p2 = pt(r, a2), on = pair.includes(n);
+        el('path', { d: `M${f(p1[0])} ${f(p1[1])} A${r} ${r} 0 0 1 ${f(p2[0])} ${f(p2[1])}`, 'stroke-opacity': on ? 0.95 : 0.25, 'stroke-width': on ? 5 : 1.6 }, g);
+      }
+    });
+  },
+  // bhava chalit: the sign wheel and the house wheel, offset by the lagna degree
+  cusps() {
+    ring(R, 0.7, 1.4); ring(R * 0.5, 0.4);
+    for (let i = 0; i < 12; i++) { line(pt(R * 0.75, i * 30), pt(R, i * 30), 0.6, 1.2); line(pt(R * 0.5, i * 30 + 13), pt(R * 0.75, i * 30 + 13), 0.6, 1.2); }
+    ring(R * 0.75, 0.5);
+    dot(pt(R * 0.62, 28), 6); dot(pt(R * 0.88, 28), 6);
+  },
+  // the Moon's true path wobbling around its mean orbit
+  lunar() {
+    ring(R * 0.78, 0.3);
+    let d = ''; for (let k = 0; k <= 360; k++) { const r = R * 0.78 + 14 * Math.sin(k * Math.PI / 180 * 6.3) + 6 * Math.sin(k * Math.PI / 180 * 13); const p = pt(r, k); d += (k ? 'L' : 'M') + f(p[0]) + ' ' + f(p[1]); }
+    el('path', { d, 'stroke-opacity': 0.85, 'stroke-width': 1.6 }, g);
+    for (let i = 0; i < 27; i++) dot(pt(R, i * 360 / 27), 2.4, 0.7);
+    dot(pt(R * 0.78 + 14 * Math.sin(50 * Math.PI / 180 * 6.3) + 6 * Math.sin(50 * Math.PI / 180 * 13), 50), 7);
+  },
+  // Mars: the shield-and-spear figure, with houses 3, 6 and 11 from the Moon lit
+  spear() {
+    ring(R, 0.55, 1.4);
+    for (let h = 1; h <= 12; h++) { const p = pt(R - 18, (h - 1) * 30); if ([3, 6, 11].includes(h)) dot(p, 7); else el('circle', { cx: f(p[0]), cy: f(p[1]), r: 4, 'stroke-opacity': 0.45 }, g); }
+    const a = pt(R * 0.82, 225), b = pt(R * 0.55, 45);
+    line(a, b, 0.85, 2); const tip = pt(R * 0.7, 45); const l = pt(R * 0.5, 35), r = pt(R * 0.5, 55);
+    el('polygon', { points: [tip, l, r].map(p => p.map(f).join(',')).join(' '), fill: GOLD, 'fill-opacity': 0.8, stroke: 'none' }, g);
+  },
+  // Mercury: its classical symbol with a small retrograde loop
+  mercury() {
+    ring(R, 0.45);
+    const c = pt(R * 0.6, 90), r = 26;
+    el('circle', { cx: f(c[0]), cy: f(c[1]), r, 'stroke-opacity': 0.9, 'stroke-width': 2 }, g);
+    el('path', { d: `M${f(c[0] - 18)} ${f(c[1] - r - 16)} A18 18 0 0 0 ${f(c[0] + 18)} ${f(c[1] - r - 16)}`, 'stroke-opacity': 0.9, 'stroke-width': 2 }, g);
+    line([c[0], c[1] + r], [c[0], c[1] + r + 34], 0.9, 2); line([c[0] - 14, c[1] + r + 18], [c[0] + 14, c[1] + r + 18], 0.9, 2);
+    const at = (t) => [CX - R * 0.75 + R * 0.9 * t + 38 * Math.sin(2 * Math.PI * t), CY + 4 + 18 * Math.cos(2 * Math.PI * t)];
+    let d = ''; for (let k = 0; k <= 120; k++) { const p = at(k / 120 * 0.55); d += (k ? 'L' : 'M') + f(p[0]) + ' ' + f(p[1]); }
+    el('path', { d, 'stroke-opacity': 0.6, 'stroke-width': 1.4 }, g);
+  },
+  // chandrashtam: the Moon at its birth sign and the eighth sign from it highlighted
+  eighth() {
+    ring(R, 0.55, 1.4); ring(R - 34, 0.3);
+    for (let i = 0; i < 12; i++) line(pt(R - 34, i * 30 - 15), pt(R, i * 30 - 15), 0.4);
+    const a1 = pt(R - 17, 210 - 15), a2 = pt(R - 17, 210 + 15);
+    el('path', { d: `M${f(a1[0])} ${f(a1[1])} A${R - 17} ${R - 17} 0 0 1 ${f(a2[0])} ${f(a2[1])}`, 'stroke-opacity': 0.95, 'stroke-width': 30, 'stroke-linecap': 'butt', opacity: 0.35 }, g);
+    const m = pt(R - 17, 0);
+    el('path', { d: `M${f(m[0] - 2)} ${f(m[1] - 10)} A10 10 0 1 0 ${f(m[0] - 2)} ${f(m[1] + 10)} A12 12 0 0 1 ${f(m[0] - 2)} ${f(m[1] - 10)}Z`, fill: GOLD, stroke: 'none' }, g);
+    label(pt(R - 17, 210), '८', 18, 0.95);
+  },
+  // ida and pingala: two breaths winding around the central sushumna
+  breath() {
+    ring(R, 0.4);
+    line([CX, CY - R * 0.92], [CX, CY + R * 0.92], 0.45, 1.2);
+    [1, -1].forEach(s => {
+      let d = ''; for (let k = 0; k <= 120; k++) { const t = k / 120, y = CY - R * 0.92 + 1.84 * R * t, x = CX + s * 58 * Math.sin(t * Math.PI * 3); d += (k ? 'L' : 'M') + f(x) + ' ' + f(y); }
+      el('path', { d, 'stroke-opacity': 0.85, 'stroke-width': 1.7 }, g);
+    });
+    dot([CX - 70, CY - R * 0.7], 6); dot([CX + 70, CY - R * 0.7], 6, 0.6);
+  },
+  // vastu purusha mandala: an 8×8 grid of 64 padas inside a square
+  vastu() {
+    const s = R * 1.3, x0 = CX - s / 2, y0 = CY - s / 2, c = s / 8;
+    el('rect', { x: f(x0), y: f(y0), width: f(s), height: f(s), 'stroke-opacity': 0.85, 'stroke-width': 1.6 }, g);
+    for (let i = 1; i < 8; i++) { line([x0 + i * c, y0], [x0 + i * c, y0 + s], 0.3); line([x0, y0 + i * c], [x0 + s, y0 + i * c], 0.3); }
+    el('rect', { x: f(x0 + 2 * c), y: f(y0 + 2 * c), width: f(4 * c), height: f(4 * c), 'stroke-opacity': 0.7, 'stroke-width': 1.3 }, g);
+    dot([x0 + s - c / 2, y0 + c / 2], 6);
   },
 };
 (MOTIFS[P.get('m')] || MOTIFS.wheel)();
