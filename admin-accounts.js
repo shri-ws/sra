@@ -17,6 +17,8 @@
 
   let rows = [];          // [{ uid, profile, kundalis: [] }]
   let fbReady = null;
+  let adminUser = null;
+  let adminWaiters = [];
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -55,7 +57,9 @@
   }
   async function signOut() { const fb = await ensureFirebase(); await fb.auth().signOut(); }
 
-  async function load() {
+  let accountsLoaded = Promise.resolve();
+  function load() { accountsLoaded = loadAccounts(); return accountsLoaded; }
+  async function loadAccounts() {
     const fb = await ensureFirebase();
     const db = fb.firestore();
     setStatus('⏳ Loading accounts…');
@@ -147,13 +151,43 @@
       $('acc-signin').hidden = isAdmin;
       $('acc-signout').hidden = !u;
       $('acc-body').hidden = !isAdmin;
-      if (isAdmin) load();
+      adminUser = isAdmin ? u : null;
+      document.body.classList.toggle('acc-admin', isAdmin);
+      if (isAdmin) {
+        load();
+        adminWaiters.splice(0).forEach(ok => ok(u));
+        // Every other panel reads Firestore too, so reload them now that access is granted
+        if (typeof window.loadAll === 'function' && sessionStorage.getItem('sra_admin_auth') === 'true') window.loadAll();
+      }
       else setStatus(u ? `<span class="acc-err">${esc(u.email || u.phoneNumber)} is not an admin account. Sign in with ${ADMINS.join(' or ')}.</span>`
-                       : `Sign in with ${ADMINS.join(' or ')} to see every account.`);
+                       : `Sign in with ${ADMINS.join(' or ')} to load consultations, payments, students, reviews and accounts.`);
     });
   }
 
+  // Records the website stores in Firestore (sra-records.js): consultations, payments,
+  // students, reviews, user_queries, forum_posts. Read by admin.html's loadAll().
+  function whenAdmin() {
+    return adminUser ? Promise.resolve(adminUser) : new Promise(ok => adminWaiters.push(ok));
+  }
+  async function list(collection) {
+    if (!adminUser) return [];
+    const fb = await ensureFirebase();
+    const snap = await fb.firestore().collection(collection).get();
+    return snap.docs.map(d => Object.assign({ id: d.id }, d.data(), { created_at: d.data().created_at || (toDate(d.data().createdAt) || new Date(0)).toISOString() }))
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  }
+  async function update(collection, id, data) {
+    const fb = await ensureFirebase();
+    await fb.firestore().collection(collection).doc(id).update(data);
+  }
+  // Google sign-ins from Website Accounts, as rows for the Verified Email Logins table
+  const accountRows = () => rows.filter(r => r.profile.email && !isPhoneMail(r.profile.email)).map(r => ({
+    email: r.profile.email, candidate_name: r.profile.name || '', phone: r.profile.phone || '',
+    login_method: 'GOOGLE', created_at: (toDate(r.profile.lastLoginAt) || toDate(r.profile.createdAt) || new Date(0)).toISOString()
+  }));
+
   window.SRAAdminAccounts = { load };
+  window.SRAAdminData = { whenAdmin, list, update, accountRows, isAdmin: () => !!adminUser, ready: () => accountsLoaded };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
 })();

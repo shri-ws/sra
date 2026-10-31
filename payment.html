@@ -244,6 +244,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
 <link rel="stylesheet" href="sra-elegance.css" />
 <script src="sra-ui.js" defer></script>
 <script src="sra-auth.js" defer></script>
+<script src="sra-records.js" defer></script>
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
@@ -583,8 +584,6 @@ async function pay(){
   btn.disabled=true;
   btn.innerHTML='<span class="spin"></span> Opening Payment...';
 
-  await dbInsert('students',{first_name:fname,last_name:lname,email,phone,city,course_interest:S.name});
-  await dbInsert('payments',{student_email:email,student_name:fname+' '+lname,student_phone:phone,plan_name:S.name,amount:S.total,status:'pending',razorpay_payment_id:null});
 
   try {
     const rzp=new Razorpay({
@@ -594,9 +593,13 @@ async function pay(){
       theme:{color:'#c9a84c'},
       config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'No Cost EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
       async handler(r){
-        await dbPatch('payments','student_email=eq.'+encodeURIComponent(email)+'&status=eq.pending',{status:'completed',razorpay_payment_id:r.razorpay_payment_id});
+        // Only a paid 1-year course enrolment makes someone a student (admin → Students)
+        if (S.id === 'course') {
+          await dbInsert('students',{first_name:fname,last_name:lname,email,phone,city,course_interest:S.name,
+            amount_paid:S.total,coupon:S.disc?(document.getElementById('coupon')||{}).value||'':'',razorpay_payment_id:r.razorpay_payment_id,status:'paid'});
+        }
         try {
-          fetch('api/save_payment.php', {
+          await fetch('api/save_payment.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -621,7 +624,6 @@ async function pay(){
       modal:{ondismiss(){btn.disabled=false;btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';}}
     });
     rzp.on('payment.failed',async r=>{
-      await dbPatch('payments','student_email=eq.'+encodeURIComponent(email)+'&status=eq.pending',{status:'failed'});
       alert('Payment failed: '+r.error.description+'\n\nWhatsApp: +91 9517117775');
       btn.disabled=false;
       btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';
