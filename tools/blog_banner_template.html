@@ -50,6 +50,16 @@ const PALETTES = {           // [deep, mid, glow, accent, ink]
   moss:    ['#070c03', '#1d2a0d', '#3b521a', '#e9d48f', '#f4fae9'],
   dusk:    ['#10060f', '#2c1230', '#5a2552', '#f4c97e', '#fff1fb'],
   ash:     ['#09090a', '#1e1f22', '#3b3d42', '#e2cc94', '#f3f3f1'],
+  teak:    ['#120a04', '#33200f', '#64401e', '#f0d090', '#fff6ea'],
+  saffron2:['#170902', '#45200a', '#9a4a12', '#fbe1a0', '#fff6e8'],
+  ice:     ['#040b12', '#10263a', '#24506f', '#e4d3a4', '#eef7fc'],
+  ember:   ['#170401', '#470f05', '#8e220c', '#f8cf7c', '#fff0e6'],
+  night:   ['#02040c', '#0a1430', '#1a2d63', '#e8d29a', '#eef2ff'],
+  pearl:   ['#0d0b10', '#2a2533', '#544a63', '#f0dcae', '#fbf8ff'],
+  iron:    ['#060708', '#16191d', '#2c3238', '#cdbb8e', '#eef0f2'],
+  sunrise: ['#180502', '#4e1306', '#a8360c', '#ffd98a', '#fff4e4'],
+  gold:    ['#120c01', '#3b2a04', '#7a5a0a', '#ffe39a', '#fff9e8'],
+  rosegold:['#160709', '#3f1a1f', '#7d3c3f', '#f3cf9e', '#fff2ef'],
 };
 const [DEEP, MID, GLOW, GOLD, INK] = PALETTES[P.get('h')] || PALETTES.kumkum;
 const NS = 'http://www.w3.org/2000/svg';
@@ -331,6 +341,100 @@ const MOTIFS = {
     const a = pt(R * 0.66, 0), b = pt(R * 0.66, 120), c = pt(R * 0.66, 240);
     el('polygon', { points: [a, b, c].map(p => p.map(f).join(',')).join(' '), 'stroke-opacity': 0.3 }, g);
     [a, b, c].forEach(p => eye(p, 30));
+  },
+  // chara dasha: twelve signs in four padas, arcs run forward in odd padas and backward in even ones
+  zigzag() {
+    ring(R, 0.55, 1.4);
+    for (let i = 0; i < 12; i++) { dot(pt(R, i * 30 + 15), 4, 0.85); label(pt(R - 26, i * 30 + 15), RASHI[i], 12, 0.6); }
+    for (let pada = 0; pada < 4; pada++) {
+      const odd = pada % 2 === 0, r = odd ? R + 14 : R - 48, a1 = pada * 90 + 15, a2 = pada * 90 + 75;
+      const s = pt(r, odd ? a1 : a2), e = pt(r, odd ? a2 : a1);
+      el('path', { d: `M${f(s[0])} ${f(s[1])} A${r} ${r} 0 0 ${odd ? 1 : 0} ${f(e[0])} ${f(e[1])}`, 'stroke-opacity': 0.8, 'stroke-width': 1.6 }, g);
+      dot(e, 3.5);
+    }
+  },
+  // Jupiter's banded disc with Rahu's shadow crossing it
+  shadow() {
+    ring(R, 0.4);
+    const jr = R * 0.78;
+    el('circle', { cx: CX, cy: CY, r: jr, 'stroke-opacity': 0.85, 'stroke-width': 1.6 }, g);
+    [-0.62, -0.36, -0.12, 0.12, 0.36, 0.62].forEach(k => { const y = CY + k * jr, w = Math.sqrt(1 - k * k) * jr; line([CX - w, y], [CX + w, y], 0.4); });
+    // shadow kept inside Jupiter's disc: centre offset (0.45, −0.35)·jr ≈ 0.57·jr, radius 0.38·jr, so 0.95·jr < jr
+    el('circle', { cx: f(CX + jr * 0.45), cy: f(CY - jr * 0.35), r: jr * 0.38, fill: DEEP, 'fill-opacity': 0.92, 'stroke-opacity': 0.45, 'stroke-dasharray': '3 4' }, g);
+  },
+  // crescent Moon beside ringed Saturn
+  cradle() {
+    ring(R, 0.45);
+    const m = pt(R * 0.6, 300), s = pt(R * 0.6, 60);
+    el('path', { d: `M${f(m[0])} ${f(m[1] - 40)} A40 40 0 1 0 ${f(m[0])} ${f(m[1] + 40)} A50 50 0 0 1 ${f(m[0])} ${f(m[1] - 40)}Z`, fill: GOLD, 'fill-opacity': 0.85, stroke: 'none' }, g);
+    el('circle', { cx: f(s[0]), cy: f(s[1]), r: 24, 'stroke-opacity': 0.9, 'stroke-width': 1.8 }, g);
+    el('ellipse', { cx: f(s[0]), cy: f(s[1]), rx: 46, ry: 13, transform: `rotate(-20 ${f(s[0])} ${f(s[1])})`, 'stroke-opacity': 0.8, 'stroke-width': 1.6 }, g);
+    line(pt(R * 0.6, 330), pt(R * 0.6, 30), 0.35);
+  },
+  // flame: twelve tongues of fire around the medallion
+  flame() {
+    ring(R, 0.4);
+    for (let i = 0; i < 12; i++) {
+      const a = i * 30, long = i % 2 === 0, tip = pt(long ? R * 0.95 : R * 0.8, a), l = pt(R * 0.42, a - 9), r = pt(R * 0.42, a + 9), c1 = pt(R * 0.7, a - 14), c2 = pt(R * 0.62, a + 10);
+      el('path', { d: `M${f(l[0])} ${f(l[1])} Q${f(c1[0])} ${f(c1[1])} ${f(tip[0])} ${f(tip[1])} Q${f(c2[0])} ${f(c2[1])} ${f(r[0])} ${f(r[1])}`, 'stroke-opacity': long ? 0.8 : 0.5, 'stroke-width': 1.4 }, g);
+    }
+  },
+  // precession: tropical and sidereal zodiacs, offset by the 2026 ayanamsha (about 24.2°)
+  precession() {
+    const AY = 24.2;
+    ring(R, 0.7, 1.4); ring(R - 30, 0.35); ring(R - 60, 0.55, 1.2);
+    for (let i = 0; i < 12; i++) { line(pt(R - 30, i * 30), pt(R, i * 30), 0.55); line(pt(R - 60, i * 30 + AY), pt(R - 30, i * 30 + AY), 0.35); }
+    const a = pt(R - 45, 0), b = pt(R - 45, AY);
+    el('path', { d: `M${f(a[0])} ${f(a[1])} A${R - 45} ${R - 45} 0 0 1 ${f(b[0])} ${f(b[1])}`, 'stroke-opacity': 0.95, 'stroke-width': 3 }, g);
+    dot(pt(R + 10, 0), 5); dot(pt(R - 75, AY), 5);
+  },
+  // Venus near the Sun: a combustion zone of ±10° and Venus inside it (dim) and outside it (bright)
+  venus() {
+    ring(R, 0.55, 1.4); ring(R * 0.62, 0.3);
+    const z1 = pt(R, -10), z2 = pt(R, 10);
+    el('path', { d: `M${CX} ${CY} L${f(z1[0])} ${f(z1[1])} A${R} ${R} 0 0 1 ${f(z2[0])} ${f(z2[1])}Z`, fill: GOLD, 'fill-opacity': 0.1, 'stroke-opacity': 0.5 }, g);
+    const v1 = pt(R, 4); el('circle', { cx: f(v1[0]), cy: f(v1[1]), r: 7, 'stroke-opacity': 0.6, 'stroke-width': 1.5 }, g);
+    dot(pt(R, 130), 9);
+  },
+  // Saturn: ringed planet, the rings drawn behind the medallion
+  saturn() {
+    ring(R, 0.35);
+    el('ellipse', { cx: CX, cy: CY, rx: R * 0.95, ry: R * 0.3, transform: `rotate(-18 ${CX} ${CY})`, 'stroke-opacity': 0.8, 'stroke-width': 1.8 }, g);
+    el('ellipse', { cx: CX, cy: CY, rx: R * 0.8, ry: R * 0.24, transform: `rotate(-18 ${CX} ${CY})`, 'stroke-opacity': 0.45 }, g);
+    el('circle', { cx: CX, cy: CY, r: R * 0.5, 'stroke-opacity': 0.75, 'stroke-width': 1.5 }, g);
+    for (let i = 0; i < 7; i++) dot(pt(R * 0.9, 200 + i * 20), 2.6, 0.7);
+  },
+  // twelve sun rays, one for each Aditya
+  rays() {
+    ring(R * 0.42, 0.7, 1.4);
+    for (let i = 0; i < 12; i++) {
+      const a = i * 30, tip = pt(R, a), l = pt(R * 0.45, a - 7), r = pt(R * 0.45, a + 7);
+      el('polygon', { points: [l, tip, r].map(p => p.map(f).join(',')).join(' '), 'stroke-opacity': 0.75, 'stroke-width': 1.3, 'stroke-linejoin': 'round' }, g);
+      line(pt(R * 0.5, a + 15), pt(R * 0.72, a + 15), 0.35);
+    }
+  },
+  // Jupiter's transit counted from the Moon: houses 2, 5, 7, 9 and 11 lit
+  transit() {
+    ring(R, 0.6, 1.4); ring(R - 34, 0.3);
+    for (let h = 1; h <= 12; h++) {
+      const a = (h - 1) * 30, good = [2, 5, 7, 9, 11].includes(h);
+      line(pt(R - 34, a - 15), pt(R, a - 15), 0.4);
+      if (good) dot(pt(R - 17, a), 7); else el('circle', { cx: f(pt(R - 17, a)[0]), cy: f(pt(R - 17, a)[1]), r: 4, 'stroke-opacity': 0.45 }, g);
+    }
+    const m = pt(R + 22, 0);
+    el('path', { d: `M${f(m[0] - 2)} ${f(m[1] - 9)} A9 9 0 1 0 ${f(m[0] - 2)} ${f(m[1] + 9)} A11 11 0 0 1 ${f(m[0] - 2)} ${f(m[1] - 9)}Z`, fill: GOLD, stroke: 'none' }, g);
+    const a1 = pt(R * 0.62, 100), a2 = pt(R * 0.62, 125);
+    el('path', { d: `M${f(a1[0])} ${f(a1[1])} A${R * 0.62} ${R * 0.62} 0 0 1 ${f(a2[0])} ${f(a2[1])}`, 'stroke-opacity': 0.85, 'stroke-width': 2 }, g); dot(a2, 5);
+  },
+  // Venus and Mars: their two classical symbols side by side
+  twin() {
+    ring(R, 0.4);
+    const v = pt(R * 0.58, 270), m = pt(R * 0.58, 90), r = 30;
+    el('circle', { cx: f(v[0]), cy: f(v[1] - 12), r, 'stroke-opacity': 0.9, 'stroke-width': 2 }, g);
+    line([v[0], v[1] - 12 + r], [v[0], v[1] + r + 30], 0.9, 2); line([v[0] - 15, v[1] + r + 12], [v[0] + 15, v[1] + r + 12], 0.9, 2);
+    el('circle', { cx: f(m[0] - 6), cy: f(m[1] + 6), r, 'stroke-opacity': 0.9, 'stroke-width': 2 }, g);
+    const t0 = [m[0] - 6 + r * 0.707, m[1] + 6 - r * 0.707], t1 = [t0[0] + 30, t0[1] - 30];
+    line(t0, t1, 0.9, 2); line(t1, [t1[0] - 16, t1[1]], 0.9, 2); line(t1, [t1[0], t1[1] + 16], 0.9, 2);
   },
 };
 (MOTIFS[P.get('m')] || MOTIFS.wheel)();
