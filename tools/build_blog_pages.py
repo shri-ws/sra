@@ -279,7 +279,11 @@ def main():
                 {'@type': 'ListItem', 'position': 1, 'name': 'होम', 'item': SITE + '/'},
                 {'@type': 'ListItem', 'position': 2, 'name': 'शोध ब्लॉग', 'item': SITE + '/blogs.html'},
                 {'@type': 'ListItem', 'position': 3, 'name': a['h1'], 'item': url}]}]}
-        related = ''.join(f'<li><a href="blog/{o["slug"]}.html">{esc(o["h1"])}</a></li>' for o in articles if o is not a)
+        # six related articles: same category first, then the rest, starting after this one so pages differ
+        i = articles.index(a)
+        others = articles[i + 1:] + articles[:i]
+        others.sort(key=lambda o: o['category'] != a['category'])
+        related = ''.join(f'<li><a href="blog/{o["slug"]}.html">{esc(o["h1"])}</a></li>' for o in others[:6])
         faq = '\n'.join(f'<details><summary>{esc(q)}</summary><p>{inline(ans)}</p></details>' for q, ans in a['faq'])
         page = PAGE.format(
             title=esc(a['title']), description=esc(a['description']), keywords=esc(a['keywords']), url=url,
