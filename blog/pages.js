@@ -1,0 +1,2 @@
+/* Built by tools/build_blog_pages.py: old article ids → their own page (blogs.html, about.html) */
+window.SRA_BLOG_PAGES = {"1790250000018": "blog/gajakesari-yoga.html", "1790250000021": "blog/gun-milan-36-gun.html", "1790250000029": "blog/kaal-sarp-dosh.html", "1790250000022": "blog/manglik-dosh.html", "1790250000025": "blog/nadi-dosh.html", "1790250000012": "blog/neechabhang-rajyoga.html", "1790250000030": "blog/pitra-dosh.html", "1790250000003": "blog/rahu-ketu-phal.html", "1790250000001": "blog/shani-sade-sati.html", "1790250000044": "blog/vimshottari-dasha.html"};

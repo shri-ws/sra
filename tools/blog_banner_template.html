@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8">
+<!-- Banner template for blog articles (assets/blog-og/<slug>.jpg). Open with ?t=title&s=subtitle&c=category,
+     screenshot at 1200x630 and save as JPG. --><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@600;800&family=Noto+Sans+Devanagari:wght@500;600&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+body{width:1200px;height:630px;overflow:hidden;font-family:'Noto Sans Devanagari',sans-serif;
+ background:radial-gradient(120% 140% at 85% 20%,#5a1522 0%,#3A0D16 45%,#1c070c 100%);color:#F7EEDB;position:relative}
+.frame{position:absolute;inset:26px;border:1.5px solid rgba(214,183,106,.55);border-radius:18px}
+.frame:after{content:"";position:absolute;inset:8px;border:1px solid rgba(214,183,106,.22);border-radius:12px}
+.wheel{position:absolute;right:-120px;top:50%;width:620px;height:620px;transform:translateY(-50%);opacity:.18}
+.brand{position:absolute;left:84px;top:74px;font-family:'Cinzel',serif;letter-spacing:6px;font-size:22px;color:#D6B76A}
+.cat{position:absolute;left:84px;top:120px;font-size:22px;font-weight:600;color:#3A0D16;background:#D6B76A;padding:4px 20px;border-radius:999px}
+h1{position:absolute;left:84px;right:330px;top:190px;font-family:'Noto Serif Devanagari',serif;font-weight:800;
+ font-size:76px;line-height:1.25;color:#FFF7E6;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.sub{position:absolute;left:84px;bottom:118px;font-size:30px;font-weight:500;color:#E9CF8E}
+.foot{position:absolute;left:84px;right:84px;bottom:62px;display:flex;justify-content:space-between;font-size:20px;color:rgba(247,238,219,.75)}
+.om{position:absolute;right:150px;top:50%;transform:translateY(-50%);font-family:'Noto Serif Devanagari',serif;font-size:210px;color:#D6B76A;opacity:.9}
+</style></head><body>
+<div class="frame"></div>
+<svg class="wheel" viewBox="0 0 200 200"><g fill="none" stroke="#D6B76A" stroke-width=".8">
+<circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="70"/><circle cx="100" cy="100" r="40"/>
+<g id="s"><line x1="100" y1="4" x2="100" y2="30"/></g>
+</g><g stroke="#D6B76A" stroke-width=".8" id="spokes"></g></svg>
+<div class="brand">SHRI RAMJI ASTRO</div>
+<div class="cat" id="cat"></div>
+<h1 id="t"></h1>
+<div class="om">ॐ</div>
+<div class="sub" id="sub"></div>
+<div class="foot"><span>एस्ट्रो रामजी · शास्त्रीय वैदिक ज्योतिष</span><span>shriramjiastro.in</span></div>
+<script>
+const g=document.getElementById('spokes');
+for(let i=0;i<12;i++){const a=i*Math.PI/6;const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+l.setAttribute('x1',100+40*Math.cos(a));l.setAttribute('y1',100+40*Math.sin(a));l.setAttribute('x2',100+96*Math.cos(a));l.setAttribute('y2',100+96*Math.sin(a));g.appendChild(l);}
+const p=new URLSearchParams(location.search);
+document.getElementById('t').textContent=p.get('t');document.getElementById('sub').textContent=p.get('s');document.getElementById('cat').textContent=p.get('c');
+// shrink long titles to fit
+const h=document.getElementById('t');let f=76;while(h.scrollHeight>300&&f>44){f-=4;h.style.fontSize=f+'px';}
+</script></body></html>

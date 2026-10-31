@@ -1162,6 +1162,7 @@
     <link rel="stylesheet" href="ui-overrides.css" />
 <link rel="stylesheet" href="sra-elegance.css" />
 <script src="sra-ui.js" defer></script>
+<script src="blog/pages.js"></script>
 <script src="sra-auth.js" defer></script>
 <script src="sra-records.js" defer></script>
 <script src="sra-translate.js" defer></script>
@@ -2035,6 +2036,8 @@
 
         // OPEN SCHOLARLY ARTICLE READER
         function openArticleReader(id) {
+            // Rewritten articles have their own page (blog/<slug>.html, built by tools/build_blog_pages.py)
+            if (window.SRA_BLOG_PAGES && SRA_BLOG_PAGES[id]) { location.href = SRA_BLOG_PAGES[id]; return; }
             const article = Q_FEED.find(item => String(item.id) === String(id));
             if (!article) return;
 
