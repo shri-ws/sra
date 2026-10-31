@@ -1105,7 +1105,8 @@ function renderForumRows(tbodyId, rows){
     <td style="font-size:12px;color:var(--muted)">${safe(f.category)}</td>
     <td>${badge(f.status||'pending')}</td>
     <td class="date-cell">${fmtDate(f.created_at)}</td>
-    <td>${f.status==='approved' ? '' : `<button onclick="approvePost(${i})" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">Approve</button>`}</td>
+    <td style="white-space:nowrap">${f.status==='approved' ? '' : `<button onclick="approvePost(${i})" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">Approve</button>`}
+      <button onclick="deleteForumPost(${i})" style="background:var(--red,#b91c1c);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;margin-left:4px">Delete</button></td>
   </tr>`).join('');
 }
 
@@ -1114,6 +1115,13 @@ async function approvePost(idx){
   if(!f || !window.SRAAdminData) return;
   try { await SRAAdminData.update('forum_posts', f.id, { status:'approved' }); f.status='approved'; renderForumRows('forum-tbody', D.forum); }
   catch(e){ alert('Could not approve: '+(e.code||e.message)); }
+}
+
+async function deleteForumPost(idx){
+  const f=D.forum[idx];
+  if(!f || !confirm('Delete "'+(f.title||'this post')+'" permanently?')) return;
+  try { await SRAAdminData.remove('forum_posts', f.id); D.forum.splice(idx,1); renderForumRows('forum-tbody', D.forum); }
+  catch(e){ alert('Could not delete: '+(e.code||e.message)); }
 }
 
 /* ══ FILTER ══ */

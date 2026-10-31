@@ -180,6 +180,10 @@
     const fb = await ensureFirebase();
     await fb.firestore().collection(collection).doc(id).update(data);
   }
+  async function remove(collection, id) {
+    const fb = await ensureFirebase();
+    await fb.firestore().collection(collection).doc(id).delete();
+  }
   // Google sign-ins from Website Accounts, as rows for the Verified Email Logins table
   const accountRows = () => rows.filter(r => r.profile.email && !isPhoneMail(r.profile.email)).map(r => ({
     email: r.profile.email, candidate_name: r.profile.name || '', phone: r.profile.phone || '',
@@ -187,7 +191,7 @@
   }));
 
   window.SRAAdminAccounts = { load };
-  window.SRAAdminData = { whenAdmin, list, update, accountRows, isAdmin: () => !!adminUser, ready: () => accountsLoaded };
+  window.SRAAdminData = { whenAdmin, list, update, remove, accountRows, isAdmin: () => !!adminUser, ready: () => accountsLoaded };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
 })();
