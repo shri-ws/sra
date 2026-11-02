@@ -2162,6 +2162,7 @@
       width: 28%;
       font-weight: 600;
     }
+    .landing-city-chips > .city-quick-chip { flex: 0 0 auto; width: auto; white-space: nowrap; }
     .quick-chip-btn {
       padding: 4px 10px;
       background: var(--bg, #fbf8f2);
@@ -2774,7 +2775,7 @@
                 <button type="button" class="quick-chip-btn" onclick="useCurrentLocationPanchang()" title="वर्तमान स्थान उपयोग करें" aria-label="वर्तमान स्थान उपयोग करें">जीपीएस</button>
               </div>
               <!-- QUICK CITY CHIPS -->
-              <div style="display:flex; gap:5px; margin-top:8px; overflow-x:auto; padding-bottom:2px;">
+              <div class="landing-city-chips" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
                 <button type="button" class="city-quick-chip" onclick="setLandingCity('नई दिल्ली', 28.6139, 77.2090, 5.5)">नई दिल्ली</button>
                 <button type="button" class="city-quick-chip" onclick="setLandingCity('वाराणसी', 25.3176, 82.9739, 5.5)">वाराणसी</button>
                 <button type="button" class="city-quick-chip" onclick="setLandingCity('अयोध्या', 26.7922, 82.1998, 5.5)">अयोध्या</button>
@@ -4914,6 +4915,7 @@
     if (chip) chip.setAttribute('aria-label', (en ? "Open today's Panchang: " : 'आज का पञ्चाङ्ग खोलें: ') + tithi);
   }
   window.renderHomeTicker = renderHomeTicker;
+  document.addEventListener('sra:langchange', () => setTimeout(() => { try { calculateLandingPanchang(); } catch (e) {} }, 0));
   document.addEventListener('sra:langchange', () => setTimeout(renderHomeTicker, 0));
 
   function calculateLandingPanchang() {
@@ -5057,7 +5059,9 @@
 
     // Date formatted
     const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const dateFormatted = calDate.toLocaleDateString('hi-IN', optionsDate);
+    let panchangEn = false;
+    try { panchangEn = localStorage.getItem('sra_lang') === 'en'; } catch (e) {}
+    const dateFormatted = calDate.toLocaleDateString(panchangEn ? 'en-IN' : 'hi-IN', optionsDate);
 
     // Build 5 Limbs HTML (Wrapped on-demand accordion disclosure, zero icons)
     const limbsHtml = `
@@ -5374,7 +5378,14 @@
 
     const samvatHtml = `विक्रम संवत् ${toDevanagariNumerals(vikramSamvat)} • शक संवत् ${toDevanagariNumerals(sakaSamvat)} • ${CHANDRA_MASA[sunSign]} मास (${isShukla ? 'शुक्ल' : 'कृष्ण'}) • ${RITU_NAMES[rituIdx]}`;
 
-    const cityClean = (landingPanchangState.city || '').replace(/\s*\(.*\)/, '').trim();
+    // the city as the visitor reads it: "नई दिल्ली (New Delhi)" gives its English part in English mode
+    const CITY_EN = { 'नई दिल्ली': 'New Delhi', 'वाराणसी': 'Varanasi', 'अयोध्या': 'Ayodhya', 'मुंबई': 'Mumbai', 'उज्जैन': 'Ujjain', 'कोलकाता': 'Kolkata' };
+    const cityFull = landingPanchangState.city || '';
+    const cityHi = cityFull.replace(/\s*\(.*\)/, '').trim();
+    const cityEnPart = (cityFull.match(/\(([^)]+)\)/) || [])[1];
+    const cityClean = panchangEn ? (cityEnPart || CITY_EN[cityHi] || cityHi) : cityHi;
+    const cityInput = document.getElementById('inLandingPanchangCity');
+    if (cityInput && document.activeElement !== cityInput) cityInput.value = panchangEn ? cityClean : (cityEnPart ? cityFull : cityHi);
 
     // Update Mobile Paneling
     const mTitleDate = document.getElementById('landingPanchangTitleDate');

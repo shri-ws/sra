@@ -409,3 +409,96 @@ SRA_I18N.add([
   ["© 2026 श्री रामजी एस्ट्रो · सर्वाधिकार सुरक्षित", "© 2026 Shri Ramji Astro · All Rights Reserved"],
   ["360° सम्पूर्ण वैदिक ज्योतिष मंच", "360° Complete Vedic Astrological Platform"]
 ]);
+
+/* Panchang tab: the values the panchang works out (names, lords, times, counts), so the
+   whole tab reads in English when the site is in English */
+SRA_I18N.add([
+  ["सूर्योदय उपरान्त शुद्ध वार", "Weekday counted from sunrise"],
+  ["सूर्योदय पूर्व (अहोरात्र पूर्व वार)", "Before sunrise (previous day's weekday)"],
+  ["शुभ फलप्रद योग", "Auspicious yoga"],
+  ["अशुभ / सावधानी योग", "Inauspicious yoga — take care"],
+  ["भद्रारहित शुभ व सौम्य करण", "Gentle, auspicious karana (no Bhadra)"],
+  ["विष्टि (भद्रा) सक्रिय — मांगलिक व नवीन कार्य त्याज्य", "Vishti (Bhadra) active — avoid auspicious and new work"],
+  ["यात्रा एवं नवीन कार्य आरम्भ हेतु अनुकूल", "Good for travel and starting new work"],
+  ["विष्टि (भद्रा - Vishti Bhadra)", "Vishti (Bhadra)"],
+  ["श्री (लक्ष्मी)", "Shri (Lakshmi)"],
+  ["चर (अशुभ)", "Chara (inauspicious)"],
+  // planets
+  ["सूर्य", "Sun"], ["चन्द्र", "Moon"], ["मंगल", "Mars"], ["बुध", "Mercury"], ["गुरु", "Jupiter"],
+  ["बृहस्पति", "Jupiter"], ["शुक्र", "Venus"], ["शनि", "Saturn"], ["राहु", "Rahu"], ["केतु", "Ketu"],
+  // deities and lords
+  ["अश्विनीकुमार", "Ashwini Kumaras"], ["यम", "Yama"], ["अग्नि", "Agni"], ["ब्रह्मा", "Brahma"], ["रुद्र", "Rudra"],
+  ["अदिति", "Aditi"], ["सर्प", "Sarpa (Serpents)"], ["पितर", "Pitris (Ancestors)"], ["भग", "Bhaga"], ["अर्यमा", "Aryaman"],
+  ["सूर्य / सविता", "Surya / Savitar"], ["विश्वकर्मा", "Vishwakarma"], ["वायु", "Vayu"], ["इन्द्राग्नि", "Indra-Agni"],
+  ["मित्र", "Mitra"], ["इन्द्र", "Indra"], ["निरृति", "Nirriti"], ["आपः (जल)", "Apas (Waters)"], ["विश्वेदेव", "Vishvedevas"],
+  ["विष्णु", "Vishnu"], ["अष्टवसु", "Ashta Vasus"], ["वरुण", "Varuna"], ["अजैकपाद", "Aja Ekapada"], ["अहिर्बुध्न्य", "Ahirbudhnya"],
+  ["पूषा", "Pushan"], ["जल", "Jala (Water)"], ["पृथ्वी", "Prithvi (Earth)"], ["गणेश", "Ganesha"], ["कुबेर", "Kubera"],
+  ["कार्तिकेय", "Kartikeya"], ["सावित्री", "Savitri"], ["लक्ष्मी", "Lakshmi"], ["पार्वती", "Parvati"], ["दिति", "Diti"],
+  // avakahada values
+  ["ब्राह्मण", "Brahmin"], ["क्षत्रिय", "Kshatriya"], ["वैश्य", "Vaishya"], ["शूद्र", "Shudra"],
+  ["अश्व", "Ashva (Horse)"], ["गज", "Gaja (Elephant)"], ["मेष", "Mesha (Ram)"], ["श्वान", "Shvana (Dog)"], ["मार्जार", "Marjara (Cat)"],
+  ["मूषक", "Mushaka (Rat)"], ["गौ", "Go (Cow)"], ["महिष", "Mahisha (Buffalo)"], ["व्याघ्र", "Vyaghra (Tiger)"], ["मृग", "Mriga (Deer)"],
+  ["वानर", "Vanara (Monkey)"], ["नकुल", "Nakula (Mongoose)"], ["सिंह", "Simha (Lion)"],
+  ["चतुष्पद", "Quadruped"], ["द्विपद", "Human (biped)"], ["जलचर", "Water-dwelling"], ["कीट", "Insect"],
+  ["पूर्णा", "Purna"], ["नन्दा", "Nanda"], ["भद्रा", "Bhadra"], ["जया", "Jaya"], ["रिक्ता", "Rikta"], ["चर", "Chara"]
+]);
+(function() {
+  const NAK_HI = ["अश्विनी","भरणी","कृत्तिका","रोहिणी","मृगशिरा","आर्द्रा","पुनर्वसु","पुष्य","आश्लेषा","मघा","पूर्वाफाल्गुनी","उत्तराफाल्गुनी","हस्त","चित्रा","स्वाति","विशाखा","अनुराधा","ज्येष्ठा","मूल","पूर्वाषाढ़ा","उत्तराषाढ़ा","श्रवण","धनिष्ठा","शतभिषा","पूर्वाभाद्रपद","उत्तराभाद्रपद","रेवती"];
+  const NAK_EN = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+  const SIGN_HI = ["मेष","वृषभ","मिथुन","कर्क","सिंह","कन्या","तुला","वृश्चिक","धनु","मकर","कुम्भ","मीन"];
+  const SIGN_EN = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const MASA_HI = ["चैत्र","वैशाख","ज्येष्ठ","आषाढ़","श्रावण","भाद्रपद","अश्विन","कार्तिक","मार्गशीर्ष","पौष","माघ","फाल्गुन"];
+  const MASA_EN = ["Chaitra","Vaishakha","Jyeshtha","Ashadha","Shravana","Bhadrapada","Ashwin","Kartik","Margashirsha","Pausha","Magha","Phalguna"];
+  const HORA_HI = ["सूर्य","चन्द्र","मंगल","बुध","बृहस्पति (गुरु)","शुक्र","शनि"];
+  const HORA_EN = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
+  const CH_HI = ["अमृत","शुभ","लाभ","चर","उद्वेग","काल","रोग"];
+  const CH_EN = ["Amrit","Shubh","Labh","Char","Udveg","Kaal","Rog"];
+  const NAT_HI = ["अति शुभ","शुभ फलद","उत्तम लाभ","सामान्य/चंचल","अशुभ (सूर्य)","हानिकारक (शनि)","कष्टकारी (मंगल)"];
+  const NAT_EN = ["very auspicious","auspicious","excellent gain","neutral/moving","inauspicious (Sun)","harmful (Saturn)","troublesome (Mars)"];
+  const alt = (a) => a.map(s => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|');
+  const pickEn = (hi, en, v) => en[hi.indexOf(v)];
+  const pickHi = (hi, en, v) => hi[en.indexOf(v)];
+  const TIME = '\\d\\d:\\d\\d:\\d\\d [AP]M';
+
+  // "07:56:41 AM से 09:19:21 AM"
+  SRA_I18N.addPattern(new RegExp('^(' + TIME + ') से (' + TIME + ')$'), new RegExp('^(' + TIME + ') to (' + TIME + ')$'),
+    m => m[1] + ' से ' + m[2], m => m[1] + ' to ' + m[2]);
+  // "6.9% भुक्त"
+  SRA_I18N.addPattern(/^([\d.]+)% भुक्त$/, /^([\d.]+)% elapsed$/, m => m[1] + '% भुक्त', m => m[1] + '% elapsed');
+  // "11.02 घण्टे (27 घटी)"
+  SRA_I18N.addPattern(/^([\d.]+) घण्टे \((\d+) घटी\)$/, /^([\d.]+) hours \((\d+) ghati\)$/,
+    m => m[1] + ' घण्टे (' + m[2] + ' घटी)', m => m[1] + ' hours (' + m[2] + ' ghati)');
+  // "58 घटी 35 पल 1 विपल"
+  SRA_I18N.addPattern(/^(\d+) घटी (\d+) पल (\d+) विपल$/, /^(\d+) ghati (\d+) pala (\d+) vipala$/,
+    m => m[1] + ' घटी ' + m[2] + ' पल ' + m[3] + ' विपल', m => m[1] + ' ghati ' + m[2] + ' pala ' + m[3] + ' vipala');
+  // "अश्विन मास (कृष्ण पक्ष)"
+  SRA_I18N.addPattern(new RegExp('^(' + alt(MASA_HI) + ') मास \\((कृष्ण|शुक्ल) पक्ष\\)$'),
+    new RegExp('^(' + alt(MASA_EN) + ') month \\((Krishna|Shukla) paksha\\)$'),
+    m => pickHi(MASA_HI, MASA_EN, m[1]) + ' मास (' + (m[2] === 'Krishna' ? 'कृष्ण' : 'शुक्ल') + ' पक्ष)',
+    m => pickEn(MASA_HI, MASA_EN, m[1]) + ' month (' + (m[2] === 'कृष्ण' ? 'Krishna' : 'Shukla') + ' paksha)');
+  // "बृहस्पति (गुरु) होरा"
+  SRA_I18N.addPattern(new RegExp('^(' + alt(HORA_HI) + ') होरा$'), new RegExp('^(' + alt(HORA_EN) + ') hora$'),
+    m => pickHi(HORA_HI, HORA_EN, m[1]) + ' होरा', m => pickEn(HORA_HI, HORA_EN, m[1]) + ' hora');
+  // choghadiya: "चर (सामान्य/चंचल)" and "चर — सामान्य/चंचल"
+  SRA_I18N.addPattern(new RegExp('^(' + alt(CH_HI) + ') (\\(|— )(' + alt(NAT_HI) + ')\\)?$'),
+    new RegExp('^(' + alt(CH_EN) + ') (\\(|— )(' + alt(NAT_EN) + ')\\)?$'),
+    m => pickHi(CH_HI, CH_EN, m[1]) + (m[2] === '(' ? ' (' + pickHi(NAT_HI, NAT_EN, m[3]) + ')' : ' — ' + pickHi(NAT_HI, NAT_EN, m[3])),
+    m => pickEn(CH_HI, CH_EN, m[1]) + (m[2] === '(' ? ' (' + pickEn(NAT_HI, NAT_EN, m[3]) + ')' : ' — ' + pickEn(NAT_HI, NAT_EN, m[3])));
+  // "राक्षस गण", "अन्त्य नाड़ी"
+  SRA_I18N.addPattern(/^(देव|मनुष्य|राक्षस) गण$/, /^(Deva|Manushya|Rakshasa) gana$/,
+    m => ({ Deva: 'देव', Manushya: 'मनुष्य', Rakshasa: 'राक्षस' })[m[1]] + ' गण',
+    m => ({ 'देव': 'Deva', 'मनुष्य': 'Manushya', 'राक्षस': 'Rakshasa' })[m[1]] + ' gana');
+  SRA_I18N.addPattern(/^(आदि|मध्य|अन्त्य) नाड़ी$/, /^(Adi|Madhya|Antya) nadi$/,
+    m => ({ Adi: 'आदि', Madhya: 'मध्य', Antya: 'अन्त्य' })[m[1]] + ' नाड़ी',
+    m => ({ 'आदि': 'Adi', 'मध्य': 'Madhya', 'अन्त्य': 'Antya' })[m[1]] + ' nadi');
+  // "कर्क (17° 35' 29")"
+  SRA_I18N.addPattern(new RegExp('^(' + alt(SIGN_HI) + ') (\\(.+\\))$'), new RegExp('^(' + alt(SIGN_EN) + ') (\\(.+\\))$'),
+    m => pickHi(SIGN_HI, SIGN_EN, m[1]) + ' ' + m[2], m => pickEn(SIGN_HI, SIGN_EN, m[1]) + ' ' + m[2]);
+  // "आश्लेषा चरण 1 — अक्षर "डी"" (the name syllable stays in Devanagari)
+  SRA_I18N.addPattern(new RegExp('^(' + alt(NAK_HI) + ') चरण (\\d) — अक्षर (.+)$'),
+    new RegExp('^(' + alt(NAK_EN) + ') pada (\\d) — syllable (.+)$'),
+    m => pickHi(NAK_HI, NAK_EN, m[1]) + ' चरण ' + m[2] + ' — अक्षर ' + m[3],
+    m => pickEn(NAK_HI, NAK_EN, m[1]) + ' pada ' + m[2] + ' — syllable ' + m[3]);
+  // a nakshatra name on its own
+  NAK_HI.forEach((h, i) => SRA_I18N.add([[h, NAK_EN[i]]]));
+})();
