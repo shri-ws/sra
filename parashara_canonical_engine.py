@@ -470,23 +470,6 @@ def calculate_canonical_astronomy(
         effective_sunrise_jd = sunrise_curr_jd
         is_pre_sunrise = False
 
-    # Sunset and the next sunrise of that same Vedic day, so a birth before sunrise
-    # falls in the night that began at the previous evening's sunset.
-    if is_pre_sunrise:
-        ret_set_prev, tret_set_prev = swe.rise_trans(
-            jd_local_midnight - 1.0, swe.SUN, rsmi_set, geopos,
-            atpress=1013.25, attemp=15.0, flags=swe.FLG_SWIEPH
-        )
-        vedic_sunset_jd = tret_set_prev[0] if ret_set_prev == 0 and tret_set_prev[0] > 0.0 else sunset_curr_jd - 1.0
-        next_sunrise_jd = sunrise_curr_jd
-    else:
-        vedic_sunset_jd = sunset_curr_jd
-        ret_next, tret_next = swe.rise_trans(
-            sunset_curr_jd, swe.SUN, rsmi_rise, geopos,
-            atpress=1013.25, attemp=15.0, flags=swe.FLG_SWIEPH
-        )
-        next_sunrise_jd = tret_next[0] if ret_next == 0 and tret_next[0] > 0.0 else sunrise_curr_jd + 1.0
-
     # Ishtakaal in Hours, Ghatis, Palas, Vipalas
     ishtakaal_hours = (jd_ut - effective_sunrise_jd) * 24.0
     ishtakaal_ghatis_total = ishtakaal_hours * 2.5
@@ -505,15 +488,13 @@ def calculate_canonical_astronomy(
         return local_h, f"{hh:02d}:{mm:02d}:{ss:02d}"
 
     sunrise_local_hrs, sunrise_time_str = jd_to_local_time(effective_sunrise_jd, tz)
-    sunset_local_hrs, sunset_time_str = jd_to_local_time(vedic_sunset_jd, tz)
+    sunset_local_hrs, sunset_time_str = jd_to_local_time(sunset_curr_jd, tz)
 
-    dinamana_hrs = (vedic_sunset_jd - effective_sunrise_jd) * 24.0
+    dinamana_hrs = (sunset_curr_jd - sunrise_curr_jd) * 24.0
     if dinamana_hrs < 0:
         dinamana_hrs += 24.0
-    ratrimana_hrs = (next_sunrise_jd - vedic_sunset_jd) * 24.0
-    if ratrimana_hrs <= 0:
-        ratrimana_hrs = 24.0 - dinamana_hrs
-    is_day_birth = (effective_sunrise_jd <= jd_ut < vedic_sunset_jd)
+    ratrimana_hrs = 24.0 - dinamana_hrs
+    is_day_birth = (effective_sunrise_jd <= jd_ut < sunset_curr_jd)
 
     # 8. Special Lagnas Derived Deterministically From Ishtakaal
     sun_rise_res, _ = swe.calc_ut(effective_sunrise_jd, swe.SUN, core_flags)
@@ -655,7 +636,7 @@ def calculate_canonical_astronomy(
     NIGHT_GULIKA = [2, 1, 0, 6, 5, 4, 3]
     gulika_part = DAY_GULIKA[weekday_idx] if is_day_birth else NIGHT_GULIKA[weekday_idx]
     gulika_elapsed = gulika_part * portion_span
-    gulika_base_jd = effective_sunrise_jd if is_day_birth else vedic_sunset_jd
+    gulika_base_jd = effective_sunrise_jd if is_day_birth else sunset_curr_jd
     gulika_event_jd = gulika_base_jd + gulika_elapsed / 24.0
     _, gulika_ascmc = swe.houses_ex(gulika_event_jd, lat, lon, b'O', swe.FLG_SIDEREAL)
     gulika_abs = norm360(gulika_ascmc[0])
@@ -668,7 +649,7 @@ def calculate_canonical_astronomy(
     NIGHT_YAMA = [0, 6, 5, 4, 3, 2, 1]
     yama_part = DAY_YAMA[weekday_idx] if is_day_birth else NIGHT_YAMA[weekday_idx]
     yama_elapsed = yama_part * portion_span
-    yama_base_jd = effective_sunrise_jd if is_day_birth else vedic_sunset_jd
+    yama_base_jd = effective_sunrise_jd if is_day_birth else sunset_curr_jd
     yama_event_jd = yama_base_jd + yama_elapsed / 24.0
     _, yama_ascmc = swe.houses_ex(yama_event_jd, lat, lon, b'O', swe.FLG_SIDEREAL)
     yamaghantaka_abs = norm360(yama_ascmc[0])
@@ -790,8 +771,7 @@ def calculate_canonical_astronomy(
             "sun_sunrise_dms": dms_str(sun_sunrise_lon)
         },
         "sunset": {
-            "sunset_jd": vedic_sunset_jd,
-            "next_sunrise_jd": next_sunrise_jd,
+            "sunset_jd": sunset_curr_jd,
             "sunset_local_hrs": sunset_local_hrs,
             "sunset_time_str": sunset_time_str,
             "dinamana_hrs": dinamana_hrs,
@@ -958,10 +938,8 @@ def calculate_shodashavarga(planet_map: Dict[str, Any]) -> Dict[str, Dict[str, i
         "D30": {}, "D40": {}, "D45": {}, "D60": {}
     }
 
-    # BPHS 6.27: odd signs Mars 5°, Saturn 5°, Jupiter 8°, Mercury 7°, Venus 5°; even signs reversed.
-    # Each part takes its lord's odd sign in an odd sign and its even sign in an even sign.
-    TRIMSHAMSHA_BOUNDS_ODD = [(5.0, 0), (10.0, 10), (18.0, 8), (25.0, 2), (30.0, 6)]
-    TRIMSHAMSHA_BOUNDS_EVEN = [(5.0, 1), (12.0, 5), (20.0, 11), (25.0, 9), (30.0, 7)]
+    TRIMSHAMSHA_BOUNDS_ODD = [(5.0, 0), (10.0, 10), (18.0, 8), (25.0, 2), (30.0, 1)]
+    TRIMSHAMSHA_BOUNDS_EVEN = [(5.0, 1), (12.0, 2), (20.0, 8), (25.0, 10), (30.0, 0)]
 
     for key, p in planet_map.items():
         deg = p["abs"]
