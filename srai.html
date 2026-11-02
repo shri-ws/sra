@@ -995,8 +995,9 @@
             appendUserMessage(qText);
             showTypingIndicator();
 
+            // a visitor's own key is used if saved; otherwise the SRA server answers with ours
             const apiKey = localStorage.getItem('sra_gemini_api_key');
-            if (apiKey && isAstrologyOrSpiritualQuery(qText)) {
+            if (isAstrologyOrSpiritualQuery(qText)) {
                 const chart = await calculateFullAstrologicalChart(userBirthData.dob, userBirthData.tob, userBirthData.lat, userBirthData.lon);
                 const model = localStorage.getItem('sra_gemini_model') || 'gemini-1.5-flash';
                 
@@ -1845,7 +1846,23 @@ STRICT CONVERSATIONAL RULES:
             }
         }
 
+        // SRA server route (parashara_canonical_engine.py /api/ai/chat): Gemini with the site's key,
+        // so visitors get real answers without an API key of their own
+        async function callSraServerAi(systemPrompt, userQuery, base64ImageData) {
+            const res = await fetch((window.SRA_API_BASE || '') + '/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ system: systemPrompt, prompt: userQuery, image: base64ImageData || null })
+            });
+            const raw = await res.text();
+            let data = {};
+            try { data = JSON.parse(raw); } catch (e) {}
+            if (!res.ok || !data.text) throw new Error(data.detail || `SRA AI सर्वर त्रुटि (HTTP ${res.status})`);
+            return data.text;
+        }
+
         async function callGeminiNeuralApi(apiKey, preferredModel, systemPrompt, userQuery, base64ImageData) {
+            if (!apiKey) return callSraServerAi(systemPrompt, userQuery, base64ImageData);
             const defaultModels = ['gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
             const modelsToTry = Array.from(new Set([preferredModel || 'gemini-flash-latest', ...defaultModels]));
             let lastError = null;
@@ -1921,7 +1938,7 @@ STRICT CONVERSATIONAL RULES:
                 const apiKey = localStorage.getItem('sra_gemini_api_key');
                 const model = localStorage.getItem('sra_gemini_model') || 'gemini-1.5-flash';
 
-                if (apiKey) {
+                {
                     const systemPrompt = `आप श्री रामजी एस्ट्रो (shriramjiastro.in) के अत्यंत विद्वान एवं प्रामाणिक वैदिक ज्योतिषाचार्य, कुण्डली वाचक, हस्तरेखा विशेषज्ञ एवं वास्तु AI हैं।
 अपलोड की गई फोटो का अत्यंत सूक्ष्म एवं सटीक निरीक्षण करें:
 1. यदि यह जन्मकुण्डली / जन्मविवरण / ग्रह स्थिति (Kundli / Birth Chart / Birth Details / Screenshot) का स्क्रीनशॉट है: तो इसमें अंकित जन्म विवरण (DOB, TOB, स्थान, लग्न, राशि, ग्रह स्थिति, दशा) को पढ़कर शुद्ध वैदिक कुण्डली फलादेश व ग्रह विश्लेषण प्रदान करें।
@@ -1939,8 +1956,6 @@ STRICT CONVERSATIONAL RULES:
                             console.warn("Gemini Vision Error, falling back to local OCR vision engine:", err);
                             processImageWithLocalAnalyzer(base64Img, file.name);
                         });
-                } else {
-                    processImageWithLocalAnalyzer(base64Img, file.name);
                 }
             };
             reader.readAsDataURL(file);

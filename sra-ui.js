@@ -168,3 +168,128 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
+
+/* 3. ONE TAB PER SCREEN ON PHONES
+   A row of tab buttons that does not fit a phone screen (the D1…D60 varga strip, chart
+   chips, section navigators) shows one full-width tab at a time, with small ‹ › buttons
+   at the side and swipe. Settling on a tab selects it, so what is shown is what is open.
+   Only real tab sets (one button marked active) that do not fit are changed; prev/next
+   controls and bars fixed to the screen are left alone. Add data-no-onetab to a row to opt out. */
+(function() {
+  const PHONE = window.matchMedia('(max-width: 640px)');
+  const css = `
+    .sra-onetab-wrap{display:flex;align-items:center;gap:4px;width:100%;max-width:100%;min-width:0}
+    .sra-onetab{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;
+      scroll-snap-type:x mandatory;scrollbar-width:none!important;flex:1 1 auto;min-width:0;gap:0!important;
+      -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;padding-left:0!important;padding-right:0!important}
+    .sra-onetab::-webkit-scrollbar{display:none}
+    .sra-onetab>*{flex:0 0 100%!important;width:100%!important;max-width:100%!important;min-width:0!important;
+      scroll-snap-align:center;white-space:normal!important;overflow:hidden;line-height:1.3!important;overflow-wrap:anywhere;
+      text-align:center;justify-content:center;margin:0!important;box-sizing:border-box;height:auto!important;min-height:44px}
+    .sra-onetab-btn{flex:0 0 32px;width:32px;height:44px;border-radius:10px;border:1px solid currentColor;
+      background:transparent;color:inherit;opacity:.75;font-size:18px;line-height:1;padding:0;cursor:pointer}
+    .sra-onetab-btn:disabled{opacity:.25;cursor:default}
+    .sra-onetab-count{flex:0 0 auto;font-size:11px;opacity:.7;min-width:30px;text-align:center}`;
+  let styled = false;
+
+  const isTab = (el) => el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'tab';
+  const isActive = (el) => /\bactive\b/.test(el.className) || el.getAttribute('aria-selected') === 'true';
+  const excluded = (el) => el.closest('[data-no-onetab], header, [role="dialog"], .notranslate, .sra-gn-actions, .sra-onetab-wrap > .sra-onetab-btn');
+
+  // a row of 3+ tabs on one line that overflows, or whose labels wrap or get cut
+  function needsOneTab(row) {
+    const kids = [...row.children];
+    if (kids.length < 3 || !kids.every(isTab) || excluded(row) || row.offsetParent === null) return false;
+    if (!kids.some(isActive)) return false;          // a real tab set has one open tab (not quick-pick chips)
+    if (kids.some(k => /^[‹«❮<←]|[›»❯>→]$|पिछला|अगला|\bprev|\bnext/i.test(k.textContent.trim()))) return false;   // prev / next controls
+    for (let el = row, d = 0; el && el !== document.body && d < 8; el = el.parentElement, d++) {
+      if (getComputedStyle(el).position === 'fixed') return false;   // bars fixed to the screen (bottom navigation) stay as they are
+    }
+    const top = kids[0].getBoundingClientRect().top;
+    if (kids.some(k => Math.abs(k.getBoundingClientRect().top - top) > 4)) return false;
+    if (row.scrollWidth > row.clientWidth + 2) return true;
+    return kids.some(k => k.scrollWidth > k.clientWidth + 1 ||
+      k.getBoundingClientRect().height > 2.2 * (parseFloat(getComputedStyle(k).lineHeight) || 20));
+  }
+
+  function tabs(row) { return [...row.children].filter(isTab); }
+  function current(row) {
+    const w = row.clientWidth || 1;
+    return Math.max(0, Math.min(tabs(row).length - 1, Math.round(row.scrollLeft / w)));
+  }
+
+  function update(row) {
+    const t = tabs(row), i = current(row), wrap = row.parentElement;
+    wrap.querySelector('.sra-onetab-prev').disabled = i === 0;
+    wrap.querySelector('.sra-onetab-next').disabled = i === t.length - 1;
+    wrap.querySelector('.sra-onetab-count').textContent = `${i + 1}/${t.length}`;
+  }
+
+  // open the tab now in view, only after the user swiped or tapped an arrow
+  // (buttons only; a link would navigate away on a swipe)
+  function settle(row) {
+    update(row);
+    if (!row._byUser) return;
+    row._byUser = false;
+    const tab = tabs(row)[current(row)];
+    if (tab && tab.tagName !== 'A' && !isActive(tab)) tab.click();
+  }
+
+  function go(row, step) {
+    row._byUser = true;
+    const t = tabs(row), i = Math.max(0, Math.min(t.length - 1, current(row) + step));
+    row.scrollTo({ left: i * row.clientWidth, behavior: 'smooth' });
+  }
+
+  function showActive(row) {
+    const i = tabs(row).findIndex(isActive);
+    row.scrollLeft = Math.max(0, i) * row.clientWidth;
+    update(row);
+  }
+
+  function enhance(row) {
+    if (!styled) { const s = document.createElement('style'); s.textContent = css; document.head.appendChild(s); styled = true; }
+    const wrap = document.createElement('div');
+    wrap.className = 'sra-onetab-wrap';
+    row.parentNode.insertBefore(wrap, row);
+    const mk = (cls, label, text) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'sra-onetab-btn ' + cls; b.setAttribute('aria-label', label); b.textContent = text; return b; };
+    const prev = mk('sra-onetab-prev', 'पिछला', '‹'), next = mk('sra-onetab-next', 'अगला', '›');
+    const count = document.createElement('span'); count.className = 'sra-onetab-count';
+    wrap.append(prev, row, count, next);
+    row.classList.add('sra-onetab');
+    prev.addEventListener('click', () => go(row, -1));
+    next.addEventListener('click', () => go(row, 1));
+    ['pointerdown', 'touchstart', 'wheel'].forEach(ev => row.addEventListener(ev, () => { row._byUser = true; }, { passive: true }));
+    let timer;
+    row.addEventListener('scroll', () => { clearTimeout(timer); timer = setTimeout(() => settle(row), 140); }, { passive: true });
+    // a tab clicked from code or by the user elsewhere: keep it in view
+    row.addEventListener('click', (e) => { if (e.isTrusted) return; requestAnimationFrame(() => showActive(row)); });
+    new MutationObserver(() => requestAnimationFrame(() => showActive(row))).observe(row, { attributes: true, subtree: true, attributeFilter: ['class', 'aria-selected'] });
+    requestAnimationFrame(() => showActive(row));
+  }
+
+  function undo(row) {
+    const wrap = row.parentElement;
+    row.classList.remove('sra-onetab');
+    wrap.parentNode.insertBefore(row, wrap);
+    wrap.remove();
+  }
+
+  function scan() {
+    if (!PHONE.matches) { document.querySelectorAll('.sra-onetab').forEach(undo); return; }
+    document.querySelectorAll('body *').forEach(el => {
+      if (el.classList.contains('sra-onetab') || el.childElementCount < 3) return;
+      if (needsOneTab(el)) enhance(el);
+    });
+  }
+
+  let pending = false;
+  const later = () => { if (pending) return; pending = true; setTimeout(() => { pending = false; scan(); }, 200); };
+  function start() {
+    scan();
+    new MutationObserver(later).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
+    PHONE.addEventListener('change', scan);
+    window.addEventListener('resize', later);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();

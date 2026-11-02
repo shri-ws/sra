@@ -1064,8 +1064,10 @@
         // LANGUAGE TOGGLE
         function setLanguage(lang) {
             currentLang = lang;
-            document.getElementById('btnHi').classList.toggle('active', lang === 'hi');
-            document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+            // the page's own हि/EN buttons gave way to the site-wide language toggle
+            const btnHi = document.getElementById('btnHi'), btnEn = document.getElementById('btnEn');
+            if (btnHi) btnHi.classList.toggle('active', lang === 'hi');
+            if (btnEn) btnEn.classList.toggle('active', lang === 'en');
             const t = I18N[lang];
             document.getElementById('uiTitle').innerText = t.title;
             document.getElementById('uiSubtitle').innerText = t.subtitle;

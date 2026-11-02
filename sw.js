@@ -3,7 +3,7 @@
  * Enables PWA native installability and offline caching
  */
 
-const CACHE_NAME = 'sra-patrika-v25';
+const CACHE_NAME = 'sra-patrika-v26';
 const ASSETS_TO_CACHE = [
   '/',
   '/patrika.html',

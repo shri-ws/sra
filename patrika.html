@@ -3205,7 +3205,7 @@
 <script src="sra-master.js" defer></script>
 <script src="sra-i18n.js" defer></script>
   <script src="sra-config.js"></script>
-  <script src="patrikaEngineBridge.js?v=16"></script>
+  <script src="patrikaEngineBridge.js?v=17"></script>
 </head>
 <body>
 
@@ -3571,7 +3571,14 @@
       </div>
     </div>
 
-    <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+    <style>
+      /* phones: the main button on its own line, the two smaller ones side by side below it */
+      @media (max-width: 640px) {
+        .calc-actions-row > .btn-calc { flex: 1 1 100% !important; min-width: 0 !important; }
+        .calc-actions-row > .btn-saved-kundali-secondary { flex: 1 1 0 !important; min-width: 0 !important; white-space: nowrap; justify-content: center; }
+      }
+    </style>
+    <div class="calc-actions-row" style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
       <button class="btn-calc" style="flex:2; min-width:260px;" onclick="executeParasharaMaster()" id="btnGenerateKundali">✨ अपनी जन्म पत्रिका देखें ➔</button>
       <button type="button" class="btn-saved-kundali-secondary" onclick="openSavedKundaliModal()" style="flex:1; min-width:200px;">
         <span>📂</span> सुरक्षित कुण्डलियां (<span id="savedKundaliBadgeBottom">0</span>)
@@ -6812,6 +6819,23 @@ const NORTH_HOUSE_COORDS = {
   12: { rx: 285, ry: 45,  sx: 285, sy: 85  }
 };
 
+// Planets in a north-chart house, wrapped onto stacked lines so they stay inside the house:
+// the side houses (3, 5, 9, 11) and corner houses are narrow, the four kendras are wide.
+function northOccupants(pt, h, occ, fill, size = 11) {
+  if (!occ.length) return '';
+  const maxChars = [1, 4, 7, 10].includes(h) ? 20 : [3, 5, 9, 11].includes(h) ? 10 : 14;
+  const lines = [];
+  occ.forEach(name => {
+    const last = lines[lines.length - 1];
+    if (last !== undefined && (last + ' ' + name).length <= maxChars) lines[lines.length - 1] = last + ' ' + name;
+    else lines.push(name);
+  });
+  const fs = lines.length > 3 ? size - 1.5 : size;
+  const lh = fs * 1.25, y0 = pt.ry - (lines.length - 1) * lh / 2;
+  return `<text x="${pt.rx}" fill="${fill}" font-size="${fs}" font-weight="bold" text-anchor="middle" dominant-baseline="middle">` +
+    lines.map((l, i) => `<tspan x="${pt.rx}" y="${(y0 + i * lh).toFixed(1)}">${l}</tspan>`).join('') + `</text>`;
+}
+
 const SOUTH_BOX_SIGNS = [
   { s: 11, x: 5, y: 5 },     { s: 0, x: 102.5, y: 5 }, { s: 1, x: 200, y: 5 },   { s: 2, x: 297.5, y: 5 },
   { s: 10, x: 5, y: 102.5 },                                                     { s: 3, x: 297.5, y: 102.5 },
@@ -6860,7 +6884,7 @@ function renderRasiAndChalitCharts() {
     planets.filter(p => p.id !== "Lagna" && p.rasiHouse === h).forEach(p => {
       occ.push(`${p.name}${p.retro ? '*' : ''}`);
     });
-    nRasiSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
+    nRasiSvg.innerHTML += northOccupants(pt, h, occ, "var(--chart-text)", 11);
   }
 
   // 2. North Chalit Chart
@@ -6876,7 +6900,7 @@ function renderRasiAndChalitCharts() {
     planets.filter(p => p.id !== "Lagna" && p.chalitHouse === h).forEach(p => {
       occ.push(`${p.name}${p.retro ? '*' : ''}`);
     });
-    nChalitSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="#0f766e" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
+    nChalitSvg.innerHTML += northOccupants(pt, h, occ, "#0f766e", 11);
   }
 
   // 3. South Rasi Chart
@@ -9348,15 +9372,7 @@ function drawSpecificVarga(vId, northSvgId, southSvgId) {
           occ.push(`${p.name}${p.retro ? '*' : ''}`);
         }
       });
-      if (occ.length > 3) {
-        const half = Math.ceil(occ.length / 2);
-        const line1 = occ.slice(0, half).join(' ');
-        const line2 = occ.slice(half).join(' ');
-        vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry - 7}" fill="var(--chart-text)" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${line1}</text>`;
-        vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry + 8}" fill="var(--chart-text)" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${line2}</text>`;
-      } else {
-        vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
-      }
+      vNorthSvg.innerHTML += northOccupants(pt, h, occ, "var(--chart-text)");
     }
   }
 
@@ -9466,7 +9482,7 @@ function renderGocharChart() {
         occ.push(`${p.name}${p.retro ? '*' : ''}(गो)`);
       }
     });
-    vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="#0284c7" font-size="10.5" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
+    vNorthSvg.innerHTML += northOccupants(pt, h, occ, "#0284c7", 10.5);
   }
 
   // Draw South Gochar
@@ -9515,15 +9531,7 @@ function renderSelectedVargaCharts() {
         const pVSign = getVargaSign(p.sign, p.deg, vNum);
         if (pVSign === sNum - 1) occ.push(`${p.name}${p.retro ? '*' : ''}`);
       });
-      if (occ.length > 3) {
-        const half = Math.ceil(occ.length / 2);
-        const line1 = occ.slice(0, half).join(' ');
-        const line2 = occ.slice(half).join(' ');
-        vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry - 7}" fill="var(--chart-text)" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${line1}</text>`;
-        vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry + 8}" fill="var(--chart-text)" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${line2}</text>`;
-      } else {
-        vNorthSvg.innerHTML += `<text x="${pt.rx}" y="${pt.ry}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${occ.join(' ')}</text>`;
-      }
+      vNorthSvg.innerHTML += northOccupants(pt, h, occ, "var(--chart-text)");
     }
   }
 

@@ -120,13 +120,13 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
         });
 
         if (!res.ok) {
-          let errDetail = '';
+          // a response body can be read only once: read it as text, then try JSON
+          const raw = await res.text().catch(() => '');
+          let errDetail = raw;
           try {
-            const errObj = await res.json();
-            errDetail = errObj.detail || errObj.error || JSON.stringify(errObj);
-          } catch(e) {
-            errDetail = await res.text();
-          }
+            const errObj = JSON.parse(raw);
+            errDetail = errObj.detail || errObj.error || raw;
+          } catch(e) {}
           throw new Error(`गणना सर्वर त्रुटि (HTTP ${res.status}): ${errDetail || 'अमान्य प्रतिक्रिया'}`);
         }
 
