@@ -49,7 +49,7 @@
       tab_reports: "रिपोर्ट्स",
 
       // Sacred seal
-      sacred_seal: "👑 प्रति दिवस केवल एक जातक",
+      sacred_seal: "👑 एक दिन। केवल एक परामर्श।",
 
       // 8 Home Grid Service Cards (Shastra-First Terminology)
       card_vivah_title: "विवाह मुहूर्त शोध",
@@ -111,7 +111,7 @@
 
       // Tab 4: 1-on-1 Consultation
       sanctuary_page_title: "🌟 1-on-1 प्रीमियम परामर्श",
-      sanctuary_page_sub: "Strictly One Soul Per Solar Day • Astro Raamji",
+      sanctuary_page_sub: "एक दिन। केवल एक परामर्श। • एस्ट्रो रामजी",
       sanctuary_heading: "SACRED 1-ON-1 CONSULTATION",
       sanctuary_p1: "प्रति दिवस केवल एक जातक का गहन अध्ययन। सूर्योदय से सूर्यास्त तक आपकी सम्पूर्ण कुण्डली, सूक्ष्म वर्ग और ग्रह स्थितियों का व्यक्तिगत विश्लेषण।",
       sanctuary_b1: "✓ ९० मिनट विस्तृत 1-on-1 संवाद",
@@ -205,7 +205,7 @@
       tab_reports: "Reports",
 
       // Sacred seal
-      sacred_seal: "👑 Strictly One Soul Per Day",
+      sacred_seal: "👑 One Day. One Consultation Only.",
 
       // 8 Home Grid Service Cards (Shastra-First Terminology)
       card_vivah_title: "Classical Vivah Muhurta",
@@ -267,9 +267,9 @@
 
       // Tab 4: 1-on-1 Consultation
       sanctuary_page_title: "🌟 1-on-1 Private Consultation",
-      sanctuary_page_sub: "Strictly One Soul Per Solar Day • Astro Raamji",
+      sanctuary_page_sub: "One Day. One Consultation Only. • Astro Raamji",
       sanctuary_heading: "SACRED 1-ON-1 CONSULTATION",
-      sanctuary_p1: "Deep personalized analysis of strictly one soul per day. Detailed study of micro-divisional charts, yogas, and life destiny from dawn to dusk.",
+      sanctuary_p1: "Deep personalized analysis, with only one consultation a day. Detailed study of micro-divisional charts, yogas, and life destiny from dawn to dusk.",
       sanctuary_b1: "✓ 90-Minute in-depth 1-on-1 dialogue",
       sanctuary_b2: "✓ Examination of micro-divisional Shodashvarga charts",
       sanctuary_b3: "✓ Precise gemstones, Rudraksha, and Vedic ritual remedies",

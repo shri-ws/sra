@@ -2,7 +2,7 @@
 SRA_I18N.add([
   ["✦ कठोर पवित्र नियम: प्रति सौर दिवस ठीक एक परामर्श ✦", "✦ THE STRICT SACRED PROTOCOL: EXACTLY ONE CONSULTATION PER SOLAR DAY ✦"],
   ["सत्य एवं उच्च खगोलीय परिशुद्धता का पवित्र सदन", "A SANCTUARY OF TRUTH & HIGH ASTRONOMICAL PRECISION"],
-  ["केवल एक आत्मा। केवल एक जन्मपत्रिका। प्रतिदिन।", "Only One Soul. Only One Horoscope. Every Single Day."],
+  ["एक दिन। केवल एक परामर्श।", "One Day. One Consultation Only."],
   ["फास्ट-फूड ज्योतिष आपको क्यों विफल करता है, और सच्चे वैदिक फलादेश के लिए पूर्ण आध्यात्मिक मौन, खगोलीय कठोरता और सम्पूर्ण ध्यान-तन्मयता क्यों आवश्यक है।", "Why fast-food astrology fails you, and why true Vedic divination requires absolute spiritual silence, astronomical rigor, and total meditative absorption."],
   ["\"जब कोई ज्योतिषी आपकी कुण्डली खोलता है, तो वह केवल ग्रहों के चिह्न नहीं देख रहा होता; वह जन्म-जन्मान्तर के प्रारब्ध कर्मों को खोल रहा होता है। मात्र 20 सेकंड का अंतर षष्ट्यंश (D60) बदल देता है और भाग्य की गणना बिगाड़ देता है। इस दिव्य विद्या को ट्रैफ़िक सिग्नलों के बीच 5 मिनट की फ़ोन सलाह तक कैसे सीमित किया जा सकता है? श्री रामजी एस्ट्रो में हम प्राचीन ऋषि परम्परा का सम्मान करते हैं। मैं संख्या का व्यापार नहीं करता। मैं", "\"When an astrologer opens your Kundli, they are not merely looking at planetary icons; they are unraveling lifetimes of Prarabdha Karma. A difference of just 20 seconds shifts the Shashtiamsa (D60) and corrupts destiny calculations. How can this divine science be reduced to casual 5-minute phone advice between traffic signals? At Shri Ramji Astro, we honor the ancient Rishi tradition. I do not run a volume business. I accept"],
   ["प्रतिदिन ठीक एक परामर्श", "exactly one consultation per day"],
