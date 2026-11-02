@@ -3,14 +3,14 @@
  * Enables PWA native installability and offline caching
  */
 
-const CACHE_NAME = 'sra-patrika-v28';
+const CACHE_NAME = 'sra-patrika-v29';
 const ASSETS_TO_CACHE = [
   '/',
   '/patrika.html',
   '/manifest.json',
   '/theme.js',
   '/sra-elegance.css',
-  '/sra-ui.js', '/sra-nav.js', '/sra-translate.js', '/sra-auth.js', '/sra-records.js', '/sra-config.js',
+  '/sra-ui.js?v=29', '/sra-nav.js', '/sra-translate.js', '/sra-auth.js', '/sra-records.js', '/sra-config.js',
   '/sra-i18n.js',
   '/sra-i18n/common.js',
   '/rashmiReportsService.js',
@@ -61,7 +61,11 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // our own scripts and styles: always check with the server first, so a phone never keeps
+  // running an old copy from the browser cache (GitHub Pages lets browsers keep files 10 minutes)
+  const url = new URL(event.request.url);
+  const ownCode = url.origin === self.location.origin && /\.(js|css)$/.test(url.pathname);
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(event.request, ownCode ? { cache: 'no-cache' } : undefined).catch(() => caches.match(event.request))
   );
 });
