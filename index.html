@@ -1596,7 +1596,9 @@
         min-height: 34px;
         box-sizing: border-box;
       }
+      .vedic-date-go { font-size: 14px; line-height: 1; opacity: .7; font-style: normal; }
       .vedic-date-chip {
+        background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -2561,22 +2563,23 @@
 
         <!-- COMPACT VEDIC STATUS / GREETING BAR WITH DYNAMIC TITHI -->
         <div class="mobile-greeting-bar">
-          <div class="vedic-date-chip" id="dynamicPanchangChip">
+          <button type="button" class="vedic-date-chip" id="dynamicPanchangChip" onclick="if (window.switchMobileTab) switchMobileTab(1)" aria-label="आज का पञ्चाङ्ग खोलें">
             <span class="live-dot"></span>
-            <span id="panchangText" data-i18n-panchang>विक्रम संवत् २०८३ • आश्विन शुक्ल सप्तमी • शनिवार</span>
-          </div>
-          <div class="sacred-seal-badge" data-i18n="sacred_seal">👑 प्रति दिवस केवल एक जातक</div>
+            <span id="homeTithiText">आज की तिथि</span>
+            <i class="vedic-date-go" aria-hidden="true">›</i>
+          </button>
         </div>
 
         <!-- THE TWO PILLARS (MOBILE): WHAT NO ONE ELSE IN THE WORLD DOES -->
         <a href="consultation.html" class="sra-m-ekmev" aria-label="1-on-1 परामर्श">
           <div class="sra-m-seal">The Only One in the World</div>
-          <div class="sra-m-title">One Day. One Soul. <em>One Horoscope.</em></div>
+          <div class="sra-m-title"><b>दिन में केवल एक परामर्श</b></div>
+          <div class="sra-m-explain">एस्ट्रो रामजी दिन में <b>सिर्फ़ एक ही व्यक्ति</b> की कुंडली देखते हैं — ताकि आपकी कुंडली को पूरा दिन और पूरा ध्यान मिले।</div>
           <div class="sra-m-pillars">
             <div class="sra-m-pillar">
               <div class="sra-m-num">i</div>
-              <div class="sra-m-head">प्रतिदिन केवल एक परामर्श</div>
-              <div class="sra-m-sub">एक दिन, एक जातक</div>
+              <div class="sra-m-head">पूरा दिन, पूरा ध्यान</div>
+              <div class="sra-m-sub">न कतार, न जल्दबाज़ी</div>
             </div>
             <div class="sra-m-pillar">
               <div class="sra-m-num">ii</div>
@@ -3128,10 +3131,18 @@
 
       <div class="sra-seal">The Only One in the World</div>
 
+      <style>
+        /* the "one consultation a day" promise, in Hindi on every screen size: a Devanagari face sized
+           for it, and bold text that keeps its line's size (ui-overrides.css forces 14px on Hindi text) */
+        .sra-ekmev-hero h1.sra-hero-title span.sra-hero-hi { font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif !important; font-size: clamp(36px, 4.6vw, 60px) !important; line-height: 1.25 !important; }
+        .sra-ekmev-hero h1.sra-hero-title b, .sra-ekmev-hero .sra-hero-deva b,
+        .sra-m-ekmev .sra-m-title b, .sra-m-ekmev .sra-m-explain b { font-size: inherit !important; font-weight: 800 !important; }
+        .sra-m-ekmev .sra-m-explain { font-size: 13.5px !important; line-height: 1.55; margin: 6px 0 12px; opacity: .92; }
+      </style>
       <h1 class="sra-hero-title">
-        <span>One Day. One Soul.</span><br><span><em>One Horoscope.</em></span>
+        <span class="sra-hero-hi"><b>दिन में केवल एक परामर्श</b></span>
       </h1>
-      <div class="sra-hero-deva">प्रामाणिक शास्त्रीय शोधन</div>
+      <div class="sra-hero-deva">एस्ट्रो रामजी दिन में <b>सिर्फ़ एक ही व्यक्ति</b> की कुंडली देखते हैं — ताकि आपकी कुंडली को पूरा दिन और पूरा ध्यान मिले।</div>
 
       <p class="hero-sub">
         बृहत्पाराशर होराशास्त्र, मुहूर्त चिंतामणि एवं फलदीपिका श्लोक-प्रमाणित ज्योतिषीय शोध। विशुद्ध ग्रह स्पष्ट, षोडशवर्ग सूक्ष्म चक्र, १० महादोष व त्रिबल शुद्धि विवाह मुहूर्त, एवं निजी 1-on-1 परामर्श।
@@ -3141,8 +3152,8 @@
       <div class="sra-pillars">
         <div class="sra-pillar">
           <div class="sra-pillar-mark"><span class="sra-pillar-num">i</span> विश्व में एकमात्र</div>
-          <h2>प्रतिदिन केवल एक परामर्श</h2>
-          <p>पूरे दिन का ध्यान केवल एक जातक को। D1 से D60 तक सम्पूर्ण पाराशरी विश्लेषण — कोई कतार नहीं, कोई जल्दबाज़ी नहीं। <b>एक दिन, एक आत्मा।</b></p>
+          <h2>पूरा दिन, पूरा ध्यान</h2>
+          <p>पूरे दिन का ध्यान केवल एक जातक को। D1 से D60 तक सम्पूर्ण पाराशरी विश्लेषण — कोई कतार नहीं, कोई जल्दबाज़ी नहीं। <b>दिन में केवल एक व्यक्ति।</b></p>
         </div>
         <div class="sra-pillar">
           <div class="sra-pillar-mark"><span class="sra-pillar-num">ii</span> विश्व में एकमात्र</div>
@@ -5403,10 +5414,11 @@
       `;
     }
 
-    // Update Greeting chip on Home
-    const panchangTextEl = document.getElementById('panchangText');
+    // Update Greeting chip on Home: only the tithi, from this page's own panchang
+    // (its own id, so theme.js's general date line does not overwrite it)
+    const panchangTextEl = document.getElementById('homeTithiText');
     if (panchangTextEl) {
-      panchangTextEl.textContent = `विक्रम संवत् ${toDevanagariNumerals(vikramSamvat)} • ${CHANDRA_MASA[sunSign]} ${isShukla ? 'शुक्ल' : 'कृष्ण'} ${tithiName.split(' ')[0]} • ${vedicDayName.split(' ')[0]}`;
+      panchangTextEl.textContent = `${CHANDRA_MASA[sunSign]} ${isShukla ? 'शुक्ल' : 'कृष्ण'} ${tithiName.split(' ')[0]}`;
     }
   }
 
