@@ -3197,7 +3197,7 @@
 </style>
 <link rel="stylesheet" href="ui-overrides.css" />
 <link rel="stylesheet" href="sra-elegance.css" />
-<script src="sra-ui.js?v=29" defer></script>
+<script src="sra-ui.js?v=30" defer></script>
 <script src="sra-auth.js" defer></script>
 <script src="sra-records.js" defer></script>
 <script src="sra-translate.js" defer></script>
@@ -3429,20 +3429,23 @@
             <span>📍</span> <span data-i18n-hi="वर्तमान स्थान" data-i18n-en="My Location">वर्तमान स्थान</span>
           </button>
         </div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;" id="quickCityChipsPatrika">
-          <span style="font-size:11px; color:var(--muted); align-self:center; font-weight:600;">त्वरित नगर:</span>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('नई दिल्ली')">नई दिल्ली</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('लखनऊ')">लखनऊ</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('वाराणसी')">वाराणसी</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('अयोध्या')">अयोध्या</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('प्रयागराज')">प्रयागराज</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('कानपुर')">कानपुर</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('मुंबई')">मुंबई</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('जयपुर')">जयपुर</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('पटना')">पटना</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('कोलकाता')">कोलकाता</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('उज्जैन')">उज्जैन</button>
-          <button type="button" class="city-quick-chip" onclick="quickSelectPatrikaCity('बेंगलुरु')">बेंगलुरु</button>
+        <div style="margin-top:8px;" id="quickCityChipsPatrika">
+          <select class="city-quick-select" aria-label="त्वरित नगर चुनें" onchange="if (this.value) { quickSelectPatrikaCity(this.value); this.selectedIndex = 0; }"
+            style="width:100%; height:40px; border:1.5px solid var(--gold-border); border-radius:8px; background:var(--surface); color:var(--text); font-weight:600; font-size:13px; padding:0 10px; cursor:pointer;">
+            <option value="">⚡ त्वरित नगर चुनें…</option>
+            <option value="नई दिल्ली">नई दिल्ली</option>
+            <option value="लखनऊ">लखनऊ</option>
+            <option value="वाराणसी">वाराणसी</option>
+            <option value="अयोध्या">अयोध्या</option>
+            <option value="प्रयागराज">प्रयागराज</option>
+            <option value="कानपुर">कानपुर</option>
+            <option value="मुंबई">मुंबई</option>
+            <option value="जयपुर">जयपुर</option>
+            <option value="पटना">पटना</option>
+            <option value="कोलकाता">कोलकाता</option>
+            <option value="उज्जैन">उज्जैन</option>
+            <option value="बेंगलुरु">बेंगलुरु</option>
+          </select>
         </div>
         <datalist id="patrikaPresetCities">
           <option value="नई दिल्ली (New Delhi / Delhi)"></option>
@@ -3537,13 +3540,22 @@
     </div>
 
     <!-- Geographical Coordinates & Interactive Map (Permanently Active) -->
-    <div id="advancedCoordWrapper" style="display:block; border-top:1px dashed var(--gold-border); padding-top:14px; margin-top:14px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+    <style>
+      /* coordinates and map fold away; the status line stays visible in the header */
+      #advancedCoordWrapper > summary { list-style:none; cursor:pointer; }
+      #advancedCoordWrapper > summary::-webkit-details-marker { display:none; }
+      #advancedCoordWrapper > summary .coord-caret { transition:transform .2s ease; display:inline-block; }
+      #advancedCoordWrapper[open] > summary .coord-caret { transform:rotate(180deg); }
+    </style>
+    <details id="advancedCoordWrapper" style="display:block; border-top:1px dashed var(--gold-border); padding-top:14px; margin-top:14px;"
+      ontoggle="if (this.open && typeof map !== 'undefined' && map) setTimeout(() => map.invalidateSize(), 120);">
+      <summary style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
         <span style="font-size:12.5px; font-weight:700; color:var(--gold); display:flex; align-items:center; gap:6px;">
           <span>📍</span> <span data-i18n-hi="भौगोलिक निर्देशांक (अक्षांश / देशांतर / टाइमज़ोन)" data-i18n-en="Geographical Coordinates (Lat / Lon / Timezone)">भौगोलिक निर्देशांक (अक्षांश / देशांतर / टाइमज़ोन)</span>
+          <span class="coord-caret" aria-hidden="true">▾</span>
         </span>
         <span id="geoStatusText" style="font-size:12px; color:var(--primary); font-weight:600; background:rgba(180,83,9,0.08); padding:3px 10px; border-radius:12px; border:1px solid var(--gold-border);">📍 जन्म स्थान चुनें (विश्व में कोई भी शहर खोजें अथवा मानचित्र पर क्लिक करें)</span>
-      </div>
+      </summary>
 
       <div class="form-grid">
         <div class="field">
@@ -3569,7 +3581,7 @@
         </div>
         <div id="map"></div>
       </div>
-    </div>
+    </details>
 
     <style>
       /* phones: the main button on its own line, the two smaller ones side by side below it */

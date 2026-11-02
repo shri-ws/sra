@@ -172,7 +172,8 @@
 /* 3. ONE TAB PER SCREEN ON PHONES
    A row of tab buttons that does not fit a phone screen (the D1…D60 varga strip, chart
    chips, section navigators) shows one whole tab at a time; swipe to the next one.
-   Settling on a tab selects it, so what is shown is what is open.
+   The tab is opened the moment the finger lifts (a link tab is followed), so the page
+   below changes together with the row; what is shown is always what is open.
    Only real tab sets (one button marked active) that do not fit are changed; prev/next
    controls and bars fixed to the screen are left alone. Add data-no-onetab to a row to opt out. */
 (function() {
@@ -217,17 +218,37 @@
     return Math.max(0, Math.min(tabs(row).length - 1, Math.round(row.scrollLeft / w)));
   }
 
-  // open the tab now in view, only after the user swiped
-  // (buttons only; a link would navigate away on a swipe)
+  // open a tab: a button is clicked; a link (e.g. कुंडली → patrika.html) is followed
+  function open(tab) {
+    if (!tab || isActive(tab)) return;
+    if (tab.tagName === 'A') { if (tab.href) location.href = tab.href; }
+    else tab.click();
+  }
+
+  // The finger has lifted: open the tab the row is about to snap to right away, so the page
+  // below moves together with the tab row instead of after it has stopped
+  function onRelease(row) {
+    if (!row._swiping || !row.classList.contains('sra-onetab')) return;
+    const w = row.clientWidth || 1, n = tabs(row).length;
+    const moved = row.scrollLeft / w - row._startIdx;
+    let target = row._startIdx;
+    if (moved > 0.2) target = Math.max(row._startIdx + 1, Math.round(row.scrollLeft / w));
+    else if (moved < -0.2) target = Math.min(row._startIdx - 1, Math.round(row.scrollLeft / w));
+    target = Math.max(0, Math.min(n - 1, target));
+    row._released = true;
+    open(tabs(row)[target]);
+  }
+
+  // scrolling has stopped: make sure the tab in view is the open one
   function settle(row) {
-    if (!row._byUser || !row.classList.contains('sra-onetab')) return;
-    row._byUser = false;
-    const tab = tabs(row)[current(row)];
-    if (tab && tab.tagName !== 'A' && !isActive(tab)) tab.click();
+    if (!row._swiping || !row.classList.contains('sra-onetab')) return;
+    row._swiping = false;
+    row._released = false;
+    open(tabs(row)[current(row)]);
   }
 
   function showActive(row) {
-    if (!row.classList.contains('sra-onetab')) return;
+    if (!row.classList.contains('sra-onetab') || row._swiping) return;
     const i = tabs(row).findIndex(isActive);
     row.style.scrollBehavior = 'auto';               // jump, do not animate, when the page itself changes tab
     row.scrollLeft = Math.max(0, i) * row.clientWidth;
@@ -239,9 +260,15 @@
     row.classList.add('sra-onetab');
     if (row._onetabWired) { requestAnimationFrame(() => showActive(row)); return; }
     row._onetabWired = true;
-    ['pointerdown', 'touchstart', 'wheel'].forEach(ev => row.addEventListener(ev, () => { row._byUser = true; }, { passive: true }));
+    const begin = () => { row._swiping = true; row._released = false; row._startIdx = current(row); };
+    row.addEventListener('touchstart', begin, { passive: true });
+    row.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch') begin(); }, { passive: true });
+    row.addEventListener('wheel', () => { if (!row._swiping) begin(); }, { passive: true });
+    row.addEventListener('touchend', () => onRelease(row), { passive: true });
     let timer;
-    row.addEventListener('scroll', () => { clearTimeout(timer); timer = setTimeout(() => settle(row), 140); }, { passive: true });
+    const stopped = () => { clearTimeout(timer); settle(row); };
+    row.addEventListener('scrollend', stopped);
+    row.addEventListener('scroll', () => { clearTimeout(timer); timer = setTimeout(stopped, 120); }, { passive: true });
     // a tab clicked from code: keep it in view
     row.addEventListener('click', (e) => { if (e.isTrusted) return; requestAnimationFrame(() => showActive(row)); });
     new MutationObserver(() => requestAnimationFrame(() => showActive(row))).observe(row, { attributes: true, subtree: true, attributeFilter: ['class', 'aria-selected'] });
