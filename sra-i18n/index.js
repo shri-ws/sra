@@ -22,6 +22,8 @@ SRA_I18N.add([
   ["विश्व में एकमात्र", "The Only One in the World"],
   ["एक दिन। एक आत्मा।", "One Day. One Soul."],
   ["एक दिन। केवल एक परामर्श।", "One Day. One Consultation Only."],
+  ["एक दिन।", "One Day."],
+  ["केवल एक परामर्श।", "One Consultation Only."],
   ["एस्ट्रो रामजी दिन में", "Astro Raamji reads the chart of"],
   ["सिर्फ़ एक ही व्यक्ति", "just one person"],
   ["की कुंडली देखते हैं — ताकि आपकी कुंडली को पूरा दिन और पूरा ध्यान मिले।", "a day — so your chart gets the whole day and full attention."],
