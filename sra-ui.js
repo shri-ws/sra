@@ -171,7 +171,7 @@
 
 /* 3. ONE TAB PER SCREEN ON PHONES
    A row of tab buttons that does not fit a phone screen (the D1…D60 varga strip, chart
-   chips, section navigators) shows one full-width tab at a time, with small ‹ › buttons
+   chips, section navigators) shows one full-width tab at a time, with small plain arrows
    at the side and swipe. Settling on a tab selects it, so what is shown is what is open.
    Only real tab sets (one button marked active) that do not fit are changed; prev/next
    controls and bars fixed to the screen are left alone. Add data-no-onetab to a row to opt out. */
@@ -186,10 +186,13 @@
     .sra-onetab>*{flex:0 0 100%!important;width:100%!important;max-width:100%!important;min-width:0!important;
       scroll-snap-align:center;white-space:normal!important;overflow:hidden;line-height:1.3!important;overflow-wrap:anywhere;
       text-align:center;justify-content:center;margin:0!important;box-sizing:border-box;height:auto!important;min-height:44px}
-    .sra-onetab-btn{flex:0 0 32px;width:32px;height:44px;border-radius:10px;border:1px solid currentColor;
-      background:transparent;color:inherit;opacity:.75;font-size:18px;line-height:1;padding:0;cursor:pointer}
-    .sra-onetab-btn:disabled{opacity:.25;cursor:default}
-    .sra-onetab-count{flex:0 0 auto;font-size:11px;opacity:.7;min-width:30px;text-align:center}`;
+    .sra-onetab{scroll-behavior:smooth}
+    .sra-onetab-btn{flex:0 0 26px!important;width:26px!important;min-width:0!important;height:44px;border:0!important;background:none!important;box-shadow:none!important;
+      color:inherit;opacity:.7;padding:0;margin:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      -webkit-tap-highlight-color:transparent;transition:opacity .2s ease,transform .2s ease}
+    .sra-onetab-btn svg{width:12px;height:12px;display:block}
+    .sra-onetab-btn:active{transform:scale(.85)}
+    .sra-onetab-btn:disabled{opacity:.15;cursor:default}`;
   let styled = false;
 
   const isTab = (el) => el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'tab';
@@ -222,7 +225,6 @@
     const t = tabs(row), i = current(row), wrap = row.parentElement;
     wrap.querySelector('.sra-onetab-prev').disabled = i === 0;
     wrap.querySelector('.sra-onetab-next').disabled = i === t.length - 1;
-    wrap.querySelector('.sra-onetab-count').textContent = `${i + 1}/${t.length}`;
   }
 
   // open the tab now in view, only after the user swiped or tapped an arrow
@@ -253,9 +255,10 @@
     wrap.className = 'sra-onetab-wrap';
     row.parentNode.insertBefore(wrap, row);
     const mk = (cls, label, text) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'sra-onetab-btn ' + cls; b.setAttribute('aria-label', label); b.textContent = text; return b; };
-    const prev = mk('sra-onetab-prev', 'पिछला', '‹'), next = mk('sra-onetab-next', 'अगला', '›');
-    const count = document.createElement('span'); count.className = 'sra-onetab-count';
-    wrap.append(prev, row, count, next);
+    const chevron = (d) => `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const prev = mk('sra-onetab-prev', 'पिछला', ''), next = mk('sra-onetab-next', 'अगला', '');
+    prev.innerHTML = chevron('M7.5 2.5 4 6l3.5 3.5'); next.innerHTML = chevron('M4.5 2.5 8 6l-3.5 3.5');
+    wrap.append(prev, row, next);
     row.classList.add('sra-onetab');
     prev.addEventListener('click', () => go(row, -1));
     next.addEventListener('click', () => go(row, 1));
