@@ -2355,9 +2355,26 @@
             });
         }
 
+        // Prefill वर/वधू birth details from a gun-milan deep-link (?gm=1&...) — UI only.
+        function prefillFromGunMilan() {
+            try {
+                const q = new URLSearchParams(location.search);
+                if (q.get('gm') !== '1') return;
+                const set = (id, v) => { const e = document.getElementById(id); if (e && v != null && v !== '') e.value = v; };
+                set('groomDob', q.get('gDob')); set('groomTime', q.get('gTime')); set('groomCityName', q.get('gCity'));
+                set('groomLat', q.get('gLat')); set('groomLon', q.get('gLon')); set('groomWorldTimezone', q.get('gTz'));
+                set('brideDob', q.get('bDob')); set('brideTime', q.get('bTime')); set('brideCityName', q.get('bCity'));
+                set('brideLat', q.get('bLat')); set('brideLon', q.get('bLon')); set('brideWorldTimezone', q.get('bTz'));
+                const valid = { vivah: 1, sagai: 1, var_varan: 1, vadhu_varan: 1 };
+                const cer = q.get('ceremony');
+                if (cer && valid[cer] && typeof setCeremony === 'function') setCeremony(cer);
+            } catch (e) {}
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             setLanguage('hi');
             checkUnlockStatus();
+            prefillFromGunMilan();
         });
     </script>
 </body>
