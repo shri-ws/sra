@@ -1141,7 +1141,7 @@
                     tz: 5.5
                 }));
                 const batchRes = await window.PatrikaEngineBridge.calculateBatchPlanets(batchItems);
-                charts = batchRes.charts || [];
+                charts = batchRes.charts || batchRes.results || [];
             } catch (err) {
                 console.error("Batch calculation failed:", err);
                 alert("गणना सर्वर अनुपलब्ध है। कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।");

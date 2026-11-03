@@ -385,6 +385,15 @@
             gap: 8px;
             margin-top: 6px;
         }
+        .coords-details { margin-top: 8px; }
+        .coords-details > summary {
+            cursor: pointer; list-style: none; font-size: 12.5px; opacity: 0.75;
+            padding: 4px 2px; user-select: none; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .coords-details > summary::-webkit-details-marker { display: none; }
+        .coords-details > summary::before { content: '▸'; font-size: 11px; transition: transform .15s ease; }
+        .coords-details[open] > summary::before { transform: rotate(90deg); }
+        .coords-details > summary:hover { opacity: 1; }
 
         .btn-gold {
             background: linear-gradient(135deg, var(--gold-accent), var(--gold-dark));
@@ -1036,7 +1045,7 @@
                             <label id="lblGroomTime">जन्म समय</label>
                             <input type="time" id="groomTime" onchange="handleGroomChange()">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="display:none;">
                             <label id="lblGroomCity">स्थान (City / Coordinates)</label>
                             <input type="text" id="groomCityName" list="presetCities" placeholder="Search or type city..." oninput="onCityInput('groom')">
                         </div>
@@ -1053,16 +1062,19 @@
                         <div id="groomWorldChip"></div>
                     </div>
 
-                    <div class="custom-coords-row">
-                        <div class="form-group">
-                            <label>अक्षांश (Latitude °N)</label>
-                            <input type="number" step="0.0001" id="groomLat" placeholder="e.g. 27.5700" onchange="handleGroomChange()">
+                    <details class="coords-details">
+                        <summary>⚙ निर्देशांक स्वयं देखें / बदलें (वैकल्पिक)</summary>
+                        <div class="custom-coords-row">
+                            <div class="form-group">
+                                <label>अक्षांश (Latitude °N)</label>
+                                <input type="number" step="0.0001" id="groomLat" placeholder="e.g. 27.5700" onchange="handleGroomChange()">
+                            </div>
+                            <div class="form-group">
+                                <label>रेखांश (Longitude °E)</label>
+                                <input type="number" step="0.0001" id="groomLon" placeholder="e.g. 80.6800" onchange="handleGroomChange()">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>रेखांश (Longitude °E)</label>
-                            <input type="number" step="0.0001" id="groomLon" placeholder="e.g. 80.6800" onchange="handleGroomChange()">
-                        </div>
-                    </div>
+                    </details>
 
                     <input type="hidden" id="groomWorldTimezone" value="">
                     <input type="hidden" id="groomWorldCountry" value="">
@@ -1085,7 +1097,7 @@
                             <label id="lblBrideTime">जन्म समय</label>
                             <input type="time" id="brideTime" onchange="handleBrideChange()">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="display:none;">
                             <label id="lblBrideCity">स्थान (City / Coordinates)</label>
                             <input type="text" id="brideCityName" list="presetCities" placeholder="Search or type city..." oninput="onCityInput('bride')">
                         </div>
@@ -1102,16 +1114,19 @@
                         <div id="brideWorldChip"></div>
                     </div>
 
-                    <div class="custom-coords-row">
-                        <div class="form-group">
-                            <label>अक्षांश (Latitude °N)</label>
-                            <input type="number" step="0.0001" id="brideLat" placeholder="e.g. 26.8467" onchange="handleBrideChange()">
+                    <details class="coords-details">
+                        <summary>⚙ निर्देशांक स्वयं देखें / बदलें (वैकल्पिक)</summary>
+                        <div class="custom-coords-row">
+                            <div class="form-group">
+                                <label>अक्षांश (Latitude °N)</label>
+                                <input type="number" step="0.0001" id="brideLat" placeholder="e.g. 26.8467" onchange="handleBrideChange()">
+                            </div>
+                            <div class="form-group">
+                                <label>रेखांश (Longitude °E)</label>
+                                <input type="number" step="0.0001" id="brideLon" placeholder="e.g. 80.9462" onchange="handleBrideChange()">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>रेखांश (Longitude °E)</label>
-                            <input type="number" step="0.0001" id="brideLon" placeholder="e.g. 80.9462" onchange="handleBrideChange()">
-                        </div>
-                    </div>
+                    </details>
 
                     <input type="hidden" id="brideWorldTimezone" value="">
                     <input type="hidden" id="brideWorldCountry" value="">
@@ -2165,7 +2180,7 @@
                     tz: 5.5
                 }));
                 const batchRes = await window.PatrikaEngineBridge.calculateBatchPlanets(batchItems);
-                charts = batchRes.charts || [];
+                charts = batchRes.charts || batchRes.results || [];
             } catch (err) {
                 console.error("Batch calculation failed in vmm:", err);
                 alert("गणना सर्वर अनुपलब्ध है। कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।");
