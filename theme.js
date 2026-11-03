@@ -54,6 +54,8 @@
       // 8 Home Grid Service Cards (Shastra-First Terminology)
       card_vivah_title: "विवाह मुहूर्त शोध",
       card_vivah_sub: "१० महादोष व त्रिबल शुद्धि",
+      card_gunmilan_title: "गुण मिलान",
+      card_gunmilan_sub: "वर-वधू 36 गुण अष्टकूट व दोष-परिहार",
       card_patrika_title: "पत्रिका (Patrika)",
       card_patrika_sub: "सर्वाधिक सटीक शास्त्रीय जन्म चक्र",
       card_vastu_title: "वास्तु एवं गृह प्रवेश",
@@ -210,6 +212,8 @@
       // 8 Home Grid Service Cards (Shastra-First Terminology)
       card_vivah_title: "Classical Vivah Muhurta",
       card_vivah_sub: "10 Mahadosha & Tribala Test",
+      card_gunmilan_title: "Gun Milan",
+      card_gunmilan_sub: "Bride-Groom 36 Guna Ashtakoot & dosha parihar",
       card_patrika_title: "Patrika (Birth Chart)",
       card_patrika_sub: "Authentic Classical Birth Chart",
       card_vastu_title: "Vastu & Griha Pravesh",
