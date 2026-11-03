@@ -394,6 +394,22 @@
         .coords-details > summary::before { content: '▸'; font-size: 11px; transition: transform .15s ease; }
         .coords-details[open] > summary::before { transform: rotate(90deg); }
         .coords-details > summary:hover { opacity: 1; }
+        .btn-print-report {
+            cursor: pointer; border: 1.5px solid #B78103; border-radius: 10px;
+            background: linear-gradient(135deg, #7a4a12, #5a330c); color: #F6E7C1;
+            font: 700 13.5px/1 system-ui, sans-serif; padding: 10px 18px; display: inline-flex; align-items: center; gap: 7px;
+        }
+        .btn-print-report:hover { filter: brightness(1.08); }
+        .print-only { display: none; }
+        @media print {
+            body * { visibility: hidden !important; }
+            #resultsTabsWrapper, #resultsTabsWrapper * { visibility: visible !important; }
+            #resultsTabsWrapper { position: absolute; left: 0; top: 0; width: 100%; margin: 0 !important; padding: 0 !important; display: block !important; }
+            .no-print, .results-tab-bar { display: none !important; }
+            .tab-content-panel { display: block !important; page-break-inside: avoid; margin-bottom: 16px; }
+            .print-only { display: block !important; text-align: center; margin-bottom: 18px; }
+            .stat-box, .chart-box, table { page-break-inside: avoid; }
+        }
 
         .btn-gold {
             background: linear-gradient(135deg, var(--gold-accent), var(--gold-dark));
@@ -1185,6 +1201,15 @@
 
         <!-- STRUCTURED RESULT TABS WRAPPER -->
         <div id="resultsTabsWrapper" style="display:none; margin-top:30px;">
+            <!-- PRINT-ONLY HEADER (shows only on the printed / saved PDF) -->
+            <div class="print-only" id="printReportHeader">
+                <div style="font-family:serif; font-size:22px; font-weight:700;">विवाह मुहूर्त रिपोर्ट</div>
+                <div style="font-size:13px; opacity:.8; margin-top:2px;">श्री रामजी ज्योतिष — शुद्ध मुहूर्त चिंतामणि विश्लेषण</div>
+            </div>
+            <!-- PRINT / PDF BUTTON -->
+            <div class="results-print-row no-print" style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+                <button type="button" class="btn-print-report" onclick="printMuhurtReport()">🖨️ प्रिंट करें / PDF सेव करें</button>
+            </div>
             <!-- TABS NAVIGATION BAR -->
             <div class="results-tab-bar" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
                 <button type="button" class="tab-btn active" id="btnTab1" onclick="switchResultTab(1)">
@@ -2370,9 +2395,47 @@
             });
         }
 
+        function printMuhurtReport() {
+            try { window.print(); } catch (e) { alert('प्रिंट विंडो नहीं खुल सकी।'); }
+        }
+
+        // Fill the groom/bride fields from a Gun Milan hand-off (localStorage, one-shot).
+        // Fields only — no muhurat scan is run here, so the ₹ paywall stays in force.
+        async function prefillFromGunMilan() {
+            let data;
+            try { data = JSON.parse(localStorage.getItem('sra_vmm_prefill') || 'null'); } catch (e) { return; }
+            if (!data || !data.groom || !data.bride) return;
+            try { localStorage.removeItem('sra_vmm_prefill'); } catch (e) {}
+            if (data.ts && (Date.now() - data.ts) > 15 * 60 * 1000) return; // only a fresh hand-off
+
+            function fill(type, d) {
+                if (!d) return;
+                const set = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined && v !== null && v !== '') el.value = v; };
+                set(type + 'Dob', d.dob);
+                set(type + 'Time', d.tob);
+                if (d.lat !== undefined && d.lat !== null) set(type + 'Lat', Number(d.lat).toFixed(4));
+                if (d.lon !== undefined && d.lon !== null) set(type + 'Lon', Number(d.lon).toFixed(4));
+                if (d.tz !== undefined && d.tz !== null) set(type + 'WorldTimezone', d.tz);
+                set(type + 'CityName', d.pob || '');
+                const statusEl = document.getElementById(type + 'WorldStatus');
+                if (statusEl) statusEl.textContent = currentLang === 'hi' ? '✓ गुण मिलान से स्थान भर दिया गया।' : '✓ Location filled from Gun Milan.';
+                const chip = document.getElementById(type + 'WorldChip');
+                if (chip && (d.pob || d.lat !== undefined)) {
+                    const place = d.pob || (Number(d.lat).toFixed(2) + '°, ' + Number(d.lon).toFixed(2) + '°');
+                    chip.innerHTML = '<span class="world-location-chip">📍 ' + escapeWorldHtml(place) + '</span>';
+                }
+            }
+            fill('groom', data.groom);
+            fill('bride', data.bride);
+            // Compute the birth-chart profiles so the filled data is confirmed on screen
+            // (this is the free kundali chart, not the paywalled muhurat scan).
+            try { await handleGroomChange(); await handleBrideChange(); } catch (e) {}
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             setLanguage('hi');
             checkUnlockStatus();
+            prefillFromGunMilan();
         });
     </script>
 </body>

@@ -692,6 +692,17 @@
       return;
     }
     var bn = esc(window.__gmBoy.name), gn = esc(window.__gmGirl.name);
+    // Hand the couple's kundali data to the vmm muhurat calculator (same coordinates).
+    // localStorage, not the URL — birth details stay off the address bar. vmm fills the
+    // fields only; the ₹ paywall still gates the actual muhurat scan.
+    try {
+      var pickPerson = function (p) {
+        return p ? { name: p.name, dob: p.dob, tob: p.tob, pob: p.pob, lat: p.lat, lon: p.lon, tz: p.tz } : null;
+      };
+      localStorage.setItem('sra_vmm_prefill', JSON.stringify({
+        ts: Date.now(), groom: pickPerson(window.__gmBoy), bride: pickPerson(window.__gmGirl)
+      }));
+    } catch (e) {}
     function muhuratCard(ceremony, icon, title, sub) {
       return '<a class="mg-card" style="text-decoration:none;display:block;text-align:center;padding:18px 12px;" href="' + vmmUrl(ceremony) + '">' +
         '<div style="font-size:32px;">' + icon + '</div>' +
