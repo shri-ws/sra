@@ -988,3 +988,21 @@ html[lang="en"] body .sra-gn-brand-sub { font-family: 'Cormorant Garamond', seri
   :root body .sra-gn-brand-txt b.sra-gn-brand-name { font-size: 25px !important; }
   html[lang="en"] body .sra-gn-brand-txt b.sra-gn-brand-name { font-size: 18px !important; letter-spacing: 2px; }
 }
+
+/* 17. SITE-WIDE DENSITY — use space well, less scrolling, even rhythm ─────────
+   A conservative global baseline so every page carries the home page's calm,
+   consistent spacing. Deeper per-page polish is layered on top of this. */
+/* Shared content cards share one calm, consistent inner spacing across pages */
+:root body .boxed-card, :root body .report-card, :root body .highlight-card,
+:root body .rule-card, :root body .intake-card, :root body .panchang-card,
+:root body .calendar-card, :root body .scarcity-matrix-card, :root body .daivagya-card {
+  padding: clamp(14px, 1.8vw, 20px) !important;
+}
+/* Section headings sit closer to the content they introduce */
+:root body .section-header { margin-bottom: 16px !important; }
+:root body .section-header p, :root body .section-title + p { margin-top: 6px !important; }
+/* Trim oversized vertical padding on stacked content sections (never the hero) */
+:root body section:not(.hero):not([class*="hero"]):not([class*="ekmev"]) {
+  padding-top: clamp(26px, 4.5vw, 52px) !important;
+  padding-bottom: clamp(26px, 4.5vw, 52px) !important;
+}
