@@ -2396,7 +2396,45 @@
         }
 
         function printMuhurtReport() {
-            try { window.print(); } catch (e) { alert('प्रिंट विंडो नहीं खुल सकी।'); }
+            const wrap = document.getElementById('resultsTabsWrapper');
+            if (!wrap) { try { window.print(); } catch (e) {} return; }
+
+            // Render the full report into a hidden iframe (all three tabs expanded, light
+            // theme) and print that. An iframe works on phones too (no popup blocker) and is
+            // built with the DOM API — no literal HTML-tag strings, so nothing can corrupt it.
+            const old = document.getElementById('sraPrintFrame');
+            if (old) old.remove();
+            const frame = document.createElement('iframe');
+            frame.id = 'sraPrintFrame';
+            frame.setAttribute('aria-hidden', 'true');
+            frame.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0; visibility:hidden;';
+            document.body.appendChild(frame);
+
+            const clone = wrap.cloneNode(true);
+            clone.style.display = 'block';
+            clone.querySelectorAll('.no-print').forEach(n => n.remove());
+            const bar = clone.querySelector('.results-tab-bar'); if (bar) bar.remove();
+            clone.querySelectorAll('.tab-content-panel').forEach(n => { n.style.display = 'block'; n.style.marginBottom = '24px'; });
+            const ph = clone.querySelector('.print-only'); if (ph) ph.style.display = 'block';
+
+            const doc = frame.contentWindow.document;
+            doc.documentElement.setAttribute('lang', document.documentElement.getAttribute('lang') || 'hi');
+            // Carry the site stylesheets so the report keeps its look
+            document.querySelectorAll('link[rel="stylesheet"], style').forEach(n => { doc.head.appendChild(doc.importNode(n, true)); });
+            const meta = doc.createElement('meta'); meta.setAttribute('charset', 'utf-8'); doc.head.appendChild(meta);
+            const ttl = doc.createElement('title'); ttl.textContent = 'विवाह मुहूर्त रिपोर्ट'; doc.head.appendChild(ttl);
+            const st = doc.createElement('style');
+            st.textContent = 'html,body{background:#fff !important; color:#1a1a1a !important; margin:0; padding:20px;}' +
+                '.tab-content-panel{display:block !important;} @page{margin:12mm;}';
+            doc.head.appendChild(st);
+            doc.body.appendChild(doc.importNode(clone, true));
+
+            const go = () => {
+                try { frame.contentWindow.focus(); frame.contentWindow.print(); }
+                catch (e) { try { window.print(); } catch (e2) {} }
+            };
+            // give cloned stylesheets a moment to load, then print
+            setTimeout(go, 600);
         }
 
         // Fill the groom/bride fields from a Gun Milan hand-off (localStorage, one-shot).
