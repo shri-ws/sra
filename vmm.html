@@ -418,9 +418,16 @@
             #mainContainer { filter: none !important; -webkit-filter: none !important; }
             #mainContainer > *:not(#resultsTabsWrapper) { display: none !important; }
             #resultsTabsWrapper { display: block !important; margin: 0 !important; padding: 0 !important; }
-            .tab-content-panel { display: block !important; page-break-inside: avoid; margin-bottom: 16px; }
-            .print-only { display: block !important; text-align: center; margin-bottom: 18px; }
-            .stat-box, .chart-box, table { page-break-inside: avoid; }
+            /* Panels flow across pages (never force a whole tall panel onto a new page,
+               which left the first page almost blank). */
+            .tab-content-panel { display: block !important; margin-bottom: 10px; }
+            .print-only { display: block !important; text-align: center; margin-bottom: 12px; }
+            /* Fit the wide results table to the page width so the last (VERDICT) column
+               is never clipped — shrink the font and let every cell wrap. */
+            #resultsTabsWrapper table { width: 100% !important; max-width: 100% !important; border-collapse: collapse; font-size: 9.5px !important; }
+            #resultsTabsWrapper th, #resultsTabsWrapper td { padding: 3px 5px !important; white-space: normal !important; word-break: break-word; overflow-wrap: anywhere; vertical-align: top; }
+            /* Keep each row and the small cards whole; big panels still flow. */
+            #resultsTabsWrapper tr, .stat-box, .chart-box, .stats-summary { page-break-inside: avoid; }
             /* Force a light, legible report whatever the on-screen theme */
             html, body, #mainContainer, #resultsTabsWrapper { background: #fff !important; color: #1a1a1a !important; }
             #resultsTabsWrapper :not(.stat-box):not([style*="color"]) { color: #1a1a1a !important; }
