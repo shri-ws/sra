@@ -219,10 +219,11 @@
   }
 
   // open a tab: a button is clicked; a link (e.g. कुंडली → patrika.html) is followed
-  // Open a tab: a page button is switched to; a link (कुंडली → patrika.html) is left for a tap,
-  // so the bar can rest on it and you can swipe past it without leaving the page.
+  // Open a tab the swipe lands on: a page button switches the section in place; a link
+  // (कुंडली → patrika.html) opens that page, so कुंडली is never a dead stop.
   function openPage(tab) {
-    if (!tab || tab.tagName === 'A' || isActive(tab)) return;
+    if (!tab || isActive(tab)) return;
+    if (tab.tagName === 'A') { if (tab.getAttribute('href')) location.href = tab.getAttribute('href'); return; }
     tab.click();
   }
 
