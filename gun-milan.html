@@ -163,6 +163,39 @@
   .mg-parihar li { padding:6px 0 6px 24px; position:relative; font-size:12.5px; border-top:1px dashed var(--gm-border); color:var(--gm-soft); }
   .mg-parihar li:first-child{border-top:0;}
   .mg-parihar li::before { content:'✓'; position:absolute; left:0; top:6px; color:var(--gm-ok); font-weight:800; }
+  /* ---- full per-person manglik section ---- */
+  .mg-section { border:1px solid var(--gm-border); border-radius:16px; padding:16px 16px 18px; margin-top:16px; }
+  .mg-section.var { border-top:5px solid var(--gm-boy); }
+  .mg-section.vadhu { border-top:5px solid var(--gm-girl); }
+  .mg-section .sec-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .mg-section h3 { margin:0; font-size:17px; }
+  .mg-section.var h3 { color:var(--gm-boy); } .mg-section.vadhu h3 { color:var(--gm-girl); }
+  .mg-mars { font-size:12.5px; color:var(--gm-soft); margin:2px 0 10px; }
+  .mg-mars b { color:var(--gm-ink); }
+  table.tri { width:100%; border-collapse:collapse; font-size:12.5px; margin:6px 0 2px; }
+  table.tri th, table.tri td { border:1px solid var(--gm-border); padding:6px 8px; text-align:center; }
+  table.tri th { background:rgba(180,83,9,0.06); font-weight:700; }
+  table.tri td.ref { text-align:left; font-weight:700; white-space:nowrap; }
+  .tri-yes { color:var(--gm-bad); font-weight:800; } .tri-no { color:var(--gm-ok); font-weight:800; }
+  .mg-barwrap { margin:12px 0 4px; }
+  .mg-barline { display:flex; justify-content:space-between; font-size:12px; color:var(--gm-soft); margin-bottom:4px; }
+  .mg-bar { height:12px; border-radius:7px; background:rgba(180,83,9,0.12); overflow:hidden; }
+  .mg-bar > i { display:block; height:100%; border-radius:7px; background:linear-gradient(90deg,var(--gm-warn),var(--gm-bad)); }
+  .mg-bar.net > i { background:linear-gradient(90deg,var(--gm-ok),var(--gm-warn)); }
+  .mg-advice { background:rgba(27,122,70,0.06); border:1px dashed var(--gm-border); border-radius:10px; padding:10px 12px; margin-top:12px; font-size:12.5px; color:var(--gm-ink); }
+  .mg-advice b { color:var(--gm-kumkum); }
+  /* ---- unlock celebration ---- */
+  @keyframes gmPop { 0%{transform:scale(.9);opacity:0;} 60%{transform:scale(1.02);} 100%{transform:scale(1);opacity:1;} }
+  .gm-reveal { animation:gmPop .55s cubic-bezier(.2,.8,.3,1.1) both; }
+  .gm-celebrate { position:fixed; inset:0; pointer-events:none; z-index:120; overflow:hidden; }
+  .gm-confetti { position:absolute; top:-12px; width:9px; height:14px; border-radius:2px; opacity:.95; animation:gmFall linear forwards; }
+  @keyframes gmFall { 0%{transform:translateY(-20px) rotate(0);opacity:1;} 100%{transform:translateY(102vh) rotate(680deg);opacity:.9;} }
+  .gm-unlock-flash { position:fixed; top:16%; left:50%; transform:translateX(-50%) scale(.6); z-index:121;
+    background:linear-gradient(135deg,var(--gm-gold),var(--gm-gold-deep)); color:#fff; font-weight:800; font-size:17px;
+    padding:12px 22px; border-radius:40px; box-shadow:0 14px 40px rgba(124,19,5,.35); opacity:0; pointer-events:none; }
+  .gm-unlock-flash.show { animation:gmFlash 1.9s ease forwards; }
+  @keyframes gmFlash { 0%{opacity:0;transform:translateX(-50%) scale(.6);} 14%{opacity:1;transform:translateX(-50%) scale(1.06);}
+    30%{transform:translateX(-50%) scale(1);} 78%{opacity:1;} 100%{opacity:0;transform:translateX(-50%) scale(1) translateY(-14px);} }
   footer.ft { text-align:center; padding:24px 16px; color:var(--gm-soft); font-size:12px; }
 </style>
 </head>
@@ -510,7 +543,7 @@
         })
       }).catch(function () {});
     } catch (e) {}
-    renderCombinedManglik();
+    renderCombinedManglik(true);
   }
 
   function buildBothManglik() {
@@ -551,41 +584,99 @@
     return String(s).replace(/Saturn/g, 'शनि').replace(/Rahu/g, 'राहु').replace(/Ketu/g, 'केतु')
       .replace(/Mars/g, 'मंगल').replace(/\bH(\d+)/g, 'भाव $1');
   }
-  function mgCard(role, cls, r) {
-    var mild = r.is_manglik && (+r.net_dosha_percentage || 0) <= 15;
-    var badge = !r.is_manglik ? '<span class="mg-badge no">निर्मांगलिक</span>'
+  function mgSection(role, cls, r) {
+    var net = +r.net_dosha_percentage || 0, gross = +r.gross_dosha_percentage || 0;
+    var mild = r.is_manglik && net <= 15;
+    var badge = !r.is_manglik ? '<span class="mg-badge no">✓ निर्मांगलिक</span>'
       : (mild ? '<span class="mg-badge mild">आंशिक मांगलिक</span>' : '<span class="mg-badge yes">मांगलिक</span>');
-    var from = [];
-    if (r.is_lagna_manglik) from.push('लग्न');
-    if (r.is_moon_manglik) from.push('चंद्र');
-    if (r.is_venus_manglik) from.push('शुक्र');
     var md = r.mars_details || {};
-    var pls = (r.applied_pariharas || []).slice(0, 5).map(function (p) {
-      return '<li>' + esc(p.title_hi || p.title || p.title_en || '') + (p.deduction ? ' (−' + p.deduction + '%)' : '') + '</li>';
+    var state = [];
+    if (md.is_retrograde) state.push('वक्री');
+    if (md.is_combust) state.push('अस्त');
+    var marsLine = '<div class="mg-mars">मंगल — <b>' + esc(md.rashi || '—') + '</b> राशि, <b>भाव ' + (md.house || '—') + '</b>' +
+      (md.degree != null ? ', ' + md.degree + '°' : '') + (md.state ? ', ' + esc(md.state) : '') +
+      (state.length ? ' (' + state.join(', ') + ')' : '') + '</div>';
+
+    // tri-lagna table
+    var triRows = (r.tri_lagna_breakup || []).map(function (t) {
+      return '<tr><td class="ref">' + esc(t.reference) + '</td><td>भाव ' + t.mars_house + '</td>' +
+        '<td class="' + (t.is_dosha ? 'tri-yes' : 'tri-no') + '">' + (t.is_dosha ? 'दोष' : 'निर्दोष') + '</td>' +
+        '<td>' + t.weight + '</td></tr>';
     }).join('');
-    return '<div class="mg-card ' + cls + '"><h3>' + role + ' — ' + esc(r.jataka_name) + '</h3>' + badge +
-      '<div class="mg-row"><span>मंगल</span><b>' + esc(md.rashi || '—') + ' · भाव ' + (md.house || '—') + '</b></div>' +
-      '<div class="mg-row"><span>दोष स्रोत</span><b>' + (from.length ? from.join(', ') : '—') + '</b></div>' +
-      '<div class="mg-row"><span>स्थूल दोष</span><b>' + r.gross_dosha_percentage + '%</b></div>' +
-      '<div class="mg-row"><span>परिहार कटौती</span><b>' + r.parihara_deduction_percentage + '%</b></div>' +
-      '<div class="mg-row"><span>शुद्ध (नेट) दोष</span><b>' + r.net_dosha_percentage + '%</b></div>' +
-      (r.is_manglik && r.partner_counter_details && r.partner_counter_details.length
-        ? '<div class="mg-row"><span>साथी-साम्य</span><b>' + esc(hinGrah(r.partner_counter_details.join(', '))) + '</b></div>' : '') +
-      (pls ? '<div class="mg-sec-title" style="font-size:12px;margin:12px 0 4px;">लागू परिहार</div><ul class="mg-parihar">' + pls + '</ul>' : '') +
+    var triTable = triRows ? '<table class="tri"><thead><tr><th>संदर्भ</th><th>मंगल भाव</th><th>स्थिति</th><th>भार</th></tr></thead><tbody>' + triRows + '</tbody></table>' : '';
+
+    // D9
+    var d9 = r.d9_validation || {};
+    var d9Line = d9.note ? '<div class="mg-mars" style="margin-top:8px;">नवांश (D9) — मंगल <b>' + esc(d9.mars_rashi || '—') + '</b>' + (d9.is_vargottama ? ' · <b style="color:var(--gm-ok)">वर्गोत्तम</b>' : '') + '। ' + esc(d9.note) + '</div>' : '';
+
+    // bars
+    var bars = '<div class="mg-barwrap"><div class="mg-barline"><span>स्थूल दोष</span><span>' + gross + '%</span></div>' +
+      '<div class="mg-bar"><i style="width:' + gross + '%"></i></div></div>' +
+      '<div class="mg-barwrap"><div class="mg-barline"><span>शुद्ध (नेट) दोष — परिहार के बाद</span><span><b>' + net + '%</b></span></div>' +
+      '<div class="mg-bar net"><i style="width:' + net + '%"></i></div></div>';
+
+    // parihars
+    var pls = (r.applied_pariharas || []).map(function (p) {
+      return '<li>' + esc(p.title_hi || p.title || p.title_en || '') + (p.deduction ? ' <b style="color:var(--gm-ok)">(−' + p.deduction + '%)</b>' : '') + '</li>';
+    }).join('');
+    var samya = (r.is_manglik && r.partner_counter_details && r.partner_counter_details.length)
+      ? '<div class="mg-advice" style="background:rgba(27,122,70,0.09);"><b>जीवनसाथी-साम्य:</b> साथी की कुंडली में ' + esc(hinGrah(r.partner_counter_details.join(', '))) + ' — पाप-साम्य से दोष परस्पर कट जाता है।</div>' : '';
+    var pblock = pls ? '<div class="mg-sec-title" style="font-size:13px;">लागू शास्त्रीय परिहार (' + (r.applied_pariharas_count || r.applied_pariharas.length) + ')</div><ul class="mg-parihar">' + pls + '</ul>' : '';
+
+    // advice
+    var adv = (r.spouse_recommendation && r.spouse_recommendation.advice_text) ? r.spouse_recommendation.advice_text : '';
+    var rem = (r.spouse_recommendation && r.spouse_recommendation.remedies) ? r.spouse_recommendation.remedies : '';
+    var advBlock = (adv || rem) ? '<div class="mg-advice">' + (adv ? esc(adv) : '') + (rem ? '<br><b>उपाय:</b> ' + esc(rem) : '') + '</div>' : '';
+
+    return '<div class="mg-section ' + cls + '">' +
+      '<div class="sec-head"><h3>' + role + ' — ' + esc(r.jataka_name) + '</h3>' + badge + '</div>' +
+      marsLine + triTable + d9Line + bars +
+      '<div class="mg-mars" style="margin-top:8px;">शास्त्रीय स्थिति: <b>' + esc(r.shastric_status || '—') + '</b>' + (r.dosha_category ? ' · ' + esc(r.dosha_category) : '') + '</div>' +
+      samya + pblock + advBlock +
       '</div>';
   }
 
-  function renderCombinedManglik() {
+  function renderCombinedManglik(celebrate) {
     var zone = document.getElementById('manglikZone');
     var both;
     try { both = buildBothManglik(); }
     catch (e) { zone.innerHTML = '<div class="placeholder"><div class="big">⚠️</div><p>' + esc(e.message || e) + '</p></div>'; return; }
     var rb = both.rb, rg = both.rg, v = combinedVerdict(rb, rg);
+    var bn = esc(window.__gmBoy.name), gn = esc(window.__gmGirl.name);
     zone.innerHTML =
+      '<div class="gm-reveal">' +
+      '<div class="couple-head" style="margin-bottom:12px;"><b class="v">🤵 ' + bn + '</b> &nbsp;×&nbsp; <b class="g">👰 ' + gn + '</b> — संयुक्त मांगलिक मिलान</div>' +
       '<div class="verdict ' + v.key + '"><div class="vmark">' + v.mark + '</div><h2>' + v.title + '</h2><p>' + v.text + '</p></div>' +
-      '<div class="mg-grid">' + mgCard('🤵 वर', 'var', rb) + mgCard('👰 वधू', 'vadhu', rg) + '</div>' +
-      '<div class="priority-note" style="margin-top:16px;"><b>शास्त्रीय टिप्पणी:</b> मांगलिक निर्णय केवल मंगल की स्थिति पर नहीं — सप्तम भाव, सप्तमेश, चंद्र-बल व दशा-क्रम का समग्र विचार भी आवश्यक है। यह रिपोर्ट मुख्य मांगलिक-साम्य सिद्धांत पर आधारित मार्गदर्शन है।</div>' +
-      '<div style="text-align:center;margin-top:16px;"><button class="btn-main" style="max-width:360px;margin:0 auto;" type="button" onclick="document.querySelector(\'.gm-tab[data-tab=muhurat]\').click()">④ अब विवाह मुहूर्त देखें ➔</button></div>';
+      '<div class="mg-sec-title" style="text-align:center;font-size:15px;margin-top:4px;">🤵 वर की मांगलिक रिपोर्ट</div>' +
+      mgSection('🤵 वर', 'var', rb) +
+      '<div class="mg-sec-title" style="text-align:center;font-size:15px;">👰 वधू की मांगलिक रिपोर्ट</div>' +
+      mgSection('👰 वधू', 'vadhu', rg) +
+      '<div class="priority-note" style="margin-top:16px;"><b>शास्त्रीय टिप्पणी:</b> मांगलिक निर्णय केवल मंगल की स्थिति पर नहीं — सप्तम भाव, सप्तमेश, चंद्र-बल व दशा-क्रम का समग्र विचार भी आवश्यक है। यह रिपोर्ट त्रि-लग्न मांगलिक विश्लेषण व मांगलिक-साम्य सिद्धांत पर आधारित है।</div>' +
+      '<div style="text-align:center;margin-top:16px;"><button class="btn-main" style="max-width:360px;margin:0 auto;" type="button" onclick="document.querySelector(\'.gm-tab[data-tab=muhurat]\').click()">④ अब विवाह मुहूर्त देखें ➔</button></div>' +
+      '</div>';
+    if (celebrate) gmCelebrate();
+  }
+
+  // ---- unlock celebration (confetti + flash) ----
+  function gmCelebrate() {
+    try {
+      var colors = ['#b4530e', '#1b7a46', '#9a1f5c', '#d4af37', '#0d4f73', '#7c1305'];
+      var wrap = document.createElement('div'); wrap.className = 'gm-celebrate';
+      for (var i = 0; i < 70; i++) {
+        var c = document.createElement('i'); c.className = 'gm-confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[i % colors.length];
+        c.style.animationDuration = (2.2 + Math.random() * 1.8) + 's';
+        c.style.animationDelay = (Math.random() * 0.5) + 's';
+        c.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+        wrap.appendChild(c);
+      }
+      document.body.appendChild(wrap);
+      var flash = document.createElement('div'); flash.className = 'gm-unlock-flash'; flash.textContent = '🎉 रिपोर्ट अनलॉक हो गई!';
+      document.body.appendChild(flash);
+      requestAnimationFrame(function () { flash.classList.add('show'); });
+      setTimeout(function () { wrap.remove(); flash.remove(); }, 4200);
+    } catch (e) {}
   }
 
   // ======================= TAB 4 : MUHURAT (मौजूदा vmm.html इंजन में डेटा-फ्लो) =======================

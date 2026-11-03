@@ -2368,17 +2368,15 @@
                 const valid = { vivah: 1, sagai: 1, var_varan: 1, vadhu_varan: 1 };
                 const cer = q.get('ceremony');
                 if (cer && valid[cer]) {
-                    if (isUnlocked && typeof setCeremony === 'function') {
-                        setCeremony(cer); // paid session: full behavior incl. scan
-                    } else {
-                        // Locked: only select the ceremony tab — never run the scan behind the ₹ paywall.
-                        currentCeremony = cer;
-                        ['Vivah', 'Sagai', 'VarVaran', 'VadhuVaran'].forEach(t => {
-                            const el = document.getElementById('tab' + t);
-                            if (el) el.classList.toggle('active', t.toLowerCase().includes(cer.replace('_', '')));
-                        });
-                        if (typeof updateCeremonyNote === 'function') updateCeremonyNote();
-                    }
+                    // Only select the ceremony tab — never auto-run the scan (avoids the on-load
+                    // "calculating" hang and keeps results behind the ₹ VIP gate). The user clicks
+                    // the "मुहूर्त निकालें" button themselves once ready.
+                    currentCeremony = cer;
+                    ['Vivah', 'Sagai', 'VarVaran', 'VadhuVaran'].forEach(t => {
+                        const el = document.getElementById('tab' + t);
+                        if (el) el.classList.toggle('active', t.toLowerCase().includes(cer.replace('_', '')));
+                    });
+                    if (typeof updateCeremonyNote === 'function') updateCeremonyNote();
                 }
             } catch (e) {}
         }
