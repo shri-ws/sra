@@ -2355,36 +2355,9 @@
             });
         }
 
-        // Prefill वर/वधू birth details from a gun-milan deep-link (?gm=1&...) — UI only.
-        function prefillFromGunMilan() {
-            try {
-                const q = new URLSearchParams(location.search);
-                if (q.get('gm') !== '1') return;
-                const set = (id, v) => { const e = document.getElementById(id); if (e && v != null && v !== '') e.value = v; };
-                set('groomDob', q.get('gDob')); set('groomTime', q.get('gTime')); set('groomCityName', q.get('gCity'));
-                set('groomLat', q.get('gLat')); set('groomLon', q.get('gLon')); set('groomWorldTimezone', q.get('gTz'));
-                set('brideDob', q.get('bDob')); set('brideTime', q.get('bTime')); set('brideCityName', q.get('bCity'));
-                set('brideLat', q.get('bLat')); set('brideLon', q.get('bLon')); set('brideWorldTimezone', q.get('bTz'));
-                const valid = { vivah: 1, sagai: 1, var_varan: 1, vadhu_varan: 1 };
-                const cer = q.get('ceremony');
-                if (cer && valid[cer]) {
-                    // Only select the ceremony tab — never auto-run the scan (avoids the on-load
-                    // "calculating" hang and keeps results behind the ₹ VIP gate). The user clicks
-                    // the "मुहूर्त निकालें" button themselves once ready.
-                    currentCeremony = cer;
-                    ['Vivah', 'Sagai', 'VarVaran', 'VadhuVaran'].forEach(t => {
-                        const el = document.getElementById('tab' + t);
-                        if (el) el.classList.toggle('active', t.toLowerCase().includes(cer.replace('_', '')));
-                    });
-                    if (typeof updateCeremonyNote === 'function') updateCeremonyNote();
-                }
-            } catch (e) {}
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
             setLanguage('hi');
             checkUnlockStatus();
-            prefillFromGunMilan();
         });
     </script>
 </body>

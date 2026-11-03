@@ -679,25 +679,15 @@
     } catch (e) {}
   }
 
-  // ======================= TAB 4 : MUHURAT (मौजूदा vmm.html इंजन में डेटा-फ्लो) =======================
-  function vmmUrl(ceremony) {
-    var b = window.__gmBoy, g = window.__gmGirl;
-    var p = new URLSearchParams({
-      gm: '1', ceremony: ceremony,
-      gName: b.name, gDob: b.dob || '', gTime: b.tob || '', gCity: b.pob || '',
-      gLat: (b.lat != null ? b.lat : ''), gLon: (b.lon != null ? b.lon : ''), gTz: (b.tz != null ? b.tz : ''),
-      bName: g.name, bDob: g.dob || '', bTime: g.tob || '', bCity: g.pob || '',
-      bLat: (g.lat != null ? g.lat : ''), bLon: (g.lon != null ? g.lon : ''), bTz: (g.tz != null ? g.tz : '')
-    });
-    return '/vmm.html?' + p.toString();
-  }
+  // ======================= TAB 4 : MUHURAT (मौजूदा vmm.html कैलकुलेटर पर रिडायरेक्ट) =======================
+  function vmmUrl(ceremony) { return '/vmm.html'; }
 
   function renderMuhuratTab() {
     var zone = document.getElementById('muhuratZone');
     if (!window.__gmBoy || !window.__gmGirl) {
       zone.innerHTML = '<div class="placeholder"><div class="big">🗓️</div>' +
         '<p><b>पहले दोनों कुंडली बनाएं</b></p>' +
-        '<p style="max-width:520px;margin:8px auto;">वर-वधू की जन्म जानकारी से शुभ मुहूर्त — इन्हीं कुंडलियों का डेटा प्रामाणिक मुहूर्त इंजन में आगे भेजा जाएगा।</p>' +
+        '<p style="max-width:520px;margin:8px auto;">वर-वधू की जन्म जानकारी से शुभ मुहूर्त — नीचे किसी भी संस्कार पर क्लिक कर मुहूर्त कैलकुलेटर खोलें।</p>' +
         '<button class="btn-main" style="max-width:320px;margin:14px auto 0;" type="button" onclick="document.querySelector(\'.gm-tab[data-tab=input]\').click()">① दोनों कुंडली भरें ➔</button></div>';
       return;
     }
@@ -710,7 +700,7 @@
     }
     zone.innerHTML =
       '<div class="couple-head" style="margin-bottom:14px;"><b class="v">🤵 ' + bn + '</b> &nbsp;×&nbsp; <b class="g">👰 ' + gn + '</b></div>' +
-      '<p style="color:var(--gm-soft);font-size:13.5px;text-align:center;max-width:580px;margin:0 auto 16px;">इन्हीं कुंडलियों का जन्म-विवरण प्रामाणिक <b>मुहूर्त चिंतामणि</b> इंजन में अपने-आप भरकर शुभ मुहूर्त निकाले जाएँगे।</p>' +
+      '<p style="color:var(--gm-soft);font-size:13.5px;text-align:center;max-width:580px;margin:0 auto 16px;">किसी भी संस्कार पर क्लिक कर प्रामाणिक <b>मुहूर्त चिंतामणि</b> कैलकुलेटर खोलें — वहाँ वर-वधू का विवरण भरकर शुभ मुहूर्त निकालें।</p>' +
       '<div class="mg-grid">' +
         muhuratCard('vivah', '💍', 'विवाह मुहूर्त', 'शुभ विवाह तिथि, लग्न व अभिजित — त्रिबल शुद्धि सहित') +
         muhuratCard('sagai', '🤝', 'सगाई / वाग्दान मुहूर्त', 'उभय वरण, संकल्प एवं श्रेष्ठ लग्न काल') +
