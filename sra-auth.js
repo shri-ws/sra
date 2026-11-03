@@ -202,6 +202,7 @@
         // Firebase has no session: a stored Firebase login is stale and must not look logged in
         const legacy = readLegacyUser();
         if (legacy && legacy.uid) { clearLegacy(); refreshUi(); }
+        maybeOpenWelcome();
       }
     });
   }
@@ -285,6 +286,8 @@
   }
   function done(name) {
     close();
+    closeWelcome();
+    markWelcomeSeen();
     const toast = tr(`🙏 स्वागत है, ${name || 'जातक'}! आप लॉगिन हो गए हैं।`, `🙏 Welcome, ${name || 'friend'}! You are logged in.`);
     if (typeof window.showKundaliToast === 'function') window.showKundaliToast(toast);
   }
@@ -375,6 +378,171 @@
     if (typeof window.showKundaliToast === 'function') window.showKundaliToast(tr('✓ आप लॉग आउट हो गए हैं।', '✓ You are logged out.'));
   }
 
+  // ── First-visit welcome / onboarding (name + mobile + language) ─────────
+  // A warm, skippable popup for brand-new guests. It uses the same Firebase phone
+  // OTP as the login window, and also records the visitor's name and language so
+  // every kundali they make lands in their own account folder.
+  const WELCOME_SEEN = 'sra_welcome_seen';
+  let welcome = null, welcomeConf = null, welcomeOpening = false;
+  const welcomeSeen = () => { try { return localStorage.getItem(WELCOME_SEEN) === '1'; } catch (e) { return false; } };
+  function markWelcomeSeen() { try { localStorage.setItem(WELCOME_SEEN, '1'); } catch (e) {} }
+
+  function applyLang(lang) {
+    try { localStorage.setItem('sra_lang', lang); } catch (e) {}
+    document.documentElement.setAttribute('lang', lang);
+    try { if (typeof window.setLanguage === 'function' && !window._langSyncing) window.setLanguage(lang); } catch (e) {}
+    try { document.dispatchEvent(new CustomEvent('sra:langchange', { detail: { lang } })); } catch (e) {}
+  }
+
+  function buildWelcome() {
+    welcome = document.createElement('div');
+    welcome.className = 'sra-auth-overlay sra-welcome';
+    welcome.setAttribute('role', 'dialog');
+    welcome.setAttribute('aria-modal', 'true');
+    welcome.innerHTML = `
+      <div class="sra-auth-card sra-welcome-card">
+        <button type="button" class="sra-auth-x" data-wskip aria-label="बंद करें">✕</button>
+        <div class="sra-welcome-head">
+          <img src="logo.png" alt="" class="sra-auth-logo">
+          <div class="sra-welcome-om">ॐ</div>
+        </div>
+        <h3 class="sra-auth-title sra-welcome-title"></h3>
+        <p class="sra-auth-sub sra-welcome-sub"></p>
+        <div class="sra-welcome-langrow" role="group">
+          <span class="sra-welcome-langlbl" data-t-langlbl></span>
+          <div class="sra-welcome-langpills">
+            <button type="button" class="sra-welcome-lang" data-lang="hi">हिन्दी</button>
+            <button type="button" class="sra-welcome-lang" data-lang="en">English</button>
+          </div>
+        </div>
+        <div class="sra-auth-step" data-wstep="form">
+          <input type="text" class="sra-welcome-input" data-wname autocomplete="name" maxlength="40">
+          <div class="sra-auth-phone sra-welcome-phone"><span>+91</span><input type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" data-wphone></div>
+          <button type="button" class="sra-auth-primary" data-wsend></button>
+          <div class="sra-auth-or"><span data-t-wor></span></div>
+          <button type="button" class="sra-auth-google" data-wgoogle>
+            <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.3 5.7c4.3-4 7-9.9 7-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+            <span data-t-wgoogle></span>
+          </button>
+        </div>
+        <div class="sra-auth-step" data-wstep="code" hidden>
+          <input type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" class="sra-auth-code" data-wcode placeholder="••••••">
+          <button type="button" class="sra-auth-primary" data-wverify></button>
+          <button type="button" class="sra-auth-link" data-wback></button>
+        </div>
+        <p class="sra-auth-msg" data-wmsg></p>
+        <button type="button" class="sra-auth-link sra-welcome-skip" data-wskip></button>
+        <p class="sra-auth-note" data-t-wnote></p>
+        <div id="sra-welcome-recaptcha"></div>
+      </div>`;
+    document.body.appendChild(welcome);
+    welcome.addEventListener('click', (e) => {
+      if (e.target === welcome || e.target.closest('[data-wskip]')) skipWelcome();
+      else if (e.target.closest('[data-lang]')) pickLang(e.target.closest('[data-lang]').dataset.lang);
+      else if (e.target.closest('[data-wsend]')) welcomeSend();
+      else if (e.target.closest('[data-wverify]')) welcomeVerify();
+      else if (e.target.closest('[data-wback]')) welcomeStep('form');
+      else if (e.target.closest('[data-wgoogle]')) google();
+    });
+    welcome.querySelector('[data-wphone]').addEventListener('keydown', (e) => { if (e.key === 'Enter') welcomeSend(); });
+    welcome.querySelector('[data-wcode]').addEventListener('keydown', (e) => { if (e.key === 'Enter') welcomeVerify(); });
+  }
+
+  function welcomeTexts() {
+    const q = (s) => welcome.querySelector(s);
+    q('.sra-welcome-title').textContent = tr('🙏 स्वागत है', '🙏 Welcome');
+    q('.sra-welcome-sub').textContent = tr('श्री रामजी ज्योतिष में आपका स्वागत है। अपना नाम व मोबाइल दर्ज करें — आपकी बनाई हर कुण्डली आपके अपने खाते में सुरक्षित रहेगी।',
+      'Welcome to Shri Ramji Astro. Enter your name and mobile — every kundali you make stays saved in your own account.');
+    q('[data-t-langlbl]').textContent = tr('भाषा', 'Language');
+    q('[data-wname]').placeholder = tr('आपका नाम', 'Your name');
+    q('[data-wphone]').placeholder = tr('10-अंकीय मोबाइल नंबर', '10-digit mobile number');
+    q('[data-wsend]').textContent = tr('OTP भेजें और शुरू करें', 'Send OTP & begin');
+    q('[data-t-wor]').textContent = tr('अथवा', 'or');
+    q('[data-t-wgoogle]').textContent = tr('Google से जारी रखें', 'Continue with Google');
+    q('[data-wverify]').textContent = tr('सत्यापित करें व प्रवेश करें', 'Verify & continue');
+    q('[data-wback]').textContent = tr('← नंबर बदलें', '← Change number');
+    q('.sra-welcome-skip').textContent = tr('अभी नहीं — अतिथि के रूप में जारी रखें', 'Not now — continue as guest');
+    q('[data-t-wnote]').textContent = tr('OTP आपके मोबाइल पर SMS से आएगा। लॉग आउट करने तक आप इसी फ़ोन पर लॉगिन रहेंगे।',
+      'The OTP arrives by SMS on your mobile. You stay logged in on this device until you log out.');
+  }
+
+  const wmsg = (t, ok) => { const m = welcome.querySelector('[data-wmsg]'); m.textContent = t || ''; m.classList.toggle('ok', !!ok); };
+  function welcomeStep(step) {
+    welcome.querySelectorAll('[data-wstep]').forEach(s => { s.hidden = s.dataset.wstep !== step; });
+    wmsg('');
+    if (step === 'code') setTimeout(() => welcome.querySelector('[data-wcode]').focus(), 50);
+  }
+  function pickLang(lang) {
+    applyLang(lang);
+    welcome.querySelectorAll('[data-lang]').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+    welcomeTexts();
+  }
+
+  function openWelcome() {
+    if (currentUser() || welcomeSeen()) return;
+    if (!welcome) buildWelcome();
+    pickLang(isHindi() ? 'hi' : 'en');
+    welcomeStep('form');
+    welcome.classList.add('is-open');
+    document.documentElement.classList.add('sra-auth-lock');
+    ensureFirebase().catch(() => wmsg(tr('लॉगिन सेवा लोड नहीं हो सकी। इंटरनेट जाँचें।', 'Could not load the login service. Check your internet.')));
+    setTimeout(() => { try { welcome.querySelector('[data-wname]').focus(); } catch (e) {} }, 60);
+  }
+  function closeWelcome() {
+    if (!welcome) return;
+    welcome.classList.remove('is-open');
+    if (!modal || !modal.classList.contains('is-open')) document.documentElement.classList.remove('sra-auth-lock');
+  }
+  function skipWelcome() { markWelcomeSeen(); closeWelcome(); }
+
+  async function welcomeSend() {
+    const name = welcome.querySelector('[data-wname]').value.trim();
+    const num = welcome.querySelector('[data-wphone]').value.replace(/\D/g, '');
+    if (!/^[6-9]\d{9}$/.test(num)) { wmsg(tr('कृपया 10-अंकों का वैध मोबाइल नंबर दर्ज करें।', 'Please enter a valid 10-digit mobile number.')); return; }
+    if (name) try { localStorage.setItem('sra_user_name', name); } catch (e) {}
+    const btn = welcome.querySelector('[data-wsend]');
+    btn.disabled = true;
+    wmsg(tr('⏳ OTP भेजा जा रहा है…', '⏳ Sending OTP…'), true);
+    try {
+      const fb = await ensureFirebase();
+      fb.auth().languageCode = isHindi() ? 'hi' : 'en';
+      if (!window.sraWelcomeRecaptcha) window.sraWelcomeRecaptcha = new fb.auth.RecaptchaVerifier('sra-welcome-recaptcha', { size: 'invisible' });
+      welcomeConf = await fb.auth().signInWithPhoneNumber('+91' + num, window.sraWelcomeRecaptcha);
+      confirmation = welcomeConf;
+      welcomeStep('code');
+      wmsg(tr(`✓ 6-अंकों का OTP +91 ${num} पर भेज दिया गया है।`, `✓ A 6-digit OTP was sent to +91 ${num}.`), true);
+    } catch (e) {
+      console.warn('[SRA Auth] welcome OTP send:', e);
+      try { window.sraWelcomeRecaptcha && window.sraWelcomeRecaptcha.clear(); } catch (_) {}
+      window.sraWelcomeRecaptcha = null;
+      wmsg(e && e.code === 'auth/too-many-requests'
+        ? tr('बहुत अधिक प्रयास हुए। कुछ देर बाद पुनः प्रयास करें।', 'Too many attempts. Please try again later.')
+        : tr('OTP भेजा नहीं जा सका। पुनः प्रयास करें या Google चुनें।', 'Could not send the OTP. Try again or use Google.'));
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function welcomeVerify() {
+    const code = welcome.querySelector('[data-wcode]').value.replace(/\D/g, '');
+    if (!welcomeConf) { welcomeStep('form'); return; }
+    if (code.length !== 6) { wmsg(tr('कृपया SMS में आया 6-अंकों का OTP दर्ज करें।', 'Please enter the 6-digit OTP from the SMS.')); return; }
+    try {
+      const res = await welcomeConf.confirm(code);
+      welcomeConf = null; confirmation = null;
+      done(res.user && (res.user.displayName || res.user.phoneNumber || welcome.querySelector('[data-wname]').value.trim()));
+    } catch (e) {
+      wmsg(tr('❌ गलत OTP। कृपया सही कोड दर्ज करें।', '❌ Wrong OTP. Please enter the correct code.'));
+    }
+  }
+
+  function maybeOpenWelcome() {
+    if (welcomeOpening || welcomeSeen() || currentUser()) return;
+    if (/\/admin(-|\.)|login=1/.test(location.pathname + location.search)) return;
+    welcomeOpening = true;
+    setTimeout(openWelcome, 900);
+  }
+
   // ── Route every existing login / logout button here ─────────────────────
   function takeOver() {
     window.openAuthModal = open;
@@ -390,7 +558,7 @@
     }
   }
 
-  window.SRAAuth = { open, close, logout, user: currentUser, ready: ensureFirebase };
+  window.SRAAuth = { open, close, logout, user: currentUser, ready: ensureFirebase, welcome: openWelcome };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { takeOver(); start(); });
   else { takeOver(); start(); }
   // theme.js may define its own versions after this file runs

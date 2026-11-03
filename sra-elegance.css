@@ -931,6 +931,28 @@ html.sra-auth-lock, html.sra-auth-lock body { overflow: hidden !important; }
 .sra-auth-note { margin: 6px 0 0; font-size: 12px; color: var(--sra-muted); line-height: 1.5; }
 [data-theme="night"] .sra-auth-primary { background: linear-gradient(135deg, #E9CF8E, #B08D3E); color: #1A1209; }
 
+/* First-visit welcome / onboarding popup (sra-auth.js) */
+.sra-welcome-card { width: min(420px, 100%); padding-top: 22px; animation: sraWelcomeIn .42s cubic-bezier(.2, .9, .25, 1); }
+@keyframes sraWelcomeIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
+.sra-welcome-head { position: relative; display: grid; place-items: center; margin-bottom: 6px; }
+.sra-welcome-head .sra-auth-logo { width: 62px; height: 62px; }
+.sra-welcome-om { position: absolute; top: -6px; right: calc(50% - 56px); font-family: var(--sra-display); font-size: 20px;
+  color: var(--sra-gold-deep); opacity: .85; }
+.sra-welcome-title { font-size: 27px; }
+.sra-welcome-sub { margin-bottom: 14px; }
+.sra-welcome-langrow { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 0 14px; }
+.sra-welcome-langlbl { font-size: 12.5px; color: var(--sra-muted); font-weight: 600; }
+.sra-welcome-langpills { display: inline-flex; border: 1px solid var(--sra-hair-strong); border-radius: 999px; overflow: hidden; background: var(--sra-vellum); }
+.sra-welcome-lang { border: 0; background: transparent; padding: 7px 16px; font: 600 13.5px/1 var(--sra-body); color: var(--sra-ink); cursor: pointer; }
+.sra-welcome-lang.active { background: linear-gradient(135deg, #5A1A1F, #3A0D16); color: #F6E7C1; }
+[data-theme="night"] .sra-welcome-lang.active { background: linear-gradient(135deg, #E9CF8E, #B08D3E); color: #1A1209; }
+.sra-welcome-input { width: 100%; height: 48px; margin-bottom: 10px; padding: 0 14px; border: 1px solid var(--sra-hair-strong);
+  border-radius: 12px; background: var(--sra-vellum); font: 600 15.5px/1 var(--sra-body); color: var(--sra-ink); outline: 0; }
+.sra-welcome-input:focus, .sra-welcome-phone:focus-within { border-color: var(--sra-gold-deep); }
+.sra-welcome .sra-auth-or { margin: 14px 0 10px; }
+.sra-welcome-skip { display: block; width: 100%; margin-top: 12px; color: var(--sra-muted); }
+.sra-welcome-skip:hover { color: var(--sra-gold-deep); }
+
 :root body .sra-gd-me { margin: 4px 2px 10px; padding: 14px; border: 1px solid var(--sra-hair-strong); border-radius: 14px; background: var(--sra-vellum); }
 :root body .sra-gd-me-row { display: flex; align-items: center; gap: 12px; }
 :root body .sra-gd-me-av { width: 44px; height: 44px; flex: none; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
