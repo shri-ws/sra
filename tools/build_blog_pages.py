@@ -21,6 +21,7 @@ import json
 import math
 import re
 import sys
+import urllib.parse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -195,6 +196,17 @@ PAGE = '''<!DOCTYPE html>
       <a class="bl-btn" href="patrika.html">📜 मुफ़्त जन्म पत्रिका बनाएँ</a>
       <a class="bl-btn bl-btn-2" href="consultation.html">🔮 व्यक्तिगत परामर्श</a>
     </div>
+    <div class="bl-share" aria-label="यह लेख साझा करें">
+      <span class="bl-share-label">📤 यह लेख साझा करें</span>
+      <div class="bl-share-row">
+        <a class="bl-share-btn wa" href="https://wa.me/?text={share_wa}" target="_blank" rel="noopener" aria-label="WhatsApp पर साझा करें">WhatsApp</a>
+        <a class="bl-share-btn tg" href="https://t.me/share/url?url={share_u}&amp;text={share_t}" target="_blank" rel="noopener" aria-label="Telegram पर साझा करें">Telegram</a>
+        <a class="bl-share-btn fb" href="https://www.facebook.com/sharer/sharer.php?u={share_u}" target="_blank" rel="noopener" aria-label="Facebook पर साझा करें">Facebook</a>
+        <a class="bl-share-btn tw" href="https://twitter.com/intent/tweet?text={share_t}&amp;url={share_u}" target="_blank" rel="noopener" aria-label="X (Twitter) पर साझा करें">X</a>
+        <a class="bl-share-btn em" href="mailto:?subject={share_t}&amp;body={share_wa}" aria-label="ईमेल से भेजें">ईमेल</a>
+        <a class="bl-share-btn cp" href="{url}" onclick="navigator.clipboard.writeText(this.href);this.textContent='✓ लिंक कॉपी हुआ';return false;" aria-label="लिंक कॉपी करें">🔗 लिंक कॉपी</a>
+      </div>
+    </div>
   </article>
   <section class="bl-related">
     <h2>और पढ़ें</h2>
@@ -289,6 +301,9 @@ def main():
         others.sort(key=lambda o: o['category'] != a['category'])
         related = ''.join(f'<li><a href="blog/{o["slug"]}.html">{esc(o["h1"])}</a></li>' for o in others[:6])
         faq = '\n'.join(f'<details><summary>{esc(q)}</summary><p>{inline(ans)}</p></details>' for q, ans in a['faq'])
+        share_u = urllib.parse.quote(url, safe='')
+        share_t = urllib.parse.quote(a['title'])
+        share_wa = urllib.parse.quote(f"{a['title']} — {url}")
         page = PAGE.format(
             title=esc(a['title']), description=esc(a['description']), keywords=esc(a['keywords']), url=url,
             image=f'{SITE}/{image_rel}', image_rel=image_rel, banner=esc(a['banner']), date=a['date'],
@@ -297,7 +312,7 @@ def main():
             read_min=max(3, math.ceil(words(a['body_md']) / 180)), snippet=inline(a['snippet']),
             toc=''.join(f'<li><a href="blog/{a["slug"]}.html#{hid}">{inline(t)}</a></li>' for hid, t in toc),
             body=body, faq=faq, cited=', '.join(c.replace('BPHS.', '') for c in dict.fromkeys(cited)) or '—',
-            related=related)
+            related=related, share_u=share_u, share_t=share_t, share_wa=share_wa)
         (OUT / f"{a['slug']}.html").write_text(page, encoding='utf-8')
         index.append({'id': a['id'], 'slug': a['slug'], 'url': f"blog/{a['slug']}.html", 'title': a['h1'],
                       'image': image_rel, 'date': a['date'], 'category': a['category'], 'snippet': a['snippet']})
