@@ -400,15 +400,31 @@
             font: 700 13.5px/1 system-ui, sans-serif; padding: 10px 18px; display: inline-flex; align-items: center; gap: 7px;
         }
         .btn-print-report:hover { filter: brightness(1.08); }
+        .btn-gunmilan-link {
+            text-decoration: none; cursor: pointer; border: 1.5px solid #B78103; border-radius: 10px;
+            background: transparent; color: #7a4a12;
+            font: 700 13.5px/1 system-ui, sans-serif; padding: 10px 16px; display: inline-flex; align-items: center; gap: 7px;
+        }
+        .btn-gunmilan-link:hover { background: rgba(183,129,3,0.08); }
+        [data-theme="night"] .btn-gunmilan-link { color: #E9CF8E; border-color: #B08D3E; }
         .print-only { display: none; }
         @media print {
-            body * { visibility: hidden !important; }
-            #resultsTabsWrapper, #resultsTabsWrapper * { visibility: visible !important; }
-            #resultsTabsWrapper { position: absolute; left: 0; top: 0; width: 100%; margin: 0 !important; padding: 0 !important; display: block !important; }
+            /* Hide the page chrome, keep only the report — in normal document flow so it
+               never clips or prints blank (no visibility/absolute trick). Everything at
+               body level except the main container is hidden, so injected navs, drawers,
+               toasts, modals and the paywall never reach the page. */
+            body > *:not(#mainContainer) { display: none !important; }
             .no-print, .results-tab-bar { display: none !important; }
+            #mainContainer { filter: none !important; -webkit-filter: none !important; }
+            #mainContainer > *:not(#resultsTabsWrapper) { display: none !important; }
+            #resultsTabsWrapper { display: block !important; margin: 0 !important; padding: 0 !important; }
             .tab-content-panel { display: block !important; page-break-inside: avoid; margin-bottom: 16px; }
             .print-only { display: block !important; text-align: center; margin-bottom: 18px; }
             .stat-box, .chart-box, table { page-break-inside: avoid; }
+            /* Force a light, legible report whatever the on-screen theme */
+            html, body, #mainContainer, #resultsTabsWrapper { background: #fff !important; color: #1a1a1a !important; }
+            #resultsTabsWrapper :not(.stat-box):not([style*="color"]) { color: #1a1a1a !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
 
         .btn-gold {
@@ -1206,8 +1222,9 @@
                 <div style="font-family:serif; font-size:22px; font-weight:700;">विवाह मुहूर्त रिपोर्ट</div>
                 <div style="font-size:13px; opacity:.8; margin-top:2px;">श्री रामजी ज्योतिष — शुद्ध मुहूर्त चिंतामणि विश्लेषण</div>
             </div>
-            <!-- PRINT / PDF BUTTON -->
-            <div class="results-print-row no-print" style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+            <!-- PRINT / PDF BUTTON + GUN MILAN LINK -->
+            <div class="results-print-row no-print" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <a href="gun-milan.html" class="btn-gunmilan-link" title="गुण मिलान (36 गुण अष्टकूट)">💑 गुण मिलान (36 गुण) देखें ➔</a>
                 <button type="button" class="btn-print-report" onclick="printMuhurtReport()">🖨️ प्रिंट करें / PDF सेव करें</button>
             </div>
             <!-- TABS NAVIGATION BAR -->
@@ -2396,45 +2413,20 @@
         }
 
         function printMuhurtReport() {
-            const wrap = document.getElementById('resultsTabsWrapper');
-            if (!wrap) { try { window.print(); } catch (e) {} return; }
-
-            // Render the full report into a hidden iframe (all three tabs expanded, light
-            // theme) and print that. An iframe works on phones too (no popup blocker) and is
-            // built with the DOM API — no literal HTML-tag strings, so nothing can corrupt it.
-            const old = document.getElementById('sraPrintFrame');
-            if (old) old.remove();
-            const frame = document.createElement('iframe');
-            frame.id = 'sraPrintFrame';
-            frame.setAttribute('aria-hidden', 'true');
-            frame.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0; visibility:hidden;';
-            document.body.appendChild(frame);
-
-            const clone = wrap.cloneNode(true);
-            clone.style.display = 'block';
-            clone.querySelectorAll('.no-print').forEach(n => n.remove());
-            const bar = clone.querySelector('.results-tab-bar'); if (bar) bar.remove();
-            clone.querySelectorAll('.tab-content-panel').forEach(n => { n.style.display = 'block'; n.style.marginBottom = '24px'; });
-            const ph = clone.querySelector('.print-only'); if (ph) ph.style.display = 'block';
-
-            const doc = frame.contentWindow.document;
-            doc.documentElement.setAttribute('lang', document.documentElement.getAttribute('lang') || 'hi');
-            // Carry the site stylesheets so the report keeps its look
-            document.querySelectorAll('link[rel="stylesheet"], style').forEach(n => { doc.head.appendChild(doc.importNode(n, true)); });
-            const meta = doc.createElement('meta'); meta.setAttribute('charset', 'utf-8'); doc.head.appendChild(meta);
-            const ttl = doc.createElement('title'); ttl.textContent = 'विवाह मुहूर्त रिपोर्ट'; doc.head.appendChild(ttl);
-            const st = doc.createElement('style');
-            st.textContent = 'html,body{background:#fff !important; color:#1a1a1a !important; margin:0; padding:20px;}' +
-                '.tab-content-panel{display:block !important;} @page{margin:12mm;}';
-            doc.head.appendChild(st);
-            doc.body.appendChild(doc.importNode(clone, true));
-
-            const go = () => {
-                try { frame.contentWindow.focus(); frame.contentWindow.print(); }
-                catch (e) { try { window.print(); } catch (e2) {} }
+            // Expand all three result tabs so the whole report prints, then open the browser's
+            // print dialog (from there the user can print or Save as PDF). The @media print
+            // rules hide the page chrome and force a light, legible report.
+            try {
+                document.querySelectorAll('#resultsTabsWrapper .tab-content-panel').forEach(p => { p.dataset._disp = p.style.display; p.style.display = 'block'; });
+            } catch (e) {}
+            const restore = () => {
+                try { document.querySelectorAll('#resultsTabsWrapper .tab-content-panel').forEach(p => { p.style.display = (p.dataset._disp || ''); delete p.dataset._disp; }); } catch (e) {}
+                window.removeEventListener('afterprint', restore);
             };
-            // give cloned stylesheets a moment to load, then print
-            setTimeout(go, 600);
+            window.addEventListener('afterprint', restore);
+            try { window.print(); } catch (e) { restore(); }
+            // Safety net if afterprint never fires (some browsers)
+            setTimeout(restore, 3000);
         }
 
         // Fill the groom/bride fields from a Gun Milan hand-off (localStorage, one-shot).
