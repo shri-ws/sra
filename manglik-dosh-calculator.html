@@ -134,18 +134,20 @@
 
   <style>
     :root {
-      --primary: #7c1305;
-      --primary-dark: #580c02;
-      --primary-light: #fdf2f2;
-      --gold: #c5a059;
-      --gold-dark: #9a7b38;
-      --gold-light: #fef9c3;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --border-gold: rgba(197, 160, 89, 0.4);
+      /* Colours follow the shared home palette (sra-elegance.css --sra-* tokens),
+         so the tone matches the site and light⇄night switch automatically. */
+      --primary: var(--sra-kumkum);
+      --primary-dark: var(--sra-kumkum);
+      --primary-light: var(--sra-wash);
+      --gold: var(--sra-gold);
+      --gold-dark: var(--sra-gold-deep);
+      --gold-light: var(--sra-wash);
+      --bg: var(--sra-paper);
+      --card-bg: var(--sra-vellum);
+      --text: var(--sra-ink);
+      --text-muted: var(--sra-muted);
+      --border: var(--sra-hair);
+      --border-gold: var(--sra-hair-strong);
       --font-serif: 'Cinzel', serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
       --font-hindi: 'Mukta', 'Noto Sans Devanagari', sans-serif;
@@ -154,19 +156,9 @@
       --shadow-lg: 0 20px 35px -10px rgba(124, 19, 5, 0.15), 0 1px 3px rgba(0,0,0,0.05);
     }
 
+    /* Night mode inherits the shared warm-dark palette through the --sra-* tokens
+       (no more slate); only the shadow gets a night value. */
     [data-theme="night"] {
-      --primary: #991b1b;
-      --primary-dark: #7f1d1d;
-      --primary-light: #2c0b0e;
-      --gold: #d4af37;
-      --gold-dark: #b48220;
-      --gold-light: #3f2e05;
-      --bg: #090d16;
-      --card-bg: #111827;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --border: #1e293b;
-      --border-gold: rgba(212, 175, 55, 0.3);
       --shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
@@ -726,7 +718,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 6px 12px;
-      background: #fffcf6;
+      background: var(--card-bg);
       border: 1px solid var(--border-gold);
       border-radius: 8px;
       padding: 8px 12px;
@@ -802,7 +794,7 @@
       box-shadow: 0 4px 16px rgba(180, 83, 9, 0.08);
     }
     .kundli-snapshot-box {
-      background: #fffcf6;
+      background: var(--card-bg);
       border: 1.5px solid var(--border-gold);
       border-radius: 12px;
       padding: 8px;
@@ -967,7 +959,7 @@
     .parihara-audit-card {
       background: var(--card-bg, #fff);
       border: 1px solid var(--border);
-      border-left: 3.5px solid #cbd5e1;
+      border-left: 3.5px solid var(--border-gold);
       border-radius: 8px;
       padding: 8px 10px;
       font-size: 12px;
@@ -2421,7 +2413,7 @@
             </div>
 
             <!-- TOP ACTION BUTTONS BAR (Prominently visible on Mobile immediately upon unlock) -->
-            <div class="no-print report-top-actions" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 14px; padding:10px 12px; background:#fffcf6; border:1.5px solid var(--border-gold); border-radius:10px; box-shadow:0 2px 8px rgba(180,83,9,0.08);">
+            <div class="no-print report-top-actions" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 14px; padding:10px 12px; background:var(--card-bg); border:1.5px solid var(--border-gold); border-radius:10px; box-shadow:0 2px 8px rgba(180,83,9,0.08);">
               <button type="button" onclick="shareManglikReportOnWhatsApp()" style="background:linear-gradient(135deg, #25D366, #128C7E); color:#ffffff; font-family:var(--font-hindi); font-size:14px; font-weight:800; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 3px 12px rgba(37,211,102,0.35); display:inline-flex; align-items:center; gap:8px;">
                 <span style="font-size:16px;">💬</span> <span>WhatsApp पर भेजें</span>
               </button>
@@ -2580,7 +2572,7 @@
             </div>
 
             <!-- Formal Certified Footer -->
-            <div style="text-align:center; border-top:1px solid #cbd5e1; padding-top:8px; margin-top:14px; font-size:10.5px; color:#64748b; font-family:var(--font-hindi);">
+            <div style="text-align:center; border-top:1px solid var(--border-gold); padding-top:8px; margin-top:14px; font-size:10.5px; color:#64748b; font-family:var(--font-hindi);">
               © ${new Date().getFullYear()} श्री रामजी एस्ट्रो (shriramjiastro.in) • काशी (वाराणसी) • True Lahiri Ayanamsha • प्रामाणिक त्रि-लग्न भौम परीक्षण प्रमाण-पत्र
             </div>
           </div>
@@ -2597,7 +2589,7 @@
             <button type="button" onclick="generateNewReport()" style="background:#fff; border:1.5px solid var(--border); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
               <span>🔄</span> <span>कुण्डली बदलें</span>
             </button>
-            <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fffcf6; border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <button type="button" onclick="openFullKundaliInPatrika()" style="background:var(--card-bg); border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
               <span>✨</span> <span>पत्रिका (D1-D60) ➔</span>
             </button>
           </div>
