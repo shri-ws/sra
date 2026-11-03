@@ -6,7 +6,7 @@
    here and in api/master_key.php. */
 (function() {
   const MASTER_SALT = 'ae6f38cffcbc76ea';
-  const MASTER_HASH = '586640b5bb4ae92d41f2413bd3ff88b5ef4e43720259f76d7294aad29e5d3c86';
+  const MASTER_HASH = 'f0fe08d25612e21dfbf70e08a0028fc15c7dbc0d8089d335544586f4ac15c15a';
   const ROUNDS = 50000;
 
   // Compact synchronous SHA-256 (hex in → hex out); the unlock handlers on the

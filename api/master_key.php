@@ -11,5 +11,5 @@ function sra_is_master_key($code) {
     for ($i = 0; $i < 50000; $i++) {
         $h = hash('sha256', $h);
     }
-    return hash_equals('586640b5bb4ae92d41f2413bd3ff88b5ef4e43720259f76d7294aad29e5d3c86', $h);
+    return hash_equals('f0fe08d25612e21dfbf70e08a0028fc15c7dbc0d8089d335544586f4ac15c15a', $h);
 }
