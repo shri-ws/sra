@@ -219,32 +219,36 @@
   }
 
   // open a tab: a button is clicked; a link (e.g. कुंडली → patrika.html) is followed
-  function open(tab) {
-    if (!tab || isActive(tab)) return;
-    if (tab.tagName === 'A') { if (tab.href) location.href = tab.href; }
-    else tab.click();
+  // Open a tab: a page button is switched to; a link (कुंडली → patrika.html) is left for a tap,
+  // so the bar can rest on it and you can swipe past it without leaving the page.
+  function openPage(tab) {
+    if (!tab || tab.tagName === 'A' || isActive(tab)) return;
+    tab.click();
   }
 
-  // The finger has lifted: open the tab the row is about to snap to right away, so the page
-  // below moves together with the tab row instead of after it has stopped
+  // The finger has lifted: move exactly ONE tab in the swipe direction, so nothing
+  // (such as कुंडली between होम and पञ्चाङ्ग) is ever skipped by flick momentum.
   function onRelease(row) {
     if (!row._swiping || !row.classList.contains('sra-onetab')) return;
     const w = row.clientWidth || 1, n = tabs(row).length;
     const moved = row.scrollLeft / w - row._startIdx;
     let target = row._startIdx;
-    if (moved > 0.2) target = Math.max(row._startIdx + 1, Math.round(row.scrollLeft / w));
-    else if (moved < -0.2) target = Math.min(row._startIdx - 1, Math.round(row.scrollLeft / w));
+    if (moved > 0.12) target = row._startIdx + 1;
+    else if (moved < -0.12) target = row._startIdx - 1;
     target = Math.max(0, Math.min(n - 1, target));
-    row._released = true;
-    open(tabs(row)[target]);
+    // land on exactly that one tab; turn snap off briefly so momentum cannot carry further
+    row.style.scrollSnapType = 'none';
+    row.scrollTo({ left: target * w, behavior: 'smooth' });
+    clearTimeout(row._snapT);
+    row._snapT = setTimeout(() => { row.style.scrollSnapType = ''; }, 420);
+    openPage(tabs(row)[target]);
   }
 
-  // scrolling has stopped: make sure the tab in view is the open one
+  // scrolling has stopped
   function settle(row) {
     if (!row._swiping || !row.classList.contains('sra-onetab')) return;
     row._swiping = false;
-    row._released = false;
-    open(tabs(row)[current(row)]);
+    openPage(tabs(row)[current(row)]);
   }
 
   function showActive(row) {

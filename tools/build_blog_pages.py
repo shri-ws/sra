@@ -157,7 +157,7 @@ PAGE = '''<!DOCTYPE html>
 <script src="theme.js"></script>
 <link rel="stylesheet" href="sra-elegance.css">
 <link rel="stylesheet" href="blog/blog.css">
-<script src="sra-ui.js?v=30" defer></script>
+<script src="sra-ui.js?v=31" defer></script>
 <script src="sra-auth.js" defer></script>
 <script src="sra-records.js" defer></script>
 <script src="sra-translate.js" defer></script>

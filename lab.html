@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ज्योतिष प्रयोगशाला | Shri Ramji Astro</title>
+<meta name="description" content="बृहत्पाराशरहोराशास्त्र के श्लोकों को अपनी कुंडली पर प्रयोग करके सीखें — ग्रहस्वरूप, राशि, विशेष लग्न, षोडशवर्ग और बारह भावों के फल।">
+<link rel="canonical" href="https://shriramjiastro.in/lab.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ज्योतिष प्रयोगशाला | Shri Ramji Astro">
+<meta property="og:description" content="बृहत्पाराशरहोराशास्त्र के श्लोकों को अपनी कुंडली पर प्रयोग करके सीखें।">
+<meta property="og:url" content="https://shriramjiastro.in/lab.html">
+<meta property="og:image" content="https://shriramjiastro.in/logo.jpg">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Tiro+Devanagari+Sanskrit&family=Rozha+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fbf8f2; --surface: #ffffff; --surface-2: #f1e9da; --ink: #17110a; --muted: #43382b;
+  --line: #d3c3a6; --accent: #9a4205; --accent-soft: #fbe3c8; --good: #1d6b37; --good-soft: #d9f0e0;
+  --bad: #a82a1c; --bad-soft: #fbe0dc; --mid: #6e5205; --mid-soft: #fbefc6; --shadow: 0 1px 2px rgba(60,40,10,.08), 0 6px 18px rgba(60,40,10,.08);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f0d0b; --surface: #1c1915; --surface-2: #2b2620; --ink: #ffffff; --muted: #e2d8c8;
+  --line: #5a4e3e; --accent: #ffb366; --accent-soft: #4a2e12; --good: #8ee6a8; --good-soft: #17361f;
+  --bad: #ff9d90; --bad-soft: #451d18; --mid: #ffdc7a; --mid-soft: #3d3110; --shadow: none;
+} }
+:root[data-theme="dark"] {
+  --bg: #0f0d0b; --surface: #1c1915; --surface-2: #2b2620; --ink: #ffffff; --muted: #e2d8c8;
+  --line: #5a4e3e; --accent: #ffb366; --accent-soft: #4a2e12; --good: #8ee6a8; --good-soft: #17361f;
+  --bad: #ff9d90; --bad-soft: #451d18; --mid: #ffdc7a; --mid-soft: #3d3110; --shadow: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.75 'Noto Sans Devanagari', system-ui, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.top { border-bottom: 1px solid var(--line); background: var(--surface); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; padding-bottom: 14px; }
+.brand { font-family: 'Rozha One', serif; font-size: 26px; color: var(--accent); line-height: 1.1; }
+.brand small { display: block; font-family: 'Noto Sans Devanagari', sans-serif; font-size: 14px; color: var(--muted); }
+.home { font-size: 14px; text-decoration: none; white-space: nowrap; }
+nav.tabs { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+nav.tabs .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+nav.tabs button { flex: 0 0 auto; border: 0; background: none; color: var(--muted); font: 600 16px 'Noto Sans Devanagari', sans-serif; padding: 12px 14px; border-bottom: 3px solid transparent; cursor: pointer; }
+nav.tabs button.on { color: var(--ink); border-bottom-color: var(--accent); }
+main { padding: 24px 0 64px; }
+section.station { display: none; }
+section.station.on { display: block; }
+h1 { font-weight: 700; font-size: 30px; margin: 0 0 4px; }
+h2 { font-size: 20px; margin: 28px 0 10px; }
+.lede { color: var(--muted); margin: 0 0 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.card h3 { margin: 0 0 6px; font-size: 17px; }
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.vchip { display: inline-flex; align-items: center; gap: 2px; border: 1px solid var(--line); background: var(--surface-2); color: var(--accent); font: 600 14px 'Noto Sans Devanagari', sans-serif; padding: 2px 10px; border-radius: 999px; cursor: pointer; margin: 2px 4px 2px 0; }
+.vchip:hover { border-color: var(--accent); }
+.note { font-size: 15px; color: var(--mid); background: var(--mid-soft); border-radius: 8px; padding: 6px 10px; margin-top: 8px; }
+.shloka { font-family: 'Tiro Devanagari Sanskrit', serif; font-size: 21px; line-height: 1.9; white-space: pre-line; color: var(--ink); }
+.tree { display: grid; gap: 10px; }
+.tree .row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.node { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 150px; cursor: pointer; }
+.node b { display: block; font-size: 15px; }
+.node span { font-size: 14px; color: var(--muted); }
+.node.top { background: var(--accent-soft); border-color: var(--accent); }
+.arrow { text-align: center; color: var(--muted); font-size: 18px; line-height: 1; }
+.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.pcard { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 12px; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.pcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.pcard .glyph { font-size: 26px; line-height: 1; }
+.pcard b { display: block; font-size: 17px; margin-top: 4px; }
+.pcard span { font-size: 15px; color: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-size: 16px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 700; color: var(--muted); font-size: 14.5px; }
+.tablewrap { overflow-x: auto; }
+.pill { display: inline-block; font-size: 14px; font-weight: 700; padding: 1px 10px; border-radius: 999px; white-space: nowrap; }
+.p-good { background: var(--good-soft); color: var(--good); }
+.p-bad { background: var(--bad-soft); color: var(--bad); }
+.p-mid { background: var(--mid-soft); color: var(--mid); }
+.p-neutral { background: var(--surface-2); color: var(--muted); }
+.bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; min-width: 80px; }
+.bar i { display: block; height: 100%; background: var(--good); border-radius: 99px; }
+label { font-size: 15px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; }
+input, select { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.form { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); align-items: end; }
+button.primary { font: 700 16px 'Noto Sans Devanagari', sans-serif; background: var(--accent); color: var(--bg); border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer; }
+button.ghost { font: 600 14px 'Noto Sans Devanagari', sans-serif; background: none; color: var(--accent); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+.status { font-size: 15px; color: var(--muted); margin-top: 8px; }
+.status.err { color: var(--bad); white-space: pre-line; }
+.zodiac { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; margin: 10px 0; }
+.zodiac div { font-size: 14px; text-align: center; padding: 6px 2px; border-radius: 6px; background: var(--surface-2); color: var(--muted); }
+.zodiac div.exalt { background: var(--good-soft); color: var(--good); font-weight: 700; }
+.zodiac div.debil { background: var(--bad-soft); color: var(--bad); font-weight: 700; }
+.zodiac div.mt, .zodiac div.own { background: var(--mid-soft); color: var(--mid); font-weight: 700; }
+.zodiac div.cur { outline: 2px solid var(--accent); outline-offset: -2px; }
+.big { font-size: 26px; font-weight: 700; }
+.matrix td, .matrix th { text-align: center; padding: 6px 4px; font-size: 14.5px; }
+.matrix td.cell { cursor: pointer; }
+.matrix td.self { background: var(--surface-2); }
+.quiz .opt { display: block; width: 100%; text-align: left; margin: 6px 0; font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+.quiz .opt.right { border-color: var(--good); background: var(--good-soft); }
+.quiz .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; max-width: 560px; width: calc(100% - 32px); background: var(--surface); color: var(--ink); }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog .dh { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+dialog .db { padding: 16px; }
+dialog .meaning { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+dialog .meaning b { display: block; font-size: 15px; color: var(--muted); margin-bottom: 2px; }
+dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
+.close { border: 0; background: none; font-size: 22px; color: var(--muted); cursor: pointer; }
+@media (max-width: 600px) { h1 { font-size: 25px; } .zodiac { grid-template-columns: repeat(6, 1fr); } .brand { font-size: 22px; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand">ज्योतिष प्रयोगशाला<small>बृहत्पाराशरहोराशास्त्र — श्लोक से कुंडली तक</small></div>
+  <a class="home" href="/">← मुख्य पृष्ठ</a>
+</div></header>
+
+<nav class="tabs" aria-label="प्रयोगशाला के स्टेशन"><div class="wrap">
+  <button data-tab="entry" class="on">1 प्रवेश-द्वार</button>
+  <button data-tab="cards">2 ग्रह-परिचय</button>
+  <button data-tab="rules">3 अध्याय 3 के नियम</button>
+  <button data-tab="sandbox">4 प्रयोग-मेज़</button>
+  <button data-tab="chart">5 आपकी कुंडली</button>
+  <button data-tab="ch4">6 अध्याय 4 की गणना</button>
+  <button data-tab="ch5">7 राशि-परिचय</button>
+  <button data-tab="ch6">8 षोडशवर्ग</button>
+  <button data-tab="ch8">9 राशि-दृष्टि</button>
+  <button data-tab="bhava">10 भाव-फल</button>
+  <button data-tab="bhavesh">11 भावेश-फल</button>
+  <button data-tab="quiz">12 प्रश्नोत्तरी</button>
+</div></nav>
+
+<main class="wrap">
+  <section class="station on" id="entry">
+    <h1>ज्योतिष क्यों काम करता है?</h1>
+    <p class="lede">अध्याय 1 (सृष्टिक्रम) में पराशर बताते हैं कि ग्रह फल क्यों देते हैं। किसी भी खाने या श्लोक-चिह्न पर क्लिक करें तो पुस्तक का मूल श्लोक खुलेगा।</p>
+    <div class="card"><div class="tree" id="tree"></div></div>
+    <div id="ch1Sections"></div>
+  </section>
+
+  <section class="station" id="cards">
+    <h1>ग्रह-परिचय</h1>
+    <p class="lede">अध्याय 2 (अवतार) और अध्याय 3 (ग्रहस्वरूप) से हर ग्रह का परिचय। ग्रह चुनें।</p>
+    <div class="pcards" id="pcards"></div>
+    <div class="card" id="pdetail" style="margin-top:14px"></div>
+    <div id="ch2Sections"></div>
+  </section>
+
+  <section class="station" id="rules">
+    <h1>अध्याय 3 के नियम</h1>
+    <p class="lede">ये वे नियम हैं जिन्हें अगले दो स्टेशनों में आप कुंडली पर चलाकर देखेंगे।</p>
+    <div id="ruleCards"></div>
+  </section>
+
+  <section class="station" id="sandbox">
+    <h1>प्रयोग-मेज़</h1>
+    <p class="lede">ग्रह को किसी भी राशि-अंश पर रखें और देखें कि श्लोक के अनुसार उसकी अवस्था और शुभ फल कैसे बदलते हैं।</p>
+    <div class="card">
+      <div class="form">
+        <div><label for="sbPlanet">ग्रह</label><select id="sbPlanet"></select></div>
+        <div><label for="sbSign">राशि</label><select id="sbSign"></select></div>
+        <div style="grid-column: span 2"><label for="sbDeg">अंश: <b id="sbDegOut"></b></label><input id="sbDeg" type="range" min="0" max="29.9" step="0.1" value="10"></div>
+      </div>
+      <div class="zodiac" id="sbZodiac"></div>
+      <div id="sbResult"></div>
+    </div>
+    <h2>मैत्री-खोजी (3.56–62)</h2>
+    <div class="card">
+      <div class="form">
+        <div><label for="frA">ग्रह</label><select id="frA"></select></div>
+        <div><label for="frB">दूसरा ग्रह</label><select id="frB"></select></div>
+        <div style="grid-column: span 2"><label for="frH">दूसरा ग्रह पहले से किस भाव में: <b id="frHOut"></b></label><input id="frH" type="range" min="1" max="12" step="1" value="4"></div>
+      </div>
+      <div id="frResult" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="station" id="chart">
+    <h1>आपकी कुंडली पर प्रयोग</h1>
+    <p class="lede">जन्म-विवरण डालें। गणना Swiss Ephemeris इंजन से होती है, और हर परिणाम के साथ उसका श्लोक दिखता है।</p>
+    <div class="card">
+      <div class="form">
+        <div><label for="cDate">जन्म तिथि</label><input id="cDate" type="date" value="1990-05-15"></div>
+        <div><label for="cTime">जन्म समय</label><input id="cTime" type="time" value="10:30"></div>
+        <div><label for="cCity">स्थान</label><select id="cCity"></select></div>
+        <div><label for="cLat">अक्षांश</label><input id="cLat" type="number" step="0.0001"></div>
+        <div><label for="cLon">देशान्तर</label><input id="cLon" type="number" step="0.0001"></div>
+        <div><label for="cTz">समय-क्षेत्र (घंटे)</label><input id="cTz" type="number" step="0.25"></div>
+        <div><button class="primary" id="cGo">प्रयोग चलाएँ</button></div>
+      </div>
+      <div class="status" id="cStatus"></div>
+    </div>
+    <div id="chartOut"></div>
+  </section>
+
+  <section class="station" id="ch4">
+    <h1>अध्याय 4: कुंडली की गणना</h1>
+    <p class="lede">ग्रहादिसाधनाध्याय में पराशर अप्रकाश ग्रह, गुलिक, प्राणपद, लग्न, भाव और विशेष लग्न निकालना सिखाते हैं। यहाँ हर गणना आपकी कुंडली पर कदम-दर-कदम चलती है।</p>
+    <div id="ch4Out"><div class="card"><p style="margin:0">पहले स्टेशन 5 में अपनी कुंडली बनाएँ, फिर यहाँ उसकी गणना दिखेगी।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+    <h2>अध्याय 4 के श्लोक</h2>
+    <div id="ch4Sections"></div>
+  </section>
+
+  <section class="station" id="ch5">
+    <h1>अध्याय 5: राशि-परिचय</h1>
+    <p class="lede">राशिशीलाध्याय में बारह राशियों के अंग, स्वभाव और गुण हैं। राशि चुनें; हर गुण के साथ श्लोक का मूल शब्द दिया है।</p>
+    <div class="pcards" id="signCards"></div>
+    <div class="card" id="signDetail" style="margin-top:14px"></div>
+    <h2>काल-पुरुष पर आपकी कुंडली (5.4–5)</h2>
+    <div id="ch5Chart"><div class="card"><p style="margin:0">इस स्टेशन का कुंडली वाला भाग देखने के लिए पहले स्टेशन 5 में अपनी कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+    <h2>निषेक (गर्भाधान) का समय (5.25–30)</h2>
+    <div id="nishekaOut"><div class="card"><p style="margin:0">निषेक की गणना देखने के लिए पहले स्टेशन 5 में कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+    <h2>अध्याय 5 के श्लोक</h2>
+    <div id="ch5Sections"></div>
+  </section>
+
+  <section class="station" id="ch6">
+    <h1>अध्याय 6–7: षोडशवर्ग</h1>
+    <p class="lede">एक राशि को 2, 3, 4… 60 भागों में बाँटने पर सोलह वर्ग बनते हैं। राशि और अंश बदलकर देखिए कि हर वर्ग में ग्रह कहाँ पहुँचता है और उस भाग का देवता कौन है।</p>
+    <div class="card">
+      <div class="form">
+        <div><label for="vgSign">राशि</label><select id="vgSign"></select></div>
+        <div style="grid-column: span 2"><label for="vgDeg">अंश: <b id="vgDegOut"></b></label><input id="vgDeg" type="range" min="0" max="29.99" step="0.01" value="13.5"></div>
+      </div>
+      <div class="tablewrap" id="vgTable" style="margin-top:10px"></div>
+    </div>
+    <h2>आपकी कुंडली के सोलह वर्ग</h2>
+    <div id="ch6Chart"><div class="card"><p style="margin:0">इस स्टेशन का कुंडली वाला भाग देखने के लिए पहले स्टेशन 5 में अपनी कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+    <h2>अध्याय 6 के श्लोक</h2>
+    <div id="ch6Sections"></div>
+    <h2>अध्याय 7 के श्लोक</h2>
+    <div id="ch7Sections"></div>
+  </section>
+
+  <section class="station" id="ch8">
+    <h1>अध्याय 8: राशि-दृष्टि</h1>
+    <p class="lede">दृष्टिभेदाध्याय का नियम: चर राशि स्थिर को, स्थिर चर को (पास वाली को छोड़कर), और द्विस्वभाव द्विस्वभाव को देखती है। चक्र में किसी राशि पर क्लिक करें।</p>
+    <div class="card"><div class="grid g2" style="align-items:center"><div id="chakra"></div><div id="chakraWhy"></div></div></div>
+    <h2>आपकी कुंडली में राशि-दृष्टि</h2>
+    <div id="ch8Chart"><div class="card"><p style="margin:0">इस स्टेशन का कुंडली वाला भाग देखने के लिए पहले स्टेशन 5 में अपनी कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+    <h2>अध्याय 8 के श्लोक</h2>
+    <div id="ch8Sections"></div>
+  </section>
+
+  <section class="station" id="bhava">
+    <h1>अध्याय 12 से आगे: भाव-फल</h1>
+    <p class="lede">भाव चुनें। ऊपर उस भाव का विषय और आपकी कुंडली में उसकी स्थिति, नीचे उस भाव के अध्याय के नियम। हर नियम आपकी कुंडली पर परखा जाता है, और "गणना देखें" में हर शर्त का परिणाम दिखता है।</p>
+    <div class="pcards" id="bhavaCards"></div>
+    <div class="card" id="bhavaFacts" style="margin-top:14px"></div>
+    <h2 id="bhavaRulesHead"></h2>
+    <div id="bhavaRules"></div>
+  </section>
+
+  <section class="station" id="bhavesh">
+    <h1>अध्याय 25: भावेश-फल</h1>
+    <p class="lede">हर भाव का स्वामी बारह भावों में से जहाँ बैठे, उसका फल। श्लोक 1–144 एक 12 × 12 तालिका हैं: पंक्ति वह भाव है जिसका स्वामी है, स्तम्भ वह भाव जिसमें वह बैठा है। किसी खाने पर क्लिक करें तो उसका श्लोक और अर्थ खुलेगा।</p>
+    <div id="bhaveshMine"><div class="card"><p style="margin:0">अपनी कुंडली के बारह भावेश-फल देखने के लिए पहले स्टेशन 5 में कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+    <h2>पूरी तालिका</h2>
+    <div class="card tablewrap" id="bhaveshGrid"></div>
+    <div class="note">फल ग्रह के बल के अनुसार घटता-बढ़ता है: पूर्ण बली हो तो पूरा, आधा बली हो तो आधा, हीन बल हो तो चौथाई (25.145, 25.148)। जो ग्रह दो भावों का स्वामी हो, उसके दोनों फल मिलते हैं; पर दोनों बराबर और विरोधी हों तो दोनों का अभाव होता है (25.146–147)।</div>
+  </section>
+
+  <section class="station" id="quiz">
+    <h1>प्रश्नोत्तरी</h1>
+    <p class="lede">हर उत्तर के बाद उसका श्लोक देख सकते हैं।</p>
+    <div class="card quiz" id="quizBox"></div>
+  </section>
+</main>
+
+<dialog id="vdlg"><div class="dh"><b id="vdlgTitle"></b><button class="close" onclick="document.getElementById('vdlg').close()" aria-label="बन्द करें">×</button></div><div class="db"><div class="shloka" id="vdlgText"></div><div class="meaning" id="vdlgMeaning"></div><div class="meta" id="vdlgMeta"></div></div></dialog>
+
+<script src="sra-config.js"></script>
+<script src="patrikaEngineBridge.js"></script>
+<script src="data/bphs/bphs.js"></script>
+<script src="bphsLabCh03.js"></script>
+<script src="bphsLabCh04.js"></script>
+<script src="bphsLabCh05_08.js"></script>
+<script src="bphsLabBhava.js"></script>
+<script>
+(function () {
+  'use strict';
+  const L = window.BphsLabCh03;
+  const C4 = window.BphsLabCh04;
+  const C5 = window.BphsLabCh05_08;
+  const BH = window.BphsLabBhava;
+  const $ = s => document.querySelector(s);
+  const el = (tag, attrs, html) => { const e = document.createElement(tag); Object.assign(e, attrs || {}); if (html != null) e.innerHTML = html; return e; };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const deva = n => String(n); // numbers are shown in ordinary digits
+  const GLYPH = { Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿', Jupiter: '♃', Venus: '♀', Saturn: '♄', Rahu: '☊', Ketu: '☋' };
+
+  // Book verses, from the single source data/bphs/bphs.js
+  const VERSES = {}, CH_TITLE = {};
+  (window.BPHS ? window.BPHS.chapters : []).forEach(c => { CH_TITLE[c.chapter] = c.title; c.verses.forEach(v => { VERSES[v.id] = v; }); });
+  const vid = (ch, n) => `BPHS.${ch}.${n}`;
+  function chip(id, label) {
+    const [, ch, n] = id.split('.');
+    return `<button type="button" class="vchip" data-v="${id}">${label || `${deva(ch)}.${deva(n)}`}</button>`;
+  }
+  const chips = (ids) => [...new Set(ids)].map(id => chip(id)).join('');
+  const rangeChips = (ch, a, b) => { const out = []; for (let n = a; n <= (b || a); n++) out.push(vid(ch, n)); return chips(out); };
+  function openVerse(id) {
+    const v = VERSES[id];
+    const [, ch, n] = id.split('.');
+    $('#vdlgTitle').textContent = `अध्याय ${deva(ch)}, श्लोक ${deva(n)}`;
+    $('#vdlgTitle').dataset.v = id;
+    // The database keeps the verse exactly as printed; only its number is shown in ordinary digits here
+    $('#vdlgText').textContent = v ? ((v.speaker ? v.speaker + '—\n' : '') + v.text).replace(/[०-९]/g, d => '०१२३४५६७८९'.indexOf(d)) : 'यह श्लोक अभी database में नहीं है।';
+    $('#vdlgMeta').textContent = v ? `${CH_TITLE[ch] || ''} · पुस्तक पृष्ठ ${deva(v.page)}${v.check ? ' · टिप्पणी: ' + v.check : ''}` : '';
+    $('#vdlgMeaning').innerHTML = '';
+    $('#vdlg').showModal();
+    meaningOf(ch, n).then(m => {
+      if ($('#vdlgTitle').dataset.v !== id) return;
+      $('#vdlgMeaning').innerHTML = m ? `<b>हिंदी अर्थ</b>${esc(m)}` : '<b>हिंदी अर्थ</b><span style="color:var(--muted)">इस अध्याय का अर्थ अभी तैयार नहीं है।</span>';
+    });
+  }
+  // Plain-Hindi meanings, one file per chapter, loaded when a verse from that chapter is first opened
+  const MEANINGS = {};
+  function meaningOf(ch, n) {
+    if (!MEANINGS[ch]) MEANINGS[ch] = fetch(`data/bphs_lab/meanings/${String(ch).padStart(3, '0')}.json`)
+      .then(r => r.ok ? r.json() : { meanings: {} }).catch(() => ({ meanings: {} }));
+    return MEANINGS[ch].then(d => d.meanings[n] || null);
+  }
+  document.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (b) openVerse(b.dataset.v); });
+
+  // Tabs (remember the last one for this visitor)
+  function showTab(name) {
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+    document.querySelectorAll('section.station').forEach(s => s.classList.toggle('on', s.id === name));
+    try { localStorage.setItem('labTab', name); } catch (e) {}
+  }
+  document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => { showTab(b.dataset.tab); window.scrollTo({ top: 0 }); }));
+  document.addEventListener('click', e => { const b = e.target.closest('[data-goto]'); if (b) { showTab(b.dataset.goto); window.scrollTo({ top: 0 }); } });
+  try { const t = localStorage.getItem('labTab'); if (t && document.getElementById(t)) showTab(t); } catch (e) {}
+
+  function sectionCards(target, chapter, sections) {
+    target.innerHTML = sections.map(s => `<div class="card"><h3>${esc(s.heading)}</h3><p style="margin:0">${esc(s.text)}</p>
+      ${s.lab_hint ? `<div class="note">${esc(s.lab_hint)}</div>` : ''}<div style="margin-top:8px">${rangeChips(chapter, s.verses[0], s.verses[1])}</div></div>`).join('');
+  }
+
+  Promise.all(['data/bphs_lab/lab_ch01_03.json', 'data/bphs_lab/lab_ch04.json', 'data/bphs_lab/lab_ch05_08.json', 'data/bphs_lab/rules_bhava.json'].map(u => fetch(u).then(r => r.json()))).then(([LAB, LAB4, LAB5, RULES]) => {
+    buildBhava(RULES);
+    buildEntry(LAB.ch1);
+    buildCards(LAB.ch2, LAB.ch3);
+    buildRules(LAB.ch3);
+    sectionCards($('#ch4Sections'), 4, LAB4.ch4.sections);
+    buildCh5(LAB5.ch5);
+    sectionCards($('#ch6Sections'), 6, LAB5.ch6.sections);
+    sectionCards($('#ch7Sections'), 7, LAB5.ch7.sections);
+    sectionCards($('#ch8Sections'), 8, LAB5.ch8.sections);
+    buildQuiz([LAB.ch1, LAB.ch2, LAB.ch3, LAB4.ch4, LAB5.ch5, LAB5.ch6, LAB5.ch7, LAB5.ch8]);
+  }).catch(err => { $('#ch1Sections').innerHTML = `<div class="status err">प्रयोगशाला की सामग्री लोड नहीं हुई: ${esc(err.message)}</div>`; });
+
+  // Station 1 — chapter 1
+  function buildEntry(ch1) {
+    const N = {}; ch1.diagram.nodes.forEach(n => { N[n.id] = n; });
+    const node = (id, top) => `<div class="node${top ? ' top' : ''}" data-v="${vid(1, N[id].verse)}"><b>${esc(N[id].label)}</b><span>श्लोक ${deva(N[id].verse)}</span></div>`;
+    $('#tree').innerHTML = `<div class="row">${node('vishnu', true)}</div><div class="arrow">↓</div>
+      <div class="row">${node('shri')}${node('bhu')}${node('nila')}</div><div class="arrow">↓</div>
+      <div class="row">${node('palana')}${node('srijana')}${node('samhara')}</div><div class="arrow">↓</div>
+      <div class="row">${node('graha', true)}${node('jiva')}</div>`;
+    sectionCards($('#ch1Sections'), 1, ch1.sections);
+  }
+
+  // Station 2 — planet cards (chapters 2 and 3)
+  function buildCards(ch2, ch3) {
+    const box = $('#pcards');
+    L.NINE.forEach((id, i) => {
+      const b = el('button', { className: 'pcard' + (i === 0 ? ' on' : ''), type: 'button' },
+        `<div class="glyph">${GLYPH[id]}</div><b>${L.NAME_HI[id]}</b><span>${esc(ch2.avatars.map[id])}</span>`);
+      b.addEventListener('click', () => { box.querySelectorAll('.pcard').forEach(x => x.classList.remove('on')); b.classList.add('on'); detail(id); });
+      box.appendChild(b);
+    });
+    function detail(id) {
+      const rows = [`<tr><th>अवतार</th><td>${esc(ch2.avatars.map[id])}</td><td>${chip(vid(2, ch2.avatars.verse_of[id]))}</td></tr>`];
+      ch3.attributes.forEach(a => {
+        if (!a.values[id]) return;
+        rows.push(`<tr><th>${esc(a.label)}</th><td>${esc(a.values[id])}${a.interpretation ? ` <span class="pill p-mid" title="${esc(a.interpretation)}">व्याख्या</span>` : ''}</td><td>${rangeChips(3, a.verses[0], a.verses[1])}</td></tr>`);
+      });
+      if (L.EXALT[id]) {
+        const [s, d] = L.EXALT[id], mt = L.MOOLA[id];
+        rows.push(`<tr><th>उच्च / नीच</th><td>${L.SIGN_HI[s]} ${deva(d)}° / ${L.SIGN_HI[(s + 6) % 12]} ${deva(d)}°</td><td>${rangeChips(3, 50, 51)}</td></tr>`);
+        rows.push(`<tr><th>मूलत्रिकोण</th><td>${L.SIGN_HI[mt.sign]} ${deva(mt.from)}°–${deva(mt.to)}°</td><td>${chip(mt.verse)}</td></tr>`);
+        const t = L.NATURAL[id], names = a => a.length ? a.map(x => L.NAME_HI[x]).join(', ') : '—';
+        rows.push(`<tr><th>नैसर्गिक मैत्री</th><td>मित्र: ${names(t.friends)}<br>सम: ${names(t.neutral)}<br>शत्रु: ${names(t.enemies)}</td><td>${chip(t.verse)}</td></tr>`);
+        rows.push(`<tr><th>दिग्बल</th><td>${{ 1: 'पूर्व (लग्न)', 10: 'दक्षिण (दशम)', 7: 'पश्चिम (सप्तम)', 4: 'उत्तर (चतुर्थ)' }[L.DIGBALA_HOUSE[id]]}</td><td>${chip(vid(3, 36))}</td></tr>`);
+      }
+      $('#pdetail').innerHTML = `<h3>${GLYPH[id]} ${L.NAME_HI[id]}</h3><div class="tablewrap"><table>${rows.join('')}</table></div>`;
+    }
+    detail('Sun');
+    sectionCards($('#ch2Sections'), 2, ch2.sections);
+  }
+
+  // Station 3 — rules of chapter 3
+  function buildRules(ch3) {
+    $('#ruleCards').innerHTML = ch3.rules.map(r => `<div class="card"><h3>${esc(r.title)}</h3><p style="margin:0">${esc(r.text)}</p>
+      ${r.interpretation ? `<div class="note">${esc(r.interpretation)}</div>` : ''}<div style="margin-top:8px">${rangeChips(3, r.verses[0], r.verses[1])}</div></div>`).join('');
+  }
+
+  // Station 4 — sandbox
+  const pillFor = key => ({ exalt: 'p-good', moolatrikona: 'p-good', own: 'p-mid', friend_sign: 'p-mid', neutral_sign: 'p-neutral', enemy_sign: 'p-bad', debil: 'p-bad' }[key] || 'p-neutral');
+  const opts = (sel, items) => { sel.innerHTML = items.map(([v, t]) => `<option value="${v}">${t}</option>`).join(''); };
+  opts($('#sbPlanet'), L.SEVEN.map(p => [p, `${GLYPH[p]} ${L.NAME_HI[p]}`]));
+  opts($('#sbSign'), L.SIGN_HI.map((s, i) => [i, `${deva(i + 1)}. ${s}`]));
+  function sandbox() {
+    const p = $('#sbPlanet').value, s = +$('#sbSign').value, d = +$('#sbDeg').value;
+    $('#sbDegOut').textContent = `${deva(d.toFixed(1))}°`;
+    const [ex] = L.EXALT[p], mt = L.MOOLA[p];
+    $('#sbZodiac').innerHTML = L.SIGN_HI.map((name, i) => {
+      const cls = [i === ex ? 'exalt' : '', i === (ex + 6) % 12 ? 'debil' : '', i === mt.sign ? 'mt' : '', L.SIGN_LORD[i] === p ? 'own' : '', i === s ? 'cur' : ''].join(' ');
+      return `<div class="${cls}" title="${name}">${name}</div>`;
+    }).join('');
+    const r = L.sthanaPhala(p, s, d), dg = r.dignity;
+    $('#sbResult').innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+        <div><span class="pill ${pillFor(dg.key)} big" style="font-size:20px">${dg.label}</span></div>
+        <div style="flex:1;min-width:220px"><div>${esc(deva(dg.reason))}</div>
+        <div style="margin-top:6px">शुभ फल (3.63): <b>${r.label}</b></div><div class="bar" style="margin-top:4px"><i style="width:${r.shubha * 100}%"></i></div></div></div>
+      <div style="margin-top:10px">${chips(r.verses)}</div>`;
+  }
+  ['#sbPlanet', '#sbSign', '#sbDeg'].forEach(s => $(s).addEventListener('input', sandbox));
+  sandbox();
+
+  opts($('#frA'), L.SEVEN.map(p => [p, L.NAME_HI[p]]));
+  opts($('#frB'), L.SEVEN.map(p => [p, L.NAME_HI[p]]));
+  $('#frB').value = 'Venus';
+  function friendship() {
+    const a = $('#frA').value, b = $('#frB').value, h = +$('#frH').value;
+    $('#frHOut').textContent = deva(h);
+    if (a === b) { $('#frResult').innerHTML = '<div class="status">दो अलग ग्रह चुनें।</div>'; return; }
+    const nat = L.naturalRelation(a, b), tmp = L.temporalRelation(0, h - 1).relation, comp = L.compoundRelation(nat, tmp);
+    const cls = { adhimitra: 'p-good', mitra: 'p-good', sama: 'p-neutral', shatru: 'p-bad', adhishatru: 'p-bad' }[comp];
+    $('#frResult').innerHTML = `<div>नैसर्गिक: <b>${L.RELATION_HI[nat]}</b> ${chip(L.NATURAL[a].verse)}
+      &nbsp;+&nbsp; तात्कालिक (${deva(h)} वाँ भाव): <b>${L.RELATION_HI[tmp]}</b> ${chip(vid(3, 60))}</div>
+      <div style="margin-top:8px">= पञ्चधा: <span class="pill ${cls}" style="font-size:16px">${L.RELATION_HI[comp]}</span> ${rangeChips(3, 61, 62)}</div>`;
+  }
+  ['#frA', '#frB', '#frH'].forEach(s => $(s).addEventListener('input', friendship));
+  friendship();
+
+  // Station 5 — the visitor's chart
+  const CITIES = [
+    ['नई दिल्ली', 28.6139, 77.2090, 5.5], ['वाराणसी', 25.3176, 82.9739, 5.5], ['मुम्बई', 19.0760, 72.8777, 5.5],
+    ['कोलकाता', 22.5726, 88.3639, 5.5], ['चेन्नई', 13.0827, 80.2707, 5.5], ['लखनऊ', 26.8467, 80.9462, 5.5],
+    ['सीतापुर', 27.5680, 80.6790, 5.5], ['जयपुर', 26.9124, 75.7873, 5.5], ['उज्जैन', 23.1765, 75.7885, 5.5], ['अन्य (स्वयं भरें)', '', '', '']
+  ];
+  opts($('#cCity'), CITIES.map((c, i) => [i, c[0]]));
+  function setCity() { const c = CITIES[+$('#cCity').value]; if (c[1] !== '') { $('#cLat').value = c[1]; $('#cLon').value = c[2]; $('#cTz').value = c[3]; } }
+  $('#cCity').addEventListener('change', setCity); setCity();
+
+  $('#cGo').addEventListener('click', async () => {
+    const st = $('#cStatus');
+    const input = { date: $('#cDate').value, time: $('#cTime').value, lat: +$('#cLat').value, lon: +$('#cLon').value, tz: +$('#cTz').value, name: 'जातक' };
+    if (!input.date || !input.time || isNaN(input.lat) || isNaN(input.lon)) { st.className = 'status err'; st.textContent = 'तिथि, समय और स्थान भरें।'; return; }
+    st.className = 'status'; st.textContent = 'गणना हो रही है… (सर्वर सो रहा हो तो पहली बार एक मिनट लग सकता है)';
+    try {
+      const chart = await window.PatrikaEngineBridge.calculatePatrikaPlanets(input);
+      renderChart(chart);
+      st.textContent = `लग्न ${chart.lagnaRashi} · ${chart.disclosure || ''} · अध्याय 4 की गणना स्टेशन 6 में`;
+      renderCh4(chart, input);
+      renderCh5Chart(chart);
+      renderNisheka(chart, input);
+      renderVargaChart(chart);
+      renderCh8Chart(chart);
+      bhavaChart(chart);
+      bhaveshChart(chart);
+    } catch (err) { st.className = 'status err'; st.textContent = err.message; }
+  });
+
+  function renderChart(chart) {
+    const A = L.analyze(chart);
+    const rows = L.SEVEN.map(id => {
+      const p = A.planets[id], nat = A.nature.planets[id], dg = A.digbala[id], kb = A.kaalabala.planets[id], fn = A.functional[id];
+      const fnLabel = { shubha: ['शुभ', 'p-good'], ashubha: ['अशुभ', 'p-bad'], mixed: ['मिश्र', 'p-mid'], neutral: ['तटस्थ', 'p-neutral'] }[fn.verdict];
+      const yes = (ok, t) => `<span class="pill ${ok ? 'p-good' : 'p-neutral'}">${t}: ${ok ? 'बली' : '—'}</span>`;
+      return `<tr>
+        <td><b>${GLYPH[id]} ${p.name}</b><br><span style="color:var(--muted);font-size:14.5px">${p.signName} ${deva(p.deg.toFixed(2))}° · भाव ${deva(p.house)}</span></td>
+        <td><span class="pill ${pillFor(p.dignity.key)}">${p.dignity.label}</span><div style="font-size:14.5px;color:var(--muted)">${esc(deva(p.dignity.reason))}</div>${chips(p.dignity.verses)}</td>
+        <td>${p.sthana.label}<div class="bar" style="margin-top:4px"><i style="width:${p.sthana.shubha * 100}%"></i></div>${chips([vid(3, 63)])}</td>
+        <td><span class="pill ${nat.nature === 'papa' ? 'p-bad' : 'p-good'}">${nat.nature === 'papa' ? 'पाप' : 'सौम्य'}</span><div style="font-size:14.5px;color:var(--muted)">${esc(deva(nat.reason))}</div>${chips(nat.verses)}
+          <div style="margin-top:4px;font-size:14.5px">लग्नानुसार: <span class="pill ${fnLabel[1]}">${fnLabel[0]}</span> <span style="color:var(--muted)">(भाव ${fn.houses.map(deva).join(', ')} का स्वामी)</span></div></td>
+        <td>${yes(dg.strong, 'दिग्')}<div style="font-size:14px;color:var(--muted)">${dg.direction}</div>${chips(dg.verses)}</td>
+        <td>${yes(kb.dayNight, A.kaalabala.isDay ? 'दिन' : 'रात्रि')}<br>${yes(kb.paksha, A.kaalabala.shukla ? 'शुक्ल' : 'कृष्ण')}<br>${yes(kb.ayana, kb.sayana < 180 ? 'उत्तर' : 'दक्षिण')}${chips(kb.verses)}</td>
+      </tr>`;
+    }).join('');
+    const short = { adhimitra: 'अधि-मि', mitra: 'मित्र', sama: 'सम', shatru: 'शत्रु', adhishatru: 'अधि-श' };
+    const cls = { adhimitra: 'p-good', mitra: 'p-good', sama: 'p-neutral', shatru: 'p-bad', adhishatru: 'p-bad' };
+    const matrix = `<tr><th></th>${L.SEVEN.map(b => `<th>${L.NAME_HI[b]}</th>`).join('')}</tr>` + L.SEVEN.map(a =>
+      `<tr><th>${L.NAME_HI[a]}</th>${L.SEVEN.map(b => a === b ? '<td class="self">—</td>' :
+        `<td class="cell" data-a="${a}" data-b="${b}"><span class="pill ${cls[A.relations[a][b].compound]}">${short[A.relations[a][b].compound]}</span></td>`).join('')}</tr>`).join('');
+    $('#chartOut').innerHTML = lagnaCard(chart, A) + `
+      <h2>ग्रहों की अवस्था, स्वभाव और बल</h2>
+      <div class="card tablewrap"><table><tr><th>ग्रह</th><th>अवस्था (3.50–55)</th><th>शुभ फल (3.63)</th><th>स्वभाव (3.11–12)</th><th>दिग्बल (3.36)</th><th>काल बल (3.37–38)</th></tr>${rows}</table>
+      <div class="note">चन्द्र का क्षीण/अक्षीण होना और अयन की गणना परम्परागत व्याख्या पर आधारित है (सूर्य-चन्द्र अन्तर ${deva(A.nature.kshinaLimit)}° सीमा); श्लोक 3.37 का छपा पाठ लिया गया है।</div></div>
+      <h2>पञ्चधा मैत्री (3.56–62)</h2>
+      <p class="lede" style="margin-bottom:8px">पंक्ति का ग्रह स्तम्भ के ग्रह को कैसा मानता है। किसी खाने पर क्लिक करें तो गणना दिखेगी।</p>
+      <div class="card tablewrap"><table class="matrix">${matrix}</table><div id="mxWhy" style="margin-top:10px"></div></div>`;
+    $('#chartOut').querySelectorAll('td.cell').forEach(td => td.addEventListener('click', () => {
+      const a = td.dataset.a, b = td.dataset.b, r = A.relations[a][b];
+      $('#mxWhy').innerHTML = `<b>${L.NAME_HI[a]} → ${L.NAME_HI[b]}</b>: नैसर्गिक <b>${L.RELATION_HI[r.natural]}</b> ${chip(L.NATURAL[a].verse)}
+        + तात्कालिक <b>${L.RELATION_HI[r.temporal]}</b> (${L.NAME_HI[b]} ${L.NAME_HI[a]} से ${deva(r.house)} वें भाव में) ${chip(vid(3, 60))}
+        = <span class="pill ${cls[r.compound]}">${L.RELATION_HI[r.compound]}</span> ${rangeChips(3, 61, 62)}`;
+    }));
+  }
+
+  const fmtPos = (sign, deg) => `${L.SIGN_HI[sign]} ${deva(Math.floor(deg))}°${deva(String(Math.floor((deg % 1) * 60)).padStart(2, '0'))}′`;
+  const fmtAbs = abs => { const a = C4.norm360(abs); return fmtPos(Math.floor(a / 30), a % 30); };
+
+  // The lagna decides houses, digbala and the lagna-wise nature of every planet
+  function lagnaCard(chart, A) {
+    const lg = A.lagna, lord = L.SIGN_LORD[lg.sign], lp = A.planets[lord];
+    const group = v => L.SEVEN.filter(id => A.functional[id].verdict === v)
+      .map(id => `${L.NAME_HI[id]} <span style="color:var(--muted)">(${A.functional[id].houses.map(deva).join(', ')})</span>`).join(' · ') || '—';
+    return `<h2>लग्न: बाकी सबका आधार</h2>
+      <div class="card"><div class="grid g2">
+        <div><div class="big">${fmtPos(lg.sign, lg.deg)}</div>
+          <div style="margin-top:6px">लग्नेश: <b>${GLYPH[lord]} ${L.NAME_HI[lord]}</b> ${chip(L.SIGN_LORD_VERSE[lg.sign])}</div>
+          <div style="margin-top:4px">लग्नेश ${deva(lp.house)} वें भाव में, ${lp.signName} में <span class="pill ${pillFor(lp.dignity.key)}">${lp.dignity.label}</span></div></div>
+        <div><div><b>इस लग्न के लिए शुभ</b> (त्रिकोण के स्वामी): ${group('shubha')}</div>
+          <div style="margin-top:4px"><b>अशुभ</b> (3, 6, 11 के स्वामी): ${group('ashubha')}</div>
+          <div style="margin-top:4px"><b>मिश्र</b>: ${group('mixed')}</div>
+          <div style="margin-top:4px"><b>तटस्थ</b>: ${group('neutral')}</div>${chip(vid(3, 12))}</div>
+      </div>
+      <div class="note">ग्रहों के भाव, उनका दिग्बल और "लग्नानुसार" स्वभाव, ये तीनों इसी लग्न से गिने जाते हैं। लग्न कैसे निकलता है, यह स्टेशन 6 (अध्याय 4) में है।</div></div>`;
+  }
+
+  // Station 6 — chapter 4 calculations on the visitor's chart
+  const shiftDate = (date, days) => { const d = new Date(date + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10); };
+  async function renderCh4(chart, input) {
+    const out = $('#ch4Out');
+    out.innerHTML = '<div class="status">अध्याय 4 की गणना हो रही है…</div>';
+    try {
+      const P = {}; chart.planets.forEach(p => { P[p.id] = p; });
+      const astro = chart.astronomy, tz = input.tz, ish = astro.ishtakaal.ghatis_float, lagnaSign = P.Lagna.sign;
+      const hm = jd => deva(C4.jdToLocal(jd, tz).hm);
+      const engine = window.PatrikaEngineBridge.calculatePatrikaPlanets;
+      const house = sign => deva(((sign - lagnaSign + 12) % 12) + 1);
+      const html = [];
+
+      // Base: ishtakaal and the day (4.1)
+      // The engine reports the Vedic day's sunrise, sunset and next sunrise; an older engine
+      // reports only the calendar date's, so the missing neighbour is fetched with a second call.
+      const period0 = astro.sunset.next_sunrise_jd != null
+        ? C4.birthPeriod({ jd: astro.jd_ut, sunriseJd: astro.sunrise.effective_jd, sunsetJd: astro.sunset.sunset_jd, nextSunriseJd: astro.sunset.next_sunrise_jd })
+        : C4.birthPeriod({ jd: astro.jd_ut, sunriseJd: astro.sunrise.sunrise_jd, sunsetJd: astro.sunset.sunset_jd });
+      let period = period0;
+      if (period0.needs) {
+        const nb = await engine(Object.assign({}, input, { date: shiftDate(input.date, period0.needs === 'prev' ? -1 : 1), time: '12:00:00' }));
+        period = C4.birthPeriod({ jd: astro.jd_ut, sunriseJd: astro.sunrise.sunrise_jd, sunsetJd: astro.sunset.sunset_jd,
+          prevSunsetJd: nb.astronomy.sunset.sunset_jd, nextSunriseJd: nb.astronomy.sunrise.sunrise_jd });
+      }
+      const weekday = chart.panchang.vaar.vedicDayIndex;
+      html.push(`<h2>आधार: इष्टकाल ${chip(vid(4, 1))}</h2><div class="card"><div class="grid g3">
+        <div><label>इष्टकाल (सूर्योदय से)</label><div class="big" style="font-size:22px">${deva(astro.ishtakaal.ghati)} घटी ${deva(astro.ishtakaal.pala)} पल</div></div>
+        <div><label>वार (सूर्योदय से सूर्योदय)</label><div class="big" style="font-size:22px">${C4.VAAR_HI[weekday]}</div></div>
+        <div><label>जन्म</label><div class="big" style="font-size:22px">${period.isDay ? 'दिन में' : 'रात में'}</div>
+          <div>${period.isDay ? 'सूर्योदय' : 'सूर्यास्त'} ${hm(period.startJd)} से ${period.isDay ? 'सूर्यास्त' : 'सूर्योदय'} ${hm(period.endJd)} तक</div></div>
+      </div><div class="note">एक घटी = 24 मिनट, एक पल = 24 सेकंड। सूर्योदय से पहले का जन्म पिछले दिन के वार और रात में गिना जाता है।</div></div>`);
+
+      // Five aprakash grahas (4.5–9)
+      const ap = C4.aprakash(P.Sun.abs);
+      const yoga = C4.aprakashYoga(ap.steps, P.Sun.sign, P.Moon.sign, lagnaSign);
+      html.push(`<h2>पाँच अप्रकाश ग्रह (4.5–9)</h2><div class="card tablewrap"><table>
+        <tr><th>क्रम</th><th>ग्रह</th><th>नियम</th><th>स्थिति</th><th>भाव</th><th>श्लोक</th></tr>
+        <tr><td>—</td><td><b>☉ सूर्य</b></td><td>आरम्भ</td><td>${fmtAbs(P.Sun.abs)}</td><td>${house(P.Sun.sign)}</td><td></td></tr>
+        ${ap.steps.map((s, i) => `<tr><td>${deva(i + 1)}</td><td><b>${s.name}</b></td><td>${s.rule}</td><td>${fmtAbs(s.abs)}</td><td>${house(s.sign)}</td><td>${chips(s.verses)}</td></tr>`).join('')}
+        <tr><td>जाँच</td><td colspan="2">शिखी + 1 राशि</td><td>${fmtAbs(ap.back.abs)}</td><td colspan="2"><span class="pill ${ap.closes ? 'p-good' : 'p-bad'}">${ap.closes ? 'फिर सूर्य मिला ✓' : 'सूर्य नहीं मिला'}</span> ${chip(vid(4, 8))}</td></tr>
+      </table>
+      <div style="margin-top:10px"><b>श्लोक 9 का योग</b> (अप्रकाश ग्रह सूर्य, चन्द्र या लग्न की राशि में): ${yoga.hits.length
+        ? yoga.hits.map(h => `<span class="pill p-bad">${h.upagraha} + ${h.with}</span>`).join(' ') : '<span class="pill p-good">इस कुंडली में नहीं</span>'} ${chip(vid(4, 9))}</div></div>`);
+
+      // Gulika and the eight parts (4.10–15)
+      if (period.startJd == null || period.endJd == null) throw new Error('दिन/रात की सीमा नहीं मिली।');
+      const kp = C4.kalaParts({ weekday, isDay: period.isDay, startJd: period.startJd, endJd: period.endJd, birthJd: astro.jd_ut });
+      const gt = C4.jdToLocal(kp.gulika.startJd, tz);
+      const gChart = await engine(Object.assign({}, input, { date: gt.date, time: gt.time }));
+      const gLag = gChart.planets.find(p => p.id === 'Lagna');
+      html.push(`<h2>गुलिक आदि: ${period.isDay ? 'दिन' : 'रात'} के आठ भाग (4.10–15)</h2><div class="card">
+        <p style="margin-top:0">${period.isDay ? 'दिनमान' : 'रात्रिमान'} ${deva((kp.spanHours * 8).toFixed(2))} घंटे, इसलिए हर भाग ${deva(Math.round(kp.spanHours * 60))} मिनट का। ${period.isDay
+          ? `दिन में पहला भाग वार-स्वामी <b>${L.NAME_HI[kp.firstLord]}</b> का`
+          : `रात में पहला भाग वार-स्वामी ${L.NAME_HI[L.SEVEN[weekday]]} से पाँचवें, <b>${L.NAME_HI[kp.firstLord]}</b> का`}, आठवाँ बिना स्वामी का। ${chips(kp.verses)}</p>
+        <div class="tablewrap"><table><tr><th>भाग</th><th>स्वामी</th><th>नाम</th><th>समय</th><th></th></tr>
+        ${kp.parts.map(p => `<tr${p.isBirth ? ' style="background:var(--accent-soft)"' : ''}><td>${deva(p.index)}</td><td>${p.lordName}</td>
+          <td>${p.upagraha ? `<b>${p.upagraha}</b>` : ''}</td><td>${hm(p.startJd)}–${hm(p.endJd)}</td><td>${p.isBirth ? '<span class="pill p-mid">जन्म इसी भाग में</span>' : ''}</td></tr>`).join('')}
+        </table></div>
+        <div style="margin-top:12px">गुलिक का भाग <b>${hm(kp.gulika.startJd)}</b> पर आरम्भ होता है। उस क्षण का लग्न ही स्पष्ट गुलिक (मान्दि) है:
+          <span class="big" style="font-size:22px">${fmtPos(gLag.sign, gLag.deg)}</span>, भाव ${house(gLag.sign)} ${chips([vid(4, 14), vid(4, 15)])}</div>
+        <div class="note">श्लोक 15 के अनुसार मान्दि गुलिक का ही दूसरा नाम है, इसलिए दोनों की एक ही स्थिति है।</div></div>`);
+
+      // Pranapada (4.16–22)
+      const pp = C4.pranapada(P.Sun.abs, ish, lagnaSign);
+      html.push(`<h2>प्राणपद (4.16–22)</h2><div class="card"><ol style="margin:0;padding-left:22px">
+        <li>इष्टकाल = ${deva(pp.palas.toFixed(1))} पल ${chip(vid(4, 16))}</li>
+        <li>${deva(pp.palas.toFixed(1))} ÷ 15 = ${deva(pp.whole)} राशि, शेष ${deva(pp.rem.toFixed(2))} पल → 12 से शेष <b>${deva(pp.signs)} राशि</b> ${chip(vid(4, 17))}</li>
+        <li>शेष पल × 2 = <b>${deva(pp.deg.toFixed(2))}°</b> ${chip(vid(4, 18))}</li>
+        <li>सूर्य ${fmtAbs(pp.sun.abs)}, यानी <b>${pp.modalityName}</b> राशि में, इसलिए जोड़ ${pp.baseName} (${fmtAbs(pp.base.abs)}) में ${chips([vid(4, 19), vid(4, 21)])}</li>
+        <li>प्राणपद = <span class="big" style="font-size:22px">${fmtAbs(pp.result.abs)}</span>, लग्न से ${deva(pp.house)} वें भाव में
+          <span class="pill ${pp.auspicious ? 'p-good' : 'p-bad'}">${pp.auspicious ? 'शुभ स्थान' : 'शुभ स्थान नहीं'}</span> ${chips(pp.houseVerses)}</li>
+      </ol></div>`);
+
+      // Bhava, hora, ghati lagna (4.38–43)
+      const sl = C4.specialLagnas(astro.sunrise.sun_sunrise_lon, ish, lagnaSign);
+      html.push(`<h2>भाव, होरा और घटी लग्न (4.38–43)</h2><div class="card tablewrap"><table>
+        <tr><th>लग्न</th><th>गति</th><th>गणना</th><th>स्थिति</th><th>भाव</th><th>श्लोक</th></tr>
+        ${sl.map(s => `<tr><td><b>${s.name}</b></td><td>हर ${s.perSign === 2.5 ? 'ढाई' : deva(s.perSign)} घटी में एक राशि</td>
+          <td>सूर्योदय का सूर्य ${fmtAbs(astro.sunrise.sun_sunrise_lon)} + ${deva(ish.toFixed(2))} ÷ ${s.perSign === 2.5 ? '2.5' : deva(s.perSign)} = ${deva(s.signs.toFixed(3))} राशि</td>
+          <td>${fmtAbs(s.abs)}</td><td>${deva(s.house)}</td><td>${chips(s.verses)}</td></tr>`).join('')}
+      </table></div>`);
+
+      // Lagna, bhavas and sandhis, and how much of its bhava each planet gives (4.23–37, 44–45)
+      const ids = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
+      const NM = Object.assign({ Rahu: 'राहु', Ketu: 'केतु' }, L.NAME_HI);
+      const inBhava = {};
+      ids.forEach(id => { const r = C4.bhavaPhala(P[id].abs, chart.sripatiBhavas); if (r) (inBhava[r.house] = inBhava[r.house] || []).push(Object.assign({ id }, r)); });
+      html.push(`<h2>लग्न, भाव और सन्धि (4.23–37, 44–45)</h2>
+        <p class="lede" style="margin-bottom:8px">लग्न ${chips([vid(4, 31), vid(4, 32)])}, दशम ${chip(vid(4, 35))} और उनके बीच के भाग से भाव और सन्धियाँ ${rangeChips(4, 36, 37)}। ग्रह भाव-मध्य पर पूरा और सन्धि पर शून्य फल देता है ${rangeChips(4, 44, 45)}।</p>
+        <div class="card tablewrap"><table><tr><th>भाव</th><th>आरम्भ-सन्धि</th><th>भाव-मध्य</th><th>अन्त-सन्धि</th><th>इस भाव के ग्रह (फल का अंश)</th></tr>
+        ${chart.sripatiBhavas.map(b => `<tr><td><b>${deva(b.house)}</b></td><td>${fmtAbs(b.sandhi1)}</td><td><b>${fmtAbs(b.mid)}</b></td><td>${fmtAbs(b.sandhi2)}</td>
+          <td>${(inBhava[b.house] || []).map(r => `<div style="display:flex;gap:8px;align-items:center;margin:2px 0"><span style="min-width:72px">${GLYPH[r.id]} ${NM[r.id]}</span>
+            <div class="bar" style="flex:1;max-width:140px"><i style="width:${Math.round(r.fraction * 100)}%"></i></div><span>${deva(Math.round(r.fraction * 100))}%</span></div>`).join('') || '—'}</td></tr>`).join('')}
+        </table>
+        <div class="note">श्लोक 44–45 मध्य पर पूरा और सन्धि पर शून्य फल बताते हैं। बीच के अंश के लिए श्लोक कोई सूत्र नहीं देता। यहाँ उसे सीधी रेखा में बढ़ता-घटता माना गया है, जो व्याख्या है।</div></div>`);
+
+      out.innerHTML = html.join('');
+    } catch (err) {
+      out.innerHTML = `<div class="status err">अध्याय 4 की गणना नहीं हो सकी: ${esc(err.message)}</div>`;
+    }
+  }
+
+  const NM9 = Object.assign({ Rahu: 'राहु', Ketu: 'केतु', Lagna: 'लग्न' }, L.NAME_HI);
+  const GL9 = Object.assign({ Lagna: 'L' }, GLYPH);
+  const BODIES = ['Lagna', 'Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
+
+  // Station 7 — chapter 5, the twelve signs
+  let signData = [], signOn = 0;
+  function buildCh5(ch5) {
+    signData = ch5.signs;
+    $('#signCards').innerHTML = C5.SIGN_HI.map((n, s) => `<button type="button" class="pcard${s === signOn ? ' on' : ''}" data-sign="${s}"><b>${n}</b><span>${C5.MODALITY_HI[s % 3]} · ${L.NAME_HI[C5.SIGN_LORD[s]]}</span></button>`).join('');
+    $('#signCards').addEventListener('click', e => { const b = e.target.closest('[data-sign]'); if (b) { signOn = +b.dataset.sign; showSign(); } });
+    showSign();
+    sectionCards($('#ch5Sections'), 5, ch5.sections);
+  }
+  function showSign() {
+    document.querySelectorAll('#signCards .pcard').forEach(b => b.classList.toggle('on', +b.dataset.sign === signOn));
+    const b = C5.signBasics(signOn), d = signData.find(x => x.sign === signOn);
+    const asp = C5.rashiAspects(signOn);
+    $('#signDetail').innerHTML = `<h3 style="font-size:22px">${b.name}</h3>
+      <div class="tablewrap"><table><tr><th>गुण</th><th>श्लोक का शब्द</th><th>अर्थ</th><th>श्लोक</th></tr>
+      <tr><td>स्वामी</td><td>—</td><td><b>${GLYPH[b.lord]} ${L.NAME_HI[b.lord]}</b></td><td>${chip(L.SIGN_LORD_VERSE[signOn])}</td></tr>
+      <tr><td>काल-पुरुष का अंग</td><td>—</td><td><b>${b.body}</b></td><td>${chips(b.bodyVerses)}</td></tr>
+      <tr><td>प्रकार</td><td>—</td><td>${b.modality} · ${b.nature} · ${b.gender}</td><td>${chips(b.basicsVerses)}</td></tr>
+      <tr><td>प्रकृति</td><td>—</td><td>${b.prakriti}</td><td>${chips(b.prakritiVerses)}</td></tr>
+      ${(d ? d.attrs : []).map(a => `<tr><td>${esc(a[0])}</td><td class="shloka" style="font-size:17px">${esc(a[1])}</td><td>${esc(a[2])}</td><td>${chips(d.verses.map(n => vid(5, n)))}</td></tr>`).join('')}
+      <tr><td>राशि-दृष्टि</td><td>—</td><td>${asp.signs.map(x => C5.SIGN_HI[x]).join(', ')} को देखती है</td><td>${chips(asp.verses)}</td></tr>
+      </table></div>`;
+  }
+  function renderCh5Chart(chart) {
+    const kp = C5.kalapurusha(chart), sp = C5.signSpread(chart);
+    const names = ids => ids.map(id => `${GL9[id]} ${NM9[id]}`).join(', ') || '—';
+    $('#ch5Chart').innerHTML = `<div class="card tablewrap"><table><tr><th>राशि</th><th>अंग</th><th>इसमें स्थित</th></tr>
+      ${kp.rows.map(r => `<tr${r.planets.length ? ' style="background:var(--accent-soft)"' : ''}><td>${r.name}</td><td><b>${r.body}</b></td><td>${names(r.planets)}</td></tr>`).join('')}
+      </table>${chips(kp.verses)}
+      <div class="grid g3" style="margin-top:12px">
+        ${C5.MODALITY_HI.map((m, i) => `<div><label>${m} राशियों में</label><div class="big" style="font-size:22px">${sp.modality[i]}</div><div>${names(sp.list.modality[i])}</div></div>`).join('')}
+        <div><label>विषम (क्रूर, पुरुष) राशियों में</label><div class="big" style="font-size:22px">${sp.odd}</div><div>${names(sp.list.odd)}</div></div>
+        <div><label>सम (सौम्य, स्त्री) राशियों में</label><div class="big" style="font-size:22px">${sp.even}</div><div>${names(sp.list.even)}</div></div>
+      </div>${chips(sp.verses)}</div>`;
+  }
+
+  // 5.25–30: nisheka from Saturn, Mandi, the lagna and the 9th bhava, then the lagna at that moment
+  async function renderNisheka(chart, input) {
+    const out = $('#nishekaOut');
+    try {
+      const P = {}; chart.planets.forEach(p => { P[p.id] = p; });
+      const lg = P.Lagna.sign, lord = C5.SIGN_LORD[lg], lordHouse = ((P[lord].sign - lg + 12) % 12) + 1;
+      const mandi = chart.upagrahas.find(u => u.name.startsWith('गुलिक'));
+      const n = C5.nisheka({ saturnAbs: P.Saturn.abs, mandiAbs: mandi.abs, lagnaAbs: P.Lagna.abs, bhavas: chart.sripatiBhavas, lagnaLordHouse: lordHouse, moonDeg: P.Moon.deg });
+      const dms = x => { const a = C4.norm360(x); return `${Math.floor(a / 30)} राशि ${Math.floor(a % 30)}° ${Math.floor((a % 1) * 60)}′`; };
+      // Birth moment as local wall-clock time, then step back by the nisheka interval
+      const [y, mo, d] = input.date.split('-').map(Number), [hh, mi] = input.time.split(':').map(Number);
+      const t = new Date(Date.UTC(y, mo - 1, d, hh, mi) - n.totalDays * 86400000);
+      const p2 = v => String(v).padStart(2, '0');
+      const nDate = `${t.getUTCFullYear()}-${p2(t.getUTCMonth() + 1)}-${p2(t.getUTCDate())}`, nTime = `${p2(t.getUTCHours())}:${p2(t.getUTCMinutes())}:00`;
+      out.innerHTML = `<div class="card"><ol style="margin:0;padding-left:22px">
+        <li>शनि ${fmtAbs(P.Saturn.abs)} से मान्दि (गुलिक) ${fmtAbs(mandi.abs)} तक अन्तर (मान्दि − शनि) = <b>${dms(n.A)}</b> ${chip(vid(5, 27))} ${chip(vid(4, 15))}</li>
+        <li>नवम भाव-मध्य ${fmtAbs(n.ninthMid)} से लग्न ${fmtAbs(P.Lagna.abs)} तक अन्तर (लग्न − नवम) = <b>${dms(n.B)}</b> ${chip(vid(5, 27))}</li>
+        <li>दोनों का जोड़ = <b>${dms(n.sumAB)}</b>${n.wrapped ? ' (12 राशि घटाकर)' : ''}</li>
+        <li>लग्नेश ${GLYPH[lord]} ${L.NAME_HI[lord]} भाव ${lordHouse} में, यानी ${n.unseen ? `<b>अदृश्य दल</b> में, इसलिए चन्द्र के राशि में बीते अंश ${P.Moon.deg.toFixed(2)}° (दिन) जोड़े` : 'दृश्य दल में, इसलिए चन्द्र के अंश नहीं जोड़े'} ${chip(vid(5, 28))}</li>
+        <li>कुल = <span class="big" style="font-size:22px">${n.months} मास ${n.days} दिन ${Math.floor(n.ghatis)} घटी</span> जन्म से पहले ${chip(vid(5, 28))}</li>
+        <li>इससे निषेक का अनुमानित समय: <b>${nDate} ${nTime.slice(0, 5)}</b> <span id="nishekaLagna">(उस समय का लग्न निकाला जा रहा है…)</span> ${chip(vid(5, 29))}</li>
+      </ol>
+      <div class="note">${n.interpretation.map(esc).join('<br>')}<br>अन्तर लेने की दिशा (मान्दि − शनि, लग्न − नवम) पुस्तक के उदाहरण के अनुसार है।</div></div>`;
+      const nc = await window.PatrikaEngineBridge.calculatePatrikaPlanets(Object.assign({}, input, { date: nDate, time: nTime }));
+      const nl = nc.planets.find(p => p.id === 'Lagna');
+      const el = document.getElementById('nishekaLagna');
+      if (el) el.innerHTML = `— उस समय का लग्न (निषेक-लग्न): <b>${fmtPos(nl.sign, nl.deg)}</b>, लग्नेश ${L.NAME_HI[C5.SIGN_LORD[nl.sign]]}`;
+    } catch (err) {
+      out.innerHTML = `<div class="status err">निषेक की गणना नहीं हो सकी: ${esc(err.message)}</div>`;
+    }
+  }
+
+  // Station 8 — chapters 6–7, the sixteen vargas
+  opts($('#vgSign'), C5.SIGN_HI.map((n, s) => [s, n]));
+  function vargaSandbox() {
+    const s = +$('#vgSign').value, d = +$('#vgDeg').value;
+    $('#vgDegOut').textContent = `${Math.floor(d)}°${String(Math.floor((d % 1) * 60)).padStart(2, '0')}′`;
+    $('#vgTable').innerHTML = `<table><tr><th>वर्ग</th><th>भाग</th><th>वर्ग की राशि</th><th>स्वामी</th><th>देवता</th><th>श्लोक</th></tr>
+      ${C5.allVargas(s, d).map(v => `<tr><td><b>${v.name}</b> <span style="color:var(--muted)">D${v.n}</span></td><td>${v.part} / ${v.n}</td><td>${v.signName}</td><td>${L.NAME_HI[v.lord]}</td>
+        <td>${v.deity ? esc(v.deity) : '—'}${v.interpretation ? ` <span title="${esc(v.interpretation)}" style="cursor:help;color:var(--mid)">ⓘ</span>` : ''}</td><td>${chips(v.verses)}</td></tr>`).join('')}
+      </table><div class="note">ⓘ वाले वर्गों में श्लोक कोई बात खुली छोड़ता है; उस पर माउस रखने से लिया गया अर्थ दिखता है।</div>`;
+  }
+  $('#vgSign').addEventListener('input', vargaSandbox); $('#vgDeg').addEventListener('input', vargaSandbox); vargaSandbox();
+
+  function renderVargaChart(chart) {
+    const A = L.analyze(chart);
+    const P = {}; chart.planets.forEach(p => { P[p.id] = p; });
+    const head = C5.VARGAS.map(v => `<th title="${v.name}">D${v.n}</th>`).join('');
+    const rows = BODIES.filter(id => P[id]).map(id => {
+      const vs = C5.allVargas(P[id].sign, P[id].deg);
+      const d1 = vs[0].sign;
+      return `<tr><td><b>${GL9[id]} ${NM9[id]}</b></td>${vs.map(v => `<td${v.key === 'D9' && v.sign === d1 ? ' style="background:var(--good-soft);font-weight:700"' : ''}>${C5.SIGN_HI[v.sign]}</td>`).join('')}</tr>`;
+    }).join('');
+    $('#ch6Chart').innerHTML = `<div class="card tablewrap"><table class="matrix"><tr><th></th>${head}</tr>${rows}</table>
+        <div class="note">हरा नवांश = वर्गोत्तम (नवांश में भी वही राशि जो जन्म-कुंडली में)।</div></div>
+      <div class="card"><div class="form"><div><label for="vgPlanet">ग्रह चुनें</label><select id="vgPlanet"></select></div></div><div id="vgPlanetOut" style="margin-top:12px"></div></div>
+      <h2>भावों के नाम (7.33–37)</h2><div class="card tablewrap" id="houseNames"></div>
+      <h2>कारक से भाव (7.39–42)</h2><div class="card tablewrap" id="karakaBhava"></div>`;
+    opts($('#vgPlanet'), L.SEVEN.map(id => [id, NM9[id]]));
+    const showPlanet = () => {
+      const id = $('#vgPlanet').value, p = P[id];
+      const vy = C5.vargaYogas(id, p.sign, p.deg), vb = C5.vimshopaka(id, p.sign, p.deg, A.relations);
+      const pill = k => ({ exalt: 'p-good', own: 'p-good', adhimitra: 'p-good', mitra: 'p-good', sama: 'p-neutral', shatru: 'p-bad', adhishatru: 'p-bad', debil: 'p-bad' }[k] || 'p-neutral');
+      $('#vgPlanetOut').innerHTML = `<h3>${GLYPH[id]} ${NM9[id]}: वर्ग-योग (6.42–52)</h3>
+        <p style="margin:4px 0">अपनी या उच्च राशि वाले वर्ग: <b>${vy.good.length ? vy.good.join(', ') : 'कोई नहीं'}</b> ${chips(vy.verses)}</p>
+        <div class="grid g2">${Object.values(vy.schemes).map(sc => `<div>${sc.scheme}: ${sc.count} / ${sc.of} → ${sc.yoga ? `<span class="pill p-good">${sc.yoga}</span>` : '<span class="pill p-neutral">कोई योग नहीं</span>'} ${chips(sc.verses)}</div>`).join('')}</div>
+        <div class="note">${esc(vy.interpretation)}</div>
+        <h3 style="margin-top:16px">विंशोपक बल (7.17–27)</h3>
+        <div class="grid g2">${Object.values(vb).map(sc => `<div><b>${sc.scheme}</b>: <span class="big" style="font-size:20px">${sc.total.toFixed(2)}</span> / 20
+          <span class="pill ${sc.total > 15 ? 'p-good' : sc.total > 10 ? 'p-mid' : sc.total >= 5 ? 'p-neutral' : 'p-bad'}">${sc.grade}</span>
+          <div class="bar" style="margin:4px 0"><i style="width:${sc.total / 20 * 100}%"></i></div>
+          <details><summary style="cursor:pointer;color:var(--accent)">गणना देखें</summary><table><tr><th>वर्ग</th><th>भार</th><th>राशि</th><th>स्थिति</th><th>अंक</th></tr>
+          ${sc.rows.map(r => `<tr><td>${r.key}</td><td>${r.weight}</td><td>${C5.SIGN_HI[r.sign]}</td><td><span class="pill ${pill(r.standing.key)}">${r.standing.label}</span></td><td>${r.points}</td></tr>`).join('')}</table></details>
+          ${chips(sc.verses)}</div>`).join('')}</div>
+        <div class="note">अंक (7.24–25): अपनी या उच्च राशि 20, अधिमित्र 18, मित्र 15, सम 10, शत्रु 7, अधिशत्रु 5। मैत्री जन्म-कुंडली की पञ्चधा मैत्री (अध्याय 3) से ली है, और नीच राशि में भी स्वामी से मैत्री के अंक; ये दोनों व्याख्या हैं।</div>`;
+    };
+    $('#vgPlanet').addEventListener('input', showPlanet); showPlanet();
+    const lg = P.Lagna.sign, inHouse = h => BODIES.filter(id => id !== 'Lagna' && P[id] && ((P[id].sign - lg + 12) % 12) + 1 === h).map(id => NM9[id]).join(', ') || '—';
+    $('#houseNames').innerHTML = `<table><tr><th>भाव</th><th>नाम</th><th>संज्ञा</th><th>राशि</th><th>ग्रह</th></tr>
+      ${C5.HOUSE_NAMES.map((n, i) => `<tr><td><b>${i + 1}</b></td><td>${n}</td><td>${C5.HOUSE_GROUPS.filter(g => g.houses.includes(i + 1)).map(g => g.name).join(', ')}</td><td>${C5.SIGN_HI[(lg + i) % 12]}</td><td>${inHouse(i + 1)}</td></tr>`).join('')}
+      </table>${rangeChips(7, 33, 37)}`;
+    $('#karakaBhava').innerHTML = `<table><tr><th>विषय</th><th>लग्न से</th><th>कारक से</th><th>श्लोक</th></tr>
+      ${C5.KARAKA_BHAVA.map(k => `<tr><td>${k.topic}</td><td>भाव ${k.house}: ${C5.SIGN_HI[(lg + k.house - 1) % 12]}</td>
+        <td>${GLYPH[k.from]} ${NM9[k.from]} से ${k.house}: <b>${C5.SIGN_HI[(P[k.from].sign + k.house - 1) % 12]}</b></td><td>${chips(k.verses)}</td></tr>`).join('')}
+      </table><div class="note">एक ही विषय को लग्न और उसके कारक, दोनों से देखा जाता है (7.38–43)।</div>`;
+  }
+
+  // Station 9 — chapter 8, rashi drishti
+  let chakraOn = 0, chakraChart = null;
+  function drawChakra() {
+    // 8.7–8 on a square with north at the top and east on the right: [column, row from the bottom]
+    const cells = { 0: [3, 1], 1: [3, 2], 2: [3, 3], 3: [2, 3], 4: [1, 3], 5: [0, 3], 6: [0, 2], 7: [0, 1], 8: [0, 0], 9: [1, 0], 10: [2, 0], 11: [3, 0] };
+    const asp = C5.rashiAspects(chakraOn).signs;
+    const occ = {}; if (chakraChart) chakraChart.planets.forEach(p => { if (NM9[p.id]) (occ[p.sign] = occ[p.sign] || []).push(GL9[p.id]); });
+    const box = 70;
+    const svg = `<svg viewBox="0 0 ${box * 4 + 20} ${box * 4 + 20}" style="width:100%;max-width:340px" role="img" aria-label="दृष्टि-चक्र">
+      <text x="${box * 2 + 10}" y="${box * 2 + 4}" text-anchor="middle" font-size="13" fill="var(--muted)">दृष्टि-चक्र</text>
+      <text x="${box * 4 + 14}" y="${box * 2 + 14}" font-size="11" fill="var(--muted)" transform="rotate(90 ${box * 4 + 14} ${box * 2 + 14})">पूर्व</text>
+      <text x="${box * 2 + 10}" y="9" text-anchor="middle" font-size="11" fill="var(--muted)">उत्तर</text>
+      <text x="6" y="${box * 2 + 10}" font-size="11" fill="var(--muted)" transform="rotate(-90 6 ${box * 2 + 10})">पश्चिम</text>
+      <text x="${box * 2 + 10}" y="${box * 4 + 19}" text-anchor="middle" font-size="11" fill="var(--muted)">दक्षिण</text>
+      ${Object.entries(cells).map(([s, [cx, cy]]) => {
+        s = +s; const x = 10 + cx * box, y = 10 + (3 - cy) * box;
+        const fill = s === chakraOn ? 'var(--accent)' : asp.includes(s) ? 'var(--good-soft)' : 'var(--surface-2)';
+        const ink = s === chakraOn ? 'var(--bg)' : 'var(--ink)';
+        return `<g data-csign="${s}" style="cursor:pointer"><rect x="${x + 2}" y="${y + 2}" width="${box - 4}" height="${box - 4}" rx="8" fill="${fill}" stroke="var(--line)"/>
+          <text x="${x + box / 2}" y="${y + box / 2 - 2}" text-anchor="middle" font-size="14" font-weight="700" fill="${ink}">${C5.SIGN_HI[s]}</text>
+          <text x="${x + box / 2}" y="${y + box / 2 + 16}" text-anchor="middle" font-size="13" fill="${ink}">${(occ[s] || []).join(' ')}</text></g>`;
+      }).join('')}</svg>`;
+    $('#chakra').innerHTML = svg;
+    const r = C5.rashiAspects(chakraOn);
+    $('#chakraWhy').innerHTML = `<div class="big" style="font-size:22px">${C5.SIGN_HI[chakraOn]}</div><div>${C5.MODALITY_HI[chakraOn % 3]} राशि</div>
+      <p>देखती है: <b>${r.signs.map(x => C5.SIGN_HI[x]).join(', ')}</b> ${chips(r.verses)}</p>
+      <p style="color:var(--muted)">${chakraOn % 3 === 2 ? 'द्विस्वभाव राशि बाकी तीनों द्विस्वभाव राशियों को देखती है।'
+        : `${chakraOn % 3 === 0 ? 'चर राशि स्थिर' : 'स्थिर राशि चर'} राशियों को देखती है, पर पास वाली ${C5.SIGN_HI[[...Array(12).keys()].find(x => x % 3 === (chakraOn % 3 === 0 ? 1 : 0) && (x === (chakraOn + 1) % 12 || x === (chakraOn + 11) % 12))]} को नहीं।`}</p>
+      <div class="note">चक्र की दिशाएँ 8.7–8 के अनुसार: पूर्व में मेष-वृष, उत्तर में कर्क-सिंह, पश्चिम में तुला-वृश्चिक, दक्षिण में मकर-कुम्भ, और कोनों में मिथुन, कन्या, धनु, मीन ${rangeChips(8, 7, 8)}</div>`;
+  }
+  $('#chakra').addEventListener('click', e => { const g = e.target.closest('[data-csign]'); if (g) { chakraOn = +g.dataset.csign; drawChakra(); } });
+  drawChakra();
+  function renderCh8Chart(chart) {
+    chakraChart = chart; drawChakra();
+    const rd = C5.rashiDrishtiChart(chart);
+    const order = id => BODIES.indexOf(id);
+    $('#ch8Chart').innerHTML = `<div class="card tablewrap"><table><tr><th>ग्रह</th><th>राशि</th><th>देखता है (राशियाँ)</th><th>उन राशियों के ग्रह</th><th>श्लोक</th></tr>
+      ${rd.sort((a, b) => order(a.id) - order(b.id)).map(r => `<tr><td><b>${GL9[r.id]} ${NM9[r.id]}</b></td><td>${C5.SIGN_HI[r.sign]}</td><td>${r.signs.map(x => C5.SIGN_HI[x]).join(', ')}</td>
+        <td>${r.sees.map(id => `${GL9[id]} ${NM9[id]}`).join(', ') || '—'}</td><td>${chips(r.verses)}</td></tr>`).join('')}
+      </table><div class="note">ग्रहों की अपनी (भाव-आधारित) दृष्टि आगे अध्याय 27 में आती है; यहाँ केवल अध्याय 8 की राशि-दृष्टि है।</div></div>`;
+  }
+
+  // Station 10 — bhava chapters: each rule tested on the chart
+  const HOUSE_NAME = ['तनु', 'धन', 'सहज', 'सुख', 'सुत', 'रिपु', 'जाया', 'आयु', 'भाग्य', 'कर्म', 'आय', 'व्यय'];
+  let RULESET = null, bhavaOn = 1, bhavaCtx = null, showSensitive = false;
+  document.addEventListener('change', e => { if (e.target.id === 'sensToggle') { showSensitive = e.target.checked; showBhava(); } });
+  function buildBhava(rules) {
+    RULESET = rules;
+    $('#bhavaCards').innerHTML = HOUSE_NAME.map((n, i) => `<button type="button" class="pcard" data-bh="${i + 1}"><b>भाव ${i + 1}</b><span>${n} · अध्याय ${i + 13}${rules.meta.chapters_done.includes(i + 13) ? '' : ' (आगे)'}</span></button>`).join('');
+    $('#bhavaCards').addEventListener('click', e => { const b = e.target.closest('[data-bh]'); if (b) { bhavaOn = +b.dataset.bh; showBhava(); } });
+    showBhava();
+  }
+  function bhavaChart(chart) {
+    bhavaCtx = BH.context(chart, L.analyze(chart), C5);
+    if (RULESET) showBhava();
+  }
+  function showBhava() {
+    document.querySelectorAll('#bhavaCards .pcard').forEach(b => b.classList.toggle('on', +b.dataset.bh === bhavaOn));
+    const h = bhavaOn, sig = RULESET.significations[h], ch = h + 12;
+    let facts = `<h3 style="font-size:20px">भाव ${h}: ${HOUSE_NAME[h - 1]}</h3><p style="margin:4px 0">इस भाव से देखें: <b>${esc(sig.text)}</b> ${chips(sig.verses.map(n => vid(12, n)))}</p>`;
+    if (bhavaCtx) {
+      const f = BH.bhavaFacts(bhavaCtx, h);
+      facts += `<div class="grid g3" style="margin-top:10px">
+        <div><label>राशि</label><b>${f.signName}</b></div>
+        <div><label>भावेश</label><b>${GLYPH[f.lord]} ${L.NAME_HI[f.lord]}</b>, भाव ${f.lordHouse} में, <span class="pill ${pillFor(f.lordDignity.key)}">${f.lordDignity.label}</span></div>
+        <div><label>भाव में स्थित</label>${f.occupants.map(id => `${GLYPH[id]} ${NM9[id]}`).join(', ') || '—'}</div>
+        <div><label>भाव पर दृष्टि</label>${f.aspectedBy.map(id => `${GLYPH[id]} ${NM9[id]}`).join(', ') || '—'} ${chips(f.drishtiVerses)}</div>
+      </div><div class="note">दृष्टि अध्याय 27 के अनुसार: सब ग्रह सातवें को पूरा देखते हैं; शनि 3, 10, गुरु 5, 9, मंगल 4, 8 को भी। राहु-केतु की दृष्टि श्लोक में नहीं, इसलिए नहीं गिनी।</div>`;
+    } else facts += `<div class="note">कुंडली के साथ परखने के लिए पहले स्टेशन 5 में कुंडली बनाएँ। <button class="ghost" data-goto="chart">स्टेशन 5</button></div>`;
+    $('#bhavaFacts').innerHTML = facts;
+    const all = RULESET.rules.filter(r => r.house === h || r.house === '*');
+    const rules = showSensitive ? all : all.filter(r => !r.sensitive);
+    const hidden = all.length - rules.length;
+    const done = RULESET.meta.chapters_done.includes(ch);
+    $('#bhavaRulesHead').innerHTML = `अध्याय ${ch} ${esc(CH_TITLE[ch] || '')} और अध्याय 12 के सामान्य नियम`;
+    const rows = rules.map(r => {
+      const res = bhavaCtx ? BH.runRule(r, bhavaCtx, h) : null;
+      const st = !res ? ['p-neutral', 'कुंडली बनाएँ'] : { yes: ['p-good', 'लागू'], no: ['p-neutral', 'लागू नहीं'], open: ['p-mid', 'अभी नहीं परखा'] }[res.status];
+      const lines = res && res.lines.length ? `<details><summary style="cursor:pointer;color:var(--accent)">गणना देखें</summary>
+        <div style="font-size:15px;margin-top:4px">${res.join === 'any' ? 'इनमें से कोई एक चाहिए:' : res.join === 'all' ? 'ये सब चाहिए:' : ''}
+        ${res.lines.map(l => `<div>${l.ok ? '✓' : '✗'} ${esc(l.text)}</div>`).join('')}</div></details>` : '';
+      return `<div class="card"${res && res.status === 'yes' ? ' style="border-color:var(--good)"' : ''}><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">${esc(r.text)}</div><span>${r.sensitive ? '<span class="pill p-mid">संवेदनशील</span> ' : ''}<span class="pill ${st[0]}">${st[1]}</span></span></div>
+        <div style="margin-top:6px">${chips(r.verses.map(n => vid(r.chapter, n)))}</div>${lines}
+        ${r.interpretation ? `<div class="note">${esc(r.interpretation)}</div>` : ''}</div>`;
+    }).join('');
+    const toggle = all.some(r => r.sensitive) ? `<div class="card"><label style="display:flex;gap:8px;align-items:center;margin:0;cursor:pointer">
+        <input type="checkbox" id="sensToggle" style="width:auto"${showSensitive ? ' checked' : ''}> संवेदनशील फल भी दिखाएँ (मृत्यु, रोग, पितृत्व आदि)</label>
+      <p style="margin:6px 0 0;color:var(--muted)">${showSensitive ? 'ये श्लोक-फल पढ़ने और सीखने के लिए हैं; किसी व्यक्ति के बारे में भविष्यवाणी के रूप में न कहें।' : `इस भाव के ${hidden} संवेदनशील नियम छिपे हैं।`}</p></div>` : '';
+    $('#bhavaRules').innerHTML = toggle + (done ? '' : `<div class="card"><p style="margin:0">अध्याय ${ch} के नियम अगले चरण में जुड़ेंगे। अभी केवल अध्याय 12 के सामान्य नियम दिख रहे हैं।</p></div>`) + rows;
+  }
+
+  // Station 11 — chapter 25: the lord of each house in each house (verse = (h − 1) × 12 + k)
+  const ORD = ['', 'लग्न', 'धन', 'सहज', 'सुख', 'सुत', 'रिपु', 'जाया', 'आयु', 'भाग्य', 'कर्म', 'लाभ', 'व्यय'];
+  let CH25 = null, ch25Chart = null, showSens25 = false;
+  const v25 = (h, k) => (h - 1) * 12 + k;
+  fetch('data/bphs_lab/meanings/025.json').then(r => r.json()).then(d => { CH25 = d; drawBhaveshGrid(); if (ch25Chart) bhaveshChart(ch25Chart); });
+  function placements(chart) {
+    const P = {}; chart.planets.forEach(p => { P[p.id] = p; });
+    const lg = P.Lagna.sign;
+    return [...Array(12)].map((_, i) => {
+      const h = i + 1, lord = L.SIGN_LORD[(lg + i) % 12], k = ((P[lord].sign - lg + 12) % 12) + 1;
+      return { h, lord, k, verse: v25(h, k) };
+    });
+  }
+  function drawBhaveshGrid() {
+    const mine = ch25Chart ? new Set(placements(ch25Chart).map(x => x.verse)) : new Set();
+    $('#bhaveshGrid').innerHTML = `<table class="matrix"><tr><th>स्वामी ↓ / भाव में →</th>${[...Array(12)].map((_, k) => `<th>${k + 1}</th>`).join('')}</tr>
+      ${[...Array(12)].map((_, i) => `<tr><th style="text-align:left">${i + 1} ${ORD[i + 1]}</th>${[...Array(12)].map((_, j) => {
+        const n = v25(i + 1, j + 1);
+        return `<td${mine.has(n) ? ' style="background:var(--accent-soft)"' : ''}><button type="button" class="vchip" data-v="BPHS.25.${n}"${mine.has(n) ? ' style="border-color:var(--accent);font-weight:700"' : ''}>${n}</button></td>`;
+      }).join('')}</tr>`).join('')}</table>`;
+  }
+  function bhaveshChart(chart) {
+    ch25Chart = chart;
+    drawBhaveshGrid();
+    if (!CH25) return;
+    const pl = placements(chart);
+    const sens = new Set(CH25.sensitive_verses || []);
+    const count = {}; pl.forEach(x => { count[x.lord] = (count[x.lord] || 0) + 1; });
+    const shown = pl.filter(x => showSens25 || !sens.has(x.verse));
+    const hidden = pl.length - shown.length;
+    $('#bhaveshMine').innerHTML = `<h2>आपकी कुंडली के बारह भावेश</h2>
+      ${hidden || pl.some(x => sens.has(x.verse)) ? `<div class="card"><label style="display:flex;gap:8px;align-items:center;margin:0;cursor:pointer"><input type="checkbox" id="sensToggle25" style="width:auto"${showSens25 ? ' checked' : ''}> संवेदनशील फल भी दिखाएँ</label>
+        <p style="margin:6px 0 0;color:var(--muted)">${showSens25 ? 'ये श्लोक-फल पढ़ने और सीखने के लिए हैं; किसी व्यक्ति के बारे में भविष्यवाणी के रूप में न कहें।' : `${hidden} संवेदनशील फल छिपे हैं।`}</p></div>` : ''}
+      <div class="grid g2">${shown.map(x => `<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <b>भाव ${x.h} (${ORD[x.h]}) का स्वामी ${GLYPH[x.lord]} ${L.NAME_HI[x.lord]} → भाव ${x.k} (${ORD[x.k]}) में</b>${sens.has(x.verse) ? '<span class="pill p-mid">संवेदनशील</span>' : ''}</div>
+        <p style="margin:6px 0">${esc(CH25.meanings[x.verse])}</p>${chip(`BPHS.25.${x.verse}`)}
+        ${count[x.lord] > 1 ? `<div class="note">${L.NAME_HI[x.lord]} दो भावों (${pl.filter(y => y.lord === x.lord).map(y => y.h).join(', ')}) का स्वामी है; दोनों फल साथ पढ़ें ${rangeChips(25, 146, 147)}</div>` : ''}</div>`).join('')}</div>`;
+  }
+  document.addEventListener('change', e => { if (e.target.id === 'sensToggle25') { showSens25 = e.target.checked; if (ch25Chart) bhaveshChart(ch25Chart); } });
+
+  // Station 12 — quiz
+  function buildQuiz(chs) {
+    const qs = chs.flatMap(c => c.quiz.map(q => Object.assign({ chapter: c.chapter }, q)));
+    $('#quizBox').innerHTML = qs.map((q, i) => `<div class="qitem" style="margin-bottom:18px"><b>${deva(i + 1)}. ${esc(q.q)}</b>
+      ${q.options.map((o, j) => `<button type="button" class="opt" data-q="${i}" data-o="${j}">${esc(o)}</button>`).join('')}<div class="qwhy" id="qwhy${i}"></div></div>`).join('');
+    $('#quizBox').addEventListener('click', e => {
+      const b = e.target.closest('.opt'); if (!b) return;
+      const q = qs[+b.dataset.q], right = +b.dataset.o === q.answer;
+      b.parentElement.querySelectorAll('.opt').forEach((x, j) => { x.classList.toggle('right', j === q.answer); x.classList.toggle('wrong', x === b && !right); });
+      $('#qwhy' + b.dataset.q).innerHTML = `<span class="pill ${right ? 'p-good' : 'p-bad'}">${right ? 'सही' : 'फिर देखें'}</span> ${chip(vid(q.chapter, q.verse), 'श्लोक देखें')}`;
+    });
+  }
+})();
+</script>
+</body>
+</html>
