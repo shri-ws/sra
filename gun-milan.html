@@ -121,6 +121,48 @@
   .placeholder { text-align:center; color:var(--gm-soft); padding:30px 10px; }
   .placeholder .big { font-size:40px; }
   .mini-note { font-size:11px; color:var(--gm-soft); text-align:center; margin-top:16px; }
+  /* ---- manglik tab (paywall + combined report) ---- */
+  .gm-teaser { border:1px solid var(--gm-border); border-radius:16px; padding:18px; background:rgba(180,83,9,0.04); }
+  .gm-teaser h2 { margin:0 0 4px; font-size:19px; color:var(--gm-kumkum); text-align:center; }
+  .gm-teaser .sub { text-align:center; color:var(--gm-soft); font-size:13px; margin-bottom:12px; }
+  .gm-teaser ul { list-style:none; padding:0; margin:0 0 14px; }
+  .gm-teaser li { padding:7px 0 7px 26px; position:relative; font-size:13.5px; border-top:1px dashed var(--gm-border); }
+  .gm-teaser li:first-child{border-top:0;}
+  .gm-teaser li::before { content:'🔒'; position:absolute; left:0; top:6px; font-size:12px; }
+  .gm-price { text-align:center; margin:10px 0 4px; }
+  .gm-price .amt { font-size:30px; font-weight:800; color:var(--gm-gold); }
+  .gm-price .was { text-decoration:line-through; color:var(--gm-soft); font-size:15px; margin-left:8px; }
+  .gm-secure { text-align:center; font-size:11px; color:var(--gm-soft); margin-top:8px; }
+  .gm-code-row { display:flex; gap:8px; max-width:360px; margin:14px auto 0; }
+  .gm-code-row input { flex:1; height:42px; border:1.5px solid var(--gm-border); border-radius:9px; padding:0 10px; font-size:14px; background:var(--gm-bg); color:var(--gm-ink); font-family:inherit; }
+  .gm-code-row button { flex:0 0 auto; border:1px solid var(--gm-border); background:var(--gm-card); color:var(--gm-ink); border-radius:9px; padding:0 14px; font-weight:700; font-size:13px; cursor:pointer; }
+  .gm-code-err { color:var(--gm-bad); font-size:12px; text-align:center; margin-top:6px; display:none; }
+  .verdict { border-radius:16px; padding:18px; text-align:center; margin-bottom:16px; border:1px solid var(--gm-border); }
+  .verdict.ok { background:rgba(27,122,70,0.08); border-left:5px solid var(--gm-ok); }
+  .verdict.warn { background:rgba(180,83,9,0.08); border-left:5px solid var(--gm-warn); }
+  .verdict.bad { background:rgba(185,28,28,0.07); border-left:5px solid var(--gm-bad); }
+  .verdict .vmark { font-size:38px; }
+  .verdict h2 { margin:4px 0 6px; font-size:20px; }
+  .verdict.ok h2 { color:var(--gm-ok); } .verdict.warn h2 { color:var(--gm-warn); } .verdict.bad h2 { color:var(--gm-bad); }
+  .verdict p { margin:0; color:var(--gm-soft); font-size:13.5px; max-width:560px; margin:0 auto; }
+  .mg-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(max-width:560px){ .mg-grid { grid-template-columns:1fr; } }
+  .mg-card { border:1px solid var(--gm-border); border-radius:14px; padding:14px; }
+  .mg-card.var { border-top:4px solid var(--gm-boy); } .mg-card.vadhu { border-top:4px solid var(--gm-girl); }
+  .mg-card h3 { margin:0 0 8px; font-size:15px; }
+  .mg-card.var h3 { color:var(--gm-boy); } .mg-card.vadhu h3 { color:var(--gm-girl); }
+  .mg-badge { display:inline-block; font-size:12px; font-weight:800; padding:3px 11px; border-radius:20px; margin-bottom:8px; }
+  .mg-badge.yes { background:rgba(185,28,28,0.12); color:var(--gm-bad); }
+  .mg-badge.no { background:rgba(27,122,70,0.12); color:var(--gm-ok); }
+  .mg-badge.mild { background:rgba(180,83,9,0.12); color:var(--gm-warn); }
+  .mg-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; border-top:1px dashed var(--gm-border); }
+  .mg-row:first-of-type{border-top:0;}
+  .mg-row b { color:var(--gm-ink); font-weight:700; }
+  .mg-sec-title { font-weight:800; font-size:14px; margin:18px 0 6px; color:var(--gm-kumkum); }
+  .mg-parihar { list-style:none; padding:0; margin:0; }
+  .mg-parihar li { padding:6px 0 6px 24px; position:relative; font-size:12.5px; border-top:1px dashed var(--gm-border); color:var(--gm-soft); }
+  .mg-parihar li:first-child{border-top:0;}
+  .mg-parihar li::before { content:'✓'; position:absolute; left:0; top:6px; color:var(--gm-ok); font-weight:800; }
   footer.ft { text-align:center; padding:24px 16px; color:var(--gm-soft); font-size:12px; }
 </style>
 </head>
@@ -197,14 +239,9 @@
     <div id="ashtakootResult" class="hidden"></div>
   </section>
 
-  <!-- TAB 3: MANGLIK (paywall — next stage) -->
+  <!-- TAB 3: MANGLIK (combined report, paywall) -->
   <section class="gm-panel" id="panel-manglik" role="tabpanel">
-    <div class="placeholder">
-      <div class="big">🔒</div>
-      <p><b>दोनों की मांगलिक दोष जाँच एवं संयुक्त मिलान रिपोर्ट</b></p>
-      <p style="max-width:560px;margin:8px auto;">यह विस्तृत रिपोर्ट — वर व वधू दोनों का त्रि-लग्न मांगलिक विश्लेषण, परस्पर दोष-कटाव (मांगलिक-साम्य) और अंतिम “मिलेगी / नहीं मिलेगी” निर्णय — भुगतान/अनलॉक के बाद उपलब्ध होगी।</p>
-      <p class="mini-note">(यह भाग अगले चरण में जोड़ा जा रहा है।)</p>
-    </div>
+    <div id="manglikZone"></div>
   </section>
 
   <!-- TAB 4: MUHURAT (next stage) -->
@@ -229,6 +266,7 @@
 <script src="sra-ui.js?v=32" defer></script>
 <script src="sra-master.js" defer></script>
 <script src="sra-i18n.js" defer></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 (function () {
@@ -261,6 +299,7 @@
     document.querySelectorAll('.gm-panel').forEach(function (p) {
       p.classList.toggle('active', p.id === 'panel-' + name);
     });
+    if (name === 'manglik') renderManglikTab();
   }
   tabs.forEach(function (t) { t.addEventListener('click', function () { showTab(t.dataset.tab); }); });
 
@@ -294,7 +333,10 @@
     });
     var moon = calc.planets.find(function (p) { return p.id === 'Moon'; });
     if (!moon) throw new Error('चंद्र स्थिति नहीं मिली।');
-    return { name: name, calc: calc, person: window.GunMilanEngine.fromMoonAbs(moon.abs, name) };
+    return {
+      name: name, calc: calc, person: window.GunMilanEngine.fromMoonAbs(moon.abs, name),
+      gender: (prefix === 'v' ? 'male' : 'female'), dob: date, tob: time, pob: cityTxt
+    };
   }
 
   var btn = document.getElementById('btnMatch');
@@ -376,6 +418,178 @@
     document.getElementById('ashtakootEmpty').classList.add('hidden');
     var rc = document.getElementById('ashtakootResult');
     rc.innerHTML = html; rc.classList.remove('hidden');
+  }
+
+  // ======================= TAB 3 : MANGLIK (संयुक्त मांगलिक मिलान) =======================
+  var MANGLIK_PRICE = 299;
+
+  function coupleKey() {
+    var b = window.__gmBoy, g = window.__gmGirl;
+    if (!b || !g) return '';
+    return ('gm_' + b.name + '_' + (b.dob || '') + '_' + (b.tob || '') + '|' + g.name + '_' + (g.dob || '') + '_' + (g.tob || ''))
+      .replace(/[^a-zA-Z0-9_|-]/g, '').slice(0, 120);
+  }
+  function isManglikUnlocked() {
+    try {
+      var u = new URLSearchParams(location.search);
+      if (u.get('unlock_all') === '1' || u.get('unlock_milan') === '1') return true;
+      return localStorage.getItem('sra_unlocked_milan_' + coupleKey()) === 'true';
+    } catch (e) { return false; }
+  }
+
+  function renderManglikTab() {
+    var zone = document.getElementById('manglikZone');
+    if (!window.__gmBoy || !window.__gmGirl) {
+      zone.innerHTML = '<div class="placeholder"><div class="big">💑</div>' +
+        '<p><b>पहले दोनों कुंडली बनाएं</b></p>' +
+        '<p style="max-width:520px;margin:8px auto;">संयुक्त मांगलिक मिलान के लिए वर व वधू — दोनों की जन्म जानकारी भरकर कुंडली बनाना आवश्यक है।</p>' +
+        '<button class="btn-main" style="max-width:320px;margin:14px auto 0;" type="button" onclick="document.querySelector(\'.gm-tab[data-tab=input]\').click()">① दोनों कुंडली भरें ➔</button></div>';
+      return;
+    }
+    if (isManglikUnlocked()) { renderCombinedManglik(); return; }
+    renderManglikPaywall();
+  }
+
+  function renderManglikPaywall() {
+    var zone = document.getElementById('manglikZone');
+    var bn = esc(window.__gmBoy.name), gn = esc(window.__gmGirl.name);
+    zone.innerHTML =
+      '<div class="gm-teaser">' +
+        '<h2>🔒 संयुक्त मांगलिक दोष जाँच एवं मिलान</h2>' +
+        '<div class="sub">' + bn + ' × ' + gn + ' — प्रामाणिक त्रि-लग्न विश्लेषण</div>' +
+        '<ul>' +
+          '<li>वर व वधू — दोनों का त्रि-लग्न (लग्न · चंद्र · शुक्र) मांगलिक परीक्षण</li>' +
+          '<li>मंगल की भाव-राशि स्थिति, नवांश (D9) पुष्टि व दोष प्रतिशत</li>' +
+          '<li>परस्पर दोष-कटाव — <b>मांगलिक-साम्य (पाप-साम्य)</b> गणना</li>' +
+          '<li>लागू शास्त्रीय परिहार व शुद्ध (नेट) दोष प्रतिशत</li>' +
+          '<li>अंतिम स्पष्ट निर्णय — <b>“मिलेगी / नहीं मिलेगी”</b> व उपाय</li>' +
+        '</ul>' +
+        '<div class="gm-price"><span class="amt">₹' + MANGLIK_PRICE + '</span><span class="was">₹499</span></div>' +
+        '<button class="btn-main" type="button" onclick="gmPayManglik()">🔓 रिपोर्ट अनलॉक करें (₹' + MANGLIK_PRICE + ')</button>' +
+        '<div class="gm-secure">🔒 सुरक्षित 256-bit Razorpay · तत्काल ऑटो-अनलॉक · UPI / कार्ड / नेट बैंकिंग</div>' +
+        '<div class="gm-code-row"><input id="milanOwnerCode" type="text" placeholder="प्रोमो / एक्सेस कोड" autocomplete="off" />' +
+          '<button type="button" onclick="gmApplyManglikCode()">लागू करें</button></div>' +
+        '<div class="gm-code-err" id="milanOwnerCodeErr">कोड मान्य नहीं है।</div>' +
+      '</div>';
+  }
+
+  window.gmApplyManglikCode = function () {
+    var inp = document.getElementById('milanOwnerCode');
+    var err = document.getElementById('milanOwnerCodeErr');
+    if (inp && window.sraIsMasterKey && window.sraIsMasterKey(inp.value)) {
+      if (err) err.style.display = 'none';
+      gmUnlockManglik('MASTER_KEY');
+    } else if (err) { err.style.display = 'block'; }
+  };
+
+  window.gmPayManglik = function () {
+    if (typeof Razorpay === 'undefined') {
+      alert('पेमेंट गेटवे लोड नहीं हो सका — कृपया पुनः प्रयास करें।'); return;
+    }
+    var bn = (window.__gmBoy && window.__gmBoy.name) || 'वर';
+    var gn = (window.__gmGirl && window.__gmGirl.name) || 'वधू';
+    var rzp = new Razorpay({
+      key: 'rzp_live_SP6lQYYrNI0CYD',
+      amount: MANGLIK_PRICE * 100, currency: 'INR',
+      name: 'Shri Ramji Astro',
+      description: 'संयुक्त मांगलिक मिलान — ' + bn + ' × ' + gn + ' (₹' + MANGLIK_PRICE + ')',
+      theme: { color: '#7c1305' },
+      handler: function (resp) { gmUnlockManglik(resp.razorpay_payment_id || 'RZP_SUCCESS'); }
+    });
+    rzp.on('payment.failed', function (r) { alert('भुगतान असफल: ' + ((r.error && r.error.description) || 'पुनः प्रयास करें।')); });
+    rzp.open();
+  };
+
+  function gmUnlockManglik(paymentId) {
+    try { localStorage.setItem('sra_unlocked_milan_' + coupleKey(), 'true'); } catch (e) {}
+    try {
+      fetch('api/save_payment.php', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_payment_id: paymentId || ('RZP_MILAN_' + Date.now()),
+          student_name: (window.__gmBoy.name + ' × ' + window.__gmGirl.name),
+          plan_name: 'Sanyukt Manglik Milan (₹' + MANGLIK_PRICE + ')',
+          report_type: 'gun_milan_manglik', amount: MANGLIK_PRICE, status: 'completed',
+          kundali_key: coupleKey()
+        })
+      }).catch(function () {});
+    } catch (e) {}
+    renderCombinedManglik();
+  }
+
+  function buildBothManglik() {
+    if (!window.extractMangalDoshaContract || !window.calculateMangalDoshaReport || !window.MangalDoshaEngine)
+      throw new Error('मांगलिक इंजन लोड नहीं हुआ — पेज रीफ्रेश करें।');
+    var b = window.__gmBoy, g = window.__gmGirl;
+    var cb = window.extractMangalDoshaContract(b.calc, { name: b.name, gender: b.gender || 'male', dob: b.dob, tob: b.tob, pob: b.pob });
+    var cg = window.extractMangalDoshaContract(g.calc, { name: g.name, gender: g.gender || 'female', dob: g.dob, tob: g.tob, pob: g.pob });
+    if (!cb || !cg) throw new Error('कुंडली से मांगलिक गणना नहीं हो सकी।');
+    cb.partner_d1 = cg.d1; cg.partner_d1 = cb.d1;
+    return { rb: window.calculateMangalDoshaReport(cb, 'hi'), rg: window.calculateMangalDoshaReport(cg, 'hi') };
+  }
+
+  function combinedVerdict(rb, rg) {
+    var gb = !!rb.is_manglik, gg = !!rg.is_manglik;
+    var nb = +rb.net_dosha_percentage || 0, ng = +rg.net_dosha_percentage || 0;
+    var samya = (rb.partner_counter_details && rb.partner_counter_details.length) ||
+                (rg.partner_counter_details && rg.partner_counter_details.length);
+    if (!gb && !gg)
+      return { key: 'ok', mark: '✅', title: 'मिलेगी — मांगलिक बाधा नहीं',
+        text: 'वर व वधू — दोनों में से किसी की भी कुंडली में मांगलिक दोष नहीं है। वैवाहिक दृष्टि से मंगल सम्बन्धी कोई बाधा नहीं।' };
+    if (gb && gg)
+      return { key: 'ok', mark: '✅', title: 'मिलेगी — मांगलिक-साम्य (दोष परस्पर भंग)',
+        text: 'दोनों की कुंडली मांगलिक है, अतः शास्त्रानुसार मांगलिक-साम्य (पाप-साम्य) से दोनों का दोष परस्पर कटकर प्रायः शून्य हो जाता है — “विष से विष का नाश”। यह संयोग वैवाहिक दृष्टि से शुभ माना गया है।' };
+    // exactly one manglik
+    var mn = gb ? nb : ng, who = gb ? rb.jataka_name : rg.jataka_name, other = gb ? rg.jataka_name : rb.jataka_name;
+    if (mn <= 15)
+      return { key: 'ok', mark: '✅', title: 'मिलेगी — परिहार सहित (दोष प्रायः शमित)',
+        text: esc(who) + ' की कुंडली में मांगलिक दोष है, परंतु शास्त्रीय परिहार' + (samya ? ' व ' + esc(other) + ' की कुंडली के समदोष-साम्य' : '') + ' से शुद्ध दोष अत्यल्प (' + mn + '%) रह जाता है — विवाह उपयुक्त।' };
+    if (mn <= 45)
+      return { key: 'warn', mark: '⚠️', title: 'सावधानी — आंशिक दोष शेष',
+        text: esc(who) + ' की कुंडली में आंशिक मांगलिक दोष (' + mn + '%) परिहार के पश्चात् भी शेष है, जबकि ' + esc(other) + ' की कुंडली निर्मांगलिक है। मंगल-शांति उपाय के बाद ही विवाह शुभ रहेगा।' };
+    return { key: 'bad', mark: '🔴', title: 'बिना शांति-उपाय के उपयुक्त नहीं',
+      text: esc(who) + ' की कुंडली में प्रबल मांगलिक दोष (' + mn + '%) है और ' + esc(other) + ' की कुंडली निर्मांगलिक — साम्य नहीं बनता। कुंभ/अर्क विवाह व मंगल-शांति महायज्ञ के उपरांत ही विवाह विचारणीय है।' };
+  }
+
+  function hinGrah(s) {
+    return String(s).replace(/Saturn/g, 'शनि').replace(/Rahu/g, 'राहु').replace(/Ketu/g, 'केतु')
+      .replace(/Mars/g, 'मंगल').replace(/\bH(\d+)/g, 'भाव $1');
+  }
+  function mgCard(role, cls, r) {
+    var mild = r.is_manglik && (+r.net_dosha_percentage || 0) <= 15;
+    var badge = !r.is_manglik ? '<span class="mg-badge no">निर्मांगलिक</span>'
+      : (mild ? '<span class="mg-badge mild">आंशिक मांगलिक</span>' : '<span class="mg-badge yes">मांगलिक</span>');
+    var from = [];
+    if (r.is_lagna_manglik) from.push('लग्न');
+    if (r.is_moon_manglik) from.push('चंद्र');
+    if (r.is_venus_manglik) from.push('शुक्र');
+    var md = r.mars_details || {};
+    var pls = (r.applied_pariharas || []).slice(0, 5).map(function (p) {
+      return '<li>' + esc(p.title_hi || p.title || p.title_en || '') + (p.deduction ? ' (−' + p.deduction + '%)' : '') + '</li>';
+    }).join('');
+    return '<div class="mg-card ' + cls + '"><h3>' + role + ' — ' + esc(r.jataka_name) + '</h3>' + badge +
+      '<div class="mg-row"><span>मंगल</span><b>' + esc(md.rashi || '—') + ' · भाव ' + (md.house || '—') + '</b></div>' +
+      '<div class="mg-row"><span>दोष स्रोत</span><b>' + (from.length ? from.join(', ') : '—') + '</b></div>' +
+      '<div class="mg-row"><span>स्थूल दोष</span><b>' + r.gross_dosha_percentage + '%</b></div>' +
+      '<div class="mg-row"><span>परिहार कटौती</span><b>' + r.parihara_deduction_percentage + '%</b></div>' +
+      '<div class="mg-row"><span>शुद्ध (नेट) दोष</span><b>' + r.net_dosha_percentage + '%</b></div>' +
+      (r.is_manglik && r.partner_counter_details && r.partner_counter_details.length
+        ? '<div class="mg-row"><span>साथी-साम्य</span><b>' + esc(hinGrah(r.partner_counter_details.join(', '))) + '</b></div>' : '') +
+      (pls ? '<div class="mg-sec-title" style="font-size:12px;margin:12px 0 4px;">लागू परिहार</div><ul class="mg-parihar">' + pls + '</ul>' : '') +
+      '</div>';
+  }
+
+  function renderCombinedManglik() {
+    var zone = document.getElementById('manglikZone');
+    var both;
+    try { both = buildBothManglik(); }
+    catch (e) { zone.innerHTML = '<div class="placeholder"><div class="big">⚠️</div><p>' + esc(e.message || e) + '</p></div>'; return; }
+    var rb = both.rb, rg = both.rg, v = combinedVerdict(rb, rg);
+    zone.innerHTML =
+      '<div class="verdict ' + v.key + '"><div class="vmark">' + v.mark + '</div><h2>' + v.title + '</h2><p>' + v.text + '</p></div>' +
+      '<div class="mg-grid">' + mgCard('🤵 वर', 'var', rb) + mgCard('👰 वधू', 'vadhu', rg) + '</div>' +
+      '<div class="priority-note" style="margin-top:16px;"><b>शास्त्रीय टिप्पणी:</b> मांगलिक निर्णय केवल मंगल की स्थिति पर नहीं — सप्तम भाव, सप्तमेश, चंद्र-बल व दशा-क्रम का समग्र विचार भी आवश्यक है। यह रिपोर्ट मुख्य मांगलिक-साम्य सिद्धांत पर आधारित मार्गदर्शन है।</div>' +
+      '<div style="text-align:center;margin-top:16px;"><button class="btn-main" style="max-width:360px;margin:0 auto;" type="button" onclick="document.querySelector(\'.gm-tab[data-tab=muhurat]\').click()">④ अब विवाह मुहूर्त देखें ➔</button></div>';
   }
 })();
 </script>
