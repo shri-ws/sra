@@ -1572,7 +1572,7 @@
 
     const footerHtml = `
 <footer class="site-global-footer" style="background: #11141a; color: #cbd5e1; padding: 45px 20px 25px; margin-top: 50px; border-top: 1px solid rgba(212, 175, 55, 0.25); font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;">
-  <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px;">
+  <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 32px;">
     <div>
       <h3 style="color: #e2b04a; font-family: 'Cinzel', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; letter-spacing: 0.5px;">Patrika by Shri Ram Ji Astro</h3>
       <p style="font-size: 0.88rem; line-height: 1.65; color: #94a3b8; margin: 0;">

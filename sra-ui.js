@@ -134,10 +134,30 @@
     });
   }
 
+  // The shared bar (sra-nav.js): on narrow phones — or Android, where the system
+  // font/display size zooms the page to ~280–340 CSS px — hide controls that are
+  // also in the drawer, one by one, until the hamburger fits. Order: globe (languages
+  // are in the drawer), brand name, account, saved kundali, हि/EN. The theme toggle
+  // and the hamburger always stay.
+  const SQUEEZE = ['.sra-gn-globe', '.sra-gn-brand-txt', '#navAuthArea', '.nav-user-pill-btn',
+    '[onclick*="openSavedKundaliModal"]', '.lang-pill-btn'];
+  function fitGnav() {
+    const bar = document.querySelector('header.sra-gnav');
+    if (!bar) return;
+    bar.querySelectorAll('.sra-gn-squeezed').forEach(el => el.classList.remove('sra-gn-squeezed'));
+    const burger = bar.querySelector('.sra-gn-burger');
+    if (!burger || !burger.offsetParent) return;
+    const limit = document.documentElement.clientWidth - 2;
+    for (const sel of SQUEEZE) {
+      if (burger.getBoundingClientRect().right <= limit) break;
+      bar.querySelectorAll(sel).forEach(el => { if (el.offsetParent) el.classList.add('sra-gn-squeezed'); });
+    }
+  }
+
   let fitTimer = null;
   function scheduleFitNav() {
     clearTimeout(fitTimer);
-    fitTimer = setTimeout(fitNav, 60);
+    fitTimer = setTimeout(() => { fitNav(); fitGnav(); }, 60);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -147,9 +167,12 @@
     upgradeAllToggles();
     setupReveal();
     fitNav();
+    fitGnav();
     window.addEventListener('resize', scheduleFitNav);
+    window.addEventListener('load', scheduleFitNav);
     document.addEventListener('sra:langchange', scheduleFitNav);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+    document.addEventListener('sra:auth', scheduleFitNav);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleFitNav);
     // theme.js and page scripts inject nav pieces and cards after load
     let queued = false;
     new MutationObserver(() => {
@@ -159,6 +182,7 @@
         queued = false;
         upgradeAllToggles();
         observeReveal(document);
+        fitGnav();
       });
     }).observe(document.body, { childList: true, subtree: true });
   }

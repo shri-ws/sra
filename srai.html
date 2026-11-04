@@ -419,7 +419,7 @@
 
         /* BOTTOM CHAT INPUT BAR */
         .chat-input-bar {
-            padding: 14px 20px;
+            padding: 14px clamp(10px, 4vw, 20px);
             background: rgba(15, 20, 30, 0.95);
             border-top: 1px solid var(--border-soft);
             display: flex;
@@ -428,6 +428,7 @@
         }
         .chat-input {
             flex: 1;
+            min-width: 0; /* let the field shrink so the buttons stay on screen on narrow phones */
             background: var(--bg-deep);
             border: 1px solid var(--border-soft);
             color: var(--text-main);
@@ -443,6 +444,7 @@
             background: linear-gradient(135deg, var(--gold-dark), var(--gold));
             color: #000;
             border: none;
+            flex: none;
             width: 42px;
             height: 42px;
             border-radius: 50%;

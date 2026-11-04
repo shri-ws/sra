@@ -1041,3 +1041,19 @@ html[lang="en"] body .sra-gn-brand-sub { font-family: 'Cormorant Garamond', seri
 :root body .sra-social svg {
   width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
 }
+
+/* 19. NAV BAR ON NARROW / ZOOMED PHONES ─────────────────────────────────────
+   Android zooms pages by the system font/display size, so a 412px phone can lay
+   out at ~300 CSS px. sra-ui.js hides drawer-duplicated controls (.sra-gn-squeezed)
+   until the hamburger fits; the brand may shrink, the hamburger never does. */
+:root body .sra-gnav .sra-gn-squeezed { display: none !important; }
+:root body .sra-gn-inner { min-width: 0; }
+:root body .sra-gn-brand { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+:root body .sra-gn-brand img { flex: none; }
+:root body .sra-gnav .sra-gn-burger { flex: none !important; }
+/* The closed drawer waits off-screen to the right; on some pages that let the page
+   scroll sideways (Android shows a cut-off strip). Clip horizontally — 'clip', not
+   'hidden', so the sticky nav bar keeps working. */
+html, body { overflow-x: clip; }
+/* Footer columns were hard-coded to a 280px minimum; never ask for more than the screen */
+:root body .site-global-footer [style*="minmax(280px"] { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)) !important; }
