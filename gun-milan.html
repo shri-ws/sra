@@ -362,7 +362,11 @@
     var cityTxt = document.getElementById(prefix + '-city').value;
     var tz = parseFloat(document.getElementById(prefix + '-tz').value) || 5.5;
     if (!date || !time) throw new Error(roleName + ' की जन्म तिथि व समय भरें।');
-    var loc = await resolveCity(cityTxt);
+    // A saved kundali (सेव्ड कुंडली से चुनें) carries its exact coordinates
+    var cityEl = document.getElementById(prefix + '-city');
+    var loc = (cityEl.dataset.lat && cityEl.dataset.city === cityTxt)
+      ? { lat: parseFloat(cityEl.dataset.lat), lon: parseFloat(cityEl.dataset.lon) }
+      : await resolveCity(cityTxt);
     if (!loc) throw new Error(roleName + ' का जन्म स्थान नहीं मिला — सूची से शहर चुनें।');
     var calc = await window.PatrikaEngineBridge.calculatePatrikaPlanets({
       name: name, date: date, time: time, city: cityTxt, lat: loc.lat, lon: loc.lon, tz: tz

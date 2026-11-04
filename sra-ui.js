@@ -6,11 +6,15 @@
 // Premium line icons in place of colour emoji (sra-icons.js, next to this file)
 (function () {
   const me = document.currentScript;
-  if (!me || !me.src || window.__sraIcons) return;
-  const s = document.createElement('script');
-  s.src = new URL('sra-icons.js?v=1', me.src).href;
-  s.defer = true;
-  document.head.appendChild(s);
+  if (!me || !me.src) return;
+  // + "सेव्ड कुंडली से चुनें" on every muhurta / report birth form (sra-saved-pick.js)
+  [['sra-icons.js?v=1', '__sraIcons'], ['sra-saved-pick.js?v=1', '__sraSavedPick']].forEach(([file, flag]) => {
+    if (window[flag]) return;
+    const s = document.createElement('script');
+    s.src = new URL(file, me.src).href;
+    s.defer = true;
+    document.head.appendChild(s);
+  });
 })();
 (function() {
   // ══════════════════════════════════════════════════════════════════════════
