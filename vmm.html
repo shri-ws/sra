@@ -395,6 +395,74 @@
         .btn-gunmilan-link:hover { background: rgba(183,129,3,0.08); }
         [data-theme="night"] .btn-gunmilan-link { color: #E9CF8E; border-color: #B08D3E; }
         .print-only { display: none; }
+
+        /* PHONES: each muhurat day is a card that fits the screen — no sideways scroll.
+           तिथि | निर्णय on top, then पञ्चाङ्ग, चन्द्र/त्रिबल + सामर्थ्य, and शुभ लग्न समय.
+           Labels come from the table headings (data-label, set by script). */
+        @media screen and (max-width: 760px) {
+            #tableContainer { overflow: visible !important; background: transparent !important; border: 0 !important; }
+            #tableContainer table { min-width: 0 !important; width: 100% !important; font-size: 0.86rem; }
+            #tableContainer thead { display: none; }
+            #tableContainer tbody { display: block; }
+            #tableContainer tbody tr {
+                display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                grid-template-areas: "date verdict" "panch panch" "chandra strength" "lagna lagna";
+                margin: 0 0 12px; border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden;
+                background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            }
+            #tableContainer tbody tr.best-row { border-color: #2E7D32; }
+            #tableContainer tbody td {
+                display: block; min-width: 0 !important; padding: 9px 12px !important; border-bottom: 1px solid var(--border-soft);
+                overflow-wrap: anywhere;
+            }
+            #tableContainer tbody td::before {
+                content: attr(data-label); display: block; margin-bottom: 3px;
+                font-size: 0.66rem; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--text-muted);
+            }
+            #tableContainer tbody td:nth-child(1) { grid-area: date; background: rgba(183,129,3,0.07); }
+            #tableContainer tbody td:nth-child(6) { grid-area: verdict; background: rgba(183,129,3,0.07); text-align: right; }
+            #tableContainer tbody td:nth-child(1)::before, #tableContainer tbody td:nth-child(6)::before { display: none; }
+            #tableContainer tbody td:nth-child(2) { grid-area: panch; }
+            #tableContainer tbody td:nth-child(3) { grid-area: chandra; border-right: 1px solid var(--border-soft); }
+            #tableContainer tbody td:nth-child(4) { grid-area: strength; }
+            #tableContainer tbody td:nth-child(5) { grid-area: lagna; border-bottom: 0; }
+            #tableContainer tbody td[colspan] { grid-column: 1 / -1; grid-area: auto; }
+            #tableContainer tbody td[colspan]::before { display: none; }
+            #tableContainer .lagna-row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+        }
+
+        /* PDF (phones): the report is rendered into an A4-width copy with a light, legible look */
+        .vmm-pdf { width: 100%; background: #fff !important; color: #1a1a1a !important; padding: 0; }
+        /* html2canvas breaks Hindi conjuncts apart when letters are spaced or words may break
+           anywhere, so the PDF copy uses plain spacing; the site's fade-in effects are off. */
+        /* (.vmm-pdf.vmm-pdf: stronger than the shared heading rule in sra-elegance.css) */
+        :root body .vmm-pdf.vmm-pdf, :root body .vmm-pdf.vmm-pdf * {
+            letter-spacing: 0 !important; text-rendering: auto !important; word-spacing: normal !important; word-break: normal !important; overflow-wrap: normal !important;
+            opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; transition: none !important;
+            max-width: 100% !important; box-sizing: border-box;
+            font-family: 'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Mukta', system-ui, sans-serif !important;
+        }
+        .vmm-pdf [style*="grid-template-columns"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        .vmm-pdf .stats-summary { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+        .vmm-pdf .no-print, .vmm-pdf .results-tab-bar { display: none !important; }
+        .vmm-pdf .print-only { display: block !important; text-align: center; margin-bottom: 12px; }
+        .vmm-pdf .tab-content-panel { display: block !important; margin-bottom: 10px; }
+        .vmm-pdf .table-container { overflow: visible !important; border-radius: 0 !important; }
+        .vmm-pdf table { width: 100% !important; min-width: 0 !important; font-size: 10px !important; }
+        .vmm-pdf th { background: #6B1A22 !important; color: #fff !important; padding: 5px 6px !important; min-width: 0 !important; white-space: normal !important; }
+        .vmm-pdf td { padding: 5px 6px !important; vertical-align: top; }
+        .vmm-pdf .glass-card, .vmm-pdf [style*="background:var(--card-bg)"] { background: #fff !important; }
+        .vmm-pdf :not(.stat-box):not([style*="color"]):not(th) { color: #1a1a1a !important; }
+        .vmm-pdf tr, .vmm-pdf .stat-box, .vmm-pdf .dosh-card { page-break-inside: avoid; break-inside: avoid; }
+        .vmm-pdf-sheet { position: fixed; inset: 0; z-index: 100001; background: rgba(20,14,10,.5); display: flex; align-items: flex-end; justify-content: center; padding: 16px; }
+        .vmm-pdf-card { width: min(420px, 100%); background: #FAF6EE; color: #2A2420; border-radius: 18px; padding: 20px 18px 16px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.3); font-family: inherit; }
+        .vmm-pdf-card h4 { margin: 0 0 4px; font-size: 18px; color: #6B1A22; }
+        .vmm-pdf-card p { margin: 0 0 14px; font-size: 13px; color: #6e594d; line-height: 1.5; }
+        .vmm-pdf-card .row { display: flex; flex-direction: column; gap: 8px; }
+        .vmm-pdf-card button, .vmm-pdf-card a { display: block; padding: 12px; border-radius: 12px; font: 700 14.5px/1.2 inherit; font-family: inherit; text-decoration: none; cursor: pointer; }
+        .vmm-pdf-card .primary { border: 0; background: linear-gradient(135deg, #7a4a12, #5a330c); color: #F6E7C1; }
+        .vmm-pdf-card .ghost { border: 1px solid #D9C9A3; background: #fff; color: #6B1A22; }
+        .vmm-pdf-card .close { border: 0; background: none; color: #8A7C68; font-weight: 600; }
         @media print {
             /* Hide the page chrome, keep only the report — in normal document flow so it
                never clips or prints blank (no visibility/absolute trick). Everything at
@@ -1220,7 +1288,7 @@
             <!-- PRINT / PDF BUTTON + GUN MILAN LINK -->
             <div class="results-print-row no-print" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-bottom:14px;">
                 <a href="gun-milan.html" class="btn-gunmilan-link" title="गुण मिलान (36 गुण अष्टकूट)">💑 गुण मिलान (36 गुण) देखें ➔</a>
-                <button type="button" class="btn-print-report" onclick="printMuhurtReport()">🖨️ प्रिंट करें / PDF सेव करें</button>
+                <button type="button" class="btn-print-report" onclick="printMuhurtReport(this)">🖨️ प्रिंट करें / PDF सेव करें</button>
             </div>
             <!-- TABS NAVIGATION BAR -->
             <div class="results-tab-bar" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
@@ -2456,7 +2524,106 @@
             });
         }
 
-        function printMuhurtReport() {
+        // Column names on every cell, for the phone card layout of the results table
+        function labelMuhurtTable() {
+            const ths = [...document.querySelectorAll('#tableContainer thead th')].map(th => th.textContent.trim());
+            document.querySelectorAll('#scanTableBody tr').forEach(tr => {
+                [...tr.cells].forEach((td, i) => { if (!td.colSpan || td.colSpan === 1) td.setAttribute('data-label', ths[i] || ''); });
+            });
+        }
+        (function () {
+            const run = () => {
+                const body = document.getElementById('scanTableBody');
+                if (!body) return;
+                new MutationObserver(labelMuhurtTable).observe(body, { childList: true });
+                const head = document.querySelector('#tableContainer thead');
+                if (head) new MutationObserver(labelMuhurtTable).observe(head, { childList: true, subtree: true, characterData: true });
+                labelMuhurtTable();
+            };
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+        })();
+
+        // Phones / tablets: browser printing is missing in the home-screen app and in
+        // WhatsApp / Instagram browsers (iPhone), so build a real A4 PDF instead and
+        // offer it through the phone's share sheet (Save to Files, WhatsApp, Print…).
+        const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        function loadHtml2Pdf() {
+            if (typeof html2pdf === 'function') return Promise.resolve();
+            const tryLoad = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+            return tryLoad('/html2pdf.bundle.min.js?v=13').catch(() => tryLoad('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'));
+        }
+
+        async function makeMuhurtPdf(btn) {
+            const label = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.textContent = currentLang === 'hi' ? 'PDF बन रही है…' : 'Making PDF…'; }
+            try {
+                await loadHtml2Pdf();
+                const src = document.getElementById('resultsTabsWrapper');
+                const copy = src.cloneNode(true);
+                copy.removeAttribute('id');
+                copy.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+                const box = document.createElement('div');
+                box.className = 'vmm-pdf';
+                box.appendChild(copy);
+                // html2canvas breaks Hindi conjuncts when letters are spaced; the site's heading
+                // rules space them with !important, so set plain spacing inline on every element.
+                const PDF_FONT = "'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Mukta', system-ui, sans-serif";
+                [box, ...box.querySelectorAll('*')].forEach(el => {
+                    if (!el.style) return;
+                    el.style.setProperty('letter-spacing', '0px', 'important');
+                    el.style.setProperty('word-spacing', 'normal', 'important');
+                    if (!(el instanceof SVGElement)) el.style.setProperty('font-family', PDF_FONT, 'important');
+                });
+                const stamp = new Date().toISOString().slice(0, 10);
+                // html2canvas captures from the page's scroll position: render from the top
+                const y = window.scrollY;
+                window.scrollTo(0, 0);
+                const blob = await html2pdf().set({
+                    margin: [8, 8, 10, 8],
+                    filename: 'vivah-muhurat-' + stamp + '.pdf',
+                    image: { type: 'jpeg', quality: 0.92 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.stat-box', '.dosh-card'] }
+                }).from(box).outputPdf('blob');
+                window.scrollTo(0, y);
+                showPdfSheet(new File([blob], 'vivah-muhurat-' + stamp + '.pdf', { type: 'application/pdf' }));
+            } catch (e) {
+                alert(currentLang === 'hi' ? 'PDF नहीं बन सकी — कृपया दोबारा प्रयास करें।' : 'Could not make the PDF — please try again.');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = label; }
+            }
+        }
+
+        // The share sheet needs a fresh tap, so the finished PDF is offered with its own buttons
+        function showPdfSheet(file) {
+            const hi = currentLang === 'hi';
+            const url = URL.createObjectURL(file);
+            const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+            const sheet = document.createElement('div');
+            sheet.className = 'vmm-pdf-sheet';
+            sheet.innerHTML = `<div class="vmm-pdf-card" role="dialog" aria-modal="true">
+                <h4>${hi ? 'PDF तैयार है' : 'PDF ready'}</h4>
+                <p>${hi ? 'शेयर से Files में सेव करें, WhatsApp पर भेजें या प्रिंट करें।' : 'Share it to save in Files, send on WhatsApp or print.'}</p>
+                <div class="row">
+                    ${canShare ? `<button type="button" class="primary" data-act="share">${hi ? 'शेयर / सेव / प्रिंट करें' : 'Share / Save / Print'}</button>` : ''}
+                    <a class="${canShare ? 'ghost' : 'primary'}" href="${url}" download="${file.name}" target="_blank" rel="noopener">${hi ? 'PDF खोलें / डाउनलोड करें' : 'Open / download PDF'}</a>
+                    <button type="button" class="close" data-act="close">${hi ? 'बंद करें' : 'Close'}</button>
+                </div></div>`;
+            const close = () => { sheet.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000); };
+            sheet.addEventListener('click', async e => {
+                const act = e.target.closest('[data-act]');
+                if (e.target === sheet || (act && act.dataset.act === 'close')) return close();
+                if (act && act.dataset.act === 'share') {
+                    try { await navigator.share({ files: [file], title: hi ? 'विवाह मुहूर्त रिपोर्ट' : 'Vivah Muhurat Report' }); close(); } catch (err) { /* cancelled */ }
+                }
+            });
+            document.body.appendChild(sheet);
+        }
+
+        function printMuhurtReport(btn) {
+            if (isTouchDevice()) { makeMuhurtPdf(btn); return; }
             // Expand all three result tabs so the whole report prints, then open the browser's
             // print dialog (from there the user can print or Save as PDF). The @media print
             // rules hide the page chrome and force a light, legible report.
