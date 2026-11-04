@@ -148,7 +148,7 @@
       vip_lock_note: "🔒 100% सुरक्षित पेमेंट (Razorpay) • 20 मिनट असीमित सत्र",
 
       // Dropdown sub items & common
-      sub_vivah_title: "शास्त्रीय विवाह मुहूर्त शोध",
+      sub_vivah_title: "विवाह मुहूर्त मंथन",
       sub_vivah_desc: "10 महादोष व त्रिबल शुद्धि",
       sub_vastu_title: "वास्तु व गृह प्रवेश",
       sub_vastu_desc: "विश्वकर्मा प्रकाश व नींव पूजन",
@@ -306,7 +306,7 @@
       vip_lock_note: "🔒 100% Secure Payment (Razorpay) • 20 Mins Session",
 
       // Dropdown sub items & common
-      sub_vivah_title: "Classical Vivah Muhurta",
+      sub_vivah_title: "Vivah Muhurt Manthan",
       sub_vivah_desc: "10 Mahadoshas & Tribala",
       sub_vastu_title: "Vastu & Griha Pravesh",
       sub_vastu_desc: "Vishwakarman & Neev Pujan",
@@ -1582,7 +1582,7 @@
     <div>
       <h3 style="color: #ffffff; font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; letter-spacing: 0.5px;">Precision Astrology Tools</h3>
       <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.9;">
-        <li><a href="/vmm.html" style="color: #60a5fa; text-decoration: none;">Vivah Muhurt & Matchmaking Engine</a></li>
+        <li><a href="/vmm.html" style="color: #60a5fa; text-decoration: none;">Vivah Muhurt Manthan</a></li>
         <li><a href="/vastu-muhurta.html" style="color: #60a5fa; text-decoration: none;">Vastu (Neev & Griha Pravesh) Muhurta</a></li>
         <li><a href="/yajnopavita.html" style="color: #60a5fa; text-decoration: none;">Upanayana (Yajnopavita) Scanner</a></li>
         <li><a href="/mmm.html" style="color: #60a5fa; text-decoration: none;">Mundan (Chudakarma) Scanner</a></li>
@@ -1985,7 +1985,7 @@
               <a href="vmm.html" onclick="closeNavDrawer()" class="drawer-sub-item">
                 <span class="drawer-sub-icon">💍</span>
                 <div class="drawer-sub-text">
-                  <span class="drawer-sub-title" data-i18n="sub_vivah_title">विवाह मुहूर्त व मिलान</span>
+                  <span class="drawer-sub-title" data-i18n="sub_vivah_title">विवाह मुहूर्त मंथन</span>
                   <span class="drawer-sub-hint" data-i18n="sub_vivah_desc">10 महादोष व त्रिबल शुद्धि</span>
                 </div>
               </a>
@@ -2266,7 +2266,7 @@
             </button>
             <div class="nav-dropdown-menu" role="menu">
               <a href="vmm.html" class="nav-dropdown-item" role="menuitem">
-                <span>💍 <span data-i18n="sub_vivah_title">विवाह मुहूर्त व मिलान</span></span>
+                <span>💍 <span data-i18n="sub_vivah_title">विवाह मुहूर्त मंथन</span></span>
               </a>
               <a href="vastu-muhurta.html" class="nav-dropdown-item" role="menuitem">
                 <span>🏡 <span data-i18n="sub_vastu_title">वास्तु, नींव व गृह प्रवेश</span></span>

@@ -130,7 +130,8 @@
       udayasta: L('उदयास्त शुद्धि नहीं (75–78)', 'no udayasta shuddhi (75–78)'),
       vishopaka: L('विशोपक बल 5 से कम (92)', 'vishopaka below 5 (92)'),
       janma: L('प्रथम-गर्भ का जन्म नक्षत्र/तिथि (14)', 'first-born\'s birth nakshatra/tithi (14)'),
-      eclipse: L('ग्रहण के बाद 7 दिन', 'within 7 days after an eclipse')
+      eclipse: L('ग्रहण के बाद 7 दिन', 'within 7 days after an eclipse'),
+      grahanNak: L('ग्रहण-नक्षत्र (6 मास)', 'eclipse nakshatra (6 months)')
     };
   }
 
@@ -159,20 +160,31 @@
     // चान्द्र मास, अधिक मास
     const E0 = N(P.moon.abs - P.sun.abs);
     const sinceNM = E0 / rel, toNM = (360 - E0) / rel;
-    const sunAtNM = signOf(P.sun.abs - sunSpd * sinceNM), sunAtNextNM = signOf(P.sun.abs + sunSpd * toNM);
+    let sunAtNM = signOf(P.sun.abs - sunSpd * sinceNM), sunAtNextNM = signOf(P.sun.abs + sunSpd * toNM);
+    // Exact new moons from the engine (ctx.newMoons), when the page supplies them
+    if (Array.isArray(ctx.newMoons) && ctx.newMoons.length) {
+      const jdNoon = localToJd(y, mo, d, 720, tz);
+      const prev = ctx.newMoons.filter(x => x.jd <= jdNoon).pop(), next = ctx.newMoons.find(x => x.jd > jdNoon);
+      if (prev) sunAtNM = prev.sunSign;
+      if (next) sunAtNextNM = next.sunSign;
+    }
     const month = MONTH_BY_SUN_SIGN[sunAtNM];
-    const adhik = sunAtNM === sunAtNextNM;
+    const adhik = sunAtNM === sunAtNextNM;                       // सूर्य संक्रान्ति रहित चान्द्र मास
+    const kshaya = (sunAtNextNM - sunAtNM + 12) % 12 === 2;      // दो संक्रान्ति वाला चान्द्र मास
     const tithiIdxNoon = Math.floor(E0 / 12);
 
     if (vivah) {
       // श्लोक 13 (p.316–317) विवाह मास: सूर्य मेष, वृष, मिथुन, वृश्चिक, मकर, कुम्भ में; मिथुन में केवल आषाढ़ शुक्ल 1–10;
       // हरिशयन (आषाढ़ शुक्ल 11) से देवोत्थान (कार्तिक शुक्ल 11) तक नहीं
       const ss = noonSign('sun');
-      if (![1, 2, 3, 8, 10, 11].includes(ss)) addDay('month', L('विवाह मास नहीं — सूर्य ', 'Not a marriage month — Sun in ') + ss + L(' राशि में (श्लोक 13)', ' (shl. 13)'));
+      const RN = [L('मेष', 'Aries'), L('वृष', 'Taurus'), L('मिथुन', 'Gemini'), L('कर्क', 'Cancer'), L('सिंह', 'Leo'), L('कन्या', 'Virgo'), L('तुला', 'Libra'), L('वृश्चिक', 'Scorpio'), L('धनु', 'Sagittarius'), L('मकर', 'Capricorn'), L('कुम्भ', 'Aquarius'), L('मीन', 'Pisces')];
+      if (ss === 9 || ss === 12) addDay('kharmas', L('खरमास — सूर्य ', 'Kharmas — Sun in ') + RN[ss - 1] + L(' में; विवाह वर्जित (श्लोक 13; "धनुर्मीनगते सूर्ये")', '; no weddings (shl. 13)'));
+      else if (![1, 2, 3, 8, 10, 11].includes(ss)) addDay('month', L('विवाह मास नहीं — सूर्य ', 'Not a marriage month — Sun in ') + RN[ss - 1] + L(' में (श्लोक 13)', ' (shl. 13)'));
       else if (ss === 3 && !(month === 'ashadha' && tithiIdxNoon < 10)) addDay('month', L('मिथुन के सूर्य में केवल आषाढ़ शुक्ल 1–10 (श्लोक 13)', 'Sun in Gemini: only Ashadha Shukla 1–10 (shl. 13)'));
       if (['shravana', 'bhadrapada', 'ashvina'].includes(month) || (month === 'ashadha' && tithiIdxNoon >= 10) || (month === 'kartika' && tithiIdxNoon < 10))
         addDay('harishayan', L('हरिशयन / चातुर्मास (श्लोक 13)', 'Harishayan / Chaturmasa (shl. 13)'));
-      if (adhik) addDay('adhik', L('अधिक (मल) मास', 'Adhika (mala) masa'));
+      if (adhik) addDay('adhik', L('मलमास / अधिक मास — विवाह वर्जित', 'Malamasa / Adhika masa — no weddings'));
+      if (kshaya) addDay('kshaya', L('क्षय मास — विवाह वर्जित', 'Kshaya masa — no weddings'));
       // गुरु / शुक्र अस्त (21 महादोष में "उदयास्त-शुद्धि रहित", p.356)
       if (angDist(P.jupiter.abs, P.sun.abs) < 11) addDay('guruAsta', L('गुरु अस्त', 'Jupiter combust'));
       if (angDist(P.venus.abs, P.sun.abs) < (P.venus.retro ? 8 : 10)) addDay('shukraAsta', L('शुक्र अस्त', 'Venus combust'));
@@ -184,7 +196,11 @@
       if ([0, 90, 180, 270].includes(nextB % 360) && Math.abs(dayOff(tNext)) <= 1) addDay('sankrantiDay', L('अयन/विषुव संक्रान्ति के निकट (श्लोक 79)', 'near a solstice/equinox sankranti (shl. 79)'));
       else if ([0, 90, 180, 270].includes(prevB % 360) && Math.abs(dayOff(-tPrev)) <= 1) addDay('sankrantiDay', L('अयन/विषुव संक्रान्ति के निकट (श्लोक 79)', 'near a solstice/equinox sankranti (shl. 79)'));
       // ग्रहण: ग्रहण के दिन से 7 दिन (p.364, "ग्रहणाद्दिनसप्तकम्")
-      [[-E0 / rel, 0], [(360 - E0) / rel, 0], [(180 - E0) / rel, 180], [(540 - E0) / rel, 180], [(-180 - E0) / rel, 180]].forEach(([t, kind]) => {
+      if (Array.isArray(ctx.eclipses)) ctx.eclipses.forEach(e => {
+        const days = localToJd(y, mo, d, 720, tz) - e.jd;
+        if (days >= -0.5 && days < 7.5) addDay('eclipse', (e.kind === 0 ? L('सूर्य', 'Solar') : L('चन्द्र', 'Lunar')) + L(' ग्रहण के बाद 7 दिन (', ' eclipse within the last 7 days (') + e.date + ')');
+      });
+      else [[-E0 / rel, 0], [(360 - E0) / rel, 0], [(180 - E0) / rel, 180], [(540 - E0) / rel, 180], [(-180 - E0) / rel, 180]].forEach(([t, kind]) => {
         const off = dayOff(t);
         if (off > 0 || off < -7) return;
         const ml = N(P.moon.abs + moonSpd * t), rl = N(P.rahu.abs + P.rahu.speed * t);
@@ -442,6 +458,11 @@
           const groomOk = seesOrIn(NL, sOf(NL), nav) || seesOrIn(NL, sOf(NL), aSign) || seesOrIn(LL, sOf(LL), aSign) || friendSees(NL, nav) || friendSees(LL, aSign);
           const brideOk = seesOrIn(N7L, sOf(N7L), N7) || seesOrIn(N7L, sOf(N7L), L7) || seesOrIn(LL, sOf(LL), L7) || friendSees(N7L, N7) || friendSees(LORD[L7], L7);
           chk(!(groomOk && brideOk), 'udayasta'); }
+        // ग्रहण-नक्षत्र: पिछले 6 मास के ग्रहण का नक्षत्र (p.364, 425–427 "ग्रहणभं")
+        if (Array.isArray(ctx.eclipses)) {
+          const jdNow = localToJd(y, mo, d, t, tz);
+          chk(ctx.eclipses.some(e => e.nak === mN && jdNow - e.jd > 0 && jdNow - e.jd < 183), 'grahanNak');
+        }
         // प्रथम-गर्भ का जन्म नक्षत्र / तिथि (14)
         chk(firstBorn.some(fb => fb.nak === mN || fb.tithi === tIdx), 'janma');
         if (why.length) grade = null;
@@ -457,6 +478,56 @@
 
     return { dayDoshas, wins, month, adhik, labels: LBL };
   }
+
+  // ── Eclipses of the last six months (ग्रहण-नक्षत्र, p.364, 425–427) ──────────
+  // Step 1: mean new/full moons from a known new moon (2000-01-06 18:14 UT) give the
+  // dates to ask the engine for; step 2: each noon chart is moved to the exact syzygy
+  // with the Sun's and Moon's own speeds, and the Moon's distance from Rahu decides it.
+  function eclipseCandidateDates(firstDate, lastDate, tz) {
+    const toJd = s => { const [y, m, d] = s.split('-').map(Number); return localToJd(y, m, d, 720, tz); };
+    const j0 = toJd(firstDate) - 190, j1 = toJd(lastDate) + 33;   // + next new moon (मास)
+    const out = [];
+    const k0 = Math.floor((j0 - 2451550.26) / 29.530588853) - 1;
+    for (let k = k0; ; k++) {
+      let done = false;
+      [0, 0.5].forEach(h => {
+        const jd = 2451550.26 + (k + h) * 29.530588853;
+        if (jd > j1) { done = true; return; }
+        if (jd < j0) return;
+        const ms = (jd - 2440587.5) * 86400000 + tz * 3600000;
+        const dt = new Date(ms);
+        out.push({ date: dt.getUTCFullYear() + '-' + String(dt.getUTCMonth() + 1).padStart(2, '0') + '-' + String(dt.getUTCDate()).padStart(2, '0'), kind: h ? 180 : 0 });
+      });
+      if (done) break;
+    }
+    return out;
+  }
+  // Every syzygy, refined to its exact moment: { jd, kind (0 new / 180 full), sunSign, nak, beta, eclipse, date }
+  function syzygiesFromCharts(cands, charts, tz) {
+    const out = [];
+    cands.forEach((c, i) => {
+      const ch = charts[i]; if (!ch || !ch.planets) return;
+      const g = id => ch.planets.find(p => p.id === id) || {};
+      const sun = g('Sun'), moon = g('Moon'), rahu = g('Rahu');
+      const rel = (moon.speed || 13.18) - (sun.speed || 0.9856);
+      let dE = N(moon.abs - sun.abs) - c.kind; if (dE > 180) dE -= 360; if (dE < -180) dE += 360;
+      const t = -dE / rel;                                   // days from noon to the exact syzygy
+      const ml = N(moon.abs + (moon.speed || 13.18) * t), rl = N(rahu.abs + (rahu.speed || -0.053) * t);
+      const beta = Math.abs(5.145 * Math.sin((ml - rl) * D2R));
+      const eclipse = (c.kind === 0 && beta < 1.4) || (c.kind === 180 && beta < 0.6);
+      const sunSign = signOf(N(sun.abs + (sun.speed || 0.9856) * t));
+      {
+        const [y, m, d] = c.date.split('-').map(Number);
+        const jd = localToJd(y, m, d, 720, tz) + t;
+        const dt = new Date((jd - 2440587.5) * 86400000 + tz * 3600000);
+        const date = dt.getUTCFullYear() + '-' + String(dt.getUTCMonth() + 1).padStart(2, '0') + '-' + String(dt.getUTCDate()).padStart(2, '0');
+        out.push({ jd, kind: c.kind, nak: nakOf(ml), date, sunSign, eclipse });
+      }
+    });
+    return out;
+  }
+
+  const eclipsesFromCharts = (cands, charts, tz) => syzygiesFromCharts(cands, charts, tz).filter(x => x.eclipse);
 
   // Couple-level warnings (not date-based) — श्लोक 15, 19–20 (p.319, 328–329)
   function coupleWarnings(groom, bride, groomEldest, brideEldest, L) {
@@ -475,7 +546,7 @@
     return out;
   }
 
-  const api = { analyzeDay, coupleWarnings, VIVAH_NAK };
+  const api = { analyzeDay, coupleWarnings, eclipseCandidateDates, eclipsesFromCharts, syzygiesFromCharts, VIVAH_NAK };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.VivahShuddhi = api;
 })(typeof window !== 'undefined' ? window : globalThis);

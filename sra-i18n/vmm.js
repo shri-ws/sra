@@ -110,3 +110,6 @@ SRA_I18N.add([
   ["वर पहली सन्तान है", "Groom is the first-born"],
   ["कन्या पहली सन्तान है", "Bride is the first-born"]
 ]);
+SRA_I18N.add([
+  ["विवाह मुहूर्त मंथन", "Vivah Muhurt Manthan"]
+]);

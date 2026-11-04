@@ -248,7 +248,7 @@ SRA_I18N.add([
   ["वाहन एवं जनबल रिपोर्ट", "Vehicle & Janabala report"],
   ["मंगल दोष सारांश", "Manglik Dosha summary"],
   ["🪔 मुहूर्त (अतिरिक्त विवरण आवश्यक)", "🪔 Muhurta (extra details needed)"],
-  ["विवाह मुहूर्त व मिलान", "Marriage Muhurta & Matching"],
+  ["विवाह मुहूर्त मंथन", "Vivah Muhurt Manthan"],
   ["वास्तु व गृह प्रवेश", "Vastu & Griha Pravesh"],
   ["यज्ञोपवीत (उपनयन)", "Yajnopavita (Upanayana)"],
   ["चूड़ाकर्म (मुंडन)", "Chudakarma (Mundan)"]

@@ -25,7 +25,7 @@
   const MENU = [
     { href: 'patrika.html', label: L('जन्म पत्रिका', 'Birth Chart'), icon: '📜' },
     { label: L('मुहूर्त', 'Muhurta'), icon: '🪔', items: [
-      { href: 'vmm.html', label: L('विवाह मुहूर्त व मिलान', 'Marriage Muhurta & Matching'), icon: '💍' },
+      { href: 'vmm.html', label: L('विवाह मुहूर्त मंथन', 'Vivah Muhurt Manthan'), icon: '💍' },
       { href: 'gun-milan.html', label: L('गुण मिलान (36 गुण)', 'Gun Milan (36 Guna)'), icon: '💑' },
       { href: 'vastu-muhurta.html', label: L('वास्तु, नींव व गृह प्रवेश', 'Vastu & Griha Pravesh'), icon: '🏡' },
       { href: 'yajnopavita.html', label: L('यज्ञोपवीत (उपनयन)', 'Yajnopavita (Upanayana)'), icon: '🧵' },
