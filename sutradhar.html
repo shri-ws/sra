@@ -227,7 +227,7 @@
   </div>
 
   <!-- WRAPPER FOR AUTHENTICATED APP CONTENT -->
-  <div id="sutradharAppWrapper" class="h-full flex flex-col font-sans overflow-hidden bg-slate-50 text-slate-800 antialiased" style="display:none;">
+  <div id="sutradharAppWrapper" class="min-h-screen h-full flex flex-col font-sans overflow-hidden bg-slate-50 text-slate-800 antialiased" style="display:none;">
 
   <!-- ========================================================================= -->
   <!-- TOP GLOBAL HEADER (ULTRA-RESPONSIVE: IPHONE, ANDROID, IPAD, MACBOOK) -->
@@ -549,9 +549,9 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- VIEW 2: MAIN ERP PORTAL CONTAINER (BLURRED INITIALLY UNTIL TRAINING COMPLETE) -->
+  <!-- VIEW 2: MAIN ERP PORTAL CONTAINER -->
   <!-- ========================================================================= -->
-  <div id="mainAppContainer" class="hidden flex-1 flex overflow-hidden relative">
+  <div id="mainAppContainer" class="flex-1 flex overflow-hidden relative">
     
     <!-- WRAPPER THAT BLURS WHEN TRAINING POP-UP IS ACTIVE -->
     <div id="dashboardBlurWrapper" class="flex-1 flex overflow-hidden transition-all duration-500">
@@ -4011,13 +4011,22 @@
       showToast(currentLang === 'en' ? '✓ Mobile number verified!' : '✓ मोबाइल नंबर सत्यापित हो गया!');
     }
 
-    window.onload = () => {
-      renderLeadsTable();
-      updateDailyTasksUI();
-      updateLevelProgressionUI();
-      lucide.createIcons();
+    function initSutradharApp() {
+      try { renderLeadsTable(); } catch(e){}
+      try { updateDailyTasksUI(); } catch(e){}
+      try { updateLevelProgressionUI(); } catch(e){}
+      try { lucide.createIcons(); } catch(e){}
       checkSutradharAuth();
-    };
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSutradharApp);
+    } else {
+      initSutradharApp();
+    }
+    window.addEventListener('load', () => {
+      try { lucide.createIcons(); } catch(e){}
+    });
 
     /* ══ SUTRADHAR GATEWAY AUTHENTICATION & ACCESS VERIFICATION ══ */
     async function checkSutradharAuth() {
@@ -4053,46 +4062,44 @@
       const otpInput = document.getElementById('gateOtpCode');
       if (otpInput) otpInput.value = ''; // Always fresh/blank
 
-      // 1. If URL has secret invite credentials
+      // 1. If URL has secret invite credentials (via WhatsApp invite link from Admin)
       if (authParam || (userParam && passParam)) {
         const candidateRealName = nameParam || (userParam ? ('सूत्रधार ' + userParam.slice(-4)) : 'अधिकृत सूत्रधार');
         const candidateRealEmail = emailParam || '';
-        try {
-          const res = await fetch('api/verify_sutradhar_auth.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ auth: authParam, user: userParam, pass: passParam, name: candidateRealName, email: candidateRealEmail })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.authenticated) {
-              data.name = data.name || candidateRealName;
-              data.email = data.email || candidateRealEmail;
-              localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
-              unlockPortal(data);
-              showToast(`अभिनंदन ${data.name}! आपका सूत्रधार सत्र सक्रिय है।`);
-              return;
-            }
-          }
-        } catch(err) {
-          console.warn("API check offline fallback:", err);
-        }
+        const sutraId = 'SUTRA-' + (userParam ? userParam.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + '-01';
 
-        // Static fallback for offline/demo if token looks valid
-        if (authParam && (authParam.startsWith('sec_') || authParam.length >= 8)) {
-          const fallbackData = {
-            authenticated: true,
-            name: candidateRealName,
-            phone: userParam || '',
-            email: candidateRealEmail,
-            sutradhar_id: 'SUTRA-' + (userParam ? userParam.slice(-4) : '0000') + '-01',
-            role: 'सूत्रधार लेवल 1'
-          };
-          localStorage.setItem('sra_sutradhar_session', JSON.stringify(fallbackData));
-          unlockPortal(fallbackData);
-          showToast(`अभिनंदन ${candidateRealName}! ऑनबोर्डिंग लिंक से सत्र सक्रिय हुआ।`);
-          return;
-        }
+        const fallbackData = {
+          authenticated: true,
+          name: candidateRealName,
+          phone: userParam || '',
+          email: candidateRealEmail,
+          sutradhar_id: sutraId,
+          role: 'सूत्रधार लेवल 1'
+        };
+
+        // Cache session immediately so refreshing keeps them logged in
+        localStorage.setItem('sra_sutradhar_session', JSON.stringify(fallbackData));
+        unlockPortal(fallbackData);
+        showToast(`अभिनंदन ${candidateRealName}! आपका सूत्रधार सत्र सक्रिय हुआ।`);
+
+        // Asynchronously sync with backend if available
+        fetch('api/verify_sutradhar_auth.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ auth: authParam, user: userParam, pass: passParam, name: candidateRealName, email: candidateRealEmail })
+        }).then(res => res.json()).then(data => {
+          if (data && data.authenticated) {
+            data.name = data.name || candidateRealName;
+            data.email = data.email || candidateRealEmail;
+            data.sutradhar_id = data.sutradhar_id || sutraId;
+            localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
+            unlockPortal(data);
+          }
+        }).catch(err => {
+          console.warn("Backend metadata sync:", err);
+        });
+
+        return;
       }
 
       // 2. Check existing active session
@@ -4119,19 +4126,69 @@
         legacyModal.style.display = 'none';
       }
 
-      document.getElementById('sutradharAuthGate').style.display = 'none';
-      document.getElementById('sutradharAppWrapper').style.display = 'flex';
+      // Hide auth gate & show main wrapper
+      const authGate = document.getElementById('sutradharAuthGate');
+      if (authGate) authGate.style.display = 'none';
+      const appWrapper = document.getElementById('sutradharAppWrapper');
+      if (appWrapper) appWrapper.style.display = 'flex';
+
+      // Ensure main dashboard container is UNHIDDEN and visible
+      const mainApp = document.getElementById('mainAppContainer');
+      if (mainApp) {
+        mainApp.classList.remove('hidden');
+        mainApp.style.display = 'flex';
+      }
+
+      // Ensure wizard & training popups are hidden
+      const wizView = document.getElementById('onboardingWizardView');
+      if (wizView) {
+        wizView.classList.add('hidden');
+        wizView.style.display = 'none';
+      }
+      const trainModal = document.getElementById('sutradharTrainingModal');
+      if (trainModal) {
+        trainModal.classList.add('hidden');
+        trainModal.style.display = 'none';
+      }
+
+      // Ensure blur is removed so dashboard is crystal clear
+      const blurWrapper = document.getElementById('dashboardBlurWrapper');
+      if (blurWrapper) {
+        blurWrapper.classList.remove('filter', 'blur-md', 'pointer-events-none', 'select-none');
+      }
 
       // Update candidate name and ID across the portal
       const realName = data.name || 'अधिकृत सूत्रधार';
+      const initials = getInitials(realName);
+
+      // Header updates
+      const headerTitle = document.getElementById('headerBrandTitle');
+      if (headerTitle) headerTitle.innerText = realName;
+      const headerInitials = document.getElementById('headerLogoInitials');
+      if (headerInitials) headerInitials.innerText = initials;
+      const headerRole = document.getElementById('headerRoleBadge');
+      if (headerRole) {
+        headerRole.innerText = 'अधिकृत सूत्रधार';
+        headerRole.className = 'text-[9.5px] sm:text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 shrink-0';
+      }
+      const headerTagline = document.getElementById('headerTagline');
+      if (headerTagline) headerTagline.innerText = `${realName} • आधिकारिक सूत्रधार ईआरपी पोर्टल`;
+
+      // Sidebar updates
+      const sideName = document.getElementById('sidebarUserName');
+      if (sideName) sideName.innerText = realName;
+      const sideAvatar = document.getElementById('sidebarUserAvatar');
+      if (sideAvatar) sideAvatar.innerText = initials;
+      const sideRole = document.getElementById('sidebarUserRole');
+      if (sideRole) sideRole.innerText = data.role || 'सूत्रधार लेवल 1';
+
+      // Dashboard hero updates
       const greetEl = document.getElementById('dashCandidateGreeting');
       if (greetEl) greetEl.innerText = realName;
       const wizNameEl = document.getElementById('wizCandidateName');
       if (wizNameEl) wizNameEl.innerText = realName;
       const wizSuccEl = document.getElementById('wizSuccessName');
       if (wizSuccEl) wizSuccEl.innerText = realName;
-      const sideNameEl = document.getElementById('sidebarUserName');
-      if (sideNameEl) sideNameEl.innerText = realName;
       const personaOpt = document.getElementById('dynamicCandidateOption');
       if (personaOpt) personaOpt.innerText = `${realName} (सूत्रधार)`;
       const saleAgentOpt = document.getElementById('saleAgentDynamicOption');
@@ -4140,17 +4197,28 @@
         saleAgentOpt.innerText = `${realName} (सूत्रधार)`;
       }
 
-      if (data.sutradhar_id) {
-        const idBadge = document.getElementById('wizAgentId');
-        if (idBadge) idBadge.innerText = data.sutradhar_id;
-        const couponVal = document.getElementById('myCouponCodeVal');
-        if (couponVal) couponVal.innerText = data.sutradhar_id;
-        const couponCard = document.getElementById('displayCouponCodeCard');
-        if (couponCard) couponCard.innerText = data.sutradhar_id;
-      }
+      // SUTRA ID and personal referral / tracking links
+      const sId = data.sutradhar_id || ('SUTRA-' + (data.phone ? String(data.phone).slice(-4) : '0000') + '-01');
+      const idBadge = document.getElementById('wizAgentId');
+      if (idBadge) idBadge.innerText = sId;
+      const couponVal = document.getElementById('myCouponCodeVal');
+      if (couponVal) couponVal.innerText = sId;
+      const couponCard = document.getElementById('displayCouponCodeCard');
+      if (couponCard) couponCard.innerText = sId;
+      const wizCoupon = document.getElementById('wizCouponCode');
+      if (wizCoupon) wizCoupon.innerText = sId;
 
+      const trackLink = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
+      const agentLinkBar = document.getElementById('agentPersonalLinkBar');
+      if (agentLinkBar) agentLinkBar.innerText = trackLink;
+      const trainDisplay = document.getElementById('trainPersonalLinkDisplay');
+      if (trainDisplay) trainDisplay.innerText = trackLink;
+      const wizTrack = document.getElementById('wizTrackLink');
+      if (wizTrack) wizTrack.innerText = trackLink;
+
+      switchTab('dashboard');
       applySutradharLanguage(currentLang);
-      lucide.createIcons();
+      try { lucide.createIcons(); } catch(e){}
     }
 
     async function handleManualSutradharLogin(e) {
