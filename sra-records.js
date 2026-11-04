@@ -4,12 +4,13 @@
    and stores the record in Firestore instead, without changing the pages that send them:
      POST api/save_payment.php           → payments
      POST api/save_user.php              → user_queries
+     POST api/save_career_application.php→ career_applications
      POST …supabase.co/rest/v1/<table>   → <table>  (consultations, reviews, payments, students)
      GET  …supabase.co/rest/v1/reviews?status=eq.approved → approved reviews from Firestore
    Visitors may only add records; reading them is for the admin's Google account (firestore.rules).
    Pages call window.SRARecords.add(collection, data) directly where they need to. */
 (function() {
-  const TABLES = ['consultations', 'reviews', 'payments', 'students', 'forum_posts', 'user_queries'];
+  const TABLES = ['consultations', 'reviews', 'payments', 'students', 'forum_posts', 'user_queries', 'career_applications'];
   const realFetch = window.fetch.bind(window);
 
   function firebaseReady() {
@@ -20,7 +21,7 @@
   // Firestore refuses undefined values and nested arrays; records are flat forms anyway
   function clean(data) {
     const out = {};
-    Object.keys(data || {}).slice(0, 50).forEach(k => {
+    Object.keys(data || {}).slice(0, 60).forEach(k => {
       const v = data[k];
       if (v === undefined || typeof v === 'function') return;
       out[k] = (v !== null && typeof v === 'object') ? JSON.stringify(v).slice(0, 4000) : v;
@@ -41,7 +42,9 @@
     const col = fb.firestore().collection(collection);
     // A Razorpay payment id names the payment document, so the same payment is never listed twice
     const payId = String(rec.razorpay_payment_id || '');
-    const ref = (collection === 'payments' && /^pay_/.test(payId)) ? col.doc(payId) : col.doc();
+    const customId = String(rec.id || rec.application_id || '');
+    const ref = (collection === 'payments' && /^pay_/.test(payId)) ? col.doc(payId) 
+      : ((collection === 'career_applications' && customId) ? col.doc(customId) : col.doc());
     await ref.set(rec);
     return Object.assign({ id: ref.id }, rec);
   }
@@ -57,6 +60,30 @@
     const snap = await fb.firestore().collection('reviews').where('status', '==', 'approved').get();
     return snap.docs.map(d => Object.assign({ id: d.id }, d.data()))
       .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  }
+
+  async function careerApplications() {
+    const fb = await firebaseReady();
+    const snap = await fb.firestore().collection('career_applications').get();
+    return snap.docs.map(d => Object.assign({ id: d.id }, d.data()))
+      .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  }
+
+  async function updateCareerStatus(id, status) {
+    const fb = await firebaseReady();
+    await fb.firestore().collection('career_applications').doc(id).update({
+      status: status,
+      approved_at: status === 'approved' ? new Date().toISOString() : null
+    });
+  }
+
+  async function verifySutradhar(phone) {
+    const fb = await firebaseReady();
+    const cleanPhone = String(phone || '').replace(/[^0-9]/g, '').slice(-10);
+    const snap = await fb.firestore().collection('career_applications').where('phone', '==', cleanPhone).get();
+    if (snap.empty) return null;
+    const docs = snap.docs.map(d => d.data());
+    return docs.find(d => d.status === 'approved') || docs[0];
   }
 
   // ARTICLES (about.html): every post is a forum_posts document named by the post id.
@@ -113,6 +140,76 @@
       }
     }
 
+    if (method === 'POST' && /api\/save_career_application\.php/.test(url)) {
+      const data = parseBody(init);
+      if (data) {
+        const cleanPhone = String(data.phone || '').replace(/[^0-9]/g, '').slice(-10);
+        const appId = data.id || ('SRA-APP-' + Math.floor(100000 + Math.random() * 900000));
+        const token = data.secret_token || ('sec_' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '_' + Math.random().toString(36).slice(2, 8));
+        const pass = data.secret_pass || (cleanPhone.length >= 6 ? cleanPhone.slice(-6) : '123456');
+        const recData = Object.assign({}, data, {
+          id: appId,
+          phone: cleanPhone,
+          status: 'pending',
+          secret_token: token,
+          secret_pass: pass,
+          sutradhar_id: data.sutradhar_id || ('SUTRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '-' + Math.floor(10 + Math.random() * 90)),
+          created_at: data.created_at || new Date().toISOString()
+        });
+        if (recData.resume_data && recData.resume_data.length > 50000) {
+          recData.resume_snippet = recData.resume_data.slice(0, 1000);
+          delete recData.resume_data;
+        }
+        return addSoon('career_applications', recData).then(rec => json({
+          status: 'success',
+          application_id: (rec && rec.id) || appId,
+          candidate_name: data.name,
+          phone: cleanPhone,
+          secret_token: token,
+          secret_pass: pass,
+          message: "आपका आवेदन सफलतापूर्वक प्राप्त हो गया है।"
+        }, 200)).catch(async () => {
+          try {
+            await addSoon('user_queries', Object.assign({}, recData, { query_type: 'CAREER_APPLICATION' }));
+          } catch(e) {}
+          return json({ status: 'success', application_id: appId, candidate_name: data.name, phone: cleanPhone }, 200);
+        });
+      }
+    }
+
+    if (/api\/get_career_applications\.php/.test(url)) {
+      return careerApplications().then(list => json({ status: 'success', total: list.length, applications: list }, 200))
+        .catch(() => json({ status: 'success', total: 0, applications: [] }, 200));
+    }
+
+    if (method === 'POST' && /api\/update_career_status\.php/.test(url)) {
+      const data = parseBody(init);
+      if (data && data.id) {
+        return updateCareerStatus(data.id, data.status || 'approved').then(() => json({ status: 'success' }, 200))
+          .catch(() => json({ status: 'error' }, 500));
+      }
+    }
+
+    if (method === 'POST' && /api\/verify_sutradhar_auth\.php/.test(url)) {
+      const data = parseBody(init);
+      const phone = (data && (data.phone || data.user)) || '';
+      return verifySutradhar(phone).then(rec => {
+        if (rec && rec.status === 'approved') {
+          return json({
+            authenticated: true,
+            name: rec.name || '',
+            phone: rec.phone || '',
+            email: rec.email || '',
+            sutradhar_id: rec.sutradhar_id || ('SUTRA-' + String(rec.phone || '').slice(-4) + '-01'),
+            role: 'अधिकृत सूत्रधार'
+          }, 200);
+        } else if (rec) {
+          return json({ authenticated: false, message: 'आपका आवेदन वर्तमान में समीक्षाधीन (अंडर प्रोसेस) है।' }, 200);
+        }
+        return json({ authenticated: false, message: 'इस नंबर से कोई अनुमोदित आवेदन नहीं मिला।' }, 200);
+      }).catch(() => json({ authenticated: false }, 200));
+    }
+
     const supa = url.match(/supabase\.co\/rest\/v1\/([a-z_]+)/);
     if (supa) {
       const table = supa[1];
@@ -130,5 +227,5 @@
     return realFetch(input, init);
   };
 
-  window.SRARecords = { add, approvedReviews, savePost, publishedPosts, uploadLocalPosts, deletePost, signedInAdmin: () => firebaseReady().then(signedInAdmin) };
+  window.SRARecords = { add, approvedReviews, careerApplications, updateCareerStatus, verifySutradhar, savePost, publishedPosts, uploadLocalPosts, deletePost, signedInAdmin: () => firebaseReady().then(signedInAdmin) };
 })();

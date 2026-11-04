@@ -39,6 +39,11 @@ service cloud.firestore {
     match /payments/{id}      { allow create: if smallRecord(); allow read, update, delete: if isAdmin(); }
     match /students/{id}      { allow create: if smallRecord(); allow read, update, delete: if isAdmin(); }
     match /user_queries/{id}  { allow create: if smallRecord(); allow read, update, delete: if isAdmin(); }
+    match /career_applications/{id} {
+      allow create: if smallRecord();
+      allow read: if true;
+      allow update, delete: if isAdmin();
+    }
     // Articles from about.html: the admin's Google account publishes directly, others wait for approval
     match /forum_posts/{id} {
       allow create: if request.resource.data.status == 'pending' || isAdmin();

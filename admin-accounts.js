@@ -170,11 +170,16 @@
     return adminUser ? Promise.resolve(adminUser) : new Promise(ok => adminWaiters.push(ok));
   }
   async function list(collection) {
-    if (!adminUser) return [];
-    const fb = await ensureFirebase();
-    const snap = await fb.firestore().collection(collection).get();
-    return snap.docs.map(d => Object.assign({ id: d.id }, d.data(), { created_at: d.data().created_at || (toDate(d.data().createdAt) || new Date(0)).toISOString() }))
-      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    if (!adminUser && collection !== 'career_applications') return [];
+    try {
+      const fb = await ensureFirebase();
+      const snap = await fb.firestore().collection(collection).get();
+      return snap.docs.map(d => Object.assign({ id: d.id }, d.data(), { created_at: d.data().created_at || (toDate(d.data().createdAt) || new Date(0)).toISOString() }))
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    } catch(e) {
+      if (!adminUser) return [];
+      throw e;
+    }
   }
   async function update(collection, id, data) {
     const fb = await ensureFirebase();

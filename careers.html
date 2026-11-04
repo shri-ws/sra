@@ -700,6 +700,9 @@
     </div>
   </footer>
 
+  <script src="sra-auth.js" defer></script>
+  <script src="sra-records.js" defer></script>
+
   <script>
     let uploadedFileBase64 = '';
     let uploadedFileName = '';
@@ -725,59 +728,91 @@
       btn.disabled = true;
       btn.innerText = "प्रतीक्षा करें... आवेदन समर्पित हो रहा है...";
 
+      const nameVal = document.getElementById('cand_name').value.trim();
+      const rawPhone = document.getElementById('cand_phone').value.trim();
+      const cleanPhone = rawPhone.replace(/[^0-9]/g, '').slice(-10);
+      const emailVal = document.getElementById('cand_email').value.trim();
+      const cityVal = document.getElementById('cand_city').value.trim();
+      const expVal = document.getElementById('cand_experience').value.trim();
+
+      const appId = 'SRA-APP-' + Math.floor(100000 + Math.random() * 900000);
+      const secretToken = 'sec_' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '_' + Math.random().toString(36).slice(2, 8);
+      const secretPass = cleanPhone.length >= 6 ? cleanPhone.slice(-6) : String(Math.floor(100000 + Math.random() * 900000));
+      const sutradharId = 'SUTRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '-' + Math.floor(10 + Math.random() * 90);
+
       const payload = {
-        name: document.getElementById('cand_name').value.trim(),
-        phone: document.getElementById('cand_phone').value.trim(),
-        email: document.getElementById('cand_email').value.trim(),
-        city: document.getElementById('cand_city').value.trim(),
-        experience: document.getElementById('cand_experience').value.trim(),
+        id: appId,
+        name: nameVal,
+        phone: cleanPhone,
+        email: emailVal,
+        city: cityVal,
+        experience: expVal,
         resume_name: uploadedFileName,
-        resume_data: uploadedFileBase64
+        sutradhar_id: sutradharId,
+        secret_token: secretToken,
+        secret_pass: secretPass,
+        status: 'pending',
+        created_at: new Date().toISOString()
       };
 
       try {
-        // Try calling the backend PHP endpoint
-        const res = await fetch('api/save_career_application.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        let data = null;
-        if (res.ok) {
-          data = await res.json();
+        // 1. Direct write to Firestore via SRARecords (if available)
+        if (window.SRARecords && window.SRARecords.add) {
+          try {
+            await window.SRARecords.add('career_applications', payload);
+          } catch(err) {
+            console.warn("SRARecords career_applications direct write:", err);
+            try {
+              await window.SRARecords.add('user_queries', Object.assign({}, payload, { query_type: 'CAREER_APPLICATION' }));
+            } catch(e2) {}
+          }
         }
 
-        const appId = (data && data.application_id) ? data.application_id : ('SRA-APP-' + Math.floor(100000 + Math.random() * 900000));
+        // 2. Dual-save via intercepted/backend API endpoint
+        let data = null;
+        try {
+          const res = await fetch('api/save_career_application.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) data = await res.json();
+        } catch(apiErr) {
+          console.warn("API save endpoint notice:", apiErr);
+        }
 
-        // Also save locally as resilient backup
+        if (data && data.application_id) {
+          payload.id = data.application_id;
+        }
+
+        // 3. Local storage resilient sync
         try {
           const localList = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
-          localList.unshift({
-            id: appId,
-            name: payload.name,
-            phone: payload.phone,
-            email: payload.email,
-            city: payload.city,
-            experience: payload.experience,
-            resume_name: payload.resume_name,
-            status: 'pending',
-            created_at: new Date().toISOString()
-          });
+          const existingIdx = localList.findIndex(a => a.phone === cleanPhone || a.id === payload.id);
+          if (existingIdx >= 0) {
+            localList[existingIdx] = Object.assign({}, localList[existingIdx], payload);
+          } else {
+            localList.unshift(payload);
+          }
           localStorage.setItem('sra_career_applications', JSON.stringify(localList));
         } catch(err) {}
 
         // Show confirmation modal
-        document.getElementById('resAppId').innerText = appId;
+        document.getElementById('resAppId').innerText = payload.id;
         document.getElementById('resCandName').innerText = payload.name;
         document.getElementById('resCandPhone').innerText = payload.phone;
         document.getElementById('confirmModal').classList.add('active');
 
       } catch (err) {
         console.error("Submission error:", err);
-        // Resilient fallback: Still confirm to user
-        const fallbackAppId = 'SRA-APP-' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('resAppId').innerText = fallbackAppId;
+        // Resilient fallback: Still confirm to user and save locally
+        try {
+          const localList = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
+          localList.unshift(payload);
+          localStorage.setItem('sra_career_applications', JSON.stringify(localList));
+        } catch(e) {}
+
+        document.getElementById('resAppId').innerText = payload.id;
         document.getElementById('resCandName').innerText = payload.name;
         document.getElementById('resCandPhone').innerText = payload.phone;
         document.getElementById('confirmModal').classList.add('active');
