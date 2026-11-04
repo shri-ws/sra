@@ -225,7 +225,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 @media(max-width:960px){.social-split{grid-template-columns:1fr}}
 .social-phone-frame{width:100%;max-width:290px;height:515px;background:#000;border-radius:24px;margin:0 auto 14px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.3);border:3px solid rgba(201,168,76,0.35)}
 .social-phone-frame video{width:100%;height:100%;object-fit:cover}
-.social-tabs-nav{display:flex;gap:6px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;overflow-x:auto}
+.social-tabs-nav{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px}
 .social-tab-btn{padding:7px 12px;border-radius:6px;background:transparent;border:1px solid transparent;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted)}
 .social-tab-btn.active{background:rgba(201,168,76,0.12);border-color:var(--border);color:var(--gold)}
 .social-tab-content{display:none}
@@ -235,6 +235,70 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .social-form-group label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
 .social-form-group input,.social-form-group select{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none}
 .social-form-group input:focus{border-color:var(--gold)}
+
+/* ══ EVERY SCREEN: phone, tablet, laptop, desktop ══════════════════════════
+   Up to 900px the left sidebar becomes a top bar (logo + logout, then every tab
+   as a pill, wrapping onto more lines so all of them are visible at once) and
+   the content takes the full width. Up to 700px each
+   table row becomes a card that lists every column as "label — value", so no
+   table is cut off or needs sideways scrolling. Labels come from the table
+   headers (script at the end of this page). */
+.main{min-width:0}
+.tbl td{overflow-wrap:anywhere}
+@media (max-width:900px){
+  .sidebar{position:static;bottom:auto;width:auto;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;
+    gap:8px 10px;padding:10px 12px;border-right:0;border-bottom:1px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .sidebar-logo{flex:1 1 auto;min-width:0;padding:0;border:0}
+  .sidebar-logo-text{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sidebar-logo-sub{display:none}
+  .sidebar-footer{flex:none;padding:0;border:0}
+  .logout-btn{width:auto;padding:7px 12px}
+  .sidebar-nav{order:3;flex:1 1 100%;flex-direction:row;flex-wrap:wrap;padding:2px 0 2px;gap:6px}
+  .nav-item{flex:0 1 auto;white-space:normal;padding:7px 11px;font-size:12.5px;line-height:1.3;margin-top:0 !important;
+    border:1px solid var(--border) !important;border-radius:18px !important}
+  .social-tabs-nav{flex-wrap:wrap;overflow:visible}
+  .nav-item.active{background:rgba(201,168,76,0.16) !important}
+  .main{margin-left:0;padding:16px 14px}
+  .topbar{margin-bottom:16px}
+  .topbar > div{flex-wrap:wrap}
+}
+@media (max-width:700px){
+  .topbar h1{font-size:17px;flex:1 1 100%}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat-card{padding:14px;min-width:0}
+  .stat-val{font-size:20px;overflow-wrap:anywhere}
+  .table-header{padding:12px 14px}
+  .table-header > *{max-width:100%}
+  .search-box{width:100%;flex:1 1 100%}
+  .acc-auth{padding:14px}
+  .social-status-card{padding:16px}
+  .social-actions-bar .social-btn{flex:1 1 100%;justify-content:center;white-space:normal;text-align:center}
+  .social-tab-content [style*="space-between"], #panel-careers [style*="space-between"]{flex-wrap:wrap;gap:8px}
+  #socialSettingsBox{padding:16px !important}
+  .login-box{padding:32px 20px}
+
+  /* Tables → cards */
+  .tbl thead{display:none}
+  .tbl, .tbl tbody, .tbl tr{display:block;width:100%}
+  .tbl tr{width:auto;margin:10px;border:1px solid var(--border);border-radius:12px;background:var(--card);padding:4px 0;overflow:hidden}
+  .tbl tr:hover td{background:none}
+  .tbl td{display:block;position:relative;max-width:none !important;white-space:normal !important;text-align:left !important;
+    padding:8px 12px 8px calc(36% + 14px) !important;min-height:34px;border-bottom:1px solid rgba(201,168,76,0.08) !important}
+  .tbl tr td:last-child{border-bottom:0 !important}
+  .tbl td::before{content:attr(data-label);position:absolute;left:12px;top:9px;width:34%;font-family:'Cinzel',serif;font-size:9.5px;
+    letter-spacing:1px;text-transform:uppercase;color:var(--muted);line-height:1.4;overflow-wrap:anywhere}
+  .tbl td[data-label=""], .tbl td:not([data-label]){padding-left:12px !important}
+  .tbl td[data-label=""]::before, .tbl td:not([data-label])::before{display:none}
+  .tbl td .date-cell, .tbl .date-cell{white-space:normal}
+  .tbl td.empty-row, .tbl td.loading-row{padding:22px 12px !important;text-align:center !important}
+  .tbl .tbl tr{margin:8px 0}
+}
+@media (max-width:340px){ .stats-grid{grid-template-columns:1fr} }
+@media (max-width:380px){
+  .tbl td{padding-left:12px !important;padding-top:24px !important}
+  .tbl td::before{top:7px;width:auto;right:12px}
+  .tbl td[data-label=""], .tbl td:not([data-label]){padding-top:8px !important}
+}
 </style>
 <script src="sra-master.js" defer></script>
 <script src="admin-accounts.js" defer></script>
@@ -1895,6 +1959,43 @@ function toggleAdminLanguage() {
   const next = currentAdminLang === 'hi' ? 'en' : 'hi';
   applyAdminLanguage(next);
 }
+</script>
+<script>
+/* Phones: every table cell carries its column name (shown when rows become cards),
+   and choosing a tab on a phone jumps to that tab's content. */
+(function () {
+  function label() {
+    document.querySelectorAll('table.tbl').forEach(function (t) {
+      var heads = [];
+      var hr = t.tHead && t.tHead.rows[t.tHead.rows.length - 1];
+      if (hr) [].forEach.call(hr.cells, function (th) { for (var s = 0; s < (th.colSpan || 1); s++) heads.push(th.textContent.replace(/\s+/g, ' ').trim()); });
+      [].forEach.call(t.tBodies, function (tb) {
+        [].forEach.call(tb.rows, function (tr) {
+          var i = 0;
+          [].forEach.call(tr.cells, function (td) {
+            var span = td.colSpan || 1;
+            var want = span > 1 ? '' : (heads[i] || '');
+            if (td.getAttribute('data-label') !== want) td.setAttribute('data-label', want);
+            i += span;
+          });
+        });
+      });
+    });
+  }
+  var queued = false;
+  function later() { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; label(); }); }
+  label();
+  new MutationObserver(function (muts) {
+    for (var m of muts) if (m.type === 'childList') { later(); return; }
+  }).observe(document.body, { childList: true, subtree: true });
+  document.addEventListener('click', function (e) {
+    var item = e.target.closest && e.target.closest('.sidebar-nav .nav-item');
+    if (item && window.matchMedia('(max-width:900px)').matches) {
+      var main = document.querySelector('.main');   // jump to the chosen tab's content
+      if (main) window.scrollTo({ top: main.getBoundingClientRect().top + window.scrollY - 8, behavior: 'smooth' });
+    }
+  });
+})();
 </script>
 </body>
 </html>
