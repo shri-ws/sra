@@ -2,8 +2,9 @@
    Every muhurta / report form gets one button per person (वर, वधू, बालक, गृहस्वामी…).
    It lists the kundalis saved on this device for the logged-in account (the same
    list पत्रिका saves to and sra-auth.js syncs) and fills that person's fields.
-   Loaded by sra-ui.js; pages not listed below are left alone (पत्रिका, पाराशर
-   रिपोर्ट, मांगलिक and धन योग already have their own saved-kundali chooser). */
+   Loaded by sra-ui.js; pages not listed below are left alone (पत्रिका keeps its
+   own सुरक्षित कुण्डलियां list, where kundalis are made and saved).
+   A page may define window.sraOnSavedKundaliPicked(k, who) to react after filling. */
 (function () {
   'use strict';
   if (window.__sraSavedPick) return;
@@ -49,12 +50,26 @@
       { who: 'गृहस्वामी', at: ['ownerName', '.form-grid'], name: 'ownerName', date: 'ownerDob', time: 'ownerTob',
         city: 'citySearchInput', lat: 'lat', lon: 'lon', tz: 'tz' }
     ],
+    'parashara-report.html': [
+      { who: 'जातक', slot: 'sraPickSlotParashara', name: 'inName', date: 'inDate', time: 'inTime', city: 'inCitySearch',
+        lat: 'inLat', lon: 'inLon', tz: 'inTz', gender: 'inGender' }
+    ],
+    'manglik-dosh-calculator.html': [
+      { who: 'जातक', slot: 'sraPickSlotManglik', name: 'newKName', date: 'newKDob', time: 'newKTob', city: 'newKPlace',
+        lat: 'newKLat', lon: 'newKLon', tz: 'newKTz', gender: 'newKGender' }
+    ],
+    'dhan-yoga-calculator.html': [
+      { who: 'जातक', slot: 'sraPickSlotDhan', name: 'birthName', date: 'birthDate', time: 'birthTime', city: 'birthCity',
+        lat: 'birthLat', lon: 'birthLon', tz: 'birthTz', gender: 'birthGender' }
+    ],
     'consultation.html': [
       { who: 'जातक', at: ['clientName', '.form-group'], name: 'clientName', date: 'clientDob', time: 'clientTob',
         city: 'clientLocation', gender: 'clientGender' }
     ]
   };
-  const forms = FORMS[page];
+  FORMS['dhana-yoga-calculator.html'] = FORMS['dhan-yoga-calculator.html'];
+  // Pretty URLs (/manglik-dosh-calculator) serve the same pages
+  const forms = FORMS[page] || FORMS[page + '.html'];
   if (!forms) return;
 
   // ── The saved list: same keys as patrika.html / sra-auth.js ──────────────
@@ -105,6 +120,7 @@
     put(f.date, k.date);
     put(f.time, el(f.time) && el(f.time).step === '1' && time.length === 5 ? time + ':00' : time);
     if (f.after) { try { f.after(k); } catch (e) {} }
+    if (typeof window.sraOnSavedKundaliPicked === 'function') { try { window.sraOnSavedKundaliPicked(k, f.who); } catch (e) {} }
   }
 
   // ── UI ──────────────────────────────────────────────────────────────────
@@ -114,6 +130,8 @@
     font:600 14px/1.2 inherit;font-family:inherit;box-shadow:0 1px 0 rgba(0,0,0,.02);transition:background .2s,border-color .2s}
   .sra-sp-btn:hover{border-color:var(--sra-gold-deep,#9A7128);background:var(--sra-wash,#F6EEDC)}
   .sra-sp-btn small{color:var(--sra-muted,#8A7C68);font-weight:500}
+  .sra-sp-slot .sra-sp-btn{margin:0}
+  .sra-sp-slot .sra-sp-done{margin:6px 0 0}
   .sra-sp-done{display:block;margin:-8px 0 12px;font-size:12.5px;color:var(--sra-gold-deep,#9A7128)}
   .sra-sp-back{position:fixed;inset:0;z-index:100000;background:rgba(20,14,10,.45);display:flex;align-items:center;justify-content:center;padding:16px}
   .sra-sp-box{width:min(520px,100%);max-height:min(640px,88vh);display:flex;flex-direction:column;border-radius:18px;overflow:hidden;
@@ -186,17 +204,27 @@
       const st = document.createElement('style'); st.id = 'sra-sp-css'; st.textContent = CSS; document.head.appendChild(st);
     }
     forms.forEach(f => {
+      if (f.slot) {
+        const slot = el(f.slot);
+        if (!slot || slot.querySelector('.sra-sp-btn')) return;
+        slot.classList.add('sra-sp-slot');
+        slot.appendChild(makeBtn(f));
+        return;
+      }
       const input = el(f.at[0]);
       const box = input && input.closest(f.at[1]);
       if (!box || box.previousElementSibling && box.previousElementSibling.dataset && box.previousElementSibling.dataset.sraSp === f.who) return;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'sra-sp-btn';
-      btn.dataset.sraSp = f.who;
-      btn.innerHTML = '📂 <span>सेव्ड कुंडली से चुनें</span> <small>(' + esc(f.who) + ')</small>';
-      btn.addEventListener('click', () => openPicker(f, btn));
-      box.parentNode.insertBefore(btn, box);
+      box.parentNode.insertBefore(makeBtn(f), box);
     });
+  }
+  function makeBtn(f) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sra-sp-btn';
+    btn.dataset.sraSp = f.who;
+    btn.innerHTML = '📂 <span>सेव्ड कुंडली से चुनें</span>' + (f.slot ? '' : ' <small>(' + esc(f.who) + ')</small>');
+    btn.addEventListener('click', () => openPicker(f, btn));
+    return btn;
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();

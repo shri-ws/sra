@@ -1066,18 +1066,20 @@ html, body { overflow-x: clip; }
    Colour emoji are replaced by thin single-tone drawings in the theme's gold.
    Inside buttons and pills they take the button's own text colour. */
 :root body svg.sra-ic {
-  display: inline-block; width: 1.08em; height: 1.08em; vertical-align: -0.17em; flex: none;
+  display: inline-block !important; width: 1.08em !important; height: 1.08em !important; max-width: none !important;
+  margin: 0 !important; vertical-align: -0.17em; flex: none;
   fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
   color: var(--sra-gold-deep); overflow: visible;
 }
-:root body svg.sra-ic-dot { width: .9em; height: .9em; vertical-align: -0.1em; }
+:root body svg.sra-ic-dot { width: .9em !important; height: .9em !important; vertical-align: -0.1em; }
+/* Pages size their chart <svg>s with broad rules (.box svg { width:100% !important }); icons keep 1em */
 :root body button svg.sra-ic, :root body [role="button"] svg.sra-ic, :root body [class*="btn"] svg.sra-ic,
 :root body [class*="pill"] svg.sra-ic, :root body [class*="tab"] svg.sra-ic, :root body .sra-gnav svg.sra-ic,
 :root body .sra-gdrawer svg.sra-ic { color: inherit; }
 :root body .sra-ic-om { font-family: 'Rozha One', 'Tiro Devanagari Hindi', serif; font-weight: 400; color: var(--sra-gold-deep); line-height: 1; }
 /* Big emoji tiles become calm medallions: hairline gold ring, the icon centred */
 :root body .card-glyph svg.sra-ic, :root body .app-quick-icon svg.sra-ic, :root body .pillar-icon svg.sra-ic,
-:root body .hl-icon svg.sra-ic, :root body .drawer-sub-icon svg.sra-ic { width: .82em; height: .82em; vertical-align: middle; stroke-width: 1.45; color: var(--sra-kumkum); }
+:root body .hl-icon svg.sra-ic, :root body .drawer-sub-icon svg.sra-ic { width: .82em !important; height: .82em !important; vertical-align: middle; stroke-width: 1.45; color: var(--sra-kumkum); }
 [data-theme="night"] body .card-glyph svg.sra-ic, [data-theme="night"] body .app-quick-icon svg.sra-ic,
 [data-theme="night"] body .pillar-icon svg.sra-ic, [data-theme="night"] body .hl-icon svg.sra-ic,
 [data-theme="night"] body .drawer-sub-icon svg.sra-ic { color: var(--sra-gold); }

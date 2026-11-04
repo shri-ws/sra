@@ -1849,14 +1849,10 @@
         </p>
       </div>
 
-      <!-- Quick Switch from Saved Kundalis if any exist -->
-      <div id="modalSavedKundaliQuickSwitch" style="margin-bottom:14px; display:none;">
-        <label for="selModalSavedKundali" style="display:block; font-size:12.5px; font-weight:700; margin-bottom:4px; color:var(--text);">
-          📁 सुरक्षित कुण्डली में से चुनें:
-        </label>
-        <select id="selModalSavedKundali" onchange="onModalSavedKundaliPicked()" style="width:100%; padding:10px 12px; border-radius:8px; border:1.5px solid var(--border-gold); background:var(--card-bg); color:var(--text); font-size:13.5px; font-family:var(--font-hindi); font-weight:600;">
-        </select>
-        <div style="text-align:center; margin:12px 0 8px; font-size:11.5px; color:var(--text-muted); font-weight:700;">— अथवा नई जन्म पत्रिका का विवरण भरें —</div>
+      <!-- Saved kundalis: the shared "सेव्ड कुंडली से चुनें" button (sra-saved-pick.js) -->
+      <div style="text-align:center; margin-bottom:14px;">
+        <div id="sraPickSlotManglik"></div>
+        <div style="margin:10px 0 4px; font-size:11.5px; color:var(--text-muted); font-weight:700;">— अथवा नई जन्म पत्रिका का विवरण भरें —</div>
       </div>
 
       <form id="newKundaliForm" onsubmit="handleNewKundaliSubmit(event)">
@@ -2013,21 +2009,6 @@
       const modal = document.getElementById('modalNewKundaliInput');
       if (modal) {
         modal.classList.add('active');
-        const quickSwitch = document.getElementById('modalSavedKundaliQuickSwitch');
-        const selModal = document.getElementById('selModalSavedKundali');
-        if (quickSwitch && selModal && savedKundalisList && savedKundalisList.length > 0) {
-          selModal.innerHTML = '';
-          savedKundalisList.forEach((k, idx) => {
-            const opt = document.createElement('option');
-            opt.value = idx;
-            opt.textContent = `${k.name || 'जातक'} • ${k.date || ''} (${k.city || ''})`;
-            if (currentSelectedKundali && (k.id === currentSelectedKundali.id || (k.name === currentSelectedKundali.name && k.date === currentSelectedKundali.date))) {
-              opt.selected = true;
-            }
-            selModal.appendChild(opt);
-          });
-          quickSwitch.style.display = 'block';
-        }
       }
     }
 
@@ -2100,19 +2081,16 @@
         list = window.PatrikaEngineBridge.getAllSavedKundalis();
       }
 
-      // Default sample Kundali if no saved kundalis exist yet
-      if (!list || list.length === 0) {
-        list = [{
-          id: 'sample_1',
-          name: 'श्रीधर मिश्र',
-          gender: 'male',
-          date: '1993-10-26',
-          time: '02:55',
-          city: 'सीतापुर, उत्तर प्रदेश (Sitapur)',
-          lat: 27.57,
-          lon: 80.68,
-          tz: 5.5
-        }];
+      if (!Array.isArray(list)) list = [];
+      // A kundali handed over in the URL (or just entered) is used even if it is not saved
+      if (autoSelectTarget && !list.some(x => x.name === autoSelectTarget.name && x.date === autoSelectTarget.date)) {
+        list = [autoSelectTarget].concat(list);
+      }
+      // Nothing saved yet: ask for birth details (no made-up sample kundali)
+      if (list.length === 0) {
+        savedKundalisList = [];
+        openNewOrPatrikaKundaliModal();
+        return;
       }
 
       savedKundalisList = list;
@@ -2146,7 +2124,17 @@
       const idx = parseInt(sel.value, 10);
       const k = savedKundalisList[idx];
       if (!k) return;
+      selectManglikKundali(k);
+    }
 
+    // "सेव्ड कुंडली से चुनें" (sra-saved-pick.js) in the details popup: show that kundali's report
+    window.sraOnSavedKundaliPicked = function (k) {
+      closeNewKundaliModal();
+      if (!savedKundalisList.some(x => x.name === k.name && x.date === k.date)) savedKundalisList = [k].concat(savedKundalisList);
+      selectManglikKundali(k);
+    };
+
+    function selectManglikKundali(k) {
       currentSelectedKundali = k;
       window.currentManglikJataka = {
         name: k.name || 'जातक',

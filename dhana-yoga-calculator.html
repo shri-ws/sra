@@ -1001,15 +1001,8 @@
         <p>अपनी जन्म तिथि, समय, स्थान तथा वर्तमान आर्थिक स्थिति प्रविष्ट कर यथार्थवादी वित्तीय क्षमता जानें।</p>
       </div>
 
-      <!-- SAVED KUNDALI PICKER -->
-      <div class="saved-picker-box" id="savedKundaliBox">
-        <div class="saved-picker-label">
-          <span>📜</span> <span>सुरक्षित कुंडलियों से लोड करें:</span>
-        </div>
-        <select id="savedKundaliSelect" class="saved-picker-select" onchange="loadSelectedKundali(this.value)">
-          <option value="">-- सुरक्षित कुंडली चुनें --</option>
-        </select>
-      </div>
+      <!-- SAVED KUNDALI: the shared "सेव्ड कुंडली से चुनें" button (sra-saved-pick.js) -->
+      <div id="sraPickSlotDhan" style="margin-bottom:14px;"></div>
 
       <!-- FORM -->
       <form id="dhanForm" onsubmit="handleCalculateDhanYoga(event)">
@@ -1515,12 +1508,6 @@
         list = window.PatrikaEngineBridge.getAllSavedKundalis();
       }
 
-      if (list.length === 0) {
-        list = [
-          { name: "श्री राम (आदर्श कुंडली)", date: "1990-05-15", time: "14:30", place: "Ayodhya, UP", lat: 26.7922, lon: 82.1998, tz: 5.5, gender: "male" }
-        ];
-      }
-
       select.innerHTML = '<option value="">-- सुरक्षित कुंडली चुनें (' + list.length + ' उपलब्ध) --</option>';
       list.forEach(item => {
         const opt = document.createElement('option');
@@ -1529,6 +1516,9 @@
         select.appendChild(opt);
       });
     }
+
+    // "सेव्ड कुंडली से चुनें" (sra-saved-pick.js) has filled the form with this kundali
+    window.sraOnSavedKundaliPicked = function (k) { try { updateCalculateButtonLabel(k); } catch (e) {} };
 
     function loadSelectedKundali(raw) {
       if (!raw) return;

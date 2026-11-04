@@ -2208,7 +2208,7 @@
               <span class="drawer-sub-hint">२३ प्रामाणिक धन योग व इन्दु लग्न</span>
             </div>
           </a>
-          <a href="/manglik-calculator" onclick="closeNavDrawer()" class="drawer-sub-item">
+          <a href="/manglik-dosh-calculator" onclick="closeNavDrawer()" class="drawer-sub-item">
             <span>🔴</span>
             <div class="drawer-sub-text">
               <span class="drawer-sub-title">मांगलिक दोष विश्लेषण</span>
@@ -2305,12 +2305,7 @@
             <h3 style="margin:0; font-size:17px; color:var(--primary); font-weight:800;">जन्म कुण्डली विवरण</h3>
           </div>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <label for="selSavedKundali" style="font-size:12px; font-weight:700; color:var(--gold-dark); white-space:nowrap;">
-                📂 सुरक्षित कुण्डलियां:
-              </label>
-              <select id="selSavedKundali" class="sel-kundali" onchange="onSavedKundaliSelected()" style="max-width:240px; font-size:12.5px; padding:6px 10px;"></select>
-            </div>
+            <div id="sraPickSlotParashara"></div>
             <button type="button" class="btn-new-k" onclick="createNewKundaliEntry()" title="नया खाली फॉर्म भरें" style="padding:6px 12px; font-size:12px;">
               <span>➕ नया फॉर्म</span>
             </button>
@@ -2861,7 +2856,7 @@
             <li><a href="/" style="color:#cbd5e1; text-decoration:none;">🏠 मुख्य पृष्ठ (Home)</a></li>
             <li><a href="/patrika" style="color:#cbd5e1; text-decoration:none;">🪐 संपूर्ण जन्म पत्रिका (Patrika)</a></li>
             <li><a href="/dhana-yoga-calculator" style="color:#cbd5e1; text-decoration:none;">💰 धन योग कैलकुलेटर (Dhana Yoga)</a></li>
-            <li><a href="/manglik-calculator" style="color:#cbd5e1; text-decoration:none;">🔴 मांगलिक दोष विश्लेषण (Manglik Dosh)</a></li>
+            <li><a href="/manglik-dosh-calculator" style="color:#cbd5e1; text-decoration:none;">🔴 मांगलिक दोष विश्लेषण (Manglik Dosh)</a></li>
             <li><a href="/about" style="color:#cbd5e1; text-decoration:none;">📜 हमारे बारे में (About Research)</a></li>
           </ul>
         </div>
@@ -3496,19 +3491,7 @@
         list = window.PatrikaEngineBridge.getAllSavedKundalis();
       }
 
-      if (!list || list.length === 0) {
-        list = [{
-          id: 'sample_1',
-          name: 'श्रीधर मिश्र',
-          gender: 'male',
-          date: '1993-10-26',
-          time: '02:55',
-          city: 'सीतापुर, उत्तर प्रदेश (Sitapur)',
-          lat: 27.5667,
-          lon: 80.6833,
-          tz: 5.5
-        }];
-      }
+      if (!Array.isArray(list)) list = [];   // no made-up sample kundali
 
       savedKundalisList = list;
       const sel = document.getElementById('selSavedKundali');
@@ -3576,6 +3559,15 @@
       updateAuthBadge();
       updateGenerateButtonState(k);
     }
+
+    // "सेव्ड कुंडली से चुनें" (sra-saved-pick.js) has filled the form with this kundali
+    window.sraOnSavedKundaliPicked = function (k) {
+      currentSelectedKundali = k;
+      const statusEl = document.getElementById('geoStatusText');
+      if (statusEl) statusEl.innerHTML = `📍 <strong>${(k.city || 'चयनित स्थान').replace(/</g, '&lt;')}</strong> (${k.lat || 0}°, ${k.lon || 0}° | UTC +${k.tz || 5.5})`;
+      updateAuthBadge();
+      updateGenerateButtonState(k);
+    };
 
     function createNewKundaliEntry() {
       currentSelectedKundali = null;
