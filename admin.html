@@ -228,6 +228,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item" onclick="showPanel('forum', this)">💬 &nbsp;Forum Posts</div>
       <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
+      <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">🤝 &nbsp;सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
     </div>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
@@ -630,6 +631,78 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
         </div>
       </div>
     </div>
+
+    <!-- 🤝 CAREERS & SUTRADHAR APPLICATION MANAGEMENT -->
+    <div class="panel" id="panel-careers">
+      <!-- Top Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card gold">
+          <div class="stat-label">कुल प्राप्त आवेदन</div>
+          <div class="stat-val" id="s-career-total">—</div>
+          <div class="stat-sub">सूत्रधार पद हेतु प्रत्याशी</div>
+        </div>
+        <div class="stat-card" style="border-left: 3px solid #f59e0b;">
+          <div class="stat-label">प्रक्रियाधीन (Under Process)</div>
+          <div class="stat-val" id="s-career-pending" style="color:#d97706;">—</div>
+          <div class="stat-sub">आचार्य समिति समीक्षा में</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">स्वीकृत सक्रिय सूत्रधार</div>
+          <div class="stat-val" id="s-career-approved">—</div>
+          <div class="stat-sub">ऑनबोर्डिंग लिंक प्रेषित</div>
+        </div>
+      </div>
+
+      <!-- Overview Guidance Banner -->
+      <div class="table-wrap" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(124,19,5,0.04)); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="font-family:'Cinzel',serif; font-size:14px; font-weight:700; color:var(--gold); margin-bottom:4px;">
+            🏛️ सूत्रधार ऑनबोर्डिंग व चयन प्रक्रिया (SOP)
+          </div>
+          <p style="font-size:12px; color:var(--muted); margin:0; line-height:1.6;">
+            करियर फॉर्म भरने वाले अभ्यर्थियों का विवरण यहां दिखेगा। प्रत्याशी को रिव्यू करने के बाद <strong>"स्वीकृत करें व लिंक जनरेट करें"</strong> दबाएं। यह उनका गुप्त पासकोड और व्यक्तिगत ऑनबोर्डिंग लिंक तैयार कर देगा, जिसे आप 1-क्लिक में सीधे उनके व्हाट्सएप पर भेज सकते हैं।
+          </p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <a href="careers.html" target="_blank" class="export-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+            <span>🌐 करियर पेज देखें ➔</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Applications Table Wrap -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="table-title">🤝 सूत्रधार प्रत्याशी आवेदन तालिका</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input class="search-box" id="careerSearchInput" placeholder="नाम, फोन, शहर से खोजें..." oninput="filterCareersTable(this.value)"/>
+            <button class="export-btn" onclick="loadCareerApplications()">↻ रिफ्रेश</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>आवेदन ID व दिनांक</th>
+                <th>प्रत्याशी का नाम</th>
+                <th>व्हाट्सएप नंबर (यूजर ID)</th>
+                <th>शहर व राज्य</th>
+                <th>अनुभव / संक्षिप्त परिचय</th>
+                <th>बायोडाटा / रिज्यूमे</th>
+                <th>स्थिति (Status)</th>
+                <th>गुप्त पासकोड व लिंक</th>
+                <th>कार्यवाही (Action)</th>
+              </tr>
+            </thead>
+            <tbody id="careers-tbody">
+              <tr><td colspan="9" class="empty-row">लोड हो रहा है...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -640,7 +713,7 @@ const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const ADMIN_USER = 'panditji';
 
 /* ══ DATA CACHE ══ */
-let D = { students:[], payments:[], consultations:[], forum:[], users:[] };
+let D = { students:[], payments:[], consultations:[], forum:[], users:[], careers:[] };
 
 /* ══ LOGIN & AUTH RESTORATION ══ */
 async function hashPass(str) {
@@ -836,13 +909,14 @@ async function loadAll(){
 
   setLoading();
 
-  const [students, payments, consultations, forum, users, reviews] = await Promise.all([
+  const [students, payments, consultations, forum, users, reviews, careers] = await Promise.all([
     fetchTable('students'),
     fetchPayments(),
     fetchConsultations(),
     fetchTable('forum_posts'),
     fetchUserQueries(),
-    fetchReviews()
+    fetchReviews(),
+    fetchCareerApplications()
   ]);
 
   D.students     = students;
@@ -851,6 +925,7 @@ async function loadAll(){
   D.forum        = forum;
   D.users        = users;
   D.reviews      = reviews;
+  D.careers      = careers;
 
   if (window.SRAAdminData) { try { await SRAAdminData.ready(); } catch(e) {} }
   renderAll();
@@ -861,7 +936,7 @@ async function loadAll(){
 }
 
 function setLoading(){
-  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-payments-tbody','recent-users-tbody','reviews-tbody'].forEach(id=>{
+  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-payments-tbody','recent-users-tbody','reviews-tbody','careers-tbody'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML=`<tr><td colspan="10" class="loading-row"><span class="spin"></span> Loading...</td></tr>`;
   });
@@ -1186,13 +1261,16 @@ function showPanel(name, targetEl){
       consultations: 'Consultations',
       forum: 'Forum Posts',
       reviews: 'Client Reviews',
-      social: '🤖 Autonomous Social Media AI Agent (Autopilot)'
+      social: '🤖 Autonomous Social Media AI Agent (Autopilot)',
+      careers: '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
 
     if (name === 'social') {
       loadSocialStatus();
+    } else if (name === 'careers') {
+      fetchCareerApplications();
     }
   } catch(e) {
     console.error("showPanel error:", e);
@@ -1370,6 +1448,214 @@ async function saveSocialSettings() {
   } catch (err) {
     alert("सेव करने में त्रुटि: " + err.message);
   }
+}
+
+/* ══ CAREERS & SUTRADHAR APPLICATIONS ══ */
+async function fetchCareerApplications() {
+  let list = [];
+  try {
+    const adminKey = sessionStorage.getItem('sra_admin_auth') || localStorage.getItem('sra_admin_auth') || '';
+    const res = await fetch(`api/get_career_applications.php?admin_key=${encodeURIComponent(adminKey)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.applications) {
+        list = data.applications;
+      }
+    }
+  } catch(e) {
+    console.warn("fetchCareerApplications API failed:", e);
+  }
+
+  // Merge with local storage fallback
+  try {
+    const local = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
+    const seen = new Set(list.map(a => a.id));
+    local.forEach(l => {
+      if (!seen.has(l.id)) {
+        list.push(l);
+        seen.add(l.id);
+      }
+    });
+  } catch(e) {}
+
+  D.careers = list;
+  renderCareerRows('careers-tbody', D.careers);
+  updateCareerStats(D.careers);
+  return list;
+}
+
+function updateCareerStats(rows) {
+  const total = rows.length;
+  const pending = rows.filter(r => (r.status || 'pending') === 'pending').length;
+  const approved = rows.filter(r => r.status === 'approved').length;
+
+  const totalEl = document.getElementById('s-career-total');
+  const pendingEl = document.getElementById('s-career-pending');
+  const approvedEl = document.getElementById('s-career-approved');
+  const badgeEl = document.getElementById('badge-careers');
+
+  if (totalEl) totalEl.textContent = total;
+  if (pendingEl) pendingEl.textContent = pending;
+  if (approvedEl) approvedEl.textContent = approved;
+  if (badgeEl) {
+    if (pending > 0) {
+      badgeEl.textContent = pending + ' NEW';
+      badgeEl.style.display = 'inline-block';
+    } else {
+      badgeEl.style.display = 'none';
+    }
+  }
+}
+
+function renderCareerRows(tbodyId, rows) {
+  const el = document.getElementById(tbodyId);
+  if (!el) return;
+  if (!rows || !rows.length) {
+    el.innerHTML = `<tr><td colspan="9" class="empty-row">अभी कोई सूत्रधार आवेदन प्राप्त नहीं हुआ है</td></tr>`;
+    return;
+  }
+
+  el.innerHTML = rows.map(app => {
+    const isApproved = app.status === 'approved';
+    const statusBadge = isApproved 
+      ? `<span class="badge" style="background:#d1fae5; color:#065f46; border:1px solid #10b981; font-weight:700;">✓ स्वीकृत (Active)</span>`
+      : `<span class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; font-weight:700;">⏳ अंडर प्रोसेस</span>`;
+    
+    const token = app.secret_token || 'sec_' + (app.phone || '0000').slice(-4);
+    const pass = app.secret_pass || (app.phone ? app.phone.slice(-6) : '123456');
+    const inviteUrl = `${window.location.origin}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(app.phone || '')}`;
+
+    return `<tr>
+      <td>
+        <div style="font-family:monospace; font-size:11px; font-weight:700; color:var(--gold);">${safe(app.id)}</div>
+        <div class="date-cell" style="font-size:11px;">${fmtDate(app.created_at)}</div>
+      </td>
+      <td>
+        <div class="name-cell" style="font-weight:700; font-size:13px;">${safe(app.name)}</div>
+        <div class="email-cell">${safe(app.email || '—')}</div>
+      </td>
+      <td>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span>${safe(app.phone)}</span>
+          <a href="https://wa.me/91${safe(app.phone)}" target="_blank" title="WhatsApp पर चैट करें" style="text-decoration:none; font-size:14px;">💬</a>
+        </div>
+      </td>
+      <td style="font-size:12px;">${safe(app.city || '—')}</td>
+      <td style="font-size:12px; max-width:200px;">
+        <div style="white-space:normal; line-height:1.4;" title="${safe(app.experience || app.bio || '')}">
+          ${safe((app.experience || app.bio || '—').slice(0, 90))}${(app.experience || app.bio || '').length > 90 ? '...' : ''}
+        </div>
+      </td>
+      <td>
+        ${app.resume_name 
+          ? `<span class="badge" style="background:rgba(201,168,76,0.15); color:var(--gold); cursor:pointer;" onclick="viewResumeModal('${safe(app.id)}')">📄 ${safe(app.resume_name.slice(0,18))}</span>`
+          : `<span style="font-size:11px; color:var(--muted);">उपलब्ध नहीं</span>`}
+      </td>
+      <td>${statusBadge}</td>
+      <td>
+        <div style="font-size:11px; display:flex; flex-direction:column; gap:4px;">
+          <div>पासकोड: <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
+          <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}')">📋 लिंक कॉपी</button>
+        </div>
+      </td>
+      <td>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${!isApproved ? `
+            <button class="export-btn" style="background:var(--gold); color:#000; font-weight:700; font-size:11px;" onclick="approveCareerApplication('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}')">
+              ⚡ स्वीकृत करें
+            </button>
+          ` : `
+            <button class="export-btn" style="background:#059669; color:#fff; font-weight:700; font-size:11px;" onclick="sendCareerWhatsApp('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}', '${pass}', '${token}')">
+              📲 व्हाट्सएप भेजें
+            </button>
+          `}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCareersTable(query) {
+  const q = (query || '').toLowerCase().trim();
+  if (!q) {
+    renderCareerRows('careers-tbody', D.careers);
+    return;
+  }
+  const filtered = (D.careers || []).filter(app => 
+    (app.name || '').toLowerCase().includes(q) ||
+    (app.phone || '').includes(q) ||
+    (app.city || '').toLowerCase().includes(q) ||
+    (app.id || '').toLowerCase().includes(q) ||
+    (app.status || '').toLowerCase().includes(q)
+  );
+  renderCareerRows('careers-tbody', filtered);
+}
+
+async function approveCareerApplication(id, phone, name) {
+  if (!confirm(`${name} जी (फोन: ${phone}) को अधिकृत सूत्रधार के रूप में स्वीकृत करें?`)) return;
+
+  try {
+    const adminKey = sessionStorage.getItem('sra_admin_auth') || localStorage.getItem('sra_admin_auth') || '';
+    const res = await fetch('api/update_career_status.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, status: 'approved', admin_key: adminKey })
+    });
+    
+    let result = null;
+    if (res.ok) result = await res.json();
+
+    const target = (D.careers || []).find(c => c.id === id);
+    if (target) {
+      target.status = 'approved';
+      if (result && result.secret_pass) target.secret_pass = result.secret_pass;
+      if (result && result.secret_token) target.secret_token = result.secret_token;
+    }
+
+    try {
+      localStorage.setItem('sra_career_applications', JSON.stringify(D.careers));
+    } catch(e) {}
+
+    renderCareerRows('careers-tbody', D.careers);
+    updateCareerStats(D.careers);
+
+    const pass = target?.secret_pass || (result?.secret_pass) || (phone.slice(-6));
+    const token = target?.secret_token || (result?.secret_token) || ('sec_' + phone.slice(-4));
+
+    if (confirm(`सफलतापूर्वक स्वीकृत!\n\nयूजर आईडी: ${phone}\nगुप्त पासकोड: ${pass}\n\nक्या आप अभी सीधे प्रत्याशी के व्हाट्सएप पर आमंत्रण संदेश भेजना चाहते हैं?`)) {
+      sendCareerWhatsApp(id, phone, name, pass, token);
+    }
+  } catch(err) {
+    alert("स्वीकृति प्रक्रिया में त्रुटि: " + err.message);
+  }
+}
+
+function sendCareerWhatsApp(id, phone, name, pass, token) {
+  const domain = window.location.origin;
+  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}`;
+  const msg = `सादर प्रणाम ${name} जी!\n\n`
+    + `श्री राम जी एस्ट्रो आचार्य परिषद द्वारा आपका सूत्रधार (वैदिक दूत) आवेदन स्वीकृत कर लिया गया है।\n\n`
+    + `📌 आपकी सूत्रधार लॉगिन क्रेडेंशियल्स:\n`
+    + `• यूजर आईडी: ${phone}\n`
+    + `• गुप्त पासकोड (Password): ${pass}\n\n`
+    + `🔐 आपकी व्यक्तिगत ऑनबोर्डिंग लिंक:\n${inviteUrl}\n\n`
+    + `इस लिंक पर क्लिक करके आप अपना दैनिक टास्क व शास्त्रोक्त प्रशिक्षण तत्काल प्रारंभ कर सकते हैं।\n\n`
+    + `शुभम् भवतु!\n— श्री राम जी एस्ट्रो (shriramjiastro.in)`;
+
+  window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function copyCareerInviteLink(phone, token) {
+  const domain = window.location.origin;
+  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}`;
+  navigator.clipboard.writeText(inviteUrl);
+  alert("गोपनीय ऑनबोर्डिंग लिंक क्लिपबोर्ड पर कॉपी हो गया!\n\n" + inviteUrl);
+}
+
+function viewResumeModal(appId) {
+  const app = (D.careers || []).find(c => c.id === appId);
+  if (!app) return;
+  alert(`बायोडाटा / अनुभव विवरण (${app.name}):\n\n${app.experience || app.bio || 'कोई अतिरिक्त विवरण दर्ज नहीं है।'}`);
 }
 </script>
 </body>

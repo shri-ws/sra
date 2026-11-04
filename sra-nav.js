@@ -43,7 +43,7 @@
       { href: 'srai.html', label: L('SRA AI', 'SRA AI'), icon: '🤖' },
       { href: 'ai-samvad.html', label: L('AI महासंवाद', 'AI Mahasamvad'), icon: '💬' },
       { href: 'about.html', label: L('अबाउट व जर्नल', 'About & Journal'), icon: '🪷' },
-      { href: 'sutradhar.html', label: L('सूत्रधार सेवा पोर्टल', 'Sutradhar Portal'), icon: '🚩', badge: 'Join' }
+      { href: 'careers.html', label: L('करियर (सूत्रधार आमंत्रण)', 'Careers & Sutradhar'), icon: '🏛️', badge: 'Apply' }
     ] },
     { href: 'consultation.html', label: L('1-on-1 परामर्श', '1-on-1 Consultation'), icon: '🔱', accent: true }
   ];
