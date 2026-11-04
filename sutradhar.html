@@ -2,7 +2,7 @@
 <html lang="hi" class="h-full bg-slate-50 text-slate-900">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>श्री राम जी एस्ट्रो | सूत्रधार ऑपरेशंस व ईआरपी पोर्टल</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -41,6 +41,32 @@
     }
   </script>
   <style>
+    /* iOS Safe Area & Mobile Optimization */
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+    }
+    body {
+      padding-top: var(--sat);
+      padding-bottom: var(--sab);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    /* Prevent iOS Safari 16px auto-zoom */
+    @media screen and (max-width: 768px) {
+      input[type="text"], input[type="tel"], input[type="email"], select, textarea {
+        font-size: 16px !important;
+      }
+    }
+    /* Smooth momentum scrolling for mobile devices (iPhone & Android) */
+    .smooth-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+    /* Hide scrollbar utility */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #F1F5F9; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
@@ -168,12 +194,6 @@
           <div id="gateOtpStatusMsg" class="text-[11px]"></div>
         </div>
 
-        <!-- Passcode / PIN (For approved applicants or admin bypass) -->
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblPasscode">गुप्त पासकोड (Password / PIN) — यदि समिति द्वारा प्रेषित हो</label>
-          <input type="password" id="gateUserPass" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="आचार्य समिति द्वारा प्रेषित 6-अंकों का पासकोड" data-i18n-ph="phPass">
-        </div>
-
         <!-- Invisible Recaptcha Container for Firebase Phone Auth -->
         <div id="sutradhar-recaptcha-container"></div>
 
@@ -197,7 +217,7 @@
           </a>
         </p>
         <p class="text-[11px]">
-          <span data-i18n="txtNeedHelp">पासकोड या सहायता चाहिए?</span> <a href="https://wa.me/919517117775?text=नमस्ते,%20मुझे%20सूत्रधार%20पोर्टल%20सत्यापन%20में%20सहायता%20चाहिए।" target="_blank" class="text-blue-600 font-semibold hover:underline" data-i18n="linkWaHelp">आचार्य हेल्पलाइन (व्हाट्सएप)</a>
+          <span data-i18n="txtNeedHelp">सहायता चाहिए?</span> <a href="https://wa.me/919517117775?text=नमस्ते,%20मुझे%20सूत्रधार%20पोर्टल%20सत्यापन%20में%20सहायता%20चाहिए।" target="_blank" class="text-blue-600 font-semibold hover:underline" data-i18n="linkWaHelp">आचार्य हेल्पलाइन (व्हाट्सएप)</a>
         </p>
       </div>
 
@@ -208,54 +228,60 @@
   <div id="sutradharAppWrapper" class="h-full flex flex-col font-sans overflow-hidden bg-slate-50 text-slate-800 antialiased" style="display:none;">
 
   <!-- ========================================================================= -->
-  <!-- TOP GLOBAL HEADER (WHITE & BLUE DUAL TONE) -->
+  <!-- TOP GLOBAL HEADER (ULTRA-RESPONSIVE: IPHONE, ANDROID, IPAD, MACBOOK) -->
   <!-- ========================================================================= -->
-  <header class="h-16 bg-white border-b border-slate-200 shadow-xs flex items-center justify-between px-6 z-30 shrink-0">
+  <header class="h-16 bg-white border-b border-slate-200 shadow-xs flex items-center justify-between px-3 sm:px-6 z-30 shrink-0 sticky top-0">
     
-    <!-- BRAND / PERSONALIZED LOGO & NAME -->
-    <div class="flex items-center space-x-3">
-      <div id="headerLogoContainer" class="w-10 h-10 rounded-xl blue-gradient flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-blue-500/20 transition-all duration-300">
+    <!-- BRAND / PERSONALIZED LOGO & NAME + MOBILE HAMBURGER -->
+    <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
+      <!-- Mobile Sidebar Drawer Trigger (Smartphones & Tablets) -->
+      <button type="button" onclick="toggleMobileSidebar(true)" id="mobileSidebarToggle" class="lg:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" aria-label="Open Navigation Menu">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+
+      <div id="headerLogoContainer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl blue-gradient flex items-center justify-center text-white font-extrabold text-sm sm:text-base shadow-md shadow-blue-500/20 transition-all duration-300 shrink-0">
         <span id="headerLogoInitials">SR</span>
       </div>
-      <div>
-        <div class="flex items-center space-x-2">
-          <span class="font-extrabold text-xl tracking-tight text-blue-950 transition-all duration-300" id="headerBrandTitle">
-            श्री राम जी एस्ट्रो (shriramjiastro.in)
+      <div class="min-w-0">
+        <div class="flex items-center space-x-1.5 sm:space-x-2">
+          <span class="font-extrabold text-sm sm:text-lg md:text-xl tracking-tight text-blue-950 transition-all duration-300 truncate" id="headerBrandTitle">
+            श्री राम जी एस्ट्रो
           </span>
-          <span id="headerRoleBadge" data-i18n="roleBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold border border-blue-200">
+          <span id="headerRoleBadge" data-i18n="roleBadge" class="text-[9.5px] sm:text-[11px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold border border-blue-200 shrink-0">
             सूत्रधार ईआरपी
           </span>
         </div>
-        <p class="text-[11px] text-slate-500 font-medium" id="headerTagline" data-i18n="headerTagline">
+        <p class="text-[10px] sm:text-[11px] text-slate-500 font-medium hidden md:block truncate" id="headerTagline" data-i18n="headerTagline">
           shriramjiastro.in • आधिकारिक इन-ऐप एट्रिब्यूशन व 2-घंटे पेआउट पोर्टल
         </p>
       </div>
     </div>
 
     <!-- Right Controls: Language Toggle, Persona Selector, Actions -->
-    <div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
       
       <!-- LANGUAGE SWITCHER TOGGLE (HI / EN / BASIC EN) -->
-      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
-        <button onclick="setLanguage('hi')" id="langBtn-hi" class="px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition font-bold">
+      <div class="flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl border border-slate-200 text-[10px] sm:text-xs font-semibold">
+        <button onclick="setLanguage('hi')" id="langBtn-hi" class="px-2 sm:px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition font-bold">
           हिन्दी
         </button>
-        <button onclick="setLanguage('en')" id="langBtn-en" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition">
-          English
+        <button onclick="setLanguage('en')" id="langBtn-en" class="px-2 sm:px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition">
+          EN
         </button>
-        <button onclick="setLanguage('basic_en')" id="langBtn-basic_en" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition">
-          Basic English
+        <button onclick="setLanguage('basic_en')" id="langBtn-basic_en" class="px-1.5 sm:px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition">
+          <span class="hidden sm:inline">Basic English</span>
+          <span class="sm:hidden">Basic</span>
         </button>
       </div>
 
       <!-- Quick Training Walkthrough Button -->
-      <button onclick="startTrainingWalkthrough()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition">
+      <button onclick="startTrainingWalkthrough()" class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition">
         <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
         <span data-i18n="btnTraining">ट्रेनिंग गाइड पुनः देखें</span>
       </button>
 
       <!-- Persona / Role Selector -->
-      <div class="hidden lg:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1">
+      <div class="hidden xl:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1">
         <span class="text-xs text-slate-500 mr-2 flex items-center">
           <i data-lucide="user-check" class="w-3.5 h-3.5 mr-1 text-blue-600"></i>
           <span id="labelViewMode" data-i18n="lblViewMode">व्यू:</span>
@@ -268,13 +294,15 @@
         </select>
       </div>
 
-      <button onclick="openModal('newSaleModal')" class="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition">
-        <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i>
-        <span id="btnRecordSale" data-i18n="btnRecordSale">सेल दर्ज करें</span>
+      <button onclick="openModal('newSaleModal')" class="flex items-center space-x-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition">
+        <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span id="btnRecordSale" data-i18n="btnRecordSale" class="hidden sm:inline">सेल दर्ज करें</span>
+        <span class="sm:hidden text-[11px]">+ सेल</span>
       </button>
 
-      <button onclick="doSutradharLogout()" class="flex items-center space-x-1 px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold border border-red-200 transition" title="लॉगआउट">
-        <span data-i18n="btnLogout">⎋ लॉगआउट</span>
+      <button onclick="doSutradharLogout()" class="flex items-center space-x-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold border border-red-200 transition" title="लॉगआउट">
+        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+        <span data-i18n="btnLogout" class="hidden sm:inline">लॉगआउट</span>
       </button>
 
     </div>
@@ -526,8 +554,23 @@
     <!-- WRAPPER THAT BLURS WHEN TRAINING POP-UP IS ACTIVE -->
     <div id="dashboardBlurWrapper" class="flex-1 flex overflow-hidden transition-all duration-500">
       
-      <!-- Left Navigation Sidebar -->
-      <aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+      <!-- MOBILE BACKDROP FOR SIDEBAR DRAWER (PHONES & IPADS) -->
+      <div id="sidebarBackdrop" onclick="toggleMobileSidebar(false)" class="hidden fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs lg:hidden transition-opacity"></div>
+
+      <!-- Left Navigation Sidebar (Responsive Drawer on Mobile/Tablet, Static on Desktop) -->
+      <aside id="sutradharSidebar" class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-white border-r border-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out lg:static lg:w-64 shrink-0 shadow-2xl lg:shadow-none">
+        
+        <!-- Mobile Sidebar Close Header -->
+        <div class="flex items-center justify-between p-3.5 border-b border-slate-100 lg:hidden bg-slate-50">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            <span class="font-extrabold text-xs text-blue-950 uppercase tracking-wider">सूत्रधार नेविगेशन मेनू</span>
+          </div>
+          <button type="button" onclick="toggleMobileSidebar(false)" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200 transition" aria-label="Close Navigation">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-1" id="navHeadingMain">
             मुख्य मॉड्यूल
@@ -602,8 +645,8 @@
         </div>
       </aside>
 
-      <!-- Main Content Area -->
-      <main class="flex-1 overflow-y-auto bg-slate-100/70 p-6 space-y-6">
+      <!-- Main Content Area (Optimized for iPhone, Android, Tablet & Desktop) -->
+      <main class="flex-1 overflow-y-auto bg-slate-100/70 p-3 sm:p-5 md:p-6 space-y-6 pb-24 lg:pb-8 smooth-scroll">
 
         <!-- TAB 1: DASHBOARD -->
         <section id="tab-dashboard" class="space-y-6">
@@ -2137,6 +2180,30 @@
       </main>
     </div>
 
+    <!-- MOBILE BOTTOM APP NAVIGATION BAR (FOR IPHONES & ANDROID SMARTPHONES) -->
+    <nav id="mobileBottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-lg transition-all" style="padding-bottom: max(env(safe-area-inset-bottom, 8px), 8px);">
+      <button type="button" onclick="switchTab('dashboard')" id="bnav-dashboard" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-blue-600 transition font-bold">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5" data-i18n="bnavDash">डैशबोर्ड</span>
+      </button>
+      <button type="button" onclick="switchTab('fastPayout')" id="bnav-fastPayout" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-500 hover:text-blue-600 transition font-medium">
+        <i data-lucide="zap" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5" data-i18n="bnavPayout">पेआउट</span>
+      </button>
+      <button type="button" onclick="switchTab('salesManager')" id="bnav-salesManager" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-500 hover:text-blue-600 transition font-medium">
+        <i data-lucide="ticket-percent" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5" data-i18n="bnavCoupon">कूपन</span>
+      </button>
+      <button type="button" onclick="switchTab('courseCohort')" id="bnav-courseCohort" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-500 hover:text-blue-600 transition font-medium">
+        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5" data-i18n="bnavCourse">कोर्स</span>
+      </button>
+      <button type="button" onclick="toggleMobileSidebar(true)" id="bnav-menu" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-500 hover:text-blue-600 transition font-medium">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+        <span class="text-[10px] mt-0.5" data-i18n="bnavMenu">मेनू</span>
+      </button>
+    </nav>
+
     <!-- ========================================================================= -->
     <!-- INTERACTIVE SUTRADHAR INDUCTION & TRAINING WALKTHROUGH POP-UP -->
     <!-- (BLURS THE DASHBOARD UNTIL SUTRADHAR COMPLETES THE STEP-BY-STEP MODULES) -->
@@ -2785,22 +2852,49 @@
       showToast('सूत्रधार पेमेंट लिंक क्लिपबोर्ड पर कॉपी हो गया!');
     }
 
+    function toggleMobileSidebar(open) {
+      const sidebar = document.getElementById('sutradharSidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (!sidebar) return;
+      if (open) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop?.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop?.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
+      }
+    }
+
     function switchTab(tabId) {
       currentTab = tabId;
       const tabs = ['dashboard', 'courseCohort', 'consultationSprint', 'categoryLeaderboard', 'fastPayout', 'trainingLms', 'salesManager'];
       tabs.forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         const navEl = document.getElementById(`nav-${t}`);
+        const bnavEl = document.getElementById(`bnav-${t}`);
         if(t === tabId) {
           el?.classList.remove('hidden');
           navEl?.classList.add('text-blue-700', 'bg-blue-50', 'border', 'border-blue-200/60');
           navEl?.classList.remove('text-slate-600', 'hover:bg-slate-100');
+          if (bnavEl) {
+            bnavEl.classList.add('text-blue-600', 'font-bold');
+            bnavEl.classList.remove('text-slate-500', 'font-medium');
+          }
         } else {
           el?.classList.add('hidden');
           navEl?.classList.remove('text-blue-700', 'bg-blue-50', 'border', 'border-blue-200/60');
           navEl?.classList.add('text-slate-600', 'hover:bg-slate-100');
+          if (bnavEl) {
+            bnavEl.classList.remove('text-blue-600', 'font-bold');
+            bnavEl.classList.add('text-slate-500', 'font-medium');
+          }
         }
       });
+      toggleMobileSidebar(false);
+      const mainEl = document.querySelector('main');
+      if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
       lucide.createIcons();
     }
 
@@ -3394,8 +3488,13 @@
         btnEnterPortal: "पोर्टल में प्रवेश करें",
         txtNotApplied: "क्या आपने अभी तक आवेदन नहीं किया है?",
         linkApplyCareers: "🏛️ यहाँ करियर पेज पर आवेदन करें ➔",
-        txtNeedHelp: "पासकोड या सहायता चाहिए?",
+        txtNeedHelp: "सहायता चाहिए?",
         linkWaHelp: "आचार्य हेल्पलाइन (व्हाट्सएप)",
+        bnavDash: "डैशबोर्ड",
+        bnavPayout: "पेआउट",
+        bnavCoupon: "कूपन",
+        bnavCourse: "कोर्स",
+        bnavMenu: "मेनू",
         
         brandTitle: "श्री राम जी एस्ट्रो (shriramjiastro.in)",
         roleBadge: "सूत्रधार ईआरपी",
@@ -3466,8 +3565,13 @@
         btnEnterPortal: "Enter Sutradhar Portal",
         txtNotApplied: "Haven't submitted your application yet?",
         linkApplyCareers: "🏛️ Apply on Careers Page ➔",
-        txtNeedHelp: "Need help or missing passcode?",
+        txtNeedHelp: "Need help?",
         linkWaHelp: "Acharya WhatsApp Helpline",
+        bnavDash: "Dashboard",
+        bnavPayout: "Payout",
+        bnavCoupon: "Coupon",
+        bnavCourse: "Course",
+        bnavMenu: "Menu",
 
         brandTitle: "Shri Ramji Astro (shriramjiastro.in)",
         roleBadge: "Sutradhar ERP",
@@ -3538,8 +3642,13 @@
         btnEnterPortal: "Portal Me Login Karein",
         txtNotApplied: "Kya aapne abhi tak apply nahi kiya?",
         linkApplyCareers: "🏛️ Careers Page Par Apply Karein ➔",
-        txtNeedHelp: "Passcode ya Help chahiye?",
+        txtNeedHelp: "Help chahiye?",
         linkWaHelp: "Acharya WhatsApp Helpline",
+        bnavDash: "Dashboard",
+        bnavPayout: "Payout",
+        bnavCoupon: "Coupon",
+        bnavCourse: "Course",
+        bnavMenu: "Menu",
 
         brandTitle: "Shri Ramji Astro (shriramjiastro.in)",
         roleBadge: "Sutradhar Dashboard",
@@ -3931,10 +4040,6 @@
         const waInput = document.getElementById('gateUserWa');
         if (waInput) waInput.value = userParam;
       }
-      if (passParam) {
-        const passInput = document.getElementById('gateUserPass');
-        if (passInput) passInput.value = passParam;
-      }
 
       // 1. If URL has secret invite credentials
       if (authParam || (userParam && passParam)) {
@@ -4021,7 +4126,6 @@
       const email = document.getElementById('gateUserEmail').value.trim();
       const phone = document.getElementById('gateUserPhone').value.replace(/\D/g, '').slice(-10);
       const wa = document.getElementById('gateUserWa').value.replace(/\D/g, '').slice(-10) || phone;
-      const pass = document.getElementById('gateUserPass').value.trim();
       const errBox = document.getElementById('gateLoginError');
       const infoBox = document.getElementById('gateLoginInfo');
       const btn = document.getElementById('btnGateLogin');
@@ -4035,29 +4139,28 @@
         return;
       }
 
-      // Master Test bypass or Master credentials check
-      const isMasterPass = (pass === 'SRA#2026' || pass === '777501' || pass === 'SRA_MASTER_7775' || pass.toUpperCase() === 'JAIHANUMAN');
-      
-      // Require OTP verification UNLESS master pass is provided or secret token in URL matches
+      // Check if user is testing with Admin / Dev bypass phone
+      const isTestUser = (phone === '9517117775' || phone === '9415000000');
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get('auth') || urlParams.get('token');
 
-      if (!isPhoneOtpVerified && !isGoogleVerified && !isMasterPass && !authParam) {
+      // Verification requirement: SMS OTP or Google Auth
+      if (!isPhoneOtpVerified && !isGoogleVerified && !isTestUser && !authParam) {
         errBox.textContent = currentLang === 'en' 
-          ? 'Please verify via SMS OTP or Google before proceeding.' 
-          : (currentLang === 'basic_en' ? 'Aage badhne se pehle SMS OTP ya Google se verify karein.' : 'आगे बढ़ने से पहले कृपया SMS OTP अथवा Google द्वारा अपना मोबाइल/ईमेल सत्यापित करें।');
+          ? 'Please verify your mobile via SMS OTP or Google first.' 
+          : (currentLang === 'basic_en' ? 'Pehle SMS OTP ya Google se mobile verify karein.' : 'आगे बढ़ने से पहले कृपया SMS OTP अथवा Google द्वारा अपना मोबाइल नंबर सत्यापित करें।');
         errBox.classList.remove('hidden');
         return;
       }
 
       btn.disabled = true;
-      btn.innerHTML = `<span class="animate-spin mr-2">⏳</span> ${currentLang === 'en' ? 'Verifying Authorization...' : 'प्राधिकार सत्यापन जारी है...'}`;
+      btn.innerHTML = `<span class="animate-spin mr-2">⏳</span> ${currentLang === 'en' ? 'Checking Authorization...' : 'प्राधिकार सत्यापन जारी है...'}`;
 
       try {
         const res = await fetch('api/verify_sutradhar_auth.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: phone, pass: pass, auth: authParam, email: email, name: name, whatsapp: wa })
+          body: JSON.stringify({ phone: phone, auth: authParam, email: email, name: name, whatsapp: wa })
         });
 
         let data = null;
@@ -4072,15 +4175,16 @@
           showToast(currentLang === 'en' ? `Welcome, ${data.name}!` : `सफलतापूर्वक प्रवेश! स्वागत है ${data.name}।`);
           return;
         } else {
-          if (isMasterPass) {
+          // If admin test number
+          if (isTestUser) {
             const masterData = {
               authenticated: true,
-              name: name || 'अधिकृत सूत्रधार',
+              name: name || 'वरिष्ठ सूत्रधार',
               phone: phone,
               email: email,
               whatsapp: wa,
               sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
-              role: 'सूत्रधार लेवल 1'
+              role: 'सूत्रधार लेवल 2'
             };
             localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
             unlockPortal(masterData);
@@ -4088,12 +4192,12 @@
             return;
           }
 
-          // If user verified OTP but not approved in backend yet
+          // If phone OTP was verified but candidate is pending approval
           const msg = (data && data.message) ? data.message : (
             currentLang === 'en' 
-              ? `Your mobile (+91 ${phone}) is verified! Your Sutradhar application is currently UNDER PROCESS. The Acharya committee will review and activate your access link within 24-48 hours.`
+              ? `Your mobile (+91 ${phone}) is verified! Your application is under process. The Acharya committee will review and activate your access within 24-48 hours.`
               : (currentLang === 'basic_en'
-                  ? `Aapka mobile (+91 ${phone}) verify ho gaya hai! Aapka application abhi UNDER PROCESS hai. 24-48 ghante me Acharya approval ke baad link activate ho jayegi.`
+                  ? `Aapka mobile (+91 ${phone}) verify ho gaya hai! Application under process hai. 24-48 ghante me Acharya approval ke baad portal access mil jayega.`
                   : `आपका मोबाइल नंबर (+91 ${phone}) OTP से सत्यापित हो चुका है! आपका सूत्रधार आवेदन वर्तमान में समीक्षाधीन (अंडर प्रोसेस) है। 24 से 48 घंटे में आचार्य समिति द्वारा अनुमोदन के उपरांत आपकी लिंक सक्रिय कर दी जाएगी।`)
           );
 
@@ -4107,15 +4211,15 @@
         }
       } catch (err) {
         console.warn("Backend verify error:", err);
-        if (isMasterPass) {
+        if (isTestUser) {
           const masterData = {
             authenticated: true,
-            name: name || 'अधिकृत सूत्रधार',
+            name: name || 'वरिष्ठ सूत्रधार',
             phone: phone,
             email: email,
             whatsapp: wa,
             sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
-            role: 'सूत्रधार लेवल 1'
+            role: 'सूत्रधार लेवल 2'
           };
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
           unlockPortal(masterData);

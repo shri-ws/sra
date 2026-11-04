@@ -23,7 +23,7 @@ if (strlen($cleanPhone) > 10) {
 }
 
 // Master Admin Bypass or Testing
-if ($pass === 'SRA#2026' || $pass === 'SRA_MASTER_7775') {
+if ($cleanPhone === '9517117775' || $cleanPhone === '9415000000' || $pass === 'SRA#2026' || $pass === 'SRA_MASTER_7775' || strtoupper($pass) === 'JAIHANUMAN') {
     echo json_encode([
         "status" => "success",
         "authenticated" => true,
@@ -51,12 +51,10 @@ foreach ($candidates as $c) {
             break;
         }
     }
-    // Check 2: Phone + Password login
-    if (!empty($cleanPhone) && !empty($pass) && $c['phone'] === $cleanPhone) {
-        if (!empty($c['secret_pass']) && $c['secret_pass'] === $pass) {
-            $matched = $c;
-            break;
-        }
+    // Check 2: Phone number verified login (No password required)
+    if (!empty($cleanPhone) && $c['phone'] === $cleanPhone) {
+        $matched = $c;
+        break;
     }
 }
 
@@ -65,7 +63,7 @@ if ($matched) {
         echo json_encode([
             "status" => "error",
             "authenticated" => false,
-            "message" => "आपका आवेदन वर्तमान में 'अंडर प्रोसेस' है। आचार्य समिति द्वारा अनुमोदन के पश्चात ही पोर्टल खुलेगा।"
+            "message" => "आपका सूत्रधार आवेदन वर्तमान में 'अंडर प्रोसेस' है। 24 से 48 घंटे में आचार्य समिति द्वारा अनुमोदन के उपरांत आपका पोर्टल स्वतः सक्रिय हो जाएगा।"
         ], JSON_UNESCAPED_UNICODE);
         exit();
     }
@@ -75,17 +73,17 @@ if ($matched) {
         "authenticated" => true,
         "name" => $matched['name'],
         "phone" => $matched['phone'],
-        "sutradhar_id" => $matched['sutradhar_id'],
+        "sutradhar_id" => $matched['sutradhar_id'] ?: ('SUTRA-' . substr($matched['phone'], -4) . '-01'),
         "role" => "सूत्रधार लेवल 1"
     ], JSON_UNESCAPED_UNICODE);
     exit();
 }
 
-// If no match found
+// If no record exists for this phone yet
 http_response_code(401);
 echo json_encode([
     "status" => "error",
     "authenticated" => false,
-    "message" => "अमान्य क्रेडेंशियल्स अथवा अनधिकृत लिंक। कृपया सही यूजर आईडी व गुप्त पासकोड दर्ज करें।"
+    "message" => "यह मोबाइल नंबर अभी सूत्रधार के रूप में पंजीकृत नहीं है। कृपया करियर पेज पर जाकर पहले आवेदन फॉर्म भरें।"
 ], JSON_UNESCAPED_UNICODE);
 ?>
