@@ -145,13 +145,13 @@
         <!-- Full Name -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblFullName">पूरा नाम (Full Name)</label>
-          <input type="text" id="gateUserName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="उदा. श्री गणेश शर्मा" required data-i18n-ph="phFullName">
+          <input type="text" id="gateUserName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="अपना पूरा नाम दर्ज करें" required data-i18n-ph="phFullName">
         </div>
 
         <!-- Email ID -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblEmail">ईमेल आईडी (Email ID)</label>
-          <input type="email" id="gateUserEmail" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="shriganesh@gmail.com" required data-i18n-ph="phEmail">
+          <input type="email" id="gateUserEmail" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="name@example.com" required data-i18n-ph="phEmail">
         </div>
 
         <!-- Phone Number + SMS OTP Button -->
@@ -159,7 +159,7 @@
           <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblPhone">पंजीकृत मोबाइल नंबर (यूजर आईडी)</label>
           <div class="flex space-x-1.5">
             <div class="flex items-center px-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-600">+91</div>
-            <input type="tel" id="gateUserPhone" maxlength="10" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="94150XXXXX" required oninput="handlePhoneInput(this.value)" data-i18n-ph="phPhone">
+            <input type="tel" id="gateUserPhone" maxlength="10" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="10-अंकों का मोबाइल नंबर" required oninput="handlePhoneInput(this.value)" data-i18n-ph="phPhone">
             <button type="button" onclick="sendFirebasePhoneOtp()" id="btnSendPhoneOtp" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 transition shadow-xs">
               <span data-i18n="btnSendOtp">OTP भेजें</span>
             </button>
@@ -177,7 +177,7 @@
           </div>
           <div class="flex space-x-1.5">
             <div class="flex items-center px-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-600">+91</div>
-            <input type="tel" id="gateUserWa" maxlength="10" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="94150XXXXX" data-i18n-ph="phPhone">
+            <input type="tel" id="gateUserWa" maxlength="10" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="10-अंकों का व्हाट्सएप नंबर" data-i18n-ph="phPhone">
           </div>
         </div>
 
@@ -188,7 +188,7 @@
             <span id="gateOtpTimer" class="text-[10px] font-mono text-amber-800 font-bold"></span>
           </div>
           <div class="flex space-x-2">
-            <input type="text" id="gateOtpCode" maxlength="6" class="flex-1 px-3 py-2 text-center text-base tracking-widest font-mono font-bold rounded-xl border border-amber-300 focus:border-amber-600 outline-none bg-white" placeholder="123456">
+            <input type="text" id="gateOtpCode" maxlength="6" class="flex-1 px-3 py-2 text-center text-base tracking-widest font-mono font-bold rounded-xl border border-amber-300 focus:border-amber-600 outline-none bg-white" placeholder="प्राप्त 6-अंकों का OTP दर्ज करें">
             <button type="button" onclick="verifyFirebasePhoneOtp()" id="btnVerifyPhoneOtp" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 transition">
               <span data-i18n="btnVerifyOtp">सत्यापित करें</span>
             </button>
@@ -289,7 +289,7 @@
           <span id="labelViewMode" data-i18n="lblViewMode">व्यू:</span>
         </span>
         <select id="personaSelector" onchange="switchPersona(this.value)" class="bg-transparent text-xs font-semibold text-blue-900 outline-none cursor-pointer">
-          <option value="candidate" id="dynamicCandidateOption">श्री गणेश (सूत्रधार)</option>
+          <option value="candidate" id="dynamicCandidateOption">अधिकृत सूत्रधार</option>
           <option value="admin">आचार्य / फाउंडर (Full Access)</option>
           <option value="role1">राहुल शर्मा (सूत्रधार लेवल 1)</option>
           <option value="role2">प्रिया वर्मा (सूत्रधार लेवल 2)</option>
@@ -323,7 +323,7 @@
           <div>
             <span class="text-xs font-bold text-blue-600 uppercase tracking-wider" id="wizStepBadge">स्टेप 1/4: सूत्रधार ऑनबोर्डिंग</span>
             <h2 class="text-xl font-extrabold text-blue-950 mt-0.5" id="wizTitle">
-              नमस्ते, <span id="wizCandidateName" class="text-blue-600">श्री गणेश</span>! आप बन रहे हैं हमारे 'सूत्रधार'
+              नमस्ते, <span id="wizCandidateName" class="text-blue-600">सूत्रधार</span>! आप बन रहे हैं हमारे 'सूत्रधार'
             </h2>
           </div>
           <div class="w-11 h-11 rounded-2xl blue-gradient text-white flex items-center justify-center font-extrabold text-base shadow-sm">
@@ -377,7 +377,7 @@
           </div>
           <div>
             <label class="block text-slate-700 font-semibold mb-1">इंसेंटिव पेआउट हेतु UPI आईडी</label>
-            <input type="text" id="wizUpi" placeholder="shriganesh@okhdfc" value="shriganesh@upi" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-semibold outline-none focus:border-blue-600">
+            <input type="text" id="wizUpi" placeholder="आपका UPI आईडी (उदा. name@upi)" value="" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-semibold outline-none focus:border-blue-600">
           </div>
         </div>
 
@@ -511,7 +511,7 @@
           ॐ
         </div>
         <h3 class="text-xl font-extrabold text-slate-900">
-          साधुवाद <span id="wizSuccessName">श्री गणेश</span>! आप अधिकृत 'सूत्रधार' के रूप में प्रतिष्ठित हो चुके हैं
+          साधुवाद <span id="wizSuccessName">सूत्रधार</span>! आप अधिकृत 'सूत्रधार' के रूप में प्रतिष्ठित हो चुके हैं
         </h3>
         <p class="text-xs text-slate-600 max-w-md mx-auto">
           आपने दैवज्ञ मर्यादा व सत्य-निष्ठा परीक्षा उत्तीर्ण कर ली है। आपका यह कार्य सनातन ज्ञान और भटके हुए जातकों की सच्ची सेवा (Divine Seva) है।
@@ -640,7 +640,7 @@
               SG
             </div>
             <div class="truncate">
-              <div id="sidebarUserName" class="text-xs font-bold text-slate-800 truncate">श्री गणेश</div>
+              <div id="sidebarUserName" class="text-xs font-bold text-slate-800 truncate">अधिकृत सूत्रधार</div>
               <div id="sidebarUserRole" class="text-[10px] text-blue-600 font-semibold">अधिकृत सूत्रधार</div>
             </div>
           </div>
@@ -663,7 +663,7 @@
                   <span class="text-xs text-slate-500 font-medium">सत्र: दिसंबर 2026</span>
                 </div>
                 <h1 class="text-2xl font-extrabold text-blue-950 mt-1.5 tracking-tight" id="dashHeroTitle">
-                  नमस्ते, <span id="dashCandidateGreeting" class="text-blue-600">श्री गणेश</span>! आपका सूत्रधार बोर्ड तैयार है
+                  नमस्ते, <span id="dashCandidateGreeting" class="text-blue-600">सूत्रधार</span>! आपका सूत्रधार बोर्ड तैयार है
                 </h1>
                 <p class="text-xs text-slate-600 max-w-2xl mt-1">
                   मुहूर्त रिपोर्ट (₹1,111), मेगा पाराशर (₹1,111) और 1-वर्षीय गुरुकुल कोर्स (₹24,000) के साथ काम शुरू करें।
@@ -2382,9 +2382,9 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: REGISTRATION POPUP (FIRST SCREEN UPON VISITING LINK) -->
+  <!-- MODAL: REGISTRATION POPUP (LEGACY MODAL - HIDDEN IN FAVOR OF SUTRADHAR AUTH GATE) -->
   <!-- ========================================================================= -->
-  <div id="candidateRegisterModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+  <div id="candidateRegisterModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden" style="display:none !important;">
     <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative">
       
       <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
@@ -2415,18 +2415,18 @@
       <div class="space-y-3 text-xs">
         <div>
           <label class="block text-slate-700 font-semibold mb-1">पूरा नाम (Full Name)</label>
-          <input type="text" id="regFullName" required placeholder="उदा: श्री गणेश" value="श्री गणेश" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
+          <input type="text" id="regFullName" required placeholder="अपना पूरा नाम दर्ज करें" value="" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
         </div>
 
         <div>
           <label class="block text-slate-700 font-semibold mb-1">ईमेल आईडी (Email ID)</label>
-          <input type="email" id="regEmail" required placeholder="shriganesh@gmail.com" value="shriganesh@gmail.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
+          <input type="email" id="regEmail" required placeholder="name@example.com" value="" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
         </div>
 
         <div>
           <label class="block text-slate-700 font-semibold mb-1">फ़ोन नंबर (WhatsApp Number)</label>
           <div class="flex space-x-2">
-            <input type="tel" id="regPhone" required placeholder="9876543210" value="9876543210" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
+            <input type="tel" id="regPhone" required placeholder="10-अंकों का मोबाइल नंबर" value="" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
             <button type="button" onclick="sendOtpToCandidate()" id="btnSendOtp" class="px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-bold text-xs shrink-0 transition">
               OTP भेजें
             </button>
@@ -2436,12 +2436,9 @@
         <!-- OTP Section -->
         <div id="otpInputSection" class="p-3 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-1.5">
           <div class="flex items-center justify-between">
-            <label class="block text-blue-950 font-bold text-xs">4-अंकों का OTP दर्ज करें</label>
-            <span class="text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">
-              डेमो OTP: 4921
-            </span>
+            <label class="block text-blue-950 font-bold text-xs">SMS द्वारा प्राप्त OTP दर्ज करें</label>
           </div>
-          <input type="text" id="regOtpInput" maxlength="4" value="4921" placeholder="4921" class="w-full text-center tracking-widest text-lg font-mono font-bold bg-white border border-blue-300 rounded-xl p-2 text-blue-900 outline-none focus:border-blue-600">
+          <input type="text" id="regOtpInput" maxlength="6" value="" placeholder="OTP कोड यहाँ दर्ज करें" class="w-full text-center tracking-widest text-lg font-mono font-bold bg-white border border-blue-300 rounded-xl p-2 text-blue-900 outline-none focus:border-blue-600">
         </div>
 
         <div class="pt-1">
@@ -2496,7 +2493,7 @@
           <div>
             <label class="block text-slate-700 font-semibold mb-1">सूत्रधार</label>
             <select id="saleAgent" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
-              <option value="श्री गणेश" id="saleAgentDynamicOption">श्री गणेश (सूत्रधार)</option>
+              <option value="सूत्रधार" id="saleAgentDynamicOption">अधिकृत सूत्रधार</option>
               <option value="राहुल शर्मा">राहुल शर्मा (सूत्रधार 1)</option>
               <option value="प्रिया वर्मा">प्रिया वर्मा (सूत्रधार 2)</option>
             </select>
@@ -2621,9 +2618,9 @@
     function sendOtpToCandidate() { showToast('डेमो OTP 4921 भेजा गया!'); }
 
     function verifyOtpAndProceedToOnboarding() {
-      const name = document.getElementById('regFullName').value.trim() || 'श्री गणेश';
-      const email = document.getElementById('regEmail').value.trim() || 'shriganesh@gmail.com';
-      const phone = document.getElementById('regPhone').value.trim() || '9876543210';
+      const name = document.getElementById('regFullName').value.trim() || 'अधिकृत सूत्रधार';
+      const email = document.getElementById('regEmail').value.trim() || '';
+      const phone = document.getElementById('regPhone').value.trim() || '';
       const otp = document.getElementById('regOtpInput').value.trim();
 
       if(!otp || otp !== '4921') {
@@ -2744,7 +2741,7 @@
       }
 
       const nameEl = document.getElementById('wizSuccessName');
-      if (nameEl) nameEl.innerText = registeredCandidate?.name || 'श्री गणेश';
+      if (nameEl) nameEl.innerText = registeredCandidate?.name || 'अधिकृत सूत्रधार';
 
       const agentIdEl = document.getElementById('wizAgentId');
       if (agentIdEl) agentIdEl.innerText = newAgentId;
@@ -3475,11 +3472,11 @@
         btnGoogleAuthText: "Google API से तुरंत सत्यापित करें (Auto-Fill)",
         txtOrDetails: "अथवा व्यक्तिगत विवरण",
         lblFullName: "पूरा नाम (Full Name)",
-        phFullName: "उदा. श्री गणेश शर्मा",
+        phFullName: "अपना पूरा नाम दर्ज करें",
         lblEmail: "ईमेल आईडी (Email ID)",
-        phEmail: "shriganesh@gmail.com",
+        phEmail: "name@example.com",
         lblPhone: "पंजीकृत मोबाइल नंबर (यूजर आईडी)",
-        phPhone: "94150XXXXX",
+        phPhone: "10-अंकों का मोबाइल नंबर",
         btnSendOtp: "OTP भेजें",
         lblWhatsApp: "व्हाट्सएप नंबर (WhatsApp Number)",
         chkSamePhone: "मोबाइल जैसा ही",
@@ -3519,7 +3516,7 @@
         dashActiveBadge: "सक्रिय सूत्रधार डैशबोर्ड",
         dashSession: "सत्र: 2026",
         dashGreeting: "नमस्ते",
-        dashHeroTitle: "नमस्ते, श्री गणेश! आपका सूत्रधार बोर्ड तैयार है",
+        dashHeroTitle: "नमस्ते, अधिकृत सूत्रधार! आपका सूत्रधार बोर्ड तैयार है",
         dashHeroSub: "मुहूर्त रिपोर्ट (₹1,111), मेगा पाराशर (₹1,111) और 1-वर्षीय गुरुकुल कोर्स (₹24,000) के साथ काम शुरू करें।",
         statTodayInc: "आज का इंसेंटिव (2-घंटे पेआउट)",
         statMonthInc: "मासिक कुल पेआउट (संचित)",
@@ -3552,11 +3549,11 @@
         btnGoogleAuthText: "Sign in with Google API (Instant Fill)",
         txtOrDetails: "OR ENTER DETAILS BELOW",
         lblFullName: "Full Name",
-        phFullName: "e.g. Ganesh Sharma",
+        phFullName: "Enter Full Name",
         lblEmail: "Email ID",
-        phEmail: "shriganesh@gmail.com",
+        phEmail: "name@example.com",
         lblPhone: "Registered Phone Number (User ID)",
-        phPhone: "94150XXXXX",
+        phPhone: "10-digit mobile number",
         btnSendOtp: "Send OTP",
         lblWhatsApp: "WhatsApp Number",
         chkSamePhone: "Same as Phone",
@@ -3596,7 +3593,7 @@
         dashActiveBadge: "Active Sutradhar Dashboard",
         dashSession: "Session: 2026",
         dashGreeting: "Welcome",
-        dashHeroTitle: "Welcome, Ganesh! Your Sutradhar Console is Active",
+        dashHeroTitle: "Welcome, Authorized Sutradhar! Your Console is Active",
         dashHeroSub: "Commence divine outreach with Muhurat Reports (₹1,111), Mega Parashar (₹1,111), and 1-Year Gurukul Course (₹24,000).",
         statTodayInc: "Today's Incentive (2-Hr SLA)",
         statMonthInc: "Total Monthly Payout",
@@ -3629,11 +3626,11 @@
         btnGoogleAuthText: "Google se One-Click Verify Karein",
         txtOrDetails: "YA FORM BHAREIN",
         lblFullName: "Poora Naam (Full Name)",
-        phFullName: "e.g. Ganesh Sharma",
+        phFullName: "Apna poora naam enter karein",
         lblEmail: "Email ID",
-        phEmail: "shriganesh@gmail.com",
+        phEmail: "name@example.com",
         lblPhone: "Registered Mobile Number (User ID)",
-        phPhone: "94150XXXXX",
+        phPhone: "10-digit mobile number",
         btnSendOtp: "OTP Bhejein",
         lblWhatsApp: "WhatsApp Number",
         chkSamePhone: "Same as Mobile",
@@ -3673,7 +3670,7 @@
         dashActiveBadge: "Active Sutradhar Console",
         dashSession: "Session: 2026",
         dashGreeting: "Welcome",
-        dashHeroTitle: "Namaste, Ganesh! Aapka Sutradhar Dashboard Taiyar Hai",
+        dashHeroTitle: "Namaste, Sutradhar! Aapka Sutradhar Dashboard Taiyar Hai",
         dashHeroSub: "Muhurat Report (₹1,111), Mega Parashar (₹1,111) aur Gurukul Course (₹24,000) se service start karein.",
         statTodayInc: "Aaj Ka Incentive (2-Hour Payout)",
         statMonthInc: "Monthly Total Payout",
@@ -3774,7 +3771,7 @@
       try {
         session = JSON.parse(localStorage.getItem('sra_sutradhar_session'));
       } catch(e) {}
-      const userName = session?.name || registeredCandidate?.name || (lang === 'en' ? 'Ganesh' : 'श्री गणेश');
+      const userName = session?.name || registeredCandidate?.name || (lang === 'en' ? 'Sutradhar' : 'सूत्रधार');
       const greetEl = document.getElementById('dashCandidateGreeting');
       if (greetEl) greetEl.textContent = userName;
       const heroTitle = document.getElementById('dashHeroTitle');
@@ -4024,10 +4021,19 @@
 
     /* ══ SUTRADHAR GATEWAY AUTHENTICATION & ACCESS VERIFICATION ══ */
     async function checkSutradharAuth() {
+      // Ensure legacy modal is never shown
+      const legacyModal = document.getElementById('candidateRegisterModal');
+      if (legacyModal) {
+        legacyModal.classList.add('hidden');
+        legacyModal.style.display = 'none';
+      }
+
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get('auth') || urlParams.get('token');
       const userParam = urlParams.get('user') || urlParams.get('phone');
       const passParam = urlParams.get('pass') || urlParams.get('code');
+      const nameParam = urlParams.get('name') || urlParams.get('candidate');
+      const emailParam = urlParams.get('email');
       const langParam = urlParams.get('lang');
 
       if (langParam && ['hi', 'en', 'basic_en'].includes(langParam)) {
@@ -4035,28 +4041,36 @@
       }
       applySutradharLanguage(currentLang);
 
-      // Pre-fill inputs if URL parameters exist
-      if (userParam) {
-        const phoneInput = document.getElementById('gateUserPhone');
-        if (phoneInput) phoneInput.value = userParam;
-        const waInput = document.getElementById('gateUserWa');
-        if (waInput) waInput.value = userParam;
-      }
+      // Pre-fill inputs with the real user's details if URL parameters exist, otherwise leave 100% blank/fresh
+      const phoneInput = document.getElementById('gateUserPhone');
+      if (phoneInput) phoneInput.value = userParam || '';
+      const waInput = document.getElementById('gateUserWa');
+      if (waInput) waInput.value = userParam || '';
+      const nameInput = document.getElementById('gateUserName');
+      if (nameInput) nameInput.value = nameParam || '';
+      const emailInput = document.getElementById('gateUserEmail');
+      if (emailInput) emailInput.value = emailParam || '';
+      const otpInput = document.getElementById('gateOtpCode');
+      if (otpInput) otpInput.value = ''; // Always fresh/blank
 
       // 1. If URL has secret invite credentials
       if (authParam || (userParam && passParam)) {
+        const candidateRealName = nameParam || (userParam ? ('सूत्रधार ' + userParam.slice(-4)) : 'अधिकृत सूत्रधार');
+        const candidateRealEmail = emailParam || '';
         try {
           const res = await fetch('api/verify_sutradhar_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ auth: authParam, user: userParam, pass: passParam })
+            body: JSON.stringify({ auth: authParam, user: userParam, pass: passParam, name: candidateRealName, email: candidateRealEmail })
           });
           if (res.ok) {
             const data = await res.json();
             if (data.authenticated) {
+              data.name = data.name || candidateRealName;
+              data.email = data.email || candidateRealEmail;
               localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
               unlockPortal(data);
-              showToast(`अभिनंदन ${data.name || ''}! आपका सूत्रधार सत्र सक्रिय है।`);
+              showToast(`अभिनंदन ${data.name}! आपका सूत्रधार सत्र सक्रिय है।`);
               return;
             }
           }
@@ -4068,14 +4082,15 @@
         if (authParam && (authParam.startsWith('sec_') || authParam.length >= 8)) {
           const fallbackData = {
             authenticated: true,
-            name: userParam ? ('सूत्रधार ' + userParam.slice(-4)) : 'अधिकृत सूत्रधार',
-            phone: userParam || '9517117775',
-            sutradhar_id: 'SUTRA-' + (userParam ? userParam.slice(-4) : '7775') + '-01',
+            name: candidateRealName,
+            phone: userParam || '',
+            email: candidateRealEmail,
+            sutradhar_id: 'SUTRA-' + (userParam ? userParam.slice(-4) : '0000') + '-01',
             role: 'सूत्रधार लेवल 1'
           };
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(fallbackData));
           unlockPortal(fallbackData);
-          showToast(`अभिनंदन! ऑनबोर्डिंग लिंक से सत्र सक्रिय हुआ।`);
+          showToast(`अभिनंदन ${candidateRealName}! ऑनबोर्डिंग लिंक से सत्र सक्रिय हुआ।`);
           return;
         }
       }
@@ -4097,18 +4112,34 @@
     }
 
     function unlockPortal(data) {
+      // Ensure legacy modal is completely closed
+      const legacyModal = document.getElementById('candidateRegisterModal');
+      if (legacyModal) {
+        legacyModal.classList.add('hidden');
+        legacyModal.style.display = 'none';
+      }
+
       document.getElementById('sutradharAuthGate').style.display = 'none';
       document.getElementById('sutradharAppWrapper').style.display = 'flex';
 
       // Update candidate name and ID across the portal
-      if (data.name) {
-        const greetEl = document.getElementById('dashCandidateGreeting');
-        if (greetEl) greetEl.innerText = data.name;
-        const wizNameEl = document.getElementById('wizCandidateName');
-        if (wizNameEl) wizNameEl.innerText = data.name;
-        const sideNameEl = document.getElementById('sidebarUserName');
-        if (sideNameEl) sideNameEl.innerText = data.name;
+      const realName = data.name || 'अधिकृत सूत्रधार';
+      const greetEl = document.getElementById('dashCandidateGreeting');
+      if (greetEl) greetEl.innerText = realName;
+      const wizNameEl = document.getElementById('wizCandidateName');
+      if (wizNameEl) wizNameEl.innerText = realName;
+      const wizSuccEl = document.getElementById('wizSuccessName');
+      if (wizSuccEl) wizSuccEl.innerText = realName;
+      const sideNameEl = document.getElementById('sidebarUserName');
+      if (sideNameEl) sideNameEl.innerText = realName;
+      const personaOpt = document.getElementById('dynamicCandidateOption');
+      if (personaOpt) personaOpt.innerText = `${realName} (सूत्रधार)`;
+      const saleAgentOpt = document.getElementById('saleAgentDynamicOption');
+      if (saleAgentOpt) {
+        saleAgentOpt.value = realName;
+        saleAgentOpt.innerText = `${realName} (सूत्रधार)`;
       }
+
       if (data.sutradhar_id) {
         const idBadge = document.getElementById('wizAgentId');
         if (idBadge) idBadge.innerText = data.sutradhar_id;

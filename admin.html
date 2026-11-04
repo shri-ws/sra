@@ -1743,7 +1743,7 @@ function renderCareerRows(tbodyId, rows) {
     
     const token = app.secret_token || 'sec_' + (app.phone || '0000').slice(-4);
     const pass = app.secret_pass || (app.phone ? app.phone.slice(-6) : '123456');
-    const inviteUrl = `${window.location.origin}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(app.phone || '')}`;
+    const inviteUrl = `${window.location.origin}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(app.phone || '')}&name=${encodeURIComponent(app.name || '')}&email=${encodeURIComponent(app.email || '')}`;
 
     return `<tr>
       <td>
@@ -1775,7 +1775,7 @@ function renderCareerRows(tbodyId, rows) {
       <td>
         <div style="font-size:11px; display:flex; flex-direction:column; gap:4px;">
           <div>${currentAdminLang === 'en' ? 'PIN' : 'पासकोड'}: <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
-          <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}')">${dict.btnCopyLink}</button>
+          <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}', '${safe(app.name)}', '${safe(app.email || '')}')">${dict.btnCopyLink}</button>
         </div>
       </td>
       <td>
@@ -1870,8 +1870,11 @@ async function approveCareerApplication(id, phone, name) {
 
 function sendCareerWhatsApp(id, phone, name, pass, token) {
   const domain = window.location.origin;
-  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}`;
-  const msg = `सादर प्रणाम ${name} जी!\n\n`
+  const app = (D.careers || []).find(c => c.id === id || c.phone === phone);
+  const email = app?.email || '';
+  const candName = name || app?.name || '';
+  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}&name=${encodeURIComponent(candName)}&email=${encodeURIComponent(email)}`;
+  const msg = `सादर प्रणाम ${candName || 'जी'}!\n\n`
     + `श्री राम जी एस्ट्रो आचार्य परिषद द्वारा आपका सूत्रधार (वैदिक दूत) आवेदन स्वीकृत कर लिया गया है।\n\n`
     + `📌 आपकी सूत्रधार लॉगिन क्रेडेंशियल्स:\n`
     + `• यूजर आईडी: ${phone}\n`
@@ -1883,9 +1886,12 @@ function sendCareerWhatsApp(id, phone, name, pass, token) {
   window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-function copyCareerInviteLink(phone, token) {
+function copyCareerInviteLink(phone, token, name, email) {
   const domain = window.location.origin;
-  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}`;
+  const app = (D.careers || []).find(c => c.phone === phone);
+  const candName = name || app?.name || '';
+  const candEmail = email || app?.email || '';
+  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}${candName ? `&name=${encodeURIComponent(candName)}` : ''}${candEmail ? `&email=${encodeURIComponent(candEmail)}` : ''}`;
   navigator.clipboard.writeText(inviteUrl);
   alert("गोपनीय ऑनबोर्डिंग लिंक क्लिपबोर्ड पर कॉपी हो गया!\n\n" + inviteUrl);
 }
