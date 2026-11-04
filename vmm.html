@@ -1948,6 +1948,20 @@
         const VAAR_NAMES_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
         const RIKTA_TITHI_NUMBERS = [4, 9, 14];
 
+        // One language at a time: names and sentences follow the selected language
+        const RASHI_HI = ["", "मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुम्भ", "मीन"];
+        const NAK_HI = [
+            "अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा",
+            "पुनर्वसु", "पुष्य", "आश्लेषा", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी",
+            "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा", "ज्येष्ठा",
+            "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा",
+            "पूर्वाभाद्रपद", "उत्तराभाद्रपद", "रेवती"
+        ];
+        const L = (hi, en) => (currentLang === 'hi' ? hi : en);
+        const rashiName = i => (currentLang === 'hi' ? RASHI_HI : RASHI_NAMES)[i];
+        const nakName = i => (currentLang === 'hi' ? NAK_HI : NAKSHATRAS_27)[i];
+        let lastScan = null;   // {dates, charts}: re-drawn in the other language on switch
+
         function onCityInput(person) {
             const inputVal = document.getElementById(`${person}CityName`).value;
             const options = document.getElementById('presetCities').options;
@@ -2193,9 +2207,9 @@
                 const derivedDiv = document.getElementById(type + 'DerivedInfo');
                 derivedDiv.style.display = 'block';
                 derivedDiv.innerHTML = `
-                    📍 <b>${RASHI_NAMES[p.moon.rashi]} ${currentLang === 'hi'?'राशि':'Rashi'}</b> | 
-                    <b>${NAKSHATRAS_27[moonNakIndex]}</b> (${pada} ${I18N[currentLang].padaTxt}) | 
-                    Lagna: <b>${RASHI_NAMES[p.asc.rashi]}</b>
+                    📍 <b>${rashiName(p.moon.rashi)} ${L('राशि', 'Rashi')}</b> | 
+                    <b>${nakName(moonNakIndex)}</b> (${pada} ${I18N[currentLang].padaTxt}) | 
+                    ${L('लग्न', 'Lagna')}: <b>${rashiName(p.asc.rashi)}</b>
                 `;
 
                 document.getElementById(type + 'ChartBox').style.display = 'block';
@@ -2219,7 +2233,7 @@
                 return profile;
             } catch (err) {
                 console.error("calculateProfile error in vmm:", err);
-                alert("गणना सर्वर अनुपलब्ध है। कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।");
+                alert(L("गणना सर्वर अनुपलब्ध है। कृपया थोड़ी देर बाद पुनः प्रयास करें।", "The calculation server is unavailable. Please try again in a moment."));
                 return null;
             }
         }
@@ -2263,6 +2277,10 @@
             document.getElementById('thVerdict').innerText = t.thVerdict;
 
             updateCeremonyNote();
+            // Results and birth summaries already on screen switch language too
+            if (lastScan && groomProfile && brideProfile) { try { renderScan(lastScan.dates, lastScan.charts); } catch (e) {} }
+            if (groomProfile) { try { handleGroomChange(); } catch (e) {} }
+            if (brideProfile) { try { handleBrideChange(); } catch (e) {} }
         }
 
         function setCeremony(ceremony) {
@@ -2320,7 +2338,7 @@
             const scanBtn = document.getElementById('btnScan');
             const oldScanText = scanBtn ? scanBtn.innerHTML : '';
             if (scanBtn) {
-                scanBtn.innerHTML = '<span>⏳ गणना जारी है...</span>';
+                scanBtn.innerHTML = '<span>⏳ ' + L('गणना जारी है...', 'Calculating...') + '</span>';
                 scanBtn.disabled = true;
             }
 
@@ -2337,7 +2355,7 @@
                 charts = batchRes.charts || batchRes.results || [];
             } catch (err) {
                 console.error("Batch calculation failed in vmm:", err);
-                alert("गणना सर्वर अनुपलब्ध है। कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।");
+                alert(L("गणना सर्वर अनुपलब्ध है। कृपया थोड़ी देर बाद पुनः प्रयास करें।", "The calculation server is unavailable. Please try again in a moment."));
                 if (scanBtn) {
                     scanBtn.innerHTML = oldScanText;
                     scanBtn.disabled = false;
@@ -2350,6 +2368,11 @@
                 }
             }
 
+            lastScan = { dates, charts };
+            renderScan(dates, charts);
+        }
+
+        function renderScan(dates, charts) {
             let totalCount = dates.length;
             let zeroDoshCount = 0;
             let uttamCount = 0;
@@ -2386,22 +2409,25 @@
                 const isBrideMoonBad = [4, 8, 12].includes(vadhuChandraBhav);
 
                 let doshas = [];
+                const groomMoonBad = L(`वर चन्द्र अनिष्ट (${varChandraBhav} भाव)`, `Groom's Moon unfavourable (house ${varChandraBhav})`);
+                const brideMoonBad = L(`वधू चन्द्र अनिष्ट (${vadhuChandraBhav} भाव)`, `Bride's Moon unfavourable (house ${vadhuChandraBhav})`);
+                const badNak = L(`अविहित नक्षत्र (${nakName(nakIndex27)})`, `Nakshatra not prescribed (${nakName(nakIndex27)})`);
 
                 if (currentCeremony === 'vivah') {
-                    if (isGroomMoonBad) doshas.push(`वर चन्द्र अनिष्ट (${varChandraBhav} भाव)`);
-                    if (isBrideMoonBad) doshas.push(`वधू चन्द्र अनिष्ट (${vadhuChandraBhav} भाव)`);
-                    if ([4, 8, 12].includes(varSuryaBhav)) doshas.push(`वर सूर्य अनिष्ट (${varSuryaBhav} भाव)`);
-                    if ([4, 8, 12].includes(vadhuGuruBhav)) doshas.push(`वधू गुरु अनिष्ट (${vadhuGuruBhav} भाव)`);
-                    if (RIKTA_TITHI_NUMBERS.includes(tithiNum)) doshas.push(`रिक्ता तिथि (${tithiNum})`);
+                    if (isGroomMoonBad) doshas.push(groomMoonBad);
+                    if (isBrideMoonBad) doshas.push(brideMoonBad);
+                    if ([4, 8, 12].includes(varSuryaBhav)) doshas.push(L(`वर सूर्य अनिष्ट (${varSuryaBhav} भाव)`, `Groom's Sun unfavourable (house ${varSuryaBhav})`));
+                    if ([4, 8, 12].includes(vadhuGuruBhav)) doshas.push(L(`वधू गुरु अनिष्ट (${vadhuGuruBhav} भाव)`, `Bride's Jupiter unfavourable (house ${vadhuGuruBhav})`));
+                    if (RIKTA_TITHI_NUMBERS.includes(tithiNum)) doshas.push(L(`रिक्ता तिथि (${tithiNum})`, `Rikta tithi (${tithiNum})`));
                 } else if (currentCeremony === 'sagai') {
-                    if (isGroomMoonBad) doshas.push(`वर चन्द्र अनिष्ट (${varChandraBhav} भाव)`);
-                    if (isBrideMoonBad) doshas.push(`वधू चन्द्र अनिष्ट (${vadhuChandraBhav} भाव)`);
+                    if (isGroomMoonBad) doshas.push(groomMoonBad);
+                    if (isBrideMoonBad) doshas.push(brideMoonBad);
                 } else if (currentCeremony === 'var_varan') {
-                    if (isGroomMoonBad) doshas.push(`वर चन्द्र अनिष्ट (${varChandraBhav} भाव)`);
-                    if (!VAR_VARAN_NAKSHATRAS.includes(nakNumber)) doshas.push(`अविहित नक्षत्र (${NAKSHATRAS_27[nakIndex27]})`);
+                    if (isGroomMoonBad) doshas.push(groomMoonBad);
+                    if (!VAR_VARAN_NAKSHATRAS.includes(nakNumber)) doshas.push(badNak);
                 } else if (currentCeremony === 'vadhu_varan') {
-                    if (isBrideMoonBad) doshas.push(`वधू चन्द्र अनिष्ट (${vadhuChandraBhav} भाव)`);
-                    if (!VADHU_VARAN_NAKSHATRAS.includes(nakNumber)) doshas.push(`अविहित नक्षत्र (${NAKSHATRAS_27[nakIndex27]})`);
+                    if (isBrideMoonBad) doshas.push(brideMoonBad);
+                    if (!VADHU_VARAN_NAKSHATRAS.includes(nakNumber)) doshas.push(badNak);
                 }
 
                 // Jupiter Kendra/Trikona Mitigation Check (Shloka 91)
@@ -2435,10 +2461,10 @@
                         </button>
                         <div class="lagna-grid-box">
                             <b>${I18N[currentLang].lagnaHeader}</b>
-                            <div class="lagna-row"><span class="lagna-shubh">वृषभ (Taurus) - शुभ</span><span>07:15 - 09:10 AM</span></div>
-                            <div class="lagna-row"><span class="lagna-ashubh">मिथुन (Gemini) - मध्यम</span><span>09:10 - 11:20 AM</span></div>
-                            <div class="lagna-row"><span class="lagna-shubh">तुला (Libra) - अति शुभ</span><span>03:40 - 05:50 PM</span></div>
-                            <div class="lagna-row"><span class="lagna-shubh">धनु (Sagittarius) - शुभ</span><span>08:10 - 10:15 PM</span></div>
+                            <div class="lagna-row"><span class="lagna-shubh">${L('वृषभ — शुभ', 'Taurus — auspicious')}</span><span>07:15 - 09:10 AM</span></div>
+                            <div class="lagna-row"><span class="lagna-ashubh">${L('मिथुन — मध्यम', 'Gemini — moderate')}</span><span>09:10 - 11:20 AM</span></div>
+                            <div class="lagna-row"><span class="lagna-shubh">${L('तुला — अति शुभ', 'Libra — highly auspicious')}</span><span>03:40 - 05:50 PM</span></div>
+                            <div class="lagna-row"><span class="lagna-shubh">${L('धनु — शुभ', 'Sagittarius — auspicious')}</span><span>08:10 - 10:15 PM</span></div>
                         </div>
                     </div>
                 `;
@@ -2447,12 +2473,12 @@
                     <tr class="${strength >= 85 ? 'best-row' : ''}">
                         <td><b>${dStr}</b><br><small style="color:var(--text-muted);">${vaarName}</small></td>
                         <td>
-                            <b>${NAKSHATRAS_27[nakIndex27]}</b><br>
-                            <small>${isShukla?'शुक्ल':'कृष्ण'} तिथि ${tithiNum} | ${RASHI_NAMES[p.moon.rashi]} राशि</small>
+                            <b>${nakName(nakIndex27)}</b><br>
+                            <small>${L(`${isShukla?'शुक्ल':'कृष्ण'} तिथि ${tithiNum} | ${rashiName(p.moon.rashi)} राशि`, `${isShukla?'Shukla':'Krishna'} tithi ${tithiNum} | ${rashiName(p.moon.rashi)} Rashi`)}</small>
                         </td>
                         <td>
-                            ${!isGroomMoonBad ? '✓ वर चन्द्र शुभ' : '⚠️ वर ४/८/१२'}<br>
-                            ${!isBrideMoonBad ? '✓ वधू चन्द्र शुभ' : '⚠️ वधू ४/८/१२'}
+                            ${!isGroomMoonBad ? L('✓ वर चन्द्र शुभ', "✓ Groom's Moon favourable") : L('⚠️ वर ४/८/१२', '⚠️ Groom 4/8/12')}<br>
+                            ${!isBrideMoonBad ? L('✓ वधू चन्द्र शुभ', "✓ Bride's Moon favourable") : L('⚠️ वधू ४/८/१२', '⚠️ Bride 4/8/12')}
                         </td>
                         <td>
                             <b>${strength}%</b>
@@ -2471,25 +2497,25 @@
                     doshaDetailsHtml += `
                         <div style="background:var(--card-bg); border:1px solid #16a34a; border-radius:10px; padding:12px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <div>
-                                <b>${dStr} (${vaarName}) - ${NAKSHATRAS_27[nakIndex27]}</b>
-                                <div style="color:#15803d; font-size:12.5px; margin-top:2px; font-weight:600;">✓ सर्वथा निर्दोष (Zero Dosha) — कोई शास्त्रीय दोष उपस्थित नहीं है।</div>
+                                <b>${dStr} (${vaarName}) - ${nakName(nakIndex27)}</b>
+                                <div style="color:#15803d; font-size:12.5px; margin-top:2px; font-weight:600;">${L('✓ सर्वथा निर्दोष — कोई शास्त्रीय दोष उपस्थित नहीं है।', '✓ Completely flawless — no classical dosha present.')}</div>
                             </div>
-                            <span class="badge badge-uttam">${strength}% उत्तम</span>
+                            <span class="badge badge-uttam">${strength}% ${L('उत्तम', 'excellent')}</span>
                         </div>
                     `;
                 } else {
                     doshaDetailsHtml += `
                         <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:12px 16px; margin-bottom:10px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-                                <b>${dStr} (${vaarName}) - ${NAKSHATRAS_27[nakIndex27]}</b>
-                                <span class="badge ${strength >= 85 ? 'badge-uttam' : (strength >= 65 ? 'badge-madhyam' : 'badge-ashubh')}">${strength}% — ${strength>=85?'उत्तम':(strength>=65?'मध्यम':'वर्जित')}</span>
+                                <b>${dStr} (${vaarName}) - ${nakName(nakIndex27)}</b>
+                                <span class="badge ${strength >= 85 ? 'badge-uttam' : (strength >= 65 ? 'badge-madhyam' : 'badge-ashubh')}">${strength}% — ${strength>=85?L('उत्तम','excellent'):(strength>=65?L('मध्यम','moderate'):L('वर्जित','avoid'))}</span>
                             </div>
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:6px;">
                                 ${doshas.map(d => `<div style="color:#b91c1c; font-size:12.5px; background:rgba(239,68,68,0.06); padding:4px 8px; border-radius:6px; border:1px solid rgba(239,68,68,0.15);">⚠️ ${d}</div>`).join('')}
                             </div>
                             ${pariharApplied ? `
                                 <div style="margin-top:8px; padding:6px 10px; background:rgba(21,128,61,0.08); border-radius:6px; border:1px solid rgba(21,128,61,0.2); color:#15803d; font-size:12px; font-weight:600;">
-                                    ✓ शास्त्रीय परिहार लागू: देवगुरु बृहस्पति केंद्र/त्रिकोण में स्थित होने से दोषों का शमन।
+                                    ${L('✓ शास्त्रीय परिहार लागू: देवगुरु बृहस्पति केंद्र/त्रिकोण में स्थित होने से दोषों का शमन।', '✓ Classical parihara applies: Jupiter in a kendra/trikona pacifies the doshas.')}
                                 </div>
                             ` : ''}
                         </div>
@@ -2510,7 +2536,7 @@
             const tabsWrapper = document.getElementById('resultsTabsWrapper');
             if (tabsWrapper) tabsWrapper.style.display = 'block';
             const doshaContainer = document.getElementById('doshaListContainer');
-            if (doshaContainer) doshaContainer.innerHTML = doshaDetailsHtml || '<p style="color:var(--text-muted); font-size:13px;">कोई दोष नहीं मिला।</p>';
+            if (doshaContainer) doshaContainer.innerHTML = doshaDetailsHtml || '<p style="color:var(--text-muted); font-size:13px;">' + L('कोई दोष नहीं मिला।', 'No doshas found.') + '</p>';
 
             switchResultTab(1);
         }

@@ -89,4 +89,18 @@ SRA_I18N.add([
   ["यदि चंद्र बल सामान्य हो, तो चांदी का चौकोर टुकड़ा अथवा श्वेत मिष्ठान्न का दान करके ॐ सों सोमाय नमः मंत्र के 108 जप से चंद्र को पुष्ट करें।", "If Chandra Bal is ordinary, donate a square piece of silver or white sweets and strengthen the Moon with 108 japa of 'Om Som Somaya Namah'."],
   ["🔔 गोधूलि वेला व लग्न शुद्धि", "🔔 Godhuli Vela & lagna purity"],
   ["शास्त्र अनुसार गोधूलि वेला में समस्त पापी वेधों का शमन होता है। यदि पाणिग्रहण लग्न स्थिर (वृषभ, सिंह, वृश्चिक, कुंभ) हो, तो दांपत्य सुदृढ़ रहता है।", "Per scripture, all malefic vedhas are pacified at Godhuli Vela. If the marriage lagna is fixed (Taurus, Leo, Scorpio, Aquarius), the marriage stays strong."]
+  ,
+  // Lines that stayed in the other language (Nov 2026 pass)
+  ["मुहूर्त चिंतामणि अनुसार 10 महादोष एवं त्रिबल शुद्धि", "10 Mahadoshas & Tribal Shuddhi per Muhurta Chintamani"],
+  ["प्रामाणिक अष्टकूट मिलान (36 गुण विचार)", "Authentic Ashtakoot matching (36 gunas)"],
+  ["20 मिनट तक असीमित शास्त्रीय मुहूर्त शोध", "20 minutes of unlimited classical muhurt research", "✓ 20 मिनट तक असीमित शास्त्रीय मुहूर्त शोध"],
+  ["निर्देशांक स्वयं देखें / बदलें (वैकल्पिक)", "View / change coordinates (optional)"],
+  ["विवाह मुहूर्त रिपोर्ट", "Vivah Muhurat Report"],
+  ["श्री रामजी ज्योतिष — शुद्ध मुहूर्त चिंतामणि विश्लेषण", "Shri Ramji Astro — Muhurta Chintamani analysis"],
+  ["गुण मिलान (36 गुण) देखें", "View Gun Milan (36 gunas)"],
+  ["प्रिंट करें / PDF सेव करें", "Print / Save PDF"],
+  ["वर्जित (<65%)", "Avoid (<65%)", "Rejected (<65%)"],
+  ["संस्कार शुद्धि एवं शुभ लग्न समय", "Ceremony purity & lagna timings", "Ceremonial Purity & Lagna Timings", "शुभ लग्न समय"],
+  ["शास्त्रीय अपवाद एवं परिहार नियम", "Classical exceptions & parihara rules", "शास्त्रीय अपवाद एवं परिहार नियम (Exceptions & Parihar Rules)"],
+  ["१", "1"], ["२", "2"], ["३", "3"]
 ]);

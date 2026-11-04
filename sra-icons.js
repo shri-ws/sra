@@ -223,6 +223,7 @@
 
   let pending = new Set(), queued = false;
   function flush() {
+    if (!queued) return;
     queued = false;
     const roots = [...pending]; pending = new Set();
     roots.forEach(n => { if (n.isConnected) scan(n); });
@@ -230,7 +231,11 @@
   }
   function queue(n) {
     pending.add(n);
-    if (!queued) { queued = true; requestAnimationFrame(flush); }
+    if (queued) return;
+    queued = true;
+    // rAF converts before paint; the timer covers background tabs, where rAF never fires
+    requestAnimationFrame(flush);
+    setTimeout(flush, 60);
   }
 
   function start() {

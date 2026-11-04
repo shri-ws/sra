@@ -12,7 +12,16 @@
   let writing = false;
   let currentLang = 'hi';
 
-  function norm(s) { return s.replace(/\s+/g, ' ').trim(); }
+  // Variation selectors (U+FE0E/FE0F) never change the meaning of a string
+  function norm(s) { return s.replace(/[\uFE0E\uFE0F]/g, '').replace(/\s+/g, ' ').trim(); }
+
+  // sra-icons.js turns colour emoji into separate line icons, so the text node that is
+  // left has no emoji: every entry is also known without its emoji, and when a
+  // translation still carries one, the icon layer converts it again.
+  const KEEP_SIGNS = '♈♉♊♋♌♍♎♏♐♑♒♓♂♀⚧☉☽☾☿♃♄♅♆♇☊☋⚶★☆✓✗✕✖✦✧➔❮❯☰⎋⌘⌂☐❖✱✳❇';
+  const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B05}-\u{2B55}\u{1F3FB}-\u{1F3FF}\u200D]/gu;
+  const stripEmoji = s => s.replace(EMOJI, c => (KEEP_SIGNS.includes(c) ? c : '')).replace(/\s+/g, ' ').trim();
+  const hasEmoji = s => { EMOJI.lastIndex = 0; return [...s.matchAll(EMOJI)].some(m => !KEEP_SIGNS.includes(m[0])); };
 
   // Patterns for text built at runtime, e.g. "September 2026" → "सितम्बर 2026".
   // Each: regExpForHindi, regExpForEnglish, toHindi(match), toEnglish(match), and optionally
@@ -29,6 +38,12 @@
       entries.forEach(entry => {
         const pair = [entry[0], entry[1]];
         entry.forEach(s => { if (s) pairs.set(norm(s), pair); });
+        const bare = [stripEmoji(entry[0] || ''), stripEmoji(entry[1] || '')];
+        entry.forEach(s => {
+          if (!s) return;
+          const k = norm(stripEmoji(s));
+          if (k && k !== norm(s) && !pairs.has(k)) pairs.set(k, bare);
+        });
       });
       if (booted) applyAll();
     }
@@ -62,6 +77,7 @@
     const lead = raw.match(/^\s*/)[0];
     const trail = raw.match(/\s*$/)[0];
     node.nodeValue = lead + target + trail;
+    if (hasEmoji(target) && typeof window.sraIconize === 'function') { try { window.sraIconize(node); } catch (e) {} }
   }
 
   function matchPattern(s) {

@@ -151,6 +151,11 @@
   .sra-sp-empty{padding:26px 14px;text-align:center;font-size:14px;color:var(--sra-muted,#8A7C68);line-height:1.6}
   .sra-sp-empty a{color:var(--sra-kumkum,#7A1F2B);font-weight:700}`;
 
+  // The chooser speaks the selected language only
+  const isEn = () => document.documentElement.getAttribute('lang') === 'en';
+  const L = (hi, en) => (isEn() ? en : hi);
+  const WHO_EN = { 'वर': 'Groom', 'वधू': 'Bride', 'बालक/बालिका': 'Child', 'बालक': 'Child', 'गृहस्वामी': 'Home owner', 'जातक': 'Native' };
+  const whoName = w => (isEn() ? (WHO_EN[w] || w) : w);
   const fmtDate = d => { const p = String(d || '').split('-'); return p.length === 3 ? p[2] + '-' + p[1] + '-' + p[0] : (d || ''); };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -158,25 +163,25 @@
     const list = savedList();
     const back = document.createElement('div');
     back.className = 'sra-sp-back';
-    back.innerHTML = `<div class="sra-sp-box" role="dialog" aria-modal="true" aria-label="सेव्ड कुंडली चुनें">
-      <div class="sra-sp-head"><button type="button" class="sra-sp-x" aria-label="बंद करें">×</button>
-        <h3>${esc(f.who)} की कुंडली चुनें</h3>
-        <p>आपकी सेव्ड कुंडलियाँ (${list.length}) — चुनते ही विवरण भर जाएगा।</p>
-        ${list.length > 5 ? '<input type="search" placeholder="नाम, शहर या तिथि से खोजें…">' : ''}</div>
+    back.innerHTML = `<div class="sra-sp-box" role="dialog" aria-modal="true" aria-label="${L('सेव्ड कुंडली चुनें', 'Choose a saved kundali')}" data-no-i18n>
+      <div class="sra-sp-head"><button type="button" class="sra-sp-x" aria-label="${L('बंद करें', 'Close')}">×</button>
+        <h3>${L(esc(f.who) + ' की कुंडली चुनें', "Choose the " + esc(whoName(f.who)).toLowerCase() + "'s kundali")}</h3>
+        <p>${L(`आपकी सेव्ड कुंडलियाँ (${list.length}) — चुनते ही विवरण भर जाएगा।`, `Your saved kundalis (${list.length}) — choosing one fills in the details.`)}</p>
+        ${list.length > 5 ? `<input type="search" placeholder="${L('नाम, शहर या तिथि से खोजें…', 'Search by name, city or date…')}">` : ''}</div>
       <div class="sra-sp-list"></div></div>`;
     const box = back.querySelector('.sra-sp-list');
     function render(q) {
       q = (q || '').trim().toLowerCase();
       const items = list.filter(k => !q || [k.name, k.city, k.date, fmtDate(k.date)].some(v => String(v || '').toLowerCase().includes(q)));
       if (!list.length) {
-        box.innerHTML = `<div class="sra-sp-empty">अभी कोई कुंडली सेव नहीं है।<br>
-          <a href="patrika.html">पत्रिका</a> में जन्म विवरण भरकर कुंडली बनाते ही वह यहाँ अपने-आप आ जाएगी।
-          ${identifier() === 'guest_user' ? '<br>पहले सेव की हैं तो लॉगिन करें — खाते की कुंडलियाँ लौट आएँगी।' : ''}</div>`;
+        box.innerHTML = `<div class="sra-sp-empty">${L('अभी कोई कुंडली सेव नहीं है।', 'No kundali is saved yet.')}<br>
+          ${L('<a href="patrika.html">पत्रिका</a> में जन्म विवरण भरकर कुंडली बनाते ही वह यहाँ अपने-आप आ जाएगी।', 'Make a kundali in <a href="patrika.html">Patrika</a> and it appears here automatically.')}
+          ${identifier() === 'guest_user' ? '<br>' + L('पहले सेव की हैं तो लॉगिन करें — खाते की कुंडलियाँ लौट आएँगी।', 'Saved some before? Log in and your account’s kundalis come back.') : ''}</div>`;
         return;
       }
-      if (!items.length) { box.innerHTML = '<div class="sra-sp-empty">इस खोज से कोई कुंडली नहीं मिली।</div>'; return; }
+      if (!items.length) { box.innerHTML = '<div class="sra-sp-empty">' + L('इस खोज से कोई कुंडली नहीं मिली।', 'No kundali matches this search.') + '</div>'; return; }
       box.innerHTML = items.map((k, i) => `<button type="button" class="sra-sp-item" data-i="${list.indexOf(k)}">
-        <b>${esc(k.name || 'जातक')}</b><span>${esc(fmtDate(k.date))} · ${esc(String(k.time || '').slice(0, 5))}${k.city ? ' · ' + esc(k.city) : ''}</span></button>`).join('');
+        <b>${esc(k.name || L('जातक', 'Native'))}</b><span>${esc(fmtDate(k.date))} · ${esc(String(k.time || '').slice(0, 5))}${k.city ? ' · ' + esc(k.city) : ''}</span></button>`).join('');
     }
     render('');
     const close = () => { back.remove(); document.removeEventListener('keydown', onKey); btn.focus(); };
@@ -190,7 +195,7 @@
       fill(f, k);
       let note = btn.nextElementSibling;
       if (!note || !note.classList.contains('sra-sp-done')) { note = document.createElement('span'); note.className = 'sra-sp-done'; btn.after(note); }
-      note.textContent = '✓ ' + (k.name || 'जातक') + ' का विवरण भर दिया गया';
+      note.textContent = L('✓ ' + (k.name || 'जातक') + ' का विवरण भर दिया गया', '✓ Filled in ' + (k.name || 'the') + "'s details");
     });
     const s = back.querySelector('input[type=search]');
     if (s) s.addEventListener('input', () => render(s.value));

@@ -268,3 +268,10 @@ SRA_I18N.add([
     m => "विक्रम संवत् " + m[1] + " • शक संवत् " + m[2] + " • " + m[3] + " मास (" + m[4] + ") • " + m[5]
   );
 })();
+SRA_I18N.add([
+  // Footer method line (after the precision claim moved to the About page)
+  ["ग्रह-स्थिति: सत्य चित्रा पक्ष अयनांश · मध्य राहु-केतु · श्रीपति भाव-चलित · सूर्योदय: सूर्य-बिम्ब का केन्द्र · विंशोत्तरी वर्ष 365.25 दिन।", "Planetary positions: True Chitra Paksha Ayanamsa · Mean Rahu-Ketu · Sripati Bhava Chalit · Sunrise: centre of the solar disc · Vimshottari year 365.25 days."],
+  // "Choose a saved kundali" button (sra-saved-pick.js)
+  ["सेव्ड कुंडली से चुनें", "Choose a saved kundali"],
+  ["(वर)", "(Groom)"], ["(वधू)", "(Bride)"], ["(बालक/बालिका)", "(Child)"], ["(बालक)", "(Child)"], ["(गृहस्वामी)", "(Home owner)"], ["(जातक)", "(Native)"]
+]);
