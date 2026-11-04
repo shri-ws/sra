@@ -1279,6 +1279,10 @@
                 <button class="category-tab-btn" data-tab="admin_blogs" onclick="switchCategoryTab('admin_blogs', this)">🚩 आधिकारिक आलेख</button>
             </div>
 
+            <a href="blogs.html" style="display:block; margin:0 0 18px; padding:12px 16px; border:1px solid var(--gold-border); border-radius:12px; background:var(--gold-dim); color:var(--text-main); text-decoration:none; font-size:13.5px; font-weight:600;">
+                📚 ग्रह गोचर, योग, विवाह, शांति-उपाय और वर्ग-कुंडली के सभी शोध लेख अब <b style="color:var(--gold-dark);">ब्लॉग</b> पर हैं — वहाँ पढ़ें ➔
+            </a>
+
             <!-- LEAD FEATURED STORY SPOTLIGHT -->
             <section class="featured-story-card" id="leadStoryContainer">
                 <!-- Dynamically populated with lead article -->
@@ -1639,7 +1643,13 @@
         }
 ];
 
-        let Q_FEED = [...FALLBACK_BLOGS];
+        // Articles that now live as standalone blog pages. blog/pages.js (built by
+        // tools/build_blog_pages.py) maps old ids to them; old about.html?post=<id>
+        // links redirect there, and they are not duplicated in this journal.
+        const blogUrlFor = id => (window.SRA_BLOG_PAGES || {})[String(id)] || null;
+        const onlyJournal = list => list.filter(q => q && !blogUrlFor(q.id));
+
+        let Q_FEED = onlyJournal([...FALLBACK_BLOGS]);
         let activeCategoryTab = 'all';
         let searchQuery = '';
         let feedLayoutMode = 'grid';
@@ -1712,14 +1722,8 @@
         }
 
         // RENDER MAGAZINE FEED & SIDEBAR
-        function renderMagazineFeed() {
-            const feedContainer = document.getElementById('articlesFeed');
-            const leadContainer = document.getElementById('leadStoryContainer');
-            if (!feedContainer) return;
-
-            let items = (Array.isArray(Q_FEED) && Q_FEED.length > 0) ? Q_FEED : FALLBACK_BLOGS;
-
-            // 1. Filter by active category tab
+        function filterByTab(items, tab) {
+            const activeCategoryTab = tab;
             if (activeCategoryTab === 'ephemeris') {
                 items = items.filter(q => q && (q.category === 'ephemeris' || (q.title && (q.title.includes('Ephemeris') || q.title.includes('Certainty') || q.title.includes('Boundaries') || q.title.includes('वैदिक गणित')))));
             } else if (activeCategoryTab === 'gochar') {
@@ -1735,6 +1739,26 @@
             } else if (activeCategoryTab === 'admin_blogs') {
                 items = items.filter(q => q && (q.isAdmin || q.isBlog));
             }
+            return items;
+        }
+
+        // Hide category tabs that have no articles left, so no button leads nowhere
+        function updateCategoryTabsVisibility() {
+            document.querySelectorAll('#categoryTabsBar .category-tab-btn').forEach(btn => {
+                const tab = btn.dataset.tab;
+                btn.style.display = (tab === 'all' || filterByTab(Q_FEED, tab).length > 0) ? '' : 'none';
+            });
+        }
+
+        function renderMagazineFeed() {
+            const feedContainer = document.getElementById('articlesFeed');
+            const leadContainer = document.getElementById('leadStoryContainer');
+            if (!feedContainer) return;
+
+            let items = (Array.isArray(Q_FEED) && Q_FEED.length > 0) ? Q_FEED : onlyJournal(FALLBACK_BLOGS);
+
+            // 1. Filter by active category tab
+            items = filterByTab(items, activeCategoryTab);
             // 2. Filter by search query
             if (searchQuery && searchQuery.trim() !== '') {
                 const qLower = searchQuery.toLowerCase();
@@ -1870,7 +1894,8 @@
         // OPEN SCHOLARLY ARTICLE READER
         function openArticleReader(id) {
             // Rewritten articles have their own page (blog/<slug>.html, built by tools/build_blog_pages.py)
-            if (window.SRA_BLOG_PAGES && SRA_BLOG_PAGES[id]) { location.href = SRA_BLOG_PAGES[id]; return; }
+            const moved = blogUrlFor(id);
+            if (moved) { window.location.href = moved; return; }
             const article = Q_FEED.find(item => String(item.id) === String(id));
             if (!article) return;
 
@@ -2106,7 +2131,8 @@
             [...masterBlogs, ...FALLBACK_BLOGS].forEach(item => {
                 if (item && item.id && !map.has(String(item.id))) map.set(String(item.id), item);
             });
-            Q_FEED = Array.from(map.values());
+            Q_FEED = onlyJournal(Array.from(map.values()));
+            updateCategoryTabsVisibility();
 
             // Re-render feed if not currently reading an article
             if (!currentReadingArticleId) {
@@ -2120,9 +2146,15 @@
             const postId = params.get('post') || (window.location.hash ? window.location.hash.replace('#post-', '') : null);
             const tabParam = params.get('tab');
 
+            const moved = postId ? blogUrlFor(postId) : null;
+            if (moved) {
+                window.location.replace(moved);
+                return;
+            }
+            updateCategoryTabsVisibility();
             if (postId) {
                 openArticleReader(postId);
-            } else if (tabParam) {
+            } else if (tabParam && filterByTab(Q_FEED, tabParam).length > 0) {
                 switchCategoryTab(tabParam);
             } else {
                 renderMagazineFeed();
