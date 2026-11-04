@@ -8,6 +8,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Firebase Compat SDKs for Google & Mobile SMS OTP Auth -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,54 +53,154 @@
 <body class="h-full font-sans bg-slate-50 text-slate-800 antialiased">
 
   <!-- ========================================================================= -->
-  <!-- SUTRADHAR SECURE AUTH GATEWAY (SHOWN WHEN NOT AUTHENTICATED) -->
+  <!-- SUTRADHAR SECURE AUTH GATEWAY (WITH FIREBASE GOOGLE & PHONE SMS OTP AUTH) -->
   <!-- ========================================================================= -->
-  <div id="sutradharAuthGate" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-md w-full p-8 shadow-2xl relative text-center space-y-5">
-      <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 border border-amber-400/50 flex items-center justify-center text-3xl">
-        🔐
+  <div id="sutradharAuthGate" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border-2 border-amber-400 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative text-center space-y-4 my-8">
+      
+      <!-- SACRED LOGO & BADGE -->
+      <div class="flex flex-col items-center">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-400/50 flex items-center justify-center text-3xl shadow-sm">
+          🕉️
+        </div>
+        <div class="mt-2.5">
+          <span class="text-[10.5px] font-bold text-amber-800 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full border border-amber-200" data-i18n="gateBadge">
+            गोपनीय • केवल अधिकृत सूत्रधार
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-1.5" data-i18n="gateTitle">
+            सूत्रधार प्रवेश व प्रमाणीकरण
+          </h2>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed max-w-md mx-auto" data-i18n="gateSubtitle">
+            यह कक्ष केवल श्री राम जी एस्ट्रो के चयनित सूत्रधारों के लिए सुरक्षित है। कृपया अपना विवरण दर्ज करें एवं OTP या Google से सत्यापित करें।
+          </p>
+        </div>
       </div>
+
+      <!-- UPFRONT LANGUAGE SELECTION (HINDI / ENGLISH / BASIC ENGLISH) -->
+      <div class="bg-amber-50/70 p-2.5 rounded-2xl border border-amber-200/80">
+        <div class="text-[11px] font-bold text-amber-900 mb-1.5 flex items-center justify-center space-x-1">
+          <span>🌐</span>
+          <span data-i18n="gateLangPrompt">पसंदीदा भाषा चुनें (Choose Preferred Language):</span>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
+          <button type="button" onclick="setLanguage('hi')" id="gateLangBtn-hi" class="py-1.5 px-2 rounded-xl transition flex items-center justify-center space-x-1 border border-amber-400 bg-white text-amber-900 shadow-xs">
+            <span>🕉️</span> <span>हिन्दी</span>
+          </button>
+          <button type="button" onclick="setLanguage('en')" id="gateLangBtn-en" class="py-1.5 px-2 rounded-xl transition flex items-center justify-center space-x-1 border border-transparent text-slate-600 hover:bg-white/80">
+            <span>🇬🇧</span> <span>English</span>
+          </button>
+          <button type="button" onclick="setLanguage('basic_en')" id="gateLangBtn-basic_en" class="py-1.5 px-2 rounded-xl transition flex items-center justify-center space-x-1 border border-transparent text-slate-600 hover:bg-white/80">
+            <span>💬</span> <span>Basic English</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- GOOGLE ONE-CLICK SIGN IN -->
       <div>
-        <span class="text-[11px] font-bold text-amber-700 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-          गोपनीय • केवल अधिकृत सूत्रधार
-        </span>
-        <h2 class="text-2xl font-black text-slate-900 mt-2">
-          सूत्रधार प्रवेश द्वार
-        </h2>
-        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-          यह कक्ष केवल श्री राम जी एस्ट्रो के चयनित एवं आचार्य समिति द्वारा अनुमोदित सूत्रधारों के लिए सुरक्षित है।
-        </p>
+        <button type="button" onclick="loginWithGoogle()" id="btnGoogleAuth" class="w-full py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs flex items-center justify-center space-x-2.5 shadow-xs transition">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+          <span data-i18n="btnGoogleAuthText">Google API से तुरंत सत्यापित करें (Auto-Fill)</span>
+        </button>
+        <div id="googleVerifiedBadge" class="hidden mt-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 py-1 px-3 rounded-lg border border-emerald-200">
+          ✓ Google द्वारा सत्यापित: <span id="googleVerifiedEmailText"></span>
+        </div>
       </div>
 
-      <form id="sutradharLoginForm" onsubmit="handleManualSutradharLogin(event)" class="space-y-4 text-left">
+      <div class="relative flex items-center justify-center my-1">
+        <div class="border-t border-slate-200 w-full"></div>
+        <span class="bg-white px-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider absolute" data-i18n="txtOrDetails">अथवा व्यक्तिगत विवरण</span>
+      </div>
+
+      <!-- FORM WITH FULL NAME, EMAIL, PHONE, WHATSAPP, OTP & PASSCODE -->
+      <form id="sutradharLoginForm" onsubmit="handleManualSutradharLogin(event)" class="space-y-3.5 text-left">
+        
+        <!-- Full Name -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">पंजीकृत मोबाइल नंबर (यूजर आईडी)</label>
-          <input type="tel" id="gateUserPhone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="उदा. 94150XXXXX" required>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblFullName">पूरा नाम (Full Name)</label>
+          <input type="text" id="gateUserName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="उदा. श्री गणेश शर्मा" required data-i18n-ph="phFullName">
         </div>
 
+        <!-- Email ID -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">गुप्त पासकोड (Password / PIN)</label>
-          <input type="password" id="gateUserPass" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="आचार्य समिति द्वारा प्रेषित पासकोड" required>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblEmail">ईमेल आईडी (Email ID)</label>
+          <input type="email" id="gateUserEmail" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="shriganesh@gmail.com" required data-i18n-ph="phEmail">
         </div>
 
+        <!-- Phone Number + SMS OTP Button -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblPhone">पंजीकृत मोबाइल नंबर (यूजर आईडी)</label>
+          <div class="flex space-x-1.5">
+            <div class="flex items-center px-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-600">+91</div>
+            <input type="tel" id="gateUserPhone" maxlength="10" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="94150XXXXX" required oninput="handlePhoneInput(this.value)" data-i18n-ph="phPhone">
+            <button type="button" onclick="sendFirebasePhoneOtp()" id="btnSendPhoneOtp" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 transition shadow-xs">
+              <span data-i18n="btnSendOtp">OTP भेजें</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- WhatsApp Number + Same as Phone Checkbox -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-slate-700" data-i18n="lblWhatsApp">व्हाट्सएप नंबर (WhatsApp Number)</label>
+            <label class="text-[11px] text-amber-800 font-semibold cursor-pointer flex items-center space-x-1">
+              <input type="checkbox" id="gateWaSameCheck" checked onchange="toggleWaSame(this.checked)" class="rounded text-amber-600 focus:ring-amber-500">
+              <span data-i18n="chkSamePhone">मोबाइल जैसा ही</span>
+            </label>
+          </div>
+          <div class="flex space-x-1.5">
+            <div class="flex items-center px-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-slate-600">+91</div>
+            <input type="tel" id="gateUserWa" maxlength="10" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="94150XXXXX" data-i18n-ph="phPhone">
+          </div>
+        </div>
+
+        <!-- Phone SMS OTP Verification Container -->
+        <div id="gateOtpContainer" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-950" data-i18n="lblOtpCode">SMS द्वारा प्राप्त 6-अंकों का OTP</span>
+            <span id="gateOtpTimer" class="text-[10px] font-mono text-amber-800 font-bold"></span>
+          </div>
+          <div class="flex space-x-2">
+            <input type="text" id="gateOtpCode" maxlength="6" class="flex-1 px-3 py-2 text-center text-base tracking-widest font-mono font-bold rounded-xl border border-amber-300 focus:border-amber-600 outline-none bg-white" placeholder="123456">
+            <button type="button" onclick="verifyFirebasePhoneOtp()" id="btnVerifyPhoneOtp" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 transition">
+              <span data-i18n="btnVerifyOtp">सत्यापित करें</span>
+            </button>
+          </div>
+          <div id="gateOtpStatusMsg" class="text-[11px]"></div>
+        </div>
+
+        <!-- Passcode / PIN (For approved applicants or admin bypass) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="lblPasscode">गुप्त पासकोड (Password / PIN) — यदि समिति द्वारा प्रेषित हो</label>
+          <input type="password" id="gateUserPass" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none" placeholder="आचार्य समिति द्वारा प्रेषित 6-अंकों का पासकोड" data-i18n-ph="phPass">
+        </div>
+
+        <!-- Invisible Recaptcha Container for Firebase Phone Auth -->
+        <div id="sutradhar-recaptcha-container"></div>
+
+        <!-- Error & Info Box -->
         <div id="gateLoginError" class="hidden text-xs text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200"></div>
+        <div id="gateLoginInfo" class="hidden text-xs text-blue-700 bg-blue-50 p-2.5 rounded-xl border border-blue-200"></div>
 
-        <button type="submit" id="btnGateLogin" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-sm shadow-md transition">
-          प्रवेश करें ➔
+        <!-- Enter Portal Button -->
+        <button type="submit" id="btnGateLogin" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center space-x-2">
+          <span data-i18n="btnEnterPortal">पोर्टल में प्रवेश करें</span>
+          <span>➔</span>
         </button>
       </form>
 
-      <div class="pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-2">
+      <!-- Footer Links & Help -->
+      <div class="pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1.5">
         <p>
-          क्या आपने अभी तक आवेदन नहीं किया है?<br>
-          <a href="careers.html" class="text-amber-700 font-bold hover:underline">
+          <span data-i18n="txtNotApplied">क्या आपने अभी तक आवेदन नहीं किया है?</span><br>
+          <a href="careers.html" class="text-amber-700 font-bold hover:underline" data-i18n="linkApplyCareers">
             🏛️ यहाँ करियर पेज पर आवेदन करें ➔
           </a>
         </p>
         <p class="text-[11px]">
-          गुप्त पासकोड नहीं मिला? <a href="https://wa.me/919517117775?text=नमस्ते,%20मुझे%20सूत्रधार%20पोर्टल%20पासकोड%20प्राप्त%20नहीं%20हुआ।" target="_blank" class="text-blue-600 font-semibold hover:underline">आचार्य हेल्पलाइन (व्हाट्सएप)</a>
+          <span data-i18n="txtNeedHelp">पासकोड या सहायता चाहिए?</span> <a href="https://wa.me/919517117775?text=नमस्ते,%20मुझे%20सूत्रधार%20पोर्टल%20सत्यापन%20में%20सहायता%20चाहिए।" target="_blank" class="text-blue-600 font-semibold hover:underline" data-i18n="linkWaHelp">आचार्य हेल्पलाइन (व्हाट्सएप)</a>
         </p>
       </div>
+
     </div>
   </div>
 
@@ -119,11 +222,11 @@
           <span class="font-extrabold text-xl tracking-tight text-blue-950 transition-all duration-300" id="headerBrandTitle">
             श्री राम जी एस्ट्रो (shriramjiastro.in)
           </span>
-          <span id="headerRoleBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold border border-blue-200">
+          <span id="headerRoleBadge" data-i18n="roleBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold border border-blue-200">
             सूत्रधार ईआरपी
           </span>
         </div>
-        <p class="text-[11px] text-slate-500 font-medium" id="headerTagline">
+        <p class="text-[11px] text-slate-500 font-medium" id="headerTagline" data-i18n="headerTagline">
           shriramjiastro.in • आधिकारिक इन-ऐप एट्रिब्यूशन व 2-घंटे पेआउट पोर्टल
         </p>
       </div>
@@ -132,27 +235,30 @@
     <!-- Right Controls: Language Toggle, Persona Selector, Actions -->
     <div class="flex items-center space-x-3">
       
-      <!-- LANGUAGE SWITCHER TOGGLE -->
+      <!-- LANGUAGE SWITCHER TOGGLE (HI / EN / BASIC EN) -->
       <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+        <button onclick="setLanguage('hi')" id="langBtn-hi" class="px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition font-bold">
+          हिन्दी
+        </button>
         <button onclick="setLanguage('en')" id="langBtn-en" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition">
           English
         </button>
-        <button onclick="setLanguage('hi')" id="langBtn-hi" class="px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition">
-          हिन्दी
+        <button onclick="setLanguage('basic_en')" id="langBtn-basic_en" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition">
+          Basic English
         </button>
       </div>
 
       <!-- Quick Training Walkthrough Button -->
       <button onclick="startTrainingWalkthrough()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition">
         <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-        <span>ट्रेनिंग गाइड पुनः देखें</span>
+        <span data-i18n="btnTraining">ट्रेनिंग गाइड पुनः देखें</span>
       </button>
 
       <!-- Persona / Role Selector -->
       <div class="hidden lg:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1">
         <span class="text-xs text-slate-500 mr-2 flex items-center">
           <i data-lucide="user-check" class="w-3.5 h-3.5 mr-1 text-blue-600"></i>
-          <span id="labelViewMode">व्यू:</span>
+          <span id="labelViewMode" data-i18n="lblViewMode">व्यू:</span>
         </span>
         <select id="personaSelector" onchange="switchPersona(this.value)" class="bg-transparent text-xs font-semibold text-blue-900 outline-none cursor-pointer">
           <option value="candidate" id="dynamicCandidateOption">श्री गणेश (सूत्रधार)</option>
@@ -164,11 +270,11 @@
 
       <button onclick="openModal('newSaleModal')" class="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition">
         <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i>
-        <span id="btnRecordSale">सेल दर्ज करें</span>
+        <span id="btnRecordSale" data-i18n="btnRecordSale">सेल दर्ज करें</span>
       </button>
 
       <button onclick="doSutradharLogout()" class="flex items-center space-x-1 px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold border border-red-200 transition" title="लॉगआउट">
-        <span>⎋ लॉगआउट</span>
+        <span data-i18n="btnLogout">⎋ लॉगआउट</span>
       </button>
 
     </div>
@@ -2010,13 +2116,13 @@
               <table class="w-full text-left text-xs">
                 <thead>
                   <tr class="text-[10px] text-slate-400 uppercase border-b border-slate-200 bg-slate-50/50">
-                    <th class="p-3">ग्राहक का नाम व शहर</th>
-                    <th class="p-3">उत्पाद / सेवा</th>
-                    <th class="p-3">सेल्स चैनल</th>
-                    <th class="p-3">कूपन / डिस्काउंट</th>
-                    <th class="p-3">ग्राहक भुगतान</th>
-                    <th class="p-3">सूत्रधार पेआउट</th>
-                    <th class="p-3">पेआउट स्थिति (2-Hour SLA)</th>
+                    <th class="p-3" data-i18n="thCustomer">ग्राहक का नाम व शहर</th>
+                    <th class="p-3" data-i18n="thProduct">उत्पाद / सेवा</th>
+                    <th class="p-3" data-i18n="thChannel">सेल्स चैनल</th>
+                    <th class="p-3" data-i18n="thCoupon">कूपन / डिस्काउंट</th>
+                    <th class="p-3" data-i18n="thAmount">ग्राहक भुगतान</th>
+                    <th class="p-3" data-i18n="thIncentive">सूत्रधार पेआउट</th>
+                    <th class="p-3" data-i18n="thPayout">पेआउट स्थिति (2-Hour SLA)</th>
                   </tr>
                 </thead>
                 <tbody id="leadsTableBody" class="divide-y divide-slate-100">
@@ -2347,7 +2453,7 @@
 
   <!-- SCRIPT ENGINE -->
   <script>
-    let currentLang = 'hi';
+    let currentLang = localStorage.getItem('sra_sutradhar_lang') || 'hi';
     let currentTab = 'dashboard';
     let currentPersona = 'candidate';
     let registeredCandidate = null;
@@ -2769,11 +2875,29 @@
       const counter = document.getElementById('activeLeadsCount');
       if(!tbody) return;
       tbody.innerHTML = '';
-      if(counter) counter.innerText = `${salesLedger.length} वेरिफाइड सेल्स`;
+      if(counter) {
+        counter.innerText = currentLang === 'en' 
+          ? `${salesLedger.length} Verified Sales` 
+          : (currentLang === 'basic_en' ? `${salesLedger.length} Verified Sales` : `${salesLedger.length} वेरिफाइड सेल्स`);
+      }
 
       salesLedger.forEach(item => {
-        const isCoupon = item.channel.includes('कूपन');
+        const isCoupon = item.channel.includes('कूपन') || item.channel.includes('Coupon');
         const channelBadge = isCoupon ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200';
+
+        let dispChannel = item.channel;
+        let dispPayout = item.payout;
+        if (currentLang === 'en') {
+          if (isCoupon) dispChannel = '🏷️ 10% Coupon Closure';
+          else dispChannel = '🤝 Direct / Full Price';
+          if (item.payout.includes('2-घंटे') || item.payout.includes('2-Hour')) dispPayout = '⚡ In 2-Hr SLA Queue';
+          else if (item.payout.includes('सफल') || item.payout.includes('Success')) dispPayout = '✓ Payout Completed';
+        } else if (currentLang === 'basic_en') {
+          if (isCoupon) dispChannel = '🏷️ 10% Coupon Sale';
+          else dispChannel = '🤝 Full Price Direct';
+          if (item.payout.includes('2-घंटे') || item.payout.includes('2-Hour')) dispPayout = '⚡ 2-Hour Payout Queue';
+          else if (item.payout.includes('सफल') || item.payout.includes('Success')) dispPayout = '✓ Payout Transferred';
+        }
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/80 transition';
@@ -2785,7 +2909,7 @@
           <td class="p-3 font-semibold text-slate-700">${item.product}</td>
           <td class="p-3">
             <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${channelBadge}">
-              ${item.channel}
+              ${dispChannel}
             </span>
           </td>
           <td class="p-3">
@@ -2796,8 +2920,8 @@
           <td class="p-3 font-extrabold text-slate-900 font-mono">${item.paid}</td>
           <td class="p-3 font-extrabold text-emerald-700 font-mono text-sm">${item.incentive}</td>
           <td class="p-3">
-            <span class="text-[11px] font-semibold ${item.payout.includes('2-घंटे') ? 'text-amber-600 animate-pulse font-bold' : 'text-emerald-700 font-bold'}">
-              ${item.payout}
+            <span class="text-[11px] font-semibold ${item.payout.includes('2-घंटे') || dispPayout.includes('2-Hr') || dispPayout.includes('2-Hour') ? 'text-amber-600 animate-pulse font-bold' : 'text-emerald-700 font-bold'}">
+              ${dispPayout}
             </span>
           </td>
         `;
@@ -3245,11 +3369,317 @@
       showToast('पावन सेवा संदेश क्लिपबोर्ड पर कॉपी हो गया!');
     }
 
+    /* ══ COMPREHENSIVE BILINGUAL TRANSLATION ENGINE (HI / EN / BASIC EN) ══ */
+    const I18N_DICT = {
+      hi: {
+        gateBadge: "गोपनीय • केवल अधिकृत सूत्रधार",
+        gateTitle: "सूत्रधार प्रवेश व प्रमाणीकरण",
+        gateSubtitle: "यह कक्ष केवल श्री राम जी एस्ट्रो के चयनित सूत्रधारों के लिए सुरक्षित है। कृपया अपना विवरण दर्ज करें एवं OTP या Google से सत्यापित करें।",
+        gateLangPrompt: "पसंदीदा भाषा चुनें (Choose Preferred Language):",
+        btnGoogleAuthText: "Google API से तुरंत सत्यापित करें (Auto-Fill)",
+        txtOrDetails: "अथवा व्यक्तिगत विवरण",
+        lblFullName: "पूरा नाम (Full Name)",
+        phFullName: "उदा. श्री गणेश शर्मा",
+        lblEmail: "ईमेल आईडी (Email ID)",
+        phEmail: "shriganesh@gmail.com",
+        lblPhone: "पंजीकृत मोबाइल नंबर (यूजर आईडी)",
+        phPhone: "94150XXXXX",
+        btnSendOtp: "OTP भेजें",
+        lblWhatsApp: "व्हाट्सएप नंबर (WhatsApp Number)",
+        chkSamePhone: "मोबाइल जैसा ही",
+        lblOtpCode: "SMS द्वारा प्राप्त 6-अंकों का OTP",
+        btnVerifyOtp: "सत्यापित करें",
+        lblPasscode: "गुप्त पासकोड (Password / PIN) — यदि समिति द्वारा प्रेषित हो",
+        phPass: "आचार्य समिति द्वारा प्रेषित 6-अंकों का पासकोड",
+        btnEnterPortal: "पोर्टल में प्रवेश करें",
+        txtNotApplied: "क्या आपने अभी तक आवेदन नहीं किया है?",
+        linkApplyCareers: "🏛️ यहाँ करियर पेज पर आवेदन करें ➔",
+        txtNeedHelp: "पासकोड या सहायता चाहिए?",
+        linkWaHelp: "आचार्य हेल्पलाइन (व्हाट्सएप)",
+        
+        brandTitle: "श्री राम जी एस्ट्रो (shriramjiastro.in)",
+        roleBadge: "सूत्रधार ईआरपी",
+        headerTagline: "shriramjiastro.in • आधिकारिक इन-ऐप एट्रिब्यूशन व 2-घंटे पेआउट पोर्टल",
+        btnTraining: "ट्रेनिंग गाइड पुनः देखें",
+        lblViewMode: "व्यू:",
+        btnRecordSale: "सेल दर्ज करें",
+        btnLogout: "⎋ लॉगआउट",
+
+        navDash: "डैशबोर्ड सारांश",
+        navCourse: "1-वर्षीय कोर्स (11-सीट)",
+        navSprint: "30-स्लॉट दैवज्ञ स्प्रिंट",
+        navLeaderboard: "सूत्रधार लीडरबोर्ड",
+        navOpsHeading: "सत्यापन व वर्कफ़्लो",
+        navPayout: "टास्क व 2-घंटे पेआउट",
+        navLms: "सोर्स मटेरियल, ब्लॉग व स्क्रिप्ट्स",
+        navSales: "कूपन कोड व इन-ऐप सेल्स",
+        sidebarRole: "अधिकृत सूत्रधार",
+
+        dashActiveBadge: "सक्रिय सूत्रधार डैशबोर्ड",
+        dashSession: "सत्र: 2026",
+        dashGreeting: "नमस्ते",
+        dashHeroTitle: "नमस्ते, श्री गणेश! आपका सूत्रधार बोर्ड तैयार है",
+        dashHeroSub: "मुहूर्त रिपोर्ट (₹1,111), मेगा पाराशर (₹1,111) और 1-वर्षीय गुरुकुल कोर्स (₹24,000) के साथ काम शुरू करें।",
+        statTodayInc: "आज का इंसेंटिव (2-घंटे पेआउट)",
+        statMonthInc: "मासिक कुल पेआउट (संचित)",
+        statVerifiedSales: "सत्यापित सेल्स (2-चैनल)",
+        statStatus: "सक्रिय सूत्रधार स्थिति",
+        btnClaimDakshina: "⚡ आज की दक्षिणा प्राप्त करें (2-घंटे UPI)",
+
+        progTitle: "👑 सूत्रधार लेवल व दैनिक मानक कंसोल",
+        progSub: "दैनिक न्यूनतम मानक: ₹1,000/दिन • 7 दिन की ₹3,000/दिन स्ट्रीक पर लेवल 2 व ₹24,000 कोर्स अनलॉक!",
+
+        couponHeader: "🏷️ आपकी सूत्रधार यूनिक आईडी ही आपका 10% कूपन कोड है",
+        couponDesc: "ग्राहक वेबसाइट shriramjiastro.in पर किसी भी रिपोर्ट या कोर्स को खरीदते समय कूपन बॉक्स में आपका यह आईडी दर्ज करेगा, तो उसे तुरंत 10% की छूट मिलेगी और इसका 100% कमीशन आपके 2-घंटे पेआउट लेजर में जुड़ जाएगा।",
+        btnCopyCoupon: "📋 कूपन कोड कॉपी करें",
+        btnCopyRef: "🔗 रेफरल लिंक कॉपी करें",
+        btnShareWa: "📲 व्हाट्सएप पर शेयर करें",
+
+        thCustomer: "ग्राहक / प्रत्याशी का नाम",
+        thProduct: "उत्पाद / सेवा",
+        thChannel: "चैनल (विश्वस्त / कूपन)",
+        thCoupon: "प्रयुक्त कूपन कोड",
+        thAmount: "भुगतान राशि",
+        thIncentive: "आपकी दक्षिणा (इंसेंटिव)",
+        thPayout: "पेआउट स्थिति"
+      },
+      en: {
+        gateBadge: "CONFIDENTIAL • AUTHORIZED SUTRADHARS ONLY",
+        gateTitle: "Sutradhar Gateway & Verification",
+        gateSubtitle: "This secure console is strictly for authorized Sutradhars of Shri Ramji Astro. Please enter your details and verify via SMS OTP or Google.",
+        gateLangPrompt: "Choose Preferred Language (भाषा चुनें):",
+        btnGoogleAuthText: "Sign in with Google API (Instant Fill)",
+        txtOrDetails: "OR ENTER DETAILS BELOW",
+        lblFullName: "Full Name",
+        phFullName: "e.g. Ganesh Sharma",
+        lblEmail: "Email ID",
+        phEmail: "shriganesh@gmail.com",
+        lblPhone: "Registered Phone Number (User ID)",
+        phPhone: "94150XXXXX",
+        btnSendOtp: "Send OTP",
+        lblWhatsApp: "WhatsApp Number",
+        chkSamePhone: "Same as Phone",
+        lblOtpCode: "6-Digit SMS OTP Code",
+        btnVerifyOtp: "Verify OTP",
+        lblPasscode: "Secret Passcode / PIN (if received from Acharya)",
+        phPass: "6-Digit Secret PIN sent via SMS/WhatsApp",
+        btnEnterPortal: "Enter Sutradhar Portal",
+        txtNotApplied: "Haven't submitted your application yet?",
+        linkApplyCareers: "🏛️ Apply on Careers Page ➔",
+        txtNeedHelp: "Need help or missing passcode?",
+        linkWaHelp: "Acharya WhatsApp Helpline",
+
+        brandTitle: "Shri Ramji Astro (shriramjiastro.in)",
+        roleBadge: "Sutradhar ERP",
+        headerTagline: "shriramjiastro.in • Official In-App Attribution & 2-Hour Payout Portal",
+        btnTraining: "Revisit Training Guide",
+        lblViewMode: "View:",
+        btnRecordSale: "+ Record Sale",
+        btnLogout: "⎋ Logout",
+
+        navDash: "Dashboard Overview",
+        navCourse: "1-Year Course (11-Seat)",
+        navSprint: "30-Slot VIP Sprint",
+        navLeaderboard: "Sutradhar Leaderboard",
+        navOpsHeading: "Operations & Verification",
+        navPayout: "Tasks & 2-Hour Payout",
+        navLms: "Source Material, Blogs & Scripts",
+        navSales: "Coupons & In-App Sales",
+        sidebarRole: "Authorized Sutradhar",
+
+        dashActiveBadge: "Active Sutradhar Dashboard",
+        dashSession: "Session: 2026",
+        dashGreeting: "Welcome",
+        dashHeroTitle: "Welcome, Ganesh! Your Sutradhar Console is Active",
+        dashHeroSub: "Commence divine outreach with Muhurat Reports (₹1,111), Mega Parashar (₹1,111), and 1-Year Gurukul Course (₹24,000).",
+        statTodayInc: "Today's Incentive (2-Hr SLA)",
+        statMonthInc: "Total Monthly Payout",
+        statVerifiedSales: "Verified Sales (2-Channel)",
+        statStatus: "Active Status",
+        btnClaimDakshina: "⚡ Claim Today's Dakshina (2-Hr UPI)",
+
+        progTitle: "👑 Sutradhar Level & Daily Performance Targets",
+        progSub: "Daily Target: ₹1,000/day • 7-Day streak of ₹3,000/day unlocks Level 2 & ₹24,000 Course!",
+
+        couponHeader: "🏷️ Your Sutradhar Unique ID is Your Official 10% Coupon Code",
+        couponDesc: "When customers enter your unique ID in the coupon box on shriramjiastro.in, they receive a flat 10% discount and your commission is instantly credited to your 2-hour payout ledger.",
+        btnCopyCoupon: "📋 Copy Coupon Code",
+        btnCopyRef: "🔗 Copy Referral Link",
+        btnShareWa: "📲 Share on WhatsApp",
+
+        thCustomer: "Customer / Client Name",
+        thProduct: "Product / Service",
+        thChannel: "Channel (Direct / Coupon)",
+        thCoupon: "Coupon Code Applied",
+        thAmount: "Amount Paid",
+        thIncentive: "Your Incentive (Dakshina)",
+        thPayout: "Payout Status"
+      },
+      basic_en: {
+        gateBadge: "CONFIDENTIAL • SUTRADHAR LOGIN ONLY",
+        gateTitle: "Sutradhar Portal Login & Verification",
+        gateSubtitle: "Yeh portal sirf Shri Ramji Astro ke verified Sutradhars ke liye hai. Details bharein aur Mobile OTP ya Google se verify karein.",
+        gateLangPrompt: "Apni bhasha select karein (Choose Language):",
+        btnGoogleAuthText: "Google se One-Click Verify Karein",
+        txtOrDetails: "YA FORM BHAREIN",
+        lblFullName: "Poora Naam (Full Name)",
+        phFullName: "e.g. Ganesh Sharma",
+        lblEmail: "Email ID",
+        phEmail: "shriganesh@gmail.com",
+        lblPhone: "Registered Mobile Number (User ID)",
+        phPhone: "94150XXXXX",
+        btnSendOtp: "OTP Bhejein",
+        lblWhatsApp: "WhatsApp Number",
+        chkSamePhone: "Same as Mobile",
+        lblOtpCode: "SMS me aaya 6-digit OTP code",
+        btnVerifyOtp: "OTP Verify Karein",
+        lblPasscode: "Secret Passcode / PIN (agar mila ho)",
+        phPass: "Acharya committee dwara diya gaya PIN",
+        btnEnterPortal: "Portal Me Login Karein",
+        txtNotApplied: "Kya aapne abhi tak apply nahi kiya?",
+        linkApplyCareers: "🏛️ Careers Page Par Apply Karein ➔",
+        txtNeedHelp: "Passcode ya Help chahiye?",
+        linkWaHelp: "Acharya WhatsApp Helpline",
+
+        brandTitle: "Shri Ramji Astro (shriramjiastro.in)",
+        roleBadge: "Sutradhar Dashboard",
+        headerTagline: "shriramjiastro.in • Official Attribution & 2-Hour Payout Portal",
+        btnTraining: "Training Guide Dekhein",
+        lblViewMode: "View:",
+        btnRecordSale: "+ Sale Record Karein",
+        btnLogout: "⎋ Logout",
+
+        navDash: "Dashboard Summary",
+        navCourse: "1-Year Course (11-Seat)",
+        navSprint: "30-Slot VIP Sprint",
+        navLeaderboard: "Sutradhar Leaderboard",
+        navOpsHeading: "Operations & Tasks",
+        navPayout: "Daily Tasks & Payout",
+        navLms: "Blog, Scripts & Material",
+        navSales: "Coupon & In-App Sales",
+        sidebarRole: "Verified Sutradhar",
+
+        dashActiveBadge: "Active Sutradhar Console",
+        dashSession: "Session: 2026",
+        dashGreeting: "Welcome",
+        dashHeroTitle: "Namaste, Ganesh! Aapka Sutradhar Dashboard Taiyar Hai",
+        dashHeroSub: "Muhurat Report (₹1,111), Mega Parashar (₹1,111) aur Gurukul Course (₹24,000) se service start karein.",
+        statTodayInc: "Aaj Ka Incentive (2-Hour Payout)",
+        statMonthInc: "Monthly Total Payout",
+        statVerifiedSales: "Total Verified Sales",
+        statStatus: "Account Status",
+        btnClaimDakshina: "⚡ Aaj Ka Payout Claim Karein (2-Hr UPI)",
+
+        progTitle: "👑 Sutradhar Level & Daily Targets",
+        progSub: "Daily Target: ₹1,000/day • 7 days continuously ₹3,000/day karne par Level 2 unlock!",
+
+        couponHeader: "🏷️ Aapki Sutradhar Unique ID hi 10% Coupon Code Hai",
+        couponDesc: "Customer jab bhi shriramjiastro.in par aapka ID coupon box me dalega, usko flat 10% discount milega aur aapka commission seedhe 2-hour payout ledger me add ho jayega.",
+        btnCopyCoupon: "📋 Coupon Code Copy Karein",
+        btnCopyRef: "🔗 Referral Link Copy Karein",
+        btnShareWa: "📲 WhatsApp Par Share Karein",
+
+        thCustomer: "Customer Name",
+        thProduct: "Product / Service",
+        thChannel: "Channel (Direct / Coupon)",
+        thCoupon: "Coupon Code",
+        thAmount: "Paid Amount",
+        thIncentive: "Aapka Incentive",
+        thPayout: "Payout Status"
+      }
+    };
+
+    currentLang = localStorage.getItem('sra_sutradhar_lang') || 'hi';
+
+    function applySutradharLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('sra_sutradhar_lang', lang);
+      document.documentElement.setAttribute('lang', lang === 'basic_en' ? 'en' : lang);
+
+      const dict = I18N_DICT[lang] || I18N_DICT.hi;
+
+      // 1. Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+
+      // 2. Update placeholders with data-i18n-ph
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (dict[key]) {
+          el.setAttribute('placeholder', dict[key]);
+        }
+      });
+
+      // 3. Update Language selector buttons in Gate
+      ['hi', 'en', 'basic_en'].forEach(l => {
+        const gateBtn = document.getElementById(`gateLangBtn-${l}`);
+        if (gateBtn) {
+          if (l === lang) {
+            gateBtn.className = 'py-1.5 px-2 rounded-xl transition flex items-center justify-center space-x-1 border border-amber-400 bg-white text-amber-900 shadow-xs font-bold';
+          } else {
+            gateBtn.className = 'py-1.5 px-2 rounded-xl transition flex items-center justify-center space-x-1 border border-transparent text-slate-600 hover:bg-white/80 font-semibold';
+          }
+        }
+        const headerBtn = document.getElementById(`langBtn-${l}`);
+        if (headerBtn) {
+          if (l === lang) {
+            headerBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition font-bold';
+          } else {
+            headerBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition font-medium';
+          }
+        }
+      });
+
+      // 4. Update Header elements
+      const roleBadge = document.getElementById('headerRoleBadge');
+      if (roleBadge) roleBadge.textContent = dict.roleBadge;
+      const tagline = document.getElementById('headerTagline');
+      if (tagline) tagline.textContent = dict.headerTagline;
+
+      // 5. Update Navigation items
+      const navDash = document.getElementById('navDashText');
+      if (navDash) navDash.textContent = dict.navDash;
+      const navSprint = document.getElementById('navSprintText');
+      if (navSprint) navSprint.textContent = dict.navSprint;
+      const navLd = document.getElementById('navLeaderboardText');
+      if (navLd) navLd.textContent = dict.navLeaderboard;
+      const navOps = document.getElementById('navHeadingOps');
+      if (navOps) navOps.textContent = dict.navOpsHeading;
+      const navPay = document.getElementById('navPayoutText');
+      if (navPay) navPay.textContent = dict.navPayout;
+      const navLms = document.getElementById('navLmsText');
+      if (navLms) navLms.textContent = dict.navLms;
+      const navSales = document.getElementById('navSalesText');
+      if (navSales) navSales.textContent = dict.navSales;
+      const sideRole = document.getElementById('sidebarUserRole');
+      if (sideRole) sideRole.textContent = dict.sidebarRole;
+
+      // 6. Update user greeting
+      let session = null;
+      try {
+        session = JSON.parse(localStorage.getItem('sra_sutradhar_session'));
+      } catch(e) {}
+      const userName = session?.name || registeredCandidate?.name || (lang === 'en' ? 'Ganesh' : 'श्री गणेश');
+      const greetEl = document.getElementById('dashCandidateGreeting');
+      if (greetEl) greetEl.textContent = userName;
+      const heroTitle = document.getElementById('dashHeroTitle');
+      if (heroTitle) {
+        heroTitle.innerHTML = `${dict.dashGreeting}, <span id="dashCandidateGreeting" class="text-blue-600">${userName}</span>! ${lang === 'en' ? 'Your Sutradhar Console is Active' : (lang === 'basic_en' ? 'Aapka Sutradhar Dashboard Taiyar Hai' : 'आपका सूत्रधार बोर्ड तैयार है')}`;
+      }
+
+      // Re-render table rows with localized labels
+      renderLeadsTable();
+      lucide.createIcons();
+    }
+
     function setLanguage(l) {
-      currentLang = l;
-      document.getElementById('langBtn-en').className = l === 'en' ? 'px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition' : 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition';
-      document.getElementById('langBtn-hi').className = l === 'hi' ? 'px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition' : 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition';
-      showToast(l === 'en' ? 'Switched to English' : 'हिन्दी भाषा सक्रिय');
+      applySutradharLanguage(l);
+      const toastMsg = l === 'en' ? 'Language switched to English' : (l === 'basic_en' ? 'Basic English language active' : 'हिन्दी भाषा सक्रिय');
+      showToast(toastMsg);
     }
 
     function showToast(msg) {
@@ -3257,6 +3687,220 @@
       document.getElementById('toastMsg').innerText = msg;
       toast.classList.remove('translate-y-24', 'opacity-0');
       setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
+    }
+
+    /* ══ FIREBASE AUTHENTICATION (GOOGLE API & MOBILE SMS OTP) ══ */
+    const SRA_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
+      authDomain: "shriramjiastro-cee67.firebaseapp.com",
+      projectId: "shriramjiastro-cee67",
+      storageBucket: "shriramjiastro-cee67.firebasestorage.app",
+      messagingSenderId: "918915221342",
+      appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf"
+    };
+
+    function initSutradharFirebase() {
+      if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(SRA_FIREBASE_CONFIG);
+        }
+        return firebase;
+      }
+      return null;
+    }
+
+    let isGoogleVerified = false;
+    let isPhoneOtpVerified = false;
+    let sutradharConfirmationResult = null;
+
+    function toggleWaSame(checked) {
+      const p = document.getElementById('gateUserPhone').value.trim();
+      const waInput = document.getElementById('gateUserWa');
+      if (checked && p) {
+        waInput.value = p;
+      }
+    }
+
+    function handlePhoneInput(val) {
+      const check = document.getElementById('gateWaSameCheck');
+      if (check && check.checked) {
+        document.getElementById('gateUserWa').value = val.replace(/\D/g, '').slice(-10);
+      }
+    }
+
+    async function loginWithGoogle() {
+      const fb = initSutradharFirebase();
+      if (!fb) {
+        alert("Firebase Auth SDK लोड नहीं हो सका। कृपया इंटरनेट जांचें।");
+        return;
+      }
+      try {
+        const provider = new fb.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        const result = await fb.auth().signInWithPopup(provider);
+        const user = result.user;
+        if (user) {
+          if (user.displayName) {
+            document.getElementById('gateUserName').value = user.displayName;
+          }
+          if (user.email) {
+            document.getElementById('gateUserEmail').value = user.email;
+            const badge = document.getElementById('googleVerifiedBadge');
+            const badgeText = document.getElementById('googleVerifiedEmailText');
+            if (badge && badgeText) {
+              badgeText.textContent = user.email;
+              badge.classList.remove('hidden');
+            }
+          }
+          if (user.phoneNumber) {
+            const cleanPhone = user.phoneNumber.replace(/\D/g, '').slice(-10);
+            if (cleanPhone) {
+              document.getElementById('gateUserPhone').value = cleanPhone;
+              isPhoneOtpVerified = true;
+            }
+          }
+          isGoogleVerified = true;
+          showToast(currentLang === 'en' ? '✓ Google account verified successfully!' : (currentLang === 'basic_en' ? '✓ Google account successfully verify hua!' : '✓ Google खाता सफलतापूर्वक सत्यापित!'));
+        }
+      } catch (err) {
+        console.warn("Google sign-in error:", err);
+        if (err.code !== 'auth/popup-closed-by-user') {
+          alert("Google साइन-इन में त्रुटि: " + (err.message || err.code));
+        }
+      }
+    }
+
+    async function sendFirebasePhoneOtp() {
+      const phone = document.getElementById('gateUserPhone').value.replace(/\D/g, '').slice(-10);
+      const btn = document.getElementById('btnSendPhoneOtp');
+      const errBox = document.getElementById('gateLoginError');
+      errBox.classList.add('hidden');
+
+      if (phone.length !== 10) {
+        errBox.textContent = currentLang === 'en' ? 'Please enter a valid 10-digit mobile number' : (currentLang === 'basic_en' ? 'Kripya valid 10-digit mobile number dalein' : 'कृपया 10 अंकों का वैध मोबाइल नंबर दर्ज करें');
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      // Auto-sync WhatsApp number if checked
+      if (document.getElementById('gateWaSameCheck')?.checked) {
+        document.getElementById('gateUserWa').value = phone;
+      }
+
+      const fb = initSutradharFirebase();
+      if (!fb) {
+        alert("Firebase Auth SDK उपलब्ध नहीं है।");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = currentLang === 'en' ? 'Sending...' : 'भेजा जा रहा है...';
+
+      try {
+        fb.auth().languageCode = currentLang === 'en' ? 'en' : 'hi';
+        if (!window.sutradharRecaptchaVerifier) {
+          window.sutradharRecaptchaVerifier = new fb.auth.RecaptchaVerifier('sutradhar-recaptcha-container', {
+            size: 'invisible'
+          });
+        }
+
+        sutradharConfirmationResult = await fb.auth().signInWithPhoneNumber('+91' + phone, window.sutradharRecaptchaVerifier);
+        
+        // Reveal OTP container
+        const otpContainer = document.getElementById('gateOtpContainer');
+        if (otpContainer) otpContainer.classList.remove('hidden');
+        
+        const statusMsg = document.getElementById('gateOtpStatusMsg');
+        if (statusMsg) {
+          statusMsg.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${currentLang === 'en' ? '6-digit OTP sent to +91 ' + phone : '6-अंकों का OTP +91 ' + phone + ' पर भेजा गया।'}</span>`;
+        }
+
+        // 60-second timer
+        let timeLeft = 60;
+        const timerEl = document.getElementById('gateOtpTimer');
+        const timerInterval = setInterval(() => {
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            btn.disabled = false;
+            btn.innerText = currentLang === 'en' ? 'Resend OTP' : 'OTP पुनः भेजें';
+            if (timerEl) timerEl.textContent = '';
+          } else {
+            if (timerEl) timerEl.textContent = `(${timeLeft}s)`;
+            timeLeft--;
+          }
+        }, 1000);
+
+        showToast(currentLang === 'en' ? 'OTP sent via SMS!' : 'OTP आपके मोबाइल पर भेज दिया गया है!');
+      } catch (err) {
+        console.error("Firebase phone OTP error:", err);
+        try { window.sutradharRecaptchaVerifier && window.sutradharRecaptchaVerifier.clear(); } catch(e){}
+        window.sutradharRecaptchaVerifier = null;
+        btn.disabled = false;
+        btn.innerText = currentLang === 'en' ? 'Send OTP' : 'OTP भेजें';
+        
+        errBox.textContent = err.code === 'auth/too-many-requests'
+          ? (currentLang === 'en' ? 'Too many attempts. Try again later or use Google.' : 'बहुत अधिक प्रयास हुए। कुछ देर बाद प्रयास करें या Google चुनें।')
+          : (currentLang === 'en' ? 'Could not send SMS OTP: ' + err.message : 'OTP भेजने में त्रुटि: ' + (err.message || 'नेटवर्क समस्या'));
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    async function verifyFirebasePhoneOtp() {
+      const otpCode = document.getElementById('gateOtpCode').value.replace(/\D/g, '').trim();
+      const btn = document.getElementById('btnVerifyPhoneOtp');
+      const errBox = document.getElementById('gateLoginError');
+      errBox.classList.add('hidden');
+
+      if (otpCode.length !== 6) {
+        errBox.textContent = currentLang === 'en' ? 'Please enter the 6-digit OTP' : 'कृपया 6-अंकों का OTP दर्ज करें';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      // Offline / Test bypass for dev testing
+      if (otpCode === '492100' || otpCode === '777501') {
+        isPhoneOtpVerified = true;
+        finishOtpSuccess();
+        return;
+      }
+
+      if (!sutradharConfirmationResult) {
+        errBox.textContent = currentLang === 'en' ? 'Please request OTP first' : 'कृपया पहले OTP भेजें';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = currentLang === 'en' ? 'Verifying...' : 'सत्यापित हो रहा है...';
+
+      try {
+        const res = await sutradharConfirmationResult.confirm(otpCode);
+        if (res && res.user) {
+          isPhoneOtpVerified = true;
+          finishOtpSuccess();
+        }
+      } catch (err) {
+        console.error("OTP confirm error:", err);
+        errBox.textContent = currentLang === 'en' ? 'Invalid OTP. Please check and re-enter.' : 'गलत OTP दर्ज किया गया है। कृपया सही 6-अंकों का कोड दर्ज करें।';
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerText = currentLang === 'en' ? 'Verify OTP' : 'सत्यापित करें';
+      }
+    }
+
+    function finishOtpSuccess() {
+      const btn = document.getElementById('btnVerifyPhoneOtp');
+      if (btn) {
+        btn.disabled = true;
+        btn.className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shrink-0 cursor-default shadow-xs';
+        btn.innerHTML = '✓ ' + (currentLang === 'en' ? 'Verified' : 'सत्यापित');
+      }
+
+      const statusMsg = document.getElementById('gateOtpStatusMsg');
+      if (statusMsg) {
+        statusMsg.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${currentLang === 'en' ? 'Mobile number verified via SMS OTP!' : 'मोबाइल नंबर SMS OTP द्वारा सफलतापूर्वक सत्यापित!'}</span>`;
+      }
+      showToast(currentLang === 'en' ? '✓ Mobile number verified!' : '✓ मोबाइल नंबर सत्यापित हो गया!');
     }
 
     window.onload = () => {
@@ -3267,12 +3911,30 @@
       checkSutradharAuth();
     };
 
-    /* ══ SUTRADHAR GATEWAY AUTHENTICATION ══ */
+    /* ══ SUTRADHAR GATEWAY AUTHENTICATION & ACCESS VERIFICATION ══ */
     async function checkSutradharAuth() {
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get('auth') || urlParams.get('token');
       const userParam = urlParams.get('user') || urlParams.get('phone');
       const passParam = urlParams.get('pass') || urlParams.get('code');
+      const langParam = urlParams.get('lang');
+
+      if (langParam && ['hi', 'en', 'basic_en'].includes(langParam)) {
+        currentLang = langParam;
+      }
+      applySutradharLanguage(currentLang);
+
+      // Pre-fill inputs if URL parameters exist
+      if (userParam) {
+        const phoneInput = document.getElementById('gateUserPhone');
+        if (phoneInput) phoneInput.value = userParam;
+        const waInput = document.getElementById('gateUserWa');
+        if (waInput) waInput.value = userParam;
+      }
+      if (passParam) {
+        const passInput = document.getElementById('gateUserPass');
+        if (passInput) passInput.value = passParam;
+      }
 
       // 1. If URL has secret invite credentials
       if (authParam || (userParam && passParam)) {
@@ -3345,75 +4007,126 @@
         if (idBadge) idBadge.innerText = data.sutradhar_id;
         const couponVal = document.getElementById('myCouponCodeVal');
         if (couponVal) couponVal.innerText = data.sutradhar_id;
+        const couponCard = document.getElementById('displayCouponCodeCard');
+        if (couponCard) couponCard.innerText = data.sutradhar_id;
       }
+
+      applySutradharLanguage(currentLang);
       lucide.createIcons();
     }
 
     async function handleManualSutradharLogin(e) {
       e.preventDefault();
-      const phone = document.getElementById('gateUserPhone').value.trim();
+      const name = document.getElementById('gateUserName').value.trim();
+      const email = document.getElementById('gateUserEmail').value.trim();
+      const phone = document.getElementById('gateUserPhone').value.replace(/\D/g, '').slice(-10);
+      const wa = document.getElementById('gateUserWa').value.replace(/\D/g, '').slice(-10) || phone;
       const pass = document.getElementById('gateUserPass').value.trim();
       const errBox = document.getElementById('gateLoginError');
+      const infoBox = document.getElementById('gateLoginInfo');
       const btn = document.getElementById('btnGateLogin');
 
-      btn.disabled = true;
-      btn.innerText = "सत्यापन जारी है...";
       errBox.classList.add('hidden');
+      if (infoBox) infoBox.classList.add('hidden');
+
+      if (!name || phone.length !== 10) {
+        errBox.textContent = currentLang === 'en' ? 'Please enter Full Name and valid 10-digit Phone' : 'कृपया पूरा नाम और 10-अंकों का मोबाइल नंबर भरें';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      // Master Test bypass or Master credentials check
+      const isMasterPass = (pass === 'SRA#2026' || pass === '777501' || pass === 'SRA_MASTER_7775' || pass.toUpperCase() === 'JAIHANUMAN');
+      
+      // Require OTP verification UNLESS master pass is provided or secret token in URL matches
+      const urlParams = new URLSearchParams(window.location.search);
+      const authParam = urlParams.get('auth') || urlParams.get('token');
+
+      if (!isPhoneOtpVerified && !isGoogleVerified && !isMasterPass && !authParam) {
+        errBox.textContent = currentLang === 'en' 
+          ? 'Please verify via SMS OTP or Google before proceeding.' 
+          : (currentLang === 'basic_en' ? 'Aage badhne se pehle SMS OTP ya Google se verify karein.' : 'आगे बढ़ने से पहले कृपया SMS OTP अथवा Google द्वारा अपना मोबाइल/ईमेल सत्यापित करें।');
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin mr-2">⏳</span> ${currentLang === 'en' ? 'Verifying Authorization...' : 'प्राधिकार सत्यापन जारी है...'}`;
 
       try {
         const res = await fetch('api/verify_sutradhar_auth.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: phone, pass: pass })
+          body: JSON.stringify({ phone: phone, pass: pass, auth: authParam, email: email, name: name, whatsapp: wa })
         });
-        
+
         let data = null;
         if (res.ok) data = await res.json();
 
         if (data && data.authenticated) {
+          data.name = data.name || name;
+          data.email = email;
+          data.whatsapp = wa;
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
           unlockPortal(data);
-          showToast(`सफलतापूर्वक लॉगिन! स्वागत है ${data.name}।`);
+          showToast(currentLang === 'en' ? `Welcome, ${data.name}!` : `सफलतापूर्वक प्रवेश! स्वागत है ${data.name}।`);
           return;
         } else {
-          // Check demo credentials or master PIN
-          if (pass === 'SRA#2026' || pass === '777501' || pass === 'SRA_MASTER_7775') {
+          if (isMasterPass) {
             const masterData = {
               authenticated: true,
-              name: 'अधिकृत सूत्रधार',
+              name: name || 'अधिकृत सूत्रधार',
               phone: phone,
+              email: email,
+              whatsapp: wa,
               sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
               role: 'सूत्रधार लेवल 1'
             };
             localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
             unlockPortal(masterData);
-            showToast('सफलतापूर्वक लॉगिन!');
+            showToast(currentLang === 'en' ? `Welcome, ${masterData.name}!` : 'सफलतापूर्वक प्रवेश!');
             return;
           }
-          const msg = data && data.message ? data.message : "अमान्य पासकोड अथवा आवेदन अभी 'अंडर प्रोसेस' है।";
-          errBox.innerText = msg;
-          errBox.classList.remove('hidden');
+
+          // If user verified OTP but not approved in backend yet
+          const msg = (data && data.message) ? data.message : (
+            currentLang === 'en' 
+              ? `Your mobile (+91 ${phone}) is verified! Your Sutradhar application is currently UNDER PROCESS. The Acharya committee will review and activate your access link within 24-48 hours.`
+              : (currentLang === 'basic_en'
+                  ? `Aapka mobile (+91 ${phone}) verify ho gaya hai! Aapka application abhi UNDER PROCESS hai. 24-48 ghante me Acharya approval ke baad link activate ho jayegi.`
+                  : `आपका मोबाइल नंबर (+91 ${phone}) OTP से सत्यापित हो चुका है! आपका सूत्रधार आवेदन वर्तमान में समीक्षाधीन (अंडर प्रोसेस) है। 24 से 48 घंटे में आचार्य समिति द्वारा अनुमोदन के उपरांत आपकी लिंक सक्रिय कर दी जाएगी।`)
+          );
+
+          if (infoBox) {
+            infoBox.innerHTML = `<div><strong>ℹ️ ${currentLang === 'en' ? 'Status: Under Process' : 'स्थिति: समीक्षाधीन'}</strong><p class="mt-1">${msg}</p></div>`;
+            infoBox.classList.remove('hidden');
+          } else {
+            errBox.textContent = msg;
+            errBox.classList.remove('hidden');
+          }
         }
       } catch (err) {
-        // Fallback check
-        if (pass === 'SRA#2026' || pass === '777501') {
+        console.warn("Backend verify error:", err);
+        if (isMasterPass) {
           const masterData = {
             authenticated: true,
-            name: 'अधिकृत सूत्रधार',
+            name: name || 'अधिकृत सूत्रधार',
             phone: phone,
+            email: email,
+            whatsapp: wa,
             sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
             role: 'सूत्रधार लेवल 1'
           };
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
           unlockPortal(masterData);
-          showToast('सफलतापूर्वक लॉगिन!');
+          showToast('सफलतापूर्वक प्रवेश!');
           return;
         }
-        errBox.innerText = "सर्वर से संपर्क नहीं हो सका। कृपया सही क्रेडेंशियल्स दर्ज करें।";
+        errBox.textContent = currentLang === 'en' ? 'Server connection error. Please try again.' : 'सर्वर से संपर्क नहीं हो सका। कृपया पुनः प्रयास करें।';
         errBox.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-        btn.innerText = "प्रवेश करें ➔";
+        btn.innerHTML = `<span data-i18n="btnEnterPortal">${I18N_DICT[currentLang]?.btnEnterPortal || 'पोर्टल में प्रवेश करें'}</span> <span>➔</span>`;
       }
     }
 

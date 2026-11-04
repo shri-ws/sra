@@ -81,6 +81,50 @@
 [data-theme="night"] .label-day { color: var(--muted); }
 [data-theme="night"] .label-night { color: #000000; }
 
+/* ELEGANT LANGUAGE TOGGLE SWITCH STYLING */
+.lang-toggle-container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 90px;
+  height: 30px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  padding: 2px;
+  user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.lang-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 42px;
+  height: 24px;
+  background: var(--toggle-slider-bg);
+  border-radius: 14px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+[data-admin-lang="en"] .lang-slider {
+  transform: translateX(42px);
+}
+.lang-label {
+  flex: 1;
+  text-align: center;
+  font-family: 'Lato', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+:root:not([data-admin-lang="en"]) .label-hi { color: #ffffff; }
+:root:not([data-admin-lang="en"]) .label-en { color: var(--muted); }
+[data-admin-lang="en"] .label-en { color: #ffffff; }
+[data-admin-lang="en"] .label-hi { color: var(--muted); }
+
 body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-size:14px;min-height:100vh;transition:background 0.3s ease, color 0.3s ease}
 
 /* LOGIN */
@@ -244,6 +288,13 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <span class="theme-label label-day">DAY</span>
           <span class="theme-slider"></span>
           <span class="theme-label label-night">NIGHT</span>
+        </div>
+
+        <!-- ELEGANT LANGUAGE TOGGLE SWITCH (HI / EN) -->
+        <div class="lang-toggle-container" onclick="toggleAdminLanguage()" id="adminLangToggleBtn" title="Switch Language (English / हिन्दी)">
+          <span class="lang-label label-hi">हिन्दी</span>
+          <span class="lang-slider"></span>
+          <span class="lang-label label-en">EN</span>
         </div>
         <span id="lastSync" style="font-size:11px;color:var(--muted)"></span>
         <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
@@ -762,6 +813,7 @@ function checkAdminAuth() {
 
 window.addEventListener('DOMContentLoaded', () => {
   checkAdminAuth();
+  applyAdminLanguage(currentAdminLang);
 });
 
 function doLogout(){
@@ -1250,17 +1302,17 @@ function showPanel(name, targetEl){
     }
 
     const titles = {
-      overview: 'Overview',
-      accounts: 'Website Accounts (Firebase)',
-      emails: 'Verified Email Logins',
-      users: 'Registered Users & Kundli Query Log',
-      students: 'Students',
-      payments: 'Payments',
-      consultations: 'Consultations',
-      forum: 'Forum Posts',
-      reviews: 'Client Reviews',
-      social: '🤖 Autonomous Social Media AI Agent (Autopilot)',
-      careers: '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)'
+      overview: currentAdminLang === 'en' ? 'Overview' : 'अवलोकन (Overview)',
+      accounts: currentAdminLang === 'en' ? 'Website Accounts (Firebase)' : 'वेबसाइट खाते (Accounts)',
+      emails: currentAdminLang === 'en' ? 'Verified Email Logins' : 'सत्यापित ईमेल लॉगिन',
+      users: currentAdminLang === 'en' ? 'Registered Users & Kundli Query Log' : 'पंजीकृत उपयोगकर्ता व कुण्डली लॉग',
+      students: currentAdminLang === 'en' ? 'Students (Gurukul)' : 'गुरुकुल छात्र (Students)',
+      payments: currentAdminLang === 'en' ? 'Customer Payments' : 'ग्राहक भुगतान (Payments)',
+      consultations: currentAdminLang === 'en' ? 'VIP Consultations' : 'ज्योतिष परामर्श (Consultations)',
+      forum: currentAdminLang === 'en' ? 'Forum Posts' : 'मंच चर्चा (Forum)',
+      reviews: currentAdminLang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
+      social: currentAdminLang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
+      careers: currentAdminLang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
@@ -1510,16 +1562,17 @@ function updateCareerStats(rows) {
 function renderCareerRows(tbodyId, rows) {
   const el = document.getElementById(tbodyId);
   if (!el) return;
+  const dict = ADMIN_I18N[currentAdminLang] || ADMIN_I18N.hi;
   if (!rows || !rows.length) {
-    el.innerHTML = `<tr><td colspan="9" class="empty-row">अभी कोई सूत्रधार आवेदन प्राप्त नहीं हुआ है</td></tr>`;
+    el.innerHTML = `<tr><td colspan="9" class="empty-row">${currentAdminLang === 'en' ? 'No applications received yet' : 'अभी कोई सूत्रधार आवेदन प्राप्त नहीं हुआ है'}</td></tr>`;
     return;
   }
 
   el.innerHTML = rows.map(app => {
     const isApproved = app.status === 'approved';
     const statusBadge = isApproved 
-      ? `<span class="badge" style="background:#d1fae5; color:#065f46; border:1px solid #10b981; font-weight:700;">✓ स्वीकृत (Active)</span>`
-      : `<span class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; font-weight:700;">⏳ अंडर प्रोसेस</span>`;
+      ? `<span class="badge" style="background:#d1fae5; color:#065f46; border:1px solid #10b981; font-weight:700;">${dict.statusApproved}</span>`
+      : `<span class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; font-weight:700;">${dict.statusPending}</span>`;
     
     const token = app.secret_token || 'sec_' + (app.phone || '0000').slice(-4);
     const pass = app.secret_pass || (app.phone ? app.phone.slice(-6) : '123456');
@@ -1549,24 +1602,24 @@ function renderCareerRows(tbodyId, rows) {
       <td>
         ${app.resume_name 
           ? `<span class="badge" style="background:rgba(201,168,76,0.15); color:var(--gold); cursor:pointer;" onclick="viewResumeModal('${safe(app.id)}')">📄 ${safe(app.resume_name.slice(0,18))}</span>`
-          : `<span style="font-size:11px; color:var(--muted);">उपलब्ध नहीं</span>`}
+          : `<span style="font-size:11px; color:var(--muted);">${currentAdminLang === 'en' ? 'None' : 'उपलब्ध नहीं'}</span>`}
       </td>
       <td>${statusBadge}</td>
       <td>
         <div style="font-size:11px; display:flex; flex-direction:column; gap:4px;">
-          <div>पासकोड: <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
-          <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}')">📋 लिंक कॉपी</button>
+          <div>${currentAdminLang === 'en' ? 'PIN' : 'पासकोड'}: <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
+          <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}')">${dict.btnCopyLink}</button>
         </div>
       </td>
       <td>
         <div style="display:flex; flex-direction:column; gap:6px;">
           ${!isApproved ? `
             <button class="export-btn" style="background:var(--gold); color:#000; font-weight:700; font-size:11px;" onclick="approveCareerApplication('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}')">
-              ⚡ स्वीकृत करें
+              ${dict.btnApprove}
             </button>
           ` : `
             <button class="export-btn" style="background:#059669; color:#fff; font-weight:700; font-size:11px;" onclick="sendCareerWhatsApp('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}', '${pass}', '${token}')">
-              📲 व्हाट्सएप भेजें
+              ${dict.btnSendWa}
             </button>
           `}
         </div>
@@ -1656,6 +1709,191 @@ function viewResumeModal(appId) {
   const app = (D.careers || []).find(c => c.id === appId);
   if (!app) return;
   alert(`बायोडाटा / अनुभव विवरण (${app.name}):\n\n${app.experience || app.bio || 'कोई अतिरिक्त विवरण दर्ज नहीं है।'}`);
+}
+
+/* ══ ADMIN BILINGUAL TRANSLATION ENGINE ══ */
+const ADMIN_I18N = {
+  hi: {
+    overview: '📊 &nbsp;Overview (अवलोकन)',
+    accounts: '👤 &nbsp;Website Accounts (खाते)',
+    emails: '📧 &nbsp;Verified Email Logins',
+    users: '📱 &nbsp;Registered Users & Queries',
+    students: '🎓 &nbsp;Students (गुरुकुल छात्र)',
+    payments: '💰 &nbsp;Payments (भुगतान)',
+    consultations: '🔮 &nbsp;Consultations (परामर्श)',
+    forum: '💬 &nbsp;Forum Posts',
+    reviews: '⭐ &nbsp;Client Reviews',
+    social: '🤖 &nbsp;Social Media AI Agent',
+    careers: '🤝 &nbsp;सूत्रधार आवेदन (Careers)',
+    refresh: '↻ रिफ्रेश',
+    logout: '⎋ लॉगआउट',
+    careerTotal: 'कुल प्राप्त आवेदन',
+    careerPending: 'प्रक्रियाधीन (Under Process)',
+    careerApproved: 'स्वीकृत सक्रिय सूत्रधार',
+    careerBannerTitle: '🏛️ सूत्रधार ऑनबोर्डिंग व चयन प्रक्रिया (SOP)',
+    careerBannerSub: 'करियर फॉर्म भरने वाले अभ्यर्थियों का विवरण यहां दिखेगा। प्रत्याशी को रिव्यू करने के बाद "स्वीकृत करें व लिंक जनरेट करें" दबाएं।',
+    careerTableTitle: '🤝 सूत्रधार प्रत्याशी आवेदन तालिका',
+    thAppId: 'आवेदन ID व दिनांक',
+    thName: 'प्रत्याशी का नाम',
+    thPhone: 'व्हाट्सएप (यूजर ID)',
+    thCity: 'शहर व राज्य',
+    thExp: 'अनुभव / संक्षिप्त परिचय',
+    thResume: 'बायोडाटा / रिज्यूमे',
+    thStatus: 'स्थिति (Status)',
+    thPass: 'गुप्त पासकोड व लिंक',
+    thAction: 'कार्यवाही (Action)',
+    btnApprove: '⚡ स्वीकृत करें',
+    btnSendWa: '📲 व्हाट्सएप भेजें',
+    btnCopyLink: '📋 लिंक कॉपी',
+    searchPh: 'नाम, फोन, शहर से खोजें...',
+    statusPending: '⏳ अंडर प्रोसेस',
+    statusApproved: '✓ स्वीकृत (Active)'
+  },
+  en: {
+    overview: '📊 &nbsp;Overview',
+    accounts: '👤 &nbsp;Website Accounts',
+    emails: '📧 &nbsp;Verified Email Logins',
+    users: '📱 &nbsp;Registered Users & Queries',
+    students: '🎓 &nbsp;Students (Gurukul)',
+    payments: '💰 &nbsp;Customer Payments',
+    consultations: '🔮 &nbsp;VIP Consultations',
+    forum: '💬 &nbsp;Forum Posts',
+    reviews: '⭐ &nbsp;Client Reviews',
+    social: '🤖 &nbsp;Social Media AI Agent',
+    careers: '🤝 &nbsp;Sutradhar Careers Hub',
+    refresh: '↻ Refresh',
+    logout: '⎋ Logout',
+    careerTotal: 'Total Applications',
+    careerPending: 'Under Process',
+    careerApproved: 'Approved Active Sutradhars',
+    careerBannerTitle: '🏛️ Sutradhar Onboarding & Selection Process (SOP)',
+    careerBannerSub: 'Candidate applications appear here. Review and click "Approve & Generate Link" to activate their secret PIN and personal invite link.',
+    careerTableTitle: '🤝 Sutradhar Candidate Directory',
+    thAppId: 'Application ID & Date',
+    thName: 'Candidate Name',
+    thPhone: 'WhatsApp (User ID)',
+    thCity: 'City & State',
+    thExp: 'Experience / Brief Bio',
+    thResume: 'Resume / Bio',
+    thStatus: 'Status',
+    thPass: 'Passcode & Link',
+    thAction: 'Action',
+    btnApprove: '⚡ Approve & Generate Link',
+    btnSendWa: '📲 Send WhatsApp',
+    btnCopyLink: '📋 Copy Link',
+    searchPh: 'Search by name, phone, city...',
+    statusPending: '⏳ Under Process',
+    statusApproved: '✓ Approved (Active)'
+  }
+};
+
+let currentAdminLang = localStorage.getItem('sra_admin_lang') || 'hi';
+
+function applyAdminLanguage(lang) {
+  currentAdminLang = lang;
+  localStorage.setItem('sra_admin_lang', lang);
+  document.documentElement.setAttribute('data-admin-lang', lang);
+  
+  const dict = ADMIN_I18N[lang] || ADMIN_I18N.hi;
+
+  // Sidebar navigation items
+  const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+  if (navItems.length >= 11) {
+    navItems[0].innerHTML = dict.overview;
+    navItems[1].innerHTML = dict.accounts;
+    navItems[2].innerHTML = dict.emails;
+    navItems[3].innerHTML = dict.users;
+    navItems[4].innerHTML = dict.students;
+    navItems[5].innerHTML = dict.payments;
+    navItems[6].innerHTML = dict.consultations;
+    navItems[7].innerHTML = dict.forum;
+    navItems[8].innerHTML = dict.reviews;
+    navItems[9].innerHTML = dict.social + ' &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span>';
+    const pendingCount = (D.careers || []).filter(c => (c.status || 'pending') === 'pending').length;
+    navItems[10].innerHTML = dict.careers + ` &nbsp;<span id="badge-careers" style="${pendingCount > 0 ? '' : 'display:none;'} font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">${pendingCount > 0 ? pendingCount + ' NEW' : '0'}</span>`;
+  }
+
+  // Refresh and logout buttons
+  const refBtn = document.querySelector('.topbar .refresh-btn');
+  if (refBtn) refBtn.textContent = dict.refresh;
+  const logoutBtn = document.querySelector('.logout-btn');
+  if (logoutBtn) logoutBtn.textContent = dict.logout;
+
+  // Careers Panel Titles & Banners
+  const bannerBox = document.querySelector('#panel-careers .table-wrap');
+  if (bannerBox) {
+    const titleEl = bannerBox.querySelector('div[style*="Cinzel"]');
+    if (titleEl) titleEl.textContent = dict.careerBannerTitle;
+    const subEl = bannerBox.querySelector('p');
+    if (subEl) subEl.textContent = dict.careerBannerSub;
+  }
+  const tableTitle = document.querySelector('#panel-careers .table-title');
+  if (tableTitle) tableTitle.textContent = dict.careerTableTitle;
+  const searchInput = document.getElementById('careerSearchInput');
+  if (searchInput) searchInput.placeholder = dict.searchPh;
+
+  // Career stat cards labels
+  const statLabels = document.querySelectorAll('#panel-careers .stat-card .stat-label');
+  if (statLabels.length >= 3) {
+    statLabels[0].textContent = dict.careerTotal;
+    statLabels[1].textContent = dict.careerPending;
+    statLabels[2].textContent = dict.careerApproved;
+  }
+
+  // Career Table Headers
+  const ths = document.querySelectorAll('#panel-careers table thead th');
+  if (ths.length >= 9) {
+    ths[0].textContent = dict.thAppId;
+    ths[1].textContent = dict.thName;
+    ths[2].textContent = dict.thPhone;
+    ths[3].textContent = dict.thCity;
+    ths[4].textContent = dict.thExp;
+    ths[5].textContent = dict.thResume;
+    ths[6].textContent = dict.thStatus;
+    ths[7].textContent = dict.thPass;
+    ths[8].textContent = dict.thAction;
+  }
+
+  // Re-render table rows
+  if (D.careers && D.careers.length) {
+    renderCareerRows('careers-tbody', D.careers);
+    updateCareerStats(D.careers);
+  }
+
+  // Update current panelTitle
+  const activePanel = document.querySelector('.panel.active');
+  if (activePanel) {
+    const pName = activePanel.id.replace('panel-', '');
+    const titles = {
+      overview: lang === 'en' ? 'Overview' : 'अवलोकन (Overview)',
+      accounts: lang === 'en' ? 'Website Accounts (Firebase)' : 'वेबसाइट खाते (Accounts)',
+      emails: lang === 'en' ? 'Verified Email Logins' : 'सत्यापित ईमेल लॉगिन',
+      users: lang === 'en' ? 'Registered Users & Kundli Query Log' : 'पंजीकृत उपयोगकर्ता व कुण्डली लॉग',
+      students: lang === 'en' ? 'Students (Gurukul)' : 'गुरुकुल छात्र (Students)',
+      payments: lang === 'en' ? 'Customer Payments' : 'ग्राहक भुगतान (Payments)',
+      consultations: lang === 'en' ? 'VIP Consultations' : 'ज्योतिष परामर्श (Consultations)',
+      forum: lang === 'en' ? 'Forum Posts' : 'मंच चर्चा (Forum)',
+      reviews: lang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
+      social: lang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
+      careers: lang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)'
+    };
+    const tEl = document.getElementById('panelTitle');
+    if (tEl) tEl.textContent = titles[pName] || pName;
+  }
+
+  // Overview stats translation
+  const ovLabels = document.querySelectorAll('#panel-overview .stat-label');
+  if (ovLabels.length >= 4) {
+    ovLabels[0].textContent = lang === 'en' ? 'Total Revenue' : 'कुल राजस्व (Total Revenue)';
+    ovLabels[1].textContent = lang === 'en' ? 'Paid Customers' : 'सफल ग्राहक (Paid Customers)';
+    ovLabels[2].textContent = lang === 'en' ? 'Registered / Logins' : 'पंजीकृत खाते (Registered)';
+    ovLabels[3].textContent = lang === 'en' ? 'Kundli Queries' : 'कुण्डली गणना (Calculations)';
+  }
+}
+
+function toggleAdminLanguage() {
+  const next = currentAdminLang === 'hi' ? 'en' : 'hi';
+  applyAdminLanguage(next);
 }
 </script>
 </body>
