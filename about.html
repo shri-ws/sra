@@ -35,87 +35,72 @@
     <script src="supabase-integration.js"></script>
 
     <style>
+        /* Colours follow the shared home palette (sra-elegance.css --sra-* tokens),
+           so the tone matches the site and light⇄night switch automatically. */
         :root, [data-theme="day"] {
-            --primary: #4A0E17;
-            --primary-light: #721624;
-            --primary-gradient: linear-gradient(135deg, #4A0E17 0%, #721624 100%);
-            --gold: #b48220;
-            --gold2: #8e620c;
-            --gold-accent: #C5A059;
+            --primary: var(--sra-kumkum);
+            --primary-light: var(--sra-sindoor);
+            --primary-gradient: linear-gradient(135deg, #5A1A1F 0%, #3A0D16 100%);
+            --gold: var(--sra-gold);
+            --gold2: var(--sra-gold-deep);
+            --gold-accent: var(--sra-gold);
             --gold-light: #F4E8C1;
-            --gold-dark: #8C6D2B;
-            --gold-dim: rgba(180, 130, 32, 0.08);
-            --gold-border: rgba(180, 130, 32, 0.22);
-            --gold-glow: rgba(197, 160, 89, 0.25);
-            --bg-body: #fbf9f4;
-            --bg-body-alt: #f4efe4;
-            --card-bg: #FFFFFF;
-            --card-bg-elevated: #FFFFFF;
-            --text-main: #1c1917;
-            --text-muted: #574e47;
-            --text-subtle: #8a7e74;
-            --border-color: #e8dfcf;
-            --border-soft: #f0e9dc;
-            --nav-bg: rgba(255, 255, 255, 0.96);
-            --toggle-bg: #efe4d3;
-            --toggle-slider-bg: linear-gradient(135deg, #7c1305, #9c1707);
+            --gold-dark: var(--sra-gold-deep);
+            --gold-dim: var(--sra-wash);
+            --gold-border: var(--sra-hair-strong);
+            --gold-glow: rgba(176, 141, 62, 0.25);
+            --bg-body: var(--sra-paper);
+            --bg-body-alt: var(--sra-paper-2);
+            --card-bg: var(--sra-vellum);
+            --card-bg-elevated: var(--sra-vellum);
+            --text-main: var(--sra-ink);
+            --text-muted: var(--sra-ink-soft);
+            --text-subtle: var(--sra-muted);
+            --border-color: var(--sra-hair);
+            --border-soft: var(--sra-hair);
+            --nav-bg: var(--sra-vellum);
+            --toggle-bg: var(--sra-paper-2);
+            --toggle-slider-bg: linear-gradient(135deg, #5A1A1F, #3A0D16);
             --pass-bg: #E8F5E9;
             --pass-text: #1B5E20;
             --fail-bg: #FFEBEE;
             --fail-text: #B71C1C;
-            --tag-ephemeris-bg: rgba(109, 40, 217, 0.08);
-            --tag-ephemeris-text: #6d28d9;
-            --tag-ephemeris-border: rgba(109, 40, 217, 0.2);
+            --tag-ephemeris-bg: rgba(90, 70, 120, 0.10);
+            --tag-ephemeris-text: #5b4a7a;
+            --tag-ephemeris-border: rgba(90, 70, 120, 0.22);
             --tag-muhurta-bg: rgba(194, 65, 12, 0.08);
-            --tag-muhurta-text: #c2410c;
+            --tag-muhurta-text: #a6400f;
             --tag-muhurta-border: rgba(194, 65, 12, 0.2);
             --tag-transit-bg: rgba(13, 148, 136, 0.08);
-            --tag-transit-text: #0d9488;
+            --tag-transit-text: #0f766e;
             --tag-transit-border: rgba(13, 148, 136, 0.2);
-            --reader-quote-bg: rgba(180, 130, 32, 0.06);
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-            --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
-            --shadow-lg: 0 16px 40px rgba(0,0,0,0.08);
+            --reader-quote-bg: var(--sra-wash);
+            --shadow-sm: 0 2px 8px rgba(58,13,22,0.04);
+            --shadow-md: 0 8px 24px rgba(58,13,22,0.06);
+            --shadow-lg: 0 16px 40px rgba(58,13,22,0.09);
         }
 
+        /* Night mode inherits the shared warm-dark palette through the --sra-* tokens
+           (no more purple); the toggle, status chips, category tags and shadows keep
+           night tints. */
         [data-theme="night"] {
-            --primary: #7c1305;
-            --primary-light: #2a113b;
-            --primary-gradient: linear-gradient(135deg, #2a0b12 0%, #170824 100%);
-            --gold: #c9a84c;
-            --gold2: #f0d584;
-            --gold-accent: #c9a84c;
-            --gold-light: #f4e8c1;
-            --gold-dark: #8c6d2b;
-            --gold-dim: rgba(201, 168, 76, 0.12);
-            --gold-border: rgba(201, 168, 76, 0.28);
-            --gold-glow: rgba(201, 168, 76, 0.3);
-            --bg-body: #0a0614;
-            --bg-body-alt: #120b22;
-            --card-bg: #140d26;
-            --card-bg-elevated: #1a1132;
-            --text-main: #f5f0ff;
-            --text-muted: #aca0c4;
-            --text-subtle: #796d93;
-            --border-color: #362654;
-            --border-soft: #25193d;
-            --nav-bg: rgba(10, 6, 20, 0.96);
-            --toggle-bg: #1a0b36;
-            --toggle-slider-bg: linear-gradient(135deg, #c9a84c, #9e7a20);
+            --primary-gradient: linear-gradient(135deg, #E9CF8E 0%, #B08D3E 100%);
+            --gold-glow: rgba(212, 179, 106, 0.3);
+            --toggle-bg: var(--sra-paper-2);
+            --toggle-slider-bg: linear-gradient(135deg, #E9CF8E, #B08D3E);
             --pass-bg: #132e19;
             --pass-text: #86efac;
             --fail-bg: #3a1015;
             --fail-text: #fca5a5;
-            --tag-ephemeris-bg: rgba(167, 139, 250, 0.15);
-            --tag-ephemeris-text: #c4b5fd;
-            --tag-ephemeris-border: rgba(167, 139, 250, 0.3);
+            --tag-ephemeris-bg: rgba(180, 165, 210, 0.12);
+            --tag-ephemeris-text: #c9bfdf;
+            --tag-ephemeris-border: rgba(180, 165, 210, 0.28);
             --tag-muhurta-bg: rgba(251, 146, 60, 0.15);
             --tag-muhurta-text: #fdba74;
             --tag-muhurta-border: rgba(251, 146, 60, 0.3);
             --tag-transit-bg: rgba(45, 212, 191, 0.15);
             --tag-transit-text: #5eead4;
             --tag-transit-border: rgba(45, 212, 191, 0.3);
-            --reader-quote-bg: rgba(201, 168, 76, 0.08);
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
             --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
             --shadow-lg: 0 16px 40px rgba(0,0,0,0.5);
