@@ -399,9 +399,9 @@
         .lagna-good-line { margin-top: 8px; font-size: 12.5px; line-height: 1.9; }
         .lagna-chip { display: inline-block; padding: 1px 8px; margin: 1px 2px; border-radius: 10px; font-size: 12px; white-space: nowrap; border: 1px solid; }
         .lagna-chip.lagna-uttam { color: #1B5E20; border-color: rgba(27,94,32,.35); background: rgba(27,94,32,.07); font-weight: 700; }
-        .lagna-chip.lagna-shubh { color: #7a5a12; border-color: rgba(183,129,3,.35); background: rgba(183,129,3,.07); }
+        .lagna-chip.lagna-shubh, .lagna-chip.lagna-madhyam { color: #7a5a12; border-color: rgba(183,129,3,.35); background: rgba(183,129,3,.07); }
         [data-theme="night"] .lagna-chip.lagna-uttam { color: #8FD39A; }
-        [data-theme="night"] .lagna-chip.lagna-shubh { color: #E2C27A; }
+        [data-theme="night"] .lagna-chip.lagna-shubh, [data-theme="night"] .lagna-chip.lagna-madhyam { color: #E2C27A; }
         .lagna-grid-box { display: none; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--border-soft); border-radius: 8px; font-size: 12.5px; }
         .lagna-grid-box .lagna-row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dashed var(--border-soft); }
         .lagna-grid-box .lagna-row:last-child { border-bottom: 0; }
@@ -1956,8 +1956,16 @@
             "P. Bhadrapada", "U. Bhadrapada", "Revati"
         ];
 
-        const VADHU_VARAN_NAKSHATRAS = [20, 14, 21, 10, 19, 24, 16, 22, 2, 3, 11, 25, 4, 12, 18, 26];
-        const VAR_VARAN_NAKSHATRAS = [3, 11, 20, 25, 2, 10, 19, 24];
+        // Nakshatra numbers count from 1 (अश्विनी = 1 … रेवती = 27), as nakNumber does.
+        // Muhurta Chintamani, Vivah Prakaran (book page in brackets):
+        // श्लोक 55 (p.375): "शशिकरमूलमैत्र्यपित्र्यब्राह्म्यान्त्योत्तरपवनैः" — मृगशिरा, हस्त, मूल, अनुराधा,
+        // मघा, रोहिणी, रेवती (अन्त्य), तीनों उत्तरा, स्वाती
+        const VIVAH_NAKSHATRAS = [5, 13, 19, 17, 10, 4, 27, 12, 21, 26, 15];
+        // श्लोक 10 (p.312): कन्या-वरण — उत्तराषाढ़ा, स्वाती, श्रवण, तीनों पूर्वा, अनुराधा, धनिष्ठा, कृत्तिका,
+        // "अथवा विवाह के नक्षत्रों में"
+        const VADHU_VARAN_NAKSHATRAS = [...new Set([21, 15, 22, 11, 20, 25, 17, 23, 3].concat(VIVAH_NAKSHATRAS))];
+        // श्लोक 11 (p.313): वर-वरण — ध्रुव (रोहिणी, उत्तराफाल्गुनी, उत्तराषाढ़ा, उत्तराभाद्रपद), कृत्तिका, तीनों पूर्वा
+        const VAR_VARAN_NAKSHATRAS = [4, 12, 21, 26, 3, 11, 20, 25];
 
         const VAAR_NAMES_HI = ["रविवार","सोमवार","मंगलवार","बुधवार","गुरुवार","शुक्रवार","शनिवार"];
         const VAAR_NAMES_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -2101,16 +2109,105 @@
             return out;
         }
 
-        // Vivah lagna grading (confirmed by the Acharya, Nov 2026):
-        // उत्तम मिथुन, कन्या, तुला · शुभ वृषभ, कर्क, धनु, मीन · वर्जित मेष, सिंह, वृश्चिक, मकर, कुम्भ
-        const LAGNA_GRADE = { 3: 'uttam', 6: 'uttam', 7: 'uttam', 2: 'shubh', 4: 'shubh', 9: 'shubh', 12: 'shubh' };
+        // ── Vivah lagna shuddhi — Muhurta Chintamani, Vivah Prakaran (book page) ──
+        // श्लोक 84 (p.402–403): शुभ नवांश मिथुन, कन्या, तुला, धनु; मीन विकल्प से (कम श्रेष्ठ)
+        const GOOD_NAVAMSHA = { 3: 'uttam', 6: 'uttam', 7: 'uttam', 9: 'uttam', 12: 'madhyam' };
+        const CHARA = [1, 4, 7, 10];
+        const RASHI_LORD = { 1: 'mars', 2: 'venus', 3: 'mercury', 4: 'moon', 5: 'sun', 6: 'mercury', 7: 'venus', 8: 'mars', 9: 'jupiter', 10: 'saturn', 11: 'saturn', 12: 'jupiter' };
+        const houseFrom = (fromSign, sign) => ((sign - fromSign + 12) % 12) + 1;
+        // श्लोक 81 (p.400–401): दिन में तुला-वृश्चिक बधिर, सिंह-मेष-वृषभ अन्ध, कुम्भ पंगु;
+        // रात में धनु-मकर बधिर, कन्या-मिथुन-कर्क अन्ध, मीन पंगु
+        const DAY_DOSHA = { 7: 'badhir', 8: 'badhir', 5: 'andha', 1: 'andha', 2: 'andha', 11: 'pangu' };
+        const NIGHT_DOSHA = { 9: 'badhir', 10: 'badhir', 6: 'andha', 3: 'andha', 4: 'andha', 12: 'pangu' };
+        function aspectsSign(planet, fromSign, toSign) {
+            const h = houseFrom(fromSign, toSign);
+            if (h === 7) return true;
+            return (planet === 'mars' && (h === 4 || h === 8)) || (planet === 'jupiter' && (h === 5 || h === 9)) || (planet === 'saturn' && (h === 3 || h === 10));
+        }
+        // Sun's altitude (degrees) at a local minute — tells day from night for श्लोक 81
+        function sunAltitude(y, m, d, min, lat, lon, tz, sunSidNoon, ayanamsa) {
+            const jd = localToJd(y, m, d, min, tz), T = (jd - 2451545) / 36525;
+            const lam = (sunSidNoon + ayanamsa + (min - 720) / 1440 * 0.9856) * D2R;
+            const eps = (23.4392911 - 0.0130042 * T) * D2R;
+            const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam));
+            const dec = Math.asin(Math.sin(eps) * Math.sin(lam));
+            const dd = jd - 2451545.0;
+            const lst = (280.46061837 + 360.98564736629 * dd + lon) * D2R;
+            const ha = lst - ra, phi = lat * D2R;
+            return Math.asin(Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.cos(ha)) / D2R;
+        }
+        // Planet positions from the lagna that श्लोक 86 (p.403–404) forbids
+        function shloka86Faults(lagnaSign, p) {
+            const at = key => houseFrom(lagnaSign, p[key].rashi);
+            const lord = RASHI_LORD[lagnaSign];
+            const nm = { sun: L('सूर्य', 'Sun'), moon: L('चन्द्र', 'Moon'), mars: L('मंगल', 'Mars'), mercury: L('बुध', 'Mercury'), jupiter: L('गुरु', 'Jupiter'), venus: L('शुक्र', 'Venus'), saturn: L('शनि', 'Saturn'), rahu: L('राहु', 'Rahu'), ketu: L('केतु', 'Ketu') };
+            const f = [];
+            if (at('saturn') === 12) f.push(nm.saturn + ' 12');
+            if (at('mars') === 10) f.push(nm.mars + ' 10');
+            if (at('venus') === 3) f.push(nm.venus + ' 3');
+            ['moon', 'sun', 'mars', 'saturn', 'rahu', 'ketu'].forEach(k => { if (at(k) === 1) f.push(nm[k] + ' ' + L('लग्न में', 'in lagna')); });
+            [...new Set([lord, 'venus', 'moon'])].forEach(k => { if (at(k) === 6) f.push(nm[k] + ' 6'); });
+            [...new Set(['moon', lord, 'mercury', 'jupiter', 'venus', 'mars'])].forEach(k => { if (at(k) === 8) f.push(nm[k] + ' 8'); });
+            ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'].forEach(k => { if (at(k) === 7) f.push(nm[k] + ' 7'); });
+            return f;
+        }
+        // For each lagna of the day: the minutes that pass every rule, grouped into segments
+        function lagnaShuddhi(dStr, lat, lon, tz, ayanamsa, p) {
+            const [y, m, d] = dStr.split('-').map(Number);
+            const wins = lagnaWindows(dStr, lat, lon, tz, ayanamsa);
+            wins.forEach(w => {
+                // The Moon moves ~13° a day: use its sign at this lagna's middle, not the noon sign
+                const moonSid = normalizeDegrees(p.moon.sidereal + ((w.from + w.to) / 2 - 720) / 1440 * 13.18);
+                const pw = Object.assign({}, p, { moon: Object.assign({}, p.moon, { sidereal: moonSid, rashi: Math.floor(moonSid / 30) + 1 }) });
+                w.moonRashi = pw.moon.rashi;
+                w.faults86 = shloka86Faults(w.sign, pw);
+                const lord = RASHI_LORD[w.sign];
+                // श्लोक 83 (p.401–402): लग्नेश या गुरु की लग्न पर दृष्टि हो तो अन्ध/बधिर/पंगु दोष नहीं
+                w.sensoryCancelled = aspectsSign(lord, pw[lord].rashi, w.sign) || aspectsSign('jupiter', p.jupiter.rashi, w.sign);
+                // श्लोक 90–91 (p.410): गुरु लग्न से केन्द्र/त्रिकोण (सप्तम छोड़कर) — सब दोषों का परिहार
+                w.jupiterParihar = [1, 4, 5, 9, 10].includes(houseFrom(w.sign, p.jupiter.rashi));
+                w.segs = []; w.why = new Set();
+            });
+            let cur = null;
+            for (let min = 0; min < 1440; min++) {
+                const asc = siderealAscendant(localToJd(y, m, d, min + 0.5, tz), lat, lon, ayanamsa);
+                const sign = Math.floor(asc / 30) + 1;
+                const navIdx = Math.floor((asc % 30) / (30 / 9));
+                const nav = (Math.floor(asc * 9 / 30) % 12) + 1;
+                const w = wins.find(x => min >= x.from && min < x.to) || wins[wins.length - 1];
+                let grade = GOOD_NAVAMSHA[nav] || null;
+                if (!grade) w.why.add('nav');
+                // श्लोक 85 (p.403): अन्तिम नवांश वर्जित, वर्गोत्तम छोड़कर; चन्द्र तुला/मकर में हो तो चर लग्न में चर नवांश नहीं
+                if (grade && navIdx === 8 && nav !== sign) { grade = null; w.why.add('last'); }
+                if (grade && [7, 10].includes(w.moonRashi) && CHARA.includes(sign) && CHARA.includes(nav)) { grade = null; w.why.add('chara'); }
+                if (grade && !w.sensoryCancelled) {
+                    const isDay = sunAltitude(y, m, d, min + 0.5, lat, lon, tz, p.sun.sidereal, ayanamsa) > -0.833;
+                    const dosh = (isDay ? DAY_DOSHA : NIGHT_DOSHA)[sign];
+                    if (dosh) { grade = null; w.why.add(dosh); }
+                }
+                if (grade && w.faults86.length) grade = null;
+                if (grade) {
+                    if (cur && cur.w === w && cur.nav === nav && cur.to === min) cur.to = min + 1;
+                    else { cur = { w, nav, grade, from: min, to: min + 1 }; w.segs.push(cur); }
+                } else cur = null;
+            }
+            wins.forEach(w => w.segs.forEach(sg => delete sg.w));
+            return wins;
+        }
+        function whyLabel(w) {
+            if (w.faults86.length) return L('वर्जित — ', 'avoid — ') + w.faults86.join(', ') + L(' (श्लोक 86)', ' (shloka 86)');
+            const map = { badhir: L('बधिर', 'deaf'), andha: L('अन्ध', 'blind'), pangu: L('पंगु', 'lame'), nav: L('शुभ नवांश नहीं', 'no auspicious navamsha'), last: L('अन्तिम नवांश', 'last navamsha'), chara: L('चर लग्न-नवांश', 'movable lagna & navamsha') };
+            const sens = ['badhir', 'andha', 'pangu'].filter(k => w.why.has(k)).map(k => map[k]);
+            if (sens.length) return L('वर्जित — ', 'avoid — ') + sens.join(', ') + L(' लग्न (श्लोक 81)', ' lagna (shloka 81)');
+            return L('वर्जित — ', 'avoid — ') + map.nav;
+        }
         const fmtMin = mins => {
             const h24 = Math.floor(mins / 60) % 24, mm = String(mins % 60).padStart(2, '0');
             const h12 = ((h24 + 11) % 12) + 1;
             return `${h12}:${mm} ${h24 < 12 ? 'AM' : 'PM'}`;
         };
         function gradeLabel(g) {
-            return g === 'uttam' ? L('उत्तम', 'best') : g === 'shubh' ? L('शुभ', 'auspicious') : L('वर्जित', 'avoid');
+            return g === 'uttam' ? L('उत्तम', 'best') : g === 'madhyam' ? L('मध्यम (मीन नवांश)', 'moderate (Pisces navamsha)') : L('वर्जित', 'avoid');
         }
         function torad(deg) { return deg * Math.PI / 180; }
         function todeg(rad) { return rad * 180 / Math.PI; }
@@ -2481,6 +2578,9 @@
                     if ([4, 8, 12].includes(varSuryaBhav)) doshas.push(L(`वर सूर्य अनिष्ट (${varSuryaBhav} भाव)`, `Groom's Sun unfavourable (house ${varSuryaBhav})`));
                     if ([4, 8, 12].includes(vadhuGuruBhav)) doshas.push(L(`वधू गुरु अनिष्ट (${vadhuGuruBhav} भाव)`, `Bride's Jupiter unfavourable (house ${vadhuGuruBhav})`));
                     if (RIKTA_TITHI_NUMBERS.includes(tithiNum)) doshas.push(L(`रिक्ता तिथि (${tithiNum})`, `Rikta tithi (${tithiNum})`));
+                    // श्लोक 55 (p.376): अमावस्या वर्जित; विवाह के विहित नक्षत्र
+                    if (tithiIndex === 29) doshas.push(L('अमावस्या', 'Amavasya'));
+                    if (!VIVAH_NAKSHATRAS.includes(nakNumber)) doshas.push(badNak);
                 } else if (currentCeremony === 'sagai') {
                     if (isGroomMoonBad) doshas.push(groomMoonBad);
                     if (isBrideMoonBad) doshas.push(brideMoonBad);
@@ -2492,12 +2592,20 @@
                     if (!VADHU_VARAN_NAKSHATRAS.includes(nakNumber)) doshas.push(badNak);
                 }
 
-                // Jupiter Kendra/Trikona Mitigation Check (Shloka 91)
-                const isJupInKendra = [1, 4, 7, 10, 5, 9].includes(p.jupiter.rashi);
-                let pariharApplied = false;
-                if (doshas.length > 0 && isJupInKendra) {
-                    pariharApplied = true;
+                // Lagna shuddhi for this date at the groom's birthplace (श्लोक 81–86, 90–91)
+                const llat = Number(groomProfile.lat) || 28.61, llon = Number(groomProfile.lon) || 77.20;
+                // The engine (Swiss Ephemeris, true Chitra paksha) gives this date's noon lagna; the
+                // difference from the tropical ascendant at that moment is the day's ayanamsa.
+                const ayan = (typeof p.ayanamsa === 'number') ? p.ayanamsa
+                    : normalizeDegrees(tropicalAscendant(localToJd(y, m, d, 720, 5.5), llat, llon) - p.asc.deg);
+                const wins = Number.isFinite(ayan) ? lagnaShuddhi(dStr, llat, llon, 5.5, ayan, p) : [];
+                const goodWins = wins.filter(w => w.segs.length);
+                if (currentCeremony === 'vivah' && wins.length && !goodWins.length) {
+                    doshas.push(L('इस दिन शुद्ध विवाह-लग्न नहीं (श्लोक 81–86)', 'No pure marriage lagna on this day (shloka 81–86)'));
                 }
+
+                // श्लोक 90–91 (p.410): गुरु विवाह-लग्न से केन्द्र/त्रिकोण (सप्तम छोड़कर) में हो, ऐसा शुद्ध लग्न मिले तो परिहार
+                let pariharApplied = doshas.length > 0 && goodWins.some(w => w.jupiterParihar);
 
                 const isZeroDosh = doshas.length === 0;
                 if (isZeroDosh) zeroDoshCount++;
@@ -2516,18 +2624,11 @@
                 else if (strength >= 65) verdictHtml = `<span class="badge badge-madhyam">${I18N[currentLang].madhyam}</span>`;
                 else verdictHtml = `<span class="badge badge-ashubh">${I18N[currentLang].ashubh}</span>`;
 
-                // Real rising-lagna timings for this date at the groom's birthplace
-                const llat = Number(groomProfile.lat) || 28.61, llon = Number(groomProfile.lon) || 77.20;
-                // The engine (Swiss Ephemeris, true Chitra paksha) gives this date's noon lagna; the
-                // difference from the tropical ascendant at that moment is the day's ayanamsa.
-                const ayan = (typeof p.ayanamsa === 'number') ? p.ayanamsa
-                    : normalizeDegrees(tropicalAscendant(localToJd(y, m, d, 720, 5.5), llat, llon) - p.asc.deg);
-                const wins = Number.isFinite(ayan) ? lagnaWindows(dStr, llat, llon, 5.5, ayan) : [];
-                const goodWins = wins.filter(w => LAGNA_GRADE[w.sign]);
                 const lagnasHtml = !wins.length ? '' : `
                     <div class="lagna-good-line">
-                        <b>${L('शुभ लग्न', 'Good lagnas')}:</b>
-                        ${goodWins.map(w => `<span class="lagna-chip lagna-${LAGNA_GRADE[w.sign]}">${rashiName(w.sign)} ${fmtMin(w.from)}–${fmtMin(w.to)}</span>`).join(' ')}
+                        <b>${L('शुद्ध विवाह-लग्न', 'Pure marriage lagnas')}:</b>
+                        ${goodWins.length ? goodWins.map(w => w.segs.map(sg => `<span class="lagna-chip lagna-${sg.grade}" title="${rashiName(sg.nav)} ${L('नवांश', 'navamsha')}">${rashiName(w.sign)} · ${rashiName(sg.nav)} ${L('नवांश', 'nav.')} ${fmtMin(sg.from)}–${fmtMin(sg.to)}${w.jupiterParihar ? ' ★' : ''}</span>`).join(' ')).join(' ')
+                            : `<span style="color:#9B2C2C;">${L('कोई नहीं', 'none')}</span>`}
                     </div>
                     <div style="margin-top:6px;">
                         <button class="btn-lagna-toggle" onclick="this.nextElementSibling.style.display = (this.nextElementSibling.style.display==='block'?'none':'block')">
@@ -2536,9 +2637,11 @@
                         <div class="lagna-grid-box">
                             <b>${I18N[currentLang].lagnaHeader}</b>
                             ${wins.map(w => {
-                                const g = LAGNA_GRADE[w.sign] || 'varjit';
-                                return `<div class="lagna-row"><span class="lagna-${g === 'varjit' ? 'ashubh' : 'shubh'}">${rashiName(w.sign)} — ${gradeLabel(g)}</span><span>${fmtMin(w.from)} – ${fmtMin(w.to)}</span></div>`;
+                                const ok = w.segs.length > 0;
+                                const label = ok ? w.segs.map(sg => `${rashiName(sg.nav)} ${L('नवांश', 'nav.')} ${fmtMin(sg.from)}–${fmtMin(sg.to)} (${gradeLabel(sg.grade)})`).join(', ') : whyLabel(w);
+                                return `<div class="lagna-row"><span class="lagna-${ok ? 'shubh' : 'ashubh'}"><b>${rashiName(w.sign)}</b> — ${label}</span><span>${fmtMin(w.from)} – ${fmtMin(w.to)}</span></div>`;
                             }).join('')}
+                            <div style="margin-top:6px; font-size:11.5px; opacity:.8;">${L('★ = गुरु इस लग्न से केन्द्र/त्रिकोण में (श्लोक 90–91 परिहार)। नियम: मुहूर्त चिन्तामणि, विवाह प्रकरण श्लोक 81–86।', '★ = Jupiter in a kendra/trikona from this lagna (shloka 90–91 parihara). Rules: Muhurta Chintamani, Vivah Prakaran shlokas 81–86.')}</div>
                         </div>
                     </div>
                 `;
