@@ -311,11 +311,11 @@
   </header>
 
   <!-- ========================================================================= -->
-  <!-- VIEW 1: DEDICATED SELF-ONBOARDING WIZARD (SHOWN IMMEDIATELY AFTER REGISTER) -->
+  <!-- VIEW 1: DEDICATED SELF-ONBOARDING WIZARD (SHOWN IMMEDIATELY AFTER REGISTER / ONBOARDING LINK) -->
   <!-- ========================================================================= -->
-  <div id="onboardingWizardView" class="hidden flex-1 overflow-y-auto bg-slate-100/70 p-6 flex items-center justify-center">
+  <div id="onboardingWizardView" class="hidden flex-1 overflow-y-auto bg-slate-100/70 p-3 sm:p-6 flex items-center justify-center">
     
-    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl p-8 space-y-6 shadow-xl relative">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl p-4 sm:p-8 space-y-5 sm:space-y-6 shadow-xl relative my-auto">
       
       <!-- Wizard Header with Meaning of 'Sutradhar' -->
       <div class="space-y-3">
@@ -327,7 +327,7 @@
             </h2>
           </div>
           <div class="w-11 h-11 rounded-2xl blue-gradient text-white flex items-center justify-center font-extrabold text-base shadow-sm">
-            <span id="wizCandidateInitials">SG</span>
+            <span id="wizCandidateInitials">SR</span>
           </div>
         </div>
 
@@ -381,7 +381,10 @@
           </div>
         </div>
 
-        <div class="flex justify-end pt-3 border-t border-slate-100">
+        <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+          <button onclick="enterBlankPortal()" type="button" class="text-xs text-slate-400 hover:text-blue-600 font-medium transition underline">
+            सीधे डैशबोर्ड में प्रवेश करें ➔
+          </button>
           <button onclick="goToWizStep(2)" class="px-6 py-2.5 rounded-xl blue-gradient text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition flex items-center space-x-1.5">
             <span>अगला: सूत्रधार लेवल चुनें</span>
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -2230,12 +2233,15 @@
             </div>
           </div>
 
-          <!-- Step Dots -->
-          <div class="flex items-center space-x-1.5">
-            <span id="trainDot-1" class="w-2.5 h-2.5 rounded-full bg-blue-600 transition-all"></span>
-            <span id="trainDot-2" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
-            <span id="trainDot-3" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
-            <span id="trainDot-4" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
+          <!-- Step Dots & Close Button -->
+          <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-1.5">
+              <span id="trainDot-1" class="w-2.5 h-2.5 rounded-full bg-blue-600 transition-all"></span>
+              <span id="trainDot-2" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
+              <span id="trainDot-3" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
+              <span id="trainDot-4" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
+            </div>
+            <button onclick="completeTrainingWalkthrough()" type="button" class="text-xs text-slate-400 hover:text-slate-800 ml-1 px-2 py-0.5 rounded-lg border border-slate-200 hover:bg-slate-100 transition" title="डैशबोर्ड पर जाएँ">✕</button>
           </div>
         </div>
 
@@ -2643,6 +2649,81 @@
       showToast(`पंजीकरण सत्यापित! सूत्रधार ऑनबोर्डिंग आरंभ।`);
     }
 
+    function startOnboardingForCandidate(candidateData) {
+      const realName = candidateData.name || 'अधिकृत सूत्रधार';
+      const initials = getInitials(realName);
+      const phone = candidateData.phone || '';
+      const email = candidateData.email || '';
+      const sId = candidateData.sutradhar_id || ('SUTRA-' + (phone ? phone.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + '-01');
+
+      registeredCandidate = {
+        name: realName,
+        email: email,
+        phone: phone,
+        initials: initials,
+        sutradhar_id: sId,
+        agentId: sId,
+        coupon: sId
+      };
+
+      try {
+        localStorage.setItem('sra_sutradhar_profile', JSON.stringify(registeredCandidate));
+      } catch(e) {}
+
+      // 1. Hide legacy modal & auth gate
+      const legacyModal = document.getElementById('candidateRegisterModal');
+      if (legacyModal) {
+        legacyModal.classList.add('hidden');
+        legacyModal.style.display = 'none';
+      }
+      const authGate = document.getElementById('sutradharAuthGate');
+      if (authGate) authGate.style.display = 'none';
+
+      // 2. Show App Shell & Onboarding Wizard, Hide Main Dashboard
+      const appWrapper = document.getElementById('sutradharAppWrapper');
+      if (appWrapper) appWrapper.style.display = 'flex';
+
+      const wizView = document.getElementById('onboardingWizardView');
+      if (wizView) {
+        wizView.classList.remove('hidden');
+        wizView.style.display = 'flex';
+      }
+
+      const mainApp = document.getElementById('mainAppContainer');
+      if (mainApp) {
+        mainApp.classList.add('hidden');
+        mainApp.style.display = 'none';
+      }
+
+      // 3. Update candidate personalization in Header & Wizard
+      const headerTitle = document.getElementById('headerBrandTitle');
+      if (headerTitle) headerTitle.innerText = realName;
+      const headerInitials = document.getElementById('headerLogoInitials');
+      if (headerInitials) headerInitials.innerText = initials;
+
+      const wizNameEl = document.getElementById('wizCandidateName');
+      if (wizNameEl) wizNameEl.innerText = realName;
+      const wizInitialsEl = document.getElementById('wizCandidateInitials');
+      if (wizInitialsEl) wizInitialsEl.innerText = initials;
+      const wizSuccEl = document.getElementById('wizSuccessName');
+      if (wizSuccEl) wizSuccEl.innerText = realName;
+      const wizAgentIdEl = document.getElementById('wizAgentId');
+      if (wizAgentIdEl) wizAgentIdEl.innerText = sId;
+      const wizCouponEl = document.getElementById('wizCouponCode');
+      if (wizCouponEl) wizCouponEl.innerText = sId;
+      const wizTrackEl = document.getElementById('wizTrackLink');
+      if (wizTrackEl) wizTrackEl.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
+
+      const upiInput = document.getElementById('wizUpi');
+      if (upiInput && !upiInput.value && phone) {
+        upiInput.placeholder = `${phone}@upi या आपका UPI आईडी`;
+      }
+
+      goToWizStep(1);
+      applySutradharLanguage(currentLang);
+      try { lucide.createIcons(); } catch(e){}
+    }
+
     function goToWizStep(step) {
       wizCurrentStep = step;
       [1, 2, 3, 4].forEach(s => document.getElementById(`wizStepContent-${s}`).classList.add('hidden'));
@@ -2729,22 +2810,30 @@
     function submitWizQuiz() {
       clearInterval(wizInterval);
       const roleNames = { 1: 'सूत्रधार लेवल 1 (मुहूर्त व रिपोर्ट)', 2: 'सूत्रधार लेवल 2 (वरिष्ठ विद्या व आचार्य)' };
-      const newAgentId = `SD-${Math.floor(100 + Math.random() * 900)}`;
-      const agentCoupon = newAgentId; // सूत्रधार की यूनिक आईडी ही उसका आधिकारिक 10% कूपन कोड है!
+      const sId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : `SD-${Math.floor(100 + Math.random() * 900)}`);
+      const agentCoupon = sId;
 
       if (registeredCandidate) {
-        registeredCandidate.agentId = newAgentId;
-        registeredCandidate.coupon = newAgentId;
+        registeredCandidate.sutradhar_id = sId;
+        registeredCandidate.agentId = sId;
+        registeredCandidate.coupon = sId;
         try {
           localStorage.setItem('sra_sutradhar_profile', JSON.stringify(registeredCandidate));
         } catch(e) {}
       }
 
+      let session = null;
+      try {
+        session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
+      } catch(e) { session = {}; }
+      session.sutradhar_id = sId;
+      localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
+
       const nameEl = document.getElementById('wizSuccessName');
       if (nameEl) nameEl.innerText = registeredCandidate?.name || 'अधिकृत सूत्रधार';
 
       const agentIdEl = document.getElementById('wizAgentId');
-      if (agentIdEl) agentIdEl.innerText = newAgentId;
+      if (agentIdEl) agentIdEl.innerText = sId;
 
       const roleNameEl = document.getElementById('wizRoleName');
       if (roleNameEl) roleNameEl.innerText = roleNames[candidateRoleChoice] || roleNames[1];
@@ -2753,13 +2842,13 @@
       if (couponEl) couponEl.innerText = agentCoupon;
 
       const trackEl = document.getElementById('wizTrackLink');
-      if (trackEl) trackEl.innerText = `https://shriramjiastro.in/?ref=${newAgentId}`;
+      if (trackEl) trackEl.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
       
       const blogLink = document.getElementById('displayBlogTrackLink');
-      if (blogLink) blogLink.innerText = `https://shriramjiastro.in/blog?ref=${newAgentId}`;
+      if (blogLink) blogLink.innerText = `https://shriramjiastro.in/blog?ref=${encodeURIComponent(sId)}`;
 
       const playLink = document.getElementById('salesPlayStoreLink');
-      if (playLink) playLink.innerText = `https://shriramjiastro.in/?ref=${newAgentId}`;
+      if (playLink) playLink.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
 
       const couponCard = document.getElementById('displayCouponCodeCard');
       if (couponCard) couponCard.innerText = agentCoupon;
@@ -2768,7 +2857,7 @@
       if (quickCoupon) quickCoupon.innerText = agentCoupon;
 
       const trainDisplay = document.getElementById('trainPersonalLinkDisplay');
-      if (trainDisplay) trainDisplay.innerText = `https://shriramjiastro.in/?ref=${newAgentId}`;
+      if (trainDisplay) trainDisplay.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
 
       goToWizStep(4);
     }
@@ -2778,21 +2867,43 @@
     // =========================================================================
     function enterBlankPortal() {
       // 1. Hide Onboarding Wizard
-      document.getElementById('onboardingWizardView').classList.add('hidden');
+      const wizView = document.getElementById('onboardingWizardView');
+      if (wizView) {
+        wizView.classList.add('hidden');
+        wizView.style.display = 'none';
+      }
+
       // 2. Show Main App Container
-      document.getElementById('mainAppContainer').classList.remove('hidden');
+      const mainApp = document.getElementById('mainAppContainer');
+      if (mainApp) {
+        mainApp.classList.remove('hidden');
+        mainApp.style.display = 'flex';
+      }
 
-      // Personalize Header & Sidebar
-      document.getElementById('headerBrandTitle').innerText = registeredCandidate.name;
-      document.getElementById('headerLogoInitials').innerText = registeredCandidate.initials;
-      document.getElementById('headerRoleBadge').innerText = 'अधिकृत सूत्रधार';
-      document.getElementById('headerRoleBadge').className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200';
-      document.getElementById('headerTagline').innerText = `लॉग इन: ${registeredCandidate.name} • सूत्रधार ईआरपी`;
+      let session = null;
+      try {
+        session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
+      } catch(e) { session = {}; }
 
-      document.getElementById('sidebarUserName').innerText = registeredCandidate.name;
-      document.getElementById('sidebarUserAvatar').innerText = registeredCandidate.initials;
-      document.getElementById('dashCandidateGreeting').innerText = registeredCandidate.name;
-      document.getElementById('saleAgentDynamicOption').innerText = registeredCandidate.name;
+      if (!registeredCandidate) {
+        const name = session.name || 'अधिकृत सूत्रधार';
+        registeredCandidate = {
+          name: name,
+          email: session.email || '',
+          phone: session.phone || '',
+          initials: getInitials(name),
+          sutradhar_id: session.sutradhar_id || 'SUTRA-0000-01'
+        };
+      }
+
+      session.onboarding_completed = true;
+      session.name = registeredCandidate.name || session.name;
+      session.phone = registeredCandidate.phone || session.phone;
+      session.email = registeredCandidate.email || session.email;
+      session.sutradhar_id = registeredCandidate.sutradhar_id || session.sutradhar_id;
+      localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
+
+      unlockPortal(registeredCandidate);
 
       // 3. AUTO-START THE TRAINING WALKTHROUGH & BLUR DASHBOARD!
       startTrainingWalkthrough();
@@ -4074,13 +4185,14 @@
           phone: userParam || '',
           email: candidateRealEmail,
           sutradhar_id: sutraId,
-          role: 'सूत्रधार लेवल 1'
+          role: 'सूत्रधार लेवल 1',
+          onboarding_completed: false
         };
 
         // Cache session immediately so refreshing keeps them logged in
         localStorage.setItem('sra_sutradhar_session', JSON.stringify(fallbackData));
-        unlockPortal(fallbackData);
-        showToast(`अभिनंदन ${candidateRealName}! आपका सूत्रधार सत्र सक्रिय हुआ।`);
+        startOnboardingForCandidate(fallbackData);
+        showToast(`अभिनंदन ${candidateRealName}! सूत्रधार ऑनबोर्डिंग दीक्षा आरंभ।`);
 
         // Asynchronously sync with backend if available
         fetch('api/verify_sutradhar_auth.php', {
@@ -4092,8 +4204,8 @@
             data.name = data.name || candidateRealName;
             data.email = data.email || candidateRealEmail;
             data.sutradhar_id = data.sutradhar_id || sutraId;
+            data.onboarding_completed = fallbackData.onboarding_completed;
             localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
-            unlockPortal(data);
           }
         }).catch(err => {
           console.warn("Backend metadata sync:", err);
@@ -4109,7 +4221,11 @@
       } catch(e) {}
 
       if (session && (session.phone || session.sutradhar_id)) {
-        unlockPortal(session);
+        if (session.onboarding_completed) {
+          unlockPortal(session);
+        } else {
+          startOnboardingForCandidate(session);
+        }
         return;
       }
 
