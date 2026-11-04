@@ -761,6 +761,31 @@
       };
 
       try {
+        // 0. Primary save to Hostinger backend MySQL & career_applications.json
+        try {
+          const apiRes = await fetch('api/save_career_application.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: nameVal,
+              phone: cleanPhone,
+              email: emailVal,
+              city: cityVal,
+              experience: expVal,
+              bio: expVal,
+              resume_name: uploadedFileName,
+              resume_data: uploadedFileBase64
+            })
+          });
+          const apiData = await apiRes.json();
+          if (apiData && apiData.application_id) {
+            payload.id = apiData.application_id;
+            payload.sutradhar_id = apiData.sutradhar_id || payload.sutradhar_id;
+          }
+        } catch(apiErr) {
+          console.warn("Backend save_career_application error:", apiErr);
+        }
+
         // 1. Direct write to Firestore live cloud (user_queries collection is active and permitted)
         if (window.SRAAuth && SRAAuth.ready) {
           try {
