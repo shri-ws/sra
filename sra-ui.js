@@ -3,6 +3,15 @@
    2. Gentle reveal-on-scroll movement for cards and sections
    3. Facebook / Instagram / YouTube icons in every footer
    Loaded with `defer` after theme.js on every public page. */
+// Premium line icons in place of colour emoji (sra-icons.js, next to this file)
+(function () {
+  const me = document.currentScript;
+  if (!me || !me.src || window.__sraIcons) return;
+  const s = document.createElement('script');
+  s.src = new URL('sra-icons.js?v=1', me.src).href;
+  s.defer = true;
+  document.head.appendChild(s);
+})();
 (function() {
   // ══════════════════════════════════════════════════════════════════════════
   // 1. SURYA / CHANDRA THEME TOGGLE

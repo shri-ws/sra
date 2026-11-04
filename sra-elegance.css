@@ -587,9 +587,9 @@ section.hero.sra-ekmev-hero {
 }
 :root body .sacred-seal-badge { background: transparent !important; border: 1px solid var(--sra-hair-strong) !important; color: var(--sra-kumkum) !important; box-shadow: none !important; }
 :root body .live-dot { background: var(--sra-gold) !important; box-shadow: 0 0 0 0 rgba(176, 141, 62, 0.5); animation: sra-pulse 2.4s ease-out infinite; }
-/* Emoji glyphs inside icon frames: soften to sepia so they sit in the palette */
+/* Icon frames hold line icons now (sra-icons.js): no colour filter */
 :root body .card-glyph, :root body .app-quick-icon, :root body .pillar-icon, :root body .hl-icon, :root body .drawer-sub-icon {
-  filter: sepia(0.55) saturate(0.8);
+  filter: none;
 }
 
 /* 13. GENTLE MOVEMENT ──────────────────────────────────────────────────── */
@@ -1061,3 +1061,24 @@ html[lang="en"] body .sra-gn-brand-sub { font-family: 'Cormorant Garamond', seri
 html, body { overflow-x: clip; }
 /* Footer columns were hard-coded to a 280px minimum; never ask for more than the screen */
 :root body .site-global-footer [style*="minmax(280px"] { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)) !important; }
+
+/* 20. PREMIUM LINE ICONS (sra-icons.js) ──────────────────────────────────────
+   Colour emoji are replaced by thin single-tone drawings in the theme's gold.
+   Inside buttons and pills they take the button's own text colour. */
+:root body svg.sra-ic {
+  display: inline-block; width: 1.08em; height: 1.08em; vertical-align: -0.17em; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  color: var(--sra-gold-deep); overflow: visible;
+}
+:root body svg.sra-ic-dot { width: .9em; height: .9em; vertical-align: -0.1em; }
+:root body button svg.sra-ic, :root body [role="button"] svg.sra-ic, :root body [class*="btn"] svg.sra-ic,
+:root body [class*="pill"] svg.sra-ic, :root body [class*="tab"] svg.sra-ic, :root body .sra-gnav svg.sra-ic,
+:root body .sra-gdrawer svg.sra-ic { color: inherit; }
+:root body .sra-ic-om { font-family: 'Rozha One', 'Tiro Devanagari Hindi', serif; font-weight: 400; color: var(--sra-gold-deep); line-height: 1; }
+/* Big emoji tiles become calm medallions: hairline gold ring, the icon centred */
+:root body .card-glyph svg.sra-ic, :root body .app-quick-icon svg.sra-ic, :root body .pillar-icon svg.sra-ic,
+:root body .hl-icon svg.sra-ic, :root body .drawer-sub-icon svg.sra-ic { width: .82em; height: .82em; vertical-align: middle; stroke-width: 1.45; color: var(--sra-kumkum); }
+[data-theme="night"] body .card-glyph svg.sra-ic, [data-theme="night"] body .app-quick-icon svg.sra-ic,
+[data-theme="night"] body .pillar-icon svg.sra-ic, [data-theme="night"] body .hl-icon svg.sra-ic,
+[data-theme="night"] body .drawer-sub-icon svg.sra-ic { color: var(--sra-gold); }
+@media print { :root body svg.sra-ic { color: #7A5A1E !important; } }
