@@ -1,0 +1,3211 @@
+<!DOCTYPE html>
+<html lang="hi" class="h-full bg-slate-50 text-slate-900">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>श्री राम जी एस्ट्रो | सूत्रधार ऑपरेशंस व ईआरपी पोर्टल</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Rozha+One&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            brand: ['"Rozha One"', 'serif']
+          },
+          colors: {
+            brand: {
+              50: '#EFF6FF',
+              100: '#DBEAFE',
+              200: '#BFDBFE',
+              500: '#3B82F6',
+              600: '#2563EB',
+              700: '#1D4ED8',
+              800: '#1E40AF',
+              900: '#1E3A8A',
+              950: '#172554'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    .blue-gradient {
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #3B82F6 100%);
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden bg-slate-50 text-slate-800 antialiased">
+
+  <!-- ========================================================================= -->
+  <!-- TOP GLOBAL HEADER (WHITE & BLUE DUAL TONE) -->
+  <!-- ========================================================================= -->
+  <header class="h-16 bg-white border-b border-slate-200 shadow-xs flex items-center justify-between px-6 z-30 shrink-0">
+    
+    <!-- BRAND / PERSONALIZED LOGO & NAME -->
+    <div class="flex items-center space-x-3">
+      <div id="headerLogoContainer" class="w-10 h-10 rounded-xl blue-gradient flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-blue-500/20 transition-all duration-300">
+        <span id="headerLogoInitials">SR</span>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-extrabold text-xl tracking-tight text-blue-950 transition-all duration-300" id="headerBrandTitle">
+            श्री राम जी एस्ट्रो (shriramjiastro.in)
+          </span>
+          <span id="headerRoleBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold border border-blue-200">
+            सूत्रधार ईआरपी
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-500 font-medium" id="headerTagline">
+          shriramjiastro.in • आधिकारिक इन-ऐप एट्रिब्यूशन व 2-घंटे पेआउट पोर्टल
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Controls: Language Toggle, Persona Selector, Actions -->
+    <div class="flex items-center space-x-3">
+      
+      <!-- LANGUAGE SWITCHER TOGGLE -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+        <button onclick="setLanguage('en')" id="langBtn-en" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition">
+          English
+        </button>
+        <button onclick="setLanguage('hi')" id="langBtn-hi" class="px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition">
+          हिन्दी
+        </button>
+      </div>
+
+      <!-- Quick Training Walkthrough Button -->
+      <button onclick="startTrainingWalkthrough()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition">
+        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+        <span>ट्रेनिंग गाइड पुनः देखें</span>
+      </button>
+
+      <!-- Persona / Role Selector -->
+      <div class="hidden lg:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1">
+        <span class="text-xs text-slate-500 mr-2 flex items-center">
+          <i data-lucide="user-check" class="w-3.5 h-3.5 mr-1 text-blue-600"></i>
+          <span id="labelViewMode">व्यू:</span>
+        </span>
+        <select id="personaSelector" onchange="switchPersona(this.value)" class="bg-transparent text-xs font-semibold text-blue-900 outline-none cursor-pointer">
+          <option value="candidate" id="dynamicCandidateOption">श्री गणेश (सूत्रधार)</option>
+          <option value="admin">आचार्य / फाउंडर (Full Access)</option>
+          <option value="role1">राहुल शर्मा (सूत्रधार लेवल 1)</option>
+          <option value="role2">प्रिया वर्मा (सूत्रधार लेवल 2)</option>
+        </select>
+      </div>
+
+      <button onclick="openModal('newSaleModal')" class="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition">
+        <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i>
+        <span id="btnRecordSale">सेल दर्ज करें</span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 1: DEDICATED SELF-ONBOARDING WIZARD (SHOWN IMMEDIATELY AFTER REGISTER) -->
+  <!-- ========================================================================= -->
+  <div id="onboardingWizardView" class="hidden flex-1 overflow-y-auto bg-slate-100/70 p-6 flex items-center justify-center">
+    
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl p-8 space-y-6 shadow-xl relative">
+      
+      <!-- Wizard Header with Meaning of 'Sutradhar' -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-bold text-blue-600 uppercase tracking-wider" id="wizStepBadge">स्टेप 1/4: सूत्रधार ऑनबोर्डिंग</span>
+            <h2 class="text-xl font-extrabold text-blue-950 mt-0.5" id="wizTitle">
+              नमस्ते, <span id="wizCandidateName" class="text-blue-600">श्री गणेश</span>! आप बन रहे हैं हमारे 'सूत्रधार'
+            </h2>
+          </div>
+          <div class="w-11 h-11 rounded-2xl blue-gradient text-white flex items-center justify-center font-extrabold text-base shadow-sm">
+            <span id="wizCandidateInitials">SG</span>
+          </div>
+        </div>
+
+        <!-- Shastric Significance of Sutradhar -->
+        <div class="p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl text-[11px] text-amber-950 leading-relaxed space-y-1">
+          <div class="font-bold flex items-center space-x-1.5 text-amber-900">
+            <span>🕉️</span>
+            <span>शास्त्रों में 'सूत्रधार' का पावन महत्व (The Divine Calling):</span>
+          </div>
+          <p class="text-slate-700 text-[11px]">
+            जो मनुष्य के जीवन के बिखरे सूत्रों को सही मुहूर्त, सटीक ग्रह मार्गदर्शन और महर्षि पाराशर के वैदिक समाधान से जोड़ता है, वही सच्चा <em>सूत्रधार</em> है। आप किसी को कुछ 'बेच' नहीं रहे—बल्कि 5-5 मिनट के फर्जी ऑनलाइन ऐप्स में लुट रहे जातक को बचाकर <strong>100% शास्त्र-प्रमाणित सत्य</strong> की राह दिखा रहे हैं। यह एक अत्यंत पावन और ईश्वरीय सेवा (Divine Seva) है।
+          </p>
+        </div>
+
+        <!-- Dynamic Animated Progress Bar -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px] font-semibold text-slate-500">
+            <span id="wizProgressText">सेवा संकल्प व दक्षिणा विवरण (25%)</span>
+            <span id="wizPercentText">25%</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+            <div id="wizProgressBar" class="bg-blue-600 h-full rounded-full transition-all duration-500 ease-out" style="width: 25%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: COMMITMENT & PAYOUT DETAILS -->
+      <div id="wizStepContent-1" class="space-y-4 text-xs">
+        <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl">
+          <h4 class="font-bold text-blue-950 text-sm flex items-center">
+            <i data-lucide="clock" class="w-4 h-4 mr-2 text-blue-600"></i>
+            स्टेप 1: पावन सेवा संकल्प, समय व 2-घंटे दक्षिणा पेआउट विवरण
+          </h4>
+          <p class="text-slate-600 text-[11px] mt-1">
+            <em>सत्यं ब्रूयात् प्रियं ब्रूयात्</em> — प्रतिदिन का समर्पित समय और अपनी UPI आईडी दर्ज करें जिस पर हर सेवा का पारिश्रमिक 2 घंटे के भीतर पूर्ण सम्मान सहित ट्रांसफर होगा।
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-700 font-semibold mb-1">प्रतिदिन कितने घंटे काम करेंगे?</label>
+            <select id="wizHours" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-semibold outline-none focus:border-blue-600">
+              <option value="4 घंटे (पार्ट-टाइम)">4 घंटे (पार्ट-टाइम)</option>
+              <option value="6 घंटे (रेगुलर)" selected>6 घंटे (रेगुलर)</option>
+              <option value="8+ घंटे (फुल-टाइम)">8+ घंटे (फुल-टाइम समर्पित)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-700 font-semibold mb-1">इंसेंटिव पेआउट हेतु UPI आईडी</label>
+            <input type="text" id="wizUpi" placeholder="shriganesh@okhdfc" value="shriganesh@upi" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-900 font-semibold outline-none focus:border-blue-600">
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-3 border-t border-slate-100">
+          <button onclick="goToWizStep(2)" class="px-6 py-2.5 rounded-xl blue-gradient text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition flex items-center space-x-1.5">
+            <span>अगला: सूत्रधार लेवल चुनें</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: SUTRADHAR LEVEL 1 INDUCTION (EVERYONE STARTS AT LEVEL 1) -->
+      <div id="wizStepContent-2" class="hidden space-y-4 text-xs">
+        <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl">
+          <h4 class="font-bold text-blue-950 text-sm flex items-center">
+            <i data-lucide="award" class="w-4 h-4 mr-2 text-blue-600"></i>
+            स्टेप 2: आपकी प्रथम अधिकृत पदवी — 'सूत्रधार लेवल 1'
+          </h4>
+          <p class="text-slate-600 text-[11px] mt-1">
+            संस्थान के नियम अनुसार प्रत्येक नए सदस्य की प्रारंभिक एंट्री <strong>'सूत्रधार लेवल 1'</strong> पर ही होगी, जहाँ आपको प्रतिदिन का स्पष्ट कार्य व दक्षिणा पटल मिलेगा।
+          </p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-white border-2 border-blue-500 shadow-xs space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="font-extrabold text-blue-950 text-sm">सूत्रधार लेवल 1 (अधिकृत दैवज्ञ प्रतिनिधि)</span>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              मानक लक्ष्य: ₹1,000/दिन
+            </span>
+          </div>
+
+          <div class="space-y-1.5 text-[11px] text-slate-700">
+            <div class="font-bold text-slate-800">आपका दैनिक सेवा कार्य पटल (Daily Focus Scope):</div>
+            <div class="grid grid-cols-2 gap-2 text-[11px]">
+              <div class="p-2 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="text-slate-500 block text-[10px]">3 छोटी रिपोर्ट्स</span>
+                <span class="font-bold text-emerald-700">₹80 × 3 = ₹240</span>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="text-slate-500 block text-[10px]">1 मेगा पाराशर रिपोर्ट</span>
+                <span class="font-bold text-emerald-700">₹350 / रिपोर्ट</span>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="text-slate-500 block text-[10px]">1 संपूर्ण मुहूर्त रिपोर्ट</span>
+                <span class="font-bold text-emerald-700">₹350 / रिपोर्ट</span>
+              </div>
+              <div class="p-2 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="text-slate-500 block text-[10px]">1 दैवज्ञ VIP परामर्श</span>
+                <span class="font-bold text-emerald-700">₹1,500 / सत्र</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- LEVEL 2 UNLOCK & PROMOTION PATHWAY -->
+          <div class="p-3.5 bg-gradient-to-r from-purple-50 via-amber-50/40 to-blue-50 border border-purple-200 rounded-xl space-y-2 text-left">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-xs text-purple-950 flex items-center space-x-1.5">
+                <span>👑 लेवल 2 पदोन्नति, स्ट्रीक व महा-बोनस नियम:</span>
+              </span>
+              <span class="text-[10px] font-bold px-2.5 py-0.5 bg-purple-200 text-purple-900 rounded-md">7-दिन स्ट्रीक</span>
+            </div>
+            <p class="text-[11px] text-slate-700 leading-snug">
+              यदि कोई भी सूत्रधार <strong>लगातार 1 हफ्ता (7 दिन) प्रतिदिन न्यूनतम ₹3,000 इंसेंटिव</strong> कमाता है, तो उसके लिए <strong>सूत्रधार लेवल 2</strong> अनलॉक हो जाएगा!
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] font-semibold text-purple-950 pt-1">
+              <div class="bg-white/90 p-2 rounded-xl border border-purple-200 space-y-0.5">
+                <span class="text-[9px] uppercase font-bold text-purple-600 block">टिकट अनलॉक</span>
+                <span class="font-bold block text-slate-900">₹24,000 गुरुकुल कोर्स</span>
+                <span class="text-emerald-700 font-extrabold block">₹2,400 इंसेंटिव</span>
+              </div>
+              <div class="bg-white/90 p-2 rounded-xl border border-purple-200 space-y-0.5">
+                <span class="text-[9px] uppercase font-bold text-emerald-600 block">मंथ-एंड स्ट्रीक</span>
+                <span class="font-bold block text-slate-900">7 दिन ₹3k/दिन स्ट्रीक</span>
+                <span class="text-emerald-700 font-extrabold block">₹1,000 नकद बोनस</span>
+              </div>
+              <div class="bg-white/90 p-2 rounded-xl border border-purple-200 space-y-0.5">
+                <span class="text-[9px] uppercase font-bold text-amber-600 block">महा-बोनस क्लब</span>
+                <span class="font-bold block text-slate-900">₹1 लाख मासिक इंसेंटिव</span>
+                <span class="text-purple-700 font-extrabold block">₹10,000 नकद बोनस</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+            <span class="text-[11px] text-emerald-900 font-extrabold">
+              लेवल 1 दैनिक मानक: ₹1,000/दिन • सुझाई गई क्षमता: ₹2,440/दिन • मासिक क्षमता: ₹73,200/माह
+            </span>
+          </div>
+        </div>
+
+        <input type="hidden" name="wizSelectedRole" value="1">
+
+        <div class="flex justify-between pt-3 border-t border-slate-100">
+          <button onclick="goToWizStep(1)" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs">पीछे जाएँ</button>
+          <button onclick="startWizQuiz()" class="px-6 py-2.5 rounded-xl blue-gradient text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition flex items-center space-x-1.5">
+            <span>3-मिनट स्क्रीनिंग टेस्ट शुरू करें</span>
+            <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: TIMED SCREENING TEST -->
+      <div id="wizStepContent-3" class="hidden space-y-4 text-xs">
+        <div class="flex items-center justify-between bg-blue-50 p-3.5 rounded-2xl border border-blue-200">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping"></span>
+            <span id="wizQuizTitle" class="font-bold text-blue-950">सूत्रधार योग्यता टेस्ट</span>
+          </div>
+          <div class="flex items-center space-x-1.5 bg-red-100 text-red-700 border border-red-200 px-3 py-1 rounded-xl font-mono font-bold text-sm">
+            <i data-lucide="alarm-clock" class="w-4 h-4"></i>
+            <span id="wizTimerText">03:00</span>
+          </div>
+        </div>
+
+        <div id="wizQuestionsContainer" class="space-y-3.5"></div>
+
+        <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+          <span class="text-[11px] text-slate-500">कटऑफ: कम से कम 70% अंक आवश्यक</span>
+          <button onclick="submitWizQuiz()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs">
+            उत्तर सबमिट करें
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: ONBOARDING COMPLETE & CREDENTIALS -->
+      <div id="wizStepContent-4" class="hidden space-y-4 text-center py-4">
+        <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl font-bold bg-amber-100 text-amber-800 border-2 border-amber-300 shadow-sm">
+          ॐ
+        </div>
+        <h3 class="text-xl font-extrabold text-slate-900">
+          साधुवाद <span id="wizSuccessName">श्री गणेश</span>! आप अधिकृत 'सूत्रधार' के रूप में प्रतिष्ठित हो चुके हैं
+        </h3>
+        <p class="text-xs text-slate-600 max-w-md mx-auto">
+          आपने दैवज्ञ मर्यादा व सत्य-निष्ठा परीक्षा उत्तीर्ण कर ली है। आपका यह कार्य सनातन ज्ञान और भटके हुए जातकों की सच्ची सेवा (Divine Seva) है।
+        </p>
+
+        <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl max-w-md mx-auto text-left text-xs space-y-2">
+          <div class="font-bold text-blue-950 border-b border-blue-200 pb-1">आपके आधिकारिक सूत्रधार क्रेडेंशियल्स:</div>
+          <div class="flex justify-between items-center"><span class="text-slate-500">सूत्रधार यूनिक आईडी:</span> <span id="wizAgentId" class="font-mono font-bold text-blue-900 text-sm">SD-105</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">पदनाम / स्तर:</span> <span id="wizRoleName" class="font-semibold text-emerald-700">सूत्रधार लेवल 1</span></div>
+          <div class="bg-amber-50/90 p-2.5 rounded-xl border border-amber-300 mt-1">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-[11px] font-bold text-amber-950">आपका 10% यूनिवर्सल कूपन कोड:</div>
+                <div class="text-[10px] text-amber-800 font-medium">आपकी यूनिक आईडी ही आपका कूपन कोड है!</div>
+              </div>
+              <span id="wizCouponCode" class="font-mono font-extrabold text-amber-950 bg-white px-2.5 py-1 rounded-lg border border-amber-300 text-sm shadow-sm">SD-105</span>
+            </div>
+            <div class="text-[10px] text-slate-600 mt-1.5 leading-snug">ग्राहकों के साथ इसे ही शेयर करें। चेकआउट पर यह आईडी डालते ही ग्राहक को सभी प्रोडक्ट्स पर 10% फ्लैट छूट मिलेगी और बिक्री सीधे आपके खाते में जुड़ेगी।</div>
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-blue-200/60">
+            <span class="text-slate-500">ऑफिशियल रेफरल लिंक:</span>
+            <code id="wizTrackLink" class="text-[10px] text-blue-800 font-mono bg-white px-2 py-0.5 rounded border border-blue-200">https://shriramjiastro.in/app?ref=SD-105</code>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button onclick="enterBlankPortal()" class="px-8 py-3 rounded-2xl blue-gradient text-white font-bold text-xs shadow-lg shadow-blue-500/20 hover:scale-105 transition flex items-center space-x-2 mx-auto">
+            <span>पावन दीक्षा ट्रेनिंग व डैशबोर्ड में प्रवेश करें</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 2: MAIN ERP PORTAL CONTAINER (BLURRED INITIALLY UNTIL TRAINING COMPLETE) -->
+  <!-- ========================================================================= -->
+  <div id="mainAppContainer" class="hidden flex-1 flex overflow-hidden relative">
+    
+    <!-- WRAPPER THAT BLURS WHEN TRAINING POP-UP IS ACTIVE -->
+    <div id="dashboardBlurWrapper" class="flex-1 flex overflow-hidden transition-all duration-500">
+      
+      <!-- Left Navigation Sidebar -->
+      <aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-1" id="navHeadingMain">
+            मुख्य मॉड्यूल
+          </div>
+          
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition text-blue-700 bg-blue-50 border border-blue-200/60">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 text-blue-600"></i>
+            <span id="navDashText">डैशबोर्ड सारांश</span>
+          </button>
+
+          <button onclick="switchTab('courseCohort')" id="nav-courseCohort" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <div class="flex items-center space-x-3">
+              <i data-lucide="graduation-cap" class="w-4 h-4 text-purple-600"></i>
+              <span>1-वर्षीय कोर्स (11-सीट)</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold">
+              ₹24,000
+            </span>
+          </button>
+
+          <button onclick="switchTab('consultationSprint')" id="nav-consultationSprint" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <div class="flex items-center space-x-3">
+              <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i>
+              <span id="navSprintText">30-स्लॉट दैवज्ञ स्प्रिंट</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 font-bold">
+              Live
+            </span>
+          </button>
+
+          <button onclick="switchTab('categoryLeaderboard')" id="nav-categoryLeaderboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+            <span id="navLeaderboardText">सूत्रधार लीडरबोर्ड</span>
+          </button>
+
+          <div class="pt-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-1" id="navHeadingOps">
+            सत्यापन व वर्कफ़्लो
+          </div>
+
+          <button onclick="switchTab('fastPayout')" id="nav-fastPayout" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <div class="flex items-center space-x-3">
+              <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
+              <span id="navPayoutText">टास्क व 2-घंटे पेआउट</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold animate-pulse">
+              SLA
+            </span>
+          </button>
+
+          <button onclick="switchTab('trainingLms')" id="nav-trainingLms" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <i data-lucide="newspaper" class="w-4 h-4 text-indigo-600"></i>
+            <span id="navLmsText">सोर्स मटेरियल, ब्लॉग व स्क्रिप्ट्स</span>
+          </button>
+
+          <button onclick="switchTab('salesManager')" id="nav-salesManager" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+            <i data-lucide="ticket-percent" class="w-4 h-4 text-teal-600"></i>
+            <span id="navSalesText">कूपन कोड व इन-ऐप सेल्स</span>
+          </button>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-3 border-t border-slate-200 bg-slate-50/80">
+          <div class="flex items-center space-x-3">
+            <div id="sidebarUserAvatar" class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              SG
+            </div>
+            <div class="truncate">
+              <div id="sidebarUserName" class="text-xs font-bold text-slate-800 truncate">श्री गणेश</div>
+              <div id="sidebarUserRole" class="text-[10px] text-blue-600 font-semibold">अधिकृत सूत्रधार</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 overflow-y-auto bg-slate-100/70 p-6 space-y-6">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tab-dashboard" class="space-y-6">
+          
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs relative overflow-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    सक्रिय सूत्रधार डैशबोर्ड
+                  </span>
+                  <span class="text-xs text-slate-500 font-medium">सत्र: दिसंबर 2026</span>
+                </div>
+                <h1 class="text-2xl font-extrabold text-blue-950 mt-1.5 tracking-tight" id="dashHeroTitle">
+                  नमस्ते, <span id="dashCandidateGreeting" class="text-blue-600">श्री गणेश</span>! आपका सूत्रधार बोर्ड तैयार है
+                </h1>
+                <p class="text-xs text-slate-600 max-w-2xl mt-1">
+                  मुहूर्त रिपोर्ट (₹1,111), मेगा पाराशर (₹1,111) और 1-वर्षीय गुरुकुल कोर्स (₹24,000) के साथ काम शुरू करें।
+                </p>
+              </div>
+              
+              <div class="flex items-center gap-3">
+                <div class="bg-purple-50 border border-purple-200 rounded-xl px-4 py-2.5 text-center">
+                  <span class="text-[10px] uppercase text-slate-500 font-bold">गुरुकुल कोर्स (चैत्र बैच)</span>
+                  <div class="text-xl font-extrabold text-purple-900">
+                    7 / 11 <span class="text-xs text-purple-600 font-semibold">(4 सीटें शेष)</span>
+                  </div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 text-center">
+                  <span class="text-[10px] uppercase text-slate-500 font-bold">दैवज्ञ 30-स्लॉट्स</span>
+                  <div class="text-xl font-extrabold text-blue-900">
+                    26 / 30 <span class="text-xs text-emerald-600 font-semibold">(4 शेष)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Metrics: Fresh & Blank for New Sutradhar -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                <span>मेरी कुल सेल्स (My Total Sales)</span>
+                <i data-lucide="shopping-bag" class="w-4 h-4 text-blue-600"></i>
+              </div>
+              <div class="text-2xl font-extrabold text-slate-900">
+                <span id="agentMetricSales">0</span> <span class="text-xs font-normal text-slate-400">सेल्स</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-blue-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+              <div class="text-[11px] text-slate-500 font-medium">टारगेट: पहली सेल 48 घंटे के भीतर</div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                <span>अर्जित इंसेंटिव (Earned Incentive)</span>
+                <i data-lucide="wallet" class="w-4 h-4 text-emerald-600"></i>
+              </div>
+              <div class="text-2xl font-extrabold text-emerald-700">
+                <span id="agentMetricIncentive">₹0</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full rounded-full" style="width: 0%"></div>
+              </div>
+              <div class="text-[11px] text-emerald-700 font-semibold">2-घंटे UPI पेआउट सक्षम</div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                <span>प्रीमियम रिपोर्ट्स (₹1,111)</span>
+                <i data-lucide="sparkles" class="w-4 h-4 text-indigo-600"></i>
+              </div>
+              <div class="text-2xl font-extrabold text-slate-900">
+                <span>0</span> <span class="text-xs font-normal text-slate-400">मुहूर्त/पाराशर</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-indigo-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+              <div class="text-[11px] text-indigo-700 font-medium">प्रति रिपोर्ट ₹350 (फुल) / ₹295 (कूपन)</div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
+              <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                <span>गुरुकुल कोर्स (₹24,000)</span>
+                <i data-lucide="graduation-cap" class="w-4 h-4 text-purple-600"></i>
+              </div>
+              <div class="text-2xl font-extrabold text-slate-900">
+                <span id="agentMetricCourse">0</span> <span class="text-xs font-normal text-slate-400">एडमिशन</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-purple-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+              <div class="text-[11px] text-purple-700 font-semibold">प्रति एडमिशन ₹2,400 (फुल) / ₹1,200 (कूपन) • लेवल 2</div>
+            </div>
+          </div>
+
+          <!-- ========================================================================= -->
+          <!-- SUTRADHAR LEVEL PROGRESSION & 7-DAY STREAK (₹3,000/DAY) UNLOCK CONSOLE -->
+          <!-- ========================================================================= -->
+          <div id="levelProgressionCard" class="bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/50 border-2 border-blue-200 rounded-3xl p-6 shadow-sm space-y-5 relative overflow-hidden transition-all duration-300">
+            
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-2.5">
+                  <span id="levelBadge" class="px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-900 border border-blue-300 flex items-center space-x-1.5 shadow-xs">
+                    <span>सूत्रधार लेवल 1</span>
+                  </span>
+                  <span id="levelBaselineText" class="text-xs text-slate-700 font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                    दैनिक मानक लक्ष्य: <strong class="text-emerald-700 font-extrabold">₹1,000 / दिन</strong>
+                  </span>
+                </div>
+                <h2 class="text-lg font-black text-blue-950 tracking-tight flex items-center space-x-2 mt-1">
+                  <span id="levelHeading">लेवल 2 पदोन्नति व 7-दिन स्ट्रीक कंसोल</span>
+                </h2>
+                <p id="levelDesc" class="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                  <strong>पदोन्नति नियम:</strong> लगातार 1 हफ्ता (7 दिन) प्रतिदिन न्यूनतम <strong class="text-emerald-700 font-bold">₹3,000 इंसेंटिव</strong> अर्जित करने पर <strong>'सूत्रधार लेवल 2'</strong> अनलॉक होगा।
+                </p>
+              </div>
+
+              <!-- Interactive Simulator Buttons -->
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <button onclick="simulateAddStreakDay()" title="+1 दिन ₹3,000 स्ट्रीक जोड़ें" class="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition shadow-xs flex items-center space-x-1.5">
+                  <span>+1 दिन स्ट्रीक जोड़ें (₹3,000)</span>
+                </button>
+                <button onclick="simulateLevel2Unlock()" title="तुरंत लेवल 2 अनलॉक टेस्ट करें" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md shadow-blue-500/20 transition flex items-center space-x-1.5">
+                  <span>⚡ 7-दिन स्ट्रीक पूरी करें व लेवल 2 अनलॉक करें</span>
+                </button>
+                <button onclick="resetToLevel1()" title="लेवल 1 पर वापस रीसेट करें" class="px-3 py-2 bg-white hover:bg-slate-100 text-slate-500 border border-slate-200 rounded-xl text-xs font-medium transition">
+                  <span>🔄 रीसेट (L1)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 7-DAY STREAK VISUALIZER -->
+            <div class="space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                    7-दिवसीय स्ट्रीक प्रगति (प्रतिदिन ₹3,000 इंसेंटिव):
+                  </span>
+                  <span id="streakCountBadge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                    0 / 7 दिन पूर्ण
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-500 font-medium" id="streakHelperMsg">
+                  लगातार 7 दिन ₹3,000/दिन इंसेंटिव ➔ सूत्रधार लेवल 2 अनलॉक!
+                </div>
+              </div>
+
+              <!-- 7 Day Circles / Cards -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 text-center">
+                <div id="streakDay-1" class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1 transition-all">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">दिन 1</span>
+                  <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs" id="streakIcon-1">1</div>
+                  <div class="text-[10px] font-bold text-slate-500" id="streakText-1">₹3,000 लक्ष्य</div>
+                </div>
+                <div id="streakDay-2" class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1 transition-all">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">दिन 2</span>
+                  <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs" id="streakIcon-2">2</div>
+                  <div class="text-[10px] font-bold text-slate-500" id="streakText-2">₹3,000 लक्ष्य</div>
+                </div>
+                <div id="streakDay-3" class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1 transition-all">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">दिन 3</span>
+                  <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs" id="streakIcon-3">3</div>
+                  <div class="text-[10px] font-bold text-slate-500" id="streakText-3">₹3,000 लक्ष्य</div>
+                </div>
+                <div id="streakDay-4" class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1 transition-all">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">दिन 4</span>
+                  <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs" id="streakIcon-4">4</div>
+                  <div class="text-[10px] font-bold text-slate-500" id="streakText-4">₹3,000 लक्ष्य</div>
+                </div>
+                <div id="streakDay-5" class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1 transition-all">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">दिन 5</span>
+                  <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs" id="streakIcon-5">5</div>
+                  <div class="text-[10px] font-bold text-slate-500" id="streakText-5">₹3,000 लक्ष्य</div>
+                </div>
+                <div id="streakDay-6" class="p-3 rounded-2xl border border-slate-200 bg-white space-y-1 transition-all">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">दिन 6</span>
+                  <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs" id="streakIcon-6">6</div>
+                  <div class="text-[10px] font-bold text-slate-500" id="streakText-6">₹3,000 लक्ष्य</div>
+                </div>
+                <div id="streakDay-7" class="p-3 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 space-y-1 transition-all">
+                  <span class="text-[10px] uppercase font-extrabold text-amber-700 block">दिन 7 (अनलॉक)</span>
+                  <div class="w-8 h-8 mx-auto rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs" id="streakIcon-7">👑</div>
+                  <div class="text-[10px] font-extrabold text-amber-800" id="streakText-7">लेवल 2 गेटवे</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LEVEL 2 PERKS & BONUSES MATRIX (3 TIERS) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              
+              <!-- TIER 1: COURSE TICKET UNLOCK -->
+              <div id="cardPerkCourse" class="p-4 rounded-2xl border border-slate-200 bg-white/95 space-y-2 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-purple-700">विशेषाधिकार 1</span>
+                  <span id="badgePerkCourse" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                    🔒 लेवल 1 में लॉक
+                  </span>
+                </div>
+                <div class="text-sm font-extrabold text-slate-900">
+                  ₹24,000 गुरुकुल पाठ्यक्रम टिकट
+                </div>
+                <div class="text-xs font-black text-purple-900">
+                  इंसेंटिव: ₹2,400 <span class="text-[10px] text-slate-500 font-normal">/एडमिशन</span>
+                </div>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  लेवल 2 अनलॉक होते ही 1-वर्षीय गुरुकुल कोर्स का टिकट साइज ओपन हो जाएगा। 10% कूपन पर ₹1,200 इंसेंटिव।
+                </p>
+              </div>
+
+              <!-- TIER 2: 7-DAY STREAK MONTH-END BONUS -->
+              <div id="cardPerkStreakBonus" class="p-4 rounded-2xl border border-slate-200 bg-white/95 space-y-2 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">विशेषाधिकार 2</span>
+                  <span id="badgePerkStreakBonus" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                    लेवल 2 नियम
+                  </span>
+                </div>
+                <div class="text-sm font-extrabold text-slate-900">
+                  ₹1,000 मंथ-एंड स्ट्रीक बोनस
+                </div>
+                <div class="text-xs font-black text-emerald-700">
+                  अतिरिक्त नकद दक्षिणा
+                </div>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  लेवल 2 में 1 हफ्ता (7 दिन) लगातार ₹3,000/दिन कमाने पर माह के अंत में सीधा <strong>₹1,000 अतिरिक्त बोनस</strong> मिलेगा।
+                </p>
+              </div>
+
+              <!-- TIER 3: ₹1 LAKH INCENTIVE MILESTONE BONUS -->
+              <div id="cardPerkCrownBonus" class="p-4 rounded-2xl border border-slate-200 bg-white/95 space-y-2 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700">महा-बोनस क्लब</span>
+                  <span id="badgePerkCrownBonus" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                    ₹1 लाख लक्ष्य
+                  </span>
+                </div>
+                <div class="text-sm font-extrabold text-slate-900 flex items-center justify-between">
+                  <span>₹10,000 नकद महा-बोनस</span>
+                  <span id="level2MonthlyIncDisplay" class="font-mono text-xs font-bold text-purple-900">₹0 / ₹1L</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div id="level2MonthlyProgressBar" class="bg-gradient-to-r from-purple-600 to-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p class="text-[11px] text-slate-600 leading-snug">
+                  लेवल 2 में कुल मासिक इंसेंटिव ₹1,00,000 (1 लाख) पार करने पर सीधा <strong>₹10,000 नकद महा-बोनस</strong>!
+                </p>
+                <div class="flex items-center gap-1.5 pt-1">
+                  <button onclick="addMonthlyIncentive(25000)" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-900 rounded-lg text-[10px] font-bold border border-purple-200 transition">
+                    +₹25k टेस्ट
+                  </button>
+                  <button onclick="simulateCrownMilestone()" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-[10px] font-bold border border-amber-300 transition">
+                    👑 ₹1 लाख पूरा करें
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ========================================================================= -->
+          <!-- HORIZONTAL DAILY TASK & INCENTIVE CALCULATOR TABLE (दैनिक कार्य व इंसेंटिव गणना पटल) -->
+          <!-- ========================================================================= -->
+          <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
+                    दैनिक कार्य व वास्तविक इंसेंटिव गणना पटल
+                  </span>
+                  <span class="text-xs text-slate-500 font-medium">सूत्रधार लेवल 1 • पारदर्शी लाइव मल्टीप्लायर</span>
+                </div>
+                <h2 class="text-xl font-extrabold text-blue-950 mt-1 tracking-tight">
+                  आज का दैनिक कार्य, प्रति सेल दक्षिणा व इंसेंटिव तालिका
+                </h2>
+                <p class="text-xs text-slate-600 max-w-2xl mt-0.5 leading-relaxed">
+                  यहाँ कोई कठोर बंधन या बंदिश नहीं है—जितनी सेवा आप करेंगे, सीधे दक्षिणा आपके खाते में जुड़ेगी। प्रत्येक कार्य का प्रति सेल इंसेंटिव नीचे स्पष्ट है। आज आपने जितना किया, उसकी सीधी गणना व गुणनफल सामने देखें।
+                </p>
+              </div>
+
+              <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4 text-right min-w-[230px] shrink-0">
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">आज की कुल अर्जित दक्षिणा</span>
+                <div class="text-3xl font-black text-emerald-700 tracking-tight my-0.5" id="dashHeaderTotalAmount">
+                  ₹0
+                </div>
+                <span class="text-[11px] text-emerald-800 font-semibold flex items-center justify-end space-x-1">
+                  <span>⚡ 2-घंटे सीधे UPI पेआउट सक्षम</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Responsive Horizontal Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse min-w-[760px]">
+                <thead>
+                  <tr class="bg-slate-50 border-y border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
+                    <th class="py-3.5 px-4 rounded-l-xl">दैनिक कार्य व सेवा उत्पाद</th>
+                    <th class="py-3.5 px-4">टिकट साइज (MRP)</th>
+                    <th class="py-3.5 px-4">प्रति सेल दक्षिणा</th>
+                    <th class="py-3.5 px-4 text-center">सुझाई गई दैनिक क्षमता</th>
+                    <th class="py-3.5 px-4 text-center">आज आपने कितना किया?</th>
+                    <th class="py-3.5 px-4 text-right">आज का बना इंसेंटिव (गणना)</th>
+                    <th class="py-3.5 px-4 text-center rounded-r-xl">त्वरित एक्शन</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                  
+                  <!-- ROW 1: MICRO REPORTS (3 छोटी रिपोर्ट्स) -->
+                  <tr class="hover:bg-slate-50/70 transition">
+                    <td class="py-4 px-4">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm shrink-0">
+                          📜
+                        </div>
+                        <div>
+                          <span class="font-extrabold text-slate-900 block text-xs">छोटी रिपोर्ट्स (Micro Reports)</span>
+                          <span class="text-[11px] text-slate-500">त्वरित 1-विषय/दैनिक गोचर/गोचर फल रिपोर्ट</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 font-bold text-slate-700">
+                      ₹199 – ₹299 <span class="text-[10px] font-normal text-slate-400">/रिपोर्ट</span>
+                      <span class="block text-[10px] text-slate-400 font-normal">धन योग ₹299 • मांगलिक ₹199</span>
+                    </td>
+                    <td class="py-4 px-4">
+                      <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-extrabold border border-emerald-200 text-[11px]">
+                        ₹80 प्रति सेल
+                      </span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <span class="text-xs font-bold text-blue-900 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                        3 रिपोर्ट्स
+                      </span>
+                      <span class="block text-[10px] text-slate-400 mt-0.5">मानक लक्ष्य: ₹240</span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="inline-flex items-center space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="changeTaskCount('micro', -1)" title="कम करें" class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shadow-xs transition">
+                          −
+                        </button>
+                        <span id="taskCount-micro" class="w-8 text-center font-extrabold text-sm text-blue-950">
+                          0
+                        </span>
+                        <button onclick="changeTaskCount('micro', 1)" title="बढ़ाएं" class="w-7 h-7 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center shadow-xs transition">
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-right">
+                      <div class="font-mono text-xs">
+                        <span id="taskCalc-micro" class="text-slate-500">0 × ₹80</span> = 
+                        <strong id="taskAmount-micro" class="text-sm font-extrabold text-blue-950 ml-1">₹0</strong>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="flex items-center justify-center space-x-1.5">
+                        <button onclick="logTaskSale('micro')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[11px] font-bold shadow-xs transition flex items-center space-x-1">
+                          <span>+ सेल जोड़ें</span>
+                        </button>
+                        <button onclick="copyCouponToClipboard()" title="10% कूपन (आपकी सूत्रधार आईडी) शेयर करें" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition flex items-center space-x-1">
+                          <i data-lucide="ticket-percent" class="w-3.5 h-3.5"></i>
+                          <span>10% कूपन</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- ROW 2: MEGA PARASHARA REPORT (1 मेगा पाराशर रिपोर्ट) -->
+                  <tr class="hover:bg-slate-50/70 transition">
+                    <td class="py-4 px-4">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm shrink-0">
+                          ⭐
+                        </div>
+                        <div>
+                          <span class="font-extrabold text-slate-900 block text-xs">मेगा पाराशर संहिता रिपोर्ट (Mega Parashara)</span>
+                          <span class="text-[11px] text-slate-500">९७ अध्याय संपूर्ण जीवन-कुण्डली, दशाफल व सात्विक उपाय</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 font-bold text-slate-700">
+                      ₹1,111 <span class="text-[10px] font-normal text-slate-400">/रिपोर्ट</span>
+                    </td>
+                    <td class="py-4 px-4">
+                      <div class="space-y-0.5">
+                        <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 font-extrabold border border-emerald-200 text-[11px] block w-fit">
+                          ₹350 फुल प्राइस
+                        </span>
+                        <span class="text-[10px] text-emerald-700 font-medium block">
+                          ₹295 (10% कूपन पर - देय ₹1,000)
+                        </span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <span class="text-xs font-bold text-purple-900 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">
+                        1 रिपोर्ट
+                      </span>
+                      <span class="block text-[10px] text-slate-400 mt-0.5">मानक लक्ष्य: ₹350</span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="inline-flex items-center space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="changeTaskCount('parashara', -1)" title="कम करें" class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shadow-xs transition">
+                          −
+                        </button>
+                        <span id="taskCount-parashara" class="w-8 text-center font-extrabold text-sm text-blue-950">
+                          0
+                        </span>
+                        <button onclick="changeTaskCount('parashara', 1)" title="बढ़ाएं" class="w-7 h-7 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center justify-center shadow-xs transition">
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-right">
+                      <div class="font-mono text-xs">
+                        <span id="taskCalc-parashara" class="text-slate-500">0 × ₹350</span> = 
+                        <strong id="taskAmount-parashara" class="text-sm font-extrabold text-purple-950 ml-1">₹0</strong>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="flex items-center justify-center space-x-1.5">
+                        <button onclick="logTaskSale('parashara')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[11px] font-bold shadow-xs transition flex items-center space-x-1">
+                          <span>+ सेल जोड़ें</span>
+                        </button>
+                        <button onclick="copyCouponToClipboard()" title="10% कूपन (आपकी सूत्रधार आईडी) शेयर करें" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition flex items-center space-x-1">
+                          <i data-lucide="ticket-percent" class="w-3.5 h-3.5"></i>
+                          <span>10% कूपन</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- ROW 3: MUHURAT REPORT (1 मुहूर्त रिपोर्ट) -->
+                  <tr class="hover:bg-slate-50/70 transition">
+                    <td class="py-4 px-4">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0">
+                          🕉️
+                        </div>
+                        <div>
+                          <span class="font-extrabold text-slate-900 block text-xs">शास्त्र-सम्मत मुहूर्त रिपोर्ट (Muhurat Report)</span>
+                          <span class="text-[11px] text-slate-500">21 महादोष-रहित विवाह / गृह प्रवेश / व्यापार मुहूर्त</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 font-bold text-slate-700">
+                      ₹1,111 <span class="text-[10px] font-normal text-slate-400">/रिपोर्ट</span>
+                    </td>
+                    <td class="py-4 px-4">
+                      <div class="space-y-0.5">
+                        <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 font-extrabold border border-emerald-200 text-[11px] block w-fit">
+                          ₹350 फुल प्राइस
+                        </span>
+                        <span class="text-[10px] text-emerald-700 font-medium block">
+                          ₹295 (10% कूपन पर - देय ₹1,000)
+                        </span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <span class="text-xs font-bold text-amber-900 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                        1 रिपोर्ट
+                      </span>
+                      <span class="block text-[10px] text-slate-400 mt-0.5">मानक लक्ष्य: ₹350</span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="inline-flex items-center space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="changeTaskCount('muhurat', -1)" title="कम करें" class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shadow-xs transition">
+                          −
+                        </button>
+                        <span id="taskCount-muhurat" class="w-8 text-center font-extrabold text-sm text-blue-950">
+                          0
+                        </span>
+                        <button onclick="changeTaskCount('muhurat', 1)" title="बढ़ाएं" class="w-7 h-7 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold flex items-center justify-center shadow-xs transition">
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-right">
+                      <div class="font-mono text-xs">
+                        <span id="taskCalc-muhurat" class="text-slate-500">0 × ₹350</span> = 
+                        <strong id="taskAmount-muhurat" class="text-sm font-extrabold text-amber-950 ml-1">₹0</strong>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="flex items-center justify-center space-x-1.5">
+                        <button onclick="logTaskSale('muhurat')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-bold shadow-xs transition flex items-center space-x-1">
+                          <span>+ सेल जोड़ें</span>
+                        </button>
+                        <button onclick="copyCouponToClipboard()" title="10% कूपन (आपकी सूत्रधार आईडी) शेयर करें" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition flex items-center space-x-1">
+                          <i data-lucide="ticket-percent" class="w-3.5 h-3.5"></i>
+                          <span>10% कूपन</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- ROW 4: VIP CONSULTATION (1 दैवज्ञ VIP परामर्श) -->
+                  <tr class="hover:bg-slate-50/70 transition">
+                    <td class="py-4 px-4">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">
+                          🙏
+                        </div>
+                        <div>
+                          <span class="font-extrabold text-slate-900 block text-xs">दैवज्ञ VIP परामर्श (1-on-1 Consultation)</span>
+                          <span class="text-[11px] text-slate-500">वरिष्ठ दैवज्ञ के साथ 30-मिनट निजी वीडियो परामर्श व शंका समाधान</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 font-bold text-slate-700">
+                      ₹5,100 <span class="text-[10px] font-normal text-slate-400">/सत्र</span>
+                    </td>
+                    <td class="py-4 px-4">
+                      <div class="space-y-1">
+                        <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 font-extrabold border border-emerald-300 text-[11px] block w-fit">
+                          ₹1,500 फुल प्राइस
+                        </span>
+                        <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 block w-fit">
+                          ₹1,245 (10% कूपन पर - 50:50 स्प्लिट)
+                        </span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <span class="text-xs font-bold text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                        1 परामर्श
+                      </span>
+                      <span class="block text-[10px] text-slate-400 mt-0.5">मानक लक्ष्य: ₹1,500</span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="inline-flex items-center space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="changeTaskCount('consultation', -1)" title="कम करें" class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shadow-xs transition">
+                          −
+                        </button>
+                        <span id="taskCount-consultation" class="w-8 text-center font-extrabold text-sm text-blue-950">
+                          0
+                        </span>
+                        <button onclick="changeTaskCount('consultation', 1)" title="बढ़ाएं" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center justify-center shadow-xs transition">
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-right">
+                      <div class="font-mono text-xs">
+                        <span id="taskCalc-consultation" class="text-slate-500">0 × ₹1,500</span> = 
+                        <strong id="taskAmount-consultation" class="text-sm font-extrabold text-emerald-700 ml-1">₹0</strong>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="flex items-center justify-center space-x-1.5">
+                        <button onclick="logTaskSale('consultation')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold shadow-xs transition flex items-center space-x-1">
+                          <span>+ सेल जोड़ें</span>
+                        </button>
+                        <button onclick="copyCouponToClipboard()" title="10% कूपन (आपकी सूत्रधार आईडी) शेयर करें" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition flex items-center space-x-1">
+                          <i data-lucide="ticket-percent" class="w-3.5 h-3.5"></i>
+                          <span>10% कूपन</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- ROW 5: 1-YEAR GURUKUL COURSE (1-वर्षीय गुरुकुल पाठ्यक्रम) -->
+                  <tr id="taskRow-course" class="hover:bg-purple-50/50 transition bg-purple-50/20">
+                    <td class="py-4 px-4">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm shrink-0">
+                          🎓
+                        </div>
+                        <div>
+                          <div class="flex items-center space-x-2">
+                            <span class="font-extrabold text-slate-900 block text-xs">1-वर्षीय गुरुकुल पाठ्यक्रम (Gurukul Course)</span>
+                            <span id="courseRowLockBadge" class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                              🔒 केवल लेवल 2 में अनलॉक
+                            </span>
+                          </div>
+                          <span class="text-[11px] text-slate-500">11 शिष्यों वाला विशेष चैत्र शुक्ल प्रतिपदा बैच • आचार्य सानिध्य</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 font-bold text-purple-950">
+                      ₹24,000 <span class="text-[10px] font-normal text-slate-400">/एडमिशन</span>
+                    </td>
+                    <td class="py-4 px-4">
+                      <div class="space-y-0.5">
+                        <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 font-extrabold border border-emerald-300 text-[11px] block w-fit">
+                          ₹2,400 फुल प्राइस
+                        </span>
+                        <span class="text-[10px] text-purple-700 font-medium block">
+                          ₹1,200 (10% VIDYA10 कूपन पर - 50:50 स्प्लिट)
+                        </span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <span id="courseCapacityBadge" class="text-xs font-bold text-purple-900 bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-200">
+                        1 एडमिशन
+                      </span>
+                      <span class="block text-[10px] text-slate-400 mt-0.5">मानक लक्ष्य: ₹2,400</span>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="inline-flex items-center space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200" id="courseStepperContainer">
+                        <button onclick="changeTaskCount('course', -1)" title="कम करें" class="w-7 h-7 rounded-lg bg-white hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center shadow-xs transition">
+                          −
+                        </button>
+                        <span id="taskCount-course" class="w-8 text-center font-extrabold text-sm text-purple-950">
+                          0
+                        </span>
+                        <button onclick="changeTaskCount('course', 1)" title="बढ़ाएं" class="w-7 h-7 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center justify-center shadow-xs transition">
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-right">
+                      <div class="font-mono text-xs">
+                        <span id="taskCalc-course" class="text-slate-500">0 × ₹2,400</span> = 
+                        <strong id="taskAmount-course" class="text-sm font-extrabold text-purple-950 ml-1">₹0</strong>
+                      </div>
+                    </td>
+                    <td class="py-4 px-4 text-center">
+                      <div class="flex items-center justify-center space-x-1.5" id="courseActionContainer">
+                        <button onclick="logTaskSale('course')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[11px] font-bold shadow-xs transition flex items-center space-x-1">
+                          <span>+ सेल जोड़ें</span>
+                        </button>
+                        <button onclick="copyCouponToClipboard('VIDYA10')" title="10% कूपन (VIDYA10) शेयर करें" class="p-1.5 bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 rounded-lg text-[11px] font-bold transition flex items-center space-x-1">
+                          <i data-lucide="ticket-percent" class="w-3.5 h-3.5"></i>
+                          <span>VIDYA10</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Footer / Daily Totals Summary Bar -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div class="space-y-1 w-full md:w-auto">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs text-slate-500 font-medium">आज का कुल कार्य:</span>
+                  <span id="totalDailyCountDisplay" class="font-extrabold text-sm text-slate-900 bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">
+                    0 सेवाएँ
+                  </span>
+                  <span class="text-xs text-slate-500 font-medium ml-2">आज की कुल अर्जित दक्षिणा:</span>
+                  <span id="totalDailyAmountDisplay" class="font-black text-lg text-emerald-700 bg-emerald-50 px-3 py-0.5 rounded-lg border border-emerald-200">
+                    ₹0
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-2" id="dailyTableSummaryText">
+                  <span>💡 <strong>लेवल 1 दैनिक मानक लक्ष्य:</strong> <strong class="text-emerald-700 font-extrabold">₹1,000 / दिन</strong> (सुझाई गई क्षमता: ₹2,440/दिन)</span>
+                  <span>•</span>
+                  <span>लगातार 7 दिन ₹3,000/दिन स्ट्रीक ➔ <strong class="text-purple-700 font-bold">लेवल 2 अनलॉक!</strong></span>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-2 shrink-0 w-full md:w-auto justify-end">
+                <button onclick="resetDailyTasks()" class="px-3.5 py-2.5 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-xl text-xs font-bold transition">
+                  🔄 रीसेट (नया दिन)
+                </button>
+                <button onclick="claimDailyPayout()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-sm transition flex items-center space-x-1.5">
+                  <i data-lucide="zap" class="w-4 h-4"></i>
+                  <span>आज की दक्षिणा पेआउट में भेजें</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Quick Actions & Tracked Link -->
+          <div class="bg-blue-50/80 border border-blue-200 rounded-3xl p-6 space-y-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+                🚀
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-blue-950">
+                  श्री राम जी एस्ट्रो (shriramjiastro.in) सुरक्षित इन-ऐप एट्रिब्यूशन
+                </h3>
+                <p class="text-xs text-slate-600">
+                  ग्राहकों को व्हाट्सएप पर असुरक्षित पेमेंट लिंक न भेजें। उनका नंबर लॉक करें या कूपन कोड देकर ऐप से पे कराएं।
+                </p>
+              </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-blue-200/80 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div class="space-y-1 w-full md:w-auto">
+                <div class="flex items-center space-x-2">
+                  <span class="text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border border-blue-200">
+                    सुरक्षित इन-ऐप मॉडल
+                  </span>
+                  <span class="text-xs text-slate-500">नो व्हाट्सएप लिंक डर • 100% वेरिफाइड</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xs text-slate-700 font-medium">आपका 10% यूनिवर्सल कूपन:</span>
+                    <span id="quickAgentCoupon" class="font-mono text-sm font-extrabold text-blue-900 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-300">SD-105</span>
+                    <button onclick="copyCouponToClipboard()" title="कूपन कॉपी करें" class="text-[10px] bg-blue-100 hover:bg-blue-200 text-blue-900 font-bold px-2 py-0.5 rounded transition">कॉपी</button>
+                    <span class="text-[11px] text-emerald-700 font-semibold">(सभी प्रोडक्ट्स पर 10% फ्लैट छूट)</span>
+                  </div>
+                  <span class="text-xs text-slate-300">•</span>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">✨ आपकी आईडी ही कूपन कोड • 100% डबल वेरिफिकेशन</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 shrink-0">
+                <button onclick="switchTab('salesManager')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center space-x-1.5">
+                  <i data-lucide="ticket-percent" class="w-4 h-4"></i>
+                  <span>कूपन कोड व सेल्स कंसोल खोलें</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- TAB: 1-YEAR GURUKUL COURSE (11-SEAT COHORT & BRAHMASTRA INCENTIVE CONSOLE) -->
+        <section id="tab-courseCohort" class="hidden space-y-6">
+          
+          <!-- Cohort Hero & Scarcity Tracker -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs relative overflow-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-900 border border-purple-200">
+                    1-वर्षीय वैदिक दैवज्ञ प्रमाण-पत्र पाठ्यक्रम
+                  </span>
+                  <span class="text-xs text-slate-500 font-medium">चैत्र शुक्ल प्रतिपदा बैच (सत्र 2026-27)</span>
+                </div>
+                <h2 class="text-2xl font-extrabold text-blue-950 mt-1.5 tracking-tight">
+                  11-सीट गुरुकुल बैच व 'ब्रह्मास्त्र इंसेंटिव' कंसोल
+                </h2>
+                <p class="text-xs text-slate-600 max-w-2xl mt-1">
+                  आचार्य जी के सानिध्य में व्यक्तिगत मार्गदर्शन • पूरे वर्ष में केवल 4 बैच (कुल 44 छात्र) • प्रति बैच कठोर सीमा: <strong>केवल 11 सीटें</strong>।
+                </p>
+              </div>
+
+              <!-- Live Seat Gauge -->
+              <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 text-center min-w-[200px] shrink-0">
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">बैच उपलब्धता स्थिति</span>
+                <div class="text-3xl font-extrabold text-purple-950 my-0.5">
+                  7 <span class="text-lg text-slate-400 font-normal">/ 11</span>
+                </div>
+                <div class="w-full bg-purple-200 h-2 rounded-full overflow-hidden my-1.5">
+                  <div class="bg-purple-600 h-full rounded-full" style="width: 63.6%"></div>
+                </div>
+                <span class="text-[11px] text-purple-700 font-bold animate-pulse">केवल 4 सीटें शेष!</span>
+              </div>
+            </div>
+
+            <!-- 11 SEATS VISUALIZER GRID -->
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-3">
+                11 शिष्यों का लाइव सीट आवंटन (Live Seat Allocation):
+              </span>
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2.5">
+                <!-- Occupied Seats 1-7 -->
+                <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">1</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">विपुल शर्मा</div>
+                  <div class="text-[9px] text-emerald-700 font-semibold">शुल्क: ₹24,000</div>
+                </div>
+                <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">2</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">अनुराग द्विवेदी</div>
+                  <div class="text-[9px] text-purple-700 font-semibold">कूपन: ₹22,000</div>
+                </div>
+                <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">3</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">मनीष शास्त्री</div>
+                  <div class="text-[9px] text-emerald-700 font-semibold">शुल्क: ₹24,000</div>
+                </div>
+                <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">4</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">रोहित त्रिपाठी</div>
+                  <div class="text-[9px] text-emerald-700 font-semibold">शुल्क: ₹24,000</div>
+                </div>
+                <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">5</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">प्रिया जोशी</div>
+                  <div class="text-[9px] text-purple-700 font-semibold">कूपन: ₹22,000</div>
+                </div>
+                <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">6</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">अमित पाण्डेय</div>
+                  <div class="text-[9px] text-emerald-700 font-semibold">शुल्क: ₹24,000</div>
+                </div>
+                <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">7</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">डॉ. सुनील राव</div>
+                  <div class="text-[9px] text-emerald-700 font-semibold">शुल्क: ₹24,000</div>
+                </div>
+
+                <!-- Vacant Seats 8-11 -->
+                <div class="p-2.5 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/40 text-center space-y-1 animate-pulse">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-amber-500 text-white font-bold text-xs flex items-center justify-center">8</div>
+                  <div class="font-bold text-[11px] text-amber-900">रिक्त सीट</div>
+                  <div class="text-[9px] text-purple-700 font-bold">₹2,400 इंसेंटिव</div>
+                </div>
+                <div class="p-2.5 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/40 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-amber-500 text-white font-bold text-xs flex items-center justify-center">9</div>
+                  <div class="font-bold text-[11px] text-amber-900">रिक्त सीट</div>
+                  <div class="text-[9px] text-purple-700 font-bold">₹2,400 इंसेंटिव</div>
+                </div>
+                <div class="p-2.5 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/40 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-amber-500 text-white font-bold text-xs flex items-center justify-center">10</div>
+                  <div class="font-bold text-[11px] text-amber-900">रिक्त सीट</div>
+                  <div class="text-[9px] text-purple-700 font-bold">₹2,400 इंसेंटिव</div>
+                </div>
+                <div class="p-2.5 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/40 text-center space-y-1">
+                  <div class="w-7 h-7 mx-auto rounded-full bg-amber-500 text-white font-bold text-xs flex items-center justify-center">11</div>
+                  <div class="font-bold text-[11px] text-amber-900">अंतिम सीट</div>
+                  <div class="text-[9px] text-red-600 font-bold">बैच क्लोजिंग</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LEVEL 2 EXCLUSIVE UNLOCK & SUPER BONUSES BANNER -->
+          <div class="p-5 rounded-3xl bg-gradient-to-r from-purple-900 via-indigo-950 to-blue-950 text-white shadow-lg space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-purple-800/80 pb-3">
+              <div class="flex items-center space-x-2">
+                <span class="text-xl">👑</span>
+                <h3 class="font-extrabold text-base tracking-tight">लेवल 2 विशेषाधिकार, स्ट्रीक बोनस व ₹1 लाख क्लब नियम</h3>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-purple-950 w-fit">
+                आधिकारिक नियमावली
+              </span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <div class="p-3 bg-white/10 rounded-2xl border border-white/15 space-y-1">
+                <span class="text-amber-300 font-bold text-[11px] block">1. लेवल 2 अनलॉक नियम:</span>
+                <p class="text-purple-100 text-[11px] leading-relaxed">
+                  लगातार 1 हफ्ता (7 दिन) प्रतिदिन न्यूनतम <strong>₹3,000 इंसेंटिव</strong> कमाने पर लेवल 2 अनलॉक होगा और यह ₹24,000 टिकट साइज खुलेगा।
+                </p>
+              </div>
+              <div class="p-3 bg-white/10 rounded-2xl border border-white/15 space-y-1">
+                <span class="text-emerald-300 font-bold text-[11px] block">2. ₹1,000 मंथ-एंड स्ट्रीक बोनस:</span>
+                <p class="text-purple-100 text-[11px] leading-relaxed">
+                  लेवल 2 में लगातार 1 हफ्ता (7 दिन) ₹3,000/दिन इंसेंटिव कमाने पर मंथ-एंड पर <strong>₹1,000 अतिरिक्त नकद बोनस</strong> मिलेगा।
+                </p>
+              </div>
+              <div class="p-3 bg-white/10 rounded-2xl border border-white/15 space-y-1">
+                <span class="text-amber-300 font-bold text-[11px] block">3. ₹10,000 महा-बोनस क्लब:</span>
+                <p class="text-purple-100 text-[11px] leading-relaxed">
+                  लेवल 2 का सूत्रधार माह में ₹1,00,000 (1 लाख) इंसेंटिव अर्जित करने पर <strong>₹10,000 का नकद महा-बोनस</strong> प्राप्त करेगा।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- BRAHMASTRA INCENTIVE MATRIX (2 OPTIONS) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- OPTION A: FULL-PRICE CLOSING -->
+            <div class="bg-white border-2 border-emerald-500 rounded-3xl p-6 shadow-sm space-y-4 relative overflow-hidden">
+              <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                सर्वोच्च पेआउट • बंपर बोनस
+              </div>
+              
+              <div class="space-y-1">
+                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">रणनीति 1 (प्राथमिक लक्ष्य)</span>
+                <h3 class="text-lg font-extrabold text-slate-900">पूर्ण शुल्क प्रवेश (Full ₹24,000 Admission)</h3>
+                <p class="text-xs text-slate-500">जब छात्र बिना किसी डिस्काउंट के सीधे पूर्ण शुल्क पर प्रवेश लेता है।</p>
+              </div>
+
+              <div class="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-600">छात्र द्वारा भुगतान:</span>
+                  <span class="font-extrabold text-slate-900 font-mono text-sm">₹24,000</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-600">संस्थान को शुद्ध प्राप्ति:</span>
+                  <span class="font-bold text-slate-700 font-mono">₹21,600</span>
+                </div>
+                <div class="flex justify-between items-center text-xs pt-2 border-t border-emerald-200">
+                  <span class="font-bold text-emerald-900">सूत्रधार शुद्ध इंसेंटिव:</span>
+                  <span class="font-extrabold text-emerald-700 font-mono text-base">₹2,400</span>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-slate-600 space-y-1">
+                <div class="flex items-center space-x-1.5 text-emerald-800 font-semibold">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                  <span>2 घंटे के भीतर UPI पेआउट बैंक खाते में</span>
+                </div>
+                <div class="flex items-center space-x-1.5 text-slate-600">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                  <span>मासिक वीआईपी लीडरबोर्ड में 100 पॉइंट्स</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- OPTION B: BRAHMASTRA SCHOLARSHIP COUPON -->
+            <div class="bg-white border-2 border-purple-500 rounded-3xl p-6 shadow-sm space-y-4 relative overflow-hidden">
+              <div class="absolute top-0 right-0 bg-purple-600 text-white text-[10px] font-extrabold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                ब्रह्मास्त्र क्लोजर • 10% छात्रवृत्ति
+              </div>
+
+              <div class="space-y-1">
+                <span class="text-xs font-bold text-purple-700 uppercase tracking-wider">रणनीति 2 (डील बचाने का ब्रह्मास्त्र)</span>
+                <h3 class="text-lg font-extrabold text-slate-900">10% विद्या संबल छात्रवृत्ति (₹21,600 Admission)</h3>
+                <p class="text-xs text-slate-500">जब छात्र बजट के कारण रुक रहा हो, तब उसे 10% (₹2,400 छूट) देकर तुरंत क्लोज करें।</p>
+              </div>
+
+              <div class="p-4 bg-purple-50/70 border border-purple-200 rounded-2xl space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-600">छात्र द्वारा भुगतान (10% छूट):</span>
+                  <span class="font-extrabold text-purple-950 font-mono text-sm">₹21,600 <span class="text-[10px] text-slate-400 font-normal line-through">₹24,000</span></span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-600">₹2,400 छूट का 50:50 स्प्लिट:</span>
+                  <span class="font-bold text-slate-700 text-[11px]">कंपनी: -₹1,200 • सूत्रधार: -₹1,200</span>
+                </div>
+                <div class="flex justify-between items-center text-xs pt-2 border-t border-purple-200">
+                  <div>
+                    <span class="font-bold text-purple-950 block">सूत्रधार शुद्ध इंसेंटिव:</span>
+                    <span class="text-[10px] text-slate-500 font-normal">फुल पेमेंट कराने पर पूरा ₹2,400</span>
+                  </div>
+                  <span class="font-extrabold text-purple-700 font-mono text-base">₹1,200</span>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-slate-600 space-y-1">
+                <div class="flex items-center space-x-1.5 text-purple-900 font-semibold">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-purple-600"></i>
+                  <span>डील छूटी नहीं, छात्र खुश और ₹1,200 सीधा 2-घंटे पेआउट</span>
+                </div>
+                <div class="flex items-center space-x-1.5 text-slate-600">
+                  <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-600"></i>
+                  <span>प्रति सूत्रधार प्रति बैच केवल 2 कूपन की सीमा</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- BRAHMASTRA SCRIPT & LIVE ISSUER CONSOLE -->
+          <div class="bg-purple-950 text-white rounded-3xl p-6 space-y-5 shadow-lg">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-purple-800 pb-4">
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xl">⚡</span>
+                  <h3 class="text-lg font-extrabold tracking-tight">आपका 10% ब्रह्मास्त्र कूपन कंसोल</h3>
+                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-400 text-purple-950">कोटा: 2/2 शेष</span>
+                </div>
+                <p class="text-xs text-purple-200">
+                  इसे सार्वजनिक न करें। केवल तभी इस्तेमाल करें जब छात्र फीस के कारण हिचकिचा रहा हो।
+                </p>
+              </div>
+
+              <div class="flex items-center space-x-2 shrink-0">
+                <span class="text-xs text-purple-300">ब्रह्मास्त्र कोड:</span>
+                <span class="font-mono text-base font-extrabold bg-purple-900 px-3 py-1 rounded-xl border border-purple-600 text-amber-300">VIDYA10</span>
+              </div>
+            </div>
+
+            <!-- Pitch Script Box -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-amber-300 uppercase tracking-wider">ब्रह्मास्त्र क्लोजिंग पिच (छात्र को क्या बोलें):</label>
+              <div class="p-4 bg-purple-900/80 border border-purple-700 rounded-2xl text-xs text-purple-100 leading-relaxed font-sans relative group">
+                "सर, हमारे आचार्य जी के 11 शिष्यों वाले विशेष गुरुकुल बैच में <strong>केवल 4 सीटें बची हैं</strong>। सामान्य शुल्क ₹24,000 है, परंतु ज्योतिष विद्या के प्रति आपके समर्पण को देखते हुए मैं संस्थान के आचार्य कोटे से अपना विशेष <strong>'10% विद्या संबल छात्रवृत्ति कूपन (VIDYA10)'</strong> आपको आवंटित कर रहा हूँ। इससे श्री राम जी एस्ट्रो ऐप में आपकी फीस तुरंत ₹2,400 घटकर मात्र <strong>₹21,600</strong> हो जाएगी। यह विशेष छात्रवृत्ति केवल आज रात्रि 12:00 बजे तक ही मान्य है।"
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+              <span class="text-xs text-purple-300">ऐप में कोड डालते ही छात्र को ₹2,400 (10%) की छूट मिलेगी और आपका ₹1,800 पेआउट लॉक होगा। पूरा पेमेंट कराने पर ₹3,000 आपका!</span>
+              <button onclick="copyBrahmastraPitch()" class="px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-purple-950 font-extrabold text-xs shadow-md transition flex items-center justify-center space-x-2 shrink-0">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+                <span>ब्रह्मास्त्र पिच कॉपी करें</span>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- TAB: 30-SLOT SPRINT -->
+        <section id="tab-consultationSprint" class="hidden space-y-6">
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+            <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">द 30-स्लॉट दैवज्ञ स्प्रिंट (दिसंबर 2026)</h2>
+            <div id="fullCalendarGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 pt-4"></div>
+          </div>
+        </section>
+
+        <!-- TAB: CATEGORY LEADERBOARD -->
+        <section id="tab-categoryLeaderboard" class="hidden space-y-6">
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <h2 class="text-xl font-extrabold text-slate-900">सूत्रधार स्तर लीडरबोर्ड</h2>
+            <div class="overflow-x-auto pt-3">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 font-semibold">
+                  <tr id="categoryTableHeadRow"></tr>
+                </thead>
+                <tbody id="categoryLeaderboardBody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: FAST PAYOUT -->
+        <section id="tab-fastPayout" class="hidden space-y-6">
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <h2 class="text-xl font-extrabold text-slate-900">टास्क सत्यापन व 2-घंटे फास्ट पेआउट इंजन</h2>
+            <div class="overflow-x-auto pt-3">
+              <table class="w-full text-left text-xs">
+                <tbody id="fastPayoutTableBody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: SOURCE MATERIAL, RESEARCH BLOG & SHASTRA PRAMAN HUB (LMS) -->
+        <section id="tab-trainingLms" class="hidden space-y-6">
+          
+          <!-- Hero Banner: Sacred Source Material & Shastra Praman Hub -->
+          <div class="bg-indigo-950 text-white rounded-3xl p-6 shadow-md space-y-3 relative overflow-hidden border border-indigo-800">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="space-y-1.5">
+                <div class="flex items-center space-x-2">
+                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-400 text-indigo-950 uppercase tracking-wider">
+                    🕉️ सनातन वैदिक ज्ञान व शास्त्र-प्रमाणित सत्य
+                  </span>
+                  <span class="text-xs text-amber-200 font-medium">दैवज्ञ सेवा व भ्रम-निवारण किट</span>
+                </div>
+                <h2 class="text-2xl font-extrabold tracking-tight">
+                  शास्त्र-प्रमाणित शोध आलेख, सूक्ष्म कुंडली गणित व जन-कल्याण सामग्री
+                </h2>
+                <p class="text-xs text-indigo-200 max-w-2xl leading-relaxed">
+                  आजकल 5-5 मिनट के फर्जी ऑनलाइन ऐप्स में लोग भय व झूठे दोषों के चक्कर में लुट रहे हैं। महर्षि पाराशर का आदेश है कि <em>ज्योतिष व्यापार नहीं, वेदों का 'प्रकाश (नेत्र)' है</em>। हमारे रिसर्च ब्लॉग के श्लोक-प्रमाणित लेखों को शेयर करें—लोग भय से मुक्त होकर खुद सत्य मार्गदर्शन पाने <strong>श्री राम जी एस्ट्रो</strong> ऐप में आएंगे।
+                </p>
+              </div>
+
+              <!-- Quick Link Card to Research Blog -->
+              <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 text-center min-w-[230px] shrink-0 space-y-2">
+                <span class="text-[10px] uppercase font-bold text-amber-300 tracking-wider block">आपका आधिकारिक शोध ब्लॉग लिंक</span>
+                <code id="displayBlogTrackLink" class="text-xs text-white font-mono font-bold block truncate bg-indigo-900/80 p-2 rounded-xl border border-indigo-700">
+                  https://shriramjiastro.in/blog?ref=SD-105
+                </code>
+                <div class="flex gap-2">
+                  <button onclick="copyBlogLink()" class="flex-1 py-1.5 bg-amber-400 hover:bg-amber-300 text-indigo-950 rounded-lg text-[11px] font-extrabold transition">
+                    लिंक कॉपी
+                  </button>
+                  <a href="https://shriramjiastro.in/blog" target="_blank" class="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg text-[11px] font-bold transition flex items-center justify-center">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- In-Blog Shastric Commitments -->
+            <div class="pt-3 border-t border-indigo-800/80 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div class="flex items-center space-x-2 text-indigo-100">
+                <i data-lucide="scroll" class="w-4 h-4 text-amber-400 shrink-0"></i>
+                <span>महर्षि पाराशर व जैमिनी श्लोक प्रमाण</span>
+              </div>
+              <div class="flex items-center space-x-2 text-indigo-100">
+                <i data-lucide="calculator" class="w-4 h-4 text-amber-400 shrink-0"></i>
+                <span>सूक्ष्म ग्रह-स्पष्ट व पावन मुहूर्त गणित</span>
+              </div>
+              <div class="flex items-center space-x-2 text-indigo-100">
+                <i data-lucide="shield-check" class="w-4 h-4 text-amber-400 shrink-0"></i>
+                <span>5-मिनट के झूठे ऐप्स व भय-व्यापार का खंडन</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 1: OFFICIAL WEBSITE RESEARCH REPOSITORY (SHRIRAMJIASTRO.IN) -->
+          <div class="space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-base font-extrabold text-blue-950 flex items-center space-x-2">
+                  <span>🕉️</span>
+                  <span>आधिकारिक वेबसाइट शोध सामग्री व लिंक्स (shriramjiastro.in)</span>
+                </h3>
+                <p class="text-xs text-slate-500">
+                  हमारे समस्त प्रामाणिक शोध आलेख, शास्त्र-सम्मत कुण्डली गणित व मुहूर्त सामग्री सीधे आधिकारिक पोर्टल पर उपलब्ध हैं।
+                </p>
+              </div>
+              <a href="https://shriramjiastro.in/blog" target="_blank" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 self-start md:self-auto">
+                <span>shriramjiastro.in ब्लॉग खोलें</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              
+              <!-- OFFICIAL PORTAL CARD 1: LIVE WEBSITE RESEARCH BLOG -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3 flex flex-col justify-between hover:border-blue-400 transition">
+                <div class="space-y-2">
+                  <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-base">
+                    📜
+                  </div>
+                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 uppercase tracking-wider block w-fit">
+                    शोध आलेख भंडार
+                  </span>
+                  <h4 class="text-sm font-extrabold text-slate-900 leading-snug">
+                    शास्त्र-प्रमाणित शोध आलेख व जन-कल्याण सामग्री
+                  </h4>
+                  <p class="text-[11px] text-slate-500 leading-relaxed">
+                    विवाह मुहूर्त, साढ़े साती, कालसर्प शांति एवं महर्षि पाराशर के प्रामाणिक श्लोकों पर आधारित आलेख सीधे वेबसाइट से पढ़ें और साझा करें।
+                  </p>
+                </div>
+
+                <div class="space-y-2 pt-2 border-t border-slate-100">
+                  <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] text-slate-600 font-mono break-all">
+                    https://shriramjiastro.in/blog
+                  </div>
+                  <button onclick="copyDirectOfficialLink('https://shriramjiastro.in/blog')" class="w-full py-2 rounded-xl blue-gradient text-white font-bold text-xs shadow-xs transition flex items-center justify-center space-x-1.5">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>रिसर्च ब्लॉग लिंक कॉपी करें</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- OFFICIAL PORTAL CARD 2: KUNDLI & PANCHANG TOOLS -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3 flex flex-col justify-between hover:border-purple-400 transition">
+                <div class="space-y-2">
+                  <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-base">
+                    🧮
+                  </div>
+                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 uppercase tracking-wider block w-fit">
+                    सूक्ष्म गणित पटल
+                  </span>
+                  <h4 class="text-sm font-extrabold text-slate-900 leading-snug">
+                    निःशुल्क कुण्डली, पंचांग व ग्रह-स्पष्ट कैलकुलेटर
+                  </h4>
+                  <p class="text-[11px] text-slate-500 leading-relaxed">
+                    जातक को सूक्ष्म जन्मपत्री, दैनिक चौघड़िया व लग्न साधन हेतु आधिकारिक कैलकुलेटर लिंक दें ताकि वे किसी फर्जी ऐप के चक्कर में न पड़ें।
+                  </p>
+                </div>
+
+                <div class="space-y-2 pt-2 border-t border-slate-100">
+                  <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] text-slate-600 font-mono break-all">
+                    https://shriramjiastro.in/kundli-calculator
+                  </div>
+                  <button onclick="copyDirectOfficialLink('https://shriramjiastro.in/kundli-calculator')" class="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center space-x-1.5">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>कुंडली कैलकुलेटर लिंक कॉपी करें</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- OFFICIAL PORTAL CARD 3: LIVE SYNC & PROMO MATERIALS -->
+              <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-xs space-y-3 flex flex-col justify-between">
+                <div class="space-y-2">
+                  <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-base">
+                    ⚡
+                  </div>
+                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 uppercase tracking-wider block w-fit">
+                    वेबसाइट डायरेक्ट एकीकरण
+                  </span>
+                  <h4 class="text-sm font-extrabold text-amber-950 leading-snug">
+                    वेबसाइट लाइव सामग्री व कूपन अटैचमेंट
+                  </h4>
+                  <p class="text-[11px] text-slate-600 leading-relaxed">
+                    वेबसाइट से कोई भी लेख शेयर करते समय अंत में अपना 10% कूपन कोड <strong class="text-amber-900">आपकी सूत्रधार ID</strong> (पाराशर/मुहूर्त रिपोर्ट) अवश्य लिखें। पाठक जब भी ऐप में रिपोर्ट बुक करेगा, सेल सीधे आपके नाम आएगी (VIP परामर्श पर कूपन वर्जित)।
+                  </p>
+                </div>
+
+                <div class="space-y-2 pt-2 border-t border-amber-200/60">
+                  <div class="p-2.5 bg-white rounded-xl border border-amber-200 text-[10px] text-amber-900 font-semibold flex items-center justify-between">
+                    <span>रिपोर्ट 10% कूपन: <strong>आपकी सूत्रधार ID</strong></span>
+                    <span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">सक्रिय</span>
+                  </div>
+                  <button onclick="copyCouponToClipboard('आपकी सूत्रधार ID')" class="w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center space-x-1.5">
+                    <i data-lucide="ticket-percent" class="w-3.5 h-3.5"></i>
+                    <span>10% कूपन कोड आपकी सूत्रधार ID कॉपी करें</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SECTION 2: WHERE TO SEND? (SACRED DISTRIBUTION CHANNELS) -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+              <h3 class="text-base font-extrabold text-blue-950 flex items-center space-x-2">
+                <i data-lucide="share-2" class="w-4 h-4 text-blue-600"></i>
+                <span>शास्त्र-सम्मत प्रसार माध्यम (The 4 Sacred Outreach Channels)</span>
+              </h3>
+              <p class="text-xs text-slate-500">
+                इन 4 पवित्र माध्यमों पर ज्ञान और सत्य का प्रसार करें, जहाँ जातक सच्चे मन से मार्गदर्शन की खोज में आते हैं:
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+              
+              <!-- CHANNEL 1: FACEBOOK GROUPS -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <div class="flex items-center space-x-2 text-blue-700 font-bold">
+                  <i data-lucide="facebook" class="w-4 h-4"></i>
+                  <span>1. Facebook सत्संग व ज्योतिष समूह</span>
+                </div>
+                <div class="text-[11px] text-slate-600 leading-relaxed space-y-1">
+                  <div><strong>लक्षित समूह:</strong> वैदिक ज्योतिष शोध, वास्तु समाधान, संस्कार व सनातन धर्म परिवार।</div>
+                  <div><strong>मर्यादा:</strong> कभी भी व्यावसायिक विज्ञापन न करें। केवल शास्त्र-प्रमाणित लेख का पावन अंश शेयर करें।</div>
+                </div>
+              </div>
+
+              <!-- CHANNEL 2: TELEGRAM CHANNELS -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <div class="flex items-center space-x-2 text-sky-600 font-bold">
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                  <span>2. Telegram धर्म व पंचांग समूह</span>
+                </div>
+                <div class="text-[11px] text-slate-600 leading-relaxed space-y-1">
+                  <div><strong>लक्षित समूह:</strong> पंचांग चर्चा, मंत्र साधना, गीता स्वाध्याय व धार्मिक जिज्ञासा समूह।</div>
+                  <div><strong>मर्यादा:</strong> रोज़ प्रातःकाल शुभ चौघड़िया व अभिजित मुहूर्त साझा करें। जातक स्वतः मार्गदर्शन हेतु संपर्क करेंगे।</div>
+                </div>
+              </div>
+
+              <!-- CHANNEL 3: WHATSAPP STATUS -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <div class="flex items-center space-x-2 text-emerald-600 font-bold">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
+                  <span>3. WhatsApp स्टेटस साधना (24-घंटे)</span>
+                </div>
+                <div class="text-[11px] text-slate-600 leading-relaxed space-y-1">
+                  <div><strong>लक्षित दर्शक:</strong> आपके फोन संपर्क के सभी आत्मीय जन, यजमान व मित्र।</div>
+                  <div><strong>त्रिकाल साधना:</strong> प्रातः पंचांग ➔ मध्याह्न शोध आलेख ➔ सायंकाल 10% कूपन दक्षिणा छूट (आपकी सूत्रधार ID)!</div>
+                </div>
+              </div>
+
+              <!-- CHANNEL 4: INSTAGRAM & THREADS -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <div class="flex items-center space-x-2 text-pink-600 font-bold">
+                  <i data-lucide="instagram" class="w-4 h-4"></i>
+                  <span>4. Instagram युवा जागृति व भ्रम निवारण</span>
+                </div>
+                <div class="text-[11px] text-slate-600 leading-relaxed space-y-1">
+                  <div><strong>लक्षित दर्शक:</strong> भ्रमित युवा जो 5-मिनट की चैट में समय और धन नष्ट कर रहे हैं।</div>
+                  <div><strong>मर्यादा:</strong> बायो में रिसर्च ब्लॉग लिंक लगाएं और उन्हें तर्क व शास्त्र-सम्मत उत्तर देकर जोड़ें।</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SECTION 3: 4 SACRED OUTREACH SUTRAS (DATA & FAITH GENERATION) -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+              <h3 class="text-base font-extrabold text-blue-950 flex items-center space-x-2">
+                <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+                <span>जातक कल्याण व सत्य मार्गदर्शन के 4 पावन सूत्र (Sacred Outreach Sutras)</span>
+              </h3>
+              <p class="text-xs text-slate-500">
+                इन सूत्रों से जातक के मन में अटूट विश्वास उत्पन्न होता है और वह श्रद्धापूर्वक अपनी जन्मपत्री जांच हेतु संपर्क करता है:
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+              
+              <!-- SUTRA A: FREE RAJYOG & GRAHA SHUDDHI CALCULATOR -->
+              <div class="p-4 bg-blue-50/60 border border-blue-200 rounded-2xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-blue-950 flex items-center space-x-1.5">
+                    <i data-lucide="calculator" class="w-4 h-4 text-blue-600"></i>
+                    <span>सूत्र 1: 'फ्री राजयोग व ग्रह शुद्धि' कैलकुलेटर सूत्र</span>
+                  </span>
+                  <span class="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">सत्य जिज्ञासा</span>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-blue-200 text-slate-700 font-sans leading-relaxed text-[11px]">
+                  "🌟 <strong>क्या आपकी कुंडली में भी गजकेसरी, बुधादित्य या मालव्य राजयोग है?</strong><br>
+                  5-मिनट के फर्जी ऐप्स में पैसे बर्बाद करने से पहले हमारे वैदिक कैलकुलेटर से 1 मिनट में बिल्कुल मुफ्त चेक करें कि आपकी जन्मपत्री में कौन से शुभ योग सक्रिय हैं और भाग्योदय की शास्त्रीय दिशा क्या है: https://shriramjiastro.in/blog?ref=SD-105"
+                </div>
+                <button onclick="copyLeadScript('rajyog')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition flex items-center justify-center space-x-1">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>राजयोग शोध संदेश कॉपी करें</span>
+                </button>
+              </div>
+
+              <!-- SUTRA B: DAILY PANCHANG WHATSAPP STATUS KIT -->
+              <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-emerald-950 flex items-center space-x-1.5">
+                    <i data-lucide="calendar" class="w-4 h-4 text-emerald-600"></i>
+                    <span>सूत्र 2: दैनिक शास्त्रोक्त पंचांग व अभिजित मुहूर्त साधना</span>
+                  </span>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">दैनिक स्टेटस सेवा</span>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-emerald-200 text-slate-700 font-sans leading-relaxed text-[11px]">
+                  "🕉️ <strong>श्री राम जी एस्ट्रो • आज का पावन दैनिक पंचांग व शुभ मुहूर्त:</strong><br>
+                  • आज का श्रेष्ठ अभिजित समय: 11:45 AM से 12:35 PM (अमृत वेला)<br>
+                  • राहुकाल: 04:30 PM से 06:00 PM (नवीन कार्य वर्जित)<br>
+                  अपनी व्यक्तिगत जन्मपत्री का शास्त्र-प्रमाणित विश्लेषण देखने के लिए 'श्री राम जी एस्ट्रो' ऐप डाउनलोड करें, कूपन में आपकी सूत्रधार ID डालें (10% छूट)।"
+                </div>
+                <button onclick="copyLeadScript('panchang')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition flex items-center justify-center space-x-1">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>दैनिक पंचांग स्टेटस कॉपी करें</span>
+                </button>
+              </div>
+
+              <!-- SUTRA C: QUIZ & POLL HOOK FOR GROUPS -->
+              <div class="p-4 bg-purple-50/60 border border-purple-200 rounded-2xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-purple-950 flex items-center space-x-1.5">
+                    <i data-lucide="help-circle" class="w-4 h-4 text-purple-600"></i>
+                    <span>सूत्र 3: भ्रांति निवारण संवाद (मांगलिक/कालसर्प मिथक खंडन)</span>
+                  </span>
+                  <span class="text-[10px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">भय निवारण</span>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-purple-200 text-slate-700 font-sans leading-relaxed text-[11px]">
+                  "❓ <strong>भ्रम निवारण प्रश्न: क्या मांगलिक दोष 28 वर्ष की आयु के बाद स्वतः समाप्त हो जाता है?</strong><br>
+                  (A) हाँ, हमेशा समाप्त होता है<br>
+                  (B) नहीं, यह केवल एक भ्रम है (पाराशर श्लोक सत्य)<br>
+                  👉 90% लोग इसका गलत उत्तर देते हैं! भयभीत होने के बजाय सही शास्त्रीय सत्य और अपनी कुंडली का वास्तविक समाधान पढ़ें: https://shriramjiastro.in/blog?ref=SD-105"
+                </div>
+                <button onclick="copyLeadScript('quiz')" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition flex items-center justify-center space-x-1">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>भ्रम-निवारण संदेश कॉपी करें</span>
+                </button>
+              </div>
+
+              <!-- SUTRA D: 1-CLICK WHATSAPP DIRECT CHAT LINK (WA.ME) -->
+              <div class="p-4 bg-amber-50/60 border border-amber-200 rounded-2xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-amber-950 flex items-center space-x-1.5">
+                    <i data-lucide="message-square" class="w-4 h-4 text-amber-600"></i>
+                    <span>सूत्र 4: पावन सेवा संवाद (wa.me) — 'सत्य सलाह, भय से मुक्ति'</span>
+                  </span>
+                  <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">आत्मीय संपर्क</span>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-amber-200 text-slate-700 font-sans leading-relaxed text-[11px]">
+                  "📲 जातक इस लिंक को दबाते ही सीधे आपके WhatsApp पर एक विनम्र और आदरपूर्ण संदेश के साथ जुड़ेगा:<br>
+                  <em>'नमस्ते, मुझे 5-मिनट वाले ऐप्स के भ्रम से मुक्त होकर अपनी जन्मपत्रिका की शास्त्र-सम्मत जांच करवानी है।'</em><br>
+                  इससे जातक का मोबाइल नंबर सीधे आपके WhatsApp संपर्क में सुरक्षित जुड़ जाता है!"
+                </div>
+                <button onclick="copyLeadScript('wame')" class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold transition flex items-center justify-center space-x-1">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>पावन संवाद लिंक कॉपी करें</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+        <!-- TAB: IN-APP COUPON & DUAL-CHANNEL SALES CONSOLE (NO PHONE LOCKING) -->
+        <section id="tab-salesManager" class="hidden space-y-6">
+          
+          <!-- Banner: The 2 Pure In-App Sales Channels -->
+          <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-5 space-y-2">
+            <div class="flex items-center space-x-2 text-blue-950 font-extrabold text-base">
+              <i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i>
+              <span>श्री राम जी एस्ट्रो (shriramjiastro.in) 2-चैनल इन-ऐप सेल्स प्रणाली</span>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">
+              किसी का नंबर पहले से लॉक करने या व्हाट्सएप पर असुरक्षित लिंक भेजने का कोई झंझट नहीं! आप केवल 2 तरीकों से श्री राम जी एस्ट्रो ऐप में पेमेंट करवाएंगे: <strong>(1) विश्वस्त लोगों से सीधे कन्विंस करके फुल पेमेंट</strong> (जिसमें आपको सबसे बड़ा इंसेंटिव मिलेगा) या <strong>(2) अनजान लोगों को अपना कूपन कोड देकर</strong> (जिससे ग्राहक डिस्काउंट के लालच में ऐप में कोड डालकर पे करेगा और सेल स्वतः आपके नाम दर्ज होगी)।
+            </p>
+          </div>
+
+          <!-- 2 Distinct Channels Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- CHANNEL A: TRUSTED CONTACTS (FULL PRICE CLOSING) -->
+            <div class="bg-white border-2 border-emerald-500 rounded-3xl p-6 shadow-sm space-y-4 relative overflow-hidden flex flex-col justify-between">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+                    चैनल A • सर्वोच्च कमाई
+                  </span>
+                  <span class="text-xs font-bold text-emerald-700 flex items-center space-x-1">
+                    <i data-lucide="award" class="w-4 h-4"></i>
+                    <span>फुल-प्राइस इंसेंटिव</span>
+                  </span>
+                </div>
+
+                <div class="space-y-1">
+                  <h3 class="text-base font-extrabold text-slate-900">
+                    विश्वसनीय व परिचित ग्राहक (Full Price Direct Conversion)
+                  </h3>
+                  <p class="text-xs text-slate-500 leading-snug">
+                    मित्र, रिश्तेदार, पुराने यजमान व व्यक्तिगत नेटवर्क जिन्हें आप पर पूरा भरोसा है। इन्हें बिना किसी डिस्काउंट के सीधे ऐप से फुल पेमेंट करवाएं।
+                  </p>
+                </div>
+
+                <!-- Incentive Rates Box -->
+                <div class="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2.5 text-xs">
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-700 font-medium">संपूर्ण मुहूर्त / मेगा पाराशर (₹1,111):</span>
+                    <span class="font-extrabold text-emerald-700 font-mono text-sm">₹350 पेआउट (+₹50 बोनस)</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-700 font-medium">1-वर्षीय गुरुकुल कोर्स (₹24,000):</span>
+                    <span class="font-extrabold text-emerald-700 font-mono text-sm">₹3,000 फुल इंसेंटिव</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-700 font-medium">दैवज्ञ VIP परामर्श (₹5,100):</span>
+                    <span class="font-extrabold text-emerald-700 font-mono text-sm">₹1,500 फ्लैट पेआउट</span>
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  💡 <strong>विश्वस्त ग्राहक को क्या कहें:</strong> "सर, आप सीधे प्ले स्टोर से <em>श्री राम जी एस्ट्रो</em> ऐप डाउनलोड करें या shriramjiastro.in पर जाएं और अपनी रिपोर्ट का सुरक्षित इन-ऐप भुगतान करें।"
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <button onclick="simulateFullPriceSale()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition flex items-center justify-center space-x-2">
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                  <span>विश्वस्त ग्राहक की नई सेल दर्ज करें (+₹350 / +₹3,000)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- CHANNEL B: UNKNOWN LEADS (COUPON CODE CLOSING) -->
+            <div class="bg-white border-2 border-amber-400 rounded-3xl p-6 shadow-sm space-y-4 relative overflow-hidden flex flex-col justify-between">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-800 uppercase tracking-wider">
+                    चैनल B • कूपन कोड क्लोजर (50:50 स्प्लिट)
+                  </span>
+                  <span class="text-xs font-bold text-amber-700 flex items-center space-x-1">
+                    <i data-lucide="ticket-percent" class="w-4 h-4"></i>
+                    <span>अजनबी व नए ग्राहक</span>
+                  </span>
+                </div>
+
+                <div class="space-y-1">
+                  <h3 class="text-base font-extrabold text-slate-900">
+                    अनजान लोग (10% Coupon Discount with 50:50 Loss Split)
+                  </h3>
+                  <p class="text-xs text-slate-500 leading-snug">
+                    सोशल मीडिया व ग्रुप्स से आए अनजान लोग जो जल्दी पेमेंट नहीं करते। 10% कूपन देकर कन्वर्ट करें। डिस्काउंट लॉस 50:50 स्प्लिट होता है।
+                  </p>
+                </div>
+
+                <!-- 2 Active Coupon Cards + 1 Strict No-Coupon Notice -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div class="p-3 bg-amber-50 border border-amber-200 rounded-2xl space-y-1">
+                    <div class="flex justify-between items-center">
+                      <span class="text-[10px] font-bold text-amber-800 uppercase block">रिपोर्ट्स 10% कूपन</span>
+                      <span class="text-[9px] bg-amber-200 text-amber-900 px-1 rounded font-bold">-10% (₹111)</span>
+                    </div>
+                    <div id="displayCouponCodeCard" class="font-mono text-base font-extrabold text-blue-950">आपकी सूत्रधार ID</div>
+                    <div class="text-[10px] text-slate-600">ग्राहक देगा: <strong>₹1,000</strong> (MRP ₹1,111)</div>
+                    <div class="text-[11px] font-extrabold text-amber-700">सूत्रधार: ₹295 पेआउट (फुल पर ₹350)</div>
+                  </div>
+
+                  <div class="p-3 bg-purple-50 border border-purple-200 rounded-2xl space-y-1">
+                    <div class="flex justify-between items-center">
+                      <span class="text-[10px] font-bold text-purple-800 uppercase block">कोर्स 10% कूपन</span>
+                      <span class="text-[9px] bg-purple-200 text-purple-900 px-1 rounded font-bold">-10% (₹2,400)</span>
+                    </div>
+                    <div class="font-mono text-base font-extrabold text-purple-950">VIDYA10</div>
+                    <div class="text-[10px] text-slate-600">छात्र देगा: <strong>₹21,600</strong> (MRP ₹24,000)</div>
+                    <div class="text-[11px] font-extrabold text-purple-700">सूत्रधार: ₹1,800 पेआउट (फुल पर ₹3,000)</div>
+                  </div>
+                </div>
+
+                <!-- Strict Consultation No-Coupon Alert Box -->
+                <div class="p-3 bg-red-50/80 border border-red-200 rounded-2xl text-[11px] text-red-950 space-y-1">
+                  <div class="flex items-center space-x-1.5 font-bold text-red-900">
+                    <i data-lucide="shield-alert" class="w-4 h-4 text-red-600 shrink-0"></i>
+                    <span>दैवज्ञ VIP परामर्श (₹5,100): कूपन कोड पूर्णतः वर्जित</span>
+                  </div>
+                  <p class="text-[10px] text-slate-600 leading-snug">
+                    माह में केवल 30 स्लॉट्स (1 स्लॉट/दिन) होते हैं। इसमें पहले से भारी मांग व होड़ है—अतः कोई कूपन नहीं दिया जाता। ग्राहक हमेशा ₹5,100 पूरा देगा और सूत्रधार को फ्लैट ₹1,500 पेआउट मिलेगा।
+                  </p>
+                </div>
+
+                <div class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                  🎯 <strong>अनजान ग्राहक को क्या कहें:</strong> "सर, ऐप में रिपोर्ट ₹1,111 की है, लेकिन पेमेंट पेज पर मेरा कूपन कोड <strong>आपकी सूत्रधार ID</strong> डालेंगे तो 10% (₹111) की छूट मिलेगी और यह सिर्फ ₹1,000 में हो जाएगी!"
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 pt-2">
+                <button onclick="copyCouponPitch()" class="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs transition flex items-center justify-center space-x-1.5">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>10% कूपन पिच कॉपी</span>
+                </button>
+                <button onclick="simulateCouponSale()" class="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center space-x-1.5">
+                  <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                  <span>कूपन सेल सिमुलेट करें</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- IN-APP SALES & COUPON LEDGER TABLE -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h2 class="text-base font-extrabold text-slate-900 flex items-center space-x-2">
+                  <span>आपकी इन-ऐप सेल्स व कूपन लेज़र (In-App Sales & Coupon Ledger)</span>
+                  <span id="activeLeadsCount" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">4 वेरिफाइड सेल्स</span>
+                </h2>
+                <p class="text-xs text-slate-500">
+                  जैसे ही ग्राहक श्री राम जी एस्ट्रो ऐप में सीधे या कूपन से पे करता है, वह 2-घंटे पेआउट में जुड़ जाता है।
+                </p>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <button onclick="simulateFullPriceSale()" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition flex items-center space-x-1">
+                  <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-600"></i>
+                  <span>+ फुल-प्राइस सेल</span>
+                </button>
+                <button onclick="simulateCouponSale()" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition flex items-center space-x-1">
+                  <i data-lucide="ticket-percent" class="w-3.5 h-3.5 text-amber-600"></i>
+                  <span>+ कूपन सेल</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="text-[10px] text-slate-400 uppercase border-b border-slate-200 bg-slate-50/50">
+                    <th class="p-3">ग्राहक का नाम व शहर</th>
+                    <th class="p-3">उत्पाद / सेवा</th>
+                    <th class="p-3">सेल्स चैनल</th>
+                    <th class="p-3">कूपन / डिस्काउंट</th>
+                    <th class="p-3">ग्राहक भुगतान</th>
+                    <th class="p-3">सूत्रधार पेआउट</th>
+                    <th class="p-3">पेआउट स्थिति (2-Hour SLA)</th>
+                  </tr>
+                </thead>
+                <tbody id="leadsTableBody" class="divide-y divide-slate-100">
+                  <!-- Dynamically Rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- INTERACTIVE SUTRADHAR INDUCTION & TRAINING WALKTHROUGH POP-UP -->
+    <!-- (BLURS THE DASHBOARD UNTIL SUTRADHAR COMPLETES THE STEP-BY-STEP MODULES) -->
+    <!-- ========================================================================= -->
+    <div id="sutradharTrainingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+      
+      <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+        
+        <!-- Header: Step tracker & Sutradhar Badge -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl blue-gradient text-white flex items-center justify-center font-bold text-sm shadow-sm">
+              ॐ
+            </div>
+            <div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 uppercase tracking-wider" id="trainStepIndicator">
+                दीक्षा मॉड्यूल 1/4
+              </span>
+              <h3 class="text-base font-extrabold text-blue-950 mt-0.5">
+                सूत्रधार पावन दीक्षा व शास्त्र-सम्मत कार्यप्रणाली
+              </h3>
+            </div>
+          </div>
+
+          <!-- Step Dots -->
+          <div class="flex items-center space-x-1.5">
+            <span id="trainDot-1" class="w-2.5 h-2.5 rounded-full bg-blue-600 transition-all"></span>
+            <span id="trainDot-2" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
+            <span id="trainDot-3" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
+            <span id="trainDot-4" class="w-2.5 h-2.5 rounded-full bg-slate-200 transition-all"></span>
+          </div>
+        </div>
+
+        <!-- MODULE 1: FINDING LEADS (THE FREE HOOK) -->
+        <div id="trainSlide-1" class="space-y-4 text-xs">
+          <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-1.5">
+            <div class="flex items-center space-x-2 text-blue-900 font-bold text-sm">
+              <i data-lucide="compass" class="w-4 h-4 text-blue-600"></i>
+              <span>दीक्षा चरण 1: जातक के भय को समझना और सत्य का संबल देना (Empathy & Truth)</span>
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              आजकल 5-5 मिनट वाले चैट ऐप्स पर लोग कुंडली के नाम पर डराए जाते हैं। आपको किसी को फोन करके परेशान नहीं करना है। Telegram व WhatsApp ग्रुप्स में जब लोग विवाह, स्वास्थ्य या करियर को लेकर व्याकुल हों, तो उन्हें हमारा <strong>'निःशुल्क शास्त्रीय हुक संदेश'</strong> भेजें।
+            </p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block font-bold text-slate-700 text-xs">आपका पहला शास्त्रोक्त हुक संदेश (कॉपी करके भेजें):</label>
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] text-slate-800 leading-relaxed font-sans relative group">
+              "🕉️ 2026-27 में विवाह या गृह प्रवेश की योजना बना रहे हैं? आधे-अधूरे पंचांग या फर्जी ऐप्स के डर से बचें। अपनी जन्मतिथि और समय इनबॉक्स में भेजें, हमारे संस्थान द्वारा आपको पूर्ण निःशुल्क सबसे शुभ नक्षत्र और भद्रा-रहित पावन समय चेक करके बताया जाएगा।"
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+            <span class="text-[11px] text-slate-400">लोग सत्य जानने के लिए खुद अपना विवरण और संपर्क भेजेंगे।</span>
+            <button onclick="goToTrainSlide(2)" class="px-6 py-2.5 rounded-xl blue-gradient text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition flex items-center space-x-1.5">
+              <span>आगे बढ़ें (दीक्षा 2)</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- MODULE 2: THE 1-LINE ANSWER & UPSELL -->
+        <div id="trainSlide-2" class="hidden space-y-4 text-xs">
+          <div class="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-1.5">
+            <div class="flex items-center space-x-2 text-emerald-900 font-bold text-sm">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+              <span>दीक्षा चरण 2: 5-मिनट की झूठी चैट बनाम 35-पृष्ठ की शास्त्र-प्रमाणित रिपोर्ट</span>
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              जब कोई अपनी जन्मतिथि भेजे, तो अपनी वेबसाइट के फ्री टूल में डालकर उसे 1-लाइन का बेसिक उत्तर दें (उदा. <em>"18 व 24 तारीख अच्छी है"</em>)। इसके बाद उसे समझाएं कि 5-मिनट की चैट में जीवन का निर्णय नहीं होता:
+            </p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block font-bold text-slate-700 text-xs">सत्य मार्गदर्शन क्लोजिंग संवाद (शास्त्र-प्रमाणित रिपोर्ट):</label>
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] text-slate-800 leading-relaxed font-sans">
+              "परंतु इस तारीख पर कौन से 21 सूक्ष्म महादोष या भद्रा लग रहे हैं और महर्षि पाराशर के अनुसार संपूर्ण पूजा विधान क्या है, इसके लिए हमारे विद्वानों की 35-पेज की श्लोक-प्रमाणित <strong>'संपूर्ण मुहूर्त रिपोर्ट'</strong> उपलब्ध है। क्या मैं आपके लिए यह प्रामाणिक विवरण पत्र तैयार करवा दूँ?"
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+            <button onclick="goToTrainSlide(1)" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs">पीछे</button>
+            <button onclick="goToTrainSlide(3)" class="px-6 py-2.5 rounded-xl blue-gradient text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition flex items-center space-x-1.5">
+              <span>आगे बढ़ें (दीक्षा 3: कूपन व ऐप)</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- MODULE 3: 2-CHANNEL SALES (NO NUMBER LOCKING, ONLY COUPON & TRUSTED) -->
+        <div id="trainSlide-3" class="hidden space-y-4 text-xs">
+          <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-1.5">
+            <div class="flex items-center space-x-2 text-blue-900 font-bold text-sm">
+              <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
+              <span>दीक्षा चरण 3: आपकी यूनिक आईडी ही कूपन कोड, 10% यूनिवर्सल छूट व डबल-ट्रैकिंग</span>
+            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed">
+              हम किसी को असुरक्षित पेमेंट लिंक नहीं भेजते। जातक को श्री राम जी एस्ट्रो ऐप में इन 2 पारदर्शी मर्यादाओं से जोड़ें:
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
+            <div class="p-3 bg-white border border-slate-200 rounded-2xl space-y-1">
+              <div class="flex items-center space-x-1.5 text-emerald-900 font-bold">
+                <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span class="text-[11px] uppercase">चैनल A: विश्वस्त यजमान (फुल प्राइस)</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-snug">
+                रिश्तेदारों और परिचितों को सीधे विश्वास दिलाकर ऐप से पूरी दक्षिणा (₹1,111 / ₹24,000 / ₹5,100) जमा करवाएं। आपको मिलेगा <strong>सर्वोच्च पेआउट (₹350 / ₹2,400 / ₹1,500)</strong>।
+              </p>
+            </div>
+
+            <div class="p-3 bg-white border border-slate-200 rounded-2xl space-y-1">
+              <div class="flex items-center space-x-1.5 text-amber-900 font-bold">
+                <i data-lucide="ticket-percent" class="w-3.5 h-3.5 text-amber-600"></i>
+                <span class="text-[11px] uppercase">चैनल B: आपकी आईडी = 10% कूपन कोड</span>
+              </div>
+              <p class="text-[11px] text-slate-600 leading-snug">
+                ग्राहकों को अपनी यूनिक सूत्रधार आईडी दें। वेबसाइट पर जब वे आपकी आईडी को कूपन के रूप में दर्ज करेंगे, उन्हें तुरंत <strong>10% फ्लैट छूट</strong> मिलेगी और सिस्टम में बिक्री सीधे आपकी आईडी से लिंक हो जाएगी। 50:50 डिस्काउंट स्प्लिट के साथ पारदर्शी पेआउट मिलेगा।
+              </p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5">
+            <span class="text-[10px] text-slate-500 font-bold uppercase block">आधिकारिक ऐप लिंक (नो पेमेंट लिंक):</span>
+            <div class="flex items-center space-x-2">
+              <code id="trainPersonalLinkDisplay" class="flex-1 bg-white p-2 rounded-xl border border-slate-200 text-blue-900 font-mono font-bold text-xs truncate">
+                https://shriramjiastro.in/app?ref=SD-105
+              </code>
+              <button onclick="copyTrainLink()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shrink-0">
+                कॉपी
+              </button>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+            <button onclick="goToTrainSlide(2)" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs">पीछे</button>
+            <button onclick="goToTrainSlide(4)" class="px-6 py-2.5 rounded-xl blue-gradient text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition flex items-center space-x-1.5">
+              <span>आगे बढ़ें (दीक्षा 4: पावन दक्षिणा पेआउट)</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- MODULE 4: 2-HOUR PAYOUT & UNLOCK DASHBOARD -->
+        <div id="trainSlide-4" class="hidden space-y-4 text-xs text-center py-2">
+          <div class="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-2xl font-bold bg-amber-100 text-amber-800 border-2 border-amber-300">
+            ॐ
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-base font-extrabold text-blue-950">
+              दीक्षा चरण 4: 2 से 3 घंटे में आपकी पावन दक्षिणा (UPI पेआउट)
+            </h4>
+            <p class="text-xs text-slate-600 max-w-md mx-auto">
+              शास्त्र का नियम है कि मार्गदर्शक का पारिश्रमिक बिना विलंब मिलना चाहिए। जैसे ही जातक ऐप में भुगतान करेगा, बैंक मिलान होते ही आपकी दक्षिणा (₹350, ₹1,500 या ₹2,400) 2 घंटे के भीतर आपके रजिस्टर्ड UPI खाते में आ जाएगी।
+            </p>
+          </div>
+
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-[11px] text-amber-900 font-bold max-w-sm mx-auto">
+            ✓ साधुवाद! आपकी सूत्रधार दीक्षा पूर्ण हुई।
+          </div>
+
+          <div class="pt-2">
+            <button onclick="completeTrainingWalkthrough()" class="px-8 py-3 rounded-2xl blue-gradient text-white font-bold text-xs shadow-lg shadow-blue-500/20 hover:scale-105 transition flex items-center space-x-2 mx-auto">
+              <span>डैशबोर्ड अनलॉक करें व पावन सेवा आरंभ करें</span>
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: REGISTRATION POPUP (FIRST SCREEN UPON VISITING LINK) -->
+  <!-- ========================================================================= -->
+  <div id="candidateRegisterModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl relative">
+      
+      <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
+        <div class="w-11 h-11 rounded-2xl blue-gradient text-white flex items-center justify-center font-extrabold text-base shadow-md shadow-blue-500/20">
+          ॐ
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-blue-950">
+            सूत्रधार दीक्षा व सेवा पंजीकरण
+          </h3>
+          <p class="text-xs text-blue-700 font-semibold">
+            श्री राम जी एस्ट्रो • भ्रम व ठगी से मुक्ति, शास्त्र-सम्मत प्रकाश की ओर
+          </p>
+        </div>
+      </div>
+
+      <!-- Sacred Mission Reminder -->
+      <div class="p-3 bg-amber-50/90 border border-amber-200 rounded-2xl text-[11px] text-amber-950 leading-relaxed space-y-1">
+        <div class="font-bold flex items-center space-x-1.5 text-amber-900">
+          <span>🕉️</span>
+          <span>हमारा पावन सेवा संकल्प (The Divine Mission):</span>
+        </div>
+        <p class="text-slate-700 text-[10.5px]">
+          आजकल 5-5 मिनट के ऑनलाइन ऐप्स में लोग डर और झूठे दोषों के चक्कर में लुट रहे हैं। हमारा उद्देश्य हर जातक को <strong>महर्षि पाराशर के श्लोक-प्रमाणित सत्य</strong> और निष्पक्ष वैदिक मार्गदर्शन देना है। आप केवल कर्मचारी नहीं, बल्कि एक पावन दैवीय सेवा (Divine Seva) से जुड़ रहे हैं।
+        </p>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">पूरा नाम (Full Name)</label>
+          <input type="text" id="regFullName" required placeholder="उदा: श्री गणेश" value="श्री गणेश" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
+        </div>
+
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">ईमेल आईडी (Email ID)</label>
+          <input type="email" id="regEmail" required placeholder="shriganesh@gmail.com" value="shriganesh@gmail.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
+        </div>
+
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">फ़ोन नंबर (WhatsApp Number)</label>
+          <div class="flex space-x-2">
+            <input type="tel" id="regPhone" required placeholder="9876543210" value="9876543210" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900 font-semibold outline-none focus:border-blue-600 focus:bg-white transition">
+            <button type="button" onclick="sendOtpToCandidate()" id="btnSendOtp" class="px-3.5 py-2.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-bold text-xs shrink-0 transition">
+              OTP भेजें
+            </button>
+          </div>
+        </div>
+
+        <!-- OTP Section -->
+        <div id="otpInputSection" class="p-3 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="block text-blue-950 font-bold text-xs">4-अंकों का OTP दर्ज करें</label>
+            <span class="text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">
+              डेमो OTP: 4921
+            </span>
+          </div>
+          <input type="text" id="regOtpInput" maxlength="4" value="4921" placeholder="4921" class="w-full text-center tracking-widest text-lg font-mono font-bold bg-white border border-blue-300 rounded-xl p-2 text-blue-900 outline-none focus:border-blue-600">
+        </div>
+
+        <div class="pt-1">
+          <button type="button" onclick="verifyOtpAndProceedToOnboarding()" class="w-full py-3 rounded-xl blue-gradient text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition flex items-center justify-center space-x-2">
+            <span>सत्यापित करें व पावन सेवा यात्रा आरंभ करें</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: NEW SALE -->
+  <div id="newSaleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-extrabold text-blue-950 flex items-center">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600 mr-2"></i>
+          सेल दर्ज करें व इंसेंटिव क्लेम करें
+        </h3>
+        <button onclick="closeModal('newSaleModal')" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleNewSaleSubmit(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1">उत्पाद चुनें (Product Category)</label>
+          <select id="saleProduct" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 font-medium outline-none">
+            <option value="muhurat_full">संपूर्ण मुहूर्त रिपोर्ट - फुल प्राइस (₹1,111) [इंसेंटिव: ₹350]</option>
+            <option value="muhurat_coupon">संपूर्ण मुहूर्त रिपोर्ट - 10% कूपन आपकी सूत्रधार ID (₹1,000) [इंसेंटिव: ₹295]</option>
+            <option value="mega_full">मेगा पाराशर रिपोर्ट - फुल प्राइस (₹1,111) [इंसेंटिव: ₹350]</option>
+            <option value="mega_coupon">मेगा पाराशर रिपोर्ट - 10% कूपन आपकी सूत्रधार ID (₹1,000) [इंसेंटिव: ₹295]</option>
+            <option value="course_full">1-वर्षीय गुरुकुल कोर्स - फुल प्राइस (₹24,000) [इंसेंटिव: ₹2,400 • लेवल 2]</option>
+            <option value="course_coupon">1-वर्षीय गुरुकुल कोर्स - 10% कूपन VIDYA10 (₹21,600) [इंसेंटिव: ₹1,200 • लेवल 2]</option>
+            <option value="consultation">दैवज्ञ 1-on-1 परामर्श (₹5,100) [कूपन वर्जित • इंसेंटिव: ₹1,500]</option>
+            <option value="micro">छोटी रिपोर्ट (₹250) [इंसेंटिव: ₹80]</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-700 font-semibold mb-1">कस्टमर नाम</label>
+            <input type="text" id="custName" required placeholder="राजेश खन्ना" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-700 font-semibold mb-1">कस्टमर फ़ोन</label>
+            <input type="tel" id="custPhone" required placeholder="9823012345" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-700 font-semibold mb-1">सूत्रधार</label>
+            <select id="saleAgent" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
+              <option value="श्री गणेश" id="saleAgentDynamicOption">श्री गणेश (सूत्रधार)</option>
+              <option value="राहुल शर्मा">राहुल शर्मा (सूत्रधार 1)</option>
+              <option value="प्रिया वर्मा">प्रिया वर्मा (सूत्रधार 2)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-700 font-semibold mb-1">गेटवे Ref ID</label>
+            <input type="text" id="txnId" required placeholder="pay_Q8Xz91283" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-blue-900 font-mono outline-none">
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeModal('newSaleModal')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold">रद्द करें</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold">2-Hour कतार में सबमिट करें</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-xs transition transform translate-y-24 opacity-0 border border-slate-700">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMsg">सफल!</span>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    let currentLang = 'hi';
+    let currentTab = 'dashboard';
+    let currentPersona = 'candidate';
+    let registeredCandidate = null;
+    let wizCurrentStep = 1;
+    let wizInterval = null;
+    let wizSecondsLeft = 180;
+    let candidateRoleChoice = 1;
+    let currentTrainSlide = 1;
+
+    // Fast Payout Queue
+    const fastPayoutQueue = [
+      { id: 'pay_N91xK28', agent: 'प्रिया वर्मा', role: 'सूत्रधार लेवल 2', product: '1-on-1 परामर्श', amount: '₹5,100', incentive: '₹1,500', minutesAgo: 38, upi: 'priya@okhdfc', verified: true },
+      { id: 'pay_M80aL19', agent: 'राहुल शर्मा', role: 'सूत्रधार लेवल 1', product: 'संपूर्ण मुहूर्त रिपोर्ट', amount: '₹1,111', incentive: '₹300', minutesAgo: 62, upi: 'rahul@paytm', verified: true }
+    ];
+
+    const slotCalendar = [];
+    for(let i=1; i<=31; i++) {
+      let isBooked = i <= 26;
+      slotCalendar.push({
+        day: i,
+        date: `2026-12-${String(i).padStart(2, '0')}`,
+        status: isBooked ? 'booked' : 'available',
+        agent: isBooked ? (i % 2 === 0 ? 'प्रिया वर्मा' : 'राहुल शर्मा') : null
+      });
+    }
+
+    const quizQuestions = {
+      1: [
+        { 
+          q: "1. जब कोई जातक 5-मिनट के ऑनलाइन ऐप में भ्रमित होकर भयभीत हो, तो एक सूत्रधार के रूप में आपका पहला कर्तव्य क्या है?", 
+          options: [
+            "उसे और ज्यादा डराकर तुरंत कोई महंगी पूजा बेच देंगे", 
+            "जातक का भय दूर करेंगे, समझाएंगे कि 5-मिनट की चैट में जीवन का निर्णय नहीं होता, और उसे महर्षि पाराशर की 35-पृष्ठ की श्लोक-प्रमाणित निष्पक्ष रिपोर्ट की राह दिखाएंगे", 
+            "सिर्फ पेमेंट लिंक भेजकर बात खत्म करेंगे"
+          ], 
+          correct: 1 
+        },
+        { 
+          q: "2. जातक ने पूछा: 'बाजार के फ्री ऐप्स और आपकी ₹1,111 की संपूर्ण मुहूर्त रिपोर्ट में क्या अंतर है?'", 
+          options: [
+            "फ्री ऐप्स में सामान्य व अधूरा डेटा होता है; हमारी रिपोर्ट में जातक के गोत्र, नक्षत्र, 21 महादोष और सूक्ष्म भद्रा परिहार का श्लोक-सहित प्रामाणिक शोध पत्र होता है", 
+            "हमारी रिपोर्ट में कोई अंतर नहीं है, बस हम पैसे लेते हैं", 
+            "उसे कहेंगे कि आपकी मर्जी, मत लीजिए"
+          ], 
+          correct: 0 
+        },
+        { 
+          q: "3. दैवज्ञ मर्यादा (वैदिक ज्योतिष संहिता) का सर्वोच्च नियम क्या है?", 
+          options: [
+            "जैसे भी हो ग्राहक से पैसा निकलवाना", 
+            "ज्योतिष व्यापार या भय का साधन नहीं, जीवन का 'प्रकाश (नेत्र)' है। हमारा ध्येय जातक का वास्तविक कल्याण और प्रामाणिक सत्य पहुंचाना है", 
+            "केवल दिन भर अनजान लोगों को ग्रुप्स में लिंक स्पैम करना"
+          ], 
+          correct: 1 
+        }
+      ],
+      2: [
+        { 
+          q: "1. [गुरुकुल कोर्स]: एक गंभीर साधक ₹24,000 का 1-वर्षीय गुरुकुल पाठ्यक्रम क्यों चुनेगा जब इंटरनेट पर सस्ते वीडियो भरे पड़े हैं?", 
+          options: [
+            "क्योंकि सस्ते वीडियो में केवल सतही बातें होती हैं; हमारे 11-शिष्यों के पावन गुरुकुल में आचार्य जी स्वयं प्राचीन ग्रन्थों से श्लोक-कंठस्थ कराकर प्रमाणित दैवज्ञ तैयार करते हैं", 
+            "सिर्फ एक कागज का सर्टिफिकेट लेने के लिए", 
+            "क्योंकि हमारे वीडियो की एडिटिंग ज्यादा अच्छी है"
+          ], 
+          correct: 0 
+        },
+        { 
+          q: "2. [आचार्य सॉफ्टवेयर]: किसी कर्मकांडी पंडित जी को ₹5,100 का सॉफ्टवेयर उनके स्वाभिमान और गरिमा को कैसे बढ़ाता है?", 
+          options: [
+            "पंडित जी, हाथ से बनाने में समय व्यर्थ होता है; हमारा सॉफ्टवेयर श्लोक-प्रमाण के साथ आपके नाम से 40-पृष्ठ की प्रामाणिक पत्रिका देगा, जिससे यजमान का आप पर अटूट विश्वास बनेगा", 
+            "उन्हें कहेंगे कि पुराना तरीका छोड़िए, आधुनिक बनिए", 
+            "सॉफ्टवेयर से पैसे कमाइए"
+          ], 
+          correct: 0 
+        },
+        { 
+          q: "3. [VIP दैवज्ञ परामर्श]: आचार्य जी के 1-on-1 परामर्श के महीने में केवल 30 ही स्लॉट (1 दिन = 1 जातक) क्यों रखे गए हैं?", 
+          options: [
+            "आचार्य जी के पास फुर्सत नहीं है", 
+            "दैवज्ञ मर्यादा अनुसार 1 दिन में सिर्फ 1 जातक की कुंडली पर 3 से 4 घंटे का गहन शोध, ध्यान और 100% सात्विक व सटीक मार्गदर्शन देने के लिए", 
+            "कृत्रिम मांग (Artificial Demand) बनाने के लिए"
+          ], 
+          correct: 1 
+        }
+      ]
+    };
+
+    function getInitials(fullName) {
+      if(!fullName) return 'AP';
+      const parts = fullName.trim().split(/\s+/);
+      if(parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Step 1 -> Step 2 Registration Flow
+    function sendOtpToCandidate() { showToast('डेमो OTP 4921 भेजा गया!'); }
+
+    function verifyOtpAndProceedToOnboarding() {
+      const name = document.getElementById('regFullName').value.trim() || 'श्री गणेश';
+      const email = document.getElementById('regEmail').value.trim() || 'shriganesh@gmail.com';
+      const phone = document.getElementById('regPhone').value.trim() || '9876543210';
+      const otp = document.getElementById('regOtpInput').value.trim();
+
+      if(!otp || otp !== '4921') {
+        alert('कृपया सही OTP दर्ज करें (डेमो OTP: 4921)');
+        return;
+      }
+
+      registeredCandidate = { name: name, email: email, phone: phone, initials: getInitials(name) };
+
+      document.getElementById('headerBrandTitle').innerText = registeredCandidate.name;
+      document.getElementById('headerLogoInitials').innerText = registeredCandidate.initials;
+      document.getElementById('wizCandidateName').innerText = registeredCandidate.name;
+      document.getElementById('wizCandidateInitials').innerText = registeredCandidate.initials;
+
+      document.getElementById('candidateRegisterModal').classList.add('hidden');
+      document.getElementById('onboardingWizardView').classList.remove('hidden');
+      document.getElementById('mainAppContainer').classList.add('hidden');
+
+      goToWizStep(1);
+      showToast(`पंजीकरण सत्यापित! सूत्रधार ऑनबोर्डिंग आरंभ।`);
+    }
+
+    function goToWizStep(step) {
+      wizCurrentStep = step;
+      [1, 2, 3, 4].forEach(s => document.getElementById(`wizStepContent-${s}`).classList.add('hidden'));
+      document.getElementById(`wizStepContent-${step}`).classList.remove('hidden');
+
+      const progressBar = document.getElementById('wizProgressBar');
+      const stepBadge = document.getElementById('wizStepBadge');
+      const progressText = document.getElementById('wizProgressText');
+      const percentText = document.getElementById('wizPercentText');
+
+      if(step === 1) {
+        progressBar.style.width = '25%';
+        stepBadge.innerText = 'स्टेप 1/4: समय व पेआउट';
+        progressText.innerText = 'समय व UPI विवरण (25%)';
+        percentText.innerText = '25%';
+      } else if(step === 2) {
+        progressBar.style.width = '50%';
+        stepBadge.innerText = 'स्टेप 2/4: सूत्रधार स्तर';
+        progressText.innerText = 'सूत्रधार लेवल चयन (50%)';
+        percentText.innerText = '50%';
+      } else if(step === 3) {
+        progressBar.style.width = '75%';
+        stepBadge.innerText = 'स्टेप 3/4: 3-मिनट टेस्ट';
+        progressText.innerText = 'योग्यता व स्क्रीनिंग टेस्ट (75%)';
+        percentText.innerText = '75%';
+      } else if(step === 4) {
+        progressBar.style.width = '100%';
+        stepBadge.innerText = 'स्टेप 4/4: ऑनबोर्डिंग पूर्ण';
+        progressText.innerText = 'सूत्रधार क्रेडेंशियल्स सक्रिय (100%)';
+        percentText.innerText = '100%';
+      }
+      lucide.createIcons();
+    }
+
+    function startWizQuiz() {
+      const roleInput = document.querySelector('input[name="wizSelectedRole"]:checked') || document.querySelector('input[name="wizSelectedRole"]');
+      candidateRoleChoice = roleInput ? parseInt(roleInput.value) : 1;
+      goToWizStep(3);
+
+      const questions = quizQuestions[candidateRoleChoice] || quizQuestions[1];
+      const container = document.getElementById('wizQuestionsContainer');
+      if (container) {
+        container.innerHTML = '';
+        questions.forEach((item, qIdx) => {
+          const qDiv = document.createElement('div');
+          qDiv.className = 'bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2';
+          let optionsHtml = '';
+          item.options.forEach((opt, optIdx) => {
+            optionsHtml += `
+              <label class="flex items-center p-2 rounded-xl bg-white border border-slate-200 hover:border-blue-500 cursor-pointer text-xs text-slate-800 shadow-2xs">
+                <input type="radio" name="wizQ_${qIdx}" value="${optIdx}" ${optIdx === 0 ? 'checked' : ''} class="text-blue-600 mr-2.5">
+                <span>${opt}</span>
+              </label>
+            `;
+          });
+          qDiv.innerHTML = `<div class="font-bold text-slate-900 text-xs">${item.q}</div><div class="space-y-1.5 pt-1">${optionsHtml}</div>`;
+          container.appendChild(qDiv);
+        });
+      }
+
+      wizSecondsLeft = 180;
+      updateWizTimer();
+      clearInterval(wizInterval);
+      wizInterval = setInterval(() => {
+        wizSecondsLeft--;
+        updateWizTimer();
+        if(wizSecondsLeft <= 0) {
+          clearInterval(wizInterval);
+          submitWizQuiz();
+        }
+      }, 1000);
+      lucide.createIcons();
+    }
+
+    function updateWizTimer() {
+      const mins = Math.floor(wizSecondsLeft / 60);
+      const secs = wizSecondsLeft % 60;
+      const timerEl = document.getElementById('wizTimerText');
+      if (timerEl) {
+        timerEl.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+    }
+
+    function submitWizQuiz() {
+      clearInterval(wizInterval);
+      const roleNames = { 1: 'सूत्रधार लेवल 1 (मुहूर्त व रिपोर्ट)', 2: 'सूत्रधार लेवल 2 (वरिष्ठ विद्या व आचार्य)' };
+      const newAgentId = `SD-${Math.floor(100 + Math.random() * 900)}`;
+      const agentCoupon = newAgentId; // सूत्रधार की यूनिक आईडी ही उसका आधिकारिक 10% कूपन कोड है!
+
+      if (registeredCandidate) {
+        registeredCandidate.agentId = newAgentId;
+        registeredCandidate.coupon = newAgentId;
+        try {
+          localStorage.setItem('sra_sutradhar_profile', JSON.stringify(registeredCandidate));
+        } catch(e) {}
+      }
+
+      const nameEl = document.getElementById('wizSuccessName');
+      if (nameEl) nameEl.innerText = registeredCandidate?.name || 'श्री गणेश';
+
+      const agentIdEl = document.getElementById('wizAgentId');
+      if (agentIdEl) agentIdEl.innerText = newAgentId;
+
+      const roleNameEl = document.getElementById('wizRoleName');
+      if (roleNameEl) roleNameEl.innerText = roleNames[candidateRoleChoice] || roleNames[1];
+
+      const couponEl = document.getElementById('wizCouponCode');
+      if (couponEl) couponEl.innerText = agentCoupon;
+
+      const trackEl = document.getElementById('wizTrackLink');
+      if (trackEl) trackEl.innerText = `https://shriramjiastro.in/?ref=${newAgentId}`;
+      
+      const blogLink = document.getElementById('displayBlogTrackLink');
+      if (blogLink) blogLink.innerText = `https://shriramjiastro.in/blog?ref=${newAgentId}`;
+
+      const playLink = document.getElementById('salesPlayStoreLink');
+      if (playLink) playLink.innerText = `https://shriramjiastro.in/?ref=${newAgentId}`;
+
+      const couponCard = document.getElementById('displayCouponCodeCard');
+      if (couponCard) couponCard.innerText = agentCoupon;
+
+      const quickCoupon = document.getElementById('quickAgentCoupon');
+      if (quickCoupon) quickCoupon.innerText = agentCoupon;
+
+      const trainDisplay = document.getElementById('trainPersonalLinkDisplay');
+      if (trainDisplay) trainDisplay.innerText = `https://shriramjiastro.in/?ref=${newAgentId}`;
+
+      goToWizStep(4);
+    }
+
+    // =========================================================================
+    // STEP 3: TRANSITION TO BLURRED DASHBOARD + AUTO-OPEN TRAINING MODULE
+    // =========================================================================
+    function enterBlankPortal() {
+      // 1. Hide Onboarding Wizard
+      document.getElementById('onboardingWizardView').classList.add('hidden');
+      // 2. Show Main App Container
+      document.getElementById('mainAppContainer').classList.remove('hidden');
+
+      // Personalize Header & Sidebar
+      document.getElementById('headerBrandTitle').innerText = registeredCandidate.name;
+      document.getElementById('headerLogoInitials').innerText = registeredCandidate.initials;
+      document.getElementById('headerRoleBadge').innerText = 'अधिकृत सूत्रधार';
+      document.getElementById('headerRoleBadge').className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200';
+      document.getElementById('headerTagline').innerText = `लॉग इन: ${registeredCandidate.name} • सूत्रधार ईआरपी`;
+
+      document.getElementById('sidebarUserName').innerText = registeredCandidate.name;
+      document.getElementById('sidebarUserAvatar').innerText = registeredCandidate.initials;
+      document.getElementById('dashCandidateGreeting').innerText = registeredCandidate.name;
+      document.getElementById('saleAgentDynamicOption').innerText = registeredCandidate.name;
+
+      // 3. AUTO-START THE TRAINING WALKTHROUGH & BLUR DASHBOARD!
+      startTrainingWalkthrough();
+    }
+
+    // TRAINING WALKTHROUGH CONTROLS
+    function startTrainingWalkthrough() {
+      // Add blur to dashboard background
+      const blurWrapper = document.getElementById('dashboardBlurWrapper');
+      blurWrapper.classList.add('filter', 'blur-md', 'pointer-events-none', 'select-none');
+
+      // Reveal Training Modal
+      document.getElementById('sutradharTrainingModal').classList.remove('hidden');
+      goToTrainSlide(1);
+    }
+
+    function goToTrainSlide(slideNum) {
+      currentTrainSlide = slideNum;
+      [1, 2, 3, 4].forEach(s => {
+        document.getElementById(`trainSlide-${s}`).classList.add('hidden');
+        const dot = document.getElementById(`trainDot-${s}`);
+        if(s === slideNum) {
+          dot.className = 'w-5 h-2.5 rounded-full bg-blue-600 transition-all';
+        } else if(s < slideNum) {
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 transition-all';
+        } else {
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-200 transition-all';
+        }
+      });
+      document.getElementById(`trainSlide-${slideNum}`).classList.remove('hidden');
+      document.getElementById('trainStepIndicator').innerText = `दीक्षा मॉड्यूल ${slideNum}/4`;
+      lucide.createIcons();
+    }
+
+    function copyTrainLink() {
+      const link = document.getElementById('trainPersonalLinkDisplay').innerText.trim();
+      navigator.clipboard.writeText(link);
+      showToast('पर्सनल लिंक कॉपी हो गया!');
+    }
+
+    function completeTrainingWalkthrough() {
+      // Hide Training Modal
+      document.getElementById('sutradharTrainingModal').classList.add('hidden');
+
+      // UNBLUR THE DASHBOARD!
+      const blurWrapper = document.getElementById('dashboardBlurWrapper');
+      blurWrapper.classList.remove('filter', 'blur-md', 'pointer-events-none', 'select-none');
+
+      switchTab('dashboard');
+      showToast(`बधाई! आपका सूत्रधार प्रशिक्षण पूरा हुआ। आपका डैशबोर्ड अब अनलॉक है।`);
+    }
+
+    function copyAgentLink() {
+      const link = document.getElementById('agentPersonalLinkBar').innerText;
+      navigator.clipboard.writeText(link);
+      showToast('सूत्रधार पेमेंट लिंक क्लिपबोर्ड पर कॉपी हो गया!');
+    }
+
+    function switchTab(tabId) {
+      currentTab = tabId;
+      const tabs = ['dashboard', 'courseCohort', 'consultationSprint', 'categoryLeaderboard', 'fastPayout', 'trainingLms', 'salesManager'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const navEl = document.getElementById(`nav-${t}`);
+        if(t === tabId) {
+          el?.classList.remove('hidden');
+          navEl?.classList.add('text-blue-700', 'bg-blue-50', 'border', 'border-blue-200/60');
+          navEl?.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        } else {
+          el?.classList.add('hidden');
+          navEl?.classList.remove('text-blue-700', 'bg-blue-50', 'border', 'border-blue-200/60');
+          navEl?.classList.add('text-slate-600', 'hover:bg-slate-100');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // LEVEL PROGRESSION & 7-DAY STREAK STATE (₹3,000/DAY)
+    // =========================================================================
+    let sutradharLevel = 1; // 1 = Sutradhar Level 1, 2 = Sutradhar Level 2
+    let streakDays = 0; // 0 to 7
+    let level2MonthlyIncentive = 0; // toward ₹1,00,000 Milestone Bonus
+
+    function switchPersona(p) {
+      currentPersona = p;
+      if(p === 'candidate' && registeredCandidate) {
+        document.getElementById('headerBrandTitle').innerText = registeredCandidate.name;
+        document.getElementById('headerLogoInitials').innerText = registeredCandidate.initials;
+        document.getElementById('sidebarUserName').innerText = registeredCandidate.name;
+        document.getElementById('agentMetricSales').innerText = '0';
+        document.getElementById('agentMetricIncentive').innerText = '₹0';
+        sutradharLevel = 1;
+        streakDays = 0;
+        level2MonthlyIncentive = 0;
+        updateLevelProgressionUI();
+        showToast(`${registeredCandidate.name} का फ्रेश डैशबोर्ड।`);
+      } else if(p === 'admin') {
+        document.getElementById('headerBrandTitle').innerText = 'श्री राम जी एस्ट्रो (shriramjiastro.in)';
+        document.getElementById('headerLogoInitials').innerText = 'SR';
+        document.getElementById('sidebarUserName').innerText = 'आचार्य / फाउंडर';
+        document.getElementById('agentMetricSales').innerText = '412';
+        document.getElementById('agentMetricIncentive').innerText = '₹1,12,450';
+        sutradharLevel = 2;
+        streakDays = 7;
+        level2MonthlyIncentive = 112450;
+        updateLevelProgressionUI();
+        showToast('फाउंडर मोड: संपूर्ण संस्थान डेटा दृश्यमान।');
+      } else if(p === 'role1') {
+        document.getElementById('headerBrandTitle').innerText = 'राहुल शर्मा (shriramjiastro.in)';
+        document.getElementById('headerLogoInitials').innerText = 'RS';
+        document.getElementById('sidebarUserName').innerText = 'राहुल शर्मा';
+        document.getElementById('agentMetricSales').innerText = '18';
+        document.getElementById('agentMetricIncentive').innerText = '₹14,200';
+        sutradharLevel = 1;
+        streakDays = 4;
+        level2MonthlyIncentive = 14200;
+        updateLevelProgressionUI();
+        showToast('राहुल शर्मा (सूत्रधार लेवल 1) — दैनिक मानक लक्ष्य: ₹1,000/दिन • स्ट्रीक: 4/7 दिन।');
+      } else if(p === 'role2') {
+        document.getElementById('headerBrandTitle').innerText = 'प्रिया वर्मा (shriramjiastro.in)';
+        document.getElementById('headerLogoInitials').innerText = 'PV';
+        document.getElementById('sidebarUserName').innerText = 'प्रिया वर्मा';
+        document.getElementById('agentMetricSales').innerText = '42';
+        document.getElementById('agentMetricIncentive').innerText = '₹1,04,200';
+        sutradharLevel = 2;
+        streakDays = 7;
+        level2MonthlyIncentive = 104200;
+        updateLevelProgressionUI();
+        showToast('प्रिया वर्मा (सूत्रधार लेवल 2) — ₹24,000 कोर्स अनलॉक • ₹1 लाख क्लब सदस्य (₹10,000 बोनस)!');
+      }
+    }
+
+    // =========================================================================
+    // 2-CHANNEL SALES & IN-APP COUPON LEDGER (NO PHONE LOCKING)
+    // =========================================================================
+    let salesLedger = [
+      { id: 'S-101', name: 'सुरेश कुमार (वाराणसी)', product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)', channel: '🤝 विश्वस्त (फुल प्राइस)', coupon: 'डायरेक्ट (बिना कूपन)', paid: '₹1,111', incentive: '₹350', payout: '⚡ 2-घंटे कतार में' },
+      { id: 'S-102', name: 'दीपक जोशी (दिल्ली)', product: '1-वर्षीय गुरुकुल कोर्स (₹24,000)', channel: '🏷️ 10% कूपन क्लोजर', coupon: 'VIDYA10 (-₹2,400)', paid: '₹21,600', incentive: '₹1,200', payout: '⚡ 2-घंटे कतार में' },
+      { id: 'S-103', name: 'आलोक वाजपेयी (लखनऊ)', product: 'दैवज्ञ VIP परामर्श (₹5,100)', channel: '🤝 विश्वस्त (फुल प्राइस)', coupon: 'कूपन वर्जित (सीमित 30 स्लॉट)', paid: '₹5,100', incentive: '₹1,500', payout: '✓ पेआउट सफल' },
+      { id: 'S-104', name: 'संगीता शर्मा (जयपुर)', product: 'मेगा पाराशर रिपोर्ट (₹1,111)', channel: '🏷️ 10% कूपन क्लोजर', coupon: 'आपकी सूत्रधार ID (-₹111)', paid: '₹1,000', incentive: '₹295', payout: '✓ पेआउट सफल' }
+    ];
+
+    function renderLeadsTable() {
+      const tbody = document.getElementById('leadsTableBody');
+      const counter = document.getElementById('activeLeadsCount');
+      if(!tbody) return;
+      tbody.innerHTML = '';
+      if(counter) counter.innerText = `${salesLedger.length} वेरिफाइड सेल्स`;
+
+      salesLedger.forEach(item => {
+        const isCoupon = item.channel.includes('कूपन');
+        const channelBadge = isCoupon ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition';
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-slate-800">${item.name}</div>
+            <div class="text-[10px] text-slate-400 font-mono">ID: ${item.id}</div>
+          </td>
+          <td class="p-3 font-semibold text-slate-700">${item.product}</td>
+          <td class="p-3">
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${channelBadge}">
+              ${item.channel}
+            </span>
+          </td>
+          <td class="p-3">
+            <span class="font-mono text-xs ${isCoupon ? 'text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded border border-purple-200' : 'text-slate-500'}">
+              ${item.coupon}
+            </span>
+          </td>
+          <td class="p-3 font-extrabold text-slate-900 font-mono">${item.paid}</td>
+          <td class="p-3 font-extrabold text-emerald-700 font-mono text-sm">${item.incentive}</td>
+          <td class="p-3">
+            <span class="text-[11px] font-semibold ${item.payout.includes('2-घंटे') ? 'text-amber-600 animate-pulse font-bold' : 'text-emerald-700 font-bold'}">
+              ${item.payout}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function simulateFullPriceSale() {
+      const newSale = {
+        id: `S-${Date.now().toString().slice(-3)}`,
+        name: 'अमित मिश्रा (प्रयागराज)',
+        product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)',
+        channel: '🤝 विश्वस्त (फुल प्राइस)',
+        coupon: 'डायरेक्ट (बिना कूपन)',
+        paid: '₹1,111',
+        incentive: '₹350',
+        payout: '⚡ 2-घंटे कतार में'
+      };
+      salesLedger.unshift(newSale);
+      renderLeadsTable();
+      showToast('सफलता! विश्वस्त ग्राहक की फुल ₹1,111 सेल दर्ज हुई। ₹350 बंपर इंसेंटिव 2-घंटे कतार में जुड़ा!');
+    }
+
+    function simulateCouponSale() {
+      const newSale = {
+        id: `S-${Date.now().toString().slice(-3)}`,
+        name: 'रोहित वर्मा (इंदौर)',
+        product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)',
+        channel: '🏷️ 10% कूपन क्लोजर',
+        coupon: 'आपकी सूत्रधार ID (-10% / -₹111)',
+        paid: '₹1,000',
+        incentive: '₹295',
+        payout: '⚡ 2-घंटे कतार में'
+      };
+      salesLedger.unshift(newSale);
+      renderLeadsTable();
+      showToast('सफलता! अनजान ग्राहक ने आपकी सूत्रधार ID कूपन से ₹1,000 पे किया। ₹295 इंसेंटिव (50:50 स्प्लिट) 2-घंटे कतार में जुड़ा!');
+    }
+
+    function copyCouponPitch() {
+      const pitch = `सर, सुरक्षा कारणों से हम व्हाट्सएप पर कोई पेमेंट लिंक नहीं भेजते। आप सीधे Google Play Store से हमारा ऑफिशियल 'श्री राम जी एस्ट्रो' ऐप डाउनलोड करें या shriramjiastro.in पर जाएं। पेमेंट स्क्रीन पर कूपन कोड आपकी सूत्रधार ID डालें, आपको संस्थान की ओर से 10% (₹111) की तुरंत दक्षिणा छूट मिलेगी और यह सिर्फ ₹1,000 में तैयार होगी!`;
+      navigator.clipboard.writeText(pitch);
+      showToast('10% रिपोर्ट कूपन (आपकी सूत्रधार ID) स्क्रिप्ट कॉपी हो गई!');
+    }
+
+    function copyStoreLink() {
+      const link = document.getElementById('salesPlayStoreLink')?.innerText.trim() || 'https://shriramjiastro.in/app?ref=SD-105';
+      navigator.clipboard.writeText(link);
+      showToast('प्ले स्टोर डाउनलोड लिंक कॉपी हो गया!');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function handleNewSaleSubmit(e) {
+      e.preventDefault();
+      const agent = document.getElementById('saleAgent').value;
+      const prod = document.getElementById('saleProduct').value;
+      const custName = document.getElementById('custName').value || 'ग्राहक';
+      let inc = '₹350';
+      let prodName = 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)';
+      let paid = '₹1,111';
+      let coupon = 'डायरेक्ट (बिना कूपन)';
+      let channel = '🤝 विश्वस्त (फुल प्राइस)';
+
+      if(prod === 'muhurat_full') {
+        inc = '₹350'; prodName = 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)'; paid = '₹1,111';
+      } else if(prod === 'muhurat_coupon') {
+        inc = '₹295'; prodName = 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)'; paid = '₹1,000'; coupon = 'आपकी सूत्रधार ID (-10%)'; channel = '🏷️ 10% कूपन क्लोजर';
+      } else if(prod === 'mega_full') {
+        inc = '₹350'; prodName = 'मेगा पाराशर रिपोर्ट (₹1,111)'; paid = '₹1,111';
+      } else if(prod === 'mega_coupon') {
+        inc = '₹295'; prodName = 'मेगा पाराशर रिपोर्ट (₹1,111)'; paid = '₹1,000'; coupon = 'आपकी सूत्रधार ID (-10%)'; channel = '🏷️ 10% कूपन क्लोजर';
+      } else if(prod === 'course_full') {
+        inc = '₹2,400'; prodName = '1-वर्षीय गुरुकुल कोर्स (₹24,000)'; paid = '₹24,000';
+      } else if(prod === 'course_coupon') {
+        inc = '₹1,200'; prodName = '1-वर्षीय गुरुकुल कोर्स (₹24,000)'; paid = '₹21,600'; coupon = 'VIDYA10 (-10%)'; channel = '🏷️ 10% कूपन क्लोजर';
+      } else if(prod === 'consultation') {
+        inc = '₹1,500'; prodName = 'दैवज्ञ VIP परामर्श (₹5,100)'; paid = '₹5,100'; coupon = 'कूपन वर्जित (सीमित 30 स्लॉट)';
+      } else if(prod === 'micro') {
+        inc = '₹80'; prodName = 'छोटी रिपोर्ट (₹250)'; paid = '₹250';
+      }
+
+      const newSale = {
+        id: `S-${Date.now().toString().slice(-3)}`,
+        name: custName + ' (ऑनलाइन)',
+        product: prodName,
+        channel: channel,
+        coupon: coupon,
+        paid: paid,
+        incentive: inc,
+        payout: '⚡ 2-घंटे कतार में'
+      };
+      salesLedger.unshift(newSale);
+      renderLeadsTable();
+
+      closeModal('newSaleModal');
+      if(agent === registeredCandidate?.name) {
+        document.getElementById('agentMetricSales').innerText = '1';
+        document.getElementById('agentMetricIncentive').innerText = inc;
+      }
+      showToast(`सेल दर्ज हुई! ${inc} इंसेंटिव 2-Hour कतार में जुड़ा।`);
+    }
+
+    // =========================================================================
+    // DAILY TASKS & LIVE INCENTIVE CALCULATOR STATE & LOGIC
+    // =========================================================================
+    const dailyTasksState = {
+      micro: { count: 0, rate: 80, name: 'छोटी रिपोर्ट (₹250)' },
+      parashara: { count: 0, rate: 350, name: 'मेगा पाराशर रिपोर्ट (₹1,111)' },
+      muhurat: { count: 0, rate: 350, name: 'मुहूर्त रिपोर्ट (₹1,111)' },
+      consultation: { count: 0, rate: 1500, name: 'दैवज्ञ VIP परामर्श (₹5,100)' },
+      course: { count: 0, rate: 2400, name: '1-वर्षीय गुरुकुल पाठ्यक्रम (₹24,000)' }
+    };
+
+    function changeTaskCount(type, delta) {
+      if (!dailyTasksState[type]) return;
+
+      if (type === 'course' && sutradharLevel === 1 && delta > 0) {
+        showToast('🔒 यह ₹24,000 टिकट साइज केवल "सूत्रधार लेवल 2" में उपलब्ध है! लगातार 7 दिन ₹3,000/दिन स्ट्रीक पूरी करें।');
+        return;
+      }
+
+      dailyTasksState[type].count = Math.max(0, dailyTasksState[type].count + delta);
+      updateDailyTasksUI();
+    }
+
+    function logTaskSale(type) {
+      if (!dailyTasksState[type]) return;
+
+      if (type === 'course' && sutradharLevel === 1) {
+        showToast('🔒 यह ₹24,000 टिकट साइज केवल "सूत्रधार लेवल 2" में उपलब्ध है!');
+        return;
+      }
+
+      changeTaskCount(type, 1);
+      const item = dailyTasksState[type];
+      showToast(`बधाई! 1 ${item.name} सेल जुड़ी। दक्षिणा +₹${item.rate.toLocaleString('en-IN')}`);
+    }
+
+    function updateDailyTasksUI() {
+      let totalCount = 0;
+      let totalAmount = 0;
+
+      Object.keys(dailyTasksState).forEach(key => {
+        const item = dailyTasksState[key];
+        const rowAmount = item.count * item.rate;
+        totalCount += item.count;
+        totalAmount += rowAmount;
+
+        const countEl = document.getElementById(`taskCount-${key}`);
+        const calcEl = document.getElementById(`taskCalc-${key}`);
+        const amountEl = document.getElementById(`taskAmount-${key}`);
+
+        if (countEl) countEl.innerText = item.count;
+        if (calcEl) calcEl.innerText = `${item.count} × ₹${item.rate.toLocaleString('en-IN')}`;
+        if (amountEl) amountEl.innerText = `₹${rowAmount.toLocaleString('en-IN')}`;
+      });
+
+      const headerTotalEl = document.getElementById('dashHeaderTotalAmount');
+      if (headerTotalEl) headerTotalEl.innerText = `₹${totalAmount.toLocaleString('en-IN')}`;
+
+      const totalCountDisp = document.getElementById('totalDailyCountDisplay');
+      if (totalCountDisp) totalCountDisp.innerText = `${totalCount} सेवाएँ`;
+
+      const totalAmountDisp = document.getElementById('totalDailyAmountDisplay');
+      if (totalAmountDisp) totalAmountDisp.innerText = `₹${totalAmount.toLocaleString('en-IN')}`;
+
+      // Live sync with top dashboard metric cards
+      const metricSales = document.getElementById('agentMetricSales');
+      if (metricSales) metricSales.innerText = totalCount;
+
+      const metricInc = document.getElementById('agentMetricIncentive');
+      if (metricInc) metricInc.innerText = `₹${totalAmount.toLocaleString('en-IN')}`;
+
+      const metricCourse = document.getElementById('agentMetricCourse');
+      if (metricCourse) metricCourse.innerText = dailyTasksState.course.count;
+
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // LEVEL PROGRESSION & 7-DAY STREAK UI SYNC
+    // =========================================================================
+    function updateLevelProgressionUI() {
+      const badge = document.getElementById('levelBadge');
+      const baseline = document.getElementById('levelBaselineText');
+      const heading = document.getElementById('levelHeading');
+      const desc = document.getElementById('levelDesc');
+      const streakBadge = document.getElementById('streakCountBadge');
+      const helperMsg = document.getElementById('streakHelperMsg');
+      const badgeCourse = document.getElementById('badgePerkCourse');
+      const courseRowLock = document.getElementById('courseRowLockBadge');
+      const sidebarRole = document.getElementById('sidebarUserRole');
+      const badgeStreakBonus = document.getElementById('badgePerkStreakBonus');
+      const dailySummary = document.getElementById('dailyTableSummaryText');
+
+      // Update 7-day indicators
+      for (let d = 1; d <= 7; d++) {
+        const dayCard = document.getElementById(`streakDay-${d}`);
+        const icon = document.getElementById(`streakIcon-${d}`);
+        const text = document.getElementById(`streakText-${d}`);
+        if (!dayCard || !icon || !text) continue;
+
+        if (d <= streakDays) {
+          dayCard.className = 'p-3 rounded-2xl border-2 border-emerald-400 bg-emerald-50/80 space-y-1 transition-all shadow-xs';
+          icon.className = 'w-8 h-8 mx-auto rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs';
+          icon.innerText = '✓';
+          text.className = 'text-[10px] font-extrabold text-emerald-800';
+          text.innerText = '₹3,000+ पूर्ण';
+        } else if (d === streakDays + 1) {
+          dayCard.className = 'p-3 rounded-2xl border-2 border-blue-400 bg-blue-50/70 space-y-1 transition-all animate-pulse';
+          icon.className = 'w-8 h-8 mx-auto rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs';
+          icon.innerText = d;
+          text.className = 'text-[10px] font-bold text-blue-900';
+          text.innerText = 'आज का लक्ष्य';
+        } else {
+          dayCard.className = 'p-3 rounded-2xl border border-slate-200 bg-white space-y-1 transition-all';
+          icon.className = 'w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-xs';
+          icon.innerText = d === 7 ? '👑' : d;
+          text.className = 'text-[10px] font-bold text-slate-400';
+          text.innerText = d === 7 ? 'लेवल 2 गेटवे' : '₹3,000 लक्ष्य';
+        }
+      }
+
+      if (streakBadge) streakBadge.innerText = `${streakDays} / 7 दिन पूर्ण`;
+
+      if (sutradharLevel === 1) {
+        if (badge) {
+          badge.innerHTML = '<span>सूत्रधार लेवल 1</span>';
+          badge.className = 'px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-900 border border-blue-300 flex items-center space-x-1.5 shadow-xs';
+        }
+        if (baseline) {
+          baseline.innerHTML = 'दैनिक मानक लक्ष्य: <strong class="text-emerald-700 font-extrabold">₹1,000 / दिन</strong>';
+        }
+        if (heading) heading.innerText = 'लेवल 2 पदोन्नति व 7-दिन स्ट्रीक कंसोल';
+        if (desc) desc.innerHTML = '<strong>पदोन्नति नियम:</strong> लगातार 1 हफ्ता (7 दिन) प्रतिदिन न्यूनतम <strong class="text-emerald-700 font-bold">₹3,000 इंसेंटिव</strong> अर्जित करने पर <strong>सूत्रधार लेवल 2</strong> अनलॉक होगा।';
+        if (helperMsg) helperMsg.innerText = `लगातार 7 दिन ₹3,000/दिन इंसेंटिव ➔ सूत्रधार लेवल 2 अनलॉक!`;
+        if (badgeCourse) {
+          badgeCourse.innerText = '🔒 लेवल 1 में लॉक';
+          badgeCourse.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500 border border-slate-200';
+        }
+        if (courseRowLock) {
+          courseRowLock.innerText = '🔒 केवल लेवल 2 में अनलॉक';
+          courseRowLock.className = 'text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-100 text-amber-900 border border-amber-300';
+        }
+        if (sidebarRole) sidebarRole.innerText = 'सूत्रधार लेवल 1 (मानक: ₹1,000/दिन)';
+        if (badgeStreakBonus) {
+          badgeStreakBonus.innerText = 'लेवल 2 नियम';
+          badgeStreakBonus.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-500 border border-slate-200';
+        }
+        if (dailySummary) {
+          dailySummary.innerHTML = `<span>💡 <strong>लेवल 1 दैनिक मानक लक्ष्य:</strong> <strong class="text-emerald-700 font-extrabold">₹1,000 / दिन</strong> (सुझाई गई क्षमता: ₹2,440/दिन)</span>
+                  <span>•</span>
+                  <span>लगातार 7 दिन ₹3,000/दिन स्ट्रीक ➔ <strong class="text-purple-700 font-bold">लेवल 2 अनलॉक!</strong></span>`;
+        }
+      } else {
+        // LEVEL 2 ACTIVE
+        if (badge) {
+          badge.innerHTML = '<span>👑 सूत्रधार लेवल 2 (अनलॉक्ड)</span>';
+          badge.className = 'px-3.5 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 text-purple-950 border border-amber-400 shadow-sm flex items-center space-x-1.5 animate-pulse';
+        }
+        if (baseline) {
+          baseline.innerHTML = '👑 <strong>लेवल 2 सक्रिय:</strong> ₹24,000 गुरुकुल कोर्स अनलॉक (₹2,400 दक्षिणा)';
+        }
+        if (heading) heading.innerText = '👑 सूत्रधार लेवल 2 — विशेषाधिकार व महा-बोनस कंसोल';
+        if (desc) desc.innerHTML = '🎉 बधाई! 7-दिन स्ट्रीक पूर्ण होने पर <strong>लेवल 2 सक्रिय</strong> है। ₹24,000 कोर्स अनलॉक है, लगातार 7 दिन ₹3,000/दिन पर <strong>₹1,000 मंथ-एंड बोनस</strong> व ₹1 लाख पर <strong>₹10,000 महा-बोनस</strong>!';
+        if (helperMsg) helperMsg.innerText = `सक्रिय स्ट्रीक: 7/7 दिन पूर्ण • ₹1,000 मंथ-एंड बोनस सुनिश्चित!`;
+        if (badgeCourse) {
+          badgeCourse.innerText = '🔓 सक्रिय (₹2,400 इंसेंटिव)';
+          badgeCourse.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        }
+        if (courseRowLock) {
+          courseRowLock.innerText = '🔓 लेवल 2 सक्रिय (₹2,400 दक्षिणा)';
+          courseRowLock.className = 'text-[10px] px-2 py-0.5 rounded-md font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        }
+        if (sidebarRole) sidebarRole.innerText = '👑 सूत्रधार लेवल 2 (वरिष्ठ)';
+        if (badgeStreakBonus) {
+          badgeStreakBonus.innerText = '✓ ₹1,000 मंथ-एंड बोनस सुनिश्चित';
+          badgeStreakBonus.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        }
+        if (dailySummary) {
+          dailySummary.innerHTML = `<span>👑 <strong>लेवल 2 दैनिक क्षमता:</strong> ₹2,440 + ₹2,400 (कोर्स) = <strong class="text-purple-950 font-black">₹4,840 / दिन</strong></span>
+                  <span>•</span>
+                  <span class="text-emerald-700 font-bold">7-दिन स्ट्रीक पर ₹1,000 मंथ-एंड बोनस</span>
+                  <span>•</span>
+                  <span class="text-purple-700 font-bold">₹1 लाख पर ₹10,000 महा-बोनस!</span>`;
+        }
+      }
+
+      // Update ₹1 Lakh Club Progress
+      const incDisplay = document.getElementById('level2MonthlyIncDisplay');
+      const bar = document.getElementById('level2MonthlyProgressBar');
+      const crownBadge = document.getElementById('badgePerkCrownBonus');
+      if (incDisplay) incDisplay.innerText = `₹${level2MonthlyIncentive.toLocaleString('en-IN')} / ₹1,00,000`;
+      const pct = Math.min(100, Math.round((level2MonthlyIncentive / 100000) * 100));
+      if (bar) bar.style.width = `${pct}%`;
+      if (crownBadge) {
+        if (level2MonthlyIncentive >= 100000) {
+          crownBadge.innerText = '🎉 ₹10,000 महा-बोनस अनलॉक्ड!';
+          crownBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-emerald-500 text-white shadow-xs';
+        } else {
+          crownBadge.innerText = `${pct}% प्रगति`;
+          crownBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-200';
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    function simulateAddStreakDay() {
+      if (streakDays < 7) {
+        streakDays++;
+        showToast(`शानदार! दिन ${streakDays} की ₹3,000 दैनिक दक्षिणा स्ट्रीक दर्ज हुई। (${streakDays}/7 दिन पूर्ण)`);
+        if (streakDays === 7) {
+          sutradharLevel = 2;
+          showToast('🎉 जय श्री राम! 7-दिन की लगातार ₹3,000/दिन स्ट्रीक पूरी हुई! सूत्रधार लेवल 2 अनलॉक हो गया!');
+        }
+      } else {
+        showToast('आपकी 7-दिन की स्ट्रीक पहले से पूर्ण है। सूत्रधार लेवल 2 सक्रिय है!');
+      }
+      updateLevelProgressionUI();
+    }
+
+    function simulateLevel2Unlock() {
+      streakDays = 7;
+      sutradharLevel = 2;
+      updateLevelProgressionUI();
+      showToast('🎉 अद्भुत पराक्रम! 7-दिन की ₹3,000/दिन स्ट्रीक पूर्ण ➔ सूत्रधार लेवल 2 व ₹24,000 गुरुकुल कोर्स अनलॉक हुआ!');
+    }
+
+    function resetToLevel1() {
+      sutradharLevel = 1;
+      streakDays = 0;
+      level2MonthlyIncentive = 0;
+      dailyTasksState.course.count = 0;
+      updateDailyTasksUI();
+      updateLevelProgressionUI();
+      showToast('डैशबोर्ड पुनः "सूत्रधार लेवल 1" (दैनिक मानक: ₹1,000/दिन) पर सेट हुआ।');
+    }
+
+    function addMonthlyIncentive(amt) {
+      if (sutradharLevel === 1) {
+        simulateLevel2Unlock();
+      }
+      level2MonthlyIncentive += amt;
+      updateLevelProgressionUI();
+      if (level2MonthlyIncentive >= 100000) {
+        showToast(`👑 ऐतिहासिक उपलब्धि! माह में कुल ₹${level2MonthlyIncentive.toLocaleString('en-IN')} इंसेंटिव पूरा हुआ! संस्थान द्वारा ₹10,000 नकद महा-बोनस पेआउट में जोड़ा गया!`);
+      } else {
+        showToast(`लेवल 2 मासिक इंसेंटिव में +₹${amt.toLocaleString('en-IN')} जुड़े। कुल: ₹${level2MonthlyIncentive.toLocaleString('en-IN')}`);
+      }
+    }
+
+    function simulateCrownMilestone() {
+      if (sutradharLevel === 1) {
+        simulateLevel2Unlock();
+      }
+      level2MonthlyIncentive = 100000;
+      updateLevelProgressionUI();
+      showToast('👑 बधाई! ₹1,00,000 (1 लाख) इंसेंटिव क्लब पूर्ण! ₹10,000 नकद महा-बोनस पेआउट कतार में जुड़ गया!');
+    }
+
+    function resetDailyTasks() {
+      Object.keys(dailyTasksState).forEach(key => {
+        dailyTasksState[key].count = 0;
+      });
+      updateDailyTasksUI();
+      showToast('दैनिक कार्य पटल रीसेट हुआ। आज का नया दिन शुभ व फलदायी हो!');
+    }
+
+    function claimDailyPayout() {
+      let totalAmount = 0;
+      Object.keys(dailyTasksState).forEach(key => {
+        totalAmount += dailyTasksState[key].count * dailyTasksState[key].rate;
+      });
+
+      if (totalAmount <= 0) {
+        showToast('आज का इंसेंटिव अभी ₹0 है। सेल दर्ज करके पावन दक्षिणा अर्जित करें!');
+        return;
+      }
+
+      showToast(`प्रणाम! आज की दक्षिणा ₹${totalAmount.toLocaleString('en-IN')} का 2-घंटे UPI पेआउट अनुरोध दर्ज कर दिया गया है।`);
+      switchTab('fastPayout');
+    }
+
+    function copyCouponToClipboard(code) {
+      const currentAgentId = document.getElementById('wizAgentId')?.innerText.trim() || 'SD-105';
+      const finalCode = (code && code !== 'आपकी सूत्रधार ID' && code !== 'VIDYA10') ? code : currentAgentId;
+      navigator.clipboard.writeText(finalCode);
+      showToast(`आपका 10% कूपन कोड '${finalCode}' कॉपी हो गया! ग्राहक के साथ शेयर करें।`);
+    }
+
+    function copyDirectOfficialLink(url) {
+      const currentAgentId = document.getElementById('wizAgentId')?.innerText.trim() || 'SD-105';
+      const finalUrl = url ? url.replace('SD-105', currentAgentId) : `https://shriramjiastro.in/?ref=${currentAgentId}`;
+      navigator.clipboard.writeText(finalUrl);
+      showToast(`आधिकारिक रेफरल लिंक '${finalUrl}' क्लिपबोर्ड पर कॉपी हो गया!`);
+    }
+
+    function copyBrahmastraPitch() {
+      const currentAgentId = document.getElementById('wizAgentId')?.innerText.trim() || 'SD-105';
+      const pitch = `सर, हमारे आचार्य जी के 11 शिष्यों वाले विशेष गुरुकुल बैच में केवल 4 सीटें बची हैं। सामान्य शुल्क ₹24,000 है, परंतु ज्योतिष विद्या के प्रति आपके समर्पण को देखते हुए मैं संस्थान के आचार्य कोटे से अपना विशेष '10% छात्रवृत्ति कूपन (${currentAgentId})' आपको आवंटित कर रहा हूँ। इससे shriramjiastro.in/payment.html पर आपकी फीस तुरंत 10% (₹2,400) घटकर मात्र ₹21,600 हो जाएगी। चेकआउट पर कूपन में मेरा आईडी ${currentAgentId} डालें। यह विशेष छात्रवृत्ति केवल आज रात्रि 12:00 बजे तक ही मान्य है।`;
+      navigator.clipboard.writeText(pitch);
+      showToast(`10% ब्रह्मास्त्र क्लोजिंग पिच (${currentAgentId}) कॉपी हो गई!`);
+    }
+
+    function copyBlogLink() {
+      const currentAgentId = document.getElementById('wizAgentId')?.innerText.trim() || 'SD-105';
+      const link = `https://shriramjiastro.in/blog?ref=${currentAgentId}`;
+      navigator.clipboard.writeText(link);
+      showToast('पर्सनल रिसर्च ब्लॉग लिंक क्लिपबोर्ड पर कॉपी हो गया!');
+    }
+
+    function copyArticlePost(num) {
+      const currentAgentId = document.getElementById('wizAgentId')?.innerText.trim() || 'SD-105';
+      const blogUrl = `https://shriramjiastro.in/blog?ref=${currentAgentId}`;
+      let post = '';
+      if(num === 1) {
+        post = `🕉️ 2026-27 में विवाह या गृह प्रवेश की योजना बना रहे हैं?\n\n5-मिनट के ऑनलाइन ऐप्स और आधे-अधूरे पंचांग के भय से बचें। जानिए कौन सी तिथियों पर 21 महादोष व सूक्ष्म भद्रा लग रही है और महर्षि पाराशर संहिता के अनुसार कौन से पावन लग्न सर्वश्रेष्ठ हैं। हमारे वैदिक शोधकर्ताओं का श्लोक-प्रमाणित शोध पत्र पढ़ें और अपनी जन्मतिथि से बिल्कुल मुफ्त शुभ मुहूर्त निकालें:\n\n👉 प्रामाणिक शोध लेख व फ्री मुहूर्त लिंक: ${blogUrl}\n\n(श्री राम जी एस्ट्रो पर 10% दक्षिणा छूट हेतु मेरा कूपन कोड ${currentAgentId} उपयोग करें)`;
+      } else if(num === 2) {
+        post = `🪐 क्या शनि की साढ़े साती या ढैय्या के नाम पर आपको डराया जा रहा है?\n\nजानिए वृहत्पाराशर होरा शास्त्र के अनुसार साढ़े साती में किन 4 राशियों को भारी कष्ट के बजाय अपार राजयोग और ईश्वरीय कृपा मिलती है। भय-व्यापार का शिकार न बनें, सत्य समझें।\n\n👉 संपूर्ण शास्त्रीय शोध पढ़ें व अपनी शनि स्थिति चेक करें:\n${blogUrl}\n\n(श्री राम जी एस्ट्रो ऐप - 10% कूपन: ${currentAgentId})`;
+      } else {
+        post = `📜 ज्योतिष भविष्य का तमाशा नहीं, अपने प्रारब्ध को सुधारने का दिव्य नेत्र है!\n\nकुंडली का दूसरा और ग्यारहवां भाव आपकी वास्तविक कर्म-दिशा व आर्थिक स्थिति के बारे में क्या कहता है? बिना किसी डर और पाखंड के अपनी जन्मपत्री का शास्त्र-सम्मत सत्य खुद समझें।\n\n👉 निःशुल्क जन्मपत्री कैलकुलेटर व शोध लेख:\n${blogUrl}\n\n(श्री राम जी एस्ट्रो - 10% कूपन: ${currentAgentId})`;
+      }
+      navigator.clipboard.writeText(post);
+      showToast(`शास्त्र-प्रमाणित आलेख ${num} का संदेश कॉपी हो गया!`);
+    }
+
+    function copyLeadScript(type) {
+      const currentAgentId = document.getElementById('wizAgentId')?.innerText.trim() || 'SD-105';
+      const blogUrl = `https://shriramjiastro.in/blog?ref=${currentAgentId}`;
+      let text = '';
+      if(type === 'rajyog') {
+        text = `🌟 क्या आपकी जन्मकुंडली में भी गजकेसरी, बुधादित्य या मालव्य राजयोग है?\n\n5-मिनट के फर्जी ऐप्स में पैसे बर्बाद करने से पहले हमारे वैदिक कैलकुलेटर से 1 मिनट में बिल्कुल मुफ्त चेक करें कि आपकी जन्मपत्री में कौन से बड़े योग सक्रिय हैं और भाग्योदय की शास्त्रीय दिशा क्या है:\n👉 फ्री राजयोग कैलकुलेटर: ${blogUrl}\n(10% कूपन कोड: ${currentAgentId})`;
+      } else if(type === 'panchang') {
+        text = `🕉️ श्री राम जी एस्ट्रो • आज का पावन दैनिक पंचांग व अभिजित मुहूर्त\n\n• अभिजित वेला: 11:45 AM से 12:35 PM (अमृत मुहूर्त)\n• राहुकाल: 04:30 PM से 06:00 PM (नवीन कार्य वर्जित)\n\nअपनी कुंडली का शास्त्र-प्रमाणित विश्लेषण देखने के लिए shriramjiastro.in पर जाएं, कूपन में ${currentAgentId} डालें (10% छूट)।`;
+      } else if(type === 'quiz') {
+        text = `❓ भ्रम निवारण प्रश्न: क्या मांगलिक दोष 28 वर्ष की आयु के बाद स्वतः समाप्त होता है?\n\n(A) हाँ, हमेशा\n(B) नहीं, यह केवल एक भ्रम है (पाराशर श्लोक सत्य)\n\n👉 90% लोग इसका गलत उत्तर देते हैं! भयभीत होने के बजाय सही शास्त्रीय सत्य और अपनी कुंडली का वास्तविक समाधान पढ़ें: ${blogUrl}\n(10% कूपन कोड: ${currentAgentId})`;
+      } else if(type === 'wame') {
+        text = `https://wa.me/?text=${encodeURIComponent(`नमस्ते श्री राम जी एस्ट्रो! मुझे 5-मिनट वाले ऐप्स के भ्रम से मुक्त होकर अपनी जन्मपत्रिका की शास्त्र-सम्मत जांच करवानी है। (रेफरल आईडी: ${currentAgentId})`)}`;
+      }
+      navigator.clipboard.writeText(text);
+      showToast('पावन सेवा संदेश क्लिपबोर्ड पर कॉपी हो गया!');
+    }
+
+    function setLanguage(l) {
+      currentLang = l;
+      document.getElementById('langBtn-en').className = l === 'en' ? 'px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition' : 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition';
+      document.getElementById('langBtn-hi').className = l === 'hi' ? 'px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-xs transition' : 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-900 transition';
+      showToast(l === 'en' ? 'Switched to English' : 'हिन्दी भाषा सक्रिय');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3500);
+    }
+
+    window.onload = () => {
+      renderLeadsTable();
+      updateDailyTasksUI();
+      updateLevelProgressionUI();
+      lucide.createIcons();
+    };
+  </script>
+</body>
+</html>

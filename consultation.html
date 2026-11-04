@@ -1141,6 +1141,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 </head>
 <body>
@@ -2009,35 +2010,52 @@
 
             if (!code) {
                 msg.style.color = "var(--fail-red, #b91c1c)";
-                msg.textContent = "कृपया प्रोमोकोड दर्ज करें (Please enter a promo code).";
+                msg.textContent = "कृपया सूत्रधार आईडी अथवा प्रोमोकोड दर्ज करें।";
+                consultationAmountPaise = 510000;
+                appliedPromoCode = "";
+                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
                 return;
             }
 
-            if (window.sraIsMasterKey && window.sraIsMasterKey(code)) {
+            if (window.SraCouponEngine) {
+                const res = window.SraCouponEngine.validateAndCalculate(code, 5100);
+                if (res.valid) {
+                    if (res.type === 'master') {
+                        consultationAmountPaise = 0;
+                        appliedPromoCode = "MASTER";
+                        msg.style.color = "var(--pass-green, #15803D)";
+                        msg.innerHTML = "✨ <b>मास्टर कोड लागू!</b> यह स्लॉट बिना भुगतान के बुक होगा।";
+                        if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT (MASTER KEY)</span>";
+                    } else {
+                        consultationAmountPaise = res.finalAmountPaise;
+                        appliedPromoCode = res.code;
+                        msg.style.color = "var(--pass-green, #15803D)";
+                        msg.innerHTML = `✨ <b>सूत्रधार कूपन (${res.code}) लागू!</b> 10% विशेष छूट: <b>₹${res.finalAmount.toLocaleString('en-IN')}</b> (बचत: ₹${res.discountAmount})`;
+                        if (btn) btn.innerHTML = `<span>CONFIRM SACRED SLOT & PAY ₹${res.finalAmount.toLocaleString('en-IN')}</span>`;
+                    }
+                    return;
+                }
+            }
+
+            // Fallback checking
+            if (code === "MASTER" || (window.sraIsMasterKey && window.sraIsMasterKey(code))) {
                 consultationAmountPaise = 0;
                 appliedPromoCode = "MASTER";
                 msg.style.color = "var(--pass-green, #15803D)";
                 msg.innerHTML = "✨ <b>मास्टर कोड लागू!</b> यह स्लॉट बिना भुगतान के बुक होगा।";
                 if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT (MASTER KEY)</span>";
-                return;
-            } else if (code === "SRAPROMO11") {
-                consultationAmountPaise = 110000; // ₹1,100 in paise
-                appliedPromoCode = "SRAPROMO11";
+            } else if (/^SD-\d+$/.test(code) || code === "RAM10") {
+                consultationAmountPaise = 459000; // ₹4,590 in paise (10% off ₹5,100)
+                appliedPromoCode = code;
                 msg.style.color = "var(--pass-green, #15803d)";
-                msg.innerHTML = "✨ <b>प्रोमोकोड लागू हो गया!</b> विशेष परामर्श शुल्क: <b>₹1,100</b> (Promo Applied).";
-                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹1,100</span>";
-            } else if (code === "SRAPROMO21") {
-                consultationAmountPaise = 210000; // ₹2,100 in paise
-                appliedPromoCode = "SRAPROMO21";
-                msg.style.color = "var(--pass-green, #15803d)";
-                msg.innerHTML = "✨ <b>प्रोमोकोड लागू हो गया!</b> विशेष परामर्श शुल्क: <b>₹2,100</b> (Promo Applied).";
-                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹2,100</span>";
+                msg.innerHTML = `✨ <b>सूत्रधार कोड (${code}) लागू!</b> 10% छूट शुल्क: <b>₹4,590</b>`;
+                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹4,590</span>";
             } else {
                 consultationAmountPaise = 510000;
                 appliedPromoCode = "";
                 msg.style.color = "var(--fail-red, #b91c1c)";
-                msg.textContent = "❌ अमान्य प्रोमोकोड (Invalid Promo Code).";
-                btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
+                msg.textContent = "❌ अमान्य सूत्रधार कूपन कोड। कृपया सही आईडी (उदा. SD-105) दर्ज करें।";
+                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
             }
         }
 
@@ -2101,6 +2119,12 @@
                 },
                 "theme": {
                     "color": "#8C6D2B"
+                },
+                "notes": {
+                    "coupon_code": appliedPromoCode || "",
+                    "sutradhar_id": appliedPromoCode || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : ""),
+                    "discount_applied": (5100 - actualAmt) > 0 ? `₹${5100 - actualAmt}` : "0",
+                    "report_type": "consultation"
                 }
             };
 
@@ -2184,6 +2208,8 @@
 
             // ── 3. Central server payment logging ─────────────────────────────
             try {
+                const paidAmt = (data.amount_paid !== undefined) ? Number(data.amount_paid) : 5100;
+                const discAmt = Math.max(0, 5100 - paidAmt);
                 fetch('api/save_payment.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2194,7 +2220,10 @@
                         student_email: data.email,
                         plan_name: `1-on-1 Consultation Session (${data.reserved_date})`,
                         report_type: 'consultation',
-                        amount: data.amount_paid || 5100,
+                        amount: paidAmt,
+                        discount: discAmt,
+                        coupon_code: appliedPromoCode || "",
+                        sutradhar_id: appliedPromoCode || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : ""),
                         status: 'completed'
                     })
                 }).catch(err => console.warn('Payment logging note:', err));
@@ -2441,6 +2470,16 @@
         window.addEventListener('DOMContentLoaded', () => {
             renderDynamicCalendar();
             loadApprovedReviews();
+            if (window.SraCouponEngine) {
+                const activeRef = window.SraCouponEngine.getActiveSutradharId();
+                if (activeRef) {
+                    const promoInput = document.getElementById('promoCodeInput');
+                    if (promoInput && !promoInput.value) {
+                        promoInput.value = activeRef;
+                        applyConsultationPromo();
+                    }
+                }
+            }
         });
     </script>
 </body>

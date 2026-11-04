@@ -954,6 +954,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 </head>
 <body>
@@ -1650,18 +1651,31 @@
 
       const clientName = pendingDhanInput.name || "जातक";
       const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
+      const basePrice = 299;
+      const appliedDisc = window._dhanDiscount || 0;
+      const finalAmt = Math.max(0, basePrice - appliedDisc);
+      const finalPaise = finalAmt * 100;
+      const sutradharRef = window._dhanSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const couponUsed = window._dhanCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
 
       const options = {
         key: "rzp_live_SP6lQYYrNI0CYD",
-        amount: 29900,
+        amount: finalPaise,
         currency: "INR",
         name: "Shri Ramji Astro",
-        description: `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName} (₹299)`,
+        description: `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName}` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
         prefill: {
           name: clientName,
           contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
         },
         theme: { color: "#7c1305" },
+        notes: {
+          report_type: 'dhana_yoga_report',
+          amount: String(finalAmt),
+          coupon_code: couponUsed,
+          sutradhar_id: sutradharRef,
+          discount: String(appliedDisc)
+        },
         handler: function(response) {
           unlockDhanReport(response.razorpay_payment_id || 'RZP_SUCCESS');
         }
@@ -1675,17 +1689,54 @@
     }
 
     // Unlock & Render Full Dhana Yoga Report
-    // Owner master key: unlocks this report without payment
+    // Owner master key / Sutradhar coupon:
     function applyDhanOwnerCode() {
       const inp = document.getElementById('dhanOwnerCode');
       const err = document.getElementById('dhanOwnerCodeErr');
-      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(inp.value)) {
+      const val = (inp ? inp.value.trim() : '').toUpperCase();
+
+      if (!val) {
+        if (err) {
+          err.style.color = '#b91c1c';
+          err.innerText = 'कृपया कूपन कोड या एक्सेस कोड दर्ज करें।';
+          err.style.display = 'block';
+        }
+        return;
+      }
+
+      if (window.SraCouponEngine) {
+        const res = window.SraCouponEngine.validateAndCalculate(val, 299);
+        if (res.valid) {
+          if (res.type === 'master') {
+            if (err) err.style.display = 'none';
+            unlockDhanReport('MASTER_KEY');
+            return;
+          } else {
+            window._dhanDiscount = res.discountAmount;
+            window._dhanCoupon = res.code;
+            window._dhanSutradhar = res.sutradhar_id;
+            const payBtn = document.querySelector('#modalDhanPayment299 button.btn-pay-now');
+            if (payBtn) payBtn.innerHTML = `💳 ₹${res.finalAmount} ऑनलाइन भुगतान करें (10% कूपन ${res.code} लागू)`;
+            if (err) {
+              err.style.color = '#15803d';
+              err.innerHTML = `✨ <b>सूत्रधार कूपन (${res.code}) स्वीकृत!</b> 10% छूट लागू (देय राशि: ₹${res.finalAmount})`;
+              err.style.display = 'block';
+            }
+            return;
+          }
+        }
+      }
+
+      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(val)) {
         if (err) err.style.display = 'none';
         unlockDhanReport('MASTER_KEY');
       } else if (err) {
+        err.style.color = '#b91c1c';
+        err.innerText = 'अमान्य एक्सेस कोड! कृपया सही कोड दर्ज करें।';
         err.style.display = 'block';
       }
     }
+
     function unlockDhanReport(paymentId) {
       if (pendingDhanInput) {
         const key = getDhanPaymentKey(pendingDhanInput);
@@ -1696,6 +1747,11 @@
           console.warn("localStorage error:", e);
         }
       }
+
+      const appliedDisc = window._dhanDiscount || 0;
+      const finalAmt = Math.max(0, 299 - appliedDisc);
+      const sutradharRef = window._dhanSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const couponUsed = window._dhanCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
 
       // Log payment to central API
       try {
@@ -1708,7 +1764,11 @@
             student_phone: localStorage.getItem('sra_verified_mobile') || '',
             plan_name: 'Dhana Yoga & Sampatti Analysis (₹299)',
             report_type: 'dhana_yoga_report',
-            amount: 299
+            amount: finalAmt,
+            discount: appliedDisc,
+            coupon_code: couponUsed,
+            sutradhar_id: sutradharRef,
+            status: 'completed'
           })
         }).catch(err => console.warn('Payment log note:', err));
       } catch(e) {}

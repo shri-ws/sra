@@ -1999,6 +1999,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
   <style id="sra-layout">
     /* पाराशर रिपोर्ट पृष्ठ: सरल ऊपरी लेआउट (केवल नई क्लास, बाकी CSS अछूता) */
@@ -3156,12 +3157,19 @@
       }
       localStorage.setItem('sra_verified_mobile', clientMobile);
 
+      const baseAmt = 1111;
+      const appliedDisc = window._parasharaDiscount || 0;
+      const finalAmt = Math.max(0, baseAmt - appliedDisc);
+      const finalPaise = finalAmt * 100;
+      const sutradharRef = window._parasharaSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const couponUsed = window._parasharaCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+
       const options = {
         key: PARASHARA_RZP_KEY,
-        amount: PARASHARA_PRICE_PAISE,
+        amount: finalPaise,
         currency: "INR",
         name: "श्री रामजी एस्ट्रो",
-        description: `मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय) - ${clientName}`,
+        description: `मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय) - ${clientName}` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
         image: "/logo.png",
         prefill: {
           name: clientName,
@@ -3174,7 +3182,10 @@
           report_type: "mega_parashara_97_chapters",
           report_title: "मेगा पाराशर संहिता कुण्डली रिपोर्ट",
           kundali_key: getKundaliPaymentKey(k),
-          amount: "1111"
+          amount: String(finalAmt),
+          coupon_code: couponUsed,
+          sutradhar_id: sutradharRef,
+          discount: String(appliedDisc)
         },
         handler: function (response) {
           const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : ('RZP_MEGA_' + Date.now());
@@ -3194,7 +3205,10 @@
             student_email: localStorage.getItem('sra_verified_email') || '',
             plan_name: 'मेगा पाराशर संहिता कुण्डली रिपोर्ट (९७ अध्याय)',
             report_type: 'mega_parashara_97_chapters',
-            amount: 1111,
+            amount: finalAmt,
+            discount: appliedDisc,
+            coupon_code: couponUsed,
+            sutradhar_id: sutradharRef,
             kundali_key: kKey
           });
 
@@ -3259,7 +3273,13 @@
       }
       const input = document.getElementById('gatePasscodeInput');
       if (input) {
-        input.value = '';
+        const activeRef = window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '';
+        if (activeRef) {
+          input.value = activeRef;
+          verifyGatePasscode();
+        } else {
+          input.value = '';
+        }
       }
     }
 
@@ -3283,17 +3303,45 @@
 
     async function verifyGatePasscode() {
       const inp = document.getElementById('gatePasscodeInput');
-      const input = (inp ? inp.value : '').trim();
+      const input = (inp ? inp.value : '').trim().toUpperCase();
       const err = document.getElementById('gateErrMsg');
       const btn = document.querySelector('.passcode-card button');
 
       if (!input) {
         if (err) {
-          err.innerText = "❌ कृपया एक्सेस कोड दर्ज करें।";
+          err.innerText = "❌ कृपया सूत्रधार कूपन कोड अथवा एक्सेस कोड दर्ज करें।";
+          err.style.color = '#b91c1c';
           err.style.display = 'block';
           setTimeout(() => { err.style.display = 'none'; }, 3000);
         }
         return;
+      }
+
+      // 1. SraCouponEngine Validation (Sutradhar ID = 10% coupon, MASTER = 100% bypass)
+      if (window.SraCouponEngine) {
+        const res = window.SraCouponEngine.validateAndCalculate(input, 1111);
+        if (res.valid) {
+          if (res.type === 'master') {
+            sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+            closeGateModal();
+            updateAuthBadge();
+            updateGenerateButtonState(currentSelectedKundali);
+            generateMegaParasharaReport(true);
+            return;
+          } else {
+            window._parasharaDiscount = res.discountAmount;
+            window._parasharaCoupon = res.code;
+            window._parasharaSutradhar = res.sutradhar_id;
+            const payBtn = document.querySelector('#gateOverlay button.btn-hero-primary span');
+            if (payBtn) payBtn.innerHTML = `🔒 Razorpay द्वारा ₹${res.finalAmount} भुगतान करें (10% कूपन ${res.code} लागू)`;
+            if (err) {
+              err.style.color = '#15803d';
+              err.innerHTML = `✨ <b>सूत्रधार कूपन (${res.code}) स्वीकृत!</b> 10% छूट लागू (देय राशि: ₹${res.finalAmount})`;
+              err.style.display = 'block';
+            }
+            return;
+          }
+        }
       }
 
       if (window.sraIsMasterKey && window.sraIsMasterKey(input)) {

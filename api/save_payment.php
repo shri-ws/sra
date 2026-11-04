@@ -37,6 +37,12 @@ $reportType = !empty($data['report_type']) ? trim($data['report_type']) : 'mega_
 $amount = isset($data['amount']) ? intval($data['amount']) : 1111;
 $status = !empty($data['status']) ? trim($data['status']) : 'completed';
 $kundaliKey = !empty($data['kundali_key']) ? trim($data['kundali_key']) : '';
+$couponCode = !empty($data['coupon_code']) ? strtoupper(trim($data['coupon_code'])) : (!empty($data['coupon']) ? strtoupper(trim($data['coupon'])) : '');
+$sutradharId = !empty($data['sutradhar_id']) ? strtoupper(trim($data['sutradhar_id'])) : (!empty($data['ref']) ? strtoupper(trim($data['ref'])) : '');
+if (empty($sutradharId) && !empty($couponCode) && preg_match('/^SD-\d+$/', $couponCode)) {
+    $sutradharId = $couponCode;
+}
+$discount = isset($data['discount']) ? intval($data['discount']) : 0;
 $createdAt = !empty($data['created_at']) ? trim($data['created_at']) : date('Y-m-d H:i:s');
 
 // Format clean phone
@@ -57,6 +63,9 @@ $paymentRecord = [
     "plan_name" => $plan,
     "report_type" => $reportType,
     "amount" => $amount,
+    "discount" => $discount,
+    "coupon_code" => $couponCode,
+    "sutradhar_id" => $sutradharId,
     "status" => $status,
     "kundali_key" => $kundaliKey,
     "created_at" => $createdAt
@@ -117,12 +126,20 @@ if (!$conn->connect_error) {
         plan_name VARCHAR(150) DEFAULT '',
         report_type VARCHAR(100) DEFAULT '',
         amount INT DEFAULT 0,
+        discount INT DEFAULT 0,
+        coupon_code VARCHAR(50) DEFAULT '',
+        sutradhar_id VARCHAR(50) DEFAULT '',
         status VARCHAR(50) DEFAULT 'completed',
         kundali_key VARCHAR(150) DEFAULT '',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY uq_rzp_id (razorpay_payment_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
     $conn->query($createSql);
+
+    // Auto-migration for existing tables
+    @$conn->query("ALTER TABLE sra_payments ADD COLUMN discount INT DEFAULT 0 AFTER amount;");
+    @$conn->query("ALTER TABLE sra_payments ADD COLUMN coupon_code VARCHAR(50) DEFAULT '' AFTER discount;");
+    @$conn->query("ALTER TABLE sra_payments ADD COLUMN sutradhar_id VARCHAR(50) DEFAULT '' AFTER coupon_code;");
 
     $ePayId = $conn->real_escape_string($payId);
     $eName = $conn->real_escape_string($name);
@@ -132,10 +149,12 @@ if (!$conn->connect_error) {
     $eReportType = $conn->real_escape_string($reportType);
     $eStatus = $conn->real_escape_string($status);
     $eKundaliKey = $conn->real_escape_string($kundaliKey);
+    $eCoupon = $conn->real_escape_string($couponCode);
+    $eSutradhar = $conn->real_escape_string($sutradharId);
 
-    $insertSql = "INSERT INTO sra_payments (razorpay_payment_id, student_name, student_phone, student_email, plan_name, report_type, amount, status, kundali_key)
-                  VALUES ('$ePayId', '$eName', '$ePhone', '$eEmail', '$ePlan', '$eReportType', $amount, '$eStatus', '$eKundaliKey')
-                  ON DUPLICATE KEY UPDATE student_name='$eName', student_phone='$ePhone', status='$eStatus';";
+    $insertSql = "INSERT INTO sra_payments (razorpay_payment_id, student_name, student_phone, student_email, plan_name, report_type, amount, discount, coupon_code, sutradhar_id, status, kundali_key)
+                  VALUES ('$ePayId', '$eName', '$ePhone', '$eEmail', '$ePlan', '$eReportType', $amount, $discount, '$eCoupon', '$eSutradhar', '$eStatus', '$eKundaliKey')
+                  ON DUPLICATE KEY UPDATE student_name='$eName', student_phone='$ePhone', coupon_code='$eCoupon', sutradhar_id='$eSutradhar', status='$eStatus';";
     if ($conn->query($insertSql)) {
         $dbSaved = true;
     }

@@ -11,6 +11,16 @@
 (function() {
   if (/admin\.html$/.test(location.pathname)) return;
 
+  // Auto-load SraCouponEngine for site-wide URL referral tracking
+  if (!window.SraCouponEngine) {
+    try {
+      const cs = document.createElement('script');
+      cs.src = 'sra-coupon-engine.js';
+      cs.async = true;
+      document.head.appendChild(cs);
+    } catch(e) {}
+  }
+
   const L = (hi, en) => ({ hi, en });
   const MENU = [
     { href: 'patrika.html', label: L('जन्म पत्रिका', 'Birth Chart'), icon: '📜' },
@@ -32,7 +42,8 @@
       { href: 'course.html', label: L('ज्योतिष कोर्स', 'Jyotish Course'), icon: '🎓' },
       { href: 'srai.html', label: L('SRA AI', 'SRA AI'), icon: '🤖' },
       { href: 'ai-samvad.html', label: L('AI महासंवाद', 'AI Mahasamvad'), icon: '💬' },
-      { href: 'about.html', label: L('अबाउट व जर्नल', 'About & Journal'), icon: '🪷' }
+      { href: 'about.html', label: L('अबाउट व जर्नल', 'About & Journal'), icon: '🪷' },
+      { href: 'sutradhar.html', label: L('सूत्रधार सेवा पोर्टल', 'Sutradhar Portal'), icon: '🚩', badge: 'Join' }
     ] },
     { href: 'consultation.html', label: L('1-on-1 परामर्श', '1-on-1 Consultation'), icon: '🔱', accent: true }
   ];

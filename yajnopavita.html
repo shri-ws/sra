@@ -786,6 +786,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
   <script src="sra-config.js"></script>
 </head>
@@ -1613,20 +1614,52 @@
                 return;
             }
             try {
+                const basePrice = 1111;
+                const appliedDisc = window._muhuratDiscount || 0;
+                const finalAmt = Math.max(0, basePrice - appliedDisc);
+                const finalPaise = finalAmt * 100;
+                const sutradharRef = window._muhuratSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+                const couponUsed = window._muhuratCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+
                 const options = {
                     key: RZP_KEY,
-                    amount: 111100, // ₹1,111 in paise
+                    amount: finalPaise,
                     currency: "INR",
                     name: "Shri Ramji Astro",
-                    description: "20-Min VIP Engine Access — Yajnopavita Muhurta Engine (Software Only)",
+                    description: "20-Min VIP Engine Access — Yajnopavita Muhurta Engine" + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
                     prefill: {
                         name: "VIP Client",
                         email: "user@shriramjiastro.in",
                         contact: "9517117775"
                     },
                     theme: { color: "#7c1305" },
+                    notes: {
+                        report_type: 'yajnopavita_muhurta',
+                        amount: String(finalAmt),
+                        coupon_code: couponUsed,
+                        sutradhar_id: sutradharRef,
+                        discount: String(appliedDisc)
+                    },
                     handler: function (response) {
                         const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_SUCCESS';
+                        try {
+                            fetch('api/save_payment.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: payId,
+                                    student_name: 'VIP Client',
+                                    student_phone: '9517117775',
+                                    plan_name: 'यज्ञोपवीत (उपनयन) संस्कार मुहूर्त (VIP Access)',
+                                    report_type: 'yajnopavita_muhurta',
+                                    amount: finalAmt,
+                                    discount: appliedDisc,
+                                    coupon_code: couponUsed,
+                                    sutradhar_id: sutradharRef,
+                                    status: 'completed'
+                                })
+                            }).catch(e => console.warn(e));
+                        } catch(e) {}
                         startVipSession(20, payId);
                     },
                     modal: {
@@ -1645,6 +1678,23 @@
 
         function verifyVipCode() {
             const pin = (document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '').toUpperCase();
+            if (window.SraCouponEngine) {
+                const res = window.SraCouponEngine.validateAndCalculate(pin, 1111);
+                if (res.valid) {
+                    if (res.type === 'master') {
+                        startVipSession(720, 'MASTER_KEY');
+                        return;
+                    } else {
+                        window._muhuratDiscount = res.discountAmount;
+                        window._muhuratCoupon = res.code;
+                        window._muhuratSutradhar = res.sutradhar_id;
+                        const payBtn = document.querySelector('.pay-btn-main');
+                        if (payBtn) payBtn.innerHTML = `⚡ ₹${res.finalAmount} का भुगतान करें (10% कूपन ${res.code} लागू)`;
+                        alert(`✨ सूत्रधार कूपन (${res.code}) स्वीकृत!\n\n10% छूट लागू: अब ₹${res.finalAmount} का भुगतान करें। (बचत ₹${res.discountAmount})`);
+                        return;
+                    }
+                }
+            }
             if (window.sraIsMasterKey && window.sraIsMasterKey(pin)) { startVipSession(720, 'MASTER_KEY'); return; }
             alert("अमान्य VIP कोड! सही कोड या ₹1,111 भुगतान विकल्प का प्रयोग करें।");
         }
