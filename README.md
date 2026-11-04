@@ -1,6 +1,6 @@
 # Shri Ramji Astro (Patrika / Astro 360) 卐
 > **High-Precision Vedic Astrology Computational Engine & Complete Classical BPHS Reference Platform**  
-> *Official Web Application:* [https://shriramjiastro.in](https://shriramjiastro.in) | *Patrika Engine:* [https://shriramjiastro.in/patrika.html](https://shriramjiastro.in/patrika.html) | *AI Benchmark:* [https://shriramjiastro.in/ai-samvad.html](https://shriramjiastro.in/ai-samvad.html)
+> *Official Web Application:* [https://shriramjiastro.in](https://shriramjiastro.in) | *Patrika Engine:* [https://shriramjiastro.in/patrika.html](https://shriramjiastro.in/patrika.html)
 
 [![Hugging Face Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-bphs--97--chapters--dataset-yellow.svg)](https://huggingface.co/datasets/shriramjiastro/bphs-97-chapters-sanskrit-dataset)
 [![Wikidata](https://img.shields.io/badge/Wikidata-Q141886781-blue.svg)](https://www.wikidata.org/wiki/Q141886781)
@@ -93,7 +93,6 @@ print(dataset)
 
 ## Live Applications & Resources
 * **Patrika / Kundli Generator:** [https://shriramjiastro.in/patrika.html](https://shriramjiastro.in/patrika.html)
-* **Guru-Shishya AI Live Benchmark Arena:** [https://shriramjiastro.in/ai-samvad.html](https://shriramjiastro.in/ai-samvad.html)
 * **Mega Parashara Kundali Report:** [https://shriramjiastro.in/parashara-report.html](https://shriramjiastro.in/parashara-report.html)
 * **Vivah Muhurta & Matchmaking Engine:** [https://shriramjiastro.in/vmm.html](https://shriramjiastro.in/vmm.html)
 * **Manglik Dosha & 21 Parihar Calculator:** [https://shriramjiastro.in/manglik-dosh-calculator](https://shriramjiastro.in/manglik-dosh-calculator)

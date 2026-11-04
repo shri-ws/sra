@@ -41,7 +41,6 @@
       { href: 'blogs.html', label: L('शोध ब्लॉग', 'Research Blog'), icon: '📝' },
       { href: 'course.html', label: L('ज्योतिष कोर्स', 'Jyotish Course'), icon: '🎓' },
       { href: 'srai.html', label: L('SRA AI', 'SRA AI'), icon: '🤖' },
-      { href: 'ai-samvad.html', label: L('AI महासंवाद', 'AI Mahasamvad'), icon: '💬' },
       { href: 'about.html', label: L('अबाउट व जर्नल', 'About & Journal'), icon: '🪷' },
       { href: 'careers.html', label: L('करियर (सूत्रधार आमंत्रण)', 'Careers & Sutradhar'), icon: '🏛️', badge: 'Apply' }
     ] },

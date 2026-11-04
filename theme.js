@@ -2067,16 +2067,6 @@
                   <span class="drawer-sub-hint">सम्पूर्ण ९७ अध्याय व खगोलीय गणित</span>
                 </div>
               </a>
-              <a href="ai-samvad.html" onclick="closeNavDrawer()" class="drawer-sub-item">
-                <span class="drawer-sub-icon">🤖</span>
-                <div class="drawer-sub-text">
-                  <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="drawer-sub-title">गुरु-शिष्य AI महासंवाद</span>
-                    <span class="drop-badge">लाइव AI</span>
-                  </div>
-                  <span class="drawer-sub-hint">सॉफ्टवेयर व शास्त्रीय तुलनात्मक अध्ययन</span>
-                </div>
-              </a>
               <a href="/parashara-report.html" onclick="closeNavDrawer()" class="drawer-sub-item">
                 <span class="drawer-sub-icon">📜</span>
                 <div class="drawer-sub-text">

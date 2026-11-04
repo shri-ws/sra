@@ -242,7 +242,6 @@ reader_section_html = f"""
   <div class="cta-btns">
     <a href="patrika.html" class="cta-btn primary">✨ अपनी जन्म पत्रिका बनाएं (फ्री)</a>
     <a href="parashara-report.html" class="cta-btn primary" style="background:linear-gradient(135deg, #f59e0b, #b45309);">📜 संपूर्ण पाराशर कुण्डली रिपोर्ट (₹1,111)</a>
-    <a href="ai-samvad.html" class="cta-btn secondary">🤖 गुरु-शिष्य AI महासंवाद देखें</a>
     <a href="vmm.html" class="cta-btn secondary">💍 विवाह के १० महादोष जांचें</a>
   </div>
 </div>
