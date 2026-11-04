@@ -58,12 +58,22 @@
   }
 
   const SKIP = 'script,style,noscript,textarea,code,pre,svg,[data-no-i18n],[contenteditable="true"]';
+  // The shared nav bar is data-no-i18n (it labels itself), but the page's own buttons it
+  // adopts into .sra-gn-slot (login pill, saved kundalis…) still need translating.
+  const HARD_SKIP = 'script,style,noscript,textarea,code,pre,svg,[contenteditable="true"]';
+  function blocked(el) {
+    if (!el.closest(SKIP)) return false;
+    if (el.closest(HARD_SKIP)) return true;
+    const slot = el.closest('.sra-gn-slot');
+    const nb = el.closest('[data-no-i18n]');
+    return !(slot && nb && nb.contains(slot));
+  }
 
   function translateText(node) {
     const raw = node.nodeValue;
     if (!raw || !raw.trim()) return;
     const parent = node.parentElement;
-    if (!parent || parent.closest(SKIP)) return;
+    if (!parent || blocked(parent)) return;
     let key = origin.get(node);
     let pair = key && pairs.get(key);
     if (!pair) {
@@ -98,7 +108,7 @@
   const ATTRS = ['placeholder', 'title', 'aria-label'];
 
   function translateAttrs(el) {
-    if (el.closest(SKIP)) return;
+    if (blocked(el)) return;
     ATTRS.forEach(attr => {
       const v = el.getAttribute(attr);
       if (!v) return;

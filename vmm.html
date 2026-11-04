@@ -395,6 +395,21 @@
         .btn-gunmilan-link:hover { background: rgba(183,129,3,0.08); }
         [data-theme="night"] .btn-gunmilan-link { color: #E9CF8E; border-color: #B08D3E; }
         .print-only { display: none; }
+        /* Rising-lagna timings in the results */
+        .lagna-good-line { margin-top: 8px; font-size: 12.5px; line-height: 1.9; }
+        .lagna-chip { display: inline-block; padding: 1px 8px; margin: 1px 2px; border-radius: 10px; font-size: 12px; white-space: nowrap; border: 1px solid; }
+        .lagna-chip.lagna-uttam { color: #1B5E20; border-color: rgba(27,94,32,.35); background: rgba(27,94,32,.07); font-weight: 700; }
+        .lagna-chip.lagna-shubh { color: #7a5a12; border-color: rgba(183,129,3,.35); background: rgba(183,129,3,.07); }
+        [data-theme="night"] .lagna-chip.lagna-uttam { color: #8FD39A; }
+        [data-theme="night"] .lagna-chip.lagna-shubh { color: #E2C27A; }
+        .lagna-grid-box { display: none; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--border-soft); border-radius: 8px; font-size: 12.5px; }
+        .lagna-grid-box .lagna-row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px dashed var(--border-soft); }
+        .lagna-grid-box .lagna-row:last-child { border-bottom: 0; }
+        .lagna-shubh { color: #1B5E20; font-weight: 600; }
+        .lagna-ashubh { color: #9B2C2C; }
+        [data-theme="night"] .lagna-shubh { color: #8FD39A; }
+        [data-theme="night"] .lagna-ashubh { color: #F2A3A3; }
+        .vmm-pdf .lagna-grid-box { display: none !important; }
 
         /* PHONES: each muhurat day is a card that fits the screen — no sideways scroll.
            तिथि | निर्णय on top, then पञ्चाङ्ग, चन्द्र/त्रिबल + सामर्थ्य, and शुभ लग्न समय.
@@ -2050,6 +2065,53 @@
         }
 
         function normalizeDegrees(x) { x = x % 360; return x < 0 ? x + 360 : x; }
+
+        // ── Rising lagnas through the day (real timings, not samples) ─────────────
+        // Sidereal ascendant from local sidereal time (GMST, IAU 1982), the true
+        // obliquity term and the day's ayanamsa supplied by the engine's chart.
+        const D2R = Math.PI / 180;
+        function tropicalAscendant(jdUT, lat, lon) {
+            const d = jdUT - 2451545.0, T = d / 36525;
+            const gmst = 280.46061837 + 360.98564736629 * d + 0.000387933 * T * T - T * T * T / 38710000;
+            const ramc = normalizeDegrees(gmst + lon) * D2R;
+            const eps = (23.4392911 - 0.0130042 * T) * D2R;
+            return normalizeDegrees(Math.atan2(Math.cos(ramc), -(Math.sin(ramc) * Math.cos(eps) + Math.tan(lat * D2R) * Math.sin(eps))) / D2R);
+        }
+        const siderealAscendant = (jdUT, lat, lon, ayanamsa) => normalizeDegrees(tropicalAscendant(jdUT, lat, lon) - ayanamsa);
+        // (minutes may be fractional: Date.UTC would truncate them, so add them separately)
+        const localToJd = (y, m, d, minutes, tz) => (Date.UTC(y, m - 1, d) + minutes * 60000 - tz * 3600000) / 86400000 + 2440587.5;
+
+        // Each lagna that rises on the date (local 00:00–24:00): sign 1..12 and start/end minutes
+        function lagnaWindows(dStr, lat, lon, tz, ayanamsa) {
+            const [y, m, d] = dStr.split('-').map(Number);
+            const signAt = min => Math.floor(siderealAscendant(localToJd(y, m, d, min, tz), lat, lon, ayanamsa) / 30) + 1;
+            // Exact change between two minutes (bisection to under a second), rounded to the minute
+            const edge = (a, b, sa) => { for (let i = 0; i < 12; i++) { const mid = (a + b) / 2; if (signAt(mid) === sa) a = mid; else b = mid; } return Math.round((a + b) / 2); };
+            const out = [];
+            let start = 0, sign = signAt(0);
+            for (let min = 1; min <= 1440; min++) {
+                const s2 = signAt(min);
+                if (s2 !== sign) {
+                    const at = edge(min - 1, min, sign);
+                    out.push({ sign, from: start, to: at });
+                    start = at; sign = s2;
+                }
+            }
+            out.push({ sign, from: start, to: 1440 });
+            return out;
+        }
+
+        // Vivah lagna grading used here — confirm with the Acharya before relying on it:
+        // उत्तम मिथुन, कन्या, तुला · शुभ वृषभ, कर्क, धनु, मीन · वर्जित मेष, सिंह, वृश्चिक, मकर, कुम्भ
+        const LAGNA_GRADE = { 3: 'uttam', 6: 'uttam', 7: 'uttam', 2: 'shubh', 4: 'shubh', 9: 'shubh', 12: 'shubh' };
+        const fmtMin = mins => {
+            const h24 = Math.floor(mins / 60) % 24, mm = String(mins % 60).padStart(2, '0');
+            const h12 = ((h24 + 11) % 12) + 1;
+            return `${h12}:${mm} ${h24 < 12 ? 'AM' : 'PM'}`;
+        };
+        function gradeLabel(g) {
+            return g === 'uttam' ? L('उत्तम', 'best') : g === 'shubh' ? L('शुभ', 'auspicious') : L('वर्जित', 'avoid');
+        }
         function torad(deg) { return deg * Math.PI / 180; }
         function todeg(rad) { return rad * 180 / Math.PI; }
 
@@ -2454,17 +2516,29 @@
                 else if (strength >= 65) verdictHtml = `<span class="badge badge-madhyam">${I18N[currentLang].madhyam}</span>`;
                 else verdictHtml = `<span class="badge badge-ashubh">${I18N[currentLang].ashubh}</span>`;
 
-                const lagnasHtml = `
-                    <div style="margin-top:8px;">
+                // Real rising-lagna timings for this date at the groom's birthplace
+                const llat = Number(groomProfile.lat) || 28.61, llon = Number(groomProfile.lon) || 77.20;
+                // The engine (Swiss Ephemeris, true Chitra paksha) gives this date's noon lagna; the
+                // difference from the tropical ascendant at that moment is the day's ayanamsa.
+                const ayan = (typeof p.ayanamsa === 'number') ? p.ayanamsa
+                    : normalizeDegrees(tropicalAscendant(localToJd(y, m, d, 720, 5.5), llat, llon) - p.asc.deg);
+                const wins = Number.isFinite(ayan) ? lagnaWindows(dStr, llat, llon, 5.5, ayan) : [];
+                const goodWins = wins.filter(w => LAGNA_GRADE[w.sign]);
+                const lagnasHtml = !wins.length ? '' : `
+                    <div class="lagna-good-line">
+                        <b>${L('शुभ लग्न', 'Good lagnas')}:</b>
+                        ${goodWins.map(w => `<span class="lagna-chip lagna-${LAGNA_GRADE[w.sign]}">${rashiName(w.sign)} ${fmtMin(w.from)}–${fmtMin(w.to)}</span>`).join(' ')}
+                    </div>
+                    <div style="margin-top:6px;">
                         <button class="btn-lagna-toggle" onclick="this.nextElementSibling.style.display = (this.nextElementSibling.style.display==='block'?'none':'block')">
                             ${I18N[currentLang].lagnaBtn}
                         </button>
                         <div class="lagna-grid-box">
                             <b>${I18N[currentLang].lagnaHeader}</b>
-                            <div class="lagna-row"><span class="lagna-shubh">${L('वृषभ — शुभ', 'Taurus — auspicious')}</span><span>07:15 - 09:10 AM</span></div>
-                            <div class="lagna-row"><span class="lagna-ashubh">${L('मिथुन — मध्यम', 'Gemini — moderate')}</span><span>09:10 - 11:20 AM</span></div>
-                            <div class="lagna-row"><span class="lagna-shubh">${L('तुला — अति शुभ', 'Libra — highly auspicious')}</span><span>03:40 - 05:50 PM</span></div>
-                            <div class="lagna-row"><span class="lagna-shubh">${L('धनु — शुभ', 'Sagittarius — auspicious')}</span><span>08:10 - 10:15 PM</span></div>
+                            ${wins.map(w => {
+                                const g = LAGNA_GRADE[w.sign] || 'varjit';
+                                return `<div class="lagna-row"><span class="lagna-${g === 'varjit' ? 'ashubh' : 'shubh'}">${rashiName(w.sign)} — ${gradeLabel(g)}</span><span>${fmtMin(w.from)} – ${fmtMin(w.to)}</span></div>`;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -2700,7 +2774,10 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            setLanguage('hi');
+            // Open in the language the visitor chose (site-wide setting), not always Hindi
+            let savedLang = 'hi';
+            try { savedLang = localStorage.getItem('sra_lang') === 'en' ? 'en' : 'hi'; } catch (e) {}
+            setLanguage(savedLang);
             checkUnlockStatus();
             prefillFromGunMilan();
         });
