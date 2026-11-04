@@ -61,8 +61,8 @@
     isValidCode: function(rawCode) {
       if (!rawCode) return false;
       var code = String(rawCode).trim().toUpperCase();
-      // SD-XXX प्रारूप (जैसे SD-101, SD-105, SD-999 आदि)
-      if (/^SD-\d{3,6}$/.test(code)) return true;
+      // SD-XXX या SUTRA-XXXX प्रारूप (जैसे SD-101, SD-105, SUTRA-7775-01 आदि)
+      if (/^SD-\d{2,6}$/.test(code) || /^SUTRA-[\w-]+$/.test(code)) return true;
       // सामान्य सूत्रधार या मास्टर कोड्स
       if (code === 'MASTER' || code === 'SRAGODMODE' || code === 'RAM10') return true;
       return false;
@@ -70,10 +70,12 @@
 
     /**
      * कूपन सत्यापन व 10% डिस्काउंट की सटीक गणना
+     * 2-फैक्टर सत्यापन: जातक नंबर प्री-रजिस्ट्रेशन चेक
      * @param {string} rawCode - ग्राहक द्वारा दर्ज किया गया कूपन कोड (सूत्रधार आईडी)
      * @param {number} basePrice - मूल मूल्य (रुपयों में, जैसे 24000, 5100, 1100, 250)
+     * @param {string} customerPhone - ग्राहक का 10-अंकों का मोबाइल नंबर (वैकल्पिक/जाँच हेतु)
      */
-    validateAndCalculate: function(rawCode, basePrice) {
+    validateAndCalculate: function(rawCode, basePrice, customerPhone) {
       var code = (rawCode || '').trim().toUpperCase();
       basePrice = Number(basePrice) || 0;
 
@@ -97,6 +99,8 @@
           discountAmount: basePrice,
           finalAmount: 0,
           finalAmountPaise: 0,
+          commission_eligible: false,
+          lead_verified: true,
           message: '✨ मास्टर की स्वीकृत! यह सत्र 100% निःशुल्क अधिकृत है।'
         };
       }
@@ -108,6 +112,27 @@
         var finalAmt = Math.max(0, basePrice - discountAmt);
         var finalPaise = Math.round(finalAmt * 100);
 
+        // जातक नंबर सत्यापन जांच (2-Factor Attribution)
+        var cPhone = customerPhone || '';
+        if (!cPhone) {
+          try {
+            cPhone = localStorage.getItem('sra_user_phone') || sessionStorage.getItem('sra_user_phone') || '';
+          } catch(e){}
+        }
+        cPhone = String(cPhone).replace(/\D/g, '').slice(-10);
+
+        var isLeadRegistered = false;
+        if (cPhone && cPhone.length === 10) {
+          try {
+            var savedLeads = JSON.parse(localStorage.getItem('sra_leads_' + code) || '[]');
+            if (Array.isArray(savedLeads)) {
+              isLeadRegistered = savedLeads.some(function(l) {
+                return String(l.customer_phone).replace(/\D/g, '').slice(-10) === cPhone;
+              });
+            }
+          } catch(e){}
+        }
+
         return {
           valid: true,
           code: code,
@@ -118,6 +143,9 @@
           discountAmount: discountAmt,
           finalAmount: finalAmt,
           finalAmountPaise: finalPaise,
+          customer_phone: cPhone,
+          lead_verified: isLeadRegistered,
+          commission_eligible: isLeadRegistered,
           message: '✨ सूत्रधार कूपन (' + code + ') सफल! 10% की फ्लैट छूट लागू (बचत: ₹' + discountAmt.toLocaleString('en-IN') + ')'
         };
       }
