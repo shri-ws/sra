@@ -32,7 +32,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
     
     <script src="theme.js"></script>
-    <script src="supabase-integration.js"></script>
 
     <style>
         /* Colours follow the shared home palette (sra-elegance.css --sra-* tokens),
@@ -1262,12 +1261,9 @@
                         <button class="btn-view-toggle active" id="btnViewGrid" onclick="toggleFeedLayout('grid')">⊞ ग्रिड</button>
                         <button class="btn-view-toggle" id="btnViewList" onclick="toggleFeedLayout('list')">☰ सूची</button>
                     </div>
-                    <button class="btn-toolbar btn-toolbar-primary" onclick="handleAskClick()">
-                        ✍️ प्रश्न पूछें / नया पोस्ट
-                    </button>
-                    <button class="btn-toolbar btn-toolbar-admin" onclick="openAdminPasscodeModal()">
-                        🚩 एडमिन पब्लिशर
-                    </button>
+                    <a class="btn-toolbar btn-toolbar-primary" href="blogs.html" style="text-decoration:none;">
+                        📚 नए शोध ब्लॉग पढ़ें
+                    </a>
                 </div>
             </div>
 
@@ -1409,7 +1405,6 @@
                             <div class="author-cred-text" id="readerAuthorCred">Chief Astrologer & Founder • Shri Ramji Astro</div>
                         </div>
                     </div>
-                    <div id="readerAdminActions"></div>
                 </div>
             </header>
 
@@ -1420,9 +1415,6 @@
 
             <!-- READER ACTIONS -->
             <div class="reader-footer-actions">
-                <button class="btn-upvote-large" id="btnReaderUpvote" onclick="upvoteCurrentArticle()">
-                    ▲ उपयोगी आलेख (Upvote) <span id="readerUpvoteCount">(0)</span>
-                </button>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size:12px; font-weight:700; color:var(--text-muted);">शेयर करें:</span>
                     <button class="btn-toolbar btn-toolbar-primary" onclick="shareOnWhatsApp()">💬 WhatsApp</button>
@@ -1449,19 +1441,6 @@
                 <!-- Populated dynamically -->
             </div>
 
-            <!-- COMMENTS & VERIFIED Q&A SECTION -->
-            <section class="reader-comments-section" id="readerCommentsSection">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-                    <h3 class="comments-section-title" style="margin-bottom:0;">💬 शास्त्रीय चर्चा एवं प्रश्नोत्तर</h3>
-                    <button class="btn-toolbar btn-toolbar-primary" onclick="addAnswerToCurrentArticle()">
-                        ✍️ उत्तर / विचार साझा करें
-                    </button>
-                </div>
-                <div id="readerAnswersList" style="display:flex; flex-direction:column; gap:12px;">
-                    <!-- Answers list -->
-                </div>
-            </section>
-
         </article>
 
     </div>
@@ -1469,129 +1448,6 @@
     <!-- ══════════════════════════════════════════════════════════
          MODALS
     ══════════════════════════════════════════════════════════ -->
-
-    <!-- DUAL AUTH MODAL -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal-box">
-            <button class="btn-close-modal" onclick="closeAuthModal()">✕</button>
-            <h3 style="font-size:20px; font-weight:800; color:var(--gold-dark); margin-bottom:12px;">🔒 प्रमाणीकरण आवश्यक (Authentication Required)</h3>
-            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-                प्रश्न पूछने, उत्तर देने या पोस्ट करने हेतु कृपया Phone OTP (Astro 360) से या Google Account से लॉगिन करें:
-            </p>
-
-            <div class="auth-option-tabs">
-                <button class="auth-tab-btn active" id="btnTabPhone" onclick="switchAuthTab('phone')">📱 Phone OTP (Astro 360)</button>
-                <button class="auth-tab-btn" id="btnTabGoogle" onclick="switchAuthTab('google')">🌐 Google Sign-In</button>
-            </div>
-
-            <div id="authSecPhone">
-                <div id="otpStep1">
-                    <div class="form-group">
-                        <label>10-अंकों का मोबाइल नंबर (10-Digit Mobile Number):</label>
-                        <input type="tel" id="authPhone" placeholder="Enter Mobile Number (e.g. 9876543210)" maxlength="10">
-                    </div>
-                    <button class="btn-submit-post" id="btnSendOtp" onclick="sendOtpRequest()">📲 OTP भेजें (Send OTP via SMS)</button>
-                    <div id="recaptcha-container"></div>
-                </div>
-                <div id="otpStep2" style="display:none;">
-                    <div class="form-group">
-                        <label>6-अंकों का OTP दर्ज करें (Enter 6-Digit OTP):</label>
-                        <input type="text" id="authOtpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Enter 6-Digit OTP">
-                    </div>
-                    <button class="btn-submit-post" onclick="verifyOtpRequest()">✓ OTP सत्यापित करें (Verify OTP)</button>
-                </div>
-            </div>
-
-            <div id="authSecGoogle" style="display:none;">
-                <div style="text-align:center; padding:20px 10px;">
-                    <button class="btn-submit-post" style="background:#4285F4; max-width:280px; margin:0 auto;" onclick="loginGoogleDemo()">
-                        <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle; margin-right:8px;"><path fill="#FFF" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.617z"/></svg>
-                        Sign-in with Google Account
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- POST QUESTION / ARTICLE MODAL -->
-    <div class="modal-overlay" id="postModal">
-        <div class="modal-box">
-            <button class="btn-close-modal" onclick="closePostModal()">✕</button>
-            <h3 style="font-size:20px; font-weight:800; color:var(--gold-dark); margin-bottom:14px;" id="modalPostHeader">✍️ नया ज्योतिषीय प्रश्न या शोध पोस्ट करें</h3>
-            <form id="postForm" onsubmit="handlePostSubmit(event)">
-                <div class="form-group">
-                    <label>श्रेणी (Category):</label>
-                    <select id="postCat">
-                        <option value="ephemeris">🪐 खगोल एवं सिद्धांत (Ephemeris Math)</option>
-                        <option value="muhurta">📅 मुहूर्त निर्णय (Muhurta Science)</option>
-                        <option value="kundli">🔮 कुंडली विश्लेषण (Kundli Analysis)</option>
-                        <option value="gochar">🪐 ग्रह गोचर (Planetary Transits)</option>
-                        <option value="remedy">🪔 ज्योतिषीय उपाय (Remedies & Mantras)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>शीर्षक (Title):</label>
-                    <input type="text" id="postTitle" placeholder="उदाहरण: 2027 में विवाह हेतु कौन से महीने सर्वश्रेष्ठ हैं?" required>
-                </div>
-                <div class="form-group">
-                    <label>विस्तृत विवरण (Description):</label>
-                    <textarea id="postContent" rows="5" placeholder="अपना प्रश्न या शास्त्रीय विचार विस्तार से लिखें..." required></textarea>
-                </div>
-                <button type="submit" class="btn-submit-post">
-                    🚀 प्रश्न / लेख पोस्ट करें (Submit Post)
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ASTRO RAAMJI ADMIN PUBLISHER MODAL -->
-    <div class="modal-overlay" id="adminModal">
-        <div class="modal-box" style="border-color:var(--primary);">
-            <button class="btn-close-modal" onclick="closeAdminModal()">✕</button>
-            <h3 style="font-size:20px; font-weight:800; color:var(--primary); margin-bottom:14px;">🚩 एस्ट्रो रामजी ब्लॉग पब्लिशर (Official Admin Blog Publisher)</h3>
-
-            <div id="adminPasscodeForm">
-                <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
-                    एस्ट्रो रामजी (Founder) के रूप में सीधे ब्लॉग लेख या आधिकारिक शोध संदेश पोस्ट करने हेतु पासकोड दर्ज करें:
-                </p>
-                <div class="form-group">
-                    <label>एडमिन पासकोड (Admin Passcode / Master Key):</label>
-                    <input type="password" id="adminPasscode" placeholder="Enter Secret Admin Key...">
-                </div>
-                <button class="btn-submit-post" style="background:var(--primary);" onclick="verifyAdminPasscode()">
-                    🔑 एस्ट्रो रामजी के रूप में अनलॉक करें (Unlock Admin Mode)
-                </button>
-            </div>
-
-            <div id="adminPublishForm" style="display:none;">
-                <div style="background:var(--pass-bg); border:1px solid var(--pass-text); color:var(--pass-text); padding:10px 14px; border-radius:8px; font-size:13px; font-weight:700; margin-bottom:16px;">
-                    ✓ स्वागत है एस्ट्रो रामजी! आप सीधे आधिकारिक शोध लेख पब्लिश कर सकते हैं।
-                </div>
-                <form onsubmit="handleAdminBlogSubmit(event)">
-                    <div class="form-group">
-                        <label>लेख की श्रेणी (Blog Category):</label>
-                        <select id="adminBlogCat">
-                            <option value="ephemeris">🪐 खगोल एवं सिद्धांत (Meeus Ephemeris)</option>
-                            <option value="muhurta">📅 वास्तु एवं मुहूर्त निर्णय (Muhurta Science)</option>
-                            <option value="official">🚩 आधिकारिक घोषणा (Official Announcement)</option>
-                            <option value="gochar">🔮 दैनिक गोचर व फलादेश (Daily Transit Alert)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>ब्लॉग शीर्षक (Blog Title):</label>
-                        <input type="text" id="adminBlogTitle" placeholder="उदाहरण: सूर्य का मकर राशि में प्रवेश एवं उत्तरायण मुहूर्त प्रभाव..." required>
-                    </div>
-                    <div class="form-group">
-                        <label>पूर्ण लेख / विषय वस्तु (Full Content - Markdown / HTML Supported):</label>
-                        <textarea id="adminBlogBody" rows="8" placeholder="शास्त्र श्लोक, ग्रह स्थिति, एवं फलादेश विस्तार से लिखें..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn-submit-post" style="background:var(--primary);">
-                        🚀 आधिकारिक ब्लॉग पब्लिश करें (Publish Official Article)
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- SOCIAL SHARE MODAL -->
     <div class="modal-overlay" id="shareModal">
@@ -1784,7 +1640,6 @@
 ];
 
         let Q_FEED = [...FALLBACK_BLOGS];
-        let currentUser = null;
         let activeCategoryTab = 'all';
         let searchQuery = '';
         let feedLayoutMode = 'grid';
@@ -1879,10 +1734,6 @@
                 items = items.filter(q => q && (q.category === 'muhurta' || (q.title && (q.title.includes('नींव') || q.title.includes('मुहूर्त')))));
             } else if (activeCategoryTab === 'admin_blogs') {
                 items = items.filter(q => q && (q.isAdmin || q.isBlog));
-            } else if (activeCategoryTab === 'verified') {
-                items = items.filter(q => q && q.answers && q.answers.some(a => a.isVerified));
-            } else if (activeCategoryTab === 'my') {
-                items = (currentUser && currentUser.name) ? items.filter(q => q.author && q.author.includes(currentUser.name)) : items;
             }
             // 2. Filter by search query
             if (searchQuery && searchQuery.trim() !== '') {
@@ -1984,9 +1835,6 @@
                             <span style="font-size:12px; font-weight:700; color:var(--text-main);">${(q.author || 'एस्ट्रो रामजी').split(' ')[0]}</span>
                         </div>
                         <div class="article-card-actions">
-                            <button class="btn-card-pill-action" onclick="upvoteQ(${q.id})">
-                                ▲ ${q.upvotes || 1}
-                            </button>
                             <button class="btn-card-pill-action" onclick="openShareModal(${q.id})">
                                 🔗
                             </button>
@@ -2048,23 +1896,9 @@
             document.getElementById('readerAuthorName').innerHTML = (article.author || 'एस्ट्रो रामजी (Founder)') + (article.isAdmin ? ' <span class="admin-badge">🚩 ASTROLOGER / FOUNDER</span>' : '');
             document.getElementById('readerAuthorCred').innerText = article.cred || 'Chief Astrologer & Founder • Shri Ramji Astro';
 
-            // Admin deletion button if admin is authenticated
-            const isAdminSession = sessionStorage.getItem('sra_admin_auth') === 'true' || (currentUser && currentUser.isAdmin);
-            const adminActionsEl = document.getElementById('readerAdminActions');
-            if (isAdminSession) {
-                adminActionsEl.innerHTML = `
-                    <button onclick="deletePost(${article.id})" style="background:rgba(211,47,47,0.08); border:1px solid rgba(211,47,47,0.3); color:#d32f2f; font-size:12px; font-weight:700; padding:6px 14px; border-radius:8px; cursor:pointer;">
-                        🗑️ आलेख डिलीट करें (Admin)
-                    </button>
-                `;
-            } else {
-                adminActionsEl.innerHTML = '';
-            }
-
             // Format body content
             const heroImg = article.image ? `<div style="margin:20px 0; border-radius:12px; overflow:hidden; border:1px solid rgba(212,175,55,0.3);"><img src="${article.image}" alt="${article.title}" style="width:100%; max-height:440px; object-fit:cover; display:block;"></div>` : '';
             document.getElementById('readerContentBody').innerHTML = heroImg + formatArticleBody(article.body);
-            document.getElementById('readerUpvoteCount').innerText = '(' + (article.upvotes || 1) + ')';
 
             // Recommended Next / Previous Articles
             const currentIndex = Q_FEED.findIndex(item => String(item.id) === String(id));
@@ -2092,8 +1926,6 @@
             }
             nextNavEl.innerHTML = nextNavHtml;
 
-            // Render Answers / Comments
-            renderArticleComments(article);
 
             // Update URL without page reload
             try {
@@ -2116,80 +1948,6 @@
             } catch(e) {}
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // RENDER ARTICLE COMMENTS / ANSWERS
-        function renderArticleComments(article) {
-            const listEl = document.getElementById('readerAnswersList');
-            if (!listEl) return;
-
-            const answers = article.answers || [];
-            if (answers.length === 0) {
-                listEl.innerHTML = `
-                    <div style="background:var(--bg-body-alt); padding:16px; border-radius:12px; font-size:13px; color:var(--text-muted); text-align:center;">
-                        इस आलेख पर अभी कोई चर्चा नहीं है। क्या आपके पास कोई प्रश्न या विचार है? ऊपर '✍️ उत्तर / विचार साझा करें' पर क्लिक करें।
-                    </div>
-                `;
-                return;
-            }
-
-            listEl.innerHTML = answers.map(ans => `
-                <div style="background:var(--bg-body-alt); border-left:4px solid var(--gold); padding:14px 18px; border-radius:0 12px 12px 0;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                        <span style="font-size:13px; font-weight:700; color:var(--text-main);">${ans.author || 'सत्यापित सदस्य'} ${ans.isVerified ? '<span class="verif-badge">✓ VERIFIED</span>' : ''}</span>
-                        <span style="font-size:11px; color:var(--text-subtle);">${ans.time || 'हाल ही में'}</span>
-                    </div>
-                    <div style="font-size:13.5px; color:var(--text-main); line-height:1.6;">${ans.text}</div>
-                </div>
-            `).join('');
-        }
-
-        // ADD ANSWER TO CURRENT ARTICLE
-        function addAnswerToCurrentArticle() {
-            if (!currentReadingArticleId) return;
-            if (!currentUser) {
-                handleAskClick();
-                return;
-            }
-            const ansText = prompt("अपना प्रामाणिक विचार या उत्तर दर्ज करें (Write your verified answer/comment):");
-            if (ansText && ansText.trim() !== '') {
-                const article = Q_FEED.find(q => q.id === currentReadingArticleId);
-                if (article) {
-                    if (!article.answers) article.answers = [];
-                    article.answers.push({
-                        author: currentUser.name,
-                        avatar: currentUser.picture,
-                        cred: currentUser.isAdmin ? "Chief Astrologer" : "सत्यापित सदस्य",
-                        isVerified: true,
-                        text: ansText.trim(),
-                        time: "अभी-अभी"
-                    });
-                    localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
-                    renderArticleComments(article);
-                    alert("✓ आपका विचार/उत्तर सफलतापूर्वक सुरक्षित हो गया है!");
-                }
-            }
-        }
-
-        // UPVOTE CURRENT ARTICLE
-        function upvoteCurrentArticle() {
-            if (!currentReadingArticleId) return;
-            const article = Q_FEED.find(q => q.id === currentReadingArticleId);
-            if (article) {
-                article.upvotes = (article.upvotes || 1) + 1;
-                localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
-                document.getElementById('readerUpvoteCount').innerText = '(' + article.upvotes + ')';
-            }
-        }
-
-        // UPVOTE FROM FEED CARD
-        function upvoteQ(id) {
-            const article = Q_FEED.find(q => q.id === id);
-            if (article) {
-                article.upvotes = (article.upvotes || 1) + 1;
-                localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
-                renderMagazineFeed();
-            }
         }
 
         // FONT SIZE ADJUSTMENT FOR READING
@@ -2344,329 +2102,16 @@
                 }
             } catch(e) {}
 
-            let localData = [];
-            try {
-                const raw = localStorage.getItem('sra_blogs_database');
-                if (raw) localData = JSON.parse(raw);
-            } catch(e) {}
-
-            let cloudBlogs = [];
-            if (window.fetchBlogsFromSupabase) {
-                try {
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000));
-                    const supaBlogs = await Promise.race([window.fetchBlogsFromSupabase(), timeoutPromise]);
-                    if (supaBlogs && supaBlogs.length > 0) cloudBlogs = supaBlogs;
-                } catch(e) {}
-            }
-
-            const cleanLocal = Array.isArray(localData) ? localData.filter(item => item && item.author && !item.author.includes('आदित्य') && !item.author.includes('Google User') && !item.author.includes('यूजर')) : [];
-            const cleanCloud = Array.isArray(cloudBlogs) ? cloudBlogs.filter(item => item && item.author && !item.author.includes('आदित्य') && !item.author.includes('Google User')) : [];
-
-            const hasAuthenticBlogs = cleanLocal.some(b => b && b.id === 1790234177012);
-
             const map = new Map();
-            const primaryList = [...masterBlogs, ...cleanLocal, ...cleanCloud, ...FALLBACK_BLOGS];
-
-            primaryList.forEach(item => {
-                if (item && item.id && !map.has(String(item.id))) {
-                    map.set(String(item.id), item);
-                }
+            [...masterBlogs, ...FALLBACK_BLOGS].forEach(item => {
+                if (item && item.id && !map.has(String(item.id))) map.set(String(item.id), item);
             });
-
             Q_FEED = Array.from(map.values());
-            localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
-            
+
             // Re-render feed if not currently reading an article
             if (!currentReadingArticleId) {
                 renderMagazineFeed();
             }
-        }
-
-        // MAKE.COM AUTO-POST WEBHOOK
-        function triggerSocialAutoPost(blogObj) {
-            const webhookUrl = 'https://hook.us2.make.com/ptf1fbzxqq0kmegfwiptjjp1xjuuaoup';
-            try {
-                const payload = {
-                    title: blogObj.title || 'Shri Ramji Astro New Update',
-                    content: blogObj.body || blogObj.text || '',
-                    category: blogObj.category || 'Astrology',
-                    author: blogObj.author || 'Astro Raamji',
-                    link: `https://shriramjiastro.in/about.html?post=${blogObj.id}`,
-                    image_url: 'https://shriramjiastro.in/logo.png',
-                    published_at: new Date().toISOString()
-                };
-                fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).catch(() => {});
-            } catch (e) {}
-        }
-
-        function saveBlogToDatabase(blogObj) {
-            Q_FEED.unshift(blogObj);
-            localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
-            if (window.saveBlogToSupabase) {
-                window.saveBlogToSupabase(blogObj);
-            }
-            triggerSocialAutoPost(blogObj);
-            renderMagazineFeed();
-        }
-
-        // AUTH & SESSION MANAGEMENT
-        function checkActiveSession() {
-            const saved = localStorage.getItem('sra_user_session');
-            if (saved) {
-                try {
-                    currentUser = JSON.parse(saved);
-                } catch(e) {}
-            }
-        }
-
-        function handleAskClick() {
-            if (currentUser) {
-                document.getElementById('postModal').style.display = 'flex';
-            } else {
-                document.getElementById('authModal').style.display = 'flex';
-            }
-        }
-
-        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
-        function closePostModal() { document.getElementById('postModal').style.display = 'none'; }
-        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
-        function openAdminPasscodeModal() { document.getElementById('adminModal').style.display = 'flex'; }
-
-        function switchAuthTab(type) {
-            document.getElementById('btnTabPhone').classList.toggle('active', type === 'phone');
-            document.getElementById('btnTabGoogle').classList.toggle('active', type === 'google');
-            document.getElementById('authSecPhone').style.display = type === 'phone' ? 'block' : 'none';
-            document.getElementById('authSecGoogle').style.display = type === 'google' ? 'block' : 'none';
-        }
-
-        function loginGoogleDemo() {
-            setSessionAndProceed({
-                name: "आदित्य वर्मा (Google User)",
-                email: "aditya.v@gmail.com",
-                picture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aditya",
-                isVerified: true,
-                type: "google"
-            });
-        }
-
-        // Phone OTP through Firebase Authentication (Google), same project as patrika.html:
-        // Google sends a real 6-digit SMS and verifies it; no server of ours is involved.
-        const SRA_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
-            authDomain: "shriramjiastro-cee67.firebaseapp.com",
-            projectId: "shriramjiastro-cee67",
-            storageBucket: "shriramjiastro-cee67.firebasestorage.app",
-            messagingSenderId: "918915221342",
-            appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf",
-            measurementId: "G-0KZ45B2HL7"
-        };
-        let firebaseSdkPromise = null;
-        let otpConfirmation = null;
-
-        function loadFirebaseScript(src) {
-            return new Promise((resolve, reject) => {
-                const s = document.createElement('script');
-                s.src = src; s.onload = resolve; s.onerror = reject;
-                document.head.appendChild(s);
-            });
-        }
-
-        function ensureFirebaseAuth() {
-            if (typeof firebase !== 'undefined' && firebase.auth && firebase.apps.length) return Promise.resolve();
-            if (!firebaseSdkPromise) {
-                firebaseSdkPromise = (async () => {
-                    await loadFirebaseScript('https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js');
-                    await loadFirebaseScript('https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js');
-                    if (!firebase.apps.length) firebase.initializeApp(SRA_FIREBASE_CONFIG);
-                    firebase.auth().languageCode = 'hi';
-                })();
-                firebaseSdkPromise.catch(() => { firebaseSdkPromise = null; });
-            }
-            return firebaseSdkPromise;
-        }
-
-        async function sendOtpRequest() {
-            const phone = document.getElementById('authPhone').value.trim();
-            if (!/^[6-9]\d{9}$/.test(phone)) {
-                alert("कृपया 10-अंकों का वैध मोबाइल नंबर दर्ज करें");
-                return;
-            }
-            const btn = document.getElementById('btnSendOtp');
-            if (btn) btn.disabled = true;
-            try {
-                await ensureFirebaseAuth();
-                if (!window.recaptchaVerifier) {
-                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
-                }
-                otpConfirmation = await firebase.auth().signInWithPhoneNumber('+91' + phone, window.recaptchaVerifier);
-                document.getElementById('otpStep1').style.display = 'none';
-                document.getElementById('otpStep2').style.display = 'block';
-                document.getElementById('authOtpCode').value = '';
-                alert("✓ 6-अंकों का OTP +91 " + phone + " पर SMS से भेज दिया गया है।");
-            } catch (e) {
-                console.warn('Firebase phone OTP error:', e);
-                // A used/expired reCAPTCHA must be rebuilt before the next attempt
-                try { window.recaptchaVerifier && window.recaptchaVerifier.clear(); } catch (_) {}
-                window.recaptchaVerifier = null;
-                const msg = e && e.code === 'auth/too-many-requests'
-                    ? "बहुत अधिक प्रयास हुए। कृपया कुछ देर बाद पुनः प्रयास करें।"
-                    : "OTP भेजा नहीं जा सका। कृपया पुनः प्रयास करें या Google Sign-In चुनें।";
-                alert("❌ " + msg);
-            } finally {
-                if (btn) btn.disabled = false;
-            }
-        }
-
-        async function verifyOtpRequest() {
-            const otp = document.getElementById('authOtpCode').value.trim();
-            const phone = document.getElementById('authPhone').value.trim();
-            if (!otpConfirmation) {
-                alert("कृपया पहले OTP भेजें।");
-                return;
-            }
-            if (!/^\d{6}$/.test(otp)) {
-                alert("कृपया SMS में आया 6-अंकों का OTP दर्ज करें।");
-                return;
-            }
-            try {
-                const result = await otpConfirmation.confirm(otp);
-                otpConfirmation = null;
-                setSessionAndProceed({
-                    name: `यूजर (${phone.slice(-4)})`,
-                    phone: phone,
-                    uid: result.user ? result.user.uid : '',
-                    picture: `https://api.dicebear.com/7.x/bottts/svg?seed=${phone}`,
-                    isVerified: true,
-                    type: "phone"
-                });
-            } catch (e) {
-                alert("❌ गलत OTP! कृपया सही OTP दर्ज करें।");
-            }
-        }
-
-        function setSessionAndProceed(userObj) {
-            currentUser = userObj;
-            localStorage.setItem('sra_user_session', JSON.stringify(userObj));
-            closeAuthModal();
-            document.getElementById('postModal').style.display = 'flex';
-        }
-
-        function verifyAdminPasscode() {
-            const pass = document.getElementById('adminPasscode').value.trim();
-            if (window.sraIsMasterKey && window.sraIsMasterKey(pass)) {
-                currentUser = {
-                    name: "एस्ट्रो रामजी (Founder)",
-                    email: "eshriee@gmail.com",
-                    picture: "logo.png",
-                    isVerified: true,
-                    isAdmin: true
-                };
-                sessionStorage.setItem('sra_admin_auth', 'true');
-                localStorage.setItem('sra_user_session', JSON.stringify(currentUser));
-                document.getElementById('adminPasscodeForm').style.display = 'none';
-                document.getElementById('adminPublishForm').style.display = 'block';
-            } else {
-                alert("❌ अमान्य एडमिन पासकोड! (Invalid Secret Key)");
-            }
-        }
-
-        function handleAdminBlogSubmit(e) {
-            e.preventDefault();
-            const title = document.getElementById('adminBlogTitle').value.trim();
-            const body = document.getElementById('adminBlogBody').value.trim();
-            const cat = document.getElementById('adminBlogCat').value;
-
-            const blogPost = {
-                id: Date.now(),
-                author: "एस्ट्रो रामजी (Founder)",
-                avatar: "logo.png",
-                cred: "Chief Astrologer & Founder • Shri Ramji Astro",
-                isVerified: true,
-                isAdmin: true,
-                isBlog: true,
-                category: cat,
-                title: title,
-                body: body,
-                date: "अभी-अभी",
-                readTime: "5 min read",
-                upvotes: 1,
-                answers: [],
-                status: "approved",
-                created_at: new Date().toISOString()
-            };
-
-            saveBlogToDatabase(blogPost);
-            closeAdminModal();
-            alert("🎉 बधाई हो! एस्ट्रो रामजी का आधिकारिक शोध लेख स्थायी रूप से पब्लिश हो गया है!");
-            openArticleReader(blogPost.id);
-        }
-
-        function handlePostSubmit(e) {
-            e.preventDefault();
-            if (!currentUser) {
-                handleAskClick();
-                return;
-            }
-
-            const title = document.getElementById('postTitle').value.trim();
-            const body = document.getElementById('postContent').value.trim();
-            const cat = document.getElementById('postCat').value;
-
-            const newPost = {
-                id: Date.now(),
-                author: currentUser.name,
-                avatar: currentUser.picture,
-                cred: currentUser.isAdmin ? "Chief Astrologer" : "सत्यापित सदस्य (Verified Member)",
-                isVerified: true,
-                isAdmin: currentUser.isAdmin || false,
-                isBlog: currentUser.isAdmin || false,
-                category: cat,
-                title: title,
-                body: body,
-                date: "अभी-अभी",
-                readTime: "3 min read",
-                upvotes: 1,
-                answers: [],
-                status: "approved",
-                created_at: new Date().toISOString()
-            };
-
-            saveBlogToDatabase(newPost);
-            closePostModal();
-            document.getElementById('postForm').reset();
-            alert("✓ आपका प्रश्न/लेख स्थायी रूप से सुरक्षित हो गया है!");
-        }
-
-        function deletePost(id) {
-            if (!currentUser || !currentUser.isAdmin) {
-                const pass = prompt("🔐 एडमिन सुरक्षा जांच: पासकोड दर्ज करें:");
-                if (!(window.sraIsMasterKey && window.sraIsMasterKey(pass))) {
-                    alert("❌ अमान्य एडमिन पासकोड!");
-                    return;
-                }
-            }
-
-            if (!confirm("क्या आप वाकई इस शोध आलेख को स्थायी रूप से हटाना चाहते हैं?")) {
-                return;
-            }
-
-            Q_FEED = Q_FEED.filter(q => String(q.id) !== String(id));
-            localStorage.setItem('sra_blogs_database', JSON.stringify(Q_FEED));
-
-            if (window.deleteBlogFromSupabase) {
-                window.deleteBlogFromSupabase(id);
-            }
-
-            if (currentReadingArticleId === id) {
-                closeArticleReader();
-            } else {
-                renderMagazineFeed();
-            }
-            alert("✓ आलेख सफलतापूर्वक डिलीट कर दिया गया है!");
         }
 
         // DEEP LINK CHECK
@@ -2686,7 +2131,9 @@
 
         // INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
-            checkActiveSession();
+            // Old builds cached the whole journal (and visitors' local-only posts) in
+            // the browser; articles now come only from the published database.
+            try { localStorage.removeItem('sra_blogs_database'); } catch (e) {}
             checkDeepLink();
             loadBlogsDatabaseAsync();
         });

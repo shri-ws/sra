@@ -24,6 +24,13 @@
   const GUEST_KEY = 'sra_saved_kundalis_guest_user';
   const LEGACY_KEYS = ['sra_verified_google_user', 'sra_verified_mobile', 'sra_verified_email', 'sra_user_name', 'sra_user_session'];
 
+  // about.html once had a demo "Google login" that stored a made-up user (aditya.v@gmail.com)
+  // here; patrika.html read it and filed kundalis under that fake account. Drop it.
+  try {
+    const s = JSON.parse(localStorage.getItem('sra_user_session') || 'null');
+    if (s && s.email === 'aditya.v@gmail.com') localStorage.removeItem('sra_user_session');
+  } catch (e) {}
+
   const isHindi = () => document.documentElement.getAttribute('lang') !== 'en';
   const tr = (hi, en) => (isHindi() ? hi : en);
 
