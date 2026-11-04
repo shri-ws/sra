@@ -22,15 +22,15 @@ if (strlen($cleanPhone) > 10) {
     $cleanPhone = substr($cleanPhone, -10);
 }
 
-// Master Admin Bypass or Testing
+// Master Admin Bypass or Testing (T1 Test)
 if ($cleanPhone === '9517117775' || $cleanPhone === '9415000000' || $pass === 'SRA#2026' || $pass === 'SRA_MASTER_7775' || strtoupper($pass) === 'JAIHANUMAN') {
     echo json_encode([
         "status" => "success",
         "authenticated" => true,
-        "name" => "वरिष्ठ सूत्रधार (Master)",
+        "name" => "T1 Test",
         "phone" => $cleanPhone ?: "9517117775",
-        "sutradhar_id" => "SUTRA-MASTER-01",
-        "role" => "सूत्रधार लेवल 2"
+        "sutradhar_id" => "SUTRA-7775-01",
+        "role" => "सूत्रधार लेवल 1"
     ], JSON_UNESCAPED_UNICODE);
     exit();
 }

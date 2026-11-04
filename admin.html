@@ -1650,18 +1650,18 @@ async function fetchCareerApplications() {
     local.forEach(addItem);
   } catch(e) {}
 
-  // 5. Seed default demo application if totally empty so table is never blank
+  // 5. Seed default test application if totally empty so table has t1 test user
   if (!list.length) {
     list = [
       {
-        id: "SRA-APP-261104-101",
-        name: "राहुल शर्मा",
+        id: "SRA-APP-T1-101",
+        name: "T1 Test",
         phone: "9517117775",
-        email: "rahul.astro@example.com",
+        email: "t1@shriramjiastro.in",
         city: "वाराणसी, उत्तर प्रदेश",
-        experience: "वैदिक ज्योतिष में 3 वर्ष का अध्ययन, बीएचयू से संस्कृत साहित्य में स्नातक।",
-        bio: "समाज में शुद्ध पराशर ज्योतिष का प्रचार-प्रसार करना चाहता हूँ।",
-        resume_name: "rahul_sharma_bio.pdf",
+        experience: "परीक्षण खाता (T1 Test Sutradhar)",
+        bio: "अधिकृत लाइव परीक्षण सूत्रधार खाता।",
+        resume_name: "t1_test_doc.pdf",
         sutradhar_id: "SUTRA-7775-01",
         secret_token: "sec_7775_sra_alpha9821",
         secret_pass: "777501",
@@ -1671,7 +1671,7 @@ async function fetchCareerApplications() {
       }
     ];
   } else if (list.length > 1) {
-    // If real candidate submissions exist, filter out placeholder demo entry
+    // If real candidate submissions exist, filter out old legacy placeholder demo entry if present
     list = list.filter(item => item.id !== "SRA-APP-261104-101");
   }
 
@@ -1743,7 +1743,8 @@ function renderCareerRows(tbodyId, rows) {
     
     const token = app.secret_token || 'sec_' + (app.phone || '0000').slice(-4);
     const pass = app.secret_pass || (app.phone ? app.phone.slice(-6) : '123456');
-    const inviteUrl = `${window.location.origin}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(app.phone || '')}&name=${encodeURIComponent(app.name || '')}&email=${encodeURIComponent(app.email || '')}`;
+    const liveDomain = (window.location.origin && window.location.origin.includes('shriramjiastro.in')) ? window.location.origin : 'https://shriramjiastro.in';
+    const inviteUrl = `${liveDomain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(app.phone || '')}&name=${encodeURIComponent(app.name || '')}&email=${encodeURIComponent(app.email || '')}`;
 
     return `<tr>
       <td>
@@ -1869,7 +1870,7 @@ async function approveCareerApplication(id, phone, name) {
 }
 
 function sendCareerWhatsApp(id, phone, name, pass, token) {
-  const domain = window.location.origin;
+  const domain = (window.location.origin && window.location.origin.includes('shriramjiastro.in')) ? window.location.origin : 'https://shriramjiastro.in';
   const app = (D.careers || []).find(c => c.id === id || c.phone === phone);
   const email = app?.email || '';
   const candName = name || app?.name || '';
@@ -1887,7 +1888,7 @@ function sendCareerWhatsApp(id, phone, name, pass, token) {
 }
 
 function copyCareerInviteLink(phone, token, name, email) {
-  const domain = window.location.origin;
+  const domain = (window.location.origin && window.location.origin.includes('shriramjiastro.in')) ? window.location.origin : 'https://shriramjiastro.in';
   const app = (D.careers || []).find(c => c.phone === phone);
   const candName = name || app?.name || '';
   const candEmail = email || app?.email || '';

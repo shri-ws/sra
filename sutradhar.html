@@ -295,10 +295,9 @@
           <span id="labelViewMode" data-i18n="lblViewMode">व्यू:</span>
         </span>
         <select id="personaSelector" onchange="switchPersona(this.value)" class="bg-transparent text-xs font-semibold text-blue-900 outline-none cursor-pointer">
-          <option value="candidate" id="dynamicCandidateOption">अधिकृत सूत्रधार</option>
+          <option value="candidate" id="dynamicCandidateOption">अधिकृत सूत्रधार (लाइव)</option>
+          <option value="t1">T1 Test (SUTRA-7775-01)</option>
           <option value="admin">आचार्य / फाउंडर (Full Access)</option>
-          <option value="role1">राहुल शर्मा (सूत्रधार लेवल 1)</option>
-          <option value="role2">प्रिया वर्मा (सूत्रधार लेवल 2)</option>
         </select>
       </div>
 
@@ -1507,7 +1506,7 @@
                 </div>
                 <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
                   <div class="w-7 h-7 mx-auto rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">5</div>
-                  <div class="font-bold text-[11px] text-emerald-950 truncate">प्रिया जोशी</div>
+                  <div class="font-bold text-[11px] text-emerald-950 truncate">अंजलि गुप्ता</div>
                   <div class="text-[9px] text-purple-700 font-semibold">कूपन: ₹22,000</div>
                 </div>
                 <div class="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 text-center space-y-1">
@@ -3142,9 +3141,8 @@
           <div>
             <label class="block text-slate-700 font-semibold mb-1">सूत्रधार नाम</label>
             <select id="saleAgent" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
-              <option value="सूत्रधार" id="saleAgentDynamicOption">अधिकृत सूत्रधार</option>
-              <option value="राहुल शर्मा">राहुल शर्मा (सूत्रधार 1)</option>
-              <option value="प्रिया वर्मा">प्रिया वर्मा (सूत्रधार 2)</option>
+              <option value="सूत्रधार" id="saleAgentDynamicOption">अधिकृत सूत्रधार (वर्तमान खाता)</option>
+              <option value="T1 Test">T1 Test (SUTRA-7775-01)</option>
             </select>
           </div>
           <div>
@@ -3195,20 +3193,19 @@
     let candidateRoleChoice = 1;
     let currentTrainSlide = 1;
 
-    // Fast Payout Queue
+    // Fast Payout Queue (Clean live queue - only T1 test record retained)
     const fastPayoutQueue = [
-      { id: 'pay_N91xK28', agent: 'प्रिया वर्मा', role: 'सूत्रधार लेवल 2', product: '1-on-1 परामर्श', amount: '₹5,100', incentive: '₹1,500', minutesAgo: 38, upi: 'priya@okhdfc', verified: true },
-      { id: 'pay_M80aL19', agent: 'राहुल शर्मा', role: 'सूत्रधार लेवल 1', product: 'संपूर्ण मुहूर्त रिपोर्ट', amount: '₹1,111', incentive: '₹300', minutesAgo: 62, upi: 'rahul@paytm', verified: true }
+      { id: 'pay_T1_test_9821', agent: 'T1 Test', role: 'सूत्रधार लेवल 1', product: 'संपूर्ण मुहूर्त रिपोर्ट', amount: '₹1,111', incentive: '₹350', minutesAgo: 15, upi: '9517117775@upi', verified: true }
     ];
 
     const slotCalendar = [];
     for(let i=1; i<=31; i++) {
-      let isBooked = i <= 26;
+      let isBooked = (i === 1 || i === 2);
       slotCalendar.push({
         day: i,
         date: `2026-12-${String(i).padStart(2, '0')}`,
         status: isBooked ? 'booked' : 'available',
-        agent: isBooked ? (i % 2 === 0 ? 'प्रिया वर्मा' : 'राहुल शर्मा') : null
+        agent: isBooked ? 'T1 Test' : null
       });
     }
 
@@ -4225,66 +4222,49 @@
 
     function switchPersona(p) {
       currentPersona = p;
-      if(p === 'candidate' && registeredCandidate) {
-        document.getElementById('headerBrandTitle').innerText = registeredCandidate.name;
-        document.getElementById('headerLogoInitials').innerText = registeredCandidate.initials;
-        document.getElementById('sidebarUserName').innerText = registeredCandidate.name;
+      if(p === 'candidate') {
+        const cName = registeredCandidate?.name || 'अधिकृत सूत्रधार';
+        const cInitials = registeredCandidate?.initials || 'AS';
+        document.getElementById('headerBrandTitle').innerText = cName;
+        document.getElementById('headerLogoInitials').innerText = cInitials;
+        document.getElementById('sidebarUserName').innerText = cName;
         sutradharClaimsLedger = window.candidateSavedClaims || [];
         updateSutradharMetricsAndClaimsUI();
         sutradharLevel = 1;
         streakDays = 0;
         level2MonthlyIncentive = 0;
         updateLevelProgressionUI();
-        showToast(`${registeredCandidate.name} का फ्रेश डैशबोर्ड।`);
+        showToast(`${cName} का फ्रेश लाइव डैशबोर्ड।`);
       } else if(p === 'admin') {
         document.getElementById('headerBrandTitle').innerText = 'श्री राम जी एस्ट्रो (shriramjiastro.in)';
         document.getElementById('headerLogoInitials').innerText = 'SR';
         document.getElementById('sidebarUserName').innerText = 'आचार्य / फाउंडर';
-        document.getElementById('agentMetricSales').innerText = '412';
-        document.getElementById('agentMetricIncentive').innerText = '₹1,12,450';
-        document.getElementById('agentMetricPendingIncentive').innerText = '₹3,250';
+        document.getElementById('agentMetricSales').innerText = '0';
+        document.getElementById('agentMetricIncentive').innerText = '₹0';
+        document.getElementById('agentMetricPendingIncentive').innerText = '₹0';
         sutradharLevel = 2;
         streakDays = 7;
-        level2MonthlyIncentive = 112450;
+        level2MonthlyIncentive = 0;
         updateLevelProgressionUI();
         showToast('फाउंडर मोड: संपूर्ण संस्थान डेटा दृश्यमान।');
-      } else if(p === 'role1') {
-        document.getElementById('headerBrandTitle').innerText = 'राहुल शर्मा (shriramjiastro.in)';
-        document.getElementById('headerLogoInitials').innerText = 'RS';
-        document.getElementById('sidebarUserName').innerText = 'राहुल शर्मा';
+      } else if(p === 't1' || p === 'role1' || p === 'role2') {
+        document.getElementById('headerBrandTitle').innerText = 'T1 Test (shriramjiastro.in)';
+        document.getElementById('headerLogoInitials').innerText = 'T1';
+        document.getElementById('sidebarUserName').innerText = 'T1 Test';
         sutradharClaimsLedger = [
-          { id: 'CLM-901', sutraId: 'SD-101', agentName: 'राहुल शर्मा', custName: 'राकेश वर्मा', custPhone: '9810123456', product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)', paid: '₹1,111', coupon: 'SD-101', channel: '🤝 विश्वस्त (फुल प्राइस)', incentiveNum: 350, incentiveStr: '₹350', txnRef: 'pay_M80aL19', upi: 'rahul@paytm', status: '🟢 स्वीकृत व UPI ट्रांसफर्ड', isVerified: true, timeStr: '11:20 AM, आज' },
-          { id: 'CLM-902', sutraId: 'SD-101', agentName: 'राहुल शर्मा', custName: 'अशोक गुप्ता', custPhone: '9820011223', product: 'मेगा पाराशर रिपोर्ट (₹1,111)', paid: '₹1,000', coupon: 'SD-101 (-10%)', channel: '🏷️ 10% कूपन', incentiveNum: 295, incentiveStr: '₹295', txnRef: 'pay_L12345', upi: 'rahul@paytm', status: '🟡 सत्यापन लंबित (Razorpay / Admin)', isVerified: false, timeStr: '01:15 PM, आज' }
+          { id: 'CLM-T101', sutraId: 'SUTRA-7775-01', agentName: 'T1 Test', custName: 'राकेश वर्मा (टेस्ट जातक)', custPhone: '9810123456', product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)', paid: '₹1,111', coupon: 'SUTRA-7775-01', channel: '🤝 विश्वस्त (फुल प्राइस)', incentiveNum: 350, incentiveStr: '₹350', txnRef: 'pay_T1_test_9821', upi: '9517117775@upi', status: '🟢 स्वीकृत व UPI ट्रांसफर्ड', isVerified: true, timeStr: '11:20 AM, आज' },
+          { id: 'CLM-T102', sutraId: 'SUTRA-7775-01', agentName: 'T1 Test', custName: 'अशोक गुप्ता (टेस्ट जातक)', custPhone: '9820011223', product: 'मेगा पाराशर रिपोर्ट (₹1,111)', paid: '₹1,000', coupon: 'SUTRA-7775-01 (-10%)', channel: '🏷️ 10% कूपन', incentiveNum: 295, incentiveStr: '₹295', txnRef: 'pay_T1_test_4432', upi: '9517117775@upi', status: '🟡 सत्यापन लंबित (Razorpay / Admin)', isVerified: false, timeStr: '01:15 PM, आज' }
         ];
         updateSutradharMetricsAndClaimsUI();
-        document.getElementById('agentMetricSales').innerText = '18';
-        document.getElementById('agentMetricIncentive').innerText = '₹14,200';
-        document.getElementById('summarySalesCount').innerText = '18';
-        document.getElementById('summaryVerifiedInc').innerText = '₹14,200';
+        document.getElementById('agentMetricSales').innerText = '2';
+        document.getElementById('agentMetricIncentive').innerText = '₹350';
+        document.getElementById('summarySalesCount').innerText = '2';
+        document.getElementById('summaryVerifiedInc').innerText = '₹350';
         sutradharLevel = 1;
-        streakDays = 4;
-        level2MonthlyIncentive = 14200;
+        streakDays = 1;
+        level2MonthlyIncentive = 350;
         updateLevelProgressionUI();
-        showToast('राहुल शर्मा (सूत्रधार लेवल 1) — दैनिक मानक लक्ष्य: ₹1,000/दिन • स्ट्रीक: 4/7 दिन।');
-      } else if(p === 'role2') {
-        document.getElementById('headerBrandTitle').innerText = 'प्रिया वर्मा (shriramjiastro.in)';
-        document.getElementById('headerLogoInitials').innerText = 'PV';
-        document.getElementById('sidebarUserName').innerText = 'प्रिया वर्मा';
-        sutradharClaimsLedger = [
-          { id: 'CLM-801', sutraId: 'SD-102', agentName: 'प्रिया वर्मा', custName: 'संजय तिवारी', custPhone: '9876543210', product: 'दैवज्ञ VIP परामर्श (₹5,100)', paid: '₹5,100', coupon: 'कूपन वर्जित', channel: '🙏 VIP परामर्श', incentiveNum: 1500, incentiveStr: '₹1,500', txnRef: 'pay_N91xK28', upi: 'priya@okhdfc', status: '🟢 स्वीकृत व UPI ट्रांसफर्ड', isVerified: true, timeStr: '10:05 AM, आज' },
-          { id: 'CLM-802', sutraId: 'SD-102', agentName: 'प्रिया वर्मा', custName: 'पंडित राधेश्याम', custPhone: '9911223344', product: 'आचार्य प्रो सॉफ्टवेयर (₹5,100/वर्ष)', paid: '₹5,100', coupon: 'प्रो लाइसेंस', channel: '💻 प्रो SaaS', incentiveNum: 2500, incentiveStr: '₹2,500', txnRef: 'pay_SFT99', upi: 'priya@okhdfc', status: '🟢 स्वीकृत व UPI ट्रांसफर्ड', isVerified: true, timeStr: '12:30 PM, आज' },
-          { id: 'CLM-803', sutraId: 'SD-102', agentName: 'प्रिया वर्मा', custName: 'मनीष अग्रवाल', custPhone: '9833445566', product: '1-वर्षीय गुरुकुल कोर्स (₹24,000)', paid: '₹24,000', coupon: 'डायरेक्ट', channel: '🎓 गुरुकुल एडमिशन', incentiveNum: 2400, incentiveStr: '₹2,400', txnRef: 'pay_CRS11', upi: 'priya@okhdfc', status: '🟡 सत्यापन लंबित (Razorpay / Admin)', isVerified: false, timeStr: '02:45 PM, आज' }
-        ];
-        updateSutradharMetricsAndClaimsUI();
-        document.getElementById('agentMetricSales').innerText = '42';
-        document.getElementById('agentMetricIncentive').innerText = '₹1,04,200';
-        document.getElementById('summarySalesCount').innerText = '42';
-        document.getElementById('summaryVerifiedInc').innerText = '₹1,04,200';
-        sutradharLevel = 2;
-        streakDays = 7;
-        level2MonthlyIncentive = 104200;
-        updateLevelProgressionUI();
-        showToast('प्रिया वर्मा (सूत्रधार लेवल 2) — ₹24,000 कोर्स अनलॉक • ₹1 लाख क्लब सदस्य (₹10,000 बोनस)!');
+        showToast('T1 Test (परीक्षण सूत्रधार SUTRA-7775-01) सक्रिय।');
       }
     }
 
@@ -4292,10 +4272,7 @@
     // 2-CHANNEL SALES & IN-APP COUPON LEDGER (NO PHONE LOCKING)
     // =========================================================================
     let salesLedger = [
-      { id: 'S-101', name: 'सुरेश कुमार (वाराणसी)', product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)', channel: '🤝 विश्वस्त (फुल प्राइस)', coupon: 'डायरेक्ट (बिना कूपन)', paid: '₹1,111', incentive: '₹350', payout: '⚡ 2-घंटे कतार में' },
-      { id: 'S-102', name: 'दीपक जोशी (दिल्ली)', product: '1-वर्षीय गुरुकुल कोर्स (₹24,000)', channel: '🏷️ 10% कूपन क्लोजर', coupon: 'VIDYA10 (-₹2,400)', paid: '₹21,600', incentive: '₹1,200', payout: '⚡ 2-घंटे कतार में' },
-      { id: 'S-103', name: 'आलोक वाजपेयी (लखनऊ)', product: 'दैवज्ञ VIP परामर्श (₹5,100)', channel: '🤝 विश्वस्त (फुल प्राइस)', coupon: 'कूपन वर्जित (सीमित 30 स्लॉट)', paid: '₹5,100', incentive: '₹1,500', payout: '✓ पेआउट सफल' },
-      { id: 'S-104', name: 'संगीता शर्मा (जयपुर)', product: 'मेगा पाराशर रिपोर्ट (₹1,111)', channel: '🏷️ 10% कूपन क्लोजर', coupon: 'आपकी सूत्रधार ID (-₹111)', paid: '₹1,000', incentive: '₹295', payout: '✓ पेआउट सफल' }
+      { id: 'S-T1', name: 'राकेश वर्मा (वाराणसी - T1 Test)', product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)', channel: '🤝 विश्वस्त (फुल प्राइस)', coupon: 'SUTRA-7775-01', paid: '₹1,111', incentive: '₹350', payout: '✓ पेआउट सफल' }
     ];
 
     function renderLeadsTable() {
