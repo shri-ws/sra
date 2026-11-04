@@ -39,7 +39,7 @@ $status = !empty($data['status']) ? trim($data['status']) : 'completed';
 $kundaliKey = !empty($data['kundali_key']) ? trim($data['kundali_key']) : '';
 $couponCode = !empty($data['coupon_code']) ? strtoupper(trim($data['coupon_code'])) : (!empty($data['coupon']) ? strtoupper(trim($data['coupon'])) : '');
 $sutradharId = !empty($data['sutradhar_id']) ? strtoupper(trim($data['sutradhar_id'])) : (!empty($data['ref']) ? strtoupper(trim($data['ref'])) : '');
-if (empty($sutradharId) && !empty($couponCode) && preg_match('/^SD-\d+$/', $couponCode)) {
+if (empty($sutradharId) && !empty($couponCode) && preg_match('/^(SD-\d+|SUTRA-[\w-]+)$/i', $couponCode)) {
     $sutradharId = $couponCode;
 }
 $discount = isset($data['discount']) ? intval($data['discount']) : 0;

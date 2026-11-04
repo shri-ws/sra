@@ -490,7 +490,7 @@ function applyCoupon(){
     }
   } else {
     // Fallback if script load fails
-    if (/^SD-\d+$/.test(code) || code === 'RAM10') {
+    if (/^(SD-\d+|SUTRA-[\w-]+)$/i.test(code) || code === 'RAM10') {
       S.disc = Math.round(S.base * 0.10);
       el.className = 'coupon-status ok';
       el.textContent = `✓ सूत्रधार कोड (${code}) लागू! 10% छूट: ₹${S.disc}`;
