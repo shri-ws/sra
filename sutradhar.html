@@ -3107,47 +3107,45 @@
     </div>
   </div>
 
-  <!-- MODAL: NEW SALE -->
+  <!-- MODAL: NEW LEAD (ZERO PAYMENT-ID FRICTION) -->
   <div id="newSaleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="text-base font-extrabold text-blue-950 flex items-center">
-          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600 mr-2"></i>
-          सेल दर्ज करें (लीड व दक्षिणा क्लेम)
+          <i data-lucide="user-plus" class="w-5 h-5 text-emerald-600 mr-2"></i>
+          <span>जातक लीड जोड़ें (स्वतः ऑटो-पेआउट)</span>
         </h3>
         <button onclick="closeModal('newSaleModal')" class="text-slate-400 hover:text-slate-700">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleNewSaleSubmit(event)" class="space-y-3 text-xs">
+      <form onsubmit="handleNewSaleSubmit(event)" class="space-y-3.5 text-xs">
         <div>
-          <label class="block text-slate-700 font-semibold mb-1">उत्पाद चुनें (Product Category)</label>
+          <label class="block text-slate-700 font-semibold mb-1">उत्पाद / सेवा चुनें (Product Interest)</label>
           <select id="saleProduct" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 font-medium outline-none">
             <optgroup label="📜 प्रमुख लाइव वैदिक रिपोर्ट्स (shriramjiastro.in)">
-              <option value="mega_full">मेगा पाराशर संहिता जन्मकुण्डली रिपोर्ट (₹1,111) [इंसेंटिव: ₹350]</option>
-              <option value="mega_coupon">मेगा पाराशर संहिता रिपोर्ट - 10% कूपन (₹1,000) [इंसेंटिव: ₹295]</option>
-              <option value="muhurat_full">सम्पूर्ण शास्त्रोक्त मुहूर्त शोधन रिपोर्ट (₹1,111) [इंसेंटिव: ₹350]</option>
-              <option value="muhurat_coupon">सम्पूर्ण मुहूर्त शोधन रिपोर्ट - 10% कूपन (₹1,000) [इंसेंटिव: ₹295]</option>
-              <option value="kaalsarp">कालसर्प दोष एवं शांति रिपोर्ट (₹199) [इंसेंटिव: ₹60]</option>
-              <option value="manglik">मंगल दोष एवं परिहार रिपोर्ट (₹199) [इंसेंटिव: ₹60]</option>
-              <option value="ratna">रत्न एवं शास्त्रीय उपाय रिपोर्ट (₹249) [इंसेंटिव: ₹80]</option>
+              <option value="mega_coupon">मेगा पाराशर संहिता कुण्डली रिपोर्ट - 10% कूपन (₹1,000) [कमीशन: ₹295]</option>
+              <option value="mega_full">मेगा पाराशर संहिता जन्मकुण्डली रिपोर्ट (₹1,111) [कमीशन: ₹350]</option>
+              <option value="muhurat_coupon">सम्पूर्ण शास्त्रोक्त मुहूर्त शोधन - 10% कूपन (₹1,000) [कमीशन: ₹295]</option>
+              <option value="kaalsarp">कालसर्प दोष एवं शांति रिपोर्ट (₹199) [कमीशन: ₹60]</option>
+              <option value="manglik">मंगल दोष एवं परिहार रिपोर्ट (₹199) [कमीशन: ₹60]</option>
+              <option value="ratna">रत्न एवं शास्त्रीय उपाय रिपोर्ट (₹249) [कमीशन: ₹80]</option>
             </optgroup>
             <optgroup label="🌟 लाइव परामर्श व गुरुकुल">
-              <option value="consultation">दैवज्ञ 1-on-1 VIP परामर्श (₹5,100) [इंसेंटिव: ₹1,500]</option>
-              <option value="course_full">1-वर्षीय वैदिक ज्योतिष गुरुकुल पाठ्यक्रम (₹24,000) [इंसेंटिव: ₹2,400]</option>
-              <option value="course_coupon">1-वर्षीय गुरुकुल पाठ्यक्रम - 10% कूपन VIDYA10 (₹21,600) [इंसेंटिव: ₹1,200]</option>
+              <option value="consultation">दैवज्ञ 1-on-1 VIP परामर्श (₹5,100) [कमीशन: ₹1,500]</option>
+              <option value="course_full">1-वर्षीय वैदिक ज्योतिष गुरुकुल पाठ्यक्रम (₹24,000) [कमीशन: ₹1,200]</option>
             </optgroup>
           </select>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-700 font-semibold mb-1">जातक / ग्राहक का नाम</label>
-            <input type="text" id="custName" required placeholder="जातक का पूरा नाम दर्ज करें" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
+            <label class="block text-slate-700 font-semibold mb-1">जातक / ग्राहक का नाम <span class="text-red-500">*</span></label>
+            <input type="text" id="custName" required placeholder="उदा. रमेश कुमार" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
           </div>
           <div>
-            <label class="block text-slate-700 font-semibold mb-1">जातक का फ़ोन नंबर</label>
-            <input type="tel" id="custPhone" required maxlength="10" placeholder="10-अंकों का मोबाइल नंबर" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none">
+            <label class="block text-slate-700 font-semibold mb-1">जातक का मोबाइल नंबर <span class="text-red-500">*</span></label>
+            <input type="tel" id="custPhone" required maxlength="10" placeholder="१० अंकों का नंबर" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-800 outline-none font-mono">
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -3159,29 +3157,28 @@
             </select>
           </div>
           <div>
-            <label class="block text-slate-700 font-semibold mb-1">सूत्रधार यूनिक आईडी (आपकी Unique ID)</label>
+            <label class="block text-slate-700 font-semibold mb-1">सूत्रधार यूनिक आईडी (आपका प्रोमो कोड)</label>
             <input type="text" id="saleSutradharIdDisplay" readonly class="w-full bg-blue-50/70 border border-blue-300 rounded-xl p-2.5 text-blue-950 font-mono font-bold outline-none cursor-not-allowed" placeholder="SUTRA-ID">
-            <span class="text-[10px] text-blue-700 mt-0.5 block font-medium">✓ आपकी अधिकृत सूत्रधार आईडी स्वतः लॉक</span>
+            <span class="text-[10px] text-blue-700 mt-0.5 block font-medium">✓ ग्राहक द्वारा इस कोड का प्रयोग करने पर 10% छूट मिलेगी</span>
           </div>
         </div>
-        <div>
-          <label class="block text-slate-700 font-semibold mb-1">गेटवे / पेमेंट Ref ID <span class="text-slate-400 font-normal">(वैकल्पिक / Razorpay)</span></label>
-          <input type="text" id="txnId" placeholder="उदा. pay_RazorpayRef या ग्राहक पेमेंट संदर्भ" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-blue-900 font-mono outline-none">
-        </div>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-900 space-y-1">
-          <div class="flex items-center space-x-1.5 font-bold text-amber-950">
-            <i data-lucide="shield-alert" class="w-4 h-4 text-amber-700 shrink-0"></i>
-            <span>सत्यापन नीति (Verification Policy):</span>
+
+        <!-- ZERO FRICTION INFO BANNER: NO PAYMENT ID REQUIRED -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-[11px] text-emerald-950 space-y-1.5">
+          <div class="flex items-center space-x-1.5 font-bold text-emerald-900">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+            <span>शून्य-झंझट स्वचालित ऑटो-पे (No Payment ID Needed):</span>
           </div>
-          <p class="leading-relaxed">
-            यह सबमिशन लीड / सेल का दावा दर्ज करता है। ग्राहक द्वारा Razorpay पर भुगतान पूर्ण होने और एडमिन द्वारा सत्यापन के बाद ही इंसेंटिव स्वीकृत होगा और आपकी लिंक्ड UPI आईडी पर भेजा जाएगा।
+          <p class="leading-relaxed text-emerald-900/90">
+            आपको जातक से कोई भी पेमेंट आईडी पूछने की आवश्यकता <b>बिल्कुल नहीं है</b>। जैसे ही जातक वेबसाइट पर आपके कूपन कोड से इसी नंबर द्वारा भुगतान करेगा, सिस्टम स्वतः पहचानकर कमीशन सीधे आपके रजिस्टर्ड UPI ID पर ट्रांसफर कर देगा!
           </p>
         </div>
+
         <div class="flex justify-end space-x-2 pt-2">
           <button type="button" onclick="closeModal('newSaleModal')" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold transition hover:bg-slate-200">रद्द करें</button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition flex items-center space-x-1.5 shadow-sm">
+          <button type="submit" id="btnSubmitLeadForm" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition flex items-center space-x-1.5 shadow-sm">
             <i data-lucide="check-circle" class="w-4 h-4"></i>
-            <span>सत्यापन हेतु कतार में सबमिट करें</span>
+            <span>लीड सुरक्षित करें (ऑटो-पे एक्टिवेट)</span>
           </button>
         </div>
       </form>
@@ -4247,6 +4244,7 @@
         streakDays = 0;
         level2MonthlyIncentive = 0;
         updateLevelProgressionUI();
+        if (typeof loadLiveSutradharLeads === 'function') loadLiveSutradharLeads();
         showToast(`${cName} का फ्रेश लाइव डैशबोर्ड।`);
       } else if(p === 'admin') {
         document.getElementById('headerBrandTitle').innerText = 'श्री राम जी एस्ट्रो (shriramjiastro.in)';
@@ -4284,6 +4282,7 @@
         streakDays = 0;
         level2MonthlyIncentive = 0;
         updateLevelProgressionUI();
+        if (typeof loadLiveSutradharLeads === 'function') loadLiveSutradharLeads();
         showToast('T1 Test (परीक्षण सूत्रधार SUTRA-7775-01) सक्रिय - फ्रेश जीरो स्टेट।');
       }
     }
@@ -4464,25 +4463,35 @@
     }
 
     // =========================================================================
-    // SUTRADHAR CLAIMS & VERIFIED PAYOUT LOGIC
+    // SUTRADHAR LEADS & ZERO-FRICTION INSTANT AUTO-PAYOUT LOGIC
     // =========================================================================
     let sutradharClaimsLedger = [];
 
-    function handleNewSaleSubmit(e) {
+    async function handleNewSaleSubmit(e) {
       e.preventDefault();
       const agent = document.getElementById('saleAgent').value;
       const prod = document.getElementById('saleProduct').value;
-      const custName = document.getElementById('custName').value.trim() || 'ग्राहक';
-      const custPhone = document.getElementById('custPhone').value.trim() || '';
-      const txnIdVal = document.getElementById('txnId').value.trim() || 'रिफ़-प्रतीक्षित';
-      const sutraId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : 'SUTRA-ID');
-      const upi = registeredCandidate?.upi_id || (registeredCandidate?.phone ? `${registeredCandidate.phone}@upi` : 'shriramji@upi');
+      const custName = document.getElementById('custName').value.trim() || 'जातक';
+      const custPhone = document.getElementById('custPhone').value.trim().replace(/\D/g, '').slice(-10);
+      const sutraId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : 'SUTRA-7775-01');
+      const upi = registeredCandidate?.upi_id || (registeredCandidate?.phone ? `${registeredCandidate.phone}@upi` : '9517117775@upi');
 
-      let incNum = 350;
-      let prodName = 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)';
-      let paid = '₹1,111';
-      let coupon = sutraId;
-      let channel = '🤝 विश्वस्त (फुल प्राइस)';
+      if (!custPhone || custPhone.length < 10) {
+        showToast('कृपया जातक का १० अंकों का वैध मोबाइल नंबर दर्ज करें।');
+        return;
+      }
+
+      const submitBtn = document.getElementById('btnSubmitLeadForm');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spin"></span> लीड सुरक्षित हो रही है...';
+      }
+
+      let incNum = 295;
+      let prodName = 'मेगा पाराशर संहिता कुण्डली रिपोर्ट (₹1,111)';
+      let paid = '₹1,000';
+      let coupon = `${sutraId} (-10%)`;
+      let channel = '🏷️ 10% कूपन ऑटो-पे';
 
       if(prod === 'mega_full') {
         incNum = 350; prodName = 'मेगा पाराशर संहिता जन्मकुण्डली रिपोर्ट (₹1,111)'; paid = '₹1,111'; coupon = 'डायरेक्ट'; channel = '🤝 विश्वस्त (फुल प्राइस)';
@@ -4501,14 +4510,29 @@
       } else if(prod === 'consultation') {
         incNum = 1500; prodName = 'दैवज्ञ 1-on-1 VIP परामर्श (₹5,100)'; paid = '₹5,100'; coupon = 'कूपन वर्जित'; channel = '🙏 VIP परामर्श';
       } else if(prod === 'course_full') {
-        incNum = 2400; prodName = '1-वर्षीय वैदिक ज्योतिष गुरुकुल पाठ्यक्रम (₹24,000)'; paid = '₹24,000'; coupon = 'डायरेक्ट'; channel = '🎓 गुरुकुल एडमिशन';
-      } else if(prod === 'course_coupon') {
-        incNum = 1200; prodName = '1-वर्षीय गुरुकुल पाठ्यक्रम (₹24,000)'; paid = '₹21,600'; coupon = 'VIDYA10 (-10%)'; channel = '🏷️ 10% कूपन क्लोजर';
-      } else if(prod === 'micro') {
-        incNum = 60; prodName = 'कालसर्प/मंगल दोष रिपोर्ट (₹199)'; paid = '₹199'; coupon = 'डायरेक्ट'; channel = '📜 माइक्रो रिपोर्ट';
+        incNum = 1200; prodName = '1-वर्षीय वैदिक ज्योतिष गुरुकुल पाठ्यक्रम (₹24,000)'; paid = '₹21,600'; coupon = `${sutraId} (-10%)`; channel = '🎓 गुरुकुल एडमिशन';
       }
 
-      const claimId = `CLM-${Date.now().toString().slice(-4)}`;
+      // Save to server backend API
+      try {
+        const resp = await fetch('api/save_sutradhar_lead.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sutradhar_id: sutraId,
+            customer_name: custName,
+            customer_phone: custPhone,
+            product: prodName,
+            upi_id: upi
+          })
+        });
+        const res = await resp.json();
+        console.log('Lead saved to server:', res);
+      } catch (err) {
+        console.warn('Server lead save fallback:', err);
+      }
+
+      const claimId = `LEAD-${custPhone.slice(-4)}-${Date.now().toString().slice(-3)}`;
       const nowTime = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) + ', आज';
 
       const newClaim = {
@@ -4523,16 +4547,15 @@
         channel: channel,
         incentiveNum: incNum,
         incentiveStr: `₹${incNum.toLocaleString('en-IN')}`,
-        txnRef: txnIdVal,
+        txnRef: 'ऑटो-पे एक्टिवेटेड',
         upi: upi,
-        status: '🟡 सत्यापन लंबित (Razorpay / Admin)',
+        status: '⏳ भुगतान प्रतीक्षित (जातक चेकआउट)',
         isVerified: false,
         timeStr: nowTime
       };
 
       sutradharClaimsLedger.unshift(newClaim);
 
-      // Add to fastPayoutQueue with pending status
       fastPayoutQueue.unshift({
         id: claimId,
         agent: agent,
@@ -4545,28 +4568,66 @@
         verified: false
       });
 
-      // Add to salesLedger for full visibility
       salesLedger.unshift({
-        id: `S-${Date.now().toString().slice(-3)}`,
-        name: custName + ' (ऑनलाइन)',
+        id: `L-${Date.now().toString().slice(-3)}`,
+        name: custName + ' (लीड)',
         product: prodName,
         channel: channel,
         coupon: coupon,
         paid: paid,
         incentive: newClaim.incentiveStr,
-        payout: '🟡 सत्यापन लंबित (Razorpay / Admin)'
+        payout: '⏳ जातक चेकआउट प्रतीक्षित'
       });
 
       updateSutradharMetricsAndClaimsUI();
       renderLeadsTable();
 
       closeModal('newSaleModal');
-      // Reset form
       document.getElementById('custName').value = '';
       document.getElementById('custPhone').value = '';
-      document.getElementById('txnId').value = '';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>लीड सुरक्षित करें (ऑटो-पे एक्टिवेट)</span>';
+      }
 
-      showToast(`लीड क्लेम दर्ज हुआ! ${newClaim.incentiveStr} 'सत्यापन लंबित' में जुड़ा। Razorpay पेमेंट व एडमिन सत्यापन के बाद UPI पेआउट भेजा जाएगा।`);
+      showToast(`✓ जातक लीड (${custPhone}) सुरक्षित! जातक द्वारा कूपन से भुगतान करते ही ₹${incNum} कमीशन स्वतः आपकी UPI पर क्रेडिट हो जाएगा।`);
+    }
+
+    async function loadLiveSutradharLeads() {
+      const sutraId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : 'SUTRA-7775-01');
+      try {
+        const resp = await fetch(`api/get_sutradhar_leads.php?sutradhar_id=${encodeURIComponent(sutraId)}`);
+        const res = await resp.json();
+        if (res && res.leads && Array.isArray(res.leads) && res.leads.length > 0) {
+          sutradharClaimsLedger = res.leads.map(l => {
+            const isPaid = (l.status === 'paid' || l.payout_status === 'transferred');
+            const inc = l.actual_incentive || l.expected_incentive || 295;
+            return {
+              id: l.lead_id || `LEAD-${(l.customer_phone||'').slice(-4)}`,
+              sutraId: l.sutradhar_id || sutraId,
+              agentName: registeredCandidate?.name || 'सूत्रधार',
+              custName: l.customer_name || 'जातक',
+              custPhone: l.customer_phone || '',
+              product: l.product || 'ज्योतिष रिपोर्ट',
+              paid: isPaid ? '✓ प्राप्त' : 'प्रतीक्षित',
+              coupon: `${sutraId} (-10%)`,
+              channel: '🏷️ 10% कूपन ऑटो-पे',
+              incentiveNum: inc,
+              incentiveStr: `₹${inc.toLocaleString('en-IN')}`,
+              txnRef: l.razorpay_payment_id || 'ऑटो-पे सक्रिय',
+              upi: l.upi_id || '9517117775@upi',
+              status: isPaid ? `🟢 स्वीकृत व UPI ट्रांसफर्ड (${l.utr || 'Auto-Pay'})` : '⏳ भुगतान प्रतीक्षित (जातक चेकआउट)',
+              isVerified: isPaid,
+              utr: l.utr || null,
+              timeStr: l.paid_at ? (new Date(l.paid_at).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) + ', पेआउट') : (l.created_at ? new Date(l.created_at).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) : 'आज')
+            };
+          });
+          updateSutradharMetricsAndClaimsUI();
+          renderLeadsTable();
+        }
+      } catch (e) {
+        console.warn('Could not load live sutradhar leads:', e);
+      }
     }
 
     async function verifySutradharClaim(claimId) {
@@ -4736,8 +4797,8 @@
           </td>
           <td class="p-3">
             ${claim.isVerified 
-              ? '<span class="text-[10px] px-2.5 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center w-fit space-x-1"><span>✓</span><span>स्वीकृत व UPI ट्रांसफर्ड</span></span>'
-              : '<span class="text-[10px] px-2.5 py-1 rounded-full font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center w-fit space-x-1 animate-pulse"><span>⏳</span><span>सत्यापन लंबित (Razorpay / Admin)</span></span>'
+              ? `<span class="text-[10px] px-2.5 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center w-fit space-x-1"><span>✓</span><span>स्वीकृत व UPI ट्रांसफर्ड</span></span>`
+              : `<span class="text-[10px] px-2.5 py-1 rounded-full font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center w-fit space-x-1"><span>⏳</span><span>जातक भुगतान प्रतीक्षित</span></span>`
             }
           </td>
           <td class="p-3 font-mono text-[11px] text-slate-600">
@@ -4745,11 +4806,8 @@
           </td>
           <td class="p-3 text-center">
             ${claim.isVerified
-              ? '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ पेआउट संपन्न</span>'
-              : `<button onclick="verifySutradharClaim('${claim.id}')" title="एडमिन / Razorpay सत्यापन टेस्ट करें" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold shadow-xs transition inline-flex items-center space-x-1">
-                   <i data-lucide="check-check" class="w-3 h-3"></i>
-                   <span>सत्यापन टेस्ट</span>
-                 </button>`
+              ? `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-mono">✓ स्वतः पेआउट ${claim.utr ? `(${claim.utr})` : ''}</span>`
+              : `<span class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">⚡ ऑटो-पे सक्रिय</span>`
             }
           </td>
         `;
