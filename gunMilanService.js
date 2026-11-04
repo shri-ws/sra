@@ -91,25 +91,22 @@
     return "शूद्र";                                           // मिथुन, तुला, कुम्भ (वायु)
   }
 
-  // Vashya group (वश्य वर्ग). Dhanu & Makara split at 15°.
-  function vashyaOf(r, deg) {
-    switch (r) {
-      case 0: case 1: return "चतुष्पद";                       // मेष, वृष
-      case 2: case 5: case 6: case 10: return "मानव";          // मिथुन, कन्या, तुला, कुम्भ
-      case 3: case 11: return "जलचर";                          // कर्क, मीन
-      case 4: return "वनचर";                                   // सिंह
-      case 7: return "कीट";                                    // वृश्चिक
-      case 8: return (deg < 15) ? "मानव" : "चतुष्पद";          // धनु: पूर्वार्ध मानव, उत्तरार्ध चतुष्पद
-      case 9: return (deg < 15) ? "चतुष्पद" : "जलचर";          // मकर: पूर्वार्ध चतुष्पद, उत्तरार्ध जलचर
-      default: return "मानव";
-    }
+  // Vashya group — मुहूर्त चिन्तामणि, विवाह प्रकरण श्लोक 23 (p.331–332):
+  // नर (द्विपद) मिथुन, कन्या, तुला; जलचर कर्क, मकर, कुम्भ, मीन; कीट वृश्चिक; शेष चतुष्पद।
+  function vashyaOf(r) {
+    if (r === 2 || r === 5 || r === 6) return "द्विपद";
+    if (r === 3 || r === 9 || r === 10 || r === 11) return "जलचर";
+    if (r === 7) return "कीट";
+    return "चतुष्पद";                                           // मेष, वृष, सिंह, धनु
   }
-  // Vashya points (max 2): same=2, मानव-वनचर=0 (मनुष्य वन्य पशु को वश नहीं कर पाता), अन्य भिन्न=1.
-  function vashyaPts(bg, gg) {
-    if (bg === gg) return 2;
-    if ((bg === "मानव" && gg === "वनचर") || (bg === "वनचर" && gg === "मानव")) return 0;
-    return 1;
-  }
+  // Vashya points: the text's table (p.332), row = कन्या, column = वर
+  var VASHYA_TABLE = {
+    "द्विपद":  { "द्विपद": 2,   "चतुष्पद": 0.5, "जलचर": 0.5, "कीट": 1 },
+    "चतुष्पद": { "द्विपद": 0.5, "चतुष्पद": 2,   "जलचर": 2,   "कीट": 2 },
+    "जलचर":   { "द्विपद": 0.5, "चतुष्पद": 2,   "जलचर": 2,   "कीट": 2 },
+    "कीट":     { "द्विपद": 1,   "चतुष्पद": 2,   "जलचर": 2,   "कीट": 2 }
+  };
+  function vashyaPts(bg, gg) { return VASHYA_TABLE[gg][bg]; }
 
   function nakOfIdx(i) { return NAK[((i % 27) + 27) % 27]; }
 
@@ -127,10 +124,10 @@
       note: varnaP ? "वर का वर्ण वधू के बराबर या उच्च है — शुभ।" : "वधू का वर्ण वर से ऊँचा है — वर्ण मिलान शून्य।" });
 
     // 2. वश्य (2)
-    var bVg = vashyaOf(boy.rashiIdx, boy.deg || 0), gVg = vashyaOf(girl.rashiIdx, girl.deg || 0);
+    var bVg = vashyaOf(boy.rashiIdx), gVg = vashyaOf(girl.rashiIdx);
     var vashyaP = vashyaPts(bVg, gVg);
     kootas.push({ key: "vashya", name: "वश्य", max: 2, pts: vashyaP, boy: bVg, girl: gVg,
-      note: vashyaP === 2 ? "समान वश्य वर्ग — परस्पर आकर्षण व नियंत्रण उत्तम।" : vashyaP === 0 ? "मानव-वनचर — वश्य शून्य।" : "भिन्न वश्य वर्ग — मध्यम।" });
+      note: vashyaP === 2 ? "वश्य अनुकूल (श्लोक 23)।" : vashyaP === 1 ? "वश्य मध्यम (श्लोक 23)।" : "वश्य अल्प — नर राशि का जलचर/चतुष्पद से (श्लोक 23)।" });
 
     // 3. तारा (3). Count inclusive, remainder mod 9; bad taras: 3(विपत्),5(प्रत्यरि),7(वध).
     function taraNum(fromIdx, toIdx) { return (((toIdx - fromIdx + 27) % 27) % 9) + 1; }
@@ -171,42 +168,80 @@
     else if (bG === "देव" && gG === "राक्षस") ganaP = 1;
     else if (bG === "राक्षस" && gG === "देव") ganaP = 1;
     else ganaP = 0; // मनुष्य-राक्षस (किसी भी क्रम में)
+    var ganaNote = null;
+    if (ganaP < 6) {
+      var s37 = (sameNak && boy.rashiIdx !== girl.rashiIdx) || (boy.rashiIdx === girl.rashiIdx && !sameNak) || (sameNak && boy.pada !== girl.pada);
+      var bNL = RASHI_LORDS[Math.floor((boy.rashiIdx * 30 + (boy.deg || 0)) * 9 / 30) % 12], gNL = RASHI_LORDS[Math.floor((girl.rashiIdx * 30 + (girl.deg || 0)) * 9 / 30) % 12];
+      var s33 = (bLord === gLord || (rel(bLord, gLord) === 'F' && rel(gLord, bLord) === 'F')) || (bNL === gNL || (rel(bNL, gNL) === 'F' && rel(gNL, bNL) === 'F'));
+      if (s37 || s33) { ganaNote = "गण भिन्न, पर " + (s37 ? "श्लोक 37 (नक्षत्र/राशि भेद)" : "राशीश/नवांशेश मैत्री (श्लोक 33)") + " से गण दोष नहीं।"; ganaP = 6; }
+    }
     kootas.push({ key: "gana", name: "गण", max: 6, pts: ganaP, boy: bG, girl: gG,
-      note: ganaP >= 5 ? "गण अनुकूल — स्वभाव मेल।" : ganaP >= 1 ? "गण आंशिक अनुकूल।" : "गण विरोध — स्वभाव में टकराव सम्भव।" });
+      note: ganaNote || (ganaP >= 5 ? "गण अनुकूल — स्वभाव मेल।" : ganaP >= 1 ? "गण आंशिक अनुकूल।" : "गण विरोध — स्वभाव में टकराव सम्भव।") });
 
-    // 7. भकूट (7). दोष: 2-12 (द्विर्द्वादश), 5-9 (नवपंचम), 6-8 (षडाष्टक).
+    // 7. भकूट (7). दोष: 2-12 (द्विर्द्वादश), 5-9 (नवपंचम), 6-8 (षडाष्टक) — श्लोक 31.
     var fwd = ((girl.rashiIdx - boy.rashiIdx + 12) % 12) + 1;      // 1..12
     var isBhakutDosha = ([2, 12, 5, 9, 6, 8].indexOf(fwd) >= 0);
-    var bhakutType = (fwd === 2 || fwd === 12) ? "द्विर्द्वादश (2-12)" : (fwd === 5 || fwd === 9) ? "नवपंचम (5-9)" : (fwd === 6 || fwd === 8) ? "षडाष्टक (6-8)" : "";
-    // भकूट परिहार (शास्त्रीय): मुख्यतः राशि-स्वामी एक ही या परस्पर मित्र हों।
-    var bhakutParihars = [];
-    if (isBhakutDosha) {
-      bhakutParihars.push({ text: "दोनों राशियों के स्वामी एक ही ग्रह हों।", ok: (bLord === gLord) });
-      bhakutParihars.push({ text: "दोनों राशि-स्वामी परस्पर मित्र हों (नैसर्गिक मैत्री)।", ok: (bLord !== gLord && maitriP === 5) });
-      bhakutParihars.push({ text: "राशि-स्वामी तथा नवांश-स्वामी में मैत्री हो — ज्योतिषी से पुष्टि करें।", ok: null });
+    // p.343: द्विर्द्वादश मीनादि युग्म राशियों (मीन-मेष, वृष-मिथुन, कर्क-सिंह, कन्या-तुला, वृश्चिक-धनु, मकर-कुम्भ) में शुभ
+    var dwShubh = false;
+    if (fwd === 2 || fwd === 12) {
+      var first = (fwd === 2) ? boy.rashiIdx : girl.rashiIdx;      // the sign the other is 2nd from
+      dwShubh = ((first + 1) % 2 === 0);                            // 1-based even sign: मीनादि क्रम
+      if (dwShubh) isBhakutDosha = false;
     }
-    // auto-भंग केवल तभी जब राशि-स्वामी एक ही हों या परस्पर परम-मित्र (ग्रह मैत्री = 5)।
-    var bhakutExempt = isBhakutDosha && (maitriP === 5);
-    var bhakutP = (!isBhakutDosha || bhakutExempt) ? 7 : 0;
-    kootas.push({ key: "bhakut", name: "भकूट", max: 7, pts: bhakutP, boy: RASHIS[boy.rashiIdx], girl: RASHIS[girl.rashiIdx],
-      note: !isBhakutDosha ? "भकूट दोष नहीं।" : bhakutExempt ? (bhakutType + " दोष था, पर परिहार से भंग।") : (bhakutType + " भकूट दोष — परिहार नहीं मिला।") });
-
-    // 8. नाड़ी (8). समान नाड़ी → दोष, जब तक परिहार न हो।
+    var bhakutType = (fwd === 2 || fwd === 12) ? "द्विर्द्वादश (2-12)" : (fwd === 5 || fwd === 9) ? "नवपंचम (5-9)" : (fwd === 6 || fwd === 8) ? "षडाष्टक (6-8)" : "";
+    // नाड़ी (needed first: every भकूट परिहार requires नाड़ी शुद्धि — श्लोक 32–33, p.343–348)
     var sameNadi = (bNak.nadi === gNak.nadi);
     var sameNak = (((boy.nakIdx % 27) + 27) % 27) === (((girl.nakIdx % 27) + 27) % 27);
-    // नाड़ी परिहार (शास्त्रीय) — इनमें से कोई एक हो तो नाड़ी दोष भंग माना जाता है।
-    var np1 = (sameNak && boy.pada && girl.pada && boy.pada !== girl.pada);     // एक नक्षत्र, भिन्न चरण
-    var np2 = (boy.rashiIdx === girl.rashiIdx && !sameNak);                      // एक राशि, भिन्न नक्षत्र
-    var np3 = (!sameNak && boy.rashiIdx === girl.rashiIdx);                      // (उपरोक्त का ही रूप)
+    // श्लोक 37 (p.354–356): एक राशि भिन्न नक्षत्र, या एक नक्षत्र भिन्न राशि, या एक नक्षत्र भिन्न चरण — नाड़ी व गण दोष नहीं
+    var np1 = (sameNak && boy.pada && girl.pada && boy.pada !== girl.pada);      // एक नक्षत्र, भिन्न चरण
+    var np2 = (boy.rashiIdx === girl.rashiIdx && !sameNak);                       // एक राशि, भिन्न नक्षत्र
+    var np5 = (sameNak && boy.rashiIdx !== girl.rashiIdx);                        // एक नक्षत्र, भिन्न राशि
+    // p.353 चरण-वेध: एक नक्षत्र में चरण 1↔4 व 2↔3 परस्पर विद्ध — तब परिहार नहीं
+    var charanVedha = sameNak && boy.pada && girl.pada && (boy.pada + girl.pada === 5);
     var np4 = (boy.rashiIdx !== girl.rashiIdx && (bLord === gLord || maitriP === 5)); // भिन्न राशि, राशि-स्वामी एक/मित्र
+    // मुहूर्त चिन्तामणि में नाड़ी का परिहार केवल श्लोक 37 से; राशीश-मैत्री से नहीं (p.347: नाड़ी दोष रहते अन्य परिहार अविचारणीय)
+    var nadiShuddh = !sameNadi || (((np1 || np5) && !charanVedha) || np2);
+
+    // नवांश-स्वामी (चन्द्र के नवांश)
+    function navLord(p) { var a = p.rashiIdx * 30 + (p.deg || 0); return RASHI_LORDS[Math.floor(a * 9 / 30) % 12]; }
+    var bNavL = navLord(boy), gNavL = navLord(girl);
+    var navMaitri = bNavL === gNavL || (rel(bNavL, gNavL) === 'F' && rel(gNavL, bNavL) === 'F');
+
+    // भकूट परिहार — श्लोक 32–33 (p.342–348): एकाधिपत्य, राशीश मैत्री, नवांशेश मैत्री, तारा शुद्धि,
+    // गण शुद्धि, राशि-वश्यता; प्रत्येक में नाड़ी शुद्धि अनिवार्य
+    var bhakutParihars = [];
+    var hLord = (bLord === gLord), hMaitri = (bLord !== gLord && maitriP === 5),
+        hTara = (taraP === 3), hGana = (bG === gG), hVashya = (vashyaP === 2);
+    if (isBhakutDosha) {
+      bhakutParihars.push({ text: "दोनों राशियों का एक ही स्वामी (एकाधिपत्य) — श्लोक 32", ok: hLord && nadiShuddh });
+      bhakutParihars.push({ text: "राशि-स्वामी परस्पर मित्र — श्लोक 32–33", ok: hMaitri && nadiShuddh });
+      bhakutParihars.push({ text: "नवांश-स्वामी (" + bNavL + "–" + gNavL + ") एक या परस्पर मित्र — श्लोक 32–33", ok: navMaitri && nadiShuddh });
+      bhakutParihars.push({ text: "तारा शुद्धि — श्लोक 32", ok: hTara && nadiShuddh });
+      bhakutParihars.push({ text: "गण शुद्धि (एक गण) — पीताम्बरा p.348", ok: hGana && nadiShuddh });
+      bhakutParihars.push({ text: "राशि-वश्यता — श्लोक 32", ok: hVashya && nadiShuddh });
+      if (!nadiShuddh) bhakutParihars.push({ text: "नाड़ी दोष होने से कोई भकूट परिहार मान्य नहीं (p.348)", ok: false });
+    }
+    // राशि/नवांश-स्वामी की मैत्री भकूट दोष को नष्ट करती है (श्लोक 33: "खेटप्रीतिश्चापि दुष्टं भकूटम्") — पूरे 7 गुण;
+    // तारा/गण/वश्यता के परिहार से विवाह शुभ, पर भकूट के गुण नहीं जुड़ते
+    var bhakutExempt = isBhakutDosha && nadiShuddh && (hLord || hMaitri || navMaitri || hTara || hGana || hVashya);
+    var bhakutLordExempt = isBhakutDosha && nadiShuddh && (hLord || hMaitri || navMaitri);
+    var bhakutP = (!isBhakutDosha || bhakutLordExempt) ? 7 : 0;
+    kootas.push({ key: "bhakut", name: "भकूट", max: 7, pts: bhakutP, boy: RASHIS[boy.rashiIdx], girl: RASHIS[girl.rashiIdx],
+      note: dwShubh ? "द्विर्द्वादश, पर मीनादि युग्म राशि — शुभ (p.343)।"
+        : !isBhakutDosha ? "भकूट दोष नहीं।"
+        : bhakutLordExempt ? (bhakutType + " दोष था, पर स्वामी-मैत्री से भंग (श्लोक 32–33)।")
+        : bhakutExempt ? (bhakutType + " भकूट दोष — शास्त्रोक्त परिहार है, विवाह शुभ (श्लोक 32); गुण नहीं जुड़ते।")
+        : (bhakutType + " भकूट दोष — परिहार नहीं मिला।") });
+
+    // 8. नाड़ी (8) — श्लोक 34, 37. समान नाड़ी → दोष, जब तक परिहार न हो।
     var nadiParihars = [];
     if (sameNadi) {
-      nadiParihars.push({ text: "वर-वधू का जन्म नक्षत्र एक ही हो पर चरण (पाद) भिन्न हों।", ok: np1 });
-      nadiParihars.push({ text: "दोनों की जन्म राशि एक ही हो पर नक्षत्र भिन्न हों।", ok: np2 });
-      nadiParihars.push({ text: "वर-वधू की जन्म राशि भिन्न हो तथा राशि-स्वामी एक ही या परस्पर मित्र हों।", ok: np4 });
-      nadiParihars.push({ text: "नक्षत्र-स्वामी परस्पर मित्र हों — ज्योतिषी से पुष्टि करें।", ok: null });
+      nadiParihars.push({ text: "एक नक्षत्र, भिन्न राशि — श्लोक 37", ok: np5 && !charanVedha });
+      nadiParihars.push({ text: "एक नक्षत्र, भिन्न चरण (चरण-वेध न हो: 1↔4, 2↔3) — श्लोक 37, p.353", ok: np1 && !charanVedha });
+      nadiParihars.push({ text: "एक राशि, भिन्न नक्षत्र — श्लोक 37", ok: np2 });
+      nadiParihars.push({ text: "राशि-स्वामी एक या मित्र — अन्य ग्रन्थों का मत, मुहूर्त चिन्तामणि में नहीं; ज्योतिषी से पुष्टि करें", ok: np4 ? null : false });
     }
-    var nadiExempt = sameNadi && (np1 || np2 || np4);
+    var nadiExempt = sameNadi && nadiShuddh;
     var nadiP = (!sameNadi || nadiExempt) ? 8 : 0;
     kootas.push({ key: "nadi", name: "नाड़ी", max: 8, pts: nadiP, boy: bNak.nadi, girl: gNak.nadi,
       note: !sameNadi ? "भिन्न नाड़ी — उत्तम (संतान-स्वास्थ्य हेतु शुभ)।" : nadiExempt ? "समान नाड़ी थी, पर परिहार से दोष भंग।" : "समान नाड़ी — नाड़ी दोष, परिहार नहीं मिला।" });
