@@ -104,3 +104,9 @@ SRA_I18N.add([
   ["शास्त्रीय अपवाद एवं परिहार नियम", "Classical exceptions & parihara rules", "शास्त्रीय अपवाद एवं परिहार नियम (Exceptions & Parihar Rules)"],
   ["१", "1"], ["२", "2"], ["३", "3"]
 ]);
+SRA_I18N.add([
+  ["ज्येष्ठ (पहली) सन्तान?", "Eldest (first-born) child?"],
+  ["— श्लोक 14–15: त्रिज्येष्ठ व जन्म-मास/नक्षत्र/तिथि का विचार", "— shlokas 14–15: tri-jyeshtha and birth month/nakshatra/tithi"],
+  ["वर पहली सन्तान है", "Groom is the first-born"],
+  ["कन्या पहली सन्तान है", "Bride is the first-born"]
+]);

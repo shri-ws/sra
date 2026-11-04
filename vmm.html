@@ -45,6 +45,7 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="sra-config.js"></script>
     <script src="patrikaEngineBridge.js"></script>
+    <script src="vivah-shuddhi.js?v=1"></script>
     <script src="theme.js"></script>
     <style>
         /* DAY MODE (DEFAULT): Golden, Maroon, and White */
@@ -395,6 +396,12 @@
         .btn-gunmilan-link:hover { background: rgba(183,129,3,0.08); }
         [data-theme="night"] .btn-gunmilan-link { color: #E9CF8E; border-color: #B08D3E; }
         .print-only { display: none; }
+        .couple-shastra-box { margin: 0 0 16px; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg); font-size: 13.5px; line-height: 1.6; }
+        .couple-shastra-box:empty { display: none; }
+        .couple-shastra-box h4 { color: var(--primary); font-size: 15px; }
+        .couple-shastra-box ul { margin: 0; padding-left: 20px; }
+        .couple-warn li { color: #9B2C2C; font-weight: 600; }
+        [data-theme="night"] .couple-warn li { color: #F2A3A3; }
         /* Rising-lagna timings in the results */
         .lagna-good-line { margin-top: 8px; font-size: 12.5px; line-height: 1.9; }
         .lagna-chip { display: inline-block; padding: 1px 8px; margin: 1px 2px; border-radius: 10px; font-size: 12px; white-space: nowrap; border: 1px solid; }
@@ -1289,6 +1296,14 @@
                     <input type="date" id="targetDate" value="2027-02-27">
                 </div>
 
+                <div class="form-group eldest-group" style="flex-basis:100%;">
+                    <label id="lblEldest">ज्येष्ठ (पहली) सन्तान? <small style="opacity:.75;">— श्लोक 14–15: त्रिज्येष्ठ व जन्म-मास/नक्षत्र/तिथि का विचार</small></label>
+                    <div style="display:flex; gap:18px; flex-wrap:wrap; font-size:14px;">
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:500;"><input type="checkbox" id="groomEldest"> <span id="lblGroomEldest">वर पहली सन्तान है</span></label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:500;"><input type="checkbox" id="brideEldest"> <span id="lblBrideEldest">कन्या पहली सन्तान है</span></label>
+                    </div>
+                </div>
+
                 <button class="btn-gold" id="btnScan" onclick="executeScan()">शुभ मुहूर्त एवं लग्न समय निकालें</button>
             </div>
         </div>
@@ -1412,6 +1427,7 @@
                     <h3 style="font-family:'Cinzel',serif; color:var(--primary); margin-bottom:12px;">
                         🔍 तिथि-वार दोष एवं परिहार तालिका
                     </h3>
+                    <div id="coupleShastraBox" class="couple-shastra-box"></div>
                     <div id="doshaListContainer">
                         <!-- Populated dynamically from scan results -->
                     </div>
@@ -2151,55 +2167,15 @@
             ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'].forEach(k => { if (at(k) === 7) f.push(nm[k] + ' 7'); });
             return f;
         }
-        // For each lagna of the day: the minutes that pass every rule, grouped into segments
-        function lagnaShuddhi(dStr, lat, lon, tz, ayanamsa, p) {
-            const [y, m, d] = dStr.split('-').map(Number);
-            const wins = lagnaWindows(dStr, lat, lon, tz, ayanamsa);
-            wins.forEach(w => {
-                // The Moon moves ~13° a day: use its sign at this lagna's middle, not the noon sign
-                const moonSid = normalizeDegrees(p.moon.sidereal + ((w.from + w.to) / 2 - 720) / 1440 * 13.18);
-                const pw = Object.assign({}, p, { moon: Object.assign({}, p.moon, { sidereal: moonSid, rashi: Math.floor(moonSid / 30) + 1 }) });
-                w.moonRashi = pw.moon.rashi;
-                w.faults86 = shloka86Faults(w.sign, pw);
-                const lord = RASHI_LORD[w.sign];
-                // श्लोक 83 (p.401–402): लग्नेश या गुरु की लग्न पर दृष्टि हो तो अन्ध/बधिर/पंगु दोष नहीं
-                w.sensoryCancelled = aspectsSign(lord, pw[lord].rashi, w.sign) || aspectsSign('jupiter', p.jupiter.rashi, w.sign);
-                // श्लोक 90–91 (p.410): गुरु लग्न से केन्द्र/त्रिकोण (सप्तम छोड़कर) — सब दोषों का परिहार
-                w.jupiterParihar = [1, 4, 5, 9, 10].includes(houseFrom(w.sign, p.jupiter.rashi));
-                w.segs = []; w.why = new Set();
-            });
-            let cur = null;
-            for (let min = 0; min < 1440; min++) {
-                const asc = siderealAscendant(localToJd(y, m, d, min + 0.5, tz), lat, lon, ayanamsa);
-                const sign = Math.floor(asc / 30) + 1;
-                const navIdx = Math.floor((asc % 30) / (30 / 9));
-                const nav = (Math.floor(asc * 9 / 30) % 12) + 1;
-                const w = wins.find(x => min >= x.from && min < x.to) || wins[wins.length - 1];
-                let grade = GOOD_NAVAMSHA[nav] || null;
-                if (!grade) w.why.add('nav');
-                // श्लोक 85 (p.403): अन्तिम नवांश वर्जित, वर्गोत्तम छोड़कर; चन्द्र तुला/मकर में हो तो चर लग्न में चर नवांश नहीं
-                if (grade && navIdx === 8 && nav !== sign) { grade = null; w.why.add('last'); }
-                if (grade && [7, 10].includes(w.moonRashi) && CHARA.includes(sign) && CHARA.includes(nav)) { grade = null; w.why.add('chara'); }
-                if (grade && !w.sensoryCancelled) {
-                    const isDay = sunAltitude(y, m, d, min + 0.5, lat, lon, tz, p.sun.sidereal, ayanamsa) > -0.833;
-                    const dosh = (isDay ? DAY_DOSHA : NIGHT_DOSHA)[sign];
-                    if (dosh) { grade = null; w.why.add(dosh); }
-                }
-                if (grade && w.faults86.length) grade = null;
-                if (grade) {
-                    if (cur && cur.w === w && cur.nav === nav && cur.to === min) cur.to = min + 1;
-                    else { cur = { w, nav, grade, from: min, to: min + 1 }; w.segs.push(cur); }
-                } else cur = null;
-            }
-            wins.forEach(w => w.segs.forEach(sg => delete sg.w));
-            return wins;
-        }
-        function whyLabel(w) {
-            if (w.faults86.length) return L('वर्जित — ', 'avoid — ') + w.faults86.join(', ') + L(' (श्लोक 86)', ' (shloka 86)');
-            const map = { badhir: L('बधिर', 'deaf'), andha: L('अन्ध', 'blind'), pangu: L('पंगु', 'lame'), nav: L('शुभ नवांश नहीं', 'no auspicious navamsha'), last: L('अन्तिम नवांश', 'last navamsha'), chara: L('चर लग्न-नवांश', 'movable lagna & navamsha') };
-            const sens = ['badhir', 'andha', 'pangu'].filter(k => w.why.has(k)).map(k => map[k]);
-            if (sens.length) return L('वर्जित — ', 'avoid — ') + sens.join(', ') + L(' लग्न (श्लोक 81)', ' lagna (shloka 81)');
-            return L('वर्जित — ', 'avoid — ') + map.nav;
+        // Why a lagna has no pure minute: its fixed faults first, then the reasons found
+        function whyText(w, LBL) {
+            if (w.faults && w.faults.length) return L('वर्जित — ', 'avoid — ') + w.faults.join(', ');
+            const keys = [...w.why];
+            if (!keys.length) return L('वर्जित', 'avoid');
+            const order = ['nav', 'last', 'chara', 'badhir', 'andha', 'pangu', 'vishopaka'];
+            const named = keys.filter(k => !order.includes(k)).map(k => (LBL && LBL[k]) || k);
+            const lagnaOnly = keys.filter(k => order.includes(k)).map(k => (LBL && LBL[k]) || k);
+            return L('वर्जित — ', 'avoid — ') + named.concat(lagnaOnly).slice(0, 6).join(', ');
         }
         const fmtMin = mins => {
             const h24 = Math.floor(mins / 60) % 24, mm = String(mins % 60).padStart(2, '0');
@@ -2592,20 +2568,28 @@
                     if (!VADHU_VARAN_NAKSHATRAS.includes(nakNumber)) doshas.push(badNak);
                 }
 
-                // Lagna shuddhi for this date at the groom's birthplace (श्लोक 81–86, 90–91)
+                // Full vivah shuddhi (vivah-shuddhi.js): every rule of Muhurta Chintamani, Vivah Prakaran,
+                // checked minute by minute at the groom's birthplace with the engine's chart for the date
                 const llat = Number(groomProfile.lat) || 28.61, llon = Number(groomProfile.lon) || 77.20;
-                // The engine (Swiss Ephemeris, true Chitra paksha) gives this date's noon lagna; the
-                // difference from the tropical ascendant at that moment is the day's ayanamsa.
-                const ayan = (typeof p.ayanamsa === 'number') ? p.ayanamsa
+                const ayan = (chart && chart.astronomy && typeof chart.astronomy.ayanamsa_deg === 'number') ? chart.astronomy.ayanamsa_deg
                     : normalizeDegrees(tropicalAscendant(localToJd(y, m, d, 720, 5.5), llat, llon) - p.asc.deg);
-                const wins = Number.isFinite(ayan) ? lagnaShuddhi(dStr, llat, llon, 5.5, ayan, p) : [];
+                const sh = (window.VivahShuddhi && chart) ? window.VivahShuddhi.analyzeDay({
+                    dStr, chart, lat: llat, lon: llon, tz: 5.5, ayanamsa: ayan, vivah: currentCeremony === 'vivah',
+                    groom: groomProfile, bride: brideProfile,
+                    groomEldest: !!(document.getElementById('groomEldest') || {}).checked,
+                    brideEldest: !!(document.getElementById('brideEldest') || {}).checked, L
+                }) : { dayDoshas: [], wins: [], labels: {} };
+                const wins = sh.wins, SH_LBL = sh.labels;
                 const goodWins = wins.filter(w => w.segs.length);
-                if (currentCeremony === 'vivah' && wins.length && !goodWins.length) {
-                    doshas.push(L('इस दिन शुद्ध विवाह-लग्न नहीं (श्लोक 81–86)', 'No pure marriage lagna on this day (shloka 81–86)'));
+                const absoluteDay = currentCeremony === 'vivah' && sh.dayDoshas.some(x => x.absolute);
+                if (currentCeremony === 'vivah') sh.dayDoshas.forEach(x => doshas.push(x.text));
+                if (currentCeremony === 'vivah' && wins.length && !goodWins.length && !absoluteDay) {
+                    doshas.push(L('इस दिन शुद्ध विवाह-लग्न नहीं (श्लोक 42–92 के सब दोष देखकर)', 'No pure marriage lagna on this day (all doshas of shlokas 42–92)'));
                 }
 
-                // श्लोक 90–91 (p.410): गुरु विवाह-लग्न से केन्द्र/त्रिकोण (सप्तम छोड़कर) में हो, ऐसा शुद्ध लग्न मिले तो परिहार
-                let pariharApplied = doshas.length > 0 && goodWins.some(w => w.jupiterParihar);
+                // श्लोक 90–91 (p.410): गुरु विवाह-लग्न से केन्द्र/त्रिकोण (सप्तम छोड़कर) में हो, ऐसा शुद्ध लग्न मिले तो परिहार;
+                // 21 महादोष / पूरे दिन के निषेध पर परिहार नहीं (वसिष्ठ, p.357)
+                let pariharApplied = !absoluteDay && doshas.length > 0 && goodWins.some(w => w.jupiterParihar);
 
                 const isZeroDosh = doshas.length === 0;
                 if (isZeroDosh) zeroDoshCount++;
@@ -2614,6 +2598,7 @@
                 if (pariharApplied) strength += 15;
                 if (strength > 100) strength = 100;
                 if (strength < 40) strength = 45;
+                if (absoluteDay || (currentCeremony === 'vivah' && wins.length && !goodWins.length)) strength = Math.min(strength, 45);
 
                 if (strength >= 85) uttamCount++;
                 else if (strength >= 65) madhyamCount++;
@@ -2627,7 +2612,7 @@
                 const lagnasHtml = !wins.length ? '' : `
                     <div class="lagna-good-line">
                         <b>${L('शुद्ध विवाह-लग्न', 'Pure marriage lagnas')}:</b>
-                        ${goodWins.length ? goodWins.map(w => w.segs.map(sg => `<span class="lagna-chip lagna-${sg.grade}" title="${rashiName(sg.nav)} ${L('नवांश', 'navamsha')}">${rashiName(w.sign)} · ${rashiName(sg.nav)} ${L('नवांश', 'nav.')} ${fmtMin(sg.from)}–${fmtMin(sg.to)}${w.jupiterParihar ? ' ★' : ''}</span>`).join(' ')).join(' ')
+                        ${goodWins.length ? goodWins.map(w => w.segs.map(sg => `<span class="lagna-chip lagna-${sg.grade}" title="${rashiName(sg.nav)} ${L('नवांश', 'navamsha')}">${rashiName(w.sign)} · ${rashiName(sg.nav)} ${L('नवांश', 'nav.')} ${fmtMin(sg.from)}–${fmtMin(sg.to)}${w.jupiterParihar ? ' ★' : ''} <small>(${L('विशोपक', 'vishopaka')} ${sg.vishopaka}/20)</small></span>`).join(' ')).join(' ')
                             : `<span style="color:#9B2C2C;">${L('कोई नहीं', 'none')}</span>`}
                     </div>
                     <div style="margin-top:6px;">
@@ -2638,10 +2623,10 @@
                             <b>${I18N[currentLang].lagnaHeader}</b>
                             ${wins.map(w => {
                                 const ok = w.segs.length > 0;
-                                const label = ok ? w.segs.map(sg => `${rashiName(sg.nav)} ${L('नवांश', 'nav.')} ${fmtMin(sg.from)}–${fmtMin(sg.to)} (${gradeLabel(sg.grade)})`).join(', ') : whyLabel(w);
+                                const label = ok ? w.segs.map(sg => `${rashiName(sg.nav)} ${L('नवांश', 'nav.')} ${fmtMin(sg.from)}–${fmtMin(sg.to)} (${gradeLabel(sg.grade)})`).join(', ') : whyText(w, SH_LBL);
                                 return `<div class="lagna-row"><span class="lagna-${ok ? 'shubh' : 'ashubh'}"><b>${rashiName(w.sign)}</b> — ${label}</span><span>${fmtMin(w.from)} – ${fmtMin(w.to)}</span></div>`;
                             }).join('')}
-                            <div style="margin-top:6px; font-size:11.5px; opacity:.8;">${L('★ = गुरु इस लग्न से केन्द्र/त्रिकोण में (श्लोक 90–91 परिहार)। नियम: मुहूर्त चिन्तामणि, विवाह प्रकरण श्लोक 81–86।', '★ = Jupiter in a kendra/trikona from this lagna (shloka 90–91 parihara). Rules: Muhurta Chintamani, Vivah Prakaran shlokas 81–86.')}</div>
+                            <div style="margin-top:6px; font-size:11.5px; opacity:.8;">${L('★ = गुरु इस लग्न से केन्द्र/त्रिकोण में (श्लोक 90–91 परिहार)। विशोपक बल (श्लोक 92): 15–20 उत्तम, 10–15 मध्यम, 5–10 निकृष्ट। नियम: मुहूर्त चिन्तामणि, विवाह प्रकरण।', '★ = Jupiter in a kendra/trikona from this lagna (shloka 90–91). Vishopaka (92): 15–20 best, 10–15 moderate, 5–10 weak. Rules: Muhurta Chintamani, Vivah Prakaran.')}</div>
                         </div>
                     </div>
                 `;
@@ -2712,6 +2697,24 @@
 
             const tabsWrapper = document.getElementById('resultsTabsWrapper');
             if (tabsWrapper) tabsWrapper.style.display = 'block';
+            // Couple-level warnings and the family checklist (श्लोक 15–20, p.302, 319–329)
+            const coupleBox = document.getElementById('coupleShastraBox');
+            if (coupleBox && window.VivahShuddhi) {
+                const warn = window.VivahShuddhi.coupleWarnings(groomProfile, brideProfile,
+                    !!(document.getElementById('groomEldest') || {}).checked, !!(document.getElementById('brideEldest') || {}).checked, L);
+                const checks = [
+                    L('वर-कन्या का गोत्र एक न हो; माता के कुल में 5 और पिता के कुल में 7 पीढ़ी तक सापिण्ड्य न हो (p.302)', 'Groom and bride not of the same gotra; no sapinda relation (5 generations on the mother\'s side, 7 on the father\'s) (p.302)'),
+                    L('कुल में पुत्र-विवाह के 6 सौर मास के भीतर कन्या-विवाह नहीं (श्लोक 16)', 'No daughter\'s wedding within 6 solar months of a son\'s wedding in the family (16)'),
+                    L('दो सहोदर भाइयों का दो सहोदर बहनों से, या एक वर का दो सहोदर कन्याओं से विवाह नहीं; अदला-बदली विवाह नहीं (श्लोक 16)', 'No two brothers with two sisters, no one groom with two sisters, no exchange marriage (16)'),
+                    L('एक माता की सन्तानों के विवाह में 6 मास का अन्तर; विवाह के 6 मास तक कुल में मुण्डन/उपनयन नहीं (श्लोक 16, 18)', '6 months between weddings of siblings; no mundan/upanayana in the family for 6 months after (16, 18)'),
+                    L('विवाह के बीच श्राद्ध नहीं; श्राद्ध के बाद ही मंगल कार्य (श्लोक 16)', 'No shraddha during the wedding; auspicious rites only after it (16)'),
+                    L('वाग्दान के बाद तीन पीढ़ी में मृत्यु हो तो 1 मास बाद, या सूतक-निवृत्ति व शान्ति के बाद (श्लोक 17)', 'A death in three generations after betrothal: wait a month, or until impurity ends with shanti (17)')
+                ];
+                coupleBox.innerHTML = `<h4 style="margin:0 0 8px;">${L('दम्पती व परिवार सम्बन्धी शास्त्रीय विचार', 'Couple & family checks from the text')}</h4>`
+                    + (warn.length ? `<ul class="couple-warn">${warn.map(x => `<li>${x}</li>`).join('')}</ul>` : `<p style="margin:0 0 8px; color:#15803d;">${L('जन्म-नक्षत्र से कोई दम्पती-दोष नहीं (श्लोक 19–20)।', 'No birth-nakshatra dosha for the couple (19–20).')}</p>`)
+                    + `<p style="margin:8px 0 4px; font-weight:600;">${L('ये बातें परिवार स्वयं जाँचें (गणना से नहीं निकलतीं):', 'Please confirm these yourselves (not computable):')}</p>`
+                    + `<ul class="couple-check">${checks.map(x => `<li>${x}</li>`).join('')}</ul>`;
+            }
             const doshaContainer = document.getElementById('doshaListContainer');
             if (doshaContainer) doshaContainer.innerHTML = doshaDetailsHtml || '<p style="color:var(--text-muted); font-size:13px;">' + L('कोई दोष नहीं मिला।', 'No doshas found.') + '</p>';
 
