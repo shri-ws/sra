@@ -797,9 +797,6 @@ html.sra-gd-lock, html.sra-gd-lock body { overflow: hidden !important; }
   :root body .sra-gn-burger { width: 38px !important; height: 38px !important; min-width: 0 !important; }
   :root body .sra-gn-brand-sub { display: none; }
 }
-@media (max-width: 350px) {
-  :root body .sra-gn-brand-txt { display: none; }
-}
 @media print { :root body .sra-gnav, :root body .sra-gdrawer, :root body .sra-gbackdrop { display: none !important; } }
 
 /* 13. PATRIKA: "सम्पूर्ण रिपोर्ट्स" HUB IN THE REPORTS TAB ─────────────── */
@@ -1048,8 +1045,15 @@ html[lang="en"] body .sra-gn-brand-sub { font-family: 'Cormorant Garamond', seri
    until the hamburger fits; the brand may shrink, the hamburger never does. */
 :root body .sra-gnav .sra-gn-squeezed { display: none !important; }
 :root body .sra-gn-inner { min-width: 0; }
-:root body .sra-gn-brand { flex: 0 1 auto; min-width: 0; overflow: hidden; }
-:root body .sra-gn-brand img { flex: none; }
+/* The logo and the name पत्रिका are never cut: the name is the last thing hidden */
+:root body .sra-gn-brand, :root body .sra-gn-brand img, :root body .sra-gn-brand-txt { flex: none; }
+@media (max-width: 380px) {
+  :root body .sra-gn-inner { padding: 0 8px; gap: 6px; }
+  :root body .sra-gn-brand { gap: 7px; }
+  :root body .sra-gn-brand img { width: 30px; height: 30px; }
+  :root body .sra-gn-brand-txt b.sra-gn-brand-name { font-size: 21px !important; }
+  html[lang="en"] body .sra-gn-brand-txt b.sra-gn-brand-name { font-size: 15px !important; letter-spacing: 1.5px; }
+}
 :root body .sra-gnav .sra-gn-burger { flex: none !important; }
 /* The closed drawer waits off-screen to the right; on some pages that let the page
    scroll sideways (Android shows a cut-off strip). Clip horizontally — 'clip', not

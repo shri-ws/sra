@@ -139,8 +139,9 @@
   // also in the drawer, one by one, until the hamburger fits. Order: globe (languages
   // are in the drawer), brand name, account, saved kundali, हि/EN. The theme toggle
   // and the hamburger always stay.
-  const SQUEEZE = ['.sra-gn-globe', '.sra-gn-brand-txt', '#navAuthArea', '.nav-user-pill-btn',
-    '[onclick*="openSavedKundaliModal"]', '.lang-pill-btn'];
+  // पत्रिका (the brand name) goes last: everything here is also in the drawer
+  const SQUEEZE = ['.sra-gn-globe', '#navAuthArea', '.nav-user-pill-btn',
+    '[onclick*="openSavedKundaliModal"]', '.lang-pill-btn', '.sra-gn-brand-txt'];
   function fitGnav() {
     const bar = document.querySelector('header.sra-gnav');
     if (!bar) return;
