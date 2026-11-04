@@ -540,11 +540,14 @@
           </div>
         </div>
 
-        <div class="pt-2">
+        <div class="pt-2 space-y-2">
           <button onclick="enterBlankPortal()" class="px-8 py-3 rounded-2xl blue-gradient text-white font-bold text-xs shadow-lg shadow-blue-500/20 hover:scale-105 transition flex items-center space-x-2 mx-auto">
             <span>पावन दीक्षा ट्रेनिंग व डैशबोर्ड में प्रवेश करें</span>
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </button>
+          <div class="text-[11px] text-slate-500 font-medium">
+            ⏳ (<span id="wizAutoEnterCountdown" class="font-bold text-blue-600">3</span> सेकंड में स्वतः ट्रेनिंग मॉड्यूल खुल रहा है...)
+          </div>
         </div>
       </div>
 
@@ -2372,7 +2375,7 @@
     <!-- ========================================================================= -->
     <!-- INTERACTIVE SUTRADHAR MASTERCLASS & COMPREHENSIVE TRAINING WALKTHROUGH -->
     <!-- ========================================================================= -->
-    <div id="sutradharTrainingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/95 backdrop-blur-md overflow-y-auto">
+    <div id="sutradharTrainingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md overflow-y-auto">
       
       <div class="bg-white border-2 border-slate-200 rounded-3xl w-full max-w-4xl p-4 sm:p-7 space-y-4 shadow-2xl relative animate-in fade-in zoom-in duration-200 max-h-[95vh] flex flex-col">
         
@@ -2978,6 +2981,30 @@
       </div>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- FLOATING BANNER IF MODAL IS TEMPORARILY CLOSED BUT TRAINING NOT COMPLETED -->
+    <!-- ========================================================================= -->
+    <div id="trainingLockOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/40 pointer-events-auto">
+      <div class="bg-white/95 backdrop-blur-md border-2 border-amber-300 rounded-3xl p-6 max-w-md w-full shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-200">
+        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl font-bold mx-auto border border-amber-300 shadow-xs">
+          🔒
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900">डैशबोर्ड सुरक्षा लॉक (प्रशिक्षण अनिवार्य)</h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            आधिकारिक सूत्रधार के रूप में कार्य करने व पेआउट प्राप्त करने हेतु सभी 6 प्रशिक्षण मॉड्यूल्स का अध्ययन अनिवार्य है। जब तक प्रशिक्षण पूरा नहीं होता, डैशबोर्ड लॉक रहेगा।
+          </p>
+        </div>
+        <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-amber-950 text-xs font-semibold">
+          प्रशिक्षण पूर्ण होते ही पावन डैशबोर्ड स्वतः 100% अनलॉक हो जाएगा।
+        </div>
+        <button type="button" onclick="resumeTrainingWalkthrough()" class="w-full py-3.5 rounded-2xl blue-gradient text-white font-bold text-xs shadow-lg shadow-blue-500/20 hover:scale-102 transition flex items-center justify-center space-x-2">
+          <span>▶️ प्रशिक्षण जारी रखें (मॉड्यूल 1-6)</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <!-- ========================================================================= -->
@@ -3446,6 +3473,22 @@
         if (stepBadge) stepBadge.innerText = 'स्टेप 4/4: ऑनबोर्डिंग पूर्ण';
         if (progressText) progressText.innerText = 'सूत्रधार क्रेडेंशियल्स सक्रिय (100%)';
         if (percentText) percentText.innerText = '100%';
+
+        // Start countdown to automatically transition to training masterclass!
+        let countdownSec = 3;
+        const countSpan = document.getElementById('wizAutoEnterCountdown');
+        if (countSpan) countSpan.innerText = countdownSec;
+
+        if (window.wizAutoTimer) clearInterval(window.wizAutoTimer);
+        window.wizAutoTimer = setInterval(() => {
+          countdownSec--;
+          if (countSpan) countSpan.innerText = countdownSec;
+          if (countdownSec <= 0) {
+            clearInterval(window.wizAutoTimer);
+            window.wizAutoTimer = null;
+            enterBlankPortal();
+          }
+        }, 1000);
       }
       try { lucide.createIcons(); } catch(e){}
     }
@@ -3616,31 +3659,37 @@
     }
 
     // =========================================================================
-    // STEP 3: TRANSITION TO TRAINING MODULE (DASHBOARD CONCEALED UNTIL TRAINED)
+    // STEP 3: TRANSITION TO TRAINING MODULE (DASHBOARD BLURRED UNTIL TRAINED)
     // =========================================================================
     function enterBlankPortal() {
-      // 1. Hide Onboarding Wizard completely
+      // 1. Clear any auto countdown timer
+      if (window.wizAutoTimer) {
+        clearInterval(window.wizAutoTimer);
+        window.wizAutoTimer = null;
+      }
+
+      // 2. Hide Onboarding Wizard completely
       const wizView = document.getElementById('onboardingWizardView');
       if (wizView) {
         wizView.classList.add('hidden');
         wizView.style.display = 'none';
       }
 
-      // 2. Hide Main Dashboard Container initially so ONLY training modal shows!
+      // 3. Hide auth gate & show main wrapper
+      const authGate = document.getElementById('sutradharAuthGate');
+      if (authGate) authGate.style.display = 'none';
+
+      const appWrapper = document.getElementById('sutradharAppWrapper');
+      if (appWrapper) appWrapper.style.display = 'flex';
+
+      // 4. Ensure Main Dashboard Container is UNHIDDEN and visible!
       const mainApp = document.getElementById('mainAppContainer');
       if (mainApp) {
-        mainApp.classList.add('hidden');
-        mainApp.style.display = 'none';
+        mainApp.classList.remove('hidden');
+        mainApp.style.display = 'flex';
       }
 
-      // 3. Ensure blur classes are clean
-      const blurWrapper = document.getElementById('dashboardBlurWrapper');
-      if (blurWrapper) {
-        blurWrapper.classList.remove('filter', 'blur-md', 'pointer-events-none', 'select-none');
-        blurWrapper.style.filter = 'none';
-        blurWrapper.style.pointerEvents = 'auto';
-      }
-
+      // 5. Update session in localStorage: onboarding complete, training pending!
       let session = null;
       try {
         session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
@@ -3659,6 +3708,9 @@
       }
 
       session.onboarding_completed = true;
+      if (session.training_completed !== true) {
+        session.training_completed = false;
+      }
       session.name = registeredCandidate.name || session.name;
       session.phone = registeredCandidate.phone || session.phone;
       session.email = registeredCandidate.email || session.email;
@@ -3666,26 +3718,44 @@
       session.upi_id = registeredCandidate.upi_id || session.upi_id;
       localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
 
-      // 4. Start the Full Focused Training Masterclass immediately!
-      startTrainingWalkthrough();
-    }
+      // 6. Populate real candidate details so behind the blur, their real info shows
+      populatePortalCandidateInfo(registeredCandidate);
 
-    // TRAINING WALKTHROUGH CONTROLS
-    function startTrainingWalkthrough() {
-      // Hide onboarding wizard if still open
-      const wizView = document.getElementById('onboardingWizardView');
-      if (wizView) {
-        wizView.classList.add('hidden');
-        wizView.style.display = 'none';
+      // 7. CRITICAL: BLUR THE ENTIRE DASHBOARD (sidebar, header, content)!
+      const blurWrapper = document.getElementById('dashboardBlurWrapper');
+      if (blurWrapper) {
+        blurWrapper.classList.add('filter', 'blur-md', 'pointer-events-none', 'select-none');
+        blurWrapper.style.filter = 'blur(12px)';
+        blurWrapper.style.pointerEvents = 'none';
+        blurWrapper.style.userSelect = 'none';
       }
 
-      // Reveal Training Modal in full focus
+      const bNav = document.getElementById('mobileBottomNav');
+      if (bNav) {
+        bNav.classList.add('filter', 'blur-sm', 'pointer-events-none');
+      }
+
+      // 8. Ensure lock overlay is hidden when training modal is active
+      const lockOverlay = document.getElementById('trainingLockOverlay');
+      if (lockOverlay) {
+        lockOverlay.classList.add('hidden');
+        lockOverlay.style.display = 'none';
+      }
+
+      // 9. IMMEDIATELY OPEN TRAINING MASTERCLASS MODAL!
       const trainModal = document.getElementById('sutradharTrainingModal');
       if (trainModal) {
         trainModal.classList.remove('hidden');
         trainModal.style.display = 'flex';
       }
       goToTrainSlide(1);
+      try { lucide.createIcons(); } catch(e){}
+      showToast('📖 सूत्रधार दीक्षा प्रशिक्षण प्रारंभ: सभी 6 मॉड्यूल्स का अध्ययन करें।');
+    }
+
+    // TRAINING WALKTHROUGH CONTROLS
+    function startTrainingWalkthrough() {
+      enterBlankPortal();
     }
 
     function handleTrainingModalClose() {
@@ -3695,11 +3765,35 @@
       } catch(e) { session = {}; }
 
       if (!session.training_completed) {
-        if (!confirm('प्रशिक्षण के सभी 6 मॉड्यूल्स को समझना सफल सूत्रधार बनने हेतु अनिवार्य है। क्या आप सचमुच डैशबोर्ड में जाना चाहते हैं?')) {
-          return;
+        // Training NOT complete: hide training modal, but keep dashboard 100% blurred and show lock overlay
+        const trainModal = document.getElementById('sutradharTrainingModal');
+        if (trainModal) {
+          trainModal.classList.add('hidden');
+          trainModal.style.display = 'none';
         }
+        const lockOverlay = document.getElementById('trainingLockOverlay');
+        if (lockOverlay) {
+          lockOverlay.classList.remove('hidden');
+          lockOverlay.style.display = 'flex';
+        }
+        showToast('🔒 प्रशिक्षण पूर्ण होने तक डैशबोर्ड सुरक्षा लॉक (Blur) में रहेगा।');
+        return;
       }
       completeTrainingWalkthrough();
+    }
+
+    function resumeTrainingWalkthrough() {
+      const lockOverlay = document.getElementById('trainingLockOverlay');
+      if (lockOverlay) {
+        lockOverlay.classList.add('hidden');
+        lockOverlay.style.display = 'none';
+      }
+      const trainModal = document.getElementById('sutradharTrainingModal');
+      if (trainModal) {
+        trainModal.classList.remove('hidden');
+        trainModal.style.display = 'flex';
+      }
+      goToTrainSlide(currentTrainSlide || 1);
     }
 
     function goToTrainSlide(slideNum) {
@@ -3814,19 +3908,32 @@
         trainModal.style.display = 'none';
       }
 
-      // 2. UNHIDE AND DISPLAY MAIN DASHBOARD CONTAINER!
+      // 2. Hide Lock Overlay
+      const lockOverlay = document.getElementById('trainingLockOverlay');
+      if (lockOverlay) {
+        lockOverlay.classList.add('hidden');
+        lockOverlay.style.display = 'none';
+      }
+
+      // 3. UNHIDE AND DISPLAY MAIN DASHBOARD CONTAINER!
       const mainApp = document.getElementById('mainAppContainer');
       if (mainApp) {
         mainApp.classList.remove('hidden');
         mainApp.style.display = 'flex';
       }
 
-      // 3. UNBLUR THE DASHBOARD!
+      // 4. UNBLUR THE DASHBOARD!
       const blurWrapper = document.getElementById('dashboardBlurWrapper');
       if (blurWrapper) {
-        blurWrapper.classList.remove('filter', 'blur-md', 'pointer-events-none', 'select-none');
+        blurWrapper.classList.remove('filter', 'blur-md', 'blur-lg', 'pointer-events-none', 'select-none');
         blurWrapper.style.filter = 'none';
         blurWrapper.style.pointerEvents = 'auto';
+        blurWrapper.style.userSelect = 'auto';
+      }
+
+      const bNav = document.getElementById('mobileBottomNav');
+      if (bNav) {
+        bNav.classList.remove('filter', 'blur-sm', 'pointer-events-none');
       }
 
       let session = null;
@@ -3836,10 +3943,12 @@
       session.training_completed = true;
       localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
 
-      unlockPortal(registeredCandidate);
+      if (registeredCandidate) registeredCandidate.training_completed = true;
+
+      unlockPortal(registeredCandidate || session, true);
       loadRegisteredLeads();
       switchTab('dashboard');
-      showToast(`🎉 साधुवाद! आपका सूत्रधार प्रशिक्षण पूरा हुआ। आपका पावन डैशबोर्ड अब अनलॉक है।`);
+      showToast(`🎉 साधुवाद! आपका सूत्रधार प्रशिक्षण पूरा हुआ। आपका पावन डैशबोर्ड अब पूर्णतः अनलॉक है।`);
     }
 
     // =========================================================================
@@ -5245,6 +5354,24 @@
         const candidateRealEmail = emailParam || '';
         const sutraId = 'SUTRA-' + (userParam ? userParam.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + '-01';
 
+        // Check if there is already an active session for this candidate in localStorage
+        let existingSession = null;
+        try {
+          existingSession = JSON.parse(localStorage.getItem('sra_sutradhar_session'));
+        } catch(e) {}
+
+        if (existingSession && (existingSession.phone === userParam || existingSession.sutradhar_id === sutraId)) {
+          if (existingSession.onboarding_completed) {
+            if (!existingSession.training_completed) {
+              // Onboarding complete, but training NOT complete! Keep blurred & show training!
+              enterBlankPortal();
+            } else {
+              unlockPortal(existingSession, true);
+            }
+            return;
+          }
+        }
+
         const fallbackData = {
           authenticated: true,
           name: candidateRealName,
@@ -5252,7 +5379,8 @@
           email: candidateRealEmail,
           sutradhar_id: sutraId,
           role: 'सूत्रधार लेवल 1',
-          onboarding_completed: false
+          onboarding_completed: false,
+          training_completed: false
         };
 
         // Cache session immediately so refreshing keeps them logged in
@@ -5270,7 +5398,10 @@
             data.name = data.name || candidateRealName;
             data.email = data.email || candidateRealEmail;
             data.sutradhar_id = data.sutradhar_id || sutraId;
-            data.onboarding_completed = fallbackData.onboarding_completed;
+            let curSession = {};
+            try { curSession = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {}; } catch(e){}
+            data.onboarding_completed = curSession.onboarding_completed || false;
+            data.training_completed = curSession.training_completed || false;
             localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
           }
         }).catch(err => {
@@ -5288,7 +5419,11 @@
 
       if (session && (session.phone || session.sutradhar_id)) {
         if (session.onboarding_completed) {
-          unlockPortal(session);
+          if (!session.training_completed) {
+            enterBlankPortal();
+          } else {
+            unlockPortal(session, true);
+          }
         } else {
           startOnboardingForCandidate(session);
         }
@@ -5300,7 +5435,9 @@
       document.getElementById('sutradharAppWrapper').style.display = 'none';
     }
 
-    function unlockPortal(data) {
+    function unlockPortal(data, forceUnlockBlur = false) {
+      if (!data) data = registeredCandidate || {};
+
       // Ensure legacy modal is completely closed
       const legacyModal = document.getElementById('candidateRegisterModal');
       if (legacyModal) {
@@ -5321,25 +5458,67 @@
         mainApp.style.display = 'flex';
       }
 
-      // Ensure wizard & training popups are hidden
+      // Ensure wizard view is hidden
       const wizView = document.getElementById('onboardingWizardView');
       if (wizView) {
         wizView.classList.add('hidden');
         wizView.style.display = 'none';
       }
+
+      let session = null;
+      try {
+        session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
+      } catch(e) { session = {}; }
+
+      const isTrainingComplete = forceUnlockBlur || (session && session.training_completed === true);
+
       const trainModal = document.getElementById('sutradharTrainingModal');
-      if (trainModal) {
-        trainModal.classList.add('hidden');
-        trainModal.style.display = 'none';
+      const lockOverlay = document.getElementById('trainingLockOverlay');
+      const blurWrapper = document.getElementById('dashboardBlurWrapper');
+      const bNav = document.getElementById('mobileBottomNav');
+
+      if (isTrainingComplete) {
+        // Training is complete: hide modal and lock overlay, clear all blur
+        if (trainModal) {
+          trainModal.classList.add('hidden');
+          trainModal.style.display = 'none';
+        }
+        if (lockOverlay) {
+          lockOverlay.classList.add('hidden');
+          lockOverlay.style.display = 'none';
+        }
+        if (blurWrapper) {
+          blurWrapper.classList.remove('filter', 'blur-md', 'blur-lg', 'pointer-events-none', 'select-none');
+          blurWrapper.style.filter = 'none';
+          blurWrapper.style.pointerEvents = 'auto';
+          blurWrapper.style.userSelect = 'auto';
+        }
+        if (bNav) {
+          bNav.classList.remove('filter', 'blur-sm', 'pointer-events-none');
+        }
+      } else {
+        // Training NOT complete: Keep blurred and open training modal!
+        if (blurWrapper) {
+          blurWrapper.classList.add('filter', 'blur-md', 'pointer-events-none', 'select-none');
+          blurWrapper.style.filter = 'blur(12px)';
+          blurWrapper.style.pointerEvents = 'none';
+          blurWrapper.style.userSelect = 'none';
+        }
+        if (bNav) {
+          bNav.classList.add('filter', 'blur-sm', 'pointer-events-none');
+        }
+        if (trainModal) {
+          trainModal.classList.remove('hidden');
+          trainModal.style.display = 'flex';
+        }
+        goToTrainSlide(currentTrainSlide || 1);
       }
 
-      // Ensure blur is removed so dashboard is crystal clear
-      const blurWrapper = document.getElementById('dashboardBlurWrapper');
-      if (blurWrapper) {
-        blurWrapper.classList.remove('filter', 'blur-md', 'pointer-events-none', 'select-none');
-        blurWrapper.style.filter = 'none';
-        blurWrapper.style.pointerEvents = 'auto';
-      }
+      populatePortalCandidateInfo(data);
+    }
+
+    function populatePortalCandidateInfo(data) {
+      if (!data) return;
 
       // Display linked UPI ID in sidebar
       const sidebarUpi = document.getElementById('sidebarUserUpi');
@@ -5467,8 +5646,18 @@
           data.name = data.name || name;
           data.email = email;
           data.whatsapp = wa;
+          let curSession = {};
+          try { curSession = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {}; } catch(e){}
+          data.onboarding_completed = curSession.onboarding_completed || data.onboarding_completed || false;
+          data.training_completed = curSession.training_completed || data.training_completed || false;
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
-          unlockPortal(data);
+          if (!data.onboarding_completed) {
+            startOnboardingForCandidate(data);
+          } else if (!data.training_completed) {
+            enterBlankPortal();
+          } else {
+            unlockPortal(data, true);
+          }
           showToast(currentLang === 'en' ? `Welcome, ${data.name}!` : `सफलतापूर्वक प्रवेश! स्वागत है ${data.name}।`);
           return;
         } else {
@@ -5481,10 +5670,12 @@
               email: email,
               whatsapp: wa,
               sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
-              role: 'सूत्रधार लेवल 2'
+              role: 'सूत्रधार लेवल 2',
+              onboarding_completed: true,
+              training_completed: false
             };
             localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
-            unlockPortal(masterData);
+            enterBlankPortal();
             showToast(currentLang === 'en' ? `Welcome, ${masterData.name}!` : 'सफलतापूर्वक प्रवेश!');
             return;
           }
@@ -5516,10 +5707,12 @@
             email: email,
             whatsapp: wa,
             sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
-            role: 'सूत्रधार लेवल 2'
+            role: 'सूत्रधार लेवल 2',
+            onboarding_completed: true,
+            training_completed: false
           };
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
-          unlockPortal(masterData);
+          enterBlankPortal();
           showToast('सफलतापूर्वक प्रवेश!');
           return;
         }
