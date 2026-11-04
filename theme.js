@@ -1576,7 +1576,7 @@
     <div>
       <h3 style="color: #e2b04a; font-family: 'Cinzel', serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 14px; letter-spacing: 0.5px;">Patrika by Shri Ram Ji Astro</h3>
       <p style="font-size: 0.88rem; line-height: 1.65; color: #94a3b8; margin: 0;">
-        The gold standard in classical Vedic astrology software. Powered by True Chitra Paksha (Lahiri) Ayanamsa, 60-Term Meeus Lunar Expansion, and precise OpenStreetMap GPS Geocoding.
+        The gold standard in classical Vedic astrology software.
       </p>
     </div>
     <div>

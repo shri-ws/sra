@@ -138,7 +138,7 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
       } catch (err) {
         console.error("SRA Parashara Canonical Microservice failure:", err);
         throw new Error(
-          "गणना सर्वर (Swiss Ephemeris Microservice) अनुपलब्ध है।\n" +
+          "गणना सर्वर अनुपलब्ध है।\n" +
           "कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।\n" +
           (err.message || err)
         );
