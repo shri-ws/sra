@@ -1006,3 +1006,38 @@ html[lang="en"] body .sra-gn-brand-sub { font-family: 'Cormorant Garamond', seri
   padding-top: clamp(26px, 4.5vw, 52px) !important;
   padding-bottom: clamp(26px, 4.5vw, 52px) !important;
 }
+
+/* 18. SITE FOOTER — readable in day and night ─────────────────────────────────
+   Footers were written with dark-only inline colours (white headings, blue links,
+   slate text) while the shared footer background turns light in day mode, so the
+   text vanished. Route every footer through the theme tokens instead. */
+:root body .site-global-footer, :root body footer.sra-footer {
+  background: var(--footer-bg) !important;
+  color: var(--sra-ink-soft) !important;
+  border-top: 1px solid var(--sra-hair) !important;
+}
+:root body .site-global-footer :is(p, li, span, div, em, small, td),
+:root body footer.sra-footer :is(p, li, span, div, em, small) { color: var(--sra-ink-soft) !important; }
+:root body .site-global-footer :is(h2, h3, h4, h5, strong, b, .footer-heading),
+:root body footer.sra-footer :is(h3, h4, strong, b) { color: var(--sra-kumkum) !important; }
+:root body .site-global-footer a, :root body footer.sra-footer a { color: var(--sra-gold-deep) !important; text-decoration: none; }
+:root body .site-global-footer a:hover, :root body footer.sra-footer a:hover { color: var(--sra-sindoor) !important; }
+:root body .site-global-footer a *, :root body footer.sra-footer a * { color: inherit !important; }
+:root body .site-global-footer [style*="border-top"], :root body footer.sra-footer [style*="border-top"] { border-top-color: var(--sra-hair) !important; }
+
+/* Social links (sra-ui.js adds them above the copyright line): small single-tone
+   outline icons in a circle, in the site's gold / maroon. */
+:root body .sra-social { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 22px 0 6px; }
+:root body .sra-social a {
+  width: 36px; height: 36px; border-radius: 50%; display: inline-grid; place-items: center; text-decoration: none;
+  border: 1.5px solid var(--sra-gold-deep) !important; color: var(--sra-gold-deep) !important; background: transparent;
+  transition: background .25s, color .25s, border-color .25s, transform .25s;
+}
+:root body .sra-social a:hover {
+  background: var(--sra-kumkum); border-color: var(--sra-kumkum) !important; color: #F6E7C1 !important; transform: translateY(-2px);
+}
+[data-theme="night"] body .sra-social a:hover { background: var(--sra-gold); border-color: var(--sra-gold) !important; color: #120E09 !important; }
+:root body .sra-social a:focus-visible { outline: 2px solid var(--sra-gold); outline-offset: 3px; }
+:root body .sra-social svg {
+  width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}

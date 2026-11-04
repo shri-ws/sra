@@ -1,6 +1,7 @@
 /* SHRI RAMJI ASTRO — SHARED UI CHROME (presentation only, no calculations)
    1. Surya Dev / Chandra Dev day-night toggle, identical on every page
    2. Gentle reveal-on-scroll movement for cards and sections
+   3. Facebook / Instagram / YouTube icons in every footer
    Loaded with `defer` after theme.js on every public page. */
 (function() {
   // ══════════════════════════════════════════════════════════════════════════
@@ -295,6 +296,71 @@
     new MutationObserver(later).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
     PHONE.addEventListener('change', scan);
     window.addEventListener('resize', later);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+
+// ══════════════════════════════════════════════════════════════════════════
+// 3. FOOTER SOCIAL LINKS — Facebook, Instagram, YouTube as small outline icons
+//    in a circle, placed just above the copyright line of every footer. Pages
+//    swap their footer late (theme.js), so new footers are watched for.
+// ══════════════════════════════════════════════════════════════════════════
+(function() {
+  const LINKS = [
+    { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61589251948855',
+      icon: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>' },
+    { name: 'Instagram', href: 'https://instagram.com/astro_raamji',
+      icon: '<rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>' },
+    { name: 'YouTube', href: 'https://www.youtube.com/@astro_raamji',
+      icon: '<path d="M22.5 6.4a2.8 2.8 0 0 0-2-2C18.9 4 12 4 12 4s-6.9 0-8.6.4a2.8 2.8 0 0 0-1.9 2A29 29 0 0 0 1 11.8a29 29 0 0 0 .5 5.3 2.8 2.8 0 0 0 1.9 1.9c1.7.5 8.6.5 8.6.5s6.9 0 8.6-.5a2.8 2.8 0 0 0 1.9-1.9 29 29 0 0 0 .5-5.3 29 29 0 0 0-.5-5.4z"/><path d="M9.8 15l5.7-3.2-5.7-3.3z"/>' }
+  ];
+
+  function buildRow() {
+    const row = document.createElement('div');
+    row.className = 'sra-social';
+    row.setAttribute('aria-label', 'Shri Ramji Astro on social media');
+    row.innerHTML = LINKS.map(l =>
+      `<a href="${l.href}" target="_blank" rel="noopener noreferrer" aria-label="${l.name}" title="${l.name}">` +
+      `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${l.icon}</svg></a>`).join('');
+    return row;
+  }
+
+  // The block holding the © line, so the icons sit right above it
+  function copyrightBlock(footer) {
+    const walker = document.createTreeWalker(footer, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue.indexOf('©') !== -1) return node.parentElement.closest('p, div') || null;
+    }
+    return null;
+  }
+
+  function addTo(footer) {
+    if (footer.querySelector('.sra-social')) return;
+    let copy = copyrightBlock(footer);
+    // A © line inside a side-by-side bottom bar: put the icons above the whole bar
+    if (copy && copy.parentElement !== footer && copy.parentElement.children.length > 1 &&
+        /flex|grid/.test(getComputedStyle(copy.parentElement).display)) copy = copy.parentElement;
+    const row = buildRow();
+    if (copy && copy !== footer && footer.contains(copy)) copy.parentElement.insertBefore(row, copy);
+    else footer.appendChild(row);
+  }
+
+  function ensure() {
+    document.querySelectorAll('footer.site-global-footer, footer.sra-footer').forEach(addTo);
+  }
+
+  let queued = false;
+  function later() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; ensure(); });
+  }
+
+  function start() {
+    ensure();
+    new MutationObserver(later).observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('load', ensure);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
