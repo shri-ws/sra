@@ -42,7 +42,7 @@
       { href: 'course.html', label: L('ज्योतिष कोर्स', 'Jyotish Course'), icon: '🎓' },
       { href: 'srai.html', label: L('SRA AI', 'SRA AI'), icon: '🤖' },
       { href: 'about.html', label: L('अबाउट व जर्नल', 'About & Journal'), icon: '🪷' },
-      { href: 'careers.html', label: L('करियर (सूत्रधार आमंत्रण)', 'Careers & Sutradhar'), icon: '🏛️', badge: 'Apply' }
+      { href: 'careers.html', label: L('Careers', 'Careers'), icon: '🏛️', drawerOnly: true }
     ] },
     { href: 'consultation.html', label: L('1-on-1 परामर्श', '1-on-1 Consultation'), icon: '🔱', accent: true }
   ];
@@ -74,16 +74,19 @@
   // ── Markup ──────────────────────────────────────────────────────────────
   function desktopLinks() {
     return MENU.map((m, i) => {
+      if (m.drawerOnly) return '';
       if (!m.items) {
         return `<a class="sra-gn-link${m.accent ? ' sra-gn-accent' : ''}" href="${m.href}"${isHere(m.href) ? ' aria-current="page"' : ''}>${esc(t(m.label))}</a>`;
       }
-      const active = m.items.some(it => isHere(it.href));
+      const visibleItems = m.items.filter(it => !it.drawerOnly);
+      if (!visibleItems.length) return '';
+      const active = visibleItems.some(it => isHere(it.href));
       return `<div class="sra-gn-dd" data-dd="${i}">
         <button type="button" class="sra-gn-link sra-gn-dd-btn${active ? ' is-active' : ''}" aria-haspopup="true" aria-expanded="false">
           ${esc(t(m.label))}<svg class="sra-gn-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>
         </button>
         <div class="sra-gn-dd-menu" role="menu">
-          ${m.items.map(it => `<a role="menuitem" href="${it.href}"${isHere(it.href) ? ' aria-current="page"' : ''}>
+          ${visibleItems.map(it => `<a role="menuitem" href="${it.href}"${isHere(it.href) ? ' aria-current="page"' : ''}>
             <span class="sra-gn-ico" aria-hidden="true">${it.icon}</span><span class="sra-gn-txt">${esc(t(it.label))}</span>${it.badge ? `<span class="sra-gn-badge">${it.badge}</span>` : ''}
           </a>`).join('')}
         </div>
@@ -96,6 +99,7 @@
       <span class="sra-gn-ico" aria-hidden="true">${it.icon}</span><span class="sra-gn-txt">${esc(t(it.label))}</span>${it.badge ? `<span class="sra-gn-badge">${it.badge}</span>` : ''}</a>`;
     let html = row({ href: 'index.html', label: T.home, icon: '🏠' });
     MENU.forEach(m => {
+      if (m.drawerOnly) { html += row(m); return; }
       if (!m.items) { html += row(m); return; }
       html += `<div class="sra-gd-group"><div class="sra-gd-head">${m.icon} ${esc(t(m.label))}</div>${m.items.map(row).join('')}</div>`;
     });
