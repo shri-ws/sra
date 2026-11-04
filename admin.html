@@ -747,6 +747,22 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 
     <!-- 🤝 CAREERS & SUTRADHAR APPLICATION MANAGEMENT -->
     <div class="panel" id="panel-careers">
+      <!-- Auth Notice if not signed in with Google -->
+      <div id="careerAuthNotice" style="margin-bottom:18px; padding:14px 18px; background:linear-gradient(135deg, rgba(217,119,6,0.12), rgba(180,130,32,0.06)); border:1px solid rgba(217,119,6,0.35); border-left:4px solid #f59e0b; border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="font-size:24px;">🔐</div>
+          <div>
+            <strong style="color:var(--gold); font-size:13.5px;">लाइव क्लाउड डेटा एक्सेस (Firebase Sign-in)</strong>
+            <p style="font-size:12px; color:var(--muted); margin:3px 0 0; line-height:1.5;">
+              अभ्यर्थियों द्वारा ऑनलाइन भरे गए लाइव आवेदन देखने हेतु अपने एडमिन गूगल खाते (<strong>eshriee@gmail.com</strong> अथवा <strong>shriramjiastro7@gmail.com</strong>) से 1-क्लिक साइन इन करें।
+            </p>
+          </div>
+        </div>
+        <button class="social-btn social-btn-primary" style="font-size:12px; padding:8px 18px; font-weight:700;" onclick="signInFromCareerPanel()">
+          🔑 Google से साइन इन करें
+        </button>
+      </div>
+
       <!-- Top Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card gold">
@@ -1111,6 +1127,8 @@ function renderAll(){
   renderUserQueryRows('users-tbody', D.users);
   renderEmailRows('emails-tbody', [...(window.SRAAdminData ? SRAAdminData.accountRows() : []), ...D.users]);
   renderReviewRows('reviews-tbody', D.reviews);
+  renderCareerRows('careers-tbody', D.careers);
+  updateCareerStats(D.careers);
 }
 
 function renderRecentPaymentRows(tbodyId, rows){
@@ -1574,69 +1592,62 @@ async function saveSocialSettings() {
 /* ══ CAREERS & SUTRADHAR APPLICATIONS ══ */
 async function fetchCareerApplications() {
   let list = [];
+  const seen = new Set();
 
-  // 1. First priority: Read directly from Firestore via SRAAdminData
-  if (window.SRAAdminData) {
-    try {
-      const fsList = await SRAAdminData.list('career_applications');
-      if (fsList && Array.isArray(fsList) && fsList.length) {
-        list = fsList;
-      }
-    } catch(e) {
-      console.warn("fetchCareerApplications SRAAdminData notice:", e);
+  function addItem(item) {
+    if (!item) return;
+    const k = item.id || item.phone;
+    if (k && !seen.has(k)) {
+      seen.add(k);
+      list.push(Object.assign({}, item, {
+        id: item.id || ('SRA-APP-' + String(item.phone || '').slice(-6)),
+        name: item.name || item.candidate_name || 'प्रत्याशी',
+        phone: item.phone || '',
+        city: item.city || item.location || '—',
+        experience: item.experience || item.bio || '—',
+        status: item.status || 'pending',
+        created_at: item.created_at || (item.createdAt && item.createdAt.toDate ? item.createdAt.toDate().toISOString() : new Date().toISOString())
+      }));
     }
   }
 
-  // 2. Also check user_queries for any applications saved via fallback
+  // 1. Check D.users (which was already fetched from user_queries in loadAll)
+  if (D.users && Array.isArray(D.users)) {
+    D.users.filter(u => 
+      u.query_type === 'CAREER_APPLICATION' || 
+      u.application_type === 'sutradhar' || 
+      (u.sutradhar_id && !u.dob) ||
+      (u.id && String(u.id).startsWith('SRA-APP-'))
+    ).forEach(addItem);
+  }
+
+  // 2. Query SRAAdminData user_queries directly if admin is signed in
   if (window.SRAAdminData && SRAAdminData.isAdmin()) {
     try {
       const uq = await SRAAdminData.list('user_queries');
-      const careerUq = (uq || []).filter(u => u.query_type === 'CAREER_APPLICATION' || u.application_type === 'sutradhar');
-      const seen = new Set(list.map(a => a.id || a.phone));
-      careerUq.forEach(u => {
-        const k = u.id || u.phone;
-        if (!seen.has(k)) {
-          list.push(u);
-          seen.add(k);
-        }
-      });
+      (uq || []).filter(u => 
+        u.query_type === 'CAREER_APPLICATION' || 
+        u.application_type === 'sutradhar' || 
+        (u.sutradhar_id && !u.dob) ||
+        (u.id && String(u.id).startsWith('SRA-APP-'))
+      ).forEach(addItem);
     } catch(e) {}
   }
 
-  // 3. Try backend API endpoint with valid master key / token
-  try {
-    const adminKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'JAIHANUMAN';
-    const res = await fetch(`api/get_career_applications.php?admin_key=${encodeURIComponent(adminKey)}`, {
-      headers: { 'X-Admin-Auth': adminKey }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.applications && Array.isArray(data.applications)) {
-        const seen = new Set(list.map(a => a.id || a.phone));
-        data.applications.forEach(app => {
-          const k = app.id || app.phone;
-          if (!seen.has(k)) {
-            list.push(app);
-            seen.add(k);
-          }
-        });
+  // 3. Try SRAAdminData career_applications
+  if (window.SRAAdminData) {
+    try {
+      const fsList = await SRAAdminData.list('career_applications');
+      if (fsList && Array.isArray(fsList)) {
+        fsList.forEach(addItem);
       }
-    }
-  } catch(e) {
-    console.warn("fetchCareerApplications API notice:", e);
+    } catch(e) {}
   }
 
   // 4. Merge with local storage fallback
   try {
     const local = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
-    const seen = new Set(list.map(a => a.id || a.phone));
-    local.forEach(l => {
-      const k = l.id || l.phone;
-      if (!seen.has(k)) {
-        list.push(l);
-        seen.add(k);
-      }
-    });
+    local.forEach(addItem);
   } catch(e) {}
 
   // 5. Seed default demo application if totally empty so table is never blank
@@ -1659,6 +1670,9 @@ async function fetchCareerApplications() {
         created_at: "2026-11-04 10:30:00"
       }
     ];
+  } else if (list.length > 1) {
+    // If real candidate submissions exist, filter out placeholder demo entry
+    list = list.filter(item => item.id !== "SRA-APP-261104-101");
   }
 
   // Sort descending by created_at
@@ -1667,10 +1681,27 @@ async function fetchCareerApplications() {
   D.careers = list;
   renderCareerRows('careers-tbody', D.careers);
   updateCareerStats(D.careers);
+
+  // Update Auth Notice banner in careers panel
+  const authNotice = document.getElementById('careerAuthNotice');
+  if (authNotice) {
+    const isSigned = !!(window.SRAAdminData && SRAAdminData.isAdmin());
+    authNotice.style.display = isSigned ? 'none' : 'flex';
+  }
+
   return list;
 }
 
 window.loadCareerApplications = fetchCareerApplications;
+
+function signInFromCareerPanel() {
+  if (window.SRAAdminAccounts && SRAAdminAccounts.signIn) {
+    SRAAdminAccounts.signIn();
+  } else {
+    const btn = document.getElementById('acc-signin');
+    if (btn) btn.click();
+  }
+}
 
 function updateCareerStats(rows) {
   const total = rows.length;

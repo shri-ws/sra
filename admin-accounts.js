@@ -195,7 +195,7 @@
     login_method: 'GOOGLE', created_at: (toDate(r.profile.lastLoginAt) || toDate(r.profile.createdAt) || new Date(0)).toISOString()
   }));
 
-  window.SRAAdminAccounts = { load };
+  window.SRAAdminAccounts = { load, signIn };
   window.SRAAdminData = { whenAdmin, list, update, remove, accountRows, isAdmin: () => !!adminUser, ready: () => accountsLoaded };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();

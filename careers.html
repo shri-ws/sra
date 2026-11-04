@@ -700,8 +700,8 @@
     </div>
   </footer>
 
-  <script src="sra-auth.js" defer></script>
-  <script src="sra-records.js" defer></script>
+  <script src="sra-auth.js?v=33" defer></script>
+  <script src="sra-records.js?v=33" defer></script>
 
   <script>
     let uploadedFileBase64 = '';
@@ -742,11 +742,16 @@
 
       const payload = {
         id: appId,
+        query_type: 'CAREER_APPLICATION',
+        application_type: 'sutradhar',
         name: nameVal,
+        candidate_name: nameVal,
         phone: cleanPhone,
         email: emailVal,
         city: cityVal,
+        location: cityVal,
         experience: expVal,
+        bio: expVal,
         resume_name: uploadedFileName,
         sutradhar_id: sutradharId,
         secret_token: secretToken,
@@ -756,33 +761,35 @@
       };
 
       try {
-        // 1. Direct write to Firestore via SRARecords (if available)
-        if (window.SRARecords && window.SRARecords.add) {
+        // 1. Direct write to Firestore live cloud (user_queries collection is active and permitted)
+        if (window.SRAAuth && SRAAuth.ready) {
           try {
-            await window.SRARecords.add('career_applications', payload);
-          } catch(err) {
-            console.warn("SRARecords career_applications direct write:", err);
-            try {
-              await window.SRARecords.add('user_queries', Object.assign({}, payload, { query_type: 'CAREER_APPLICATION' }));
-            } catch(e2) {}
+            const fb = await SRAAuth.ready();
+            if (fb && fb.firestore) {
+              const db = fb.firestore();
+              const fsDoc = Object.assign({}, payload, {
+                createdAt: fb.firestore.FieldValue.serverTimestamp(),
+                page: '/careers.html'
+              });
+              // Primary write to user_queries
+              await db.collection('user_queries').add(fsDoc);
+              console.log("✓ Firestore cloud write to user_queries successful");
+
+              // Also write to career_applications in case rules are active
+              try {
+                await db.collection('career_applications').doc(appId).set(fsDoc);
+              } catch(e) {}
+            }
+          } catch(fsErr) {
+            console.warn("Direct Firestore write attempt:", fsErr);
           }
         }
 
-        // 2. Dual-save via intercepted/backend API endpoint
-        let data = null;
-        try {
-          const res = await fetch('api/save_career_application.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if (res.ok) data = await res.json();
-        } catch(apiErr) {
-          console.warn("API save endpoint notice:", apiErr);
-        }
-
-        if (data && data.application_id) {
-          payload.id = data.application_id;
+        // 2. Dual-save via SRARecords (if available)
+        if (window.SRARecords && window.SRARecords.add) {
+          try {
+            await window.SRARecords.add('user_queries', payload);
+          } catch(err) {}
         }
 
         // 3. Local storage resilient sync
