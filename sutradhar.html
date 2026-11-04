@@ -282,6 +282,12 @@
         <span data-i18n="btnTraining">ट्रेनिंग गाइड पुनः देखें</span>
       </button>
 
+      <!-- Quick Restart Onboarding Button -->
+      <button onclick="restartOnboardingFlow()" type="button" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-600"></i>
+        <span>ऑनबोर्डिंग टेस्ट 🔄</span>
+      </button>
+
       <!-- Persona / Role Selector -->
       <div class="hidden xl:flex items-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1">
         <span class="text-xs text-slate-500 mr-2 flex items-center">
@@ -5348,29 +5354,11 @@
       const otpInput = document.getElementById('gateOtpCode');
       if (otpInput) otpInput.value = ''; // Always fresh/blank
 
-      // 1. If URL has secret invite credentials (via WhatsApp invite link from Admin)
-      if (authParam || (userParam && passParam)) {
+      // 1. If URL has secret invite credentials (via WhatsApp invite link from Admin) OR explicit onboard/reset param
+      if (authParam || (userParam && passParam) || urlParams.get('onboard') || urlParams.get('reset')) {
         const candidateRealName = nameParam || (userParam ? ('सूत्रधार ' + userParam.slice(-4)) : 'अधिकृत सूत्रधार');
         const candidateRealEmail = emailParam || '';
         const sutraId = 'SUTRA-' + (userParam ? userParam.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + '-01';
-
-        // Check if there is already an active session for this candidate in localStorage
-        let existingSession = null;
-        try {
-          existingSession = JSON.parse(localStorage.getItem('sra_sutradhar_session'));
-        } catch(e) {}
-
-        if (existingSession && (existingSession.phone === userParam || existingSession.sutradhar_id === sutraId)) {
-          if (existingSession.onboarding_completed) {
-            if (!existingSession.training_completed) {
-              // Onboarding complete, but training NOT complete! Keep blurred & show training!
-              enterBlankPortal();
-            } else {
-              unlockPortal(existingSession, true);
-            }
-            return;
-          }
-        }
 
         const fallbackData = {
           authenticated: true,
@@ -5383,7 +5371,7 @@
           training_completed: false
         };
 
-        // Cache session immediately so refreshing keeps them logged in
+        // Cache fresh onboarding session so Onboarding Wizard starts cleanly
         localStorage.setItem('sra_sutradhar_session', JSON.stringify(fallbackData));
         startOnboardingForCandidate(fallbackData);
         showToast(`अभिनंदन ${candidateRealName}! सूत्रधार ऑनबोर्डिंग दीक्षा आरंभ।`);
@@ -5418,14 +5406,12 @@
       } catch(e) {}
 
       if (session && (session.phone || session.sutradhar_id)) {
-        if (session.onboarding_completed) {
-          if (!session.training_completed) {
-            enterBlankPortal();
-          } else {
-            unlockPortal(session, true);
-          }
-        } else {
+        if (!session.onboarding_completed) {
           startOnboardingForCandidate(session);
+        } else if (!session.training_completed) {
+          enterBlankPortal();
+        } else {
+          unlockPortal(session, true);
         }
         return;
       }
@@ -5671,12 +5657,12 @@
               whatsapp: wa,
               sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
               role: 'सूत्रधार लेवल 2',
-              onboarding_completed: true,
+              onboarding_completed: false,
               training_completed: false
             };
             localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
-            enterBlankPortal();
-            showToast(currentLang === 'en' ? `Welcome, ${masterData.name}!` : 'सफलतापूर्वक प्रवेश!');
+            startOnboardingForCandidate(masterData);
+            showToast(currentLang === 'en' ? `Welcome, ${masterData.name}!` : 'सफलतापूर्वक प्रवेश! सूत्रधार ऑनबोर्डिंग दीक्षा आरंभ।');
             return;
           }
 
@@ -5708,12 +5694,12 @@
             whatsapp: wa,
             sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
             role: 'सूत्रधार लेवल 2',
-            onboarding_completed: true,
+            onboarding_completed: false,
             training_completed: false
           };
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
-          enterBlankPortal();
-          showToast('सफलतापूर्वक प्रवेश!');
+          startOnboardingForCandidate(masterData);
+          showToast('सफलतापूर्वक प्रवेश! सूत्रधार ऑनबोर्डिंग दीक्षा आरंभ।');
           return;
         }
         errBox.textContent = currentLang === 'en' ? 'Server connection error. Please try again.' : 'सर्वर से संपर्क नहीं हो सका। कृपया पुनः प्रयास करें।';
@@ -5722,6 +5708,21 @@
         btn.disabled = false;
         btn.innerHTML = `<span data-i18n="btnEnterPortal">${I18N_DICT[currentLang]?.btnEnterPortal || 'पोर्टल में प्रवेश करें'}</span> <span>➔</span>`;
       }
+    }
+
+    function restartOnboardingFlow() {
+      let session = null;
+      try { session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {}; } catch(e) { session = {}; }
+      session.onboarding_completed = false;
+      session.training_completed = false;
+      localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
+
+      if (registeredCandidate) {
+        registeredCandidate.onboarding_completed = false;
+        registeredCandidate.training_completed = false;
+      }
+      startOnboardingForCandidate(registeredCandidate || session);
+      showToast('🔄 सूत्रधार ऑनबोर्डिंग दीक्षा पुनः प्रारंभ की गई!');
     }
 
     function doSutradharLogout() {
