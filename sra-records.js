@@ -64,9 +64,26 @@
 
   async function careerApplications() {
     const fb = await firebaseReady();
-    const snap = await fb.firestore().collection('career_applications').get();
-    return snap.docs.map(d => Object.assign({ id: d.id }, d.data()))
-      .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+    const items = [];
+    const seen = new Set();
+    const addDoc = (d) => {
+      const data = d.data();
+      const id = data.id || d.id || data.phone;
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        items.push(Object.assign({ id: d.id }, data));
+      }
+    };
+    try {
+      const snap1 = await fb.firestore().collection('career_applications').get();
+      snap1.docs.forEach(addDoc);
+    } catch(e) {}
+    try {
+      const snap2 = await fb.firestore().collection('user_queries')
+        .where('query_type', '==', 'CAREER_APPLICATION').get();
+      snap2.docs.forEach(addDoc);
+    } catch(e) {}
+    return items.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
   }
 
   async function updateCareerStatus(id, status) {
@@ -192,20 +209,18 @@
           recData.resume_snippet = recData.resume_data.slice(0, 1000);
           delete recData.resume_data;
         }
-        return addSoon('career_applications', recData).then(rec => json({
+        const uqData = Object.assign({}, recData, { query_type: 'CAREER_APPLICATION', application_type: 'sutradhar' });
+        const p1 = addSoon('user_queries', uqData).catch(() => null);
+        const p2 = addSoon('career_applications', recData).catch(() => null);
+        return Promise.all([p1, p2]).then(() => json({
           status: 'success',
-          application_id: (rec && rec.id) || appId,
+          application_id: appId,
           candidate_name: data.name,
           phone: cleanPhone,
           secret_token: token,
           secret_pass: pass,
           message: "आपका आवेदन सफलतापूर्वक प्राप्त हो गया है।"
-        }, 200)).catch(async () => {
-          try {
-            await addSoon('user_queries', Object.assign({}, recData, { query_type: 'CAREER_APPLICATION' }));
-          } catch(e) {}
-          return json({ status: 'success', application_id: appId, candidate_name: data.name, phone: cleanPhone }, 200);
-        });
+        }, 200));
       }
     }
 

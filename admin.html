@@ -1146,21 +1146,28 @@ async function loadAll(){
 
   setLoading();
 
-  const [students, payments, consultations, forum, users, reviews, careers] = await Promise.all([
+  // Fetch user_queries first so career applications can immediately inspect user_queries
+  let users = [];
+  try {
+    users = await fetchUserQueries();
+  } catch(e) {
+    console.warn("fetchUserQueries error:", e);
+  }
+  D.users = users;
+
+  const [students, payments, consultations, forum, reviews, careers] = await Promise.all([
     fetchTable('students'),
     fetchPayments(),
     fetchConsultations(),
     fetchTable('forum_posts'),
-    fetchUserQueries(),
     fetchReviews(),
-    fetchCareerApplications()
+    fetchCareerApplications(users)
   ]);
 
   D.students     = students;
   D.payments     = payments;
   D.consultations= consultations;
   D.forum        = forum;
-  D.users        = users;
   D.reviews      = reviews;
   D.careers      = careers;
 
@@ -1853,7 +1860,7 @@ async function saveSocialSettings() {
 }
 
 /* ══ CAREERS & SUTRADHAR APPLICATIONS ══ */
-async function fetchCareerApplications() {
+async function fetchCareerApplications(passedUsers) {
   let list = [];
   const seen = new Set();
 
@@ -1888,15 +1895,19 @@ async function fetchCareerApplications() {
     console.warn("Could not fetch server career applications:", err);
   }
 
-  // 1. Check D.users (which was already fetched from user_queries in loadAll)
-  if (D.users && Array.isArray(D.users)) {
-    D.users.filter(u => 
+  // 1. Check passedUsers and D.users (fetched from user_queries)
+  const candidatePool = (passedUsers && Array.isArray(passedUsers) && passedUsers.length)
+    ? passedUsers
+    : (D.users && Array.isArray(D.users) ? D.users : []);
+
+  candidatePool.filter(u => 
+    u && (
       u.query_type === 'CAREER_APPLICATION' || 
       u.application_type === 'sutradhar' || 
       (u.sutradhar_id && !u.dob) ||
       (u.id && String(u.id).startsWith('SRA-APP-'))
-    ).forEach(addItem);
-  }
+    )
+  ).forEach(addItem);
 
   // 2. Query SRAAdminData user_queries directly if admin is signed in
   if (window.SRAAdminData && SRAAdminData.isAdmin()) {

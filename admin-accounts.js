@@ -279,7 +279,6 @@
   }
 
   async function list(collection) {
-    if (!adminUser && collection !== 'career_applications') return [];
     try {
       const ctx = await ensureAdminFirebase();
       const snap = await ctx.firestore.collection(collection).get();
