@@ -302,9 +302,11 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
   .tbl td::before{top:7px;width:auto;right:12px}
   .tbl td[data-label=""], .tbl td:not([data-label]){padding-top:8px !important}
 }
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 </style>
-<script src="sra-master.js" defer></script>
-<script src="admin-accounts.js" defer></script>
+<script src="admin-accounts.js?v=20261105_04" defer></script>
 </head>
 <body>
 
@@ -315,8 +317,8 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <h2 style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);margin-bottom:6px">श्री राम जी एस्ट्रो · एडमिन</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:24px">सुरक्षित व्यवस्थापक पोर्टल (Admin Dashboard)</p>
 
-    <!-- Unified 1-Click Google Sign In -->
-    <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.25);border-radius:14px;padding:22px 18px;margin-bottom:16px;">
+    <!-- Unified 1-Click Google Sign In (NO PASSWORDS) -->
+    <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.25);border-radius:14px;padding:24px 18px;margin-bottom:16px;">
       <div style="font-size:12.5px;color:var(--text);margin-bottom:14px;line-height:1.5;">
         डैशबोर्ड में प्रवेश के लिए अपने अधिकृत Google खाते से लॉगिन करें:
       </div>
@@ -337,20 +339,6 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     </div>
 
     <div class="login-err" id="loginErr" style="margin-bottom:12px;font-weight:600;min-height:18px;"></div>
-
-    <!-- Emergency Passcode Accordion -->
-    <details style="margin-top:12px;text-align:left;font-size:12px;color:var(--muted);border-top:1px dashed var(--border);padding-top:10px;">
-      <summary style="cursor:pointer;user-select:none;color:var(--muted);outline:none;font-size:11.5px;">
-        ⚙️ आपातकालीन मास्टर की (Emergency Passcode)
-      </summary>
-      <div style="margin-top:12px;">
-        <div class="lf" style="margin-bottom:8px;">
-          <label>Master Passcode</label>
-          <input type="password" id="lp" placeholder="मास्टर पासवर्ड दर्ज करें" onkeydown="if(event.key==='Enter')doPasscodeLogin()"/>
-        </div>
-        <button class="login-btn" style="padding:10px;font-size:11px;" onclick="doPasscodeLogin()" type="button">Enter with Passcode</button>
-      </div>
-    </details>
   </div>
 </div>
 
@@ -900,19 +888,10 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 /* ══ CONFIG ══ */
 const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
-const ADMIN_USER = 'panditji';
-
 /* ══ DATA CACHE ══ */
 let D = { students:[], payments:[], consultations:[], forum:[], users:[], careers:[] };
 
-/* ══ LOGIN & AUTH RESTORATION ══ */
-async function hashPass(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Login: owner master key only (sra-master.js / api/master_key.php)
-
+/* ══ UNIFIED GOOGLE ADMIN AUTHENTICATION ══ */
 async function doGoogleAdminLogin() {
   const btn = document.getElementById('googleAdminBtn');
   const err = document.getElementById('loginErr');
@@ -958,42 +937,21 @@ async function doGoogleAdminLogin() {
   }
 }
 
-function doPasscodeLogin(){
-  try {
-    const lp = document.getElementById('lp');
-    const p = lp ? lp.value.trim() : '';
-    const err = document.getElementById('loginErr');
-    const isMaster = !!(window.sraIsMasterKey && window.sraIsMasterKey(p));
-
-    if(isMaster){
-      sessionStorage.setItem('sra_admin_auth', 'true');
-      sessionStorage.setItem('sra_admin_token', p);
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      if (err) err.textContent = '';
-      const badge = document.getElementById('admin-user-badge');
-      if (badge) badge.textContent = '🔑 Master Admin';
-      loadAll();
-    } else {
-      if (err) err.textContent = 'अमान्य मास्टर पासकोड।';
-    }
-  } catch(e) {
-    console.error("doPasscodeLogin error:", e);
-    const err = document.getElementById('loginErr');
-    if (err) err.textContent = 'लॉगिन त्रुटि। कृपया पुनः प्रयास करें।';
-  }
-}
-
 function checkAdminAuth() {
-  if (sessionStorage.getItem('sra_admin_auth') === 'true') {
-    const loginScr = document.getElementById('loginScreen');
-    const appScr = document.getElementById('app');
+  const isGoogleAdmin = !!(window.SRAAdminAccounts && SRAAdminAccounts.isAdminSignedIn && SRAAdminAccounts.isAdminSignedIn());
+  const loginScr = document.getElementById('loginScreen');
+  const appScr = document.getElementById('app');
+
+  if (isGoogleAdmin) {
     if (loginScr) loginScr.style.display = 'none';
     if (appScr) appScr.style.display = 'block';
-    const email = sessionStorage.getItem('sra_admin_email');
+    const email = sessionStorage.getItem('sra_admin_email') || 'shriramjiastro7@gmail.com';
     const badge = document.getElementById('admin-user-badge');
     if (badge && email) badge.textContent = '👤 ' + email;
     loadAll();
+  } else {
+    if (loginScr) loginScr.style.display = 'flex';
+    if (appScr) appScr.style.display = 'none';
   }
 }
 
@@ -1015,8 +973,7 @@ async function doLogout(){
 
 /* ══ FETCH ══ */
 async function fetchTable(table){
-  const isAuth = sessionStorage.getItem('sra_admin_auth') === 'true';
-  if (!isAuth && (!window.SRAAdminData || !SRAAdminData.isAdmin())) return [];
+  if (!window.SRAAdminData || !SRAAdminData.isAdmin()) return [];
   try {
     if (window.SRAAdminData && SRAAdminData.list) {
       return await SRAAdminData.list(table);
