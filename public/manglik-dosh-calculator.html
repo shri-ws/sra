@@ -127,24 +127,27 @@
       document.head.appendChild(s);
     }
   </script>
+  <script src="sra-config.js"></script>
   <script src="/patrikaEngineBridge.js?v=13"></script>
   <script src="/mangalDoshaService.js?v=13"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <style>
     :root {
-      --primary: #7c1305;
-      --primary-dark: #580c02;
-      --primary-light: #fdf2f2;
-      --gold: #c5a059;
-      --gold-dark: #9a7b38;
-      --gold-light: #fef9c3;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --border-gold: rgba(197, 160, 89, 0.4);
+      /* Colours follow the shared home palette (sra-elegance.css --sra-* tokens),
+         so the tone matches the site and light⇄night switch automatically. */
+      --primary: var(--sra-kumkum);
+      --primary-dark: var(--sra-kumkum);
+      --primary-light: var(--sra-wash);
+      --gold: var(--sra-gold);
+      --gold-dark: var(--sra-gold-deep);
+      --gold-light: var(--sra-wash);
+      --bg: var(--sra-paper);
+      --card-bg: var(--sra-vellum);
+      --text: var(--sra-ink);
+      --text-muted: var(--sra-muted);
+      --border: var(--sra-hair);
+      --border-gold: var(--sra-hair-strong);
       --font-serif: 'Cinzel', serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
       --font-hindi: 'Mukta', 'Noto Sans Devanagari', sans-serif;
@@ -153,19 +156,9 @@
       --shadow-lg: 0 20px 35px -10px rgba(124, 19, 5, 0.15), 0 1px 3px rgba(0,0,0,0.05);
     }
 
+    /* Night mode inherits the shared warm-dark palette through the --sra-* tokens
+       (no more slate); only the shadow gets a night value. */
     [data-theme="night"] {
-      --primary: #991b1b;
-      --primary-dark: #7f1d1d;
-      --primary-light: #2c0b0e;
-      --gold: #d4af37;
-      --gold-dark: #b48220;
-      --gold-light: #3f2e05;
-      --bg: #090d16;
-      --card-bg: #111827;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --border: #1e293b;
-      --border-gold: rgba(212, 175, 55, 0.3);
       --shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
@@ -725,7 +718,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 6px 12px;
-      background: #fffcf6;
+      background: var(--card-bg);
       border: 1px solid var(--border-gold);
       border-radius: 8px;
       padding: 8px 12px;
@@ -801,7 +794,7 @@
       box-shadow: 0 4px 16px rgba(180, 83, 9, 0.08);
     }
     .kundli-snapshot-box {
-      background: #fffcf6;
+      background: var(--card-bg);
       border: 1.5px solid var(--border-gold);
       border-radius: 12px;
       padding: 8px;
@@ -966,7 +959,7 @@
     .parihara-audit-card {
       background: var(--card-bg, #fff);
       border: 1px solid var(--border);
-      border-left: 3.5px solid #cbd5e1;
+      border-left: 3.5px solid var(--border-gold);
       border-radius: 8px;
       padding: 8px 10px;
       font-size: 12px;
@@ -1392,6 +1385,14 @@
     }
   </style>
   <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js?v=32" defer></script>
+<script src="sra-auth.js" defer></script>
+<script src="sra-records.js" defer></script>
+<script src="sra-translate.js" defer></script>
+<script src="sra-nav.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </head>
 <body>
 
@@ -1449,55 +1450,96 @@
         <p>100% Accurate Manglik Dosha Calculator (त्रि-लग्न, नवांश D9 व २१ शास्त्रीय परिहार)</p>
       </div>
 
-      <!-- SAVED KUNDALI SELECTION & ACTION CARD (Hidden: Report is auto-rendered directly) -->
-      <div class="saved-kundali-selector-card" id="savedKundaliSelectorCard" style="display:none !important;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+      <!-- SAVED KUNDALI: the shared "सेव्ड कुंडली से चुनें" button (sra-saved-pick.js) & Dropdown -->
+      <div class="saved-kundali-selector-card" id="savedKundaliSelectorCard" style="margin-bottom:20px; background:var(--card-bg); border:1.5px solid var(--border-gold); border-radius:14px; padding:16px 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
           <div>
-            <div style="font-size:12px; font-weight:800; color:var(--gold-dark); text-transform:uppercase; letter-spacing:0.8px;">
+            <div style="font-size:11.5px; font-weight:800; color:var(--gold-dark); text-transform:uppercase; letter-spacing:0.8px;">
               📁 सुरक्षित जन्म पत्रिका चयन • KUNDALI ARCHIVE
             </div>
-            <h3 style="margin:2px 0 0; font-size:18px; color:var(--primary); font-family:var(--font-hindi); font-weight:800;">
-              जिस जातक की मंगल रिपोर्ट देखनी है, उसे चुनें
+            <h3 style="margin:2px 0 0; font-size:16px; color:var(--primary); font-family:var(--font-hindi); font-weight:800;">
+              पहले से सुरक्षित कुंडली से विवरण भरें
             </h3>
           </div>
-          <button type="button" class="btn-new-kundali-picker" onclick="openNewOrPatrikaKundaliModal()" style="background:rgba(180,83,9,0.08); border:1.5px solid var(--gold); color:var(--primary); padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px; font-family:var(--font-hindi); display:inline-flex; align-items:center; gap:6px;">
-            <span>✨</span> <span>नई जन्म पत्रिका / विवरण बदलें</span>
-          </button>
+          <div id="sraPickSlotManglik"></div>
         </div>
 
         <!-- Dropdown of Saved Kundalis -->
         <div id="savedKundaliSelectWrapper">
-          <label for="selSavedKundali" style="display:block; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--text);">
-            सुरक्षित कुण्डली सूची (<span id="savedKundaliCountBadge">0</span> उपलब्ध):
-          </label>
-          <select id="selSavedKundali" onchange="onSavedKundaliSelected()" style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border-gold); background:var(--card-bg); color:var(--text); font-size:15px; font-family:var(--font-hindi); font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-            <!-- Populated dynamically via JS -->
+          <select id="selSavedKundali" onchange="onSavedKundaliSelected()" style="width:100%; padding:11px 14px; border-radius:10px; border:1.5px solid var(--border-gold); background:var(--bg); color:var(--text); font-size:14.5px; font-family:var(--font-hindi); font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+            <option value="">-- सुरक्षित कुण्डली से चुनें (वैकल्पिक) --</option>
           </select>
         </div>
+      </div>
 
-        <!-- Selected Kundali Details Badge -->
-        <div id="selectedKundaliDetailsBox" style="margin-top:14px; background:rgba(180,83,9,0.04); border:1px dashed var(--gold); border-radius:10px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div style="font-size:13.5px; color:var(--text); line-height:1.6;">
-            <strong>जातक:</strong> <span id="dispSelectedName" style="color:var(--primary); font-weight:800;">—</span> • 
-            <strong>जन्म:</strong> <span id="dispSelectedBirth">—</span> • 
-            <strong>स्थान:</strong> <span id="dispSelectedPlace">—</span>
+      <!-- ON-PAGE BIRTH DETAILS FORM (Blank by default) -->
+      <div class="calc-card" style="background:var(--card-bg); border:1.5px solid var(--border-gold); border-radius:16px; padding:24px 20px; box-shadow:0 8px 24px rgba(180,83,9,0.06);">
+        <form id="manglikForm" onsubmit="event.preventDefault(); handleMangalReportGenerateClick();">
+          <div class="form-group">
+            <label for="mangalName"><span>👤</span> जातक का नाम (Full Name)</label>
+            <input type="text" id="mangalName" placeholder="उदा. राहुल शर्मा" required />
           </div>
-          <span style="font-size:11.5px; background:rgba(16,185,129,0.12); color:#059669; font-weight:800; padding:3px 10px; border-radius:12px;">
-            ✓ सत्य अयनांश गणना हेतु तैयार
-          </span>
-        </div>
 
-        <!-- Primary Generation & Payment Trigger Button -->
-        <div style="margin-top:20px; text-align:center;">
-          <button type="button" id="btnCalculate" onclick="handleMangalReportGenerateClick()" style="width:100%; max-width:580px; margin:0 auto; padding:16px 24px; font-size:17.5px; font-weight:800; font-family:var(--font-hindi); border-radius:12px; border:none; background:linear-gradient(135deg, #7c1305, #dc2626); color:#fff; cursor:pointer; box-shadow:0 8px 20px rgba(124,19,5,0.35); display:inline-flex; align-items:center; justify-content:center; gap:10px; transition:all 0.3s ease;">
-            <span>🔥</span>
-            <span id="btnCalculateLabel">मंगल दोष एवं २१ परिहार रिपोर्ट जनरेट करें (₹199 के पेमेंट पर)</span>
-            <span>➔</span>
-          </button>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">
-            🔒 100% सुरक्षित 256-bit Razorpay • Swiss Ephemeris (JPL DE431 आधारित) व सत्य चित्रा पक्ष अयनांश • २१ शास्त्रीय परिहार व A4 PDF
+          <div class="form-group">
+            <label for="mangalGender"><span>⚧</span> लिंग (Gender)</label>
+            <select id="mangalGender" style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text); font-size:14.5px;">
+              <option value="male" selected>वर / पुरुष (Male)</option>
+              <option value="female">कन्या / महिला (Female)</option>
+            </select>
           </div>
-        </div>
+
+          <div class="form-group">
+            <label for="mangalDob"><span>📅</span> जन्म तिथि (Date of Birth)</label>
+            <input type="date" id="mangalDob" required />
+          </div>
+
+          <div class="form-group">
+            <label for="mangalTob"><span>⏰</span> जन्म समय (Time of Birth)</label>
+            <input type="time" id="mangalTob" step="1" required />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="mangalCity"><span>📍</span> जन्म स्थान / नगर (Birth City)</label>
+            <input type="text" id="mangalCity" list="presetCitiesMangal" placeholder="उदा. New Delhi, Varanasi, Lucknow..." required />
+            <datalist id="presetCitiesMangal">
+              <option value="New Delhi, DL" data-lat="28.6139" data-lon="77.2090"></option>
+              <option value="Varanasi, UP" data-lat="25.3176" data-lon="82.9739"></option>
+              <option value="Lucknow, UP" data-lat="26.8467" data-lon="80.9462"></option>
+              <option value="Mumbai, MH" data-lat="19.0760" data-lon="72.8777"></option>
+              <option value="Jaipur, RJ" data-lat="26.9124" data-lon="75.7873"></option>
+              <option value="Ayodhya, UP" data-lat="26.7922" data-lon="82.1998"></option>
+              <option value="Prayagraj, UP" data-lat="25.4358" data-lon="81.8463"></option>
+              <option value="Kolkata, WB" data-lat="22.5726" data-lon="88.3639"></option>
+              <option value="Bengaluru, KA" data-lat="12.9716" data-lon="77.5946"></option>
+              <option value="Sitapur, UP" data-lat="27.5700" data-lon="80.6800"></option>
+            </datalist>
+            <input type="hidden" id="mangalLat" value="28.6139" />
+            <input type="hidden" id="mangalLon" value="77.2090" />
+            <input type="hidden" id="mangalTz" value="5.5" />
+          </div>
+
+          <!-- Hidden legacy helper tags for compatibility -->
+          <span id="dispSelectedName" style="display:none;"></span>
+          <span id="dispSelectedBirth" style="display:none;"></span>
+          <span id="dispSelectedPlace" style="display:none;"></span>
+
+          <!-- Primary Generation & Payment Trigger Button -->
+          <div style="grid-column: 1 / -1; margin-top:8px; text-align:center;">
+            <button type="submit" id="btnCalculate">
+              <span>🔥</span>
+              <span id="btnCalculateLabel">मंगल दोष एवं २१ परिहार रिपोर्ट देखें (₹199 के पेमेंट पर)</span>
+              <span>➔</span>
+            </button>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+              🔒 100% सुरक्षित 256-bit Razorpay • सत्य चित्रा पक्ष अयनांश • २१ शास्त्रीय परिहार व A4 PDF
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- PAYWALL CARD VIEW (Rendered if not unlocked) -->
+      <div id="manglikPaywallView" style="display:none; margin-top:26px;">
+        <!-- Paywall UI with lock badge, summary, price, pay button -->
       </div>
 
       <!-- UNLOCKED FULL A4 REPORT DISPLAY (Populated after payment / unlock) -->
@@ -1742,7 +1784,7 @@
             <span>▾</span>
           </button>
           <div class="faq-answer">
-            हमारा मंगल दोष एवं परिहार कैलकुलेटर Swiss Ephemeris (JPL DE431 आधारित) (&lt;0.001" परिशुद्धता) एवं सत्य चित्रा पक्ष अयनांश (Mode 27) पर आधारित है। यह केवल लग्न ही नहीं, बल्कि चंद्रमा और शुक्र से मंगल की स्थिति, D9 नवांश वर्गोत्तम बल और 21 शास्त्रीय परिहार नियमों को स्वतः स्कैन कर नेट दोष प्रतिशत निकालता है।
+            हमारा मंगल दोष एवं परिहार कैलकुलेटर सत्य चित्रा पक्ष अयनांश (Mode 27) पर आधारित है। यह केवल लग्न ही नहीं, बल्कि चंद्रमा और शुक्र से मंगल की स्थिति, D9 नवांश वर्गोत्तम बल और 21 शास्त्रीय परिहार नियमों को स्वतः स्कैन कर नेट दोष प्रतिशत निकालता है।
           </div>
         </div>
 
@@ -1807,7 +1849,7 @@
       <div>
         <div class="footer-title">SHRI RAMJI ASTRO (SRA)</div>
         <p style="font-size:13px; line-height:1.6; color:#94a3b8;">
-          Swiss Ephemeris (JPL DE431 आधारित) (&lt;0.001" परिशुद्धता), सत्य चित्रा पक्ष अयनांश (Mode 27) एवं प्राचीन संहिता ग्रंथों पर आधारित भारत का सर्वाधिक प्रामाणिक वैदिक ज्योतिष संस्थान।
+          सत्य चित्रा पक्ष अयनांश (Mode 27) एवं प्राचीन संहिता ग्रंथों पर आधारित भारत का सर्वाधिक प्रामाणिक वैदिक ज्योतिष संस्थान।
         </p>
       </div>
       <div>
@@ -1848,14 +1890,10 @@
         </p>
       </div>
 
-      <!-- Quick Switch from Saved Kundalis if any exist -->
-      <div id="modalSavedKundaliQuickSwitch" style="margin-bottom:14px; display:none;">
-        <label for="selModalSavedKundali" style="display:block; font-size:12.5px; font-weight:700; margin-bottom:4px; color:var(--text);">
-          📁 सुरक्षित कुण्डली में से चुनें:
-        </label>
-        <select id="selModalSavedKundali" onchange="onModalSavedKundaliPicked()" style="width:100%; padding:10px 12px; border-radius:8px; border:1.5px solid var(--border-gold); background:var(--card-bg); color:var(--text); font-size:13.5px; font-family:var(--font-hindi); font-weight:600;">
-        </select>
-        <div style="text-align:center; margin:12px 0 8px; font-size:11.5px; color:var(--text-muted); font-weight:700;">— अथवा नई जन्म पत्रिका का विवरण भरें —</div>
+      <!-- Saved kundalis: the shared "सेव्ड कुंडली से चुनें" button (sra-saved-pick.js) -->
+      <div style="text-align:center; margin-bottom:14px;">
+        <div id="sraPickSlotManglik"></div>
+        <div style="margin:10px 0 4px; font-size:11.5px; color:var(--text-muted); font-weight:700;">— अथवा नई जन्म पत्रिका का विवरण भरें —</div>
       </div>
 
       <form id="newKundaliForm" onsubmit="handleNewKundaliSubmit(event)">
@@ -1948,6 +1986,14 @@
       <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 6px;">
         🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
       </div>
+      <details class="sra-code-box" style="margin-top:6px; text-align:center;">
+        <summary style="cursor:pointer; font-size:12.5px; color:var(--gold-dark); font-weight:600;">🔑 कोड है?</summary>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <input type="password" id="manglikOwnerCode" class="form-control" placeholder="कोड दर्ज करें" autocomplete="off" style="flex:1;" onkeydown="if(event.key==='Enter'){applyManglikOwnerCode();}">
+          <button type="button" class="btn-outline" onclick="applyManglikOwnerCode()" style="padding:8px 16px; font-weight:700;">अनलॉक</button>
+        </div>
+        <div id="manglikOwnerCodeErr" style="display:none; font-size:12px; color:#b91c1c; margin-top:6px;">❌ अमान्य कोड</div>
+      </details>
     </div>
   </div>
 
@@ -2004,21 +2050,6 @@
       const modal = document.getElementById('modalNewKundaliInput');
       if (modal) {
         modal.classList.add('active');
-        const quickSwitch = document.getElementById('modalSavedKundaliQuickSwitch');
-        const selModal = document.getElementById('selModalSavedKundali');
-        if (quickSwitch && selModal && savedKundalisList && savedKundalisList.length > 0) {
-          selModal.innerHTML = '';
-          savedKundalisList.forEach((k, idx) => {
-            const opt = document.createElement('option');
-            opt.value = idx;
-            opt.textContent = `${k.name || 'जातक'} • ${k.date || ''} (${k.city || ''})`;
-            if (currentSelectedKundali && (k.id === currentSelectedKundali.id || (k.name === currentSelectedKundali.name && k.date === currentSelectedKundali.date))) {
-              opt.selected = true;
-            }
-            selModal.appendChild(opt);
-          });
-          quickSwitch.style.display = 'block';
-        }
       }
     }
 
@@ -2040,11 +2071,27 @@
     }
 
     // Auto-fill lat/lon from city datalist for new kundali modal
+    // Auto-fill lat/lon from city datalist for on-page form and modal
+    const cityInp = document.getElementById('mangalCity');
+    if (cityInp) {
+      cityInp.addEventListener('input', function() {
+        const val = this.value.trim().toLowerCase();
+        const opts = (document.getElementById('presetCitiesMangal') || {}).options || [];
+        for (let i = 0; i < opts.length; i++) {
+          if (opts[i].value.toLowerCase().includes(val)) {
+            document.getElementById('mangalLat').value = opts[i].getAttribute('data-lat');
+            document.getElementById('mangalLon').value = opts[i].getAttribute('data-lon');
+            break;
+          }
+        }
+      });
+    }
+
     const newCityInput = document.getElementById('newKPlace');
     if (newCityInput) {
       newCityInput.addEventListener('input', function() {
         const val = this.value.trim().toLowerCase();
-        const opts = document.getElementById('presetCitiesNew').options;
+        const opts = (document.getElementById('presetCitiesNew') || {}).options || [];
         for (let i = 0; i < opts.length; i++) {
           if (opts[i].value.toLowerCase().includes(val)) {
             document.getElementById('newKLat').value = opts[i].getAttribute('data-lat');
@@ -2084,100 +2131,138 @@
       initSavedKundalis(newEntry);
     }
 
-    // Initialize Saved Kundalis Dropdown
+    // Initialize Saved Kundalis Dropdown (Starts BLANK by default)
     function initSavedKundalis(autoSelectTarget) {
       let list = [];
       if (typeof window.PatrikaEngineBridge !== 'undefined' && typeof window.PatrikaEngineBridge.getAllSavedKundalis === 'function') {
         list = window.PatrikaEngineBridge.getAllSavedKundalis();
       }
 
-      // Default sample Kundali if no saved kundalis exist yet
-      if (!list || list.length === 0) {
-        list = [{
-          id: 'sample_1',
-          name: 'श्रीधर मिश्र',
-          gender: 'male',
-          date: '1993-10-26',
-          time: '02:55',
-          city: 'सीतापुर, उत्तर प्रदेश (Sitapur)',
-          lat: 27.57,
-          lon: 80.68,
-          tz: 5.5
-        }];
-      }
-
+      if (!Array.isArray(list)) list = [];
       savedKundalisList = list;
-      const sel = document.getElementById('selSavedKundali');
-      const badge = document.getElementById('savedKundaliCountBadge');
-      if (badge) badge.textContent = list.length;
 
+      const sel = document.getElementById('selSavedKundali');
       if (sel) {
-        sel.innerHTML = '';
+        sel.innerHTML = '<option value="">-- सुरक्षित कुण्डली से चुनें (' + list.length + ' उपलब्ध) --</option>';
         list.forEach((k, idx) => {
           const opt = document.createElement('option');
           opt.value = idx;
           opt.textContent = `${k.name || 'जातक'} • ${k.date || ''} (${k.city || ''})`;
           sel.appendChild(opt);
         });
-
-        let targetIndex = 0;
-        if (autoSelectTarget) {
-          const foundIdx = list.findIndex(x => x.name === autoSelectTarget.name && x.date === autoSelectTarget.date);
-          if (foundIdx >= 0) targetIndex = foundIdx;
-        }
-
-        sel.selectedIndex = targetIndex;
-        onSavedKundaliSelected();
+        sel.selectedIndex = 0; // Starts unselected!
       }
+
+      // If URL explicitly provided birth details (?dob=...&tob=...)
+      if (autoSelectTarget && autoSelectTarget.date && autoSelectTarget.time) {
+        if (autoSelectTarget.name) document.getElementById('mangalName').value = autoSelectTarget.name;
+        if (autoSelectTarget.gender) document.getElementById('mangalGender').value = autoSelectTarget.gender;
+        if (autoSelectTarget.date) document.getElementById('mangalDob').value = autoSelectTarget.date;
+        if (autoSelectTarget.time) document.getElementById('mangalTob').value = autoSelectTarget.time;
+        if (autoSelectTarget.city) document.getElementById('mangalCity').value = autoSelectTarget.city;
+        if (autoSelectTarget.lat) document.getElementById('mangalLat').value = autoSelectTarget.lat;
+        if (autoSelectTarget.lon) document.getElementById('mangalLon').value = autoSelectTarget.lon;
+        if (autoSelectTarget.tz) document.getElementById('mangalTz').value = autoSelectTarget.tz;
+
+        currentSelectedKundali = autoSelectTarget;
+      }
+      // Note: By default, inputs remain BLANK and NO report is rendered!
     }
 
     function onSavedKundaliSelected() {
       const sel = document.getElementById('selSavedKundali');
-      if (!sel) return;
+      if (!sel || sel.value === '') return;
       const idx = parseInt(sel.value, 10);
       const k = savedKundalisList[idx];
       if (!k) return;
 
+      // Populate on-page form fields
+      if (k.name) document.getElementById('mangalName').value = k.name;
+      if (k.gender) document.getElementById('mangalGender').value = k.gender;
+      if (k.date) document.getElementById('mangalDob').value = k.date;
+      if (k.time) document.getElementById('mangalTob').value = k.time;
+      if (k.city) document.getElementById('mangalCity').value = k.city;
+      if (k.lat) document.getElementById('mangalLat').value = k.lat;
+      if (k.lon) document.getElementById('mangalLon').value = k.lon;
+      if (k.tz) document.getElementById('mangalTz').value = k.tz;
+
       currentSelectedKundali = k;
-      window.currentManglikJataka = {
-        name: k.name || 'जातक',
-        gender: k.gender || 'male',
-        dob: k.date,
-        tob: k.time,
-        place: k.city || 'भारत',
-        lat: k.lat,
-        lon: k.lon,
-        tz: k.tz || 5.5
-      };
 
-      document.getElementById('dispSelectedName').textContent = k.name || 'जातक';
-      document.getElementById('dispSelectedBirth').textContent = `${k.date || ''} ${k.time || ''}`;
-      document.getElementById('dispSelectedPlace').textContent = k.city || `${k.lat}, ${k.lon}`;
-
-      // Update button text and report visibility based on whether THIS saved kundali is paid
       const isUnlocked = isManglikReportUnlocked(k);
       const btnLabel = document.getElementById('btnCalculateLabel');
       if (btnLabel) {
-        if (isUnlocked) {
-          btnLabel.textContent = '🔥 मंगल दोष एवं २१ परिहार रिपोर्ट देखें';
-        } else {
-          btnLabel.textContent = 'मंगल दोष एवं २१ परिहार रिपोर्ट जनरेट करें (₹199 के पेमेंट पर)';
-        }
+        btnLabel.textContent = isUnlocked 
+          ? '🔥 मंगल दोष एवं २१ परिहार रिपोर्ट देखें' 
+          : 'मंगल दोष एवं २१ परिहार रिपोर्ट देखें (₹199 के पेमेंट पर)';
       }
+    }
 
-      // Automatically calculate and render Manglik report directly without requiring manual calculate click
-      calculateAndRenderManglikReport();
+    // "सेव्ड कुंडली से चुनें" (sra-saved-pick.js) fills the form
+    window.sraOnSavedKundaliPicked = function (k) {
+      if (!k) return;
+      if (k.name) document.getElementById('mangalName').value = k.name;
+      if (k.gender) document.getElementById('mangalGender').value = k.gender;
+      if (k.date) document.getElementById('mangalDob').value = k.date;
+      if (k.time) document.getElementById('mangalTob').value = k.time;
+      if (k.city) document.getElementById('mangalCity').value = k.city;
+      if (k.lat) document.getElementById('mangalLat').value = k.lat;
+      if (k.lon) document.getElementById('mangalLon').value = k.lon;
+      if (k.tz) document.getElementById('mangalTz').value = k.tz;
+
+      currentSelectedKundali = k;
+
+      const isUnlocked = isManglikReportUnlocked(k);
+      const btnLabel = document.getElementById('btnCalculateLabel');
+      if (btnLabel) {
+        btnLabel.textContent = isUnlocked 
+          ? '🔥 मंगल दोष एवं २१ परिहार रिपोर्ट देखें' 
+          : 'मंगल दोष एवं २१ परिहार रिपोर्ट देखें (₹199 के पेमेंट पर)';
+      }
+    };
+
+    function selectManglikKundali(k) {
+      currentSelectedKundali = k;
+      if (k.name) document.getElementById('mangalName').value = k.name;
+      if (k.gender) document.getElementById('mangalGender').value = k.gender;
+      if (k.date) document.getElementById('mangalDob').value = k.date;
+      if (k.time) document.getElementById('mangalTob').value = k.time;
+      if (k.city) document.getElementById('mangalCity').value = k.city;
+      if (k.lat) document.getElementById('mangalLat').value = k.lat;
+      if (k.lon) document.getElementById('mangalLon').value = k.lon;
+      if (k.tz) document.getElementById('mangalTz').value = k.tz;
+
+      const isUnlocked = isManglikReportUnlocked(k);
+      const btnLabel = document.getElementById('btnCalculateLabel');
+      if (btnLabel) {
+        btnLabel.textContent = isUnlocked 
+          ? '🔥 मंगल दोष एवं २१ परिहार रिपोर्ट देखें' 
+          : 'मंगल दोष एवं २१ परिहार रिपोर्ट देखें (₹199 के पेमेंट पर)';
+      }
     }
 
     // Trigger Primary Generation Flow
     function handleMangalReportGenerateClick() {
-      if (!currentSelectedKundali) {
-        openNewOrPatrikaKundaliModal();
-        return;
-      }
+      const name = (document.getElementById('mangalName').value || '').trim();
+      const gender = document.getElementById('mangalGender').value || 'male';
+      const date = document.getElementById('mangalDob').value;
+      const time = document.getElementById('mangalTob').value;
+      const city = (document.getElementById('mangalCity').value || '').trim();
+      const lat = parseFloat(document.getElementById('mangalLat').value) || 28.6139;
+      const lon = parseFloat(document.getElementById('mangalLon').value) || 77.2090;
+      const tz = parseFloat(document.getElementById('mangalTz').value) || 5.5;
 
-      // Mandatory Payment Check: Ask for payment even for saved kundalis
+      if (!name) { alert('कृपया जातक का नाम दर्ज करें।'); document.getElementById('mangalName').focus(); return; }
+      if (!date) { alert('कृपया जन्म तिथि दर्ज करें।'); document.getElementById('mangalDob').focus(); return; }
+      if (!time) { alert('कृपया जन्म समय दर्ज करें।'); document.getElementById('mangalTob').focus(); return; }
+      if (!city) { alert('कृपया जन्म स्थान दर्ज करें।'); document.getElementById('mangalCity').focus(); return; }
+
+      currentSelectedKundali = {
+        name, gender, date, time, city, lat, lon, tz
+      };
+
+      // Mandatory Payment Check: Ask for ₹199 payment if not unlocked
       if (!isManglikReportUnlocked(currentSelectedKundali)) {
+        renderManglikPaywall(currentSelectedKundali);
         const titleEl = document.getElementById('modalPayKundaliName');
         if (titleEl) {
           titleEl.textContent = `(${currentSelectedKundali.name || 'जातक'})`;
@@ -2186,7 +2271,117 @@
         return;
       }
 
+      // Hide paywall view if previously shown
+      const pw = document.getElementById('manglikPaywallView');
+      if (pw) pw.style.display = 'none';
+
       calculateAndRenderManglikReport();
+    }
+
+    // Render Sacred Paywall Card
+    function renderManglikPaywall(k) {
+      const pw = document.getElementById('manglikPaywallView');
+      if (!pw) return;
+
+      const repView = document.getElementById('unlockedManglikReportView');
+      if (repView) { repView.style.display = 'none'; repView.innerHTML = ''; }
+
+      pw.innerHTML = `
+        <div class="report-purchase-card" style="margin-top:20px; border:2px solid #b45309; box-shadow:0 10px 30px rgba(180,83,9,0.15); border-radius:18px; padding:28px 22px; background:linear-gradient(135deg, #fffdf8, #fef6ee);">
+          <div style="display:inline-flex; align-items:center; gap:6px; background:#fef2f2; border:1px solid #fecaca; color:#dc2626; padding:4px 14px; border-radius:20px; font-size:12px; font-weight:800; margin-bottom:12px;">
+            <span>🔒</span> <span>रिपोर्ट सुरक्षित (Locked) • दक्षिणा अनिवार्य</span>
+          </div>
+          <h3 style="font-family:var(--font-hindi); font-size:22px; color:var(--primary); margin:0 0 6px; font-weight:800;">
+            प्रामाणिक मंगल दोष एवं २१ शास्त्रीय परिहार रिपोर्ट — <span style="color:#b45309;">${k.name}</span>
+          </h3>
+          <p style="font-size:13px; color:var(--text-muted); margin:0 0 16px; line-height:1.5;">
+            जन्म विवरण: <b>${k.date}</b> • <b>${k.time}</b> • <b>${k.city}</b>
+          </p>
+
+          <!-- 4 Shastric Check Highlights (Locked Preview) -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; margin-bottom:20px; text-align:left;">
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+              <div style="font-weight:800; font-size:13px; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                <span style="color:#10b981;">✓</span> त्रि-लग्न मंगल परीक्षण (लग्न, चंद्र, शुक्र)
+              </div>
+              <div style="font-size:11.5px; color:#64748b; margin-top:3px;">
+                तीनों आधारों से १, ४, ७, ८, १२ भावों में भौम स्थिति का सूक्ष्म परीक्षण पूर्ण है।
+              </div>
+            </div>
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+              <div style="font-weight:800; font-size:13px; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                <span style="color:#10b981;">✓</span> २१ शास्त्रीय परिहार नियमों का ऑडिट
+              </div>
+              <div style="font-size:11.5px; color:#64748b; margin-top:3px;">
+                बृहत्पाराशर, मानसागरी व अगस्त्य संहिता के २१ परिहार नियमों का परीक्षण तैयार है।
+              </div>
+            </div>
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+              <div style="font-weight:800; font-size:13px; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                <span style="color:#10b981;">✓</span> D9 नवांश वर्गोत्तम मंगल विश्लेषण
+              </div>
+              <div style="font-size:11.5px; color:#64748b; margin-top:3px;">
+                नवांश चक्र में मंगल का नीच/उच्च/मित्र क्षेत्री प्रभाव व सूक्ष्म विवाह बल।
+              </div>
+            </div>
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+              <div style="font-weight:800; font-size:13px; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                <span style="color:#10b981;">✓</span> शास्त्रीय निर्णय व मुद्रण योग्य A4 प्रमाण-पत्र
+              </div>
+              <div style="font-size:11.5px; color:#64748b; margin-top:3px;">
+                विवाह मिलान हेतु अधिकृत प्रमाण-पत्र (A4 PDF) एवं जीवनसाथी परामर्श।
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing Box -->
+          <div class="mangal-pricing-table" style="max-width:440px; margin:0 auto 18px; text-align:left;">
+            <div class="mangal-pricing-row">
+              <span>१. प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट:</span>
+              <span style="text-decoration:line-through; color:var(--text-muted);">₹999</span>
+            </div>
+            <div class="mangal-pricing-row" style="color:#10b981; font-weight:700;">
+              <span>विशेष छूट (80% OFF):</span>
+              <span>-₹800</span>
+            </div>
+            <div class="mangal-pricing-row total" style="border-top:1.5px solid var(--border); padding-top:8px; font-weight:800; font-size:15px;">
+              <span>देय दक्षिणा (Net Payable):</span>
+              <span style="font-size:24px; color:var(--primary); font-family:var(--font-hindi); font-weight:900;">₹199</span>
+            </div>
+          </div>
+
+          <!-- Pay CTA -->
+          <button type="button" class="btn-mangal-pay-primary" style="max-width:440px; margin:0 auto; padding:15px 24px; font-size:17px; cursor:pointer;" onclick="triggerManglikRazorpayCheckout()">
+            💳 ₹199 ऑनलाइन भुगतान करें (UPI / QR / Cards)
+          </button>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
+            🔒 100% सुरक्षित 256-bit Razorpay (Google Pay / PhonePe / Paytm / कार्ड) • भुगतान के तुरंत बाद रिपोर्ट अनलॉक होगी
+          </div>
+
+          <!-- Secret code / owner master key -->
+          <details class="sra-code-box" style="max-width:440px; margin:14px auto 0; text-align:center;">
+            <summary style="cursor:pointer; font-size:12.5px; color:var(--gold-dark); font-weight:600;">🔑 पासकोड या कूपन कोड है?</summary>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <input type="password" id="manglikOwnerCodeInline" class="form-control" placeholder="पासकोड दर्ज करें" autocomplete="off" style="flex:1;" onkeydown="if(event.key==='Enter'){applyManglikOwnerCodeInline();}">
+              <button type="button" class="btn-outline" onclick="applyManglikOwnerCodeInline()" style="padding:8px 16px; font-weight:700;">अनलॉक</button>
+            </div>
+            <div id="manglikOwnerCodeErrInline" style="display:none; font-size:12px; color:#b91c1c; margin-top:6px;">❌ अमान्य कोड</div>
+          </details>
+        </div>
+      `;
+      pw.style.display = 'block';
+      pw.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function applyManglikOwnerCodeInline() {
+      const inp = document.getElementById('manglikOwnerCodeInline');
+      const err = document.getElementById('manglikOwnerCodeErrInline');
+      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(inp.value)) {
+        if (err) err.style.display = 'none';
+        unlockManglikReport('MASTER_KEY');
+      } else if (err) {
+        err.style.display = 'block';
+      }
     }
 
     // Razorpay Checkout Integration
@@ -2223,6 +2418,17 @@
     }
 
     // Unlock & Render Full Report
+    // Owner master key: unlocks this report without payment
+    function applyManglikOwnerCode() {
+      const inp = document.getElementById('manglikOwnerCode');
+      const err = document.getElementById('manglikOwnerCodeErr');
+      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(inp.value)) {
+        if (err) err.style.display = 'none';
+        unlockManglikReport('MASTER_KEY');
+      } else if (err) {
+        err.style.display = 'block';
+      }
+    }
     function unlockManglikReport(paymentId) {
       if (currentSelectedKundali) {
         const key = getKundaliPaymentKey(currentSelectedKundali);
@@ -2244,7 +2450,7 @@
             razorpay_payment_id: paymentId || ('RZP_MANGAL_' + Date.now()),
             student_name: clientName,
             student_phone: clientMobile,
-            plan_name: 'Manglik Dosha & 21 Parihara Analysis (₹199)',
+            plan_name: 'Manglik Dosh & 21 Parihar Report (₹199)',
             report_type: 'mangal_dosha_report',
             amount: 199,
             status: 'completed',
@@ -2254,6 +2460,9 @@
       } catch(e) {}
 
       closeManglikPaymentModal();
+      const pw = document.getElementById('manglikPaywallView');
+      if (pw) pw.style.display = 'none';
+
       const btnLabel = document.getElementById('btnCalculateLabel');
       if (btnLabel) btnLabel.textContent = '🔥 मंगल दोष एवं २१ परिहार रिपोर्ट देखें';
 
@@ -2267,6 +2476,13 @@
       if (!currentSelectedKundali) return;
 
       const k = currentSelectedKundali;
+
+      // Mandatory check: if not unlocked, show paywall!
+      if (!isManglikReportUnlocked(k)) {
+        renderManglikPaywall(k);
+        return;
+      }
+
       if (!window.PatrikaEngineBridge || !window.MangalDoshaEngine) {
         setTimeout(calculateAndRenderManglikReport, 100);
         return;
@@ -2393,7 +2609,7 @@
             </div>
 
             <!-- TOP ACTION BUTTONS BAR (Prominently visible on Mobile immediately upon unlock) -->
-            <div class="no-print report-top-actions" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 14px; padding:10px 12px; background:#fffcf6; border:1.5px solid var(--border-gold); border-radius:10px; box-shadow:0 2px 8px rgba(180,83,9,0.08);">
+            <div class="no-print report-top-actions" style="display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 0 14px; padding:10px 12px; background:var(--card-bg); border:1.5px solid var(--border-gold); border-radius:10px; box-shadow:0 2px 8px rgba(180,83,9,0.08);">
               <button type="button" onclick="shareManglikReportOnWhatsApp()" style="background:linear-gradient(135deg, #25D366, #128C7E); color:#ffffff; font-family:var(--font-hindi); font-size:14px; font-weight:800; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 3px 12px rgba(37,211,102,0.35); display:inline-flex; align-items:center; gap:8px;">
                 <span style="font-size:16px;">💬</span> <span>WhatsApp पर भेजें</span>
               </button>
@@ -2552,7 +2768,7 @@
             </div>
 
             <!-- Formal Certified Footer -->
-            <div style="text-align:center; border-top:1px solid #cbd5e1; padding-top:8px; margin-top:14px; font-size:10.5px; color:#64748b; font-family:var(--font-hindi);">
+            <div style="text-align:center; border-top:1px solid var(--border-gold); padding-top:8px; margin-top:14px; font-size:10.5px; color:#64748b; font-family:var(--font-hindi);">
               © ${new Date().getFullYear()} श्री रामजी एस्ट्रो (shriramjiastro.in) • काशी (वाराणसी) • True Lahiri Ayanamsha • प्रामाणिक त्रि-लग्न भौम परीक्षण प्रमाण-पत्र
             </div>
           </div>
@@ -2569,7 +2785,7 @@
             <button type="button" onclick="generateNewReport()" style="background:#fff; border:1.5px solid var(--border); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
               <span>🔄</span> <span>कुण्डली बदलें</span>
             </button>
-            <button type="button" onclick="openFullKundaliInPatrika()" style="background:#fffcf6; border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <button type="button" onclick="openFullKundaliInPatrika()" style="background:var(--card-bg); border:1.5px solid var(--border-gold); color:var(--text); font-family:var(--font-hindi); font-size:14px; font-weight:700; padding:12px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
               <span>✨</span> <span>पत्रिका (D1-D60) ➔</span>
             </button>
           </div>
@@ -2606,9 +2822,50 @@
     }
   }
 
-    // Change Kundali or enter new details to view report (No manual calculate button)
+    // Reset form and view to enter new details
     function generateNewReport() {
-      openNewOrPatrikaKundaliModal();
+      // 1. Hide report view and paywall view
+      const repView = document.getElementById('unlockedManglikReportView');
+      if (repView) { repView.style.display = 'none'; repView.innerHTML = ''; }
+      const pwView = document.getElementById('manglikPaywallView');
+      if (pwView) { pwView.style.display = 'none'; pwView.innerHTML = ''; }
+
+      // 2. Unhide header and form card
+      const calcHeaderEl = document.querySelector('.calculator-header');
+      if (calcHeaderEl) calcHeaderEl.style.display = 'block';
+
+      const selectorCardEl = document.getElementById('savedKundaliSelectorCard');
+      if (selectorCardEl) selectorCardEl.style.display = 'block';
+
+      const calcSection = document.getElementById('calculator-section');
+      if (calcSection) calcSection.classList.remove('report-mode');
+
+      const belowSections = document.querySelectorAll('.content-section, .content-img-wrap, .faq-section');
+      belowSections.forEach(el => el.style.display = '');
+
+      // 3. Reset form inputs
+      if (document.getElementById('mangalName')) document.getElementById('mangalName').value = '';
+      if (document.getElementById('mangalGender')) document.getElementById('mangalGender').value = 'male';
+      if (document.getElementById('mangalDob')) document.getElementById('mangalDob').value = '';
+      if (document.getElementById('mangalTob')) document.getElementById('mangalTob').value = '';
+      if (document.getElementById('mangalCity')) document.getElementById('mangalCity').value = '';
+      if (document.getElementById('mangalLat')) document.getElementById('mangalLat').value = '';
+      if (document.getElementById('mangalLon')) document.getElementById('mangalLon').value = '';
+      if (document.getElementById('mangalTz')) document.getElementById('mangalTz').value = '5.5';
+
+      const sel = document.getElementById('selSavedKundali');
+      if (sel) sel.selectedIndex = 0;
+
+      window.currentSelectedKundali = null;
+      window.currentManglikReport = null;
+      window.currentManglikCalc = null;
+
+      // Scroll smoothly to form
+      if (selectorCardEl) {
+        selectorCardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
     // Instant WhatsApp Share for Manglik Dosha Certificate
