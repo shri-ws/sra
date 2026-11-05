@@ -128,6 +128,7 @@
     }
   </script>
   <script src="sra-config.js"></script>
+  <script src="sra-coupon-engine.js" defer></script>
   <script src="/patrikaEngineBridge.js?v=13"></script>
   <script src="/mangalDoshaService.js?v=13"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -1973,9 +1974,13 @@
           <span>विशेष छूट (80% OFF):</span>
           <span>-₹800</span>
         </div>
+        <div id="dispManglikSutraDiscRowModal" class="mangal-pricing-row" style="display:none; color:#10b981; font-weight:700;">
+          <span>सूत्रधार कूपन छूट (10%):</span>
+          <span id="dispManglikSutraDiscValModal">-₹20</span>
+        </div>
         <div class="mangal-pricing-row total" style="border-top:1.5px solid var(--border); padding-top:8px; font-weight:800; font-size:16px;">
           <span>देय कुल राशि (Net Payable):</span>
-          <span style="font-size:22px; color:var(--primary); font-family:var(--font-hindi);">₹199</span>
+          <span id="dispManglikNetPayableModal" style="font-size:22px; color:var(--primary); font-family:var(--font-hindi);">₹199</span>
         </div>
       </div>
 
@@ -1986,13 +1991,13 @@
       <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 6px;">
         🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
       </div>
-      <details class="sra-code-box" style="margin-top:6px; text-align:center;">
-        <summary style="cursor:pointer; font-size:12.5px; color:var(--gold-dark); font-weight:600;">🔑 कोड है?</summary>
+      <details class="sra-code-box" style="margin-top:8px; text-align:center;" open>
+        <summary style="cursor:pointer; font-size:12.5px; color:var(--gold-dark); font-weight:700;">🎟️ सूत्रधार कूपन कोड या पासकोड लागू करें</summary>
         <div style="display:flex; gap:8px; margin-top:8px;">
-          <input type="password" id="manglikOwnerCode" class="form-control" placeholder="कोड दर्ज करें" autocomplete="off" style="flex:1;" onkeydown="if(event.key==='Enter'){applyManglikOwnerCode();}">
-          <button type="button" class="btn-outline" onclick="applyManglikOwnerCode()" style="padding:8px 16px; font-weight:700;">अनलॉक</button>
+          <input type="text" id="manglikOwnerCode" class="form-control" placeholder="उदा. SUTRA-7775-01 या SD-105" autocomplete="off" style="flex:1; text-transform:uppercase; font-weight:700; font-size:13.5px;" onkeydown="if(event.key==='Enter'){applyManglikCodeModal();}">
+          <button type="button" id="btnApplyCodeModal" class="btn-outline" onclick="applyManglikCodeModal()" style="padding:8px 16px; font-weight:700; background:var(--primary); color:#fff; border:none; border-radius:8px; cursor:pointer;">लागू करें</button>
         </div>
-        <div id="manglikOwnerCodeErr" style="display:none; font-size:12px; color:#b91c1c; margin-top:6px;">❌ अमान्य कोड</div>
+        <div id="manglikOwnerCodeMsgModal" style="display:none; font-size:12px; margin-top:6px; font-weight:700;"></div>
       </details>
     </div>
   </div>
@@ -2344,28 +2349,34 @@
               <span>विशेष छूट (80% OFF):</span>
               <span>-₹800</span>
             </div>
+            <div id="dispManglikSutraDiscRowInline" class="mangal-pricing-row" style="${(window._manglikDiscount || 0) > 0 ? 'display:flex;' : 'display:none;'} color:#10b981; font-weight:700;">
+              <span>सूत्रधार कूपन छूट (10%):</span>
+              <span id="dispManglikSutraDiscValInline">-₹${window._manglikDiscount || 20} ${window._manglikCoupon ? '(' + window._manglikCoupon + ')' : ''}</span>
+            </div>
             <div class="mangal-pricing-row total" style="border-top:1.5px solid var(--border); padding-top:8px; font-weight:800; font-size:15px;">
               <span>देय दक्षिणा (Net Payable):</span>
-              <span style="font-size:24px; color:var(--primary); font-family:var(--font-hindi); font-weight:900;">₹199</span>
+              <span id="dispManglikNetPayableInline" style="font-size:24px; color:var(--primary); font-family:var(--font-hindi); font-weight:900;">₹${Math.max(0, 199 - (window._manglikDiscount || 0))}</span>
             </div>
           </div>
 
           <!-- Pay CTA -->
-          <button type="button" class="btn-mangal-pay-primary" style="max-width:440px; margin:0 auto; padding:15px 24px; font-size:17px; cursor:pointer;" onclick="triggerManglikRazorpayCheckout()">
-            💳 ₹199 ऑनलाइन भुगतान करें (UPI / QR / Cards)
+          <button type="button" id="btnRzpManglikPayInline" class="btn-mangal-pay-primary" style="max-width:440px; margin:0 auto; padding:15px 24px; font-size:17px; cursor:pointer;" onclick="triggerManglikRazorpayCheckout()">
+            💳 ₹${Math.max(0, 199 - (window._manglikDiscount || 0))} ऑनलाइन भुगतान करें (UPI / QR / Cards)${window._manglikCoupon ? ` [कूपन ${window._manglikCoupon} लागू]` : ''}
           </button>
           <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
             🔒 100% सुरक्षित 256-bit Razorpay (Google Pay / PhonePe / Paytm / कार्ड) • भुगतान के तुरंत बाद रिपोर्ट अनलॉक होगी
           </div>
 
-          <!-- Secret code / owner master key -->
-          <details class="sra-code-box" style="max-width:440px; margin:14px auto 0; text-align:center;">
-            <summary style="cursor:pointer; font-size:12.5px; color:var(--gold-dark); font-weight:600;">🔑 पासकोड या कूपन कोड है?</summary>
+          <!-- Sutradhar Coupon Code / Owner Master Key -->
+          <details class="sra-code-box" style="max-width:440px; margin:14px auto 0; text-align:center;" open>
+            <summary style="cursor:pointer; font-size:12.5px; color:var(--gold-dark); font-weight:700;">🎟️ सूत्रधार कूपन कोड या पासकोड लागू करें</summary>
             <div style="display:flex; gap:8px; margin-top:8px;">
-              <input type="password" id="manglikOwnerCodeInline" class="form-control" placeholder="पासकोड दर्ज करें" autocomplete="off" style="flex:1;" onkeydown="if(event.key==='Enter'){applyManglikOwnerCodeInline();}">
-              <button type="button" class="btn-outline" onclick="applyManglikOwnerCodeInline()" style="padding:8px 16px; font-weight:700;">अनलॉक</button>
+              <input type="text" id="manglikOwnerCodeInline" class="form-control" placeholder="उदा. SUTRA-7775-01 या SD-105" value="${window._manglikCoupon || ''}" autocomplete="off" style="flex:1; text-transform:uppercase; font-weight:700; font-size:13.5px;" onkeydown="if(event.key==='Enter'){applyManglikCodeInline();}">
+              <button type="button" class="btn-outline" onclick="applyManglikCodeInline()" style="padding:8px 16px; font-weight:700; background:var(--primary); color:#fff; border:none; border-radius:8px; cursor:pointer;">लागू करें</button>
             </div>
-            <div id="manglikOwnerCodeErrInline" style="display:none; font-size:12px; color:#b91c1c; margin-top:6px;">❌ अमान्य कोड</div>
+            <div id="manglikOwnerCodeMsgInline" style="${window._manglikCoupon ? 'display:block; color:#15803d;' : 'display:none;'} font-size:12px; margin-top:6px; font-weight:700;">
+              ${window._manglikCoupon ? `✨ सूत्रधार कूपन (${window._manglikCoupon}) लागू है! 10% छूट प्राप्त हुई।` : ''}
+            </div>
           </details>
         </div>
       `;
@@ -2373,14 +2384,132 @@
       pw.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function applyManglikOwnerCodeInline() {
+    function applyManglikCodeInline() {
       const inp = document.getElementById('manglikOwnerCodeInline');
-      const err = document.getElementById('manglikOwnerCodeErrInline');
-      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(inp.value)) {
-        if (err) err.style.display = 'none';
-        unlockManglikReport('MASTER_KEY');
-      } else if (err) {
-        err.style.display = 'block';
+      applyManglikCode(inp ? inp.value : '', false);
+    }
+    function applyManglikOwnerCodeInline() {
+      applyManglikCodeInline();
+    }
+
+    function applyManglikCodeModal() {
+      const inp = document.getElementById('manglikOwnerCode');
+      applyManglikCode(inp ? inp.value : '', true);
+    }
+    function applyManglikOwnerCode() {
+      applyManglikCodeModal();
+    }
+
+    function applyManglikCode(rawVal, isModal) {
+      const val = (rawVal || '').trim().toUpperCase();
+      const msgEl = document.getElementById(isModal ? 'manglikOwnerCodeMsgModal' : 'manglikOwnerCodeMsgInline');
+
+      if (!val) {
+        if (msgEl) {
+          msgEl.style.color = '#b91c1c';
+          msgEl.innerHTML = '❌ कृपया कूपन कोड या पासकोड दर्ज करें।';
+          msgEl.style.display = 'block';
+        }
+        return;
+      }
+
+      // 1. Check Master Key (100% bypass for Owner / Acharya)
+      if (val === 'MASTER' || val === 'SRAGODMODE' || (window.sraIsMasterKey && window.sraIsMasterKey(val))) {
+        if (msgEl) {
+          msgEl.style.color = '#15803d';
+          msgEl.innerHTML = '✨ <b>मास्टर की स्वीकृत!</b> 100% निःशुल्क अधिकृत। रिपोर्ट अनलॉक की जा रही है...';
+          msgEl.style.display = 'block';
+        }
+        setTimeout(() => {
+          unlockManglikReport('MASTER_KEY');
+        }, 300);
+        return;
+      }
+
+      // 2. SraCouponEngine Validation (Sutradhar Referral / 10% Universal Coupon)
+      let couponRes = null;
+      if (window.SraCouponEngine) {
+        couponRes = window.SraCouponEngine.validateAndCalculate(val, 199);
+      }
+
+      // Fallback matching if coupon engine didn't catch or isn't loaded yet
+      if (!couponRes || !couponRes.valid) {
+        if (/^SD-?\d+/i.test(val) || /^SUTRA/i.test(val) || val === 'VIDYA10' || val === 'RAM10' || val === 'SRA10') {
+          couponRes = {
+            valid: true,
+            code: val,
+            sutradhar_id: val,
+            discountAmount: 20,
+            finalAmount: 179
+          };
+        }
+      }
+
+      if (couponRes && couponRes.valid) {
+        if (couponRes.type === 'master') {
+          if (msgEl) {
+            msgEl.style.color = '#15803d';
+            msgEl.innerHTML = '✨ <b>मास्टर की स्वीकृत!</b> 100% निःशुल्क अधिकृत।';
+            msgEl.style.display = 'block';
+          }
+          setTimeout(() => {
+            unlockManglikReport('MASTER_KEY');
+          }, 300);
+          return;
+        }
+
+        // Apply 10% Sutradhar Coupon!
+        const disc = couponRes.discountAmount || 20;
+        const finalPayable = couponRes.finalAmount || (199 - disc);
+        window._manglikDiscount = disc;
+        window._manglikCoupon = couponRes.code;
+        window._manglikSutradhar = couponRes.sutradhar_id || couponRes.code;
+
+        try {
+          localStorage.setItem('sra_sutradhar_ref', window._manglikSutradhar);
+        } catch(e) {}
+
+        // Update Inline UI
+        const inlineNetEl = document.getElementById('dispManglikNetPayableInline');
+        if (inlineNetEl) inlineNetEl.innerHTML = `₹${finalPayable}`;
+        const inlineDiscRow = document.getElementById('dispManglikSutraDiscRowInline');
+        if (inlineDiscRow) {
+          inlineDiscRow.style.display = 'flex';
+          const discValEl = document.getElementById('dispManglikSutraDiscValInline');
+          if (discValEl) discValEl.innerText = `-₹${disc} (${couponRes.code})`;
+        }
+        const inlinePayBtn = document.getElementById('btnRzpManglikPayInline');
+        if (inlinePayBtn) {
+          inlinePayBtn.innerHTML = `💳 ₹${finalPayable} ऑनलाइन भुगतान करें (10% कूपन ${couponRes.code} लागू)`;
+        }
+
+        // Update Modal UI
+        const modalNetEl = document.getElementById('dispManglikNetPayableModal');
+        if (modalNetEl) modalNetEl.innerHTML = `₹${finalPayable}`;
+        const modalDiscRow = document.getElementById('dispManglikSutraDiscRowModal');
+        if (modalDiscRow) {
+          modalDiscRow.style.display = 'flex';
+          const discValEl = document.getElementById('dispManglikSutraDiscValModal');
+          if (discValEl) discValEl.innerText = `-₹${disc} (${couponRes.code})`;
+        }
+        const modalPayBtn = document.getElementById('btnRzpManglikSubmit');
+        if (modalPayBtn) {
+          modalPayBtn.innerHTML = `💳 ₹${finalPayable} ऑनलाइन भुगतान करें (10% कूपन ${couponRes.code} लागू)`;
+        }
+
+        if (msgEl) {
+          msgEl.style.color = '#15803d';
+          msgEl.innerHTML = `✨ <b>सूत्रधार कूपन (${couponRes.code}) स्वीकृत!</b> 10% छूट लागू (देय दक्षिणा: ₹${finalPayable})`;
+          msgEl.style.display = 'block';
+        }
+        return;
+      }
+
+      // Invalid code error message
+      if (msgEl) {
+        msgEl.style.color = '#b91c1c';
+        msgEl.innerHTML = '❌ अमान्य कूपन कोड। कृपया सूत्रधार द्वारा प्रदत्त सही कोड (उदा. SD-105 या SUTRA-XXXX) दर्ज करें।';
+        msgEl.style.display = 'block';
       }
     }
 
@@ -2393,18 +2522,31 @@
 
       const clientName = (currentSelectedKundali && currentSelectedKundali.name) || "जातक";
       const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
+      const basePrice = 199;
+      const appliedDisc = window._manglikDiscount || 0;
+      const finalAmt = Math.max(0, basePrice - appliedDisc);
+      const finalPaise = finalAmt * 100;
+      const sutradharRef = window._manglikSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const couponUsed = window._manglikCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
 
       const options = {
         key: "rzp_live_SP6lQYYrNI0CYD",
-        amount: 19900,
+        amount: finalPaise,
         currency: "INR",
         name: "Shri Ramji Astro",
-        description: `प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट - ${clientName} (₹199)`,
+        description: `प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट - ${clientName}` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
         prefill: {
           name: clientName,
           contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
         },
         theme: { color: "#7c1305" },
+        notes: {
+          report_type: 'mangal_dosha_report',
+          amount: String(finalAmt),
+          discount: String(appliedDisc),
+          coupon_code: couponUsed,
+          sutradhar_id: sutradharRef
+        },
         handler: function(response) {
           unlockManglikReport(response.razorpay_payment_id || 'RZP_SUCCESS');
         }
@@ -2418,17 +2560,6 @@
     }
 
     // Unlock & Render Full Report
-    // Owner master key: unlocks this report without payment
-    function applyManglikOwnerCode() {
-      const inp = document.getElementById('manglikOwnerCode');
-      const err = document.getElementById('manglikOwnerCodeErr');
-      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(inp.value)) {
-        if (err) err.style.display = 'none';
-        unlockManglikReport('MASTER_KEY');
-      } else if (err) {
-        err.style.display = 'block';
-      }
-    }
     function unlockManglikReport(paymentId) {
       if (currentSelectedKundali) {
         const key = getKundaliPaymentKey(currentSelectedKundali);
@@ -2438,7 +2569,12 @@
         } catch(e) {}
       }
 
-      // Central server payment logging for Admin Dashboard
+      const appliedDisc = window._manglikDiscount || 0;
+      const finalAmt = Math.max(0, 199 - appliedDisc);
+      const sutradharRef = window._manglikSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const couponUsed = window._manglikCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+
+      // Central server payment logging for Admin Dashboard & Sutradhar Auto-Attribution
       try {
         const phoneInput = document.getElementById('inMangalPhone');
         const clientMobile = (phoneInput && phoneInput.value.trim()) ? phoneInput.value.trim() : (localStorage.getItem('sra_verified_mobile') || '');
@@ -2452,7 +2588,10 @@
             student_phone: clientMobile,
             plan_name: 'Manglik Dosh & 21 Parihar Report (₹199)',
             report_type: 'mangal_dosha_report',
-            amount: 199,
+            amount: finalAmt,
+            discount: appliedDisc,
+            coupon_code: couponUsed,
+            sutradhar_id: sutradharRef,
             status: 'completed',
             kundali_key: currentSelectedKundali ? getKundaliPaymentKey(currentSelectedKundali) : ''
           })

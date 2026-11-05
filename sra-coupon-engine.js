@@ -62,9 +62,17 @@
       if (!rawCode) return false;
       var code = String(rawCode).trim().toUpperCase();
       // SD-XXX या SUTRA-XXXX प्रारूप (जैसे SD-101, SD-105, SUTRA-7775-01 आदि)
-      if (/^SD-\d{2,6}$/.test(code) || /^SUTRA-[\w-]+$/.test(code)) return true;
+      if (/^SD-?\d{2,6}$/i.test(code) || /^SUTRA/i.test(code)) return true;
       // सामान्य सूत्रधार या मास्टर कोड्स
-      if (code === 'MASTER' || code === 'SRAGODMODE' || code === 'RAM10') return true;
+      if (code === 'MASTER' || code === 'SRAGODMODE' || code === 'RAM10' || code === 'VIDYA10' || code === 'SRA10') return true;
+      if (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode)) return true;
+      // लोकल स्टोरेज में मौजूद सूत्रधार प्रोफाइल/सेशन जांच
+      try {
+        var sess = JSON.parse(localStorage.getItem('sra_sutradhar_session') || '{}');
+        if (sess && sess.sutradhar_id && sess.sutradhar_id.toUpperCase() === code) return true;
+        var prof = JSON.parse(localStorage.getItem('sra_sutradhar_profile') || '{}');
+        if (prof && prof.sutradhar_id && prof.sutradhar_id.toUpperCase() === code) return true;
+      } catch(e) {}
       return false;
     },
 
@@ -88,7 +96,7 @@
       }
 
       // १. मास्टर की बायपास (व्यवस्थापक / आचार्य हेतु)
-      if (code === 'MASTER' || code === 'SRAGODMODE') {
+      if (code === 'MASTER' || code === 'SRAGODMODE' || (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode))) {
         return {
           valid: true,
           code: code,
