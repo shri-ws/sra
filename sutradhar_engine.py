@@ -1048,7 +1048,10 @@ async def process_pending_payouts() -> Dict[str, Any]:
     - विफल होने पर कमीशन 'जाँच ज़रूरी' में चला जाता है।
     """
     all_comms = SutradharStore.query_all("commissions")
-    pending = [c for c in all_comms if c.get("status") in ("created", "processing")]
+    pending = [
+        c for c in all_comms 
+        if c.get("status") in ("created", "processing", "approved") and not c.get("utr")
+    ]
     now_iso = datetime.now(timezone.utc).isoformat()
 
     results = []
