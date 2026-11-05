@@ -396,6 +396,10 @@
         .btn-gunmilan-link:hover { background: rgba(183,129,3,0.08); }
         [data-theme="night"] .btn-gunmilan-link { color: #E9CF8E; border-color: #B08D3E; }
         .print-only { display: none; }
+        .panchang-pct { margin-top: 6px; font-size: 11.5px; color: var(--text-muted); line-height: 1.3; }
+        .panchang-pct b { color: var(--text-main, inherit); }
+        .strength-bar.thin { height: 4px; margin-top: 3px; }
+        .pct-legend { margin: 0 0 12px; font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
         .couple-shastra-box { margin: 0 0 16px; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg); font-size: 13.5px; line-height: 1.6; }
         .couple-shastra-box:empty { display: none; }
         .couple-shastra-box h4 { color: var(--primary); font-size: 15px; }
@@ -1351,6 +1355,7 @@
                 </div>
 
                 <!-- Results Table -->
+                <p class="pct-legend" id="pctLegend" style="display:none;"></p>
                 <div class="table-container" id="tableContainer">
                     <table>
                         <thead>
@@ -2596,6 +2601,8 @@
                 const wins = sh.wins, SH_LBL = sh.labels;
                 const goodWins = wins.filter(w => w.segs.length);
                 const absoluteDay = currentCeremony === 'vivah' && sh.dayDoshas.some(x => x.absolute);
+                // त्रिबल-पंचांग प्रतिशत: तारा/चन्द्र-त्रिबल, सूर्य-गुरु शुद्धि, तिथि व नक्षत्र से ही — लग्न व पूरे दिन के निषेध से पहले
+                const panchangStrength = Math.max(0, 100 - doshas.length * 20);
                 if (currentCeremony === 'vivah') sh.dayDoshas.forEach(x => doshas.push(x.text));
                 if (currentCeremony === 'vivah' && wins.length && !goodWins.length && !absoluteDay) {
                     doshas.push(L('इस दिन शुद्ध विवाह-लग्न नहीं (श्लोक 42–92 के सब दोष देखकर)', 'No pure marriage lagna on this day (all doshas of shlokas 42–92)'));
@@ -2659,6 +2666,10 @@
                         <td>
                             <b>${strength}%</b>
                             <div class="strength-bar"><div class="strength-fill" style="width:${strength}%; background:${strength>=85?'#2E7D32':(strength>=65?'#B78103':'#C62828')}"></div></div>
+                            ${currentCeremony === 'vivah' ? `<div class="panchang-pct" title="${L('त्रिबल, तिथि व नक्षत्र से — शुद्ध लग्न व पूरे दिन के निषेध (ग्रहण, खरमास आदि) से पहले', 'From tribala, tithi and nakshatra only — before lagna and whole-day prohibitions')}">
+                                ${L('त्रिबल-पंचांग', 'Tribala-panchang')}: <b>${panchangStrength}%</b>
+                                <div class="strength-bar thin"><div class="strength-fill" style="width:${panchangStrength}%; background:${panchangStrength>=85?'#2E7D32':(panchangStrength>=65?'#B78103':'#C62828')}; opacity:.55"></div></div>
+                            </div>` : ''}
                         </td>
                         <td>
                             ${doshas.length === 0 ? `<span style="color:#1B5E20; font-weight:700;">${I18N[currentLang].pureMuhurt}</span>` : doshas.map(d=>`<div class="dosh-card"><span class="dosh-name">⚠️ ${d}</span></div>`).join('')}
@@ -2708,6 +2719,12 @@
             document.getElementById('statsContainer').style.display = 'grid';
             document.getElementById('tableContainer').style.display = 'block';
             document.getElementById('scanTableBody').innerHTML = tableHtml;
+            const legend = document.getElementById('pctLegend');
+            if (legend) {
+                legend.style.display = currentCeremony === 'vivah' ? 'block' : 'none';
+                legend.innerHTML = L('<b>सामर्थ्य</b> = विवाह के लिए अन्तिम निर्णय: जिस दिन एक भी शुद्ध विवाह-लग्न न हो, या ग्रहण, खरमास, मलमास जैसा पूरे दिन का निषेध हो, वह 45% तक सीमित (वर्जित)। <b>त्रिबल-पंचांग</b> = केवल त्रिबल, तिथि व नक्षत्र से — इससे पता चलता है कि कौन-सा दिन बाकी बातों में कितना अच्छा है।',
+                    '<b>Strength</b> = final verdict for the wedding: a day with no pure marriage lagna, or with a whole-day prohibition (eclipse, kharmas, malamasa…), is capped at 45% (avoid). <b>Tribala-panchang</b> = from tribala, tithi and nakshatra only — shows how good the day is otherwise.');
+            }
 
             const tabsWrapper = document.getElementById('resultsTabsWrapper');
             if (tabsWrapper) tabsWrapper.style.display = 'block';
