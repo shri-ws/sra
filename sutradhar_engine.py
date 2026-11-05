@@ -918,6 +918,36 @@ async def trigger_payout_worker():
     return res
 
 
+def get_cashfree_public_key_pem() -> Optional[bytes]:
+    """Retrieves Cashfree RSA public key from environment variable or local data file."""
+    env_pem = os.environ.get("CASHFREE_PUBLIC_KEY")
+    if env_pem:
+        return env_pem.encode("utf-8") if isinstance(env_pem, str) else env_pem
+    pem_path = Path(__file__).resolve().parent / "data" / "cashfree_public_key.pem"
+    if pem_path.exists():
+        try:
+            return pem_path.read_bytes()
+        except Exception:
+            pass
+    return None
+
+
+def generate_cashfree_signature(client_id: str, pem_bytes: bytes) -> Optional[str]:
+    """Generates time-bound Base64 RSA PKCS#1 v1.5 encrypted signature for Cashfree 2FA."""
+    try:
+        import base64
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import padding
+        public_key = serialization.load_pem_public_key(pem_bytes)
+        ts = str(int(time.time()))
+        plain = f"{client_id}.{ts}".encode("utf-8")
+        enc = public_key.encrypt(plain, padding.PKCS1v15())
+        return base64.b64encode(enc).decode("utf-8")
+    except Exception as exc:
+        logging.warning(f"Failed to generate Cashfree signature: {exc}")
+        return None
+
+
 def send_cashfree_payout(
     transfer_id: str,
     amount: float,
@@ -925,8 +955,9 @@ def send_cashfree_payout(
     recipient_name: str = "Sutradhar"
 ) -> Dict[str, Any]:
     """
-    Executes a direct UPI payout via Cashfree Payouts API v2.
-    Supports both Sandbox (Test) and Production (Live) automatically.
+    Executes a direct UPI payout via Cashfree Payouts API.
+    Supports both Public Key 2FA and Tokenized / DirectTransfer methods.
+    Supports Sandbox (Test) and Production (Live) automatically.
     """
     client_id = os.environ.get("CASHFREE_CLIENT_ID", "").strip()
     client_secret = os.environ.get("CASHFREE_CLIENT_SECRET", "").strip()
@@ -934,48 +965,66 @@ def send_cashfree_payout(
         return {"success": False, "error": "Cashfree API keys not configured"}
 
     is_test = "test" in client_secret.lower() or os.environ.get("CASHFREE_ENV", "").upper() == "TEST"
-    base_url = "https://sandbox.cashfree.com/payout" if is_test else "https://api.cashfree.com/payout"
-    url = f"{base_url}/transfers"
+    base_url = "https://payout-gamma.cashfree.com" if is_test else "https://payout-api.cashfree.com"
 
-    headers = {
-        "x-client-id": client_id,
-        "x-client-secret": client_secret,
-        "x-api-version": "2024-01-01",
+    pem_bytes = get_cashfree_public_key_pem()
+    sig = generate_cashfree_signature(client_id, pem_bytes) if pem_bytes else None
+
+    # Step 1: Authorize and retrieve Bearer token
+    auth_headers = {
+        "X-Client-Id": client_id,
+        "X-Client-Secret": client_secret,
         "Content-Type": "application/json"
     }
-
-    payload = {
-        "transfer_id": transfer_id,
-        "transfer_amount": round(float(amount), 2),
-        "transfer_currency": "INR",
-        "transfer_mode": "upi",
-        "beneficiary_details": {
-            "beneficiary_name": (recipient_name or "Sutradhar")[:40],
-            "beneficiary_instrument_details": {
-                "vpa": upi_id
-            }
-        }
-    }
+    if sig:
+        auth_headers["X-CF-Signature"] = sig
 
     try:
         import requests
-        resp = requests.post(url, json=payload, headers=headers, timeout=15)
+        auth_resp = requests.post(f"{base_url}/payout/v1/authorize", headers=auth_headers, json={}, timeout=15)
+        auth_data = auth_resp.json() if auth_resp.text else {}
+        if auth_resp.status_code != 200 or auth_data.get("status") != "SUCCESS":
+            err_msg = auth_data.get("message") or auth_resp.text
+            return {"success": False, "error": f"Cashfree Auth Failed: {err_msg}", "is_test": is_test}
+
+        token = auth_data.get("data", {}).get("token")
+        if not token:
+            return {"success": False, "error": "Cashfree Auth Failed: Token missing in response", "is_test": is_test}
+
+        # Step 2: Direct UPI Transfer
+        transfer_headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "amount": round(float(amount), 2),
+            "transferId": transfer_id,
+            "transferMode": "upi",
+            "remarks": f"Sutradhar Commission {transfer_id}",
+            "beneDetails": {
+                "name": (recipient_name or "Sutradhar")[:40],
+                "phone": "9453561588",
+                "vpa": upi_id
+            }
+        }
+        resp = requests.post(f"{base_url}/payout/v1.2/directTransfer", headers=transfer_headers, json=payload, timeout=20)
         data = resp.json() if resp.text else {}
-        if resp.status_code in (200, 201, 202):
-            status_val = data.get("status", "").upper()
-            utr = data.get("bank_reference") or data.get("utr") or data.get("reference_id")
+
+        if resp.status_code == 200 and data.get("status") == "SUCCESS":
+            transfer_data = data.get("data", {})
+            utr = transfer_data.get("utr") or transfer_data.get("referenceId") or transfer_id
             return {
                 "success": True,
-                "status": status_val,
+                "status": "paid",
                 "utr": utr,
-                "data": data,
+                "data": transfer_data,
                 "is_test": is_test
             }
         else:
             err_msg = data.get("message") or data.get("subCode") or resp.text
             return {
                 "success": False,
-                "error": f"Cashfree ({resp.status_code}): {err_msg}",
+                "error": f"Cashfree Transfer Failed: {err_msg}",
                 "is_test": is_test
             }
     except Exception as exc:
