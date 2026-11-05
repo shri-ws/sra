@@ -1611,6 +1611,20 @@ async function fetchCareerApplications() {
     }
   }
 
+  // 0. Primary: Fetch all career applications directly from Hostinger server API
+  try {
+    const sraKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'SRA#2026';
+    const serverResp = await fetch('api/get_career_applications.php?admin_key=' + encodeURIComponent(sraKey));
+    if (serverResp.ok) {
+      const serverData = await serverResp.json();
+      if (serverData && serverData.applications && Array.isArray(serverData.applications)) {
+        serverData.applications.forEach(addItem);
+      }
+    }
+  } catch (err) {
+    console.warn("Could not fetch server career applications:", err);
+  }
+
   // 1. Check D.users (which was already fetched from user_queries in loadAll)
   if (D.users && Array.isArray(D.users)) {
     D.users.filter(u => 
