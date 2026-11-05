@@ -217,6 +217,7 @@ class ReviewActionRequest(BaseModel):
     commission_id: str
     action: str = Field(..., description="'retry' or 'cancel'")
     reason: Optional[str] = Field(None, description="Reason for cancellation or notes")
+    upi_id: Optional[str] = Field(None, description="Optional UPI ID for retry")
 
 class RegisterSutradharRequest(BaseModel):
     name: str
@@ -224,6 +225,7 @@ class RegisterSutradharRequest(BaseModel):
     email: Optional[str] = None
     upi_id: str
     pan: Optional[str] = None
+    code: Optional[str] = None
 
 
 # =============================================================================
@@ -253,10 +255,10 @@ async def register_or_sync_sutradhar(req: RegisterSutradharRequest):
 
     if existing:
         s_id = existing["id"]
-        code = existing.get("code") or existing.get("sutradhar_id") or f"SUTRA-{clean_phone[-4:]}-01"
+        code = req.code or existing.get("code") or existing.get("sutradhar_id") or f"SUTRA-{clean_phone[-4:]}-01"
     else:
         s_id = f"SUTRA-{clean_phone[-4:]}-01"
-        code = f"SRA-{os.urandom(3).hex().upper()}"
+        code = req.code or f"SRA-{os.urandom(3).hex().upper()}"
 
     sutradhar_doc = {
         "id": s_id,
@@ -898,7 +900,8 @@ async def process_pending_payouts() -> Dict[str, Any]:
             sutradhar = next((s for s in all_s if s.get("sutradhar_id") == sutra_id or s.get("code") == sutra_id), None)
 
         # Check Sutradhar validity
-        if not sutradhar or sutradhar.get("status") == "paused":
+        upi_id = comm.get("upi_id") or (sutradhar.get("upi_id", "") if sutradhar else "")
+        if (sutradhar and sutradhar.get("status") == "paused") or (not sutradhar and not upi_id):
             comm["status"] = "requires_review"
             comm["failure_reason"] = "सूत्रधार प्रोफ़ाइल रुकी हुई (paused) है या उपलब्ध नहीं है।"
             SutradharStore.set_doc("commissions", comm_id, comm)
@@ -906,7 +909,6 @@ async def process_pending_payouts() -> Dict[str, Any]:
             results.append({"commission_id": comm_id, "status": "requires_review", "reason": comm["failure_reason"]})
             continue
 
-        upi_id = sutradhar.get("upi_id", "")
         if not upi_id or "@" not in upi_id or "invalid" in upi_id or "fail" in upi_id:
             comm["status"] = "requires_review"
             comm["failure_reason"] = "अमान्य UPI आईडी (UPI ID missing or invalid)"
@@ -993,8 +995,16 @@ async def take_admin_review_action(req: ReviewActionRequest):
     if req.action == "retry":
         comm["status"] = "created"
         comm["failure_reason"] = None
+        if req.upi_id:
+            comm["upi_id"] = req.upi_id.strip().lower()
+            s_id = comm.get("sutradhar_id")
+            if s_id:
+                s_obj = SutradharStore.get_doc("sutradhars", s_id)
+                if s_obj:
+                    s_obj["upi_id"] = req.upi_id.strip().lower()
+                    SutradharStore.set_doc("sutradhars", s_id, s_obj)
         SutradharStore.set_doc("commissions", req.commission_id, comm)
-        log_audit_event("ADMIN_RETRY_PAYOUT", "admin", {"commission_id": req.commission_id})
+        log_audit_event("ADMIN_RETRY_PAYOUT", "admin", {"commission_id": req.commission_id, "upi": req.upi_id})
         # Try payout again immediately
         await process_pending_payouts()
         return {"status": "success", "message": "पेआउट पुनः प्रोसेस करने हेतु कतार में डाल दिया गया है।"}
