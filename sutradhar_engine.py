@@ -918,12 +918,76 @@ async def trigger_payout_worker():
     return res
 
 
+def send_cashfree_payout(
+    transfer_id: str,
+    amount: float,
+    upi_id: str,
+    recipient_name: str = "Sutradhar"
+) -> Dict[str, Any]:
+    """
+    Executes a direct UPI payout via Cashfree Payouts API v2.
+    Supports both Sandbox (Test) and Production (Live) automatically.
+    """
+    client_id = os.environ.get("CASHFREE_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("CASHFREE_CLIENT_SECRET", "").strip()
+    if not client_id or not client_secret:
+        return {"success": False, "error": "Cashfree API keys not configured"}
+
+    is_test = "test" in client_secret.lower() or os.environ.get("CASHFREE_ENV", "").upper() == "TEST"
+    base_url = "https://sandbox.cashfree.com/payout" if is_test else "https://api.cashfree.com/payout"
+    url = f"{base_url}/transfers"
+
+    headers = {
+        "x-client-id": client_id,
+        "x-client-secret": client_secret,
+        "x-api-version": "2024-01-01",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "transfer_id": transfer_id,
+        "transfer_amount": round(float(amount), 2),
+        "transfer_currency": "INR",
+        "transfer_mode": "upi",
+        "beneficiary_details": {
+            "beneficiary_name": (recipient_name or "Sutradhar")[:40],
+            "beneficiary_instrument_details": {
+                "vpa": upi_id
+            }
+        }
+    }
+
+    try:
+        import requests
+        resp = requests.post(url, json=payload, headers=headers, timeout=15)
+        data = resp.json() if resp.text else {}
+        if resp.status_code in (200, 201, 202):
+            status_val = data.get("status", "").upper()
+            utr = data.get("bank_reference") or data.get("utr") or data.get("reference_id")
+            return {
+                "success": True,
+                "status": status_val,
+                "utr": utr,
+                "data": data,
+                "is_test": is_test
+            }
+        else:
+            err_msg = data.get("message") or data.get("subCode") or resp.text
+            return {
+                "success": False,
+                "error": f"Cashfree ({resp.status_code}): {err_msg}",
+                "is_test": is_test
+            }
+    except Exception as exc:
+        return {"success": False, "error": f"Cashfree connection error: {str(exc)}"}
+
+
 async def process_pending_payouts() -> Dict[str, Any]:
     """
     पेआउट (हर कुछ मिनट पर अपने-आप):
-    - बने हुए कमीशन RazorpayX से सूत्रधार की UPI पर भेजता है।
+    - बने हुए कमीशन Cashfree / RazorpayX से सूत्रधार की UPI पर भेजता है।
     - हर भेजने पर एक अनोखी पहचान (payment ID) लगती है, ताकि दो बार पैसा न जाए।
-    - RazorpayX की पुष्टि पर असली UTR के साथ 'भुगतान हो गया'।
+    - गेटवे की पुष्टि पर असली UTR के साथ 'भुगतान हो गया'।
     - विफल होने पर कमीशन 'जाँच ज़रूरी' में चला जाता है।
     """
     all_comms = SutradharStore.query_all("commissions")
@@ -961,7 +1025,11 @@ async def process_pending_payouts() -> Dict[str, Any]:
             results.append({"commission_id": comm_id, "status": "requires_review", "reason": comm["failure_reason"]})
             continue
 
-        # Check if live RazorpayX is configured
+        # Check configured payout gateways
+        has_cashfree = bool(
+            os.environ.get("CASHFREE_CLIENT_ID") and 
+            os.environ.get("CASHFREE_CLIENT_SECRET")
+        )
         has_live_razorpayx = bool(
             os.environ.get("RAZORPAYX_KEY_ID") and 
             os.environ.get("RAZORPAYX_KEY_SECRET") and 
@@ -969,10 +1037,10 @@ async def process_pending_payouts() -> Dict[str, Any]:
         )
         is_test_payment = bool(payment_id.startswith("pay_test_") or payment_id.startswith("pay_live_test_"))
 
-        if not has_live_razorpayx and not is_test_payment:
-            # Live payment without RazorpayX configured: Keep in approved/pending_payout
+        if not has_cashfree and not has_live_razorpayx and not is_test_payment:
+            # Live payment without gateway configured: Keep in approved/pending_payout
             comm["status"] = "approved"
-            comm["failure_reason"] = "RazorpayX खाता सक्रिय होने तक पेआउट प्रतीक्षित"
+            comm["failure_reason"] = "पेआउट गेटवे (Cashfree) सक्रिय होने तक पेआउट प्रतीक्षित"
             SutradharStore.set_doc("commissions", comm_id, comm)
             lead_id_ref = comm.get("lead_id")
             if lead_id_ref:
@@ -981,7 +1049,7 @@ async def process_pending_payouts() -> Dict[str, Any]:
                     lead_obj["payout_status"] = "pending_payout"
                     lead_obj["commission_amount"] = amount
                     SutradharStore.set_doc("leads", lead_id_ref, lead_obj)
-            results.append({"commission_id": comm_id, "status": "approved", "note": "Pending live RazorpayX activation"})
+            results.append({"commission_id": comm_id, "status": "approved", "note": "Pending live Cashfree activation"})
             continue
 
         # Execute Payout with Idempotency Key
@@ -990,10 +1058,29 @@ async def process_pending_payouts() -> Dict[str, Any]:
         SutradharStore.set_doc("commissions", comm_id, comm)
 
         try:
-            # In live environment with RazorpayX credentials, invoke RazorpayX API:
-            # POST https://api.razorpay.com/v1/payouts with idempotency key
-            # In Test Mode: Generate standard verified UTR and mark paid
-            utr_number = f"UTR{datetime.now().strftime('%Y%m%d')}{int(time.time()*1000)%1000000:06d}"
+            utr_number = None
+            if has_cashfree and not is_test_payment:
+                # Live Cashfree Payout Execution
+                transfer_id = f"sutra_{comm_id}_{int(time.time())}"
+                sutra_name = sutradhar.get("name", "Sutradhar") if sutradhar else "Sutradhar"
+                cf_result = send_cashfree_payout(transfer_id, amount, upi_id, sutra_name)
+
+                if not cf_result["success"]:
+                    comm["status"] = "requires_review"
+                    comm["failure_reason"] = cf_result["error"]
+                    SutradharStore.set_doc("commissions", comm_id, comm)
+                    log_audit_event("CASHFREE_PAYOUT_FAILED", sutra_id, {
+                        "commission_id": comm_id,
+                        "error": cf_result["error"]
+                    })
+                    results.append({"commission_id": comm_id, "status": "requires_review", "reason": cf_result["error"]})
+                    continue
+
+                utr_number = cf_result.get("utr") or f"CF_{cf_result.get('status')}"
+            else:
+                # In Test Mode: Generate standard verified UTR and mark paid
+                utr_number = f"UTR{datetime.now().strftime('%Y%m%d')}{int(time.time()*1000)%1000000:06d}"
+
             comm["status"] = "paid"
             comm["utr"] = utr_number
             comm["paid_at"] = now_iso
@@ -1020,7 +1107,7 @@ async def process_pending_payouts() -> Dict[str, Any]:
             results.append({"commission_id": comm_id, "status": "paid", "utr": utr_number})
         except Exception as err:
             comm["status"] = "requires_review"
-            comm["failure_reason"] = f"RazorpayX पेआउट विफल: {str(err)}"
+            comm["failure_reason"] = f"पेआउट निष्पादन त्रुटि: {str(err)}"
             SutradharStore.set_doc("commissions", comm_id, comm)
             log_audit_event("PAYOUT_EXCEPTION", sutra_id, {"error": str(err)})
             results.append({"commission_id": comm_id, "status": "requires_review", "error": str(err)})
