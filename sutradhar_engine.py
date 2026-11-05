@@ -1170,6 +1170,17 @@ async def take_admin_review_action(req: ReviewActionRequest):
 # -----------------------------------------------------------------------------
 # ENDPOINT 8: SUTRADHAR SUMMARY FOR DASHBOARD STATS
 # -----------------------------------------------------------------------------
+@router.get("/login")
+async def login_sutradhar(phone: str = Query(..., description="Registered Sutradhar phone")):
+    """Returns sutradhar profile if phone is found, 404 otherwise. No OTP for MVP."""
+    clean_phone = normalize_phone(phone)
+    all_sutras = SutradharStore.query_all("sutradhars")
+    sutradhar = next((s for s in all_sutras if s.get("phone") == clean_phone), None)
+    if not sutradhar:
+        raise HTTPException(status_code=404, detail="यह नंबर सूत्रधार के रूप में पंजीकृत नहीं है।")
+    return {"status": "success", "sutradhar": sutradhar}
+
+
 @router.get("/summary")
 async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutradhar ID")):
     """Calculates live today, this month, and lifetime commissions for the Sutradhar."""
