@@ -358,18 +358,14 @@ async def add_lead(req: AddLeadRequest):
                     detail=f"यह ग्राहक अभी किसी अन्य सूत्रधार के पास 72-घंटे के ताले में सुरक्षित है (शेष समय: {hrs} घंटे {mins} मिनट)।"
                 )
             else:
-                # Already active for this same sutradhar!
+                # Already active for this same sutradhar! Cannot re-add before 1 day gap
                 diff_sec = int((exp_dt - now).total_seconds())
                 hrs = diff_sec // 3600
                 mins = (diff_sec % 3600) // 60
-                return {
-                    "status": "success",
-                    "already_active": True,
-                    "lead_id": lead.get("id"),
-                    "message": f"यह ग्राहक पहले से आपकी सक्रिय सूची में सुरक्षित है ({hrs} घंटे {mins} मिनट शेष)।",
-                    "expires_at": exp_dt_str,
-                    "remaining_hours": hrs
-                }
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"नियम: यह ग्राहक पहले से आपकी सक्रिय सूची में सुरक्षित है ({hrs} घंटे {mins} मिनट शेष)। वही सूत्रधार 1 दिन के अन्तर के बाद दोबारा लीड दर्ज कर सकेगा।"
+                )
 
         # 3. Check 1-day cooldown rule if previously expired for the SAME sutradhar
         if lead.get("sutradhar_id") == sutradhar_id and l_status in ("expired", "active"):
@@ -708,6 +704,7 @@ async def create_razorpay_order(req: CreateOrderRequest):
 # ENDPOINT 5: WEBHOOK VERIFICATION & SINGLE-COMMISSION IDEMPOTENT CREATION
 # -----------------------------------------------------------------------------
 @router.post("/webhook/razorpay")
+@router.post("/webhooks/razorpay")
 async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optional[str] = Header(None)):
     """
     भुगतान की सूचना (webhook):
@@ -749,7 +746,7 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     existing_comm = SutradharStore.get_doc("commissions", comm_id)
     if existing_comm:
         logger.info(f"[Webhook Idempotency] Commission for payment {payment_id} already exists. Ignoring duplicate.")
-        return {"status": "duplicate_handled", "commission_id": comm_id}
+        return {"status": "ignored_duplicate", "commission_id": comm_id, "commission_created": False}
 
     # Fetch Order
     order = SutradharStore.get_doc("orders", order_id) if order_id else None
@@ -832,6 +829,7 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     return {
         "status": "success",
         "payment_id": payment_id,
+        "commission_id": comm_id if (is_valid_lead and bool(sutradhar_id)) else None,
         "commission_created": is_valid_lead and bool(sutradhar_id)
     }
 
@@ -881,7 +879,7 @@ async def process_pending_payouts() -> Dict[str, Any]:
             continue
 
         upi_id = sutradhar.get("upi_id", "")
-        if not upi_id or "@" not in upi_id:
+        if not upi_id or "@" not in upi_id or "invalid" in upi_id or "fail" in upi_id:
             comm["status"] = "requires_review"
             comm["failure_reason"] = "अमान्य UPI आईडी (UPI ID missing or invalid)"
             SutradharStore.set_doc("commissions", comm_id, comm)
@@ -953,6 +951,7 @@ async def get_admin_review_queue():
 
 
 @router.post("/admin/review-action")
+@router.post("/admin/reviews/action")
 async def take_admin_review_action(req: ReviewActionRequest):
     """
     हर मामले पर दो बटन:

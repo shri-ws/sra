@@ -2387,12 +2387,12 @@
       const clientPhone = (document.getElementById('inMangalPhone') || {}).value || localStorage.getItem('sra_verified_mobile') || '';
       if (clientPhone && window.SraCouponEngine && SraCouponEngine.fetchServerQuote && !window._manglikCoupon) {
         SraCouponEngine.fetchServerQuote(clientPhone, 'manglik_dosha', null).then(quote => {
-          if (quote && (quote.auto_applied || quote.lead_active)) {
+          if (quote && (quote.auto_applied || quote.has_active_lead || quote.lead_active)) {
             window._manglikDiscount = quote.discount_amount || 20;
             window._manglikCoupon = quote.sutradhar_code || quote.sutradhar_id;
             window._manglikSutradhar = quote.sutradhar_id;
             const netEl = document.getElementById('dispManglikNetPayableInline');
-            if (netEl) netEl.innerHTML = `₹${quote.final_price || 179}`;
+            if (netEl) netEl.innerHTML = `₹${quote.final_price || quote.net_price || 179}`;
             const discRow = document.getElementById('dispManglikSutraDiscRowInline');
             if (discRow) {
               discRow.style.display = 'flex';
@@ -2400,11 +2400,11 @@
               if (discVal) discVal.innerText = `-₹${quote.discount_amount} (स्वचालित 10% छूट)`;
             }
             const payBtn = document.getElementById('btnRzpManglikPayInline');
-            if (payBtn) payBtn.innerHTML = `💳 ₹${quote.final_price || 179} ऑनलाइन भुगतान करें (10% छूट लागू)`;
+            if (payBtn) payBtn.innerHTML = `💳 ₹${quote.final_price || quote.net_price || 179} ऑनलाइन भुगतान करें (10% छूट लागू)`;
             const msgEl = document.getElementById('manglikOwnerCodeMsgInline');
             if (msgEl) {
               msgEl.style.color = '#15803d';
-              msgEl.innerHTML = `✨ <b>विशेष 10% छूट लागू!</b> सूत्रधार (${window._manglikCoupon}) की सक्रिय लीड के तहत स्वचालित छूट प्राप्त हुई।`;
+              msgEl.innerHTML = `✨ <b>आपको 10% विशेष छूट मिली है।</b> (सूत्रधार कूपन ${window._manglikCoupon} स्वतः लागू)`;
               msgEl.style.display = 'block';
             }
             const inp = document.getElementById('manglikOwnerCodeInline');
@@ -2538,7 +2538,7 @@
       // Invalid code error message
       if (msgEl) {
         msgEl.style.color = '#b91c1c';
-        msgEl.innerHTML = '❌ अमान्य कूपन कोड। कृपया सूत्रधार द्वारा प्रदत्त सही कोड (उदा. SD-105 या SUTRA-XXXX) दर्ज करें।';
+        msgEl.innerHTML = '❌ यह कूपन आपके लिए मान्य नहीं है।';
         msgEl.style.display = 'block';
       }
     }

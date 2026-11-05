@@ -7,6 +7,7 @@
 <title>Admin — Shri Ramji Astro</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 <script src="theme.js"></script>
+<script src="sra-config.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root, [data-theme="day"] {
@@ -2280,7 +2281,8 @@ async function loadSutradharReviewQueue() {
   if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="empty-row"><span class="spin"></span> लोड हो रहा है...</td></tr>';
 
   try {
-    const res = await fetch('/api/sutradhar/admin/reviews');
+    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const res = await fetch(apiBase + '/api/sutradhar/admin/reviews');
     if (!res.ok) throw new Error('सर्वर से समीक्षा कतार लोड नहीं हो सकी');
     const data = await res.json();
     const queue = data.queue || [];
@@ -2346,7 +2348,8 @@ async function reviewActionSutradhar(commissionId, action) {
   }
 
   try {
-    const res = await fetch('/api/sutradhar/admin/review-action', {
+    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const res = await fetch(apiBase + '/api/sutradhar/admin/review-action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ commission_id: commissionId, action: action, reason: reason })
@@ -2363,7 +2366,8 @@ async function reviewActionSutradhar(commissionId, action) {
 async function triggerSutradharBatchPayouts() {
   if (!confirm('क्या आप सभी पेंडिंग सूत्रधार पेआउट तुरंत प्रोसेस करना चाहते हैं?')) return;
   try {
-    const res = await fetch('/api/sutradhar/payouts/process', {
+    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const res = await fetch(apiBase + '/api/sutradhar/payouts/process', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})

@@ -4496,7 +4496,8 @@
       }
 
       try {
-        const resp = await fetch('/api/sutradhar/leads/add', {
+        const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+        const resp = await fetch(apiBase + '/api/sutradhar/leads/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -4534,9 +4535,10 @@
       const sutraId = registeredCandidate?.sutradhar_id || registeredCandidate?.code || (registeredCandidate?.phone ? ('SRA-' + String(registeredCandidate.phone).slice(-6).toUpperCase()) : 'SRA-7K3M9Q');
 
       try {
+        const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
         const [leadsRes, sumRes] = await Promise.all([
-          fetch(`/api/sutradhar/leads/list?sutradhar_id=${encodeURIComponent(sutraId)}`),
-          fetch(`/api/sutradhar/summary?sutradhar_id=${encodeURIComponent(sutraId)}`)
+          fetch(`${apiBase}/api/sutradhar/leads/list?sutradhar_id=${encodeURIComponent(sutraId)}`),
+          fetch(`${apiBase}/api/sutradhar/summary?sutradhar_id=${encodeURIComponent(sutraId)}`)
         ]);
 
         if (sumRes.ok) {
