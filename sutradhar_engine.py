@@ -961,6 +961,29 @@ async def process_pending_payouts() -> Dict[str, Any]:
             results.append({"commission_id": comm_id, "status": "requires_review", "reason": comm["failure_reason"]})
             continue
 
+        # Check if live RazorpayX is configured
+        has_live_razorpayx = bool(
+            os.environ.get("RAZORPAYX_KEY_ID") and 
+            os.environ.get("RAZORPAYX_KEY_SECRET") and 
+            os.environ.get("RAZORPAYX_ACCOUNT_NUMBER")
+        )
+        is_test_payment = bool(payment_id.startswith("pay_test_") or payment_id.startswith("pay_live_test_"))
+
+        if not has_live_razorpayx and not is_test_payment:
+            # Live payment without RazorpayX configured: Keep in approved/pending_payout
+            comm["status"] = "approved"
+            comm["failure_reason"] = "RazorpayX खाता सक्रिय होने तक पेआउट प्रतीक्षित"
+            SutradharStore.set_doc("commissions", comm_id, comm)
+            lead_id_ref = comm.get("lead_id")
+            if lead_id_ref:
+                lead_obj = SutradharStore.get_doc("leads", lead_id_ref)
+                if lead_obj:
+                    lead_obj["payout_status"] = "pending_payout"
+                    lead_obj["commission_amount"] = amount
+                    SutradharStore.set_doc("leads", lead_id_ref, lead_obj)
+            results.append({"commission_id": comm_id, "status": "approved", "note": "Pending live RazorpayX activation"})
+            continue
+
         # Execute Payout with Idempotency Key
         idempotency_key = f"payout_{payment_id}"
         comm["status"] = "processing"
@@ -1075,7 +1098,7 @@ async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutr
         c for c in all_comms 
         if (c.get("sutradhar_id", "").upper() in matching_ids or 
             c.get("sutradhar_code", "").upper() in matching_ids) and 
-           c.get("status") == "paid"
+           c.get("status") in ("paid", "approved")
     ]
 
     now = datetime.now(timezone.utc)
@@ -1085,6 +1108,8 @@ async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutr
     today_total = 0
     month_total = 0
     lifetime_total = 0
+    paid_total = 0
+    pending_payout_total = 0
 
     for c in sutra_comms:
         amt = c.get("amount", 0)
@@ -1094,6 +1119,10 @@ async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutr
             today_total += amt
         if p_at.startswith(month_str):
             month_total += amt
+        if c.get("status") == "paid":
+            paid_total += amt
+        elif c.get("status") == "approved":
+            pending_payout_total += amt
 
     all_leads = SutradharStore.query_all("leads")
     my_leads = [
@@ -1125,6 +1154,8 @@ async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutr
         "month_commission": month_total,
         "lifetime_commission": lifetime_total,
         "total_commission": lifetime_total,
+        "paid_commission": paid_total,
+        "pending_payout": pending_payout_total,
         "active_leads": active_leads,
         "converted_leads": converted_leads,
         "total_leads": len(my_leads),
@@ -1133,6 +1164,8 @@ async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutr
             "month_commission": month_total,
             "total_commission": lifetime_total,
             "lifetime_commission": lifetime_total,
+            "paid_commission": paid_total,
+            "pending_payout": pending_payout_total,
             "active_leads": active_leads,
             "converted_leads": converted_leads,
             "total_leads": len(my_leads)

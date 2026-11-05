@@ -4530,6 +4530,7 @@
           sutradharClaimsLedger = leads.map(l => {
             const isConverted = (l.status === 'converted');
             const isExpired = (l.status === 'expired');
+            const isPaid = (l.payout_status === 'transferred' && Boolean(l.utr));
             const commAmt = l.commission_amount || (isConverted ? 20 : 0);
             return {
               id: l.lead_id || l.id,
@@ -4538,17 +4539,18 @@
               custName: l.customer_name || 'जातक',
               custPhone: l.customer_phone || '',
               product: l.product || 'वैदिक ज्योतिष सेवा',
-              paid: isConverted ? '✓ प्राप्त' : (isExpired ? 'समाप्त' : 'प्रतीक्षित'),
+              paid: isPaid ? '✓ प्राप्त' : (isConverted ? '⚡ पेआउट प्रतीक्षित' : (isExpired ? 'समाप्त' : 'प्रतीक्षित')),
               coupon: `${l.sutradhar_code || sutraId} (-10%)`,
               channel: '🏷️ 10% कूपन ऑटो-पे',
               incentiveNum: commAmt,
               incentiveStr: commAmt ? `₹${commAmt}` : (isConverted ? '₹20' : '₹20 - ₹1,500'),
               status: l.status,
-              status_label: l.status_label || (isConverted ? 'सफल खरीद (पेआउट)' : (isExpired ? 'समय समाप्त' : 'चालू (ताला सक्रिय)')),
+              status_label: l.status_label || (isPaid ? 'सफल खरीद (पेआउट पूर्ण)' : (isConverted ? 'सफल खरीद (पेआउट प्रतीक्षित)' : (isExpired ? 'समय समाप्त' : 'चालू (ताला सक्रिय)'))),
               remaining_seconds: l.remaining_seconds || 0,
               remaining_text: l.countdown_text || l.remaining_text || (isConverted ? 'खरीद पूर्ण' : (isExpired ? 'समय समाप्त' : '3 दिन शेष')),
               upi: registeredCandidate?.upi_id || 'astroraamji@ptaxis',
-              isVerified: isConverted,
+              isVerified: isPaid,
+              isApproved: isConverted,
               utr: l.utr || null,
               timeStr: l.created_at ? (new Date(l.created_at).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date(l.created_at).toLocaleDateString('hi-IN')) : 'आज'
             };
@@ -4562,7 +4564,7 @@
             coupon: c.coupon,
             paid: c.paid,
             incentive: c.incentiveStr,
-            payout: c.isVerified ? `✓ पेआउट सफल ${c.utr ? `(${c.utr})` : ''}` : (c.status === 'expired' ? 'समय समाप्त' : `⏱️ ${c.remaining_text}`)
+            payout: c.utr ? `✓ पेआउट सफल (${c.utr})` : (c.isApproved ? '⚡ पेआउट कतार (प्रतीक्षित)' : (c.status === 'expired' ? 'समय समाप्त' : `⏱️ ${c.remaining_text}`))
           }));
 
           updateSutradharMetricsAndClaimsUI();
