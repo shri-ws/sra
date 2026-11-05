@@ -185,6 +185,39 @@
       const data = parseBody(init);
       if (data) {
         const col = /save_payment/.test(url) ? 'payments' : 'user_queries';
+        if (col === 'payments') {
+          // Immediately notify Sutradhar Engine on Render so commission & payout are triggered
+          try {
+            const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+            const cleanPhone = String(data.student_phone || data.phone || '').replace(/[^0-9]/g, '').slice(-10);
+            const payId = String(data.razorpay_payment_id || ('pay_' + Date.now()));
+            realFetch(apiBase + '/api/sutradhar/webhook/razorpay', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                event: 'payment.captured',
+                payload: {
+                  payment: {
+                    entity: {
+                      id: payId,
+                      amount: (data.amount || 199) * 100,
+                      currency: 'INR',
+                      status: 'captured',
+                      contact: cleanPhone,
+                      notes: {
+                        customer_phone: cleanPhone,
+                        service_id: data.service_id || data.report_type || 'mangal_dosha',
+                        coupon_code: data.coupon_code || '',
+                        sutradhar_code: data.sutradhar_code || data.coupon_code || '',
+                        sutradhar_id: data.sutradhar_id || ''
+                      }
+                    }
+                  }
+                }
+              })
+            }).catch(e => console.warn('[Sutradhar Webhook Backup Call]', e));
+          } catch(e) {}
+        }
         return addSoon(col, data).then(rec => json(rec ? { status: 'success', id: rec.id } : { status: 'error' }, rec ? 200 : 503));
       }
     }
