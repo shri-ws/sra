@@ -464,9 +464,14 @@ async def list_sutradhar_leads(sutradhar_id: str = Query(..., description="Sutra
             countdown_text = "समय समाप्त ⏰"
 
         item = dict(l)
+        item["lead_id"] = l.get("id", "")
+        item["commission_amount"] = l.get("commission_amount", 0)
+        item["utr"] = l.get("utr", "")
         item["remaining_seconds"] = remaining_sec
         item["countdown_text"] = countdown_text
+        item["remaining_text"] = countdown_text
         item["status"] = curr_status
+        item["status_label"] = "चालू (ताला सक्रिय)" if curr_status == "active" else ("सफल खरीद" if curr_status == "converted" else "समय समाप्त")
         enriched.append(item)
 
     # Sort newest first
@@ -533,14 +538,17 @@ async def get_checkout_quote(req: QuoteRequest):
             "status": "success",
             "valid": True,
             "has_active_lead": True,
+            "auto_applied": True,
             "lead_id": active_lead["id"],
             "sutradhar_id": active_lead["sutradhar_id"],
             "sutradhar_code": sutra_code,
             "service_id": service_id,
             "base_price": base_price,
+            "original_price": base_price,
             "discount_percent": 10,
             "discount_amount": discount_amount,
             "net_price": net_price,
+            "final_price": net_price,
             "net_price_paise": net_price * 100,
             "message": "✨ आपको सूत्रधार द्वारा 10% विशेष छात्रवृत्ति छूट प्राप्त हुई है।"
         }
@@ -599,10 +607,13 @@ async def get_checkout_quote(req: QuoteRequest):
         "status": "success",
         "valid": True,
         "has_active_lead": False,
+        "auto_applied": False,
         "service_id": service_id,
         "base_price": base_price,
+        "original_price": base_price,
         "discount_amount": 0,
         "net_price": base_price,
+        "final_price": base_price,
         "net_price_paise": base_price * 100,
         "message": "पूर्ण दक्षिणा मूल्य"
     }
@@ -795,6 +806,7 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         comm_record = {
             "id": comm_id,
             "commission_id": comm_id,
+            "lead_id": lead["id"] if lead else lead_id,
             "payment_id": payment_id,
             "order_id": order_id,
             "sutradhar_id": sutradhar_id,
@@ -893,6 +905,16 @@ async def process_pending_payouts() -> Dict[str, Any]:
             comm["upi_id"] = upi_id
             comm["failure_reason"] = None
             SutradharStore.set_doc("commissions", comm_id, comm)
+
+            # Update lead record with payout details
+            lead_id_ref = comm.get("lead_id")
+            if lead_id_ref:
+                lead_obj = SutradharStore.get_doc("leads", lead_id_ref)
+                if lead_obj:
+                    lead_obj["payout_status"] = "transferred"
+                    lead_obj["utr"] = utr_number
+                    lead_obj["commission_amount"] = amount
+                    SutradharStore.set_doc("leads", lead_id_ref, lead_obj)
 
             log_audit_event("PAYOUT_SUCCESS", sutra_id, {
                 "commission_id": comm_id,
@@ -999,10 +1021,18 @@ async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutr
         "sutradhar_id": s_id,
         "code": sutradhar.get("code", s_id) if sutradhar else s_id,
         "upi_id": sutradhar.get("upi_id", "") if sutradhar else "",
+        "today_commission": today_total,
+        "month_commission": month_total,
+        "lifetime_commission": lifetime_total,
+        "total_commission": lifetime_total,
+        "active_leads": active_leads,
+        "converted_leads": converted_leads,
+        "total_leads": len(my_leads),
         "stats": {
             "today_commission": today_total,
             "month_commission": month_total,
             "total_commission": lifetime_total,
+            "lifetime_commission": lifetime_total,
             "active_leads": active_leads,
             "converted_leads": converted_leads,
             "total_leads": len(my_leads)
