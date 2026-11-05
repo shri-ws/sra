@@ -1009,12 +1009,13 @@ async function fetchPayments(){
 
   // Check any local unlocks/payments stored in localStorage on this device
   const localPayments = [];
+  const deletedPayIds = new Set(JSON.parse(localStorage.getItem('sra_deleted_pay_ids') || '[]'));
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && (key.startsWith('sra_mega_payid_') || key.startsWith('sra_parashara_') || key.startsWith('sra_dhan_pay_id_') || key.startsWith('sra_mangal_pay_id_'))) {
         const payId = localStorage.getItem(key);
-        if (payId && (payId.startsWith('pay_') || payId.startsWith('RZP_'))) {
+        if (payId && (payId.startsWith('pay_') || payId.startsWith('RZP_')) && !deletedPayIds.has(payId)) {
           localPayments.push({
             razorpay_payment_id: payId,
             student_name: 'वेरिफाइड जातक',
@@ -1029,12 +1030,12 @@ async function fetchPayments(){
     }
   } catch(e) {}
 
-  // Merge and deduplicate by razorpay_payment_id
-  const merged = [...serverPayments];
-  const seen = new Set(serverPayments.map(p => p.razorpay_payment_id || p.id));
-  [...firestorePayments, ...localPayments].forEach(p => {
+  // Merge and deduplicate by razorpay_payment_id, excluding deleted ones
+  const merged = [];
+  const seen = new Set();
+  [...serverPayments, ...firestorePayments, ...localPayments].forEach(p => {
     const pid = p.razorpay_payment_id || p.id;
-    if (pid && !seen.has(pid)) {
+    if (pid && !seen.has(pid) && !deletedPayIds.has(pid)) {
       merged.push(p);
       seen.add(pid);
     }
@@ -1070,28 +1071,27 @@ async function fetchUserQueries(){
   }));
 
   let local = [];
+  const deletedUserIds = new Set(JSON.parse(localStorage.getItem('sra_deleted_user_ids') || '[]'));
   try {
     local = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
   } catch(e) {}
 
   // Merge server + firestore + local
-  const combined = [...serverData];
+  const combined = [];
   const seen = new Set();
-  serverData.forEach(u => {
-    seen.add((u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16));
-  });
-  firestoreData.forEach(u => {
+  [...serverData, ...firestoreData].forEach(u => {
     const k = (u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16);
-    if (!seen.has(k)) {
+    const uid = u.id || u.phone;
+    if (!seen.has(k) && !deletedUserIds.has(uid) && !deletedUserIds.has(u.phone)) {
       combined.push(u);
       seen.add(k);
     }
   });
   local.forEach(u => {
     const k = (u.phone || '').trim() + '_' + (u.logged_at || '').slice(0,16);
-    if (!seen.has(k)) {
+    if (!seen.has(k) && !deletedUserIds.has(u.phone)) {
       combined.push({
-        id: 'local_' + Math.random().toString(36).substring(7),
+        id: 'local_' + (u.phone || Math.random().toString(36).substring(7)),
         phone: u.phone,
         email: u.email,
         candidate_name: u.name,
@@ -1440,11 +1440,19 @@ async function deletePayment(payId) {
       try { await SRAAdminData.remove('payments', payId); } catch(e) {}
     }
 
-    // Remove from local storage keys if matched
+    // Remove from local storage keys if matched (safe array collection)
     try {
+      const toRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && localStorage.getItem(k) === payId) localStorage.removeItem(k);
+        if (k && localStorage.getItem(k) === payId) toRemove.push(k);
+      }
+      toRemove.forEach(k => localStorage.removeItem(k));
+      // Mark as deleted in session so it never resurrects
+      const deletedPay = JSON.parse(localStorage.getItem('sra_deleted_pay_ids') || '[]');
+      if (!deletedPay.includes(payId)) {
+        deletedPay.push(payId);
+        localStorage.setItem('sra_deleted_pay_ids', JSON.stringify(deletedPay));
       }
     } catch(e) {}
 
@@ -1557,9 +1565,15 @@ async function deleteUserQuery(id) {
       await SRAAdminData.remove('user_queries', id);
     }
     try {
-      let localUsers = JSON.parse(localStorage.getItem('sra_user_queries_db') || '[]');
-      localUsers = localUsers.filter(u => u.id !== id);
-      localStorage.setItem('sra_user_queries_db', JSON.stringify(localUsers));
+      let localUsers = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
+      localUsers = localUsers.filter(u => u.id !== id && u.phone !== id);
+      localStorage.setItem('sra_user_db', JSON.stringify(localUsers));
+
+      const deletedUsers = JSON.parse(localStorage.getItem('sra_deleted_user_ids') || '[]');
+      if (!deletedUsers.includes(id)) {
+        deletedUsers.push(id);
+        localStorage.setItem('sra_deleted_user_ids', JSON.stringify(deletedUsers));
+      }
     } catch(e) {}
     D.users = (D.users || []).filter(u => u.id !== id);
     renderUserQueryRows('users-tbody', D.users);
@@ -1863,9 +1877,11 @@ async function saveSocialSettings() {
 async function fetchCareerApplications(passedUsers) {
   let list = [];
   const seen = new Set();
+  const deletedCareers = new Set(JSON.parse(localStorage.getItem('sra_deleted_career_ids') || '[]'));
 
   function addItem(item) {
     if (!item) return;
+    if (deletedCareers.has(item.id) || deletedCareers.has(item.phone)) return;
     const k = item.id || item.phone;
     if (k && !seen.has(k)) {
       seen.add(k);
@@ -2147,6 +2163,18 @@ async function deleteCareerApplication(id, phone, name) {
       try {
         await SRAAdminData.remove('career_applications', id);
         await SRAAdminData.remove('user_queries', id);
+        if (window.SRAAdminAccounts && SRAAdminAccounts.ensureFirebase) {
+          const ctx = await SRAAdminAccounts.ensureFirebase();
+          if (ctx && ctx.firestore) {
+            const db = ctx.firestore;
+            if (phone) {
+              const uqSnap = await db.collection('user_queries').where('phone', '==', String(phone)).get();
+              uqSnap.forEach(d => d.ref.delete().catch(() => {}));
+              const caSnap = await db.collection('career_applications').where('phone', '==', String(phone)).get();
+              caSnap.forEach(d => d.ref.delete().catch(() => {}));
+            }
+          }
+        }
       } catch(e) {}
     }
 
@@ -2159,11 +2187,16 @@ async function deleteCareerApplication(id, phone, name) {
       });
     } catch(e) {}
 
-    // 3. Delete from localStorage
+    // 3. Delete from localStorage and mark persistently deleted
     try {
       const local = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
       const filtered = local.filter(c => c.id !== id && c.phone !== phone);
       localStorage.setItem('sra_career_applications', JSON.stringify(filtered));
+
+      const deletedCareers = JSON.parse(localStorage.getItem('sra_deleted_career_ids') || '[]');
+      if (id && !deletedCareers.includes(id)) deletedCareers.push(id);
+      if (phone && !deletedCareers.includes(phone)) deletedCareers.push(phone);
+      localStorage.setItem('sra_deleted_career_ids', JSON.stringify(deletedCareers));
     } catch(e) {}
 
     // 4. Update memory & UI
