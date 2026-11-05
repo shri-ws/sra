@@ -2571,11 +2571,15 @@
         },
         theme: { color: "#7c1305" },
         notes: {
+          customer_phone: clientMobile.replace(/\D/g, '').slice(-10),
+          service_id: 'mangal_dosha',
           report_type: 'mangal_dosha_report',
           amount: String(finalAmt),
           discount: String(appliedDisc),
           coupon_code: couponUsed,
-          sutradhar_id: sutradharRef
+          sutradhar_code: couponUsed,
+          sutradhar_id: sutradharRef,
+          lead_id: window._manglikLeadId || ''
         },
         handler: function(response) {
           unlockManglikReport(response.razorpay_payment_id || 'RZP_SUCCESS');

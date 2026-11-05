@@ -3191,6 +3191,7 @@
 <script src="sra-master.js" defer></script>
 <script src="sra-i18n.js" defer></script>
   <script src="sra-config.js"></script>
+  <script src="sra-coupon-engine.js" defer></script>
   <script src="patrikaEngineBridge.js?v=17"></script>
 </head>
 <body>
@@ -7478,6 +7479,34 @@ function openParasharaPaymentModal(reportType, focusField) {
   modal.classList.add('active');
   const errBox = document.getElementById('parasharaVipErrMsg');
   if (errBox) errBox.style.display = 'none';
+
+  // Check for active Sutradhar lead & auto-apply 10% discount
+  window._parasharaDiscount = 0;
+  window._parasharaCoupon = '';
+  window._parasharaSutradhar = '';
+  window._parasharaLeadId = '';
+  const clientMobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
+  if (clientMobile && clientMobile.length === 10 && window.SraCouponEngine) {
+    window.SraCouponEngine.fetchServerQuote('parashara_report', clientMobile).then(q => {
+      if (q && (q.has_active_lead || q.auto_applied)) {
+        window._parasharaDiscount = q.discount_amount || 20;
+        window._parasharaCoupon = q.sutradhar_code || '';
+        window._parasharaSutradhar = q.sutradhar_id || '';
+        window._parasharaLeadId = q.lead_id || '';
+        const finalAmt = Math.max(0, 199 - window._parasharaDiscount);
+        if (rzpBtn) {
+          const repName = isRaj ? 'राजयोग रिपोर्ट' : (isVah ? 'वाहन रिपोर्ट' : 'मंगल दोष रिपोर्ट');
+          rzpBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (${repName} - 10% छूट लागू)`;
+        }
+        if (errBox) {
+          errBox.style.color = '#15803d';
+          errBox.textContent = '✨ आपको 10% विशेष छूट मिली है।';
+          errBox.style.display = 'block';
+        }
+      }
+    }).catch(() => {});
+  }
+
   if (focusField === 'passcode') {
     const input = document.getElementById('parasharaVipCodeInput');
     if (input) {
@@ -7506,19 +7535,30 @@ function unlockParasharaReport(reportType, paymentId) {
     }
 
     // Log payment transaction to central database
-    const clientMobile = localStorage.getItem('sra_verified_mobile') || '';
+    const clientMobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
     const clientName = (document.getElementById('inName') ? document.getElementById('inName').value : '') || 'पाराशर जातक';
-    if (typeof logPaymentToServer === 'function') {
-      logPaymentToServer({
-        razorpay_payment_id: paymentId || ('VIP_' + (reportType || 'PARASHARA').toUpperCase() + '_' + Date.now()),
-        student_name: clientName,
-        student_phone: clientMobile,
-        student_email: localStorage.getItem('sra_verified_email') || '',
-        plan_name: reportTitle + ' (₹199)',
-        report_type: reportType || 'parashara_report',
-        amount: 199
-      });
-    }
+    const appliedDisc = window._parasharaDiscount || 0;
+    const finalAmt = Math.max(0, 199 - appliedDisc);
+    const couponUsed = window._parasharaCoupon || '';
+    const sutradharRef = window._parasharaSutradhar || '';
+
+    try {
+      fetch('api/save_payment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpay_payment_id: paymentId || ('VIP_' + (reportType || 'PARASHARA').toUpperCase() + '_' + Date.now()),
+          student_name: clientName,
+          student_phone: clientMobile,
+          student_email: localStorage.getItem('sra_verified_email') || '',
+          plan_name: reportTitle + ` (₹${finalAmt})`,
+          report_type: 'parashara_report',
+          amount: finalAmt,
+          coupon_code: couponUsed,
+          sutradhar_id: sutradharRef
+        })
+      }).catch(() => {});
+    } catch(e) {}
   } catch(e) {
     console.error("Storage error:", e);
   }
@@ -7552,24 +7592,38 @@ async function triggerParasharaRazorpayCheckout() {
   const clientName = (document.getElementById('inName') && document.getElementById('inName').value.trim()) 
     ? document.getElementById('inName').value.trim() 
     : "पाराशर VIP जातक";
-  const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
+  const clientMobile = (localStorage.getItem('sra_verified_mobile') || "9517117775").replace(/\D/g, '').slice(-10);
+
+  const appliedDisc = window._parasharaDiscount || 0;
+  const finalAmt = Math.max(0, 199 - appliedDisc);
+  const finalPaise = finalAmt * 100;
+  const couponUsed = window._parasharaCoupon || '';
+  const sutradharRef = window._parasharaSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
 
   const options = {
     key: PARASHARA_RZP_KEY,
-    amount: PARASHARA_PRICE_PAISE,
+    amount: finalPaise,
     currency: "INR",
     name: "Shri Ramji Astro",
-    description: `${reportTitle} (₹199 आजीवन एक्सेस)`,
+    description: `${reportTitle} (₹${finalAmt} आजीवन एक्सेस)` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
     prefill: {
       name: clientName,
-      contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
+      contact: clientMobile || "9517117775"
     },
     theme: {
       color: "#b45309"
     },
     notes: {
+      customer_phone: clientMobile,
+      service_id: 'parashara_report',
       report_type: currentPayingReport,
-      report_title: reportTitle
+      report_title: reportTitle,
+      amount: String(finalAmt),
+      discount: String(appliedDisc),
+      coupon_code: couponUsed,
+      sutradhar_code: couponUsed,
+      sutradhar_id: sutradharRef,
+      lead_id: window._parasharaLeadId || ''
     },
     handler: function (response) {
       const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : 'RZP_PARASHARA_SUCCESS';
@@ -7594,22 +7648,63 @@ async function triggerParasharaRazorpayCheckout() {
   }
 }
 
-function verifyParasharaPasscode() {
+async function verifyParasharaPasscode() {
   const input = document.getElementById('parasharaVipCodeInput');
   const errBox = document.getElementById('parasharaVipErrMsg');
   if (!input) return;
   const val = input.value.trim().toUpperCase();
+  if (!val) {
+    if (errBox) {
+      errBox.style.color = '#ef4444';
+      errBox.textContent = 'कृपया कूपन कोड दर्ज करें।';
+      errBox.style.display = 'block';
+    }
+    return;
+  }
   if (window.sraIsMasterKey && window.sraIsMasterKey(val)) {
     if (errBox) errBox.style.display = 'none';
     unlockParasharaReport(currentPayingReport, 'MASTER_KEY');
     return;
   }
 
+  const clientMobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
+  if (window.SraCouponEngine) {
+    try {
+      const q = await window.SraCouponEngine.fetchServerQuote('parashara_report', clientMobile, val);
+      if (q && q.valid) {
+        window._parasharaDiscount = q.discount_amount || 20;
+        window._parasharaCoupon = q.sutradhar_code || val;
+        window._parasharaSutradhar = q.sutradhar_id || '';
+        window._parasharaLeadId = q.lead_id || '';
+        const finalAmt = Math.max(0, 199 - window._parasharaDiscount);
+        const rzpBtn = document.getElementById('btnRzpSubmit');
+        const isRaj = (currentPayingReport === 'rajyoga');
+        const isVah = (currentPayingReport === 'vahan');
+        const repName = isRaj ? 'राजयोग रिपोर्ट' : (isVah ? 'वाहन रिपोर्ट' : 'मंगल दोष रिपोर्ट');
+        if (rzpBtn) rzpBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (${repName} - 10% कूपन लागू)`;
+        if (errBox) {
+          errBox.style.color = '#15803d';
+          errBox.textContent = `✨ कूपन (${val}) सफल! 10% विशेष छूट लागू।`;
+          errBox.style.display = 'block';
+        }
+        return;
+      } else {
+        if (errBox) {
+          errBox.style.color = '#ef4444';
+          errBox.textContent = (q && q.message) ? q.message : '❌ यह कूपन आपके लिए मान्य नहीं है।';
+          errBox.style.display = 'block';
+        }
+        return;
+      }
+    } catch(e) {}
+  }
+
   if (errBox) {
-    errBox.textContent = '❌ अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।';
+    errBox.style.color = '#ef4444';
+    errBox.textContent = '❌ यह कूपन आपके लिए मान्य नहीं है।';
     errBox.style.display = 'block';
   } else {
-    alert('अमान्य VIP कोड! कृपया सही कोड दर्ज करें या ₹199 ऑनलाइन भुगतान करें।');
+    alert('❌ यह कूपन आपके लिए मान्य नहीं है।');
   }
 }
 

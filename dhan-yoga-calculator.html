@@ -1566,6 +1566,36 @@
     function openDhanPaymentModal() {
       const modal = document.getElementById('modalDhanPayment299');
       if (modal) modal.classList.add('active');
+
+      const err = document.getElementById('dhanOwnerCodeErr');
+      if (err) err.style.display = 'none';
+
+      // Reset discount state
+      window._dhanDiscount = 0;
+      window._dhanCoupon = '';
+      window._dhanSutradhar = '';
+      window._dhanLeadId = '';
+
+      // Check for active Sutradhar lead & auto-apply 10% discount
+      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
+      if (clientMobile && clientMobile.length === 10 && window.SraCouponEngine) {
+        window.SraCouponEngine.fetchServerQuote('dhana_yoga', clientMobile).then(q => {
+          if (q && (q.has_active_lead || q.auto_applied)) {
+            window._dhanDiscount = q.discount_amount || 30;
+            window._dhanCoupon = q.sutradhar_code || '';
+            window._dhanSutradhar = q.sutradhar_id || '';
+            window._dhanLeadId = q.lead_id || '';
+            const finalAmt = Math.max(0, 299 - window._dhanDiscount);
+            const payBtn = document.querySelector('#modalDhanPayment299 button.btn-pay-now');
+            if (payBtn) payBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (10% विशेष छूट लागू)`;
+            if (err) {
+              err.style.color = '#15803d';
+              err.innerHTML = '✨ आपको 10% विशेष छूट मिली है।';
+              err.style.display = 'block';
+            }
+          }
+        }).catch(() => {});
+      }
     }
 
     function closeDhanPaymentModal() {
@@ -1640,7 +1670,7 @@
       }
 
       const clientName = pendingDhanInput.name || "जातक";
-      const clientMobile = localStorage.getItem('sra_verified_mobile') || "9517117775";
+      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || "9517117775").replace(/\D/g, '').slice(-10);
       const basePrice = 299;
       const appliedDisc = window._dhanDiscount || 0;
       const finalAmt = Math.max(0, basePrice - appliedDisc);
@@ -1656,15 +1686,19 @@
         description: `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName}` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
         prefill: {
           name: clientName,
-          contact: clientMobile.replace(/\D/g, '').slice(-10) || "9517117775"
+          contact: clientMobile || "9517117775"
         },
         theme: { color: "#7c1305" },
         notes: {
+          customer_phone: clientMobile,
+          service_id: 'dhana_yoga',
           report_type: 'dhana_yoga_report',
           amount: String(finalAmt),
+          discount: String(appliedDisc),
           coupon_code: couponUsed,
+          sutradhar_code: couponUsed,
           sutradhar_id: sutradharRef,
-          discount: String(appliedDisc)
+          lead_id: window._dhanLeadId || ''
         },
         handler: function(response) {
           unlockDhanReport(response.razorpay_payment_id || 'RZP_SUCCESS');
@@ -1680,7 +1714,7 @@
 
     // Unlock & Render Full Dhana Yoga Report
     // Owner master key / Sutradhar coupon:
-    function applyDhanOwnerCode() {
+    async function applyDhanOwnerCode() {
       const inp = document.getElementById('dhanOwnerCode');
       const err = document.getElementById('dhanOwnerCodeErr');
       const val = (inp ? inp.value.trim() : '').toUpperCase();
@@ -1688,41 +1722,50 @@
       if (!val) {
         if (err) {
           err.style.color = '#b91c1c';
-          err.innerText = 'कृपया कूपन कोड या एक्सेस कोड दर्ज करें।';
+          err.innerText = 'कृपया कूपन कोड दर्ज करें।';
           err.style.display = 'block';
         }
         return;
       }
 
+      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(val)) {
+        if (err) err.style.display = 'none';
+        unlockDhanReport('MASTER_KEY');
+        return;
+      }
+
+      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
       if (window.SraCouponEngine) {
-        const res = window.SraCouponEngine.validateAndCalculate(val, 299);
-        if (res.valid) {
-          if (res.type === 'master') {
-            if (err) err.style.display = 'none';
-            unlockDhanReport('MASTER_KEY');
-            return;
-          } else {
-            window._dhanDiscount = res.discountAmount;
-            window._dhanCoupon = res.code;
-            window._dhanSutradhar = res.sutradhar_id;
+        try {
+          const q = await window.SraCouponEngine.fetchServerQuote('dhana_yoga', clientMobile, val);
+          if (q && q.valid) {
+            window._dhanDiscount = q.discount_amount || 30;
+            window._dhanCoupon = q.sutradhar_code || val;
+            window._dhanSutradhar = q.sutradhar_id || '';
+            window._dhanLeadId = q.lead_id || '';
+            const finalAmt = Math.max(0, 299 - window._dhanDiscount);
             const payBtn = document.querySelector('#modalDhanPayment299 button.btn-pay-now');
-            if (payBtn) payBtn.innerHTML = `💳 ₹${res.finalAmount} ऑनलाइन भुगतान करें (10% कूपन ${res.code} लागू)`;
+            if (payBtn) payBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (10% कूपन ${q.sutradhar_code || val} लागू)`;
             if (err) {
               err.style.color = '#15803d';
-              err.innerHTML = `✨ <b>सूत्रधार कूपन (${res.code}) स्वीकृत!</b> 10% छूट लागू (देय राशि: ₹${res.finalAmount})`;
+              err.innerHTML = `✨ <b>सूत्रधार कूपन (${q.sutradhar_code || val}) स्वीकृत!</b> 10% छूट लागू (देय राशि: ₹${finalAmt})`;
+              err.style.display = 'block';
+            }
+            return;
+          } else {
+            if (err) {
+              err.style.color = '#b91c1c';
+              err.innerText = (q && q.message) ? q.message : '❌ यह कूपन आपके लिए मान्य नहीं है।';
               err.style.display = 'block';
             }
             return;
           }
-        }
+        } catch(e) {}
       }
 
-      if (inp && window.sraIsMasterKey && window.sraIsMasterKey(val)) {
-        if (err) err.style.display = 'none';
-        unlockDhanReport('MASTER_KEY');
-      } else if (err) {
+      if (err) {
         err.style.color = '#b91c1c';
-        err.innerText = 'अमान्य एक्सेस कोड! कृपया सही कोड दर्ज करें।';
+        err.innerText = '❌ यह कूपन आपके लिए मान्य नहीं है।';
         err.style.display = 'block';
       }
     }
@@ -1742,12 +1785,26 @@
       const finalAmt = Math.max(0, 299 - appliedDisc);
       const sutradharRef = window._dhanSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
       const couponUsed = window._dhanCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
 
       // Log payment to central API
       try {
         fetch('api/save_payment.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            razorpay_payment_id: paymentId || ('VIP_DHAN_' + Date.now()),
+            student_name: (pendingDhanInput && pendingDhanInput.name) || 'धन योग जातक',
+            student_phone: clientMobile,
+            student_email: localStorage.getItem('sra_verified_email') || '',
+            plan_name: `धन एवं लक्ष्मी योग रिपोर्ट (₹${finalAmt})`,
+            report_type: 'dhana_yoga',
+            amount: finalAmt,
+            coupon_code: couponUsed,
+            sutradhar_id: sutradharRef
+          })
+        }).catch(() => {});
+      } catch (e) {}
           body: JSON.stringify({
             razorpay_payment_id: paymentId || ('RZP_DHAN_' + Date.now()),
             student_name: (pendingDhanInput && pendingDhanInput.name) ? pendingDhanInput.name : 'धन योग जातक',

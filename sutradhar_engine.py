@@ -750,8 +750,11 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
 
     # Fetch Order
     order = SutradharStore.get_doc("orders", order_id) if order_id else None
-    customer_phone = (order.get("customer_phone") if order else notes.get("customer_phone")) or ""
-    sutradhar_id = (order.get("sutradhar_id") if order else notes.get("sutradhar_id")) or ""
+    contact_val = pay_entity.get("contact") or ""
+    contact_phone = normalize_phone(contact_val) if contact_val else ""
+    raw_phone = (order.get("customer_phone") if order else (notes.get("customer_phone") or contact_phone)) or ""
+    customer_phone = normalize_phone(raw_phone) if raw_phone else ""
+    sutradhar_id = (order.get("sutradhar_id") if order else (notes.get("sutradhar_id") or notes.get("sutradhar_code") or notes.get("coupon_code"))) or ""
     lead_id = (order.get("lead_id") if order else notes.get("lead_id")) or ""
 
     now = datetime.now(timezone.utc)

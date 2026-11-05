@@ -264,6 +264,8 @@
 
         if (u) {
           ctx.auth.signOut().then(() => {
+            const errEl = $('loginErr');
+            if (errEl) errEl.textContent = `अस्वीकृत: "${u.email || u.phoneNumber}" अधिकृत एडमिन खाता नहीं है। कृपया ${PRIMARY_ADMIN} से लॉगिन करें।`;
             setStatus(`अस्वीकृत: ${esc(u.email || u.phoneNumber)} एडमिन नहीं है। कृपया ${PRIMARY_ADMIN} से लॉगिन करें।`);
           });
         } else {
