@@ -261,15 +261,88 @@ class RegisterSutradharRequest(BaseModel):
     name: str
     phone: str
     email: Optional[str] = None
-    upi_id: str
+    upi_id: Optional[str] = None
     pan: Optional[str] = None
     code: Optional[str] = None
+
+
+class OtpSendRequest(BaseModel):
+    phone: str
+
+
+class OtpVerifyRequest(BaseModel):
+    phone: str
+    otp: str
 
 
 # =============================================================================
 # 4. FASTAPI ROUTER & CORE LOGIC
 # =============================================================================
 router = APIRouter(prefix="/api/sutradhar", tags=["Sutradhar Referral & Payout Engine"])
+
+
+# -----------------------------------------------------------------------------
+# ENDPOINT OTP: SEND & VERIFY (Phone-based auth, MVP: dev mode returns OTP)
+# -----------------------------------------------------------------------------
+@router.post("/otp/send")
+async def send_otp(req: OtpSendRequest):
+    """Generate a 6-digit OTP for the given phone, store it, and try SMS delivery."""
+    import random
+    clean_phone = normalize_phone(req.phone)
+    if len(clean_phone) != 10:
+        raise HTTPException(status_code=400, detail="कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।")
+
+    otp = str(random.randint(100000, 999999))
+    expires_at = (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()
+
+    SutradharStore.set_doc("otps", clean_phone, {"phone": clean_phone, "otp": otp, "expires_at": expires_at})
+
+    # Try MSG91 delivery if configured
+    auth_key = os.environ.get("MSG91_AUTH_KEY", "")
+    sms_sent = False
+    if auth_key:
+        try:
+            import httpx
+            template_id = os.environ.get("MSG91_TEMPLATE_ID", "")
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                await client.post(
+                    "https://api.msg91.com/api/v5/otp",
+                    json={"template_id": template_id, "mobile": f"91{clean_phone}",
+                          "authkey": auth_key, "otp": otp}
+                )
+            sms_sent = True
+        except Exception:
+            pass
+
+    dev_mode = not sms_sent
+    response = {"status": "sent", "message": "OTP भेजा गया।", "dev_otp": otp if dev_mode else None}
+    return response
+
+
+@router.post("/otp/verify")
+async def verify_otp(req: OtpVerifyRequest):
+    """Verify OTP. Returns {exists: bool, sutradhar?: {...}} on success."""
+    clean_phone = normalize_phone(req.phone)
+    record = SutradharStore.get_doc("otps", clean_phone)
+
+    if not record:
+        raise HTTPException(status_code=400, detail="OTP नहीं मिला या समय सीमा समाप्त हो गई। पुनः OTP मंगाएं।")
+
+    expires_at = datetime.fromisoformat(record["expires_at"])
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="OTP की समय सीमा समाप्त हो गई। पुनः OTP मंगाएं।")
+
+    if record["otp"] != req.otp.strip():
+        raise HTTPException(status_code=400, detail="OTP गलत है। पुनः प्रयास करें।")
+
+    # Delete used OTP
+    SutradharStore.set_doc("otps", clean_phone, {})
+
+    # Check if already registered
+    all_sutras = SutradharStore.query_all("sutradhars")
+    sutradhar = next((s for s in all_sutras if s.get("phone") == clean_phone), None)
+
+    return {"status": "verified", "exists": bool(sutradhar), "sutradhar": sutradhar}
 
 
 # -----------------------------------------------------------------------------
@@ -282,10 +355,8 @@ async def register_or_sync_sutradhar(req: RegisterSutradharRequest):
     if len(clean_phone) != 10:
         raise HTTPException(status_code=400, detail="कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।")
 
-    # Clean UPI
+    # Clean UPI (optional at registration, can be added later)
     clean_upi = (req.upi_id or "").strip().lower()
-    if not clean_upi or "@" not in clean_upi:
-        raise HTTPException(status_code=400, detail="कृपया मान्य UPI आईडी दर्ज करें (उदा. username@upi)।")
 
     # Find existing or generate unique ID & Code
     existing_all = SutradharStore.query_all("sutradhars")

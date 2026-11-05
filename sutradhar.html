@@ -9,457 +9,1166 @@
     :root { --sat: env(safe-area-inset-top,0px); --sab: env(safe-area-inset-bottom,0px); }
     body { padding-top: var(--sat); -webkit-font-smoothing: antialiased; }
     @media (max-width:768px) {
-      input[type="text"],input[type="tel"],input[type="email"],select,textarea { font-size:16px !important; }
+      input[type="text"],input[type="tel"],input[type="email"],input[type="number"],select,textarea {
+        font-size:16px !important;
+      }
     }
+    .screen { display:none; }
+    .screen.active { display:flex; flex-direction:column; min-height:100vh; }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
     #bottomNav { padding-bottom: calc(0.5rem + var(--sab)); }
-    .spin { display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    #toast { transition: opacity .3s, transform .3s; }
+    .spin { display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+    /* Slide animation for onboarding */
+    .slide { display:none; }
+    .slide.active { display:block; }
+    /* Quiz option button active */
+    .quiz-opt.selected { background:#EFF6FF; border-color:#3B82F6; }
+    .quiz-opt.correct { background:#F0FDF4; border-color:#22C55E; }
+    .quiz-opt.wrong { background:#FEF2F2; border-color:#EF4444; }
   </style>
 </head>
-<body class="h-full bg-slate-50 text-slate-800 font-sans" style="font-family:system-ui,sans-serif">
+<body class="bg-slate-50 text-slate-800" style="font-family:system-ui,sans-serif">
 
-  <!-- ============================================================ -->
-  <!-- LOGIN SCREEN                                                 -->
-  <!-- ============================================================ -->
-  <div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center p-6">
-    <div class="w-full max-w-sm space-y-6">
-      <div class="text-center space-y-1">
-        <div class="text-3xl">🕉️</div>
-        <h1 class="text-xl font-bold text-slate-900">सूत्रधार पोर्टल</h1>
-        <p class="text-sm text-slate-500">श्री राम जी एस्ट्रो</p>
+<!-- ================================================================== -->
+<!-- SCREEN 1: PHONE ENTRY                                               -->
+<!-- ================================================================== -->
+<div id="screen-phone" class="screen active items-center justify-center p-6">
+  <div class="w-full max-w-sm space-y-6">
+    <div class="text-center space-y-1">
+      <div class="text-4xl mb-2">🕉️</div>
+      <h1 class="text-2xl font-bold text-slate-900">सूत्रधार पोर्टल</h1>
+      <p class="text-sm text-slate-500">श्री राम जी एस्ट्रो</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">मोबाइल नंबर</label>
+        <input type="tel" id="phoneInput" maxlength="10" placeholder="10 अंकों का नंबर"
+          class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
+          oninput="this.value=this.value.replace(/\D/g,'')"
+          onkeydown="if(event.key==='Enter')sendOtp()">
       </div>
+      <button onclick="sendOtp()" id="btnSendOtp"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
+        OTP भेजें
+      </button>
+      <div id="phoneErr" class="hidden text-sm text-red-600 bg-red-50 rounded-xl p-3 text-center"></div>
+    </div>
+    <p class="text-center text-xs text-slate-400">केवल अधिकृत सूत्रधारों के लिए</p>
+  </div>
+</div>
 
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">आपका पंजीकृत मोबाइल नंबर</label>
-          <input type="tel" id="loginPhone" maxlength="10" placeholder="10 अंकों का नंबर"
-            class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
-            oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')doLogin()">
+<!-- ================================================================== -->
+<!-- SCREEN 2: OTP VERIFY                                                -->
+<!-- ================================================================== -->
+<div id="screen-otp" class="screen items-center justify-center p-6">
+  <div class="w-full max-w-sm space-y-6">
+    <div class="text-center space-y-1">
+      <div class="text-3xl">📱</div>
+      <h2 class="text-xl font-bold text-slate-900">OTP दर्ज करें</h2>
+      <p class="text-sm text-slate-500" id="otpSentMsg">आपके नंबर पर OTP भेजा गया है।</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">6 अंकों का OTP</label>
+        <input type="tel" id="otpInput" maxlength="6" placeholder="जैसे: 123456"
+          class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500 font-mono tracking-widest text-center text-xl"
+          oninput="this.value=this.value.replace(/\D/g,'')"
+          onkeydown="if(event.key==='Enter')verifyOtp()">
+      </div>
+      <button onclick="verifyOtp()" id="btnVerifyOtp"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
+        सत्यापित करें
+      </button>
+      <button onclick="goTo('screen-phone')" class="w-full text-slate-500 text-sm py-1">← वापस जाएं</button>
+      <div id="otpErr" class="hidden text-sm text-red-600 bg-red-50 rounded-xl p-3 text-center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- SCREEN 3: NEW USER — NAME + EMAIL                                   -->
+<!-- ================================================================== -->
+<div id="screen-register" class="screen items-center justify-center p-6">
+  <div class="w-full max-w-sm space-y-6">
+    <div class="text-center space-y-1">
+      <div class="text-3xl">👤</div>
+      <h2 class="text-xl font-bold text-slate-900">अपना परिचय दें</h2>
+      <p class="text-sm text-slate-500">आगे बढ़ने से पहले बुनियादी जानकारी भरें।</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">पूरा नाम <span class="text-red-500">*</span></label>
+        <input type="text" id="regName" placeholder="जैसे: रमेश कुमार"
+          class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">ईमेल आईडी</label>
+        <input type="email" id="regEmail" placeholder="आपकी ईमेल (वैकल्पिक)"
+          class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
+      </div>
+      <button onclick="submitRegister()" id="btnRegister"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
+        आगे बढ़ें →
+      </button>
+      <div id="regErr" class="hidden text-sm text-red-600 bg-red-50 rounded-xl p-3 text-center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- SCREEN 4: ONBOARDING SLIDES                                         -->
+<!-- ================================================================== -->
+<div id="screen-onboarding" class="screen flex-col">
+  <div class="flex-1 overflow-y-auto p-6 max-w-sm w-full mx-auto">
+
+    <!-- Slide 1 -->
+    <div id="slide-1" class="slide active space-y-5">
+      <div class="text-center space-y-2 pt-4">
+        <div class="text-4xl">🌟</div>
+        <h2 class="text-xl font-bold text-slate-900">श्री राम जी एस्ट्रो क्या है?</h2>
+      </div>
+      <div class="space-y-3 text-sm text-slate-700 leading-relaxed">
+        <p>भारत की प्रमुख <strong>वैदिक ज्योतिष रिपोर्ट सेवा</strong> — बृहत् पाराशर होरा शास्त्र (BPHS) पर आधारित, शास्त्रीय, गहन और डिजिटल।</p>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
+          <div class="font-bold text-amber-900">हमारी सेवाएं:</div>
+          <ul class="space-y-1 text-amber-900">
+            <li>📜 मंगल दोष, कालसर्प, रत्न रिपोर्ट — ₹199–₹249</li>
+            <li>📜 BPHS मेगा + मुहूर्त रिपोर्ट — ₹1,111</li>
+            <li>🔭 दैवज्ञ 1-on-1 परामर्श — ₹5,100</li>
+            <li>🎓 1-वर्षीय गुरुकुल ज्योतिष कोर्स — ₹24,000</li>
+            <li>💻 ज्योतिषी SaaS सॉफ्टवेयर — ₹5,100/वर्ष</li>
+          </ul>
         </div>
-        <button onclick="doLogin()" id="loginBtn"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
-          प्रवेश करें
-        </button>
-        <div id="loginError" class="hidden text-sm text-red-600 text-center bg-red-50 rounded-xl p-3"></div>
+        <p>हमारी रिपोर्ट्स <strong>तत्काल डिजिटल</strong> हैं — कोई प्रतीक्षा नहीं, कोई झंझट नहीं। विवाह, करियर, स्वास्थ्य जैसे बड़े निर्णयों में शास्त्रीय मार्गदर्शन।</p>
       </div>
+    </div>
 
-      <p class="text-center text-xs text-slate-400">केवल पंजीकृत सूत्रधारों के लिए</p>
+    <!-- Slide 2 -->
+    <div id="slide-2" class="slide space-y-5">
+      <div class="text-center space-y-2 pt-4">
+        <div class="text-4xl">💰</div>
+        <h2 class="text-xl font-bold text-slate-900">सूत्रधार क्यों बनें?</h2>
+      </div>
+      <div class="space-y-3 text-sm text-slate-700 leading-relaxed">
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
+          <div class="font-bold text-green-900">आपको मिलेगा:</div>
+          <ul class="space-y-1.5 text-green-900">
+            <li>✅ हर रिपोर्ट पर <strong>30% कमीशन</strong> (₹60 से ₹333 प्रति रिपोर्ट)</li>
+            <li>✅ परामर्श/कोर्स/SaaS पर <strong>₹2,500 flat इंसेंटिव</strong></li>
+            <li>✅ <strong>कोई निवेश नहीं</strong>, कोई stock नहीं</li>
+            <li>✅ सीधे <strong>UPI में payout</strong></li>
+            <li>✅ लेवल 2 बनें: <strong>₹10,000 बोनस</strong></li>
+          </ul>
+        </div>
+        <p>आपका काम केवल एक है — <strong>सही व्यक्ति का नंबर दर्ज करें।</strong> बाकी सब स्वचालित।</p>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
+          <strong>लेवल सिस्टम:</strong> 7 दिन लगातार ₹3,000/दिन → लेवल 2। एक महीने में ₹1 लाख कमाई → ₹10,000 एक्स्ट्रा बोनस!
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="slide space-y-5">
+      <div class="text-center space-y-2 pt-4">
+        <div class="text-4xl">⚙️</div>
+        <h2 class="text-xl font-bold text-slate-900">काम कैसे करता है?</h2>
+      </div>
+      <div class="space-y-3 text-sm text-slate-700 leading-relaxed">
+        <div class="space-y-3">
+          <div class="flex gap-3 bg-white border border-slate-200 rounded-xl p-3">
+            <div class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">1</div>
+            <div><strong>ग्राहक का नंबर दर्ज करें</strong><br><span class="text-slate-500">ऐप में "नई लीड जोड़ें" में ग्राहक का नाम और मोबाइल।</span></div>
+          </div>
+          <div class="flex gap-3 bg-white border border-slate-200 rounded-xl p-3">
+            <div class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">2</div>
+            <div><strong>72 घंटे का ताला</strong><br><span class="text-slate-500">वह नंबर 72 घंटे के लिए आपके नाम पर lock हो जाता है।</span></div>
+          </div>
+          <div class="flex gap-3 bg-white border border-slate-200 rounded-xl p-3">
+            <div class="w-7 h-7 rounded-full bg-green-600 text-white font-bold text-xs flex items-center justify-center shrink-0">₹</div>
+            <div><strong>खरीद → आपके UPI में पैसे</strong><br><span class="text-slate-500">इस दौरान ग्राहक खरीदे → कमीशन सीधे आपके UPI में। कोई coupon code नहीं।</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress dots -->
+    <div id="slideDots" class="flex justify-center gap-2 mt-6">
+      <div class="w-2 h-2 rounded-full bg-blue-600" data-dot="1"></div>
+      <div class="w-2 h-2 rounded-full bg-slate-300" data-dot="2"></div>
+      <div class="w-2 h-2 rounded-full bg-slate-300" data-dot="3"></div>
     </div>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- MAIN APP (hidden until login)                                -->
-  <!-- ============================================================ -->
-  <div id="mainApp" class="hidden flex flex-col min-h-screen">
+  <div class="p-6 max-w-sm w-full mx-auto">
+    <div class="flex gap-3">
+      <button id="btnPrevSlide" onclick="prevSlide()" class="hidden flex-1 border border-slate-300 text-slate-700 font-semibold py-3 rounded-xl transition hover:bg-slate-100">
+        ← पीछे
+      </button>
+      <button id="btnNextSlide" onclick="nextSlide()"
+        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
+        आगे →
+      </button>
+    </div>
+  </div>
+</div>
 
-    <!-- TOP HEADER -->
-    <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-      <div>
-        <div class="font-bold text-slate-900 text-sm" id="headerName">सूत्रधार</div>
-        <div class="text-xs text-slate-500" id="headerCode"></div>
+<!-- ================================================================== -->
+<!-- SCREEN 5: QUIZ                                                       -->
+<!-- ================================================================== -->
+<div id="screen-quiz" class="screen flex-col">
+  <div class="bg-white border-b border-slate-200 p-4 max-w-sm w-full mx-auto">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-slate-900">स्क्रीनिंग परीक्षण</h2>
+      <span id="quizProgress" class="text-sm text-slate-500">प्रश्न 1 / 10</span>
+    </div>
+    <div class="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+      <div id="quizBar" class="h-full bg-blue-600 rounded-full transition-all" style="width:10%"></div>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-6 max-w-sm w-full mx-auto">
+    <div id="quizQuestion" class="font-semibold text-slate-900 text-base leading-relaxed mb-5"></div>
+    <div id="quizOptions" class="space-y-3"></div>
+    <div id="quizFeedback" class="hidden mt-4 text-sm font-semibold rounded-xl p-3 text-center"></div>
+  </div>
+
+  <div class="p-6 max-w-sm w-full mx-auto">
+    <button id="btnQuizNext" onclick="quizNext()" disabled
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed">
+      अगला प्रश्न →
+    </button>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- SCREEN 6: QUIZ RESULT                                               -->
+<!-- ================================================================== -->
+<div id="screen-quiz-result" class="screen items-center justify-center p-6">
+  <div class="w-full max-w-sm text-center space-y-6">
+    <div id="quizResultIcon" class="text-5xl"></div>
+    <div>
+      <h2 id="quizResultTitle" class="text-xl font-bold text-slate-900 mb-2"></h2>
+      <p id="quizResultMsg" class="text-sm text-slate-600 leading-relaxed"></p>
+    </div>
+    <button id="btnQuizResultAction" class="w-full font-bold py-3 rounded-xl transition text-white"></button>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- MAIN APP                                                            -->
+<!-- ================================================================== -->
+<div id="screen-app" class="screen flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+    <div>
+      <div class="font-bold text-slate-900 text-sm" id="headerName">सूत्रधार</div>
+      <div class="text-xs text-slate-500 flex items-center gap-1.5">
+        <span id="headerCode"></span>
+        <span id="levelBadge" class="hidden bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded text-[10px]"></span>
       </div>
-      <div class="text-lg">🕉️</div>
-    </header>
+    </div>
+    <div class="text-lg">🕉️</div>
+  </header>
 
-    <!-- TAB CONTENTS -->
-    <main class="flex-1 overflow-y-auto pb-24">
+  <!-- TAB CONTENT AREA -->
+  <main class="flex-1 overflow-y-auto" style="padding-bottom: calc(5rem + var(--sab))">
 
-      <!-- ==================== TAB: लीड ==================== -->
-      <div id="tab-lead" class="tab-content active p-4 space-y-4">
+    <!-- ========== HOME TAB ========== -->
+    <div id="tab-home" class="tab-content active p-4 space-y-4">
 
-        <!-- Lead entry form -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
-          <h2 class="font-bold text-slate-900 text-base">नया ग्राहक जोड़ें</h2>
-          <p class="text-xs text-slate-500 leading-relaxed">
-            ग्राहक का नंबर दर्ज करें — 72 घंटे के लिए यह नंबर आपके नाम पर लॉक हो जाएगा।
-            इस दौरान किसी भी रिपोर्ट की खरीद पर <strong>₹20 इंसेंटिव</strong> सीधे आपके UPI में।
-          </p>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">ग्राहक का नाम <span class="text-red-500">*</span></label>
-              <input type="text" id="newCustName" placeholder="जैसे: रमेश कुमार"
-                class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">ग्राहक का मोबाइल नंबर <span class="text-red-500">*</span></label>
-              <input type="tel" id="newCustPhone" maxlength="10" placeholder="10 अंकों का नंबर"
-                class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500 font-mono"
-                oninput="this.value=this.value.replace(/\D/g,'')">
-            </div>
-          </div>
-          <button onclick="submitLead()" id="leadBtn"
-            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition">
-            72 घंटे का ताला लगाएं
-          </button>
-          <div id="leadMsg" class="hidden text-sm text-center rounded-xl p-3"></div>
-        </div>
-
-        <!-- Active leads list -->
-        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-900 text-sm">आपकी लीड्स</h3>
-            <button onclick="loadLeads()" class="text-xs text-blue-600 font-semibold">↻ ताज़ा करें</button>
-          </div>
-          <div id="leadsList" class="p-4 text-sm text-slate-500 text-center py-8">लोड हो रहा है...</div>
+      <!-- Payout summary (the only metric shown here) -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="text-xs text-slate-500 mb-1">मेरा कुल पेआउट</div>
+        <div class="text-3xl font-bold text-slate-900" id="homePayoutTotal">₹0</div>
+        <div class="flex gap-4 mt-3 text-xs text-slate-500">
+          <span>आज: <strong class="text-slate-800" id="homePayoutToday">₹0</strong></span>
+          <span>इस माह: <strong class="text-slate-800" id="homePayoutMonth">₹0</strong></span>
+          <span>सक्रिय लीड: <strong class="text-slate-800" id="homeActiveLeads">0</strong></span>
         </div>
       </div>
 
-      <!-- ==================== TAB: कमाई ==================== -->
-      <div id="tab-earnings" class="tab-content p-4 space-y-4">
+      <!-- Lead form -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
+        <h2 class="font-bold text-slate-900 text-base">नई लीड जोड़ें</h2>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          ग्राहक का नंबर दर्ज करें — 72 घंटे के लिए यह नंबर आपके नाम पर lock। इस दौरान खरीद पर <strong>30% कमीशन</strong> सीधे UPI में।
+        </p>
+        <div class="space-y-3">
+          <input type="text" id="newCustName" placeholder="ग्राहक का नाम *"
+            class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
+          <input type="tel" id="newCustPhone" maxlength="10" placeholder="ग्राहक का मोबाइल नंबर (10 अंक) *"
+            class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500 font-mono"
+            oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+        <button onclick="submitLead()" id="leadBtn"
+          class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition">
+          72 घंटे का ताला लगाएं
+        </button>
+        <div id="leadMsg" class="hidden text-sm text-center rounded-xl p-3"></div>
+      </div>
 
-        <!-- Summary cards -->
-        <div class="grid grid-cols-3 gap-3">
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-            <div class="text-xs text-slate-500 mb-1">आज</div>
-            <div class="font-bold text-slate-900 text-base" id="earnToday">₹0</div>
+      <!-- Active leads compact list -->
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="font-bold text-slate-900 text-sm">हाल की लीड्स</h3>
+          <button onclick="loadLeads()" class="text-xs text-blue-600 font-semibold">↻ ताज़ा</button>
+        </div>
+        <div id="homeLeadsList" class="px-5 text-sm text-slate-500 text-center py-8">लोड हो रहा है...</div>
+      </div>
+    </div>
+
+    <!-- ========== ARTICLES TAB ========== -->
+    <div id="tab-articles" class="tab-content p-4 space-y-3">
+      <p class="text-xs text-slate-500 leading-relaxed">
+        इन आर्टिकल्स को अपने ग्राहकों से शेयर करें — ज्योतिष की रोचक जानकारी उन्हें रिपोर्ट खरीदने के लिए प्रेरित करेगी।
+      </p>
+      <div id="articlesList" class="space-y-3">
+        <!-- Static links — will render from JS -->
+      </div>
+    </div>
+
+    <!-- ========== INCENTIVE TABLE TAB ========== -->
+    <div id="tab-incentive" class="tab-content p-4 space-y-4">
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 leading-relaxed">
+        <strong>कमीशन नियम:</strong> रिपोर्ट्स पर <strong>मूल्य का 30%</strong>। परामर्श / कोर्स / SaaS (ज्योतिषी सेवाओं) पर <strong>₹2,500 flat</strong>।
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="bg-slate-50 border-b border-slate-200 grid grid-cols-3 px-4 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+          <span>सेवा</span>
+          <span class="text-center">मूल्य</span>
+          <span class="text-right">कमीशन</span>
+        </div>
+        <div id="incentiveTable" class="divide-y divide-slate-100"></div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3 text-sm">
+        <div class="font-bold text-amber-900">🏆 लेवल सिस्टम</div>
+        <div class="space-y-2 text-amber-900">
+          <div class="bg-white border border-amber-200 rounded-xl p-3">
+            <div class="font-bold">लेवल 1 → लेवल 2</div>
+            <div class="text-xs mt-0.5 text-amber-800">7 दिन लगातार ₹3,000/दिन कमाई करें।</div>
           </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-            <div class="text-xs text-slate-500 mb-1">इस माह</div>
-            <div class="font-bold text-slate-900 text-base" id="earnMonth">₹0</div>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-            <div class="text-xs text-slate-500 mb-1">कुल</div>
-            <div class="font-bold text-slate-900 text-base" id="earnLifetime">₹0</div>
+          <div class="bg-white border border-amber-200 rounded-xl p-3">
+            <div class="font-bold">लेवल 2 बोनस: ₹10,000</div>
+            <div class="text-xs mt-0.5 text-amber-800">एक कैलेंडर माह में ₹1,00,000 कुल कमाई पर।</div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Leads with earnings detail -->
-        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          <div class="px-5 py-4 border-b border-slate-100">
-            <h3 class="font-bold text-slate-900 text-sm">कमाई का विवरण</h3>
-          </div>
-          <div id="earningsList" class="p-4 text-sm text-slate-500 text-center py-8">लोड हो रहा है...</div>
+    <!-- ========== PAYOUT TAB ========== -->
+    <div id="tab-payout" class="tab-content p-4 space-y-4">
+
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+          <div class="text-[11px] text-slate-500 mb-1">आज</div>
+          <div class="font-bold text-slate-900 text-lg" id="payToday">₹0</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+          <div class="text-[11px] text-slate-500 mb-1">इस माह</div>
+          <div class="font-bold text-slate-900 text-lg" id="payMonth">₹0</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+          <div class="text-[11px] text-slate-500 mb-1">कुल</div>
+          <div class="font-bold text-slate-900 text-lg" id="payLifetime">₹0</div>
         </div>
       </div>
 
-      <!-- ==================== TAB: प्रोफ़ाइल ==================== -->
-      <div id="tab-profile" class="tab-content p-4 space-y-4">
-
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-          <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-3">मेरी जानकारी</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <span class="text-slate-500">नाम</span>
-              <span class="font-semibold text-slate-900" id="profName">—</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">मोबाइल</span>
-              <span class="font-semibold text-slate-900 font-mono" id="profPhone">—</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">सूत्रधार ID</span>
-              <span class="font-semibold text-slate-900 font-mono text-xs" id="profId">—</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-500">UPI</span>
-              <span class="font-semibold text-slate-900 text-xs" id="profUpi">—</span>
-            </div>
-          </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 text-sm space-y-1">
+        <div class="flex justify-between">
+          <span class="text-slate-500">UPI आईडी</span>
+          <span class="font-semibold text-slate-900" id="payUpi">—</span>
         </div>
-
-        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-xs text-blue-900 space-y-2 leading-relaxed">
-          <div class="font-bold text-sm">कैसे काम करता है?</div>
-          <p>1. ग्राहक का नंबर <strong>लीड</strong> टैब में दर्ज करें।</p>
-          <p>2. नंबर 72 घंटे के लिए आपके नाम पर लॉक हो जाता है।</p>
-          <p>3. इस दौरान यदि ग्राहक कोई भी रिपोर्ट खरीदता है, तो ₹20 इंसेंटिव सीधे आपके UPI में पहुंच जाता है।</p>
-          <p>4. कूपन कोड देने की कोई ज़रूरत नहीं।</p>
+        <div class="flex justify-between">
+          <span class="text-slate-500">पेआउट प्रतीक्षित</span>
+          <span class="font-semibold text-amber-700" id="payPending">₹0</span>
         </div>
+      </div>
 
-        <button onclick="doLogout()"
-          class="w-full border border-red-300 text-red-600 font-semibold py-3 rounded-xl hover:bg-red-50 transition text-sm">
-          लॉग आउट
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="font-bold text-slate-900 text-sm">कमाई का विवरण</h3>
+          <button onclick="loadEarnings()" class="text-xs text-blue-600 font-semibold">↻ ताज़ा</button>
+        </div>
+        <div id="earningsList" class="px-5 text-sm text-slate-500 text-center py-8">लोड हो रहा है...</div>
+      </div>
+    </div>
+
+    <!-- ========== PROFILE TAB ========== -->
+    <div id="tab-profile" class="tab-content p-4 space-y-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+        <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-3">मेरी जानकारी</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-slate-500">नाम</span><span class="font-semibold text-slate-900" id="profName">—</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">मोबाइल</span><span class="font-semibold font-mono text-slate-900" id="profPhone">—</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">सूत्रधार ID</span><span class="font-semibold font-mono text-xs text-slate-900" id="profId">—</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">UPI</span><span class="font-semibold text-xs text-slate-900" id="profUpi">—</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">लेवल</span><span class="font-semibold text-slate-900" id="profLevel">लेवल 1</span></div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+        <h3 class="font-bold text-slate-900 text-sm">UPI अपडेट करें</h3>
+        <input type="text" id="upiUpdateInput" placeholder="yourname@upi"
+          class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
+        <button onclick="updateUpi()" class="w-full border border-blue-300 text-blue-700 font-semibold py-2.5 rounded-xl hover:bg-blue-50 transition text-sm">
+          UPI सेव करें
         </button>
       </div>
 
-    </main>
-
-    <!-- BOTTOM NAV -->
-    <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex">
-      <button onclick="showTab('lead')" id="bnav-lead"
-        class="flex-1 flex flex-col items-center justify-center py-3 text-blue-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-        <span class="text-[10px] font-semibold mt-0.5">लीड</span>
+      <button onclick="doLogout()"
+        class="w-full border border-red-300 text-red-600 font-semibold py-3 rounded-xl hover:bg-red-50 transition text-sm">
+        लॉग आउट
       </button>
-      <button onclick="showTab('earnings')" id="bnav-earnings"
-        class="flex-1 flex flex-col items-center justify-center py-3 text-slate-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span class="text-[10px] font-semibold mt-0.5">कमाई</span>
-      </button>
-      <button onclick="showTab('profile')" id="bnav-profile"
-        class="flex-1 flex flex-col items-center justify-center py-3 text-slate-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        <span class="text-[10px] font-semibold mt-0.5">प्रोफ़ाइल</span>
-      </button>
-    </nav>
-  </div>
+    </div>
 
-  <!-- TOAST -->
-  <div id="toast" class="fixed bottom-24 left-4 right-4 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl text-sm text-center opacity-0 pointer-events-none"></div>
+  </main>
 
-  <script>
-    const API = 'https://sra-canonical-engine.onrender.com';
-    let profile = null; // { sutradhar_id, name, phone, code, upi_id }
-    let currentTab = 'lead';
+  <!-- BOTTOM NAV -->
+  <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex z-10">
+    <button onclick="showTab('home')" id="bnav-home" class="flex-1 flex flex-col items-center justify-center py-2 text-blue-600">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span class="text-[10px] font-semibold mt-0.5">होम</span>
+    </button>
+    <button onclick="showTab('articles')" id="bnav-articles" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      <span class="text-[10px] font-semibold mt-0.5">आर्टिकल्स</span>
+    </button>
+    <button onclick="showTab('incentive')" id="bnav-incentive" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      <span class="text-[10px] font-semibold mt-0.5">इंसेंटिव</span>
+    </button>
+    <button onclick="showTab('payout')" id="bnav-payout" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span class="text-[10px] font-semibold mt-0.5">पेआउट</span>
+    </button>
+    <button onclick="showTab('profile')" id="bnav-profile" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span class="text-[10px] font-semibold mt-0.5">प्रोफ़ाइल</span>
+    </button>
+  </nav>
+</div>
 
-    // ----------------------------------------------------------------
-    // BOOT
-    // ----------------------------------------------------------------
-    (function boot() {
-      const saved = localStorage.getItem('sra_sutradhar_session');
-      if (saved) {
-        try {
-          const p = JSON.parse(saved);
-          if (p && p.sutradhar_id && p.phone) {
-            profile = p;
-            showApp();
-            return;
-          }
-        } catch(e) {}
-      }
-      document.getElementById('loginScreen').style.display = '';
-    })();
+<!-- TOAST -->
+<div id="toast" class="fixed bottom-28 left-4 right-4 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl text-sm text-center opacity-0 pointer-events-none transition-opacity"></div>
 
-    // ----------------------------------------------------------------
-    // LOGIN
-    // ----------------------------------------------------------------
-    async function doLogin() {
-      const phone = document.getElementById('loginPhone').value.trim().replace(/\D/g,'').slice(-10);
-      const errEl = document.getElementById('loginError');
-      const btn = document.getElementById('loginBtn');
-      errEl.classList.add('hidden');
+<!-- ================================================================== -->
+<!-- SCRIPT                                                              -->
+<!-- ================================================================== -->
+<script>
+const API = 'https://sra-canonical-engine.onrender.com';
+let profile = null;
+let pendingPhone = '';
+let currentSlide = 1;
+const TOTAL_SLIDES = 3;
+let currentQuizIdx = 0;
+let quizScore = 0;
+let selectedOptIdx = null;
+const QUIZ_PASS = 6;
 
-      if (phone.length !== 10) {
-        errEl.textContent = 'कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।';
-        errEl.classList.remove('hidden');
+// -----------------------------------------------------------------------
+// QUIZ DATA
+// -----------------------------------------------------------------------
+const QUIZ = [
+  {
+    q: 'ज्योतिष रिपोर्ट खरीदने की संभावना किसमें सबसे अधिक है?',
+    opts: [
+      'जो व्यक्ति विवाह, करियर या स्वास्थ्य जैसे बड़े निर्णय ले रहा हो',
+      'जो पहले से सब जानता हो',
+      'जो ज्योतिष में विश्वास नहीं रखता',
+      'जो अभी स्कूल में हो'
+    ],
+    correct: 0
+  },
+  {
+    q: 'एक ग्राहक कहता है "सोचकर बताता हूं"। सबसे अच्छा जवाब क्या है?',
+    opts: [
+      'ठीक है, जब मर्जी हो बताइए',
+      'कोई बात नहीं, लेकिन क्या कोई खास चिंता है जो मैं दूर कर सकता हूं?',
+      'अभी ले लो, बाद में पछताएंगे',
+      'आपकी मर्जी'
+    ],
+    correct: 1
+  },
+  {
+    q: '₹199 की मंगल दोष रिपोर्ट पर सूत्रधार को कितना कमीशन मिलेगा?',
+    opts: ['₹20', '₹60', '₹100', '₹199'],
+    correct: 1,
+    hint: '₹199 का 30% = लगभग ₹60'
+  },
+  {
+    q: 'सूत्रधार का मुख्य काम क्या है?',
+    opts: [
+      'रिपोर्ट खुद लिखना',
+      'ग्राहक का नंबर 72 घंटे में lock करना ताकि उनकी खरीद पर कमीशन मिले',
+      'पेमेंट सीधे लेना',
+      'ज्योतिष सीखना'
+    ],
+    correct: 1
+  },
+  {
+    q: '₹5,100 का ज्योतिषी SaaS सॉफ्टवेयर बिकवाने पर सूत्रधार को क्या मिलेगा?',
+    opts: ['₹1,530 (30%)', '₹2,500 flat', '₹5,100', 'कुछ नहीं'],
+    correct: 1
+  },
+  {
+    q: 'एक जानकार मित्र की शादी होने वाली है। उन्हें क्या सुझाएंगे?',
+    opts: [
+      'कुछ नहीं',
+      'मंगल दोष या मुहूर्त रिपोर्ट से शुभ समय और दोष जांच करें',
+      'किसी पंडित के पास भेज दें',
+      'ऑनलाइन रिपोर्ट नहीं होती'
+    ],
+    correct: 1
+  },
+  {
+    q: 'लेवल 2 सूत्रधार बनने के लिए क्या करना होगा?',
+    opts: [
+      '100 लीड जोड़नी होंगी',
+      '7 दिन लगातार ₹3,000 प्रतिदिन कमाई',
+      'एक महीने में ₹50,000 कमाई',
+      '50 रिपोर्ट बिकवानी होंगी'
+    ],
+    correct: 1
+  },
+  {
+    q: 'श्री राम जी एस्ट्रो की रिपोर्ट किस आधार पर बनती है?',
+    opts: [
+      'सामान्य राशिफल से',
+      'बृहत् पाराशर होरा शास्त्र के गहन विश्लेषण से',
+      'कंप्यूटर के अंदाज़े से',
+      'पश्चिमी ज्योतिष से'
+    ],
+    correct: 1
+  },
+  {
+    q: 'एक ग्राहक पूछे "क्या यह रिपोर्ट 100% सच होगी?" तो क्या कहेंगे?',
+    opts: [
+      'हाँ, बिल्कुल 100% गारंटी है',
+      'यह वैदिक शास्त्र पर आधारित मार्गदर्शन है, जो बड़े निर्णयों में सहायक होता है',
+      'हम नहीं जानते',
+      'ज्योतिष झूठ है'
+    ],
+    correct: 1
+  },
+  {
+    q: 'शुरुआत में लीड कहाँ से मिल सकती है?',
+    opts: [
+      'केवल अनजान लोगों से',
+      'परिवार, दोस्त, पड़ोसी और परिचित जो बड़े जीवन निर्णय ले रहे हों',
+      'केवल सोशल मीडिया से',
+      'केवल ऑफिस में'
+    ],
+    correct: 1
+  }
+];
+
+// -----------------------------------------------------------------------
+// INCENTIVE TABLE DATA
+// -----------------------------------------------------------------------
+const INCENTIVE_ROWS = [
+  { name: 'मंगल दोष रिपोर्ट', price: 199, comm: Math.round(199*0.3), type: 'report' },
+  { name: 'कालसर्प दोष रिपोर्ट', price: 199, comm: Math.round(199*0.3), type: 'report' },
+  { name: 'रत्न एवं उपाय रिपोर्ट', price: 249, comm: Math.round(249*0.3), type: 'report' },
+  { name: 'मुहूर्त शोधन रिपोर्ट', price: 1111, comm: Math.round(1111*0.3), type: 'report' },
+  { name: 'BPHS मेगा पाराशर रिपोर्ट', price: 1111, comm: Math.round(1111*0.3), type: 'report' },
+  { name: 'दैवज्ञ 1-on-1 परामर्श', price: 5100, comm: 2500, type: 'flat' },
+  { name: '1-वर्षीय गुरुकुल कोर्स', price: 24000, comm: 2500, type: 'flat' },
+  { name: 'ज्योतिषी SaaS (वार्षिक)', price: 5100, comm: 2500, type: 'flat' }
+];
+
+// -----------------------------------------------------------------------
+// ARTICLES
+// -----------------------------------------------------------------------
+const ARTICLES = [
+  { title: 'मंगल दोष: क्या यह सच में विवाह में बाधा बनता है?', url: 'blogs.html', tag: 'ज्योतिष' },
+  { title: 'कालसर्प दोष के 7 लक्षण जो आपको जानने चाहिए', url: 'blogs.html', tag: 'दोष' },
+  { title: 'शुभ मुहूर्त क्यों ज़रूरी है? शास्त्रीय तर्क', url: 'blogs.html', tag: 'मुहूर्त' },
+  { title: 'अपनी जन्मकुंडली से करियर कैसे चुनें?', url: 'blogs.html', tag: 'करियर' },
+  { title: 'रत्न धारण करने से पहले यह ज़रूर जानें', url: 'blogs.html', tag: 'रत्न' },
+  { title: 'ज्योतिष और आधुनिक जीवन: एक शास्त्रीय दृष्टि', url: 'blogs.html', tag: 'सामान्य' }
+];
+
+// -----------------------------------------------------------------------
+// BOOT: Check saved session
+// -----------------------------------------------------------------------
+(function boot() {
+  renderIncentiveTable();
+  renderArticles();
+  const saved = localStorage.getItem('sra_sutradhar_session');
+  if (saved) {
+    try {
+      const p = JSON.parse(saved);
+      if (p && p.sutradhar_id && p.phone) {
+        profile = p;
+        // Check if quiz was passed for this user
+        const quizKey = 'sra_quiz_passed_' + p.phone;
+        if (localStorage.getItem(quizKey) === '1') {
+          goToApp();
+        } else {
+          // Needs to do quiz (edge case: session saved but quiz not completed)
+          goTo('screen-phone');
+        }
         return;
       }
+    } catch(e) {}
+  }
+  goTo('screen-phone');
+})();
 
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spin"></span> जाँच हो रही है...';
+// -----------------------------------------------------------------------
+// SCREEN NAVIGATION
+// -----------------------------------------------------------------------
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+}
 
-      try {
-        const res = await fetch(`${API}/api/sutradhar/login?phone=${encodeURIComponent(phone)}`);
-        const data = await res.json();
+// -----------------------------------------------------------------------
+// STEP 1: SEND OTP
+// -----------------------------------------------------------------------
+async function sendOtp() {
+  const phone = document.getElementById('phoneInput').value.trim().replace(/\D/g,'').slice(-10);
+  const errEl = document.getElementById('phoneErr');
+  const btn = document.getElementById('btnSendOtp');
+  errEl.classList.add('hidden');
 
-        if (!res.ok) {
-          errEl.textContent = data.detail || 'यह नंबर पंजीकृत नहीं है।';
-          errEl.classList.remove('hidden');
-          return;
-        }
+  if (phone.length !== 10) {
+    errEl.textContent = 'कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।';
+    errEl.classList.remove('hidden');
+    return;
+  }
 
-        profile = data.sutradhar;
-        localStorage.setItem('sra_sutradhar_session', JSON.stringify(profile));
-        showApp();
+  pendingPhone = phone;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> OTP भेजा जा रहा है...';
 
-      } catch(e) {
-        errEl.textContent = 'नेटवर्क समस्या। कृपया पुनः प्रयास करें।';
-        errEl.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = 'प्रवेश करें';
-      }
+  try {
+    const res = await fetch(`${API}/api/sutradhar/otp/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.detail || 'OTP नहीं भेजा जा सका।';
+      errEl.classList.remove('hidden');
+      return;
     }
 
-    // ----------------------------------------------------------------
-    // SHOW APP
-    // ----------------------------------------------------------------
-    function showApp() {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('mainApp').classList.remove('hidden');
-
-      document.getElementById('headerName').textContent = profile.name || 'सूत्रधार';
-      document.getElementById('headerCode').textContent = profile.code || profile.sutradhar_id || '';
-
-      document.getElementById('profName').textContent = profile.name || '—';
-      document.getElementById('profPhone').textContent = profile.phone || '—';
-      document.getElementById('profId').textContent = profile.sutradhar_id || '—';
-      document.getElementById('profUpi').textContent = profile.upi_id || '—';
-
-      showTab('lead');
-      loadLeads();
+    const otpMsgEl = document.getElementById('otpSentMsg');
+    if (data.dev_otp) {
+      // Dev mode: show OTP on screen (remove in production when SMS is live)
+      otpMsgEl.textContent = `Dev mode — OTP: ${data.dev_otp}`;
+      otpMsgEl.className = 'text-sm font-bold text-blue-700';
+    } else {
+      otpMsgEl.textContent = `${phone} पर OTP भेजा गया।`;
+      otpMsgEl.className = 'text-sm text-slate-500';
     }
 
-    // ----------------------------------------------------------------
-    // TAB SWITCHING
-    // ----------------------------------------------------------------
-    function showTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('otpInput').value = '';
+    document.getElementById('otpErr').classList.add('hidden');
+    goTo('screen-otp');
 
-      document.querySelectorAll('#bottomNav button').forEach(b => {
-        b.classList.remove('text-blue-600');
-        b.classList.add('text-slate-400');
-      });
-      const active = document.getElementById('bnav-' + tab);
-      if (active) {
-        active.classList.remove('text-slate-400');
-        active.classList.add('text-blue-600');
-      }
+  } catch(e) {
+    errEl.textContent = 'नेटवर्क समस्या। पुनः प्रयास करें।';
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'OTP भेजें';
+  }
+}
 
-      if (tab === 'earnings') loadEarnings();
+// -----------------------------------------------------------------------
+// STEP 2: VERIFY OTP
+// -----------------------------------------------------------------------
+async function verifyOtp() {
+  const otp = document.getElementById('otpInput').value.trim();
+  const errEl = document.getElementById('otpErr');
+  const btn = document.getElementById('btnVerifyOtp');
+  errEl.classList.add('hidden');
+
+  if (otp.length !== 6) {
+    errEl.textContent = '6 अंकों का OTP दर्ज करें।';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> सत्यापित हो रहा है...';
+
+  try {
+    const res = await fetch(`${API}/api/sutradhar/otp/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: pendingPhone, otp })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errEl.textContent = data.detail || 'OTP गलत है।';
+      errEl.classList.remove('hidden');
+      return;
     }
 
-    // ----------------------------------------------------------------
-    // LEAD SUBMISSION
-    // ----------------------------------------------------------------
-    async function submitLead() {
-      const name = document.getElementById('newCustName').value.trim();
-      const phone = document.getElementById('newCustPhone').value.trim().replace(/\D/g,'').slice(-10);
-      const msgEl = document.getElementById('leadMsg');
-      const btn = document.getElementById('leadBtn');
-
-      msgEl.classList.add('hidden');
-
-      if (!name) { showMsg(msgEl, 'ग्राहक का नाम दर्ज करें।', false); return; }
-      if (phone.length !== 10) { showMsg(msgEl, 'ग्राहक का 10 अंकों का नंबर दर्ज करें।', false); return; }
-
-      const sutraId = profile.sutradhar_id || profile.code;
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spin"></span> ताला लग रहा है...';
-
-      try {
-        const res = await fetch(`${API}/api/sutradhar/leads/add`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer_phone: phone, customer_name: name, sutradhar_id: sutraId })
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          showMsg(msgEl, data.detail || 'लीड दर्ज नहीं हो सकी।', false);
-          return;
-        }
-
-        document.getElementById('newCustName').value = '';
-        document.getElementById('newCustPhone').value = '';
-        showMsg(msgEl, data.message || '✓ लीड सफलतापूर्वक जुड़ गई! 72 घंटे का ताला सक्रिय है।', true);
-        loadLeads();
-
-      } catch(e) {
-        showMsg(msgEl, 'नेटवर्क समस्या। पुनः प्रयास करें।', false);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '72 घंटे का ताला लगाएं';
-      }
+    if (data.exists && data.sutradhar) {
+      // Returning user — go directly to app
+      profile = data.sutradhar;
+      localStorage.setItem('sra_sutradhar_session', JSON.stringify(profile));
+      localStorage.setItem('sra_quiz_passed_' + profile.phone, '1');
+      goToApp();
+    } else {
+      // New user — go to registration form
+      goTo('screen-register');
     }
 
-    function showMsg(el, text, ok) {
-      el.textContent = text;
-      el.className = 'text-sm text-center rounded-xl p-3 ' + (ok ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-700');
-      el.classList.remove('hidden');
+  } catch(e) {
+    errEl.textContent = 'नेटवर्क समस्या। पुनः प्रयास करें।';
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'सत्यापित करें';
+  }
+}
+
+// -----------------------------------------------------------------------
+// STEP 3: REGISTER (new user)
+// -----------------------------------------------------------------------
+function submitRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const errEl = document.getElementById('regErr');
+  errEl.classList.add('hidden');
+
+  if (!name) {
+    errEl.textContent = 'नाम दर्ज करना आवश्यक है।';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  // Store for later (after quiz)
+  window._pendingReg = { name, email, phone: pendingPhone };
+
+  // Go to onboarding
+  currentSlide = 1;
+  showSlide(1);
+  goTo('screen-onboarding');
+}
+
+// -----------------------------------------------------------------------
+// ONBOARDING SLIDES
+// -----------------------------------------------------------------------
+function showSlide(n) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + n).classList.add('active');
+
+  document.querySelectorAll('[data-dot]').forEach(d => {
+    d.className = parseInt(d.dataset.dot) === n
+      ? 'w-2 h-2 rounded-full bg-blue-600'
+      : 'w-2 h-2 rounded-full bg-slate-300';
+  });
+
+  document.getElementById('btnPrevSlide').classList.toggle('hidden', n === 1);
+  const nextBtn = document.getElementById('btnNextSlide');
+  nextBtn.textContent = n === TOTAL_SLIDES ? 'परीक्षण शुरू करें →' : 'आगे →';
+}
+
+function nextSlide() {
+  if (currentSlide < TOTAL_SLIDES) {
+    currentSlide++;
+    showSlide(currentSlide);
+  } else {
+    startQuiz();
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 1) {
+    currentSlide--;
+    showSlide(currentSlide);
+  }
+}
+
+// -----------------------------------------------------------------------
+// QUIZ
+// -----------------------------------------------------------------------
+function startQuiz() {
+  currentQuizIdx = 0;
+  quizScore = 0;
+  renderQuizQuestion();
+  goTo('screen-quiz');
+}
+
+function renderQuizQuestion() {
+  const q = QUIZ[currentQuizIdx];
+  document.getElementById('quizProgress').textContent = `प्रश्न ${currentQuizIdx+1} / ${QUIZ.length}`;
+  document.getElementById('quizBar').style.width = `${((currentQuizIdx+1)/QUIZ.length)*100}%`;
+  document.getElementById('quizQuestion').textContent = q.q;
+  document.getElementById('quizFeedback').classList.add('hidden');
+  document.getElementById('btnQuizNext').disabled = true;
+  selectedOptIdx = null;
+
+  const optsEl = document.getElementById('quizOptions');
+  optsEl.innerHTML = q.opts.map((opt, i) =>
+    `<button class="quiz-opt w-full text-left border border-slate-200 bg-white rounded-xl px-4 py-3 text-sm text-slate-800 transition" onclick="selectOpt(${i})">${opt}</button>`
+  ).join('');
+}
+
+function selectOpt(idx) {
+  if (selectedOptIdx !== null) return; // already answered
+  selectedOptIdx = idx;
+
+  const q = QUIZ[currentQuizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(b => b.disabled = true);
+
+  const feedbackEl = document.getElementById('quizFeedback');
+  if (idx === q.correct) {
+    quizScore++;
+    opts[idx].classList.add('correct');
+    feedbackEl.textContent = '✓ सही! ' + (q.hint || '');
+    feedbackEl.className = 'mt-4 text-sm font-semibold rounded-xl p-3 text-center bg-green-50 text-green-800';
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    feedbackEl.textContent = '✗ सही उत्तर: ' + q.opts[q.correct] + (q.hint ? ' — ' + q.hint : '');
+    feedbackEl.className = 'mt-4 text-sm font-semibold rounded-xl p-3 text-center bg-red-50 text-red-800';
+  }
+  feedbackEl.classList.remove('hidden');
+
+  const nextBtn = document.getElementById('btnQuizNext');
+  nextBtn.disabled = false;
+  nextBtn.textContent = currentQuizIdx < QUIZ.length - 1 ? 'अगला प्रश्न →' : 'परिणाम देखें';
+}
+
+function quizNext() {
+  currentQuizIdx++;
+  if (currentQuizIdx < QUIZ.length) {
+    renderQuizQuestion();
+  } else {
+    showQuizResult();
+  }
+}
+
+function showQuizResult() {
+  const passed = quizScore >= QUIZ_PASS;
+  document.getElementById('quizResultIcon').textContent = passed ? '🎉' : '📚';
+  document.getElementById('quizResultTitle').textContent = passed
+    ? `बधाई! आप पास हो गए (${quizScore}/${QUIZ.length})`
+    : `अभी और सीखना होगा (${quizScore}/${QUIZ.length})`;
+  document.getElementById('quizResultMsg').textContent = passed
+    ? 'आपका स्क्रीनिंग परीक्षण सफल रहा। अब आप सूत्रधार के रूप में काम शुरू कर सकते हैं।'
+    : `उत्तीर्ण होने के लिए ${QUIZ_PASS} सही उत्तर चाहिए। ऑनबोर्डिंग स्लाइड्स दोबारा पढ़ें और पुनः प्रयास करें।`;
+
+  const btn = document.getElementById('btnQuizResultAction');
+  if (passed) {
+    btn.textContent = 'डैशबोर्ड खोलें →';
+    btn.className = 'w-full font-bold py-3 rounded-xl transition text-white bg-green-600 hover:bg-green-700';
+    btn.onclick = () => completeOnboarding();
+  } else {
+    btn.textContent = '← दोबारा पढ़ें और परीक्षण दें';
+    btn.className = 'w-full font-bold py-3 rounded-xl transition text-white bg-blue-600 hover:bg-blue-700';
+    btn.onclick = () => { currentSlide=1; showSlide(1); goTo('screen-onboarding'); };
+  }
+
+  goTo('screen-quiz-result');
+}
+
+// -----------------------------------------------------------------------
+// COMPLETE ONBOARDING → REGISTER → APP
+// -----------------------------------------------------------------------
+async function completeOnboarding() {
+  const reg = window._pendingReg;
+  if (!reg) { goToApp(); return; }
+
+  try {
+    const res = await fetch(`${API}/api/sutradhar/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: reg.name, phone: reg.phone, email: reg.email || '' })
+    });
+    const data = await res.json();
+    if (res.ok && data.sutradhar) {
+      profile = data.sutradhar;
+    } else {
+      // Fallback: construct minimal profile
+      profile = {
+        sutradhar_id: 'SUTRA-' + reg.phone.slice(-4) + '-01',
+        name: reg.name, phone: reg.phone, email: reg.email || '', code: '', upi_id: ''
+      };
+    }
+  } catch(e) {
+    profile = {
+      sutradhar_id: 'SUTRA-' + reg.phone.slice(-4) + '-01',
+      name: reg.name, phone: reg.phone, code: '', upi_id: ''
+    };
+  }
+
+  localStorage.setItem('sra_sutradhar_session', JSON.stringify(profile));
+  localStorage.setItem('sra_quiz_passed_' + profile.phone, '1');
+  goToApp();
+}
+
+// -----------------------------------------------------------------------
+// GO TO APP (populate header + load data)
+// -----------------------------------------------------------------------
+function goToApp() {
+  document.getElementById('headerName').textContent = profile.name || 'सूत्रधार';
+  document.getElementById('headerCode').textContent = profile.code || profile.sutradhar_id || '';
+
+  document.getElementById('profName').textContent = profile.name || '—';
+  document.getElementById('profPhone').textContent = profile.phone || '—';
+  document.getElementById('profId').textContent = profile.sutradhar_id || '—';
+  document.getElementById('profUpi').textContent = profile.upi_id || '(UPI अभी नहीं जोड़ा)';
+  if (profile.upi_id) document.getElementById('upiUpdateInput').value = profile.upi_id;
+
+  goTo('screen-app');
+  showTab('home');
+  loadLeads();
+  loadSummary();
+}
+
+// -----------------------------------------------------------------------
+// TAB SWITCHING
+// -----------------------------------------------------------------------
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+
+  document.querySelectorAll('#bottomNav button').forEach(b => {
+    b.classList.remove('text-blue-600');
+    b.classList.add('text-slate-400');
+  });
+  const active = document.getElementById('bnav-' + tab);
+  if (active) { active.classList.remove('text-slate-400'); active.classList.add('text-blue-600'); }
+
+  if (tab === 'payout') loadEarnings();
+}
+
+// -----------------------------------------------------------------------
+// LEAD SUBMISSION
+// -----------------------------------------------------------------------
+async function submitLead() {
+  const name = document.getElementById('newCustName').value.trim();
+  const phone = document.getElementById('newCustPhone').value.trim().replace(/\D/g,'').slice(-10);
+  const msgEl = document.getElementById('leadMsg');
+  const btn = document.getElementById('leadBtn');
+  msgEl.classList.add('hidden');
+
+  if (!name) { showMsg(msgEl, 'ग्राहक का नाम दर्ज करें।', false); return; }
+  if (phone.length !== 10) { showMsg(msgEl, 'ग्राहक का 10 अंकों का नंबर दर्ज करें।', false); return; }
+
+  const sutraId = (profile.sutradhar_id || profile.code || '').replace(/-/g,'') || profile.sutradhar_id;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> ताला लग रहा है...';
+
+  try {
+    const res = await fetch(`${API}/api/sutradhar/leads/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_phone: phone, customer_name: name, sutradhar_id: sutraId })
+    });
+    const data = await res.json();
+
+    if (!res.ok) { showMsg(msgEl, data.detail || 'लीड दर्ज नहीं हो सकी।', false); return; }
+
+    document.getElementById('newCustName').value = '';
+    document.getElementById('newCustPhone').value = '';
+    showMsg(msgEl, data.message || '✓ लीड सफलतापूर्वक जुड़ गई! 72 घंटे का ताला सक्रिय है।', true);
+    loadLeads();
+    loadSummary();
+
+  } catch(e) {
+    showMsg(msgEl, 'नेटवर्क समस्या। पुनः प्रयास करें।', false);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '72 घंटे का ताला लगाएं';
+  }
+}
+
+function showMsg(el, text, ok) {
+  el.textContent = text;
+  el.className = 'text-sm text-center rounded-xl p-3 ' + (ok ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-700');
+  el.classList.remove('hidden');
+}
+
+// -----------------------------------------------------------------------
+// LOAD SUMMARY (home tab stats)
+// -----------------------------------------------------------------------
+async function loadSummary() {
+  const sutraId = getSutraId();
+  try {
+    const res = await fetch(`${API}/api/sutradhar/summary?sutradhar_id=${encodeURIComponent(sutraId)}`);
+    if (!res.ok) return;
+    const d = await res.json();
+
+    // Update profile from server
+    if (d.code && !profile.code) { profile.code = d.code; document.getElementById('headerCode').textContent = d.code; }
+    if (d.upi_id && !profile.upi_id) {
+      profile.upi_id = d.upi_id;
+      document.getElementById('profUpi').textContent = d.upi_id;
+      document.getElementById('upiUpdateInput').value = d.upi_id;
     }
 
-    // ----------------------------------------------------------------
-    // LOAD LEADS
-    // ----------------------------------------------------------------
-    async function loadLeads() {
-      const el = document.getElementById('leadsList');
-      const sutraId = (profile.sutradhar_id || profile.code || '').replace(/-/g,'');
+    document.getElementById('homePayoutTotal').textContent = `₹${(d.lifetime_commission||0).toLocaleString('en-IN')}`;
+    document.getElementById('homePayoutToday').textContent = `₹${(d.today_commission||0).toLocaleString('en-IN')}`;
+    document.getElementById('homePayoutMonth').textContent = `₹${(d.month_commission||0).toLocaleString('en-IN')}`;
+    document.getElementById('homeActiveLeads').textContent = d.active_leads || 0;
 
-      try {
-        const res = await fetch(`${API}/api/sutradhar/leads/list?sutradhar_id=${encodeURIComponent(sutraId)}`);
-        if (!res.ok) { el.innerHTML = '<p class="text-slate-500 text-sm">लीड्स लोड नहीं हो सकीं।</p>'; return; }
-        const data = await res.json();
-        const leads = data.leads || [];
+    document.getElementById('payToday').textContent = `₹${(d.today_commission||0).toLocaleString('en-IN')}`;
+    document.getElementById('payMonth').textContent = `₹${(d.month_commission||0).toLocaleString('en-IN')}`;
+    document.getElementById('payLifetime').textContent = `₹${(d.lifetime_commission||0).toLocaleString('en-IN')}`;
+    document.getElementById('payPending').textContent = `₹${(d.pending_payout||0).toLocaleString('en-IN')}`;
+    document.getElementById('payUpi').textContent = d.upi_id || profile.upi_id || '(UPI नहीं जोड़ा)';
 
-        if (leads.length === 0) {
-          el.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">अभी कोई लीड नहीं है।<br>ऊपर ग्राहक का नंबर जोड़ें।</p>';
-          return;
-        }
+  } catch(e) {}
+}
 
-        el.innerHTML = leads.map(l => {
-          const status = l.status === 'converted' ? '✓ खरीद हुई' : (l.status === 'expired' ? 'समाप्त' : '⏱ सक्रिय');
-          const statusClass = l.status === 'converted' ? 'text-green-700 bg-green-50' : (l.status === 'expired' ? 'text-slate-500 bg-slate-100' : 'text-blue-700 bg-blue-50');
-          const rem = l.countdown_text || l.remaining_text || '';
-          const dateStr = l.created_at ? new Date(l.created_at).toLocaleDateString('hi-IN') : '';
-          return `
-            <div class="border-b border-slate-100 last:border-0 py-3 flex items-start justify-between gap-2">
-              <div class="min-w-0">
-                <div class="font-semibold text-slate-900 text-sm truncate">${l.customer_name || 'जातक'}</div>
-                <div class="text-xs text-slate-500 font-mono">📱 ***${(l.customer_phone||'').slice(-4)} &nbsp;•&nbsp; ${dateStr}</div>
-                ${rem ? `<div class="text-[11px] text-slate-500 mt-0.5">${rem}</div>` : ''}
-              </div>
-              <span class="shrink-0 text-[11px] font-bold px-2 py-1 rounded-lg ${statusClass}">${status}</span>
-            </div>
-          `;
-        }).join('');
+// -----------------------------------------------------------------------
+// LOAD LEADS
+// -----------------------------------------------------------------------
+async function loadLeads() {
+  const el = document.getElementById('homeLeadsList');
+  const sutraId = getSutraId();
 
-      } catch(e) {
-        el.innerHTML = '<p class="text-slate-500 text-sm text-center py-6">लोड नहीं हो सका।</p>';
-      }
+  try {
+    const res = await fetch(`${API}/api/sutradhar/leads/list?sutradhar_id=${encodeURIComponent(sutraId)}`);
+    if (!res.ok) { el.innerHTML = '<p class="text-slate-400 py-6 text-xs">लीड्स लोड नहीं हो सकीं।</p>'; return; }
+    const data = await res.json();
+    const leads = (data.leads || []).slice(0, 10); // show latest 10
+
+    if (leads.length === 0) {
+      el.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">अभी कोई लीड नहीं।<br><span class="text-xs">ऊपर ग्राहक का नंबर जोड़ें।</span></p>';
+      return;
     }
 
-    // ----------------------------------------------------------------
-    // LOAD EARNINGS
-    // ----------------------------------------------------------------
-    async function loadEarnings() {
-      const sutraId = (profile.sutradhar_id || profile.code || '').replace(/-/g,'');
+    el.innerHTML = leads.map(l => {
+      const statusClass = l.status === 'converted'
+        ? 'text-green-700 bg-green-50'
+        : (l.status === 'expired' ? 'text-slate-500 bg-slate-100' : 'text-blue-700 bg-blue-50');
+      const statusText = l.status === 'converted' ? '✓ खरीद' : (l.status === 'expired' ? 'समाप्त' : '⏱ सक्रिय');
+      const rem = l.countdown_text || l.remaining_text || '';
+      return `
+        <div class="border-b border-slate-100 last:border-0 py-3 flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <div class="font-semibold text-slate-900 text-sm truncate">${l.customer_name || 'जातक'}</div>
+            <div class="text-xs text-slate-500">📱 ***${(l.customer_phone||'').slice(-4)}${rem ? ' • ' + rem : ''}</div>
+          </div>
+          <span class="shrink-0 text-[11px] font-bold px-2 py-1 rounded-lg ${statusClass}">${statusText}</span>
+        </div>`;
+    }).join('');
 
-      try {
-        const res = await fetch(`${API}/api/sutradhar/summary?sutradhar_id=${encodeURIComponent(sutraId)}`);
-        if (!res.ok) return;
-        const d = await res.json();
+  } catch(e) {
+    el.innerHTML = '<p class="text-slate-400 text-sm py-6">लोड नहीं हो सका।</p>';
+  }
+}
 
-        document.getElementById('earnToday').textContent = `₹${(d.today_commission||0).toLocaleString('en-IN')}`;
-        document.getElementById('earnMonth').textContent = `₹${(d.month_commission||0).toLocaleString('en-IN')}`;
-        document.getElementById('earnLifetime').textContent = `₹${(d.lifetime_commission||0).toLocaleString('en-IN')}`;
+// -----------------------------------------------------------------------
+// LOAD EARNINGS (payout tab)
+// -----------------------------------------------------------------------
+async function loadEarnings() {
+  const el = document.getElementById('earningsList');
+  const sutraId = getSutraId();
+  await loadSummary();
 
-        // Also load leads for detail
-        const lRes = await fetch(`${API}/api/sutradhar/leads/list?sutradhar_id=${encodeURIComponent(sutraId)}`);
-        const lData = lRes.ok ? await lRes.json() : {};
-        const leads = (lData.leads || []).filter(l => l.status === 'converted' || l.commission_amount);
-        const el = document.getElementById('earningsList');
+  try {
+    const res = await fetch(`${API}/api/sutradhar/leads/list?sutradhar_id=${encodeURIComponent(sutraId)}`);
+    if (!res.ok) { el.innerHTML = '<p class="text-slate-400 text-sm py-6">लोड नहीं हो सका।</p>'; return; }
+    const data = await res.json();
+    const converted = (data.leads || []).filter(l => l.status === 'converted' || l.commission_amount);
 
-        if (leads.length === 0) {
-          el.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">अभी कोई कमाई नहीं।<br>लीड जोड़ें और ग्राहक को रिपोर्ट खरीदवाएं।</p>';
-          return;
-        }
-
-        el.innerHTML = leads.map(l => {
-          const amt = l.commission_amount || 20;
-          const paidStatus = (l.payout_status === 'transferred' && l.utr)
-            ? `<span class="text-green-700 font-bold">✓ UPI में भेजा (${l.utr})</span>`
-            : `<span class="text-amber-700">⚡ पेआउट कतार में</span>`;
-          return `
-            <div class="border-b border-slate-100 last:border-0 py-3 flex items-start justify-between gap-2">
-              <div class="min-w-0">
-                <div class="font-semibold text-slate-900 text-sm truncate">${l.customer_name || 'जातक'}</div>
-                <div class="text-xs text-slate-500 mt-0.5">${paidStatus}</div>
-              </div>
-              <div class="shrink-0 font-bold text-green-700 text-sm">₹${amt}</div>
-            </div>
-          `;
-        }).join('');
-
-      } catch(e) {}
+    if (converted.length === 0) {
+      el.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">अभी कोई कमाई नहीं।<br>लीड जोड़ें और ग्राहक को रिपोर्ट खरीदवाएं।</p>';
+      return;
     }
 
-    // ----------------------------------------------------------------
-    // LOGOUT
-    // ----------------------------------------------------------------
-    function doLogout() {
-      localStorage.removeItem('sra_sutradhar_session');
-      profile = null;
-      document.getElementById('mainApp').classList.add('hidden');
-      document.getElementById('loginScreen').style.display = '';
-      document.getElementById('loginPhone').value = '';
-      document.getElementById('loginError').classList.add('hidden');
-    }
+    el.innerHTML = converted.map(l => {
+      const amt = l.commission_amount || 20;
+      const paid = (l.payout_status === 'transferred' && l.utr)
+        ? `<span class="text-green-700">✓ UPI में (${l.utr})</span>`
+        : `<span class="text-amber-700">⚡ प्रतीक्षित</span>`;
+      return `
+        <div class="border-b border-slate-100 last:border-0 py-3 flex justify-between gap-2 items-center">
+          <div><div class="font-semibold text-slate-900 text-sm">${l.customer_name||'जातक'}</div>
+          <div class="text-xs mt-0.5">${paid}</div></div>
+          <div class="font-bold text-green-700 text-sm shrink-0">+₹${amt}</div>
+        </div>`;
+    }).join('');
 
-    // ----------------------------------------------------------------
-    // TOAST
-    // ----------------------------------------------------------------
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.style.opacity = '1';
-      t.style.transform = 'translateY(0)';
-      setTimeout(() => { t.style.opacity = '0'; }, 3000);
+  } catch(e) {
+    el.innerHTML = '<p class="text-slate-400 text-sm py-6">लोड नहीं हो सका।</p>';
+  }
+}
+
+// -----------------------------------------------------------------------
+// UPDATE UPI
+// -----------------------------------------------------------------------
+async function updateUpi() {
+  const upi = document.getElementById('upiUpdateInput').value.trim();
+  if (!upi || !upi.includes('@')) { showToast('मान्य UPI आईडी दर्ज करें।'); return; }
+  try {
+    const res = await fetch(`${API}/api/sutradhar/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: profile.name, phone: profile.phone, email: profile.email||'', upi_id: upi, code: profile.code||'' })
+    });
+    if (res.ok) {
+      profile.upi_id = upi;
+      localStorage.setItem('sra_sutradhar_session', JSON.stringify(profile));
+      document.getElementById('profUpi').textContent = upi;
+      document.getElementById('payUpi').textContent = upi;
+      showToast('✓ UPI सेव हो गई।');
     }
-  </script>
+  } catch(e) { showToast('UPI सेव नहीं हो सकी।'); }
+}
+
+// -----------------------------------------------------------------------
+// RENDER STATIC DATA
+// -----------------------------------------------------------------------
+function renderIncentiveTable() {
+  document.getElementById('incentiveTable').innerHTML = INCENTIVE_ROWS.map(r => `
+    <div class="grid grid-cols-3 px-4 py-3 items-center">
+      <span class="text-sm text-slate-800">${r.name}</span>
+      <span class="text-sm text-slate-600 text-center">₹${r.price.toLocaleString('en-IN')}</span>
+      <span class="text-sm font-bold text-green-700 text-right">₹${r.comm}${r.type==='flat'?' (flat)':' (30%)'}</span>
+    </div>`).join('');
+}
+
+function renderArticles() {
+  document.getElementById('articlesList').innerHTML = ARTICLES.map(a => `
+    <a href="${a.url}" target="_blank" class="block bg-white border border-slate-200 rounded-2xl p-4 hover:border-blue-300 transition">
+      <div class="text-[10px] font-bold text-blue-600 uppercase mb-1">${a.tag}</div>
+      <div class="text-sm font-semibold text-slate-900">${a.title}</div>
+      <div class="text-xs text-slate-400 mt-1">shriramjiastro.in → शेयर करें ↗</div>
+    </a>`).join('');
+}
+
+// -----------------------------------------------------------------------
+// HELPERS
+// -----------------------------------------------------------------------
+function getSutraId() {
+  return ((profile.sutradhar_id || profile.code || '')).replace(/-/g,'') || (profile.phone ? 'SRA'+profile.phone.slice(-6).toUpperCase() : 'UNKNOWN');
+}
+
+function doLogout() {
+  localStorage.removeItem('sra_sutradhar_session');
+  profile = null;
+  document.getElementById('phoneInput').value = '';
+  document.getElementById('phoneErr').classList.add('hidden');
+  goTo('screen-phone');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+</script>
 </body>
 </html>
