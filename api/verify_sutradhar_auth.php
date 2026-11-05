@@ -52,6 +52,23 @@ if (file_exists($sutraFile)) {
     }
 }
 
+// Sutradhar S (Contact: 9453561588, Code: SRA-4B9F91)
+if ($cleanPhone === '9453561588') {
+    echo json_encode([
+        "status" => "success",
+        "authenticated" => true,
+        "name" => !empty($name) ? $name : "S",
+        "phone" => "9453561588",
+        "sutradhar_id" => "SRA-4B9F91",
+        "code" => "SRA-4B9F91",
+        "upi_id" => "astroraamji@ptaxis",
+        "role" => "अधिकृत सूत्रधार",
+        "onboarding_completed" => true,
+        "training_completed" => true
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
 // Master Admin Bypass or Testing (T1 Test)
 if ($cleanPhone === '9517117775' || $cleanPhone === '9415000000' || $pass === 'SRA#2026' || $pass === 'SRA_MASTER_7775' || strtoupper($pass) === 'JAIHANUMAN') {
     echo json_encode([

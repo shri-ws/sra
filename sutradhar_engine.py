@@ -195,7 +195,7 @@ def normalize_phone(raw_phone: str) -> str:
 def get_sutradhar_alias_ids(sutradhar_id: str) -> set:
     raw = (sutradhar_id or "").strip()
     clean_raw = raw.upper()
-    matching_ids = {raw, clean_raw}
+    matching_ids = {raw, clean_raw, clean_raw.replace("-", "")}
     clean_p = normalize_phone(raw)
     if clean_p and len(clean_p) == 10:
         matching_ids.add(clean_p)
@@ -208,19 +208,23 @@ def get_sutradhar_alias_ids(sutradhar_id: str) -> set:
         s_sutraid = s.get("sutradhar_id", "")
 
         is_match = False
-        if clean_raw and clean_raw in (s_id.upper(), s_code.upper(), s_sutraid.upper()):
+        s_candidates = {
+            s_id.upper(), s_code.upper(), s_sutraid.upper(),
+            s_id.upper().replace("-", ""), s_code.upper().replace("-", ""), s_sutraid.upper().replace("-", "")
+        }
+        if clean_raw in s_candidates or clean_raw.replace("-", "") in s_candidates:
             is_match = True
         elif clean_p and s_phone == clean_p:
             is_match = True
-        elif clean_raw.startswith("SUTRA-"):
-            parts = clean_raw.split("-")
-            if len(parts) >= 2 and parts[1].isdigit() and s_phone.endswith(parts[1]):
+        elif clean_raw.startswith("SUTRA"):
+            clean_digits = re.sub(r"\D", "", clean_raw)
+            if clean_digits and s_phone.endswith(clean_digits):
                 is_match = True
 
         if is_match:
-            if s_id: matching_ids.add(s_id.upper())
-            if s_sutraid: matching_ids.add(s_sutraid.upper())
-            if s_code: matching_ids.add(s_code.upper())
+            if s_id: matching_ids.update({s_id.upper(), s_id.upper().replace("-", "")})
+            if s_sutraid: matching_ids.update({s_sutraid.upper(), s_sutraid.upper().replace("-", "")})
+            if s_code: matching_ids.update({s_code.upper(), s_code.upper().replace("-", "")})
             if s_phone: matching_ids.add(s_phone)
 
     return matching_ids
