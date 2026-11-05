@@ -192,6 +192,40 @@ def normalize_phone(raw_phone: str) -> str:
     return cleaned[-10:] if len(cleaned) >= 10 else cleaned
 
 
+def get_sutradhar_alias_ids(sutradhar_id: str) -> set:
+    raw = (sutradhar_id or "").strip()
+    clean_raw = raw.upper()
+    matching_ids = {raw, clean_raw}
+    clean_p = normalize_phone(raw)
+    if clean_p and len(clean_p) == 10:
+        matching_ids.add(clean_p)
+
+    all_sutradhars = SutradharStore.query_all("sutradhars")
+    for s in all_sutradhars:
+        s_phone = s.get("phone", "")
+        s_code = s.get("code", "")
+        s_id = s.get("id", "")
+        s_sutraid = s.get("sutradhar_id", "")
+
+        is_match = False
+        if clean_raw and clean_raw in (s_id.upper(), s_code.upper(), s_sutraid.upper()):
+            is_match = True
+        elif clean_p and s_phone == clean_p:
+            is_match = True
+        elif clean_raw.startswith("SUTRA-"):
+            parts = clean_raw.split("-")
+            if len(parts) >= 2 and parts[1].isdigit() and s_phone.endswith(parts[1]):
+                is_match = True
+
+        if is_match:
+            if s_id: matching_ids.add(s_id.upper())
+            if s_sutraid: matching_ids.add(s_sutraid.upper())
+            if s_code: matching_ids.add(s_code.upper())
+            if s_phone: matching_ids.add(s_phone)
+
+    return matching_ids
+
+
 # =============================================================================
 # 3. PYDANTIC SCHEMAS
 # =============================================================================
@@ -422,10 +456,16 @@ async def add_lead(req: AddLeadRequest):
 async def list_sutradhar_leads(sutradhar_id: str = Query(..., description="Sutradhar ID")):
     """Returns all leads for a given sutradhar with accurate countdown strings and statuses."""
     s_id = sutradhar_id.strip().upper()
+    matching_ids = get_sutradhar_alias_ids(sutradhar_id)
     all_leads = SutradharStore.query_all("leads")
     now = datetime.now(timezone.utc)
 
-    sutra_leads = [l for l in all_leads if l.get("sutradhar_id") == s_id]
+    sutra_leads = [
+        l for l in all_leads 
+        if (l.get("sutradhar_id", "").upper() in matching_ids or 
+            l.get("sutradhar_code", "").upper() in matching_ids or 
+            l.get("sutradhar_phone", "") in matching_ids)
+    ]
     enriched = []
 
     for l in sutra_leads:
@@ -1025,9 +1065,14 @@ async def take_admin_review_action(req: ReviewActionRequest):
 @router.get("/summary")
 async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutradhar ID")):
     """Calculates live today, this month, and lifetime commissions for the Sutradhar."""
-    s_id = sutradhar_id.strip().upper()
+    matching_ids = get_sutradhar_alias_ids(sutradhar_id)
     all_comms = SutradharStore.query_all("commissions")
-    sutra_comms = [c for c in all_comms if c.get("sutradhar_id") == s_id and c.get("status") == "paid"]
+    sutra_comms = [
+        c for c in all_comms 
+        if (c.get("sutradhar_id", "").upper() in matching_ids or 
+            c.get("sutradhar_code", "").upper() in matching_ids) and 
+           c.get("status") == "paid"
+    ]
 
     now = datetime.now(timezone.utc)
     today_str = now.strftime("%Y-%m-%d")
@@ -1047,17 +1092,31 @@ async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutr
             month_total += amt
 
     all_leads = SutradharStore.query_all("leads")
-    my_leads = [l for l in all_leads if l.get("sutradhar_id") == s_id]
+    my_leads = [
+        l for l in all_leads 
+        if (l.get("sutradhar_id", "").upper() in matching_ids or 
+            l.get("sutradhar_code", "").upper() in matching_ids or 
+            l.get("sutradhar_phone", "") in matching_ids)
+    ]
     active_leads = sum(1 for l in my_leads if l.get("status") == "active")
     converted_leads = sum(1 for l in my_leads if l.get("status") == "converted")
 
-    sutradhar = SutradharStore.get_doc("sutradhars", s_id)
+    # Look up profile by any matching ID
+    sutradhar = None
+    for mid in matching_ids:
+        sutradhar = SutradharStore.get_doc("sutradhars", mid)
+        if sutradhar:
+            break
+
+    profile_code = sutradhar.get("code", "") if sutradhar else ""
+    profile_upi = sutradhar.get("upi_id", "") if sutradhar else ""
+    primary_id = sutradhar.get("sutradhar_id") or sutradhar.get("id") or sutradhar_id
 
     return {
         "status": "success",
-        "sutradhar_id": s_id,
-        "code": sutradhar.get("code", s_id) if sutradhar else s_id,
-        "upi_id": sutradhar.get("upi_id", "") if sutradhar else "",
+        "sutradhar_id": primary_id,
+        "code": profile_code or primary_id,
+        "upi_id": profile_upi,
         "today_commission": today_total,
         "month_commission": month_total,
         "lifetime_commission": lifetime_total,

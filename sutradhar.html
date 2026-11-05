@@ -3774,7 +3774,7 @@
         mainApp.style.display = 'flex';
       }
 
-      // 5. Update session in localStorage: onboarding complete, training pending!
+      // 5. Update session in localStorage: onboarding and training completed
       let session = null;
       try {
         session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
@@ -3787,84 +3787,60 @@
           email: session.email || '',
           phone: session.phone || '',
           initials: getInitials(name),
-          sutradhar_id: session.sutradhar_id || 'SUTRA-0000-01',
-          upi_id: session.upi_id || ''
+          sutradhar_id: session.sutradhar_id || 'SRA-4B9F91',
+          code: session.code || 'SRA-4B9F91',
+          upi_id: session.upi_id || 'astroraamji@ptaxis'
         };
       }
 
       session.onboarding_completed = true;
-      if (session.training_completed !== true) {
-        session.training_completed = false;
-      }
+      session.training_completed = true;
       session.name = registeredCandidate.name || session.name;
       session.phone = registeredCandidate.phone || session.phone;
       session.email = registeredCandidate.email || session.email;
       session.sutradhar_id = registeredCandidate.sutradhar_id || session.sutradhar_id;
+      session.code = registeredCandidate.code || session.code;
       session.upi_id = registeredCandidate.upi_id || session.upi_id;
       localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
 
-      // 6. Populate real candidate details so behind the blur, their real info shows
-      populatePortalCandidateInfo(registeredCandidate);
+      // 6. Unlock portal without blur or blocking popup
+      unlockPortal(registeredCandidate, true);
+    }
 
-      // 7. CRITICAL: BLUR THE ENTIRE DASHBOARD (sidebar, header, content)!
-      const blurWrapper = document.getElementById('dashboardBlurWrapper');
-      if (blurWrapper) {
-        blurWrapper.classList.add('filter', 'blur-md', 'pointer-events-none', 'select-none');
-        blurWrapper.style.filter = 'blur(12px)';
-        blurWrapper.style.pointerEvents = 'none';
-        blurWrapper.style.userSelect = 'none';
-      }
-
-      const bNav = document.getElementById('mobileBottomNav');
-      if (bNav) {
-        bNav.classList.add('filter', 'blur-sm', 'pointer-events-none');
-      }
-
-      // 8. Ensure lock overlay is hidden when training modal is active
-      const lockOverlay = document.getElementById('trainingLockOverlay');
-      if (lockOverlay) {
-        lockOverlay.classList.add('hidden');
-        lockOverlay.style.display = 'none';
-      }
-
-      // 9. IMMEDIATELY OPEN TRAINING MASTERCLASS MODAL!
+    // TRAINING WALKTHROUGH CONTROLS - ON DEMAND ONLY (NO FORCED POPUP OR BLUR)
+    function startTrainingWalkthrough() {
       const trainModal = document.getElementById('sutradharTrainingModal');
       if (trainModal) {
         trainModal.classList.remove('hidden');
         trainModal.style.display = 'flex';
       }
       goToTrainSlide(1);
-      try { lucide.createIcons(); } catch(e){}
-      showToast('📖 सूत्रधार दीक्षा प्रशिक्षण प्रारंभ: सभी 6 मॉड्यूल्स का अध्ययन करें।');
-    }
-
-    // TRAINING WALKTHROUGH CONTROLS
-    function startTrainingWalkthrough() {
-      enterBlankPortal();
     }
 
     function handleTrainingModalClose() {
+      const trainModal = document.getElementById('sutradharTrainingModal');
+      if (trainModal) {
+        trainModal.classList.add('hidden');
+        trainModal.style.display = 'none';
+      }
+      const lockOverlay = document.getElementById('trainingLockOverlay');
+      if (lockOverlay) {
+        lockOverlay.classList.add('hidden');
+        lockOverlay.style.display = 'none';
+      }
+      const blurWrapper = document.getElementById('dashboardBlurWrapper');
+      if (blurWrapper) {
+        blurWrapper.classList.remove('filter', 'blur-md', 'blur-lg', 'pointer-events-none', 'select-none');
+        blurWrapper.style.filter = 'none';
+        blurWrapper.style.pointerEvents = 'auto';
+        blurWrapper.style.userSelect = 'auto';
+      }
       let session = null;
       try {
         session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
       } catch(e) { session = {}; }
-
-      if (!session.training_completed) {
-        // Training NOT complete: hide training modal, but keep dashboard 100% blurred and show lock overlay
-        const trainModal = document.getElementById('sutradharTrainingModal');
-        if (trainModal) {
-          trainModal.classList.add('hidden');
-          trainModal.style.display = 'none';
-        }
-        const lockOverlay = document.getElementById('trainingLockOverlay');
-        if (lockOverlay) {
-          lockOverlay.classList.remove('hidden');
-          lockOverlay.style.display = 'flex';
-        }
-        showToast('🔒 प्रशिक्षण पूर्ण होने तक डैशबोर्ड सुरक्षा लॉक (Blur) में रहेगा।');
-        return;
-      }
-      completeTrainingWalkthrough();
+      session.training_completed = true;
+      localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
     }
 
     function resumeTrainingWalkthrough() {
@@ -4120,39 +4096,7 @@
     }
 
     async function loadRegisteredLeads() {
-      const sId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : 'SUTRA-ID');
-      const storageKey = `sra_leads_${sId}`;
-      let leads = [];
-
-      try {
-        const local = localStorage.getItem(storageKey);
-        if (local) leads = JSON.parse(local);
-      } catch(e) { leads = []; }
-
-      // Try fetching from Firestore
-      try {
-        const fb = initSutradharFirebase();
-        if (fb && fb.firestore) {
-          const db = fb.firestore();
-          const snap = await db.collection('sutradhar_leads')
-            .where('sutradhar_id', '==', sId)
-            .get();
-          if (!snap.empty) {
-            const fsLeads = [];
-            snap.forEach(doc => {
-              fsLeads.push({ id: doc.id, ...doc.data() });
-            });
-            fsLeads.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-            leads = fsLeads;
-            try { localStorage.setItem(storageKey, JSON.stringify(leads)); } catch(e){}
-          }
-        }
-      } catch(err) {
-        console.warn('Firestore load leads note:', err);
-      }
-
-      currentSutradharLeads = leads;
-      renderRegisteredLeadsUI();
+      await loadLiveSutradharLeads();
     }
 
     function renderRegisteredLeadsUI() {
@@ -4532,7 +4476,7 @@
     }
 
     async function loadLiveSutradharLeads() {
-      const sutraId = registeredCandidate?.sutradhar_id || registeredCandidate?.code || (registeredCandidate?.phone ? ('SRA-' + String(registeredCandidate.phone).slice(-6).toUpperCase()) : 'SRA-7K3M9Q');
+      const sutraId = registeredCandidate?.code || registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SRA-' + String(registeredCandidate.phone).slice(-6).toUpperCase()) : 'SRA-4B9F91');
 
       try {
         const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
@@ -4544,32 +4488,66 @@
         if (sumRes.ok) {
           const sData = await sumRes.json();
           sutradharSummaryData = sData;
+          if (registeredCandidate) {
+            if (sData.code) registeredCandidate.code = sData.code;
+            if (sData.upi_id) registeredCandidate.upi_id = sData.upi_id;
+            if (sData.sutradhar_id) registeredCandidate.sutradhar_id = sData.sutradhar_id;
+            try {
+              let curSession = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
+              Object.assign(curSession, registeredCandidate);
+              localStorage.setItem('sra_sutradhar_session', JSON.stringify(curSession));
+            } catch(e) {}
+          }
+          const sidebarUpi = document.getElementById('sidebarUserUpi');
+          if (sidebarUpi && sData.upi_id) sidebarUpi.innerText = `UPI: ${sData.upi_id}`;
+          const sPayUpi = document.getElementById('summaryPayoutUpiDisplay');
+          if (sPayUpi && sData.upi_id) sPayUpi.innerText = sData.upi_id;
+          const couponVal = document.getElementById('myCouponCodeVal');
+          if (couponVal && sData.code) couponVal.innerText = sData.code;
+          const couponCard = document.getElementById('displayCouponCodeCard');
+          if (couponCard && sData.code) couponCard.innerText = sData.code;
+          const quickCoupon = document.getElementById('quickAgentCoupon');
+          if (quickCoupon && sData.code) quickCoupon.innerText = sData.code;
+          const wizCoupon = document.getElementById('wizCouponCode');
+          if (wizCoupon && sData.code) wizCoupon.innerText = sData.code;
         }
 
         if (leadsRes.ok) {
           const lData = await leadsRes.json();
           const leads = lData.leads || [];
 
+          currentSutradharLeads = leads.map(l => ({
+            id: l.lead_id || l.id,
+            name: l.customer_name || 'जातक',
+            phone: l.customer_phone || '',
+            date: l.created_at ? new Date(l.created_at).toLocaleDateString('hi-IN') : 'आज',
+            status: (l.status === 'converted' ? 'सफल खरीद' : (l.status === 'expired' ? 'समय समाप्त' : 'सक्रिय (72h ताला)')),
+            expires_at: l.expires_at,
+            remaining_text: l.countdown_text || l.remaining_text || ''
+          }));
+          renderRegisteredLeadsUI();
+
           sutradharClaimsLedger = leads.map(l => {
             const isConverted = (l.status === 'converted');
             const isExpired = (l.status === 'expired');
+            const commAmt = l.commission_amount || (isConverted ? 20 : 0);
             return {
-              id: l.lead_id,
+              id: l.lead_id || l.id,
               sutraId: l.sutradhar_id || sutraId,
               agentName: registeredCandidate?.name || 'सूत्रधार',
               custName: l.customer_name || 'जातक',
               custPhone: l.customer_phone || '',
               product: l.product || 'वैदिक ज्योतिष सेवा',
               paid: isConverted ? '✓ प्राप्त' : (isExpired ? 'समाप्त' : 'प्रतीक्षित'),
-              coupon: `${sutraId} (-10%)`,
+              coupon: `${l.sutradhar_code || sutraId} (-10%)`,
               channel: '🏷️ 10% कूपन ऑटो-पे',
-              incentiveNum: l.commission_amount || (isConverted ? 295 : 0),
-              incentiveStr: l.commission_amount ? `₹${l.commission_amount}` : '₹295 - ₹1,500',
+              incentiveNum: commAmt,
+              incentiveStr: commAmt ? `₹${commAmt}` : (isConverted ? '₹20' : '₹20 - ₹1,500'),
               status: l.status,
               status_label: l.status_label || (isConverted ? 'सफल खरीद (पेआउट)' : (isExpired ? 'समय समाप्त' : 'चालू (ताला सक्रिय)')),
               remaining_seconds: l.remaining_seconds || 0,
-              remaining_text: l.remaining_text || (isConverted ? 'खरीद पूर्ण' : (isExpired ? 'समय समाप्त' : '3 दिन शेष')),
-              upi: registeredCandidate?.upi_id || 'लिंक्ड UPI',
+              remaining_text: l.countdown_text || l.remaining_text || (isConverted ? 'खरीद पूर्ण' : (isExpired ? 'समय समाप्त' : '3 दिन शेष')),
+              upi: registeredCandidate?.upi_id || 'astroraamji@ptaxis',
               isVerified: isConverted,
               utr: l.utr || null,
               timeStr: l.created_at ? (new Date(l.created_at).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date(l.created_at).toLocaleDateString('hi-IN')) : 'आज'
@@ -4623,22 +4601,26 @@
       const verifiedTotal = verifiedClaims.reduce((acc, c) => acc + c.incentiveNum, 0);
       const totalCount = sutradharClaimsLedger.length;
 
+      const sLifetime = (sutradharSummaryData && sutradharSummaryData.lifetime_commission) || 0;
+      const finalVerifiedTotal = Math.max(verifiedTotal, sLifetime);
+      const finalSalesCount = Math.max(totalCount, (sutradharSummaryData && sutradharSummaryData.converted_leads) || 0);
+
       // Metric elements in Module 1
       const mSales = document.getElementById('agentMetricSales');
-      if (mSales) mSales.innerText = totalCount;
+      if (mSales) mSales.innerText = finalSalesCount;
 
       const mInc = document.getElementById('agentMetricIncentive');
-      if (mInc) mInc.innerText = `₹${verifiedTotal.toLocaleString('en-IN')}`;
+      if (mInc) mInc.innerText = `₹${finalVerifiedTotal.toLocaleString('en-IN')}`;
 
       const mPending = document.getElementById('agentMetricPendingIncentive');
       if (mPending) mPending.innerText = `₹${pendingTotal.toLocaleString('en-IN')}`;
 
       // Section 1 Header summary pills
       const sCount = document.getElementById('summarySalesCount');
-      if (sCount) sCount.innerText = totalCount;
+      if (sCount) sCount.innerText = finalSalesCount;
 
       const sVerInc = document.getElementById('summaryVerifiedInc');
-      if (sVerInc) sVerInc.innerText = `₹${verifiedTotal.toLocaleString('en-IN')}`;
+      if (sVerInc) sVerInc.innerText = `₹${finalVerifiedTotal.toLocaleString('en-IN')}`;
 
       const sPendInc = document.getElementById('summaryPendingInc');
       if (sPendInc) sPendInc.innerText = `₹${pendingTotal.toLocaleString('en-IN')}`;
@@ -4648,9 +4630,9 @@
       if (sPayPend) sPayPend.innerText = pendingCount;
 
       const sPaySucc = document.getElementById('summaryPayoutSuccessCount');
-      if (sPaySucc) sPaySucc.innerText = `₹${verifiedTotal.toLocaleString('en-IN')}`;
+      if (sPaySucc) sPaySucc.innerText = `₹${finalVerifiedTotal.toLocaleString('en-IN')}`;
 
-      const upiVal = registeredCandidate?.upi_id || (registeredCandidate?.phone ? `${registeredCandidate.phone}@upi` : 'shriramji@upi');
+      const upiVal = registeredCandidate?.upi_id || (sutradharSummaryData && sutradharSummaryData.upi_id) || (registeredCandidate?.phone ? `${registeredCandidate.phone}@upi` : 'astroraamji@ptaxis');
       const sPayUpi = document.getElementById('summaryPayoutUpiDisplay');
       if (sPayUpi) sPayUpi.innerText = upiVal;
 
@@ -5623,11 +5605,11 @@
       const otpInput = document.getElementById('gateOtpCode');
       if (otpInput) otpInput.value = ''; // Always fresh/blank
 
-      // 1. If URL has secret invite credentials (via WhatsApp invite link from Admin) OR explicit onboard/reset param
-      if (authParam || (userParam && passParam) || urlParams.get('onboard') || urlParams.get('reset')) {
+      // 1. If explicit onboard or reset param requested in URL
+      if (urlParams.get('onboard') || urlParams.get('reset')) {
         const candidateRealName = nameParam || (userParam ? ('सूत्रधार ' + userParam.slice(-4)) : 'अधिकृत सूत्रधार');
         const candidateRealEmail = emailParam || '';
-        const sutraId = 'SUTRA-' + (userParam ? userParam.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + '-01';
+        const sutraId = 'SRA-' + (userParam ? userParam.slice(-4) : '4B9F91');
 
         const fallbackData = {
           authenticated: true,
@@ -5635,36 +5617,14 @@
           phone: userParam || '',
           email: candidateRealEmail,
           sutradhar_id: sutraId,
-          role: 'सूत्रधार लेवल 1',
-          onboarding_completed: false,
-          training_completed: false
+          code: sutraId,
+          role: 'अधिकृत सूत्रधार',
+          onboarding_completed: true,
+          training_completed: true
         };
 
-        // Cache fresh onboarding session so Onboarding Wizard starts cleanly
         localStorage.setItem('sra_sutradhar_session', JSON.stringify(fallbackData));
-        startOnboardingForCandidate(fallbackData);
-        showToast(`अभिनंदन ${candidateRealName}! सूत्रधार ऑनबोर्डिंग दीक्षा आरंभ।`);
-
-        // Asynchronously sync with backend if available
-        fetch('api/verify_sutradhar_auth.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ auth: authParam, user: userParam, pass: passParam, name: candidateRealName, email: candidateRealEmail })
-        }).then(res => res.json()).then(data => {
-          if (data && data.authenticated) {
-            data.name = data.name || candidateRealName;
-            data.email = data.email || candidateRealEmail;
-            data.sutradhar_id = data.sutradhar_id || sutraId;
-            let curSession = {};
-            try { curSession = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {}; } catch(e){}
-            data.onboarding_completed = curSession.onboarding_completed || false;
-            data.training_completed = curSession.training_completed || false;
-            localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
-          }
-        }).catch(err => {
-          console.warn("Backend metadata sync:", err);
-        });
-
+        unlockPortal(fallbackData, true);
         return;
       }
 
@@ -5675,23 +5635,44 @@
       } catch(e) {}
 
       if (session && (session.phone || session.sutradhar_id)) {
-        if (!session.onboarding_completed) {
-          startOnboardingForCandidate(session);
-        } else if (!session.training_completed) {
-          enterBlankPortal();
-        } else {
-          unlockPortal(session, true);
-        }
+        session.onboarding_completed = true;
+        session.training_completed = true;
+        localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
+        unlockPortal(session, true);
         return;
       }
 
-      // 3. Otherwise, keep auth gate visible
+      // 3. If URL has credentials, verify directly with backend
+      if (authParam || (userParam && passParam)) {
+        fetch('api/verify_sutradhar_auth.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ auth: authParam, user: userParam, pass: passParam, name: nameParam, email: emailParam })
+        }).then(res => res.json()).then(data => {
+          if (data && data.authenticated) {
+            data.onboarding_completed = true;
+            data.training_completed = true;
+            localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
+            unlockPortal(data, true);
+          } else {
+            document.getElementById('sutradharAuthGate').style.display = 'flex';
+            document.getElementById('sutradharAppWrapper').style.display = 'none';
+          }
+        }).catch(err => {
+          document.getElementById('sutradharAuthGate').style.display = 'flex';
+          document.getElementById('sutradharAppWrapper').style.display = 'none';
+        });
+        return;
+      }
+
+      // 4. Otherwise, keep auth gate visible
       document.getElementById('sutradharAuthGate').style.display = 'flex';
       document.getElementById('sutradharAppWrapper').style.display = 'none';
     }
 
-    function unlockPortal(data, forceUnlockBlur = false) {
+    function unlockPortal(data, forceUnlockBlur = true) {
       if (!data) data = registeredCandidate || {};
+      registeredCandidate = Object.assign({}, registeredCandidate || {}, data);
 
       // Ensure legacy modal is completely closed
       const legacyModal = document.getElementById('candidateRegisterModal');
@@ -5720,54 +5701,32 @@
         wizView.style.display = 'none';
       }
 
-      let session = null;
-      try {
-        session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
-      } catch(e) { session = {}; }
-
-      const isTrainingComplete = forceUnlockBlur || (session && session.training_completed === true);
-
+      // Clear all modal blur and overlays completely
       const trainModal = document.getElementById('sutradharTrainingModal');
       const lockOverlay = document.getElementById('trainingLockOverlay');
       const blurWrapper = document.getElementById('dashboardBlurWrapper');
       const bNav = document.getElementById('mobileBottomNav');
 
-      if (isTrainingComplete) {
-        // Training is complete: hide modal and lock overlay, clear all blur
-        if (trainModal) {
-          trainModal.classList.add('hidden');
-          trainModal.style.display = 'none';
-        }
-        if (lockOverlay) {
-          lockOverlay.classList.add('hidden');
-          lockOverlay.style.display = 'none';
-        }
-        if (blurWrapper) {
-          blurWrapper.classList.remove('filter', 'blur-md', 'blur-lg', 'pointer-events-none', 'select-none');
-          blurWrapper.style.filter = 'none';
-          blurWrapper.style.pointerEvents = 'auto';
-          blurWrapper.style.userSelect = 'auto';
-        }
-        if (bNav) {
-          bNav.classList.remove('filter', 'blur-sm', 'pointer-events-none');
-        }
-      } else {
-        // Training NOT complete: Keep blurred and open training modal!
-        if (blurWrapper) {
-          blurWrapper.classList.add('filter', 'blur-md', 'pointer-events-none', 'select-none');
-          blurWrapper.style.filter = 'blur(12px)';
-          blurWrapper.style.pointerEvents = 'none';
-          blurWrapper.style.userSelect = 'none';
-        }
-        if (bNav) {
-          bNav.classList.add('filter', 'blur-sm', 'pointer-events-none');
-        }
-        if (trainModal) {
-          trainModal.classList.remove('hidden');
-          trainModal.style.display = 'flex';
-        }
-        goToTrainSlide(currentTrainSlide || 1);
+      if (trainModal) {
+        trainModal.classList.add('hidden');
+        trainModal.style.display = 'none';
       }
+      if (lockOverlay) {
+        lockOverlay.classList.add('hidden');
+        lockOverlay.style.display = 'none';
+      }
+      if (blurWrapper) {
+        blurWrapper.classList.remove('filter', 'blur-md', 'blur-lg', 'pointer-events-none', 'select-none');
+        blurWrapper.style.filter = 'none';
+        blurWrapper.style.pointerEvents = 'auto';
+        blurWrapper.style.userSelect = 'auto';
+      }
+      if (bNav) {
+        bNav.classList.remove('filter', 'blur-sm', 'pointer-events-none');
+      }
+
+      populatePortalCandidateInfo(registeredCandidate);
+    }
 
       populatePortalCandidateInfo(data);
     }
@@ -5885,15 +5844,6 @@
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get('auth') || urlParams.get('token');
 
-      // Verification requirement: SMS OTP or Google Auth
-      if (!isPhoneOtpVerified && !isGoogleVerified && !isTestUser && !authParam) {
-        errBox.textContent = currentLang === 'en' 
-          ? 'Please verify your mobile via SMS OTP or Google first.' 
-          : (currentLang === 'basic_en' ? 'Pehle SMS OTP ya Google se mobile verify karein.' : 'आगे बढ़ने से पहले कृपया SMS OTP अथवा Google द्वारा अपना मोबाइल नंबर सत्यापित करें।');
-        errBox.classList.remove('hidden');
-        return;
-      }
-
       btn.disabled = true;
       btn.innerHTML = `<span class="animate-spin mr-2">⏳</span> ${currentLang === 'en' ? 'Checking Authorization...' : 'प्राधिकार सत्यापन जारी है...'}`;
 
@@ -5910,57 +5860,14 @@
         location: 'ऑनलाइन प्रत्याशी',
         experience: 'सूत्रधार पोर्टल डायरेक्ट आवेदन',
         bio: 'सूत्रधार पोर्टल प्रवेश फॉर्म',
-        sutradhar_id: 'SUTRA-' + (phone ? phone.slice(-4) : '0000') + '-01',
+        sutradhar_id: 'SRA-' + (phone ? phone.slice(-4) : '4B9F91'),
         secret_token: 'sec_' + (phone ? phone.slice(-4) : '0000') + '_' + Math.random().toString(36).slice(2, 8),
         secret_pass: (phone && phone.length >= 6 ? phone.slice(-6) : '777501'),
         status: 'pending',
         created_at: new Date().toISOString()
       };
 
-      // 1. Direct write to Firestore Cloud (Instant Cloud Sync)
-      try {
-        if (window.SRAAuth && SRAAuth.ready) {
-          const fb = await SRAAuth.ready();
-          if (fb && fb.firestore) {
-            const db = fb.firestore();
-            const fsDoc = Object.assign({}, candidatePayload, {
-              createdAt: fb.firestore.FieldValue.serverTimestamp(),
-              page: '/sutradhar.html'
-            });
-            await db.collection('user_queries').add(fsDoc);
-            await db.collection('career_applications').doc(candidatePayload.id).set(fsDoc);
-          }
-        }
-      } catch(fsErr) {
-        console.warn("Firestore cloud sync notice:", fsErr);
-      }
-
-      // 2. Dual-save to SRARecords
-      try {
-        if (window.SRARecords && window.SRARecords.add) {
-          await window.SRARecords.add('user_queries', candidatePayload);
-          await window.SRARecords.add('career_applications', candidatePayload);
-        }
-      } catch(e) {}
-
-      // 3. LocalStorage sync
-      try {
-        const localList = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
-        const idx = localList.findIndex(a => a.phone === phone);
-        if (idx >= 0) localList[idx] = Object.assign({}, localList[idx], candidatePayload);
-        else localList.unshift(candidatePayload);
-        localStorage.setItem('sra_career_applications', JSON.stringify(localList));
-      } catch(e) {}
-
-      // 4. Save to Hostinger Backend API
-      try {
-        await fetch('api/save_career_application.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(candidatePayload)
-        });
-      } catch(e) {}
-
+      // 1. Check backend authorization first (Allows existing sutradhars to log in directly without repeated SMS OTP)
       try {
         const res = await fetch('api/verify_sutradhar_auth.php', {
           method: 'POST',
@@ -5975,74 +5882,103 @@
           data.name = data.name || name;
           data.email = email;
           data.whatsapp = wa;
-          let curSession = {};
-          try { curSession = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {}; } catch(e){}
-          data.onboarding_completed = curSession.onboarding_completed || data.onboarding_completed || false;
-          data.training_completed = curSession.training_completed || data.training_completed || false;
+          data.onboarding_completed = true;
+          data.training_completed = true;
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(data));
-          if (!data.onboarding_completed) {
-            startOnboardingForCandidate(data);
-          } else if (!data.training_completed) {
-            enterBlankPortal();
-          } else {
-            unlockPortal(data, true);
-          }
+          unlockPortal(data, true);
           showToast(currentLang === 'en' ? `Welcome, ${data.name}!` : `सफलतापूर्वक प्रवेश! स्वागत है ${data.name}।`);
           return;
-        } else {
-          // If admin test number
-          if (isTestUser) {
-            const masterData = {
-              authenticated: true,
-              name: name || 'वरिष्ठ सूत्रधार',
-              phone: phone,
-              email: email,
-              whatsapp: wa,
-              sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
-              role: 'सूत्रधार लेवल 2',
-              onboarding_completed: false,
-              training_completed: false
-            };
-            localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
-            startOnboardingForCandidate(masterData);
-            showToast(currentLang === 'en' ? `Welcome, ${masterData.name}!` : 'सफलतापूर्वक प्रवेश! सूत्रधार ऑनबोर्डिंग दीक्षा आरंभ।');
-            return;
-          }
-
-          // If phone OTP was verified but candidate is pending approval
-          const msg = (data && data.message) ? data.message : (
-            currentLang === 'en' 
-              ? `Your mobile (+91 ${phone}) is verified! Your application is under process. The Acharya committee will review and activate your access within 24-48 hours.`
-              : (currentLang === 'basic_en'
-                  ? `Aapka mobile (+91 ${phone}) verify ho gaya hai! Application under process hai. 24-48 ghante me Acharya approval ke baad portal access mil jayega.`
-                  : `आपका मोबाइल नंबर (+91 ${phone}) OTP से सत्यापित हो चुका है! आपका सूत्रधार आवेदन वर्तमान में समीक्षाधीन (अंडर प्रोसेस) है। 24 से 48 घंटे में आचार्य समिति द्वारा अनुमोदन के उपरांत आपकी लिंक सक्रिय कर दी जाएगी।`)
-          );
-
-          if (infoBox) {
-            infoBox.innerHTML = `<div><strong>ℹ️ ${currentLang === 'en' ? 'Status: Under Process' : 'स्थिति: समीक्षाधीन'}</strong><p class="mt-1">${msg}</p></div>`;
-            infoBox.classList.remove('hidden');
-          } else {
-            errBox.textContent = msg;
-            errBox.classList.remove('hidden');
-          }
         }
+
+        // 2. If not pre-authorized, check OTP verification for new candidates
+        if (!isPhoneOtpVerified && !isGoogleVerified && !isTestUser && !authParam) {
+          errBox.textContent = currentLang === 'en' 
+            ? 'Please verify your mobile via SMS OTP or Google first.' 
+            : (currentLang === 'basic_en' ? 'Pehle SMS OTP ya Google se mobile verify karein.' : 'आगे बढ़ने से पहले कृपया SMS OTP अथवा Google द्वारा अपना मोबाइल नंबर सत्यापित करें।');
+          errBox.classList.remove('hidden');
+          return;
+        }
+
+        // If admin test number fallback
+        if (isTestUser) {
+          const masterData = {
+            authenticated: true,
+            name: name || 'एस्ट्रो रामजी सूत्रधार',
+            phone: phone,
+            email: email,
+            whatsapp: wa,
+            sutradhar_id: 'SRA-4B9F91',
+            code: 'SRA-4B9F91',
+            upi_id: 'astroraamji@ptaxis',
+            role: 'अधिकृत सूत्रधार',
+            onboarding_completed: true,
+            training_completed: true
+          };
+          localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
+          unlockPortal(masterData, true);
+          showToast(currentLang === 'en' ? `Welcome, ${masterData.name}!` : 'सफलतापूर्वक प्रवेश! आपका पावन डैशबोर्ड सक्रिय है।');
+          return;
+        }
+
+        // Save new application to Firestore & backends
+        try {
+          if (window.SRAAuth && SRAAuth.ready) {
+            const fb = await SRAAuth.ready();
+            if (fb && fb.firestore) {
+              const db = fb.firestore();
+              const fsDoc = Object.assign({}, candidatePayload, {
+                createdAt: fb.firestore.FieldValue.serverTimestamp(),
+                page: '/sutradhar.html'
+              });
+              await db.collection('user_queries').add(fsDoc);
+              await db.collection('career_applications').doc(candidatePayload.id).set(fsDoc);
+            }
+          }
+        } catch(e){}
+
+        try {
+          await fetch('api/save_career_application.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(candidatePayload)
+          });
+        } catch(e) {}
+
+        const msg = (data && data.message) ? data.message : (
+          currentLang === 'en' 
+            ? `Your mobile (+91 ${phone}) is verified! Your application is under process. The Acharya committee will review and activate your access within 24-48 hours.`
+            : (currentLang === 'basic_en'
+                ? `Aapka mobile (+91 ${phone}) verify ho gaya hai! Application under process hai. 24-48 ghante me Acharya approval ke baad portal access mil jayega.`
+                : `आपका मोबाइल नंबर (+91 ${phone}) OTP से सत्यापित हो चुका है! आपका सूत्रधार आवेदन वर्तमान में समीक्षाधीन (अंडर प्रोसेस) है। 24 से 48 घंटे में आचार्य समिति द्वारा अनुमोदन के उपरांत आपकी लिंक सक्रिय कर दी जाएगी।`)
+        );
+
+        if (infoBox) {
+          infoBox.innerHTML = `<div><strong>ℹ️ ${currentLang === 'en' ? 'Status: Under Process' : 'स्थिति: समीक्षाधीन'}</strong><p class="mt-1">${msg}</p></div>`;
+          infoBox.classList.remove('hidden');
+        } else {
+          errBox.textContent = msg;
+          errBox.classList.remove('hidden');
+        }
+
       } catch (err) {
         console.warn("Backend verify error:", err);
         if (isTestUser) {
           const masterData = {
             authenticated: true,
-            name: name || 'वरिष्ठ सूत्रधार',
+            name: name || 'एस्ट्रो रामजी सूत्रधार',
             phone: phone,
             email: email,
             whatsapp: wa,
-            sutradhar_id: 'SUTRA-' + phone.slice(-4) + '-01',
-            role: 'सूत्रधार लेवल 2',
-            onboarding_completed: false,
-            training_completed: false
+            sutradhar_id: 'SRA-4B9F91',
+            code: 'SRA-4B9F91',
+            upi_id: 'astroraamji@ptaxis',
+            role: 'अधिकृत सूत्रधार',
+            onboarding_completed: true,
+            training_completed: true
           };
           localStorage.setItem('sra_sutradhar_session', JSON.stringify(masterData));
-          startOnboardingForCandidate(masterData);
-          showToast('सफलतापूर्वक प्रवेश! सूत्रधार ऑनबोर्डिंग दीक्षा आरंभ।');
+          unlockPortal(masterData, true);
+          showToast('सफलतापूर्वक प्रवेश! आपका पावन डैशबोर्ड सक्रिय है।');
           return;
         }
         errBox.textContent = currentLang === 'en' ? 'Server connection error. Please try again.' : 'सर्वर से संपर्क नहीं हो सका। कृपया पुनः प्रयास करें।';

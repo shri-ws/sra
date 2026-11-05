@@ -25,15 +25,46 @@ if (strlen($cleanPhone) > 10) {
     $cleanPhone = substr($cleanPhone, -10);
 }
 
+// Check sutradhar_store/sutradhars.json first
+$sutraFile = dirname(__DIR__) . '/data/sutradhar_store/sutradhars.json';
+if (file_exists($sutraFile)) {
+    $sutras = json_decode(file_get_contents($sutraFile), true) ?: [];
+    foreach ($sutras as $sKey => $sVal) {
+        $p = $sVal['phone'] ?? '';
+        $cleanP = preg_replace('/[^0-9]/', '', $p);
+        if (strlen($cleanP) > 10) $cleanP = substr($cleanP, -10);
+
+        if (!empty($cleanPhone) && $cleanP === $cleanPhone) {
+            echo json_encode([
+                "status" => "success",
+                "authenticated" => true,
+                "name" => !empty($name) ? $name : ($sVal['name'] ?? "अधिकृत सूत्रधार"),
+                "phone" => $cleanPhone,
+                "sutradhar_id" => $sVal['sutradhar_id'] ?? $sVal['id'] ?? $sKey,
+                "code" => $sVal['code'] ?? $sKey,
+                "upi_id" => $sVal['upi_id'] ?? '',
+                "role" => "अधिकृत सूत्रधार",
+                "onboarding_completed" => true,
+                "training_completed" => true
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+    }
+}
+
 // Master Admin Bypass or Testing (T1 Test)
 if ($cleanPhone === '9517117775' || $cleanPhone === '9415000000' || $pass === 'SRA#2026' || $pass === 'SRA_MASTER_7775' || strtoupper($pass) === 'JAIHANUMAN') {
     echo json_encode([
         "status" => "success",
         "authenticated" => true,
-        "name" => !empty($name) ? $name : "T1 Test",
+        "name" => !empty($name) ? $name : "एस्ट्रो रामजी सूत्रधार",
         "phone" => $cleanPhone ?: "9517117775",
-        "sutradhar_id" => "SUTRA-7775-01",
-        "role" => "सूत्रधार लेवल 1"
+        "sutradhar_id" => "SRA-4B9F91",
+        "code" => "SRA-4B9F91",
+        "upi_id" => "astroraamji@ptaxis",
+        "role" => "अधिकृत सूत्रधार",
+        "onboarding_completed" => true,
+        "training_completed" => true
     ], JSON_UNESCAPED_UNICODE);
     exit();
 }
@@ -87,7 +118,11 @@ if ($matched) {
         "name" => $matched['name'],
         "phone" => $matched['phone'],
         "sutradhar_id" => $matched['sutradhar_id'] ?: ('SUTRA-' . substr($matched['phone'], -4) . '-01'),
-        "role" => "सूत्रधार लेवल 1"
+        "code" => $matched['code'] ?? ('SRA-' . substr($matched['phone'], -4) . '-01'),
+        "upi_id" => $matched['upi_id'] ?? '',
+        "role" => "सूत्रधार लेवल 1",
+        "onboarding_completed" => true,
+        "training_completed" => true
     ], JSON_UNESCAPED_UNICODE);
     exit();
 }
