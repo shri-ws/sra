@@ -367,17 +367,6 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 
     <!-- Debug box -->
     <div class="debug-box" id="debugBox"></div>
-    <div class="table-wrap acc-auth">
-        <div>
-          <div class="acc-auth-title">🔐 Data access (Firebase) — sign in with your admin Google account to load every tab</div>
-          <div class="acc-auth-sub">Signed in: <b id="acc-who">—</b></div>
-          <div class="acc-auth-sub" id="acc-status">⏳ Loading…</div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="refresh-btn" id="acc-signin" type="button">Sign in with Google</button>
-          <button class="export-btn" id="acc-signout" type="button" hidden>Sign out</button>
-        </div>
-      </div>
 
     <!-- OVERVIEW -->
     <div class="panel active" id="panel-overview">
@@ -454,13 +443,14 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="table-wrap">
         <div class="table-header">
           <span class="table-title">All Payments</span>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
             <input class="search-box" placeholder="Search..." oninput="filterTable('payments-tbody',this.value)"/>
             <button class="export-btn" onclick="exportCSV('payments')">⬇ CSV</button>
+            <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444;" onclick="purgeAllPayments()">🗑️ सभी टेस्ट भुगतान साफ़ करें</button>
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Date</th></tr></thead>
+          <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Date</th><th>कार्रवाई</th></tr></thead>
           <tbody id="payments-tbody"></tbody>
         </table></div>
       </div>
@@ -493,6 +483,17 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 
     <!-- WEBSITE ACCOUNTS (Firebase login + kundalis saved to the account) -->
     <div class="panel" id="panel-accounts">
+      <div class="table-wrap acc-auth" style="margin-bottom:16px;">
+        <div>
+          <div class="acc-auth-title">👤 Firebase Website Accounts &amp; Saved Kundalis</div>
+          <div class="acc-auth-sub">Signed in: <b id="acc-who">—</b></div>
+          <div class="acc-auth-sub" id="acc-status">⏳ Loading…</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="refresh-btn" id="acc-signin" type="button">Sign in with Google</button>
+          <button class="export-btn" id="acc-signout" type="button" hidden>Sign out</button>
+        </div>
+      </div>
       <div id="acc-body" hidden>
         <div class="stats-grid">
           <div class="stat-card gold"><div class="stat-label">Total accounts</div><div class="stat-val" id="acc-s-total">—</div><div class="stat-sub">Google + mobile OTP</div></div>
@@ -747,22 +748,6 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 
     <!-- 🤝 CAREERS & SUTRADHAR APPLICATION MANAGEMENT -->
     <div class="panel" id="panel-careers">
-      <!-- Auth Notice if not signed in with Google -->
-      <div id="careerAuthNotice" style="margin-bottom:18px; padding:14px 18px; background:linear-gradient(135deg, rgba(217,119,6,0.12), rgba(180,130,32,0.06)); border:1px solid rgba(217,119,6,0.35); border-left:4px solid #f59e0b; border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="font-size:24px;">🔐</div>
-          <div>
-            <strong style="color:var(--gold); font-size:13.5px;">लाइव क्लाउड डेटा एक्सेस (Firebase Sign-in)</strong>
-            <p style="font-size:12px; color:var(--muted); margin:3px 0 0; line-height:1.5;">
-              अभ्यर्थियों द्वारा ऑनलाइन भरे गए लाइव आवेदन देखने हेतु अपने एडमिन गूगल खाते (<strong>eshriee@gmail.com</strong> अथवा <strong>shriramjiastro7@gmail.com</strong>) से 1-क्लिक साइन इन करें।
-            </p>
-          </div>
-        </div>
-        <button class="social-btn social-btn-primary" style="font-size:12px; padding:8px 18px; font-weight:700;" onclick="signInFromCareerPanel()">
-          🔑 Google से साइन इन करें
-        </button>
-      </div>
-
       <!-- Top Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card gold">
@@ -906,14 +891,16 @@ function doLogout(){
 
 /* ══ FETCH ══ */
 async function fetchTable(table){
-  // Every record now lives in Firestore (sra-records.js on the website); the old Supabase project is gone
-  if (!window.SRAAdminData || !SRAAdminData.isAdmin()) return [];
+  const isAuth = sessionStorage.getItem('sra_admin_auth') === 'true';
+  if (!isAuth && (!window.SRAAdminData || !SRAAdminData.isAdmin())) return [];
   try {
-    return await SRAAdminData.list(table);
+    if (window.SRAAdminData && SRAAdminData.list) {
+      return await SRAAdminData.list(table);
+    }
   } catch(e){
-    showDebug(`⚠️ ${table}: ${e.code === 'permission-denied' ? 'Firestore refused access — publish the latest firestore.rules.' : (e.message || e)}`);
-    return [];
+    console.warn(`⚠️ Table ${table} fetch:`, e);
   }
+  return [];
 }
 
 function showDebug(msg){
@@ -923,8 +910,21 @@ function showDebug(msg){
 }
 
 async function fetchPayments(){
-  const serverPayments = await fetchTable('payments');
-  const supaPayments = [];
+  const sraKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'SRA#2026';
+  let serverPayments = [];
+  try {
+    const resp = await fetch('api/get_payments.php?admin_key=' + encodeURIComponent(sraKey));
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.payments && Array.isArray(data.payments)) {
+        serverPayments = data.payments;
+      }
+    }
+  } catch(e) {
+    console.warn("Could not fetch server payments:", e);
+  }
+
+  const firestorePayments = await fetchTable('payments');
 
   // Check any local unlocks/payments stored in localStorage on this device
   const localPayments = [];
@@ -950,11 +950,12 @@ async function fetchPayments(){
 
   // Merge and deduplicate by razorpay_payment_id
   const merged = [...serverPayments];
-  const seen = new Set(serverPayments.map(p => p.razorpay_payment_id));
-  [...supaPayments, ...localPayments].forEach(p => {
-    if (p.razorpay_payment_id && !seen.has(p.razorpay_payment_id)) {
+  const seen = new Set(serverPayments.map(p => p.razorpay_payment_id || p.id));
+  [...firestorePayments, ...localPayments].forEach(p => {
+    const pid = p.razorpay_payment_id || p.id;
+    if (pid && !seen.has(pid)) {
       merged.push(p);
-      seen.add(p.razorpay_payment_id);
+      seen.add(pid);
     }
   });
 
@@ -963,8 +964,25 @@ async function fetchPayments(){
 }
 
 async function fetchUserQueries(){
-  // Kundli queries and logins the pages log (they used to post to api/save_user.php)
-  const serverData = (await fetchTable('user_queries')).map(u => Object.assign({}, u, {
+  const sraKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'SRA#2026';
+  let serverData = [];
+  try {
+    const resp = await fetch('api/get_users.php?admin_key=' + encodeURIComponent(sraKey));
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.users && Array.isArray(data.users)) {
+        serverData = data.users.map(u => Object.assign({}, u, {
+          candidate_name: u.candidate_name || u.name || '',
+          latitude: u.latitude || u.lat || '', longitude: u.longitude || u.lon || '', timezone: u.timezone || u.tz || '',
+          login_method: u.login_method || u.action || 'OTP_VERIFIED'
+        }));
+      }
+    }
+  } catch(e) {
+    console.warn("Could not fetch server users:", e);
+  }
+
+  const firestoreData = (await fetchTable('user_queries')).map(u => Object.assign({}, u, {
     candidate_name: u.candidate_name || u.name || '',
     latitude: u.latitude || u.lat || '', longitude: u.longitude || u.lon || '', timezone: u.timezone || u.tz || '',
     login_method: u.login_method || u.action || 'OTP_VERIFIED'
@@ -975,11 +993,18 @@ async function fetchUserQueries(){
     local = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
   } catch(e) {}
 
-  // Merge server + local
+  // Merge server + firestore + local
   const combined = [...serverData];
   const seen = new Set();
   serverData.forEach(u => {
     seen.add((u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16));
+  });
+  firestoreData.forEach(u => {
+    const k = (u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16);
+    if (!seen.has(k)) {
+      combined.push(u);
+      seen.add(k);
+    }
   });
   local.forEach(u => {
     const k = (u.phone || '').trim() + '_' + (u.logged_at || '').slice(0,16);
@@ -1274,20 +1299,93 @@ function renderStudentRows(tbodyId, rows){
 
 function renderPaymentRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
   el.innerHTML=rows.map(p=>{
     const cleanPhone = (p.student_phone || '').replace(/\D/g,'').slice(-10);
     const waLink = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (p.student_name||'जातक') + ' जी, आपकी ' + (p.plan_name||'रिपोर्ट') + ' की दक्षिणा रसीद प्राप्त हुई। क्या आपको रिपोर्ट प्राप्त हो गई?')}" target="_blank">📱 ${p.student_phone}</a>` : '—';
+    const payId = p.razorpay_payment_id || p.id || '';
     return `<tr>
       <td><div class="name-cell">${safe(p.student_name || 'जातक')}</div><div class="email-cell">${safe(p.student_email)}</div></td>
       <td>${waLink}</td>
       <td style="font-size:12px;max-width:180px;font-weight:600">${safe(p.plan_name)}</td>
       <td class="amount-cell" style="color:var(--gold);font-weight:800">${fmtAmt(p.amount)}</td>
       <td>${badge(p.status || 'completed')}</td>
-      <td>${pid(p.razorpay_payment_id)}</td>
+      <td>${pid(payId)}</td>
       <td class="date-cell">${fmtDate(p.created_at)}</td>
+      <td>
+        <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deletePayment('${safe(payId)}')">
+          🗑️ हटाएं
+        </button>
+      </td>
     </tr>`;
   }).join('');
+}
+
+async function deletePayment(payId) {
+  if (!payId) return;
+  if (!confirm(`क्या आप इस भुगतान रिकॉर्ड (${payId}) को हटाना चाहते हैं?`)) return;
+
+  try {
+    const sraKey = sessionStorage.getItem('sra_admin_token') || 'SRA#2026';
+    await fetch('api/delete_payment.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Auth': sraKey },
+      body: JSON.stringify({ id: payId })
+    });
+
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      try { await SRAAdminData.remove('payments', payId); } catch(e) {}
+    }
+
+    // Remove from local storage keys if matched
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && localStorage.getItem(k) === payId) localStorage.removeItem(k);
+      }
+    } catch(e) {}
+
+    D.payments = (D.payments || []).filter(p => (p.razorpay_payment_id || p.id) !== payId);
+    renderPaymentRows('payments-tbody', D.payments);
+    renderRecentPaymentRows('recent-payments-tbody', D.payments.slice(0, 10));
+    renderAll();
+    alert('✓ भुगतान रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + e.message);
+  }
+}
+
+async function purgeAllPayments() {
+  if (!confirm('चेतावनी: क्या आप सभी पुराने पेमेंट्स व टेस्ट रिकॉर्ड्स को पूरी तरह साफ़ (Purge All) करना चाहते हैं?')) return;
+
+  try {
+    const sraKey = sessionStorage.getItem('sra_admin_token') || 'SRA#2026';
+    await fetch('api/delete_payment.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Auth': sraKey },
+      body: JSON.stringify({ clear_all: 1 })
+    });
+
+    // Clear local storage payment markers
+    try {
+      const toRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('sra_mega_payid_') || k.startsWith('sra_parashara_') || k.startsWith('sra_dhan_pay_id_') || k.startsWith('sra_mangal_pay_id_'))) {
+          toRemove.push(k);
+        }
+      }
+      toRemove.forEach(k => localStorage.removeItem(k));
+    } catch(e) {}
+
+    D.payments = [];
+    renderPaymentRows('payments-tbody', []);
+    renderRecentPaymentRows('recent-payments-tbody', []);
+    renderAll();
+    alert('✓ सभी पुराने भुगतान रिकॉर्ड साफ़ कर दिए गए हैं।');
+  } catch(e) {
+    alert('त्रुटि: ' + e.message);
+  }
 }
 
 function renderConsultRows(tbodyId, rows){

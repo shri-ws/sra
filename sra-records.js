@@ -128,10 +128,42 @@
     try { return typeof init.body === 'string' ? JSON.parse(init.body) : null; } catch (e) { return null; }
   }
 
-  window.fetch = function(input, init) {
+  window.fetch = async function(input, init) {
     const url = typeof input === 'string' ? input : (input && input.url) || '';
     const method = String((init && init.method) || 'GET').toUpperCase();
 
+    // 1. Direct Server PHP APIs (Hostinger / local server)
+    if (/api\//.test(url)) {
+      try {
+        const res = await realFetch(input, init);
+        // If server answered properly (not 404/405 static fallback)
+        if (res.status !== 404 && res.status !== 405) {
+          // Mirror write operations to Firestore in background for cloud sync
+          try {
+            if (method === 'POST') {
+              const data = parseBody(init);
+              if (data) {
+                if (/save_payment\.php/.test(url)) addSoon('payments', data);
+                else if (/save_user\.php/.test(url)) addSoon('user_queries', data);
+                else if (/save_career_application\.php/.test(url)) {
+                  const cleanPhone = String(data.phone || '').replace(/[^0-9]/g, '').slice(-10);
+                  const appId = data.id || ('SRA-APP-' + Math.floor(100000 + Math.random() * 900000));
+                  addSoon('career_applications', Object.assign({}, data, { id: appId, phone: cleanPhone, status: 'pending' }));
+                } else if (/update_career_status\.php/.test(url) && data.id) {
+                  updateCareerStatus(data.id, data.status || 'approved');
+                }
+              }
+            }
+          } catch(e) {}
+          return res;
+        }
+      } catch(netErr) {
+        // Server unreachable or network error, fallback to client Firestore below
+        console.warn('[SRARecords] Server fetch failed, falling back to Firestore for:', url, netErr);
+      }
+    }
+
+    // 2. Fallbacks for Static Environments (GitHub Pages without PHP)
     if (method === 'POST' && /api\/save_(payment|user)\.php/.test(url)) {
       const data = parseBody(init);
       if (data) {
