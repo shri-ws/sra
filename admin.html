@@ -2057,7 +2057,9 @@ function renderCareerRows(tbodyId, rows) {
       <td>${statusBadge}</td>
       <td>
         <div style="font-size:11px; display:flex; flex-direction:column; gap:4px;">
-          <div>${currentAdminLang === 'en' ? 'PIN' : 'पासकोड'}: <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
+          <div><span style="color:var(--muted);">ID:</span> <code style="background:rgba(59,130,246,0.15); color:#2563eb; padding:2px 5px; border-radius:4px; font-weight:700;">${app.sutradhar_id || ('SUTRA-' + (app.phone ? app.phone.slice(-4) : '0000') + '-01')}</code></div>
+          <div><span style="color:var(--muted);">10% कूपन:</span> <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${app.code || app.coupon_code || ('SRA-' + (app.phone ? app.phone.slice(-4) : '0000') + 'X1')}</code></div>
+          <div><span style="color:var(--muted);">पासकोड:</span> <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
           <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}', '${safe(app.name)}', '${safe(app.email || '')}')">${dict.btnCopyLink}</button>
         </div>
       </td>
@@ -2238,12 +2240,16 @@ function sendCareerWhatsApp(id, phone, name, pass, token) {
   const app = (D.careers || []).find(c => c.id === id || c.phone === phone);
   const email = app?.email || '';
   const candName = name || app?.name || '';
+  const sId = app?.sutradhar_id || ('SUTRA-' + (phone ? phone.slice(-4) : '0000') + '-01');
+  const promoCode = app?.code || app?.coupon_code || ('SRA-' + (phone ? phone.slice(-4) : '0000') + 'X1');
   const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}&name=${encodeURIComponent(candName)}&email=${encodeURIComponent(email)}`;
   const msg = `सादर प्रणाम ${candName || 'जी'}!\n\n`
     + `श्री राम जी एस्ट्रो आचार्य परिषद द्वारा आपका सूत्रधार (वैदिक दूत) आवेदन स्वीकृत कर लिया गया है।\n\n`
-    + `📌 आपकी सूत्रधार लॉगिन क्रेडेंशियल्स:\n`
-    + `• यूजर आईडी: ${phone}\n`
-    + `• गुप्त पासकोड (Password): ${pass}\n\n`
+    + `📌 आपकी सूत्रधार क्रेडेंशियल्स:\n`
+    + `• सूत्रधार यूनिक ID: ${sId}\n`
+    + `• आपका 10% कूपन कोड: ${promoCode}\n`
+    + `• यूजर आईडी (Login): ${phone}\n`
+    + `• गुप्त पासकोड (PIN): ${pass}\n\n`
     + `🔐 आपकी व्यक्तिगत ऑनबोर्डिंग लिंक:\n${inviteUrl}\n\n`
     + `इस लिंक पर क्लिक करके आप अपना दैनिक टास्क व शास्त्रोक्त प्रशिक्षण तत्काल प्रारंभ कर सकते हैं।\n\n`
     + `शुभम् भवतु!\n— श्री राम जी एस्ट्रो (shriramjiastro.in)`;

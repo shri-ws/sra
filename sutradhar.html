@@ -3306,6 +3306,8 @@
       const phone = candidateData.phone || '';
       const email = candidateData.email || '';
       const sId = candidateData.sutradhar_id || ('SUTRA-' + (phone ? phone.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + '-01');
+      const promoSuffix = (phone ? phone.slice(-2) : 'A1') + Math.random().toString(36).substring(2, 4).toUpperCase();
+      const promoCode = candidateData.code || candidateData.coupon_code || ('SRA-' + (phone ? phone.slice(-4) : '0000') + promoSuffix.slice(0, 3));
 
       registeredCandidate = {
         name: realName,
@@ -3314,7 +3316,9 @@
         initials: initials,
         sutradhar_id: sId,
         agentId: sId,
-        coupon: sId
+        code: promoCode,
+        coupon: promoCode,
+        coupon_code: promoCode
       };
 
       try {
@@ -3361,9 +3365,9 @@
       const wizAgentIdEl = document.getElementById('wizAgentId');
       if (wizAgentIdEl) wizAgentIdEl.innerText = sId;
       const wizCouponEl = document.getElementById('wizCouponCode');
-      if (wizCouponEl) wizCouponEl.innerText = sId;
+      if (wizCouponEl) wizCouponEl.innerText = promoCode;
       const wizTrackEl = document.getElementById('wizTrackLink');
-      if (wizTrackEl) wizTrackEl.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
+      if (wizTrackEl) wizTrackEl.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(promoCode)}`;
 
       const upiInput = document.getElementById('wizUpi');
       if (upiInput && !upiInput.value && phone) {
@@ -3407,6 +3411,7 @@
       if (sidebarUpi) sidebarUpi.innerText = `UPI: ${upiVal}`;
 
       // Persist to Firebase Firestore
+      const promoCode = registeredCandidate?.code || registeredCandidate?.coupon_code || ('SRA-' + (phone ? phone.slice(-4) : '0000') + 'X1');
       try {
         const fb = initSutradharFirebase();
         if (fb && fb.firestore) {
@@ -3419,7 +3424,8 @@
             email: email,
             upi_id: upiVal,
             working_hours: hoursVal || '6 घंटे (रेगुलर)',
-            coupon_code: sId,
+            code: promoCode,
+            coupon_code: promoCode,
             status: 'active',
             updated_at: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
@@ -3430,6 +3436,8 @@
             querySnapshot.forEach(doc => {
               doc.ref.update({
                 sutradhar_id: sId,
+                code: promoCode,
+                coupon_code: promoCode,
                 upi_id: upiVal,
                 working_hours: hoursVal || '6 घंटे (रेगुलर)',
                 status: 'approved',
@@ -3437,15 +3445,16 @@
               }).catch(()=>{});
             });
           }
-          console.log('✓ Sutradhar UPI linked in Firestore:', sId, upiVal);
+          console.log('✓ Sutradhar UPI & Code linked in Firestore:', sId, promoCode, upiVal);
         }
       } catch(err) {
         console.warn('Firestore upi save note:', err);
       }
 
-      // Sync with FastAPI backend engine
+      // Sync with FastAPI backend engine on Render
       try {
-        const regResp = await fetch('/api/sutradhar/register', {
+        const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+        const regResp = await fetch(apiBase + '/api/sutradhar/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -3460,11 +3469,23 @@
           if (regData.sutradhar) {
             session.sutradhar_id = regData.sutradhar.sutradhar_id;
             session.code = regData.sutradhar.code;
+            session.coupon = regData.sutradhar.code;
             if (registeredCandidate) {
               registeredCandidate.sutradhar_id = regData.sutradhar.sutradhar_id;
               registeredCandidate.code = regData.sutradhar.code;
+              registeredCandidate.coupon = regData.sutradhar.code;
+              localStorage.setItem('sra_sutradhar_profile', JSON.stringify(registeredCandidate));
             }
             localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
+
+            const wizCouponEl = document.getElementById('wizCouponCode');
+            if (wizCouponEl) wizCouponEl.innerText = regData.sutradhar.code;
+            const quickCoupon = document.getElementById('quickAgentCoupon');
+            if (quickCoupon) quickCoupon.innerText = regData.sutradhar.code;
+            const couponCard = document.getElementById('displayCouponCodeCard');
+            if (couponCard) couponCard.innerText = regData.sutradhar.code;
+            const wizTrackEl = document.getElementById('wizTrackLink');
+            if (wizTrackEl) wizTrackEl.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(regData.sutradhar.code)}`;
           }
         }
       } catch (backendErr) {
@@ -3654,13 +3675,17 @@
 
       clearInterval(wizInterval);
       const roleNames = { 1: 'सूत्रधार लेवल 1 (मुहूर्त व रिपोर्ट)', 2: 'सूत्रधार लेवल 2 (वरिष्ठ विद्या व आचार्य)' };
-      const sId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : `SD-${Math.floor(100 + Math.random() * 900)}`);
-      const agentCoupon = sId;
+      const sId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : `SUTRA-0000-01`);
+      const promoSuffix = (registeredCandidate?.phone ? String(registeredCandidate.phone).slice(-2) : 'A1') + Math.random().toString(36).substring(2, 4).toUpperCase();
+      const promoCode = registeredCandidate?.code || registeredCandidate?.coupon_code || ('SRA-' + (registeredCandidate?.phone ? String(registeredCandidate.phone).slice(-4) : '0000') + promoSuffix.slice(0, 3));
+      const agentCoupon = promoCode;
 
       if (registeredCandidate) {
         registeredCandidate.sutradhar_id = sId;
         registeredCandidate.agentId = sId;
-        registeredCandidate.coupon = sId;
+        registeredCandidate.code = promoCode;
+        registeredCandidate.coupon = promoCode;
+        registeredCandidate.coupon_code = promoCode;
         try {
           localStorage.setItem('sra_sutradhar_profile', JSON.stringify(registeredCandidate));
         } catch(e) {}
@@ -3671,6 +3696,8 @@
         session = JSON.parse(localStorage.getItem('sra_sutradhar_session')) || {};
       } catch(e) { session = {}; }
       session.sutradhar_id = sId;
+      session.code = promoCode;
+      session.coupon = promoCode;
       session.onboarding_completed = true;
       localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
 
@@ -3693,25 +3720,25 @@
       if (roleNameEl) roleNameEl.innerText = roleNames[candidateRoleChoice] || roleNames[1];
 
       const couponEl = document.getElementById('wizCouponCode');
-      if (couponEl) couponEl.innerText = agentCoupon;
+      if (couponEl) couponEl.innerText = promoCode;
 
       const trackEl = document.getElementById('wizTrackLink');
-      if (trackEl) trackEl.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
+      if (trackEl) trackEl.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(promoCode)}`;
       
       const blogLink = document.getElementById('displayBlogTrackLink');
-      if (blogLink) blogLink.innerText = `https://shriramjiastro.in/blog?ref=${encodeURIComponent(sId)}`;
+      if (blogLink) blogLink.innerText = `https://shriramjiastro.in/blogs.html?ref=${encodeURIComponent(promoCode)}`;
 
       const playLink = document.getElementById('salesPlayStoreLink');
-      if (playLink) playLink.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
+      if (playLink) playLink.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(promoCode)}`;
 
       const couponCard = document.getElementById('displayCouponCodeCard');
-      if (couponCard) couponCard.innerText = agentCoupon;
+      if (couponCard) couponCard.innerText = promoCode;
 
       const quickCoupon = document.getElementById('quickAgentCoupon');
-      if (quickCoupon) quickCoupon.innerText = agentCoupon;
+      if (quickCoupon) quickCoupon.innerText = promoCode;
 
       const trainDisplay = document.getElementById('trainPersonalLinkDisplay');
-      if (trainDisplay) trainDisplay.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
+      if (trainDisplay) trainDisplay.innerText = `https://shriramjiastro.in/app?ref=${encodeURIComponent(promoCode)}`;
 
       goToWizStep(4);
     }
@@ -5800,18 +5827,20 @@
 
       // SUTRA ID and personal referral / tracking links
       const sId = data.sutradhar_id || ('SUTRA-' + (data.phone ? String(data.phone).slice(-4) : '0000') + '-01');
+      const promoSuffix = (data.phone ? String(data.phone).slice(-2) : 'A1') + Math.random().toString(36).substring(2, 4).toUpperCase();
+      const promoCode = data.code || data.coupon_code || ('SRA-' + (data.phone ? String(data.phone).slice(-4) : '0000') + promoSuffix.slice(0, 3));
       const idBadge = document.getElementById('wizAgentId');
       if (idBadge) idBadge.innerText = sId;
       const couponVal = document.getElementById('myCouponCodeVal');
-      if (couponVal) couponVal.innerText = sId;
+      if (couponVal) couponVal.innerText = promoCode;
       const couponCard = document.getElementById('displayCouponCodeCard');
-      if (couponCard) couponCard.innerText = sId;
+      if (couponCard) couponCard.innerText = promoCode;
       const quickCoupon = document.getElementById('quickAgentCoupon');
-      if (quickCoupon) quickCoupon.innerText = sId;
+      if (quickCoupon) quickCoupon.innerText = promoCode;
       const wizCoupon = document.getElementById('wizCouponCode');
-      if (wizCoupon) wizCoupon.innerText = sId;
+      if (wizCoupon) wizCoupon.innerText = promoCode;
 
-      const trackLink = `https://shriramjiastro.in/app?ref=${encodeURIComponent(sId)}`;
+      const trackLink = `https://shriramjiastro.in/app?ref=${encodeURIComponent(promoCode)}`;
       const agentLinkBar = document.getElementById('agentPersonalLinkBar');
       if (agentLinkBar) agentLinkBar.innerText = trackLink;
       const trainDisplay = document.getElementById('trainPersonalLinkDisplay');

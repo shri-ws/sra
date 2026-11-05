@@ -738,7 +738,9 @@
       const appId = 'SRA-APP-' + Math.floor(100000 + Math.random() * 900000);
       const secretToken = 'sec_' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '_' + Math.random().toString(36).slice(2, 8);
       const secretPass = cleanPhone.length >= 6 ? cleanPhone.slice(-6) : String(Math.floor(100000 + Math.random() * 900000));
-      const sutradharId = 'SUTRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '-' + Math.floor(10 + Math.random() * 90);
+      const sutradharId = 'SUTRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '-01';
+      const promoSuffix = Math.random().toString(36).substring(2, 4).toUpperCase();
+      const promoCode = 'SRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + promoSuffix;
 
       const payload = {
         id: appId,
@@ -754,6 +756,8 @@
         bio: expVal,
         resume_name: uploadedFileName,
         sutradhar_id: sutradharId,
+        code: promoCode,
+        coupon_code: promoCode,
         secret_token: secretToken,
         secret_pass: secretPass,
         status: 'pending',

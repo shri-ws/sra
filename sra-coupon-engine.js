@@ -84,8 +84,9 @@
     fetchServerQuote: async function(customerPhone, serviceId, couponCode) {
       var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
       var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase();
+      var apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
       try {
-        var res = await fetch('/api/sutradhar/quote', {
+        var res = await fetch(apiBase + '/api/sutradhar/quote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -110,8 +111,9 @@
     createServerOrder: async function(customerPhone, customerEmail, serviceId, couponCode) {
       var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
       var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase();
+      var apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
       try {
-        var res = await fetch('/api/sutradhar/orders/create', {
+        var res = await fetch(apiBase + '/api/sutradhar/orders/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -196,13 +196,18 @@
         const appId = data.id || ('SRA-APP-' + Math.floor(100000 + Math.random() * 900000));
         const token = data.secret_token || ('sec_' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '_' + Math.random().toString(36).slice(2, 8));
         const pass = data.secret_pass || (cleanPhone.length >= 6 ? cleanPhone.slice(-6) : '123456');
+        const promoSuffix = Math.random().toString(36).substring(2, 4).toUpperCase();
+        const promoCode = data.code || data.coupon_code || ('SRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + promoSuffix);
+        const sutraId = data.sutradhar_id || ('SUTRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '-01');
         const recData = Object.assign({}, data, {
           id: appId,
           phone: cleanPhone,
           status: 'pending',
           secret_token: token,
           secret_pass: pass,
-          sutradhar_id: data.sutradhar_id || ('SUTRA-' + (cleanPhone ? cleanPhone.slice(-4) : '0000') + '-' + Math.floor(10 + Math.random() * 90)),
+          sutradhar_id: sutraId,
+          code: promoCode,
+          coupon_code: promoCode,
           created_at: data.created_at || new Date().toISOString()
         });
         if (recData.resume_data && recData.resume_data.length > 50000) {
