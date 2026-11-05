@@ -88,7 +88,7 @@
 
   // ARTICLES (about.html): every post is a forum_posts document named by the post id.
   // The admin's Google sign-in publishes straight away; anyone else's post waits for approval.
-  const ADMINS = ['eshriee@gmail.com', 'shriramjiastro7@gmail.com'];
+  const ADMINS = ['shriramjiastro7@gmail.com', 'eshriee@gmail.com', 'eshrico@gmail.com'];
   const signedInAdmin = (fb) => { const u = fb.auth().currentUser; return !!(u && u.email && ADMINS.includes(u.email.toLowerCase())); };
 
   async function savePost(post) {

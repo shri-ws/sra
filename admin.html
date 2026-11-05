@@ -138,6 +138,9 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .lf input:focus{border-color:var(--gold);box-shadow:0 0 8px rgba(201,168,76,0.3)}
 .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#8b6a1a);border:none;border-radius:9px;color:#ffffff;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .login-btn:hover{filter:brightness(1.1)}
+.google-admin-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:14px 18px;background:#ffffff;color:#1f2937;border:1.5px solid #d1d5db;border-radius:10px;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s ease;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.google-admin-btn:hover{background:#f9fafb;border-color:var(--gold);box-shadow:0 4px 14px rgba(201,168,76,0.25);transform:translateY(-1px)}
+.google-admin-btn:disabled{opacity:0.7;cursor:not-allowed;transform:none}
 .login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
 
 /* LAYOUT */
@@ -307,14 +310,47 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 
 <!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-box">
-    <div style="font-size:40px;margin-bottom:14px">🔐</div>
-    <h2>Admin Login</h2>
-    <p>Shri Ramji Astro Dashboard</p>
-    <div class="lf"><label>Username</label><input type="text" id="lu" placeholder="Username" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
-    <div class="login-err" id="loginErr"></div>
+  <div class="login-box" style="max-width:440px;padding:42px 34px;box-shadow:0 16px 48px rgba(0,0,0,0.22);border-radius:20px;">
+    <div style="font-size:46px;margin-bottom:12px">🪐</div>
+    <h2 style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);margin-bottom:6px">श्री राम जी एस्ट्रो · एडमिन</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px">सुरक्षित व्यवस्थापक पोर्टल (Admin Dashboard)</p>
+
+    <!-- Unified 1-Click Google Sign In -->
+    <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.25);border-radius:14px;padding:22px 18px;margin-bottom:16px;">
+      <div style="font-size:12.5px;color:var(--text);margin-bottom:14px;line-height:1.5;">
+        डैशबोर्ड में प्रवेश के लिए अपने अधिकृत Google खाते से लॉगिन करें:
+      </div>
+
+      <button id="googleAdminBtn" class="google-admin-btn" onclick="doGoogleAdminLogin()" type="button">
+        <svg width="22" height="22" viewBox="0 0 24 24" style="flex-shrink:0;">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Google से सीधा लॉगिन करें</span>
+      </button>
+
+      <div style="font-size:11.5px;color:var(--muted);margin-top:12px;">
+        अधिकृत ईमेल: <b style="color:var(--gold);">shriramjiastro7@gmail.com</b>
+      </div>
+    </div>
+
+    <div class="login-err" id="loginErr" style="margin-bottom:12px;font-weight:600;min-height:18px;"></div>
+
+    <!-- Emergency Passcode Accordion -->
+    <details style="margin-top:12px;text-align:left;font-size:12px;color:var(--muted);border-top:1px dashed var(--border);padding-top:10px;">
+      <summary style="cursor:pointer;user-select:none;color:var(--muted);outline:none;font-size:11.5px;">
+        ⚙️ आपातकालीन मास्टर की (Emergency Passcode)
+      </summary>
+      <div style="margin-top:12px;">
+        <div class="lf" style="margin-bottom:8px;">
+          <label>Master Passcode</label>
+          <input type="password" id="lp" placeholder="मास्टर पासवर्ड दर्ज करें" onkeydown="if(event.key==='Enter')doPasscodeLogin()"/>
+        </div>
+        <button class="login-btn" style="padding:10px;font-size:11px;" onclick="doPasscodeLogin()" type="button">Enter with Passcode</button>
+      </div>
+    </details>
   </div>
 </div>
 
@@ -340,6 +376,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">⚠️ &nbsp;सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
     </div>
     <div class="sidebar-footer">
+      <div id="admin-user-badge" style="font-size:11px;color:var(--gold);padding:6px 10px;background:rgba(201,168,76,0.08);border-radius:6px;margin-bottom:8px;word-break:break-all;text-align:center;">👤 व्यवस्थापक</div>
       <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
     </div>
   </div>
@@ -433,7 +470,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Course &amp; payment</th><th>Enrolled</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Course &amp; payment</th><th>Enrolled</th><th>कार्रवाई</th></tr></thead>
           <tbody id="students-tbody"></tbody>
         </table></div>
       </div>
@@ -465,7 +502,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <button class="export-btn" onclick="exportCSV('consultations')">⬇ CSV</button>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>DOB</th><th>Place</th><th>Question</th><th>Date</th></tr></thead>
+          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>DOB</th><th>Place</th><th>Question</th><th>Date</th><th>कार्रवाई</th></tr></thead>
           <tbody id="consultations-tbody"></tbody>
         </table></div>
       </div>
@@ -547,7 +584,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Login / Auth Method</th><th>DOB & Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th><th>WhatsApp</th></tr></thead>
+          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Login / Auth Method</th><th>DOB & Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th><th>WhatsApp</th><th>कार्रवाई</th></tr></thead>
           <tbody id="users-tbody"></tbody>
         </table></div>
       </div>
@@ -876,32 +913,74 @@ async function hashPass(str) {
 
 // Login: owner master key only (sra-master.js / api/master_key.php)
 
-async function doLogin(){
+async function doGoogleAdminLogin() {
+  const btn = document.getElementById('googleAdminBtn');
+  const err = document.getElementById('loginErr');
+  if (err) err.textContent = '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span>⏳ Google से कनेक्ट हो रहा है...</span>`;
+  }
   try {
-    const lu = document.getElementById('lu');
+    if (!window.SRAAdminAccounts || !SRAAdminAccounts.signIn) {
+      throw new Error('प्रमाणीकरण मॉड्यूल लोड हो रहा है, कृपया 2 सेकंड बाद पुनः प्रयास करें।');
+    }
+    const user = await SRAAdminAccounts.signIn('shriramjiastro7@gmail.com');
+    if (user && user.email) {
+      sessionStorage.setItem('sra_admin_auth', 'true');
+      sessionStorage.setItem('sra_admin_email', user.email.toLowerCase());
+      const loginScr = document.getElementById('loginScreen');
+      const appScr = document.getElementById('app');
+      if (loginScr) loginScr.style.display = 'none';
+      if (appScr) appScr.style.display = 'block';
+      const badge = document.getElementById('admin-user-badge');
+      if (badge) badge.textContent = '👤 ' + user.email;
+      loadAll();
+    }
+  } catch(e) {
+    console.error('doGoogleAdminLogin error:', e);
+    if (!/popup-closed|cancelled/i.test(e.code || e.message || '')) {
+      if (err) err.textContent = e.message || 'Google लॉगिन विफल रहा। कृपया shriramjiastro7@gmail.com चुनें।';
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg width="22" height="22" viewBox="0 0 24 24" style="flex-shrink:0;">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Google से सीधा लॉगिन करें</span>
+      `;
+    }
+  }
+}
+
+function doPasscodeLogin(){
+  try {
     const lp = document.getElementById('lp');
-    const u = lu ? lu.value.trim() : '';
     const p = lp ? lp.value.trim() : '';
     const err = document.getElementById('loginErr');
-    
-    // Direct check or hashed check
     const isMaster = !!(window.sraIsMasterKey && window.sraIsMasterKey(p));
-    const isValid = isMaster;
 
-    if(isValid){
+    if(isMaster){
       sessionStorage.setItem('sra_admin_auth', 'true');
       sessionStorage.setItem('sra_admin_token', p);
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       if (err) err.textContent = '';
+      const badge = document.getElementById('admin-user-badge');
+      if (badge) badge.textContent = '🔑 Master Admin';
       loadAll();
     } else {
-      if (err) err.textContent = 'Invalid credentials. Username or Password incorrect.';
+      if (err) err.textContent = 'अमान्य मास्टर पासकोड।';
     }
   } catch(e) {
-    console.error("doLogin error:", e);
+    console.error("doPasscodeLogin error:", e);
     const err = document.getElementById('loginErr');
-    if (err) err.textContent = 'Login error. Please check inputs.';
+    if (err) err.textContent = 'लॉगिन त्रुटि। कृपया पुनः प्रयास करें।';
   }
 }
 
@@ -911,6 +990,9 @@ function checkAdminAuth() {
     const appScr = document.getElementById('app');
     if (loginScr) loginScr.style.display = 'none';
     if (appScr) appScr.style.display = 'block';
+    const email = sessionStorage.getItem('sra_admin_email');
+    const badge = document.getElementById('admin-user-badge');
+    if (badge && email) badge.textContent = '👤 ' + email;
     loadAll();
   }
 }
@@ -920,8 +1002,12 @@ window.addEventListener('DOMContentLoaded', () => {
   applyAdminLanguage(currentAdminLang);
 });
 
-function doLogout(){
+async function doLogout(){
+  if (window.SRAAdminAccounts && SRAAdminAccounts.signOut) {
+    try { await SRAAdminAccounts.signOut(); } catch(e) {}
+  }
   sessionStorage.removeItem('sra_admin_auth');
+  sessionStorage.removeItem('sra_admin_email');
   sessionStorage.removeItem('sra_admin_token');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
@@ -1302,13 +1388,14 @@ function renderEmailRows(tbodyId, rows){
 
 function renderUserQueryRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No registered user queries or OTP logins recorded yet</td></tr>`; return; }
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="9" class="empty-row">No registered user queries or OTP logins recorded yet</td></tr>`; return; }
   el.innerHTML=rows.map(u=>{
     const methodBadge = getAuthMethodBadge(u.login_method || u.action);
     const dobTob = [safe(u.dob), safe(u.tob)].filter(x=>x&&x!=='—').join(' • ') || '—';
     const coords = (u.latitude || u.lat) ? `${safe(u.latitude || u.lat)}, ${safe(u.longitude || u.lon)}` : '—';
     const cleanPhone = (u.phone || '').replace(/\D/g,'').slice(-10);
     const waChat = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (u.candidate_name||u.name||'जातक') + ' जी, श्री रामजी एस्ट्रो में आपका स्वागत है।')}" target="_blank">💬 WhatsApp</a>` : '—';
+    const uId = u.id || '';
 
     return `<tr>
       <td>${wa(u.phone)}</td>
@@ -1319,21 +1406,34 @@ function renderUserQueryRows(tbodyId, rows){
       <td style="font-size:11px;font-family:monospace;color:var(--muted)">${coords}</td>
       <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
       <td>${waChat}</td>
+      <td>
+        <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deleteUserQuery('${safe(uId)}')">
+          🗑️ हटाएं
+        </button>
+      </td>
     </tr>`;
   }).join('');
 }
 
 function renderStudentRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No paid ₹24,000 course enrolments yet</td></tr>`; return; }
-  el.innerHTML=rows.map(s=>`<tr>
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No paid ₹24,000 course enrolments yet</td></tr>`; return; }
+  el.innerHTML=rows.map(s=>{
+    const sId = s.id || '';
+    return `<tr>
     <td><div class="name-cell">${safe(s.first_name || s.candidate_name || s.name || 'जातक')} ${safe(s.last_name || '')}</div></td>
     <td class="email-cell">${safe(s.email)}</td>
     <td>${wa(s.phone)}</td>
     <td style="font-size:12px;color:var(--muted)">${safe(s.city || s.location)}</td>
     <td style="font-size:12px">${safe(s.course_interest || 'Vedic Astrology')}<div style="color:var(--gold);font-weight:700">${fmtAmt(s.amount_paid)}</div>${pid(s.razorpay_payment_id)}</td>
     <td class="date-cell">${fmtDate(s.created_at || s.logged_at)}</td>
-  </tr>`).join('');
+    <td>
+      <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deleteStudent('${safe(sId)}')">
+        🗑️ हटाएं
+      </button>
+    </td>
+  </tr>`;
+  }).join('');
 }
 
 function renderPaymentRows(tbodyId, rows){
@@ -1429,8 +1529,10 @@ async function purgeAllPayments() {
 
 function renderConsultRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No consultations yet</td></tr>`; return; }
-  el.innerHTML=rows.map(c=>`<tr>
+  if(!rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No consultations yet</td></tr>`; return; }
+  el.innerHTML=rows.map(c=>{
+    const cId = c.id || '';
+    return `<tr>
     <td class="name-cell">${safe(c.full_name)}</td>
     <td>${wa(c.phone)}</td>
     <td class="email-cell">${safe(c.email)}</td>
@@ -1438,7 +1540,70 @@ function renderConsultRows(tbodyId, rows){
     <td style="font-size:12px">${safe(c.place_of_birth)}</td>
     <td style="font-size:12px;color:var(--muted);max-width:180px">${(c.question||'—').slice(0,60)}</td>
     <td class="date-cell">${fmtDate(c.created_at)}</td>
-  </tr>`).join('');
+    <td>
+      <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deleteConsultation('${safe(cId)}')">
+        🗑️ हटाएं
+      </button>
+    </td>
+  </tr>`;
+  }).join('');
+}
+
+async function deleteConsultation(id) {
+  if (!id) return;
+  if (!confirm(`क्या आप इस परामर्श अनुरोध (${id}) को हटाना चाहते हैं?`)) return;
+  try {
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      await SRAAdminData.remove('consultations', id);
+    }
+    try {
+      let localCon = JSON.parse(localStorage.getItem('sra_consultation_db') || '[]');
+      localCon = localCon.filter(c => c.id !== id);
+      localStorage.setItem('sra_consultation_db', JSON.stringify(localCon));
+    } catch(e) {}
+
+    D.consultations = (D.consultations || []).filter(c => c.id !== id);
+    renderConsultRows('consultations-tbody', D.consultations);
+    alert('✓ परामर्श रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + (e.message || e));
+  }
+}
+
+async function deleteStudent(id) {
+  if (!id) return;
+  if (!confirm(`क्या आप इस छात्र पंजीकरण (${id}) को हटाना चाहते हैं?`)) return;
+  try {
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      await SRAAdminData.remove('students', id);
+    }
+    D.students = (D.students || []).filter(s => s.id !== id);
+    renderStudentRows('students-tbody', D.students);
+    alert('✓ छात्र रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + (e.message || e));
+  }
+}
+
+async function deleteUserQuery(id) {
+  if (!id) return;
+  if (!confirm(`क्या आप इस यूज़र क्वेरी रिकॉर्ड को हटाना चाहते हैं?`)) return;
+  try {
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      await SRAAdminData.remove('user_queries', id);
+    }
+    try {
+      let localUsers = JSON.parse(localStorage.getItem('sra_user_queries_db') || '[]');
+      localUsers = localUsers.filter(u => u.id !== id);
+      localStorage.setItem('sra_user_queries_db', JSON.stringify(localUsers));
+    } catch(e) {}
+    D.users = (D.users || []).filter(u => u.id !== id);
+    renderUserQueryRows('users-tbody', D.users);
+    renderRecentUserRows('recent-users-tbody', D.users.slice(0, 8));
+    alert('✓ यूज़र रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + (e.message || e));
+  }
 }
 
 function renderForumRows(tbodyId, rows){

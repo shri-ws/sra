@@ -61,7 +61,7 @@ window.saveBlogToSupabase = async (blogObj) => {
   try {
     const status = await (await sraRecordsReady()).savePost(blogObj);
     if (status === 'pending' && blogObj.isAdmin) {
-      alert('लेख सुरक्षित हो गया, पर अभी सबको नहीं दिख रहा। सीधे पब्लिश करने के लिए वेबसाइट पर अपने Google admin अकाउंट (eshriee@gmail.com) से लॉगिन करें, या Admin → Forum Posts में Approve करें।');
+      alert('लेख सुरक्षित हो गया, पर अभी सबको नहीं दिख रहा। सीधे पब्लिश करने के लिए वेबसाइट पर अपने Google admin अकाउंट (shriramjiastro7@gmail.com) से लॉगिन करें, या Admin → Forum Posts में Approve करें।');
     }
   } catch (e) { console.error('Article save error:', e); }
 };

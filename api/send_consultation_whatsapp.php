@@ -26,7 +26,7 @@ $place    = htmlspecialchars($data['place_of_birth'] ?? 'Not provided');
 $question = htmlspecialchars($data['question'] ?? 'No specific question');
 
 $adminPhone = "919517117775";
-$adminEmail = "eshriee@gmail.com";
+$adminEmail = "shriramjiastro7@gmail.com, eshriee@gmail.com";
 
 // Format WhatsApp Message Body
 $waMessage = "🚩 *NEW PERSONAL CONSULTATION REQUEST* 🚩\n" .

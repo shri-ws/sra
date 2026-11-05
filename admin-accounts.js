@@ -13,7 +13,8 @@
     appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf"
   };
   const SDK = 'https://www.gstatic.com/firebasejs/10.9.0/';
-  const ADMINS = ['eshriee@gmail.com', 'shriramjiastro7@gmail.com'];
+  const ADMINS = ['shriramjiastro7@gmail.com', 'eshriee@gmail.com', 'eshrico@gmail.com'];
+  const PRIMARY_ADMIN = 'shriramjiastro7@gmail.com';
 
   let rows = [];          // [{ uid, profile, kundalis: [] }]
   let fbReady = null;
@@ -48,14 +49,49 @@
 
   function setStatus(html) { $('acc-status').innerHTML = html; }
 
-  async function signIn() {
+  async function signIn(hintEmail) {
     const fb = await ensureFirebase();
+    // If a non-admin session is currently signed in, sign it out cleanly first
+    if (fb.auth().currentUser && (!fb.auth().currentUser.email || !ADMINS.includes(fb.auth().currentUser.email.toLowerCase()))) {
+      try { await fb.auth().signOut(); } catch(e) {}
+    }
     const provider = new fb.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try { await fb.auth().signInWithPopup(provider); }
-    catch (e) { if (!/popup-closed|cancelled/.test(e.code || '')) setStatus(`<span class="acc-err">Google sign-in failed: ${esc(e.code || e.message)}</span>`); }
+    provider.setCustomParameters({
+      prompt: 'select_account',
+      login_hint: hintEmail || PRIMARY_ADMIN
+    });
+    try {
+      const res = await fb.auth().signInWithPopup(provider);
+      const email = (res.user && res.user.email) ? res.user.email.toLowerCase() : '';
+      if (!ADMINS.includes(email)) {
+        await fb.auth().signOut();
+        const errText = `अस्वीकृत: "${email || 'यह खाता'}" अधिकृत एडमिन खाता नहीं है। कृपया ${PRIMARY_ADMIN} से लॉगिन करें।`;
+        setStatus(`<span class="acc-err">${esc(errText)}</span>`);
+        throw new Error(errText);
+      }
+      sessionStorage.setItem('sra_admin_auth', 'true');
+      sessionStorage.setItem('sra_admin_email', email);
+      return res.user;
+    } catch (e) {
+      if (!/popup-closed|cancelled/.test(e.code || '')) {
+        setStatus(`<span class="acc-err">Google sign-in error: ${esc(e.code || e.message)}</span>`);
+      }
+      throw e;
+    }
   }
-  async function signOut() { const fb = await ensureFirebase(); await fb.auth().signOut(); }
+
+  async function signOut() {
+    const fb = await ensureFirebase();
+    await fb.auth().signOut();
+    sessionStorage.removeItem('sra_admin_auth');
+    sessionStorage.removeItem('sra_admin_email');
+    sessionStorage.removeItem('sra_admin_token');
+    adminUser = null;
+    const loginScr = $('loginScreen');
+    const appScr = $('app');
+    if (loginScr) loginScr.style.display = 'flex';
+    if (appScr) appScr.style.display = 'none';
+  }
 
   let accountsLoaded = Promise.resolve();
   function load() { accountsLoaded = loadAccounts(); return accountsLoaded; }
@@ -132,7 +168,7 @@
   }
 
   async function start() {
-    $('acc-signin').addEventListener('click', signIn);
+    $('acc-signin').addEventListener('click', () => signIn(PRIMARY_ADMIN));
     $('acc-signout').addEventListener('click', signOut);
     $('acc-refresh').addEventListener('click', load);
     $('acc-csv').addEventListener('click', exportCsv);
@@ -147,19 +183,51 @@
     try { fb = await ensureFirebase(); } catch (e) { setStatus('<span class="acc-err">Could not load Firebase.</span>'); return; }
     fb.auth().onAuthStateChanged(u => {
       const isMaster = sessionStorage.getItem('sra_admin_auth') === 'true';
-      const isAdmin = !!((u && u.email && ADMINS.includes(u.email.toLowerCase())) || isMaster);
-      if ($('acc-who')) $('acc-who').textContent = u ? (u.email || u.phoneNumber || u.uid) : (isMaster ? 'Master Admin (Passcode)' : 'Not signed in');
-      if ($('acc-signin')) $('acc-signin').hidden = !!u;
-      if ($('acc-signout')) $('acc-signout').hidden = !u;
+      const isGoogleAdmin = !!(u && u.email && ADMINS.includes(u.email.toLowerCase()));
+      const isAdmin = isGoogleAdmin || isMaster;
+
+      // CRITICAL FIX: If Firebase has a non-admin session (e.g. customer phone OTP login),
+      // auto sign-out to prevent Firestore rule violations and enable Google sign-in!
+      if (u && !isGoogleAdmin) {
+        console.warn('[Admin] Detected customer/non-admin session (' + (u.email || u.phoneNumber) + '). Auto signing out to prevent permission conflicts.');
+        fb.auth().signOut().then(() => {
+          adminUser = null;
+          if ($('acc-who')) $('acc-who').textContent = 'Not signed in';
+          if ($('acc-signin')) { $('acc-signin').hidden = false; $('acc-signin').textContent = 'Sign in with Google (' + PRIMARY_ADMIN + ')'; }
+          if ($('acc-signout')) $('acc-signout').hidden = true;
+          if ($('acc-body')) $('acc-body').hidden = true;
+          setStatus('कृपया अधिकृत व्यवस्थापक खाते (' + PRIMARY_ADMIN + ') से Google साइन इन करें।');
+        });
+        return;
+      }
+
+      if ($('acc-who')) $('acc-who').textContent = isGoogleAdmin ? ('✓ ' + u.email + ' (व्यवस्थापक)') : (isMaster ? 'Master Admin (Passcode)' : 'Not signed in');
+      if ($('acc-signin')) $('acc-signin').hidden = isGoogleAdmin;
+      if ($('acc-signout')) $('acc-signout').hidden = !isGoogleAdmin;
       if ($('acc-body')) $('acc-body').hidden = !isAdmin;
-      adminUser = (u && u.email && ADMINS.includes(u.email.toLowerCase())) ? u : (isMaster ? { email: 'admin@shriramjiastro.in', uid: 'master-admin' } : null);
+
+      const adminBadge = $('admin-user-badge');
+      if (adminBadge) adminBadge.textContent = isGoogleAdmin ? ('👤 ' + u.email) : (isMaster ? '🔑 Master Admin' : '👤 Not signed in');
+
+      adminUser = isGoogleAdmin ? u : (isMaster ? { email: PRIMARY_ADMIN, uid: 'master-admin' } : null);
       document.body.classList.toggle('acc-admin', isAdmin);
-      if (adminUser) {
-        if (u) load();
+
+      if (isGoogleAdmin) {
+        sessionStorage.setItem('sra_admin_auth', 'true');
+        sessionStorage.setItem('sra_admin_email', u.email.toLowerCase());
+        const loginScr = $('loginScreen');
+        const appScr = $('app');
+        if (loginScr) loginScr.style.display = 'none';
+        if (appScr) appScr.style.display = 'block';
+        load();
+        adminWaiters.splice(0).forEach(ok => ok(adminUser));
+        if (window.loadAll) window.loadAll();
+      } else if (isMaster) {
+        if ($('acc-signin')) { $('acc-signin').hidden = false; $('acc-signin').textContent = 'Google (' + PRIMARY_ADMIN + ') से कनेक्ट करें'; }
+        setStatus('मास्टर पासकोड सक्रिय है। लाइव Firebase डेटा लोड करने हेतु Google से कनेक्ट करें।');
         adminWaiters.splice(0).forEach(ok => ok(adminUser));
       } else {
-        setStatus(u ? `<span class="acc-err">${esc(u.email || u.phoneNumber)} is not an authorized account.</span>`
-                    : `Firebase खातों का लाइव डेटा देखने हेतु गूगल से साइन इन करें (वैकल्पिक)।`);
+        setStatus(`Firebase खातों का लाइव डेटा देखने हेतु Google से साइन इन करें (${PRIMARY_ADMIN})।`);
       }
     });
   }
@@ -207,7 +275,7 @@
     login_method: 'GOOGLE', created_at: (toDate(r.profile.lastLoginAt) || toDate(r.profile.createdAt) || new Date(0)).toISOString()
   }));
 
-  window.SRAAdminAccounts = { load, signIn };
+  window.SRAAdminAccounts = { load, signIn, signOut, ADMINS, PRIMARY_ADMIN, ensureFirebase, getAdminUser: () => adminUser };
   window.SRAAdminData = { whenAdmin, list, update, remove, accountRows, isAdmin: () => !!adminUser || isMasterAdmin(), ready: () => accountsLoaded };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
