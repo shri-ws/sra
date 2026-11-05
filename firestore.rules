@@ -56,5 +56,35 @@ service cloud.firestore {
       allow read: if isAdmin() || resource.data.status == 'approved';
       allow update, delete: if isAdmin();
     }
+
+    // =========================================================================
+    // SUTRADHAR REFERRAL & AUTOMATED PAYOUT ENGINE (SERVER-ONLY WRITES)
+    // Browser can never write directly; only Render Python engine (Admin SDK) writes.
+    // Sutradhar can only read their own documents.
+    // =========================================================================
+    match /sutradhars/{sutradharId} {
+      allow read: if isAdmin() || (request.auth != null && (resource.data.uid == request.auth.uid || resource.data.phone == request.auth.token.phone_number));
+      allow write: if false;
+    }
+
+    match /leads/{leadId} {
+      allow read: if isAdmin() || (request.auth != null && (resource.data.sutradhar_uid == request.auth.uid || resource.data.sutradhar_phone == request.auth.token.phone_number));
+      allow write: if false;
+    }
+
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (request.auth != null && (resource.data.customer_uid == request.auth.uid || resource.data.customer_phone == request.auth.token.phone_number || resource.data.sutradhar_uid == request.auth.uid));
+      allow write: if false;
+    }
+
+    match /commissions/{commId} {
+      allow read: if isAdmin() || (request.auth != null && (resource.data.sutradhar_uid == request.auth.uid || resource.data.sutradhar_phone == request.auth.token.phone_number));
+      allow write: if false;
+    }
+
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
   }
 }

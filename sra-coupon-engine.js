@@ -61,8 +61,8 @@
     isValidCode: function(rawCode) {
       if (!rawCode) return false;
       var code = String(rawCode).trim().toUpperCase();
-      // SD-XXX या SUTRA-XXXX प्रारूप (जैसे SD-101, SD-105, SUTRA-7775-01 आदि)
-      if (/^SD-?\d{2,6}$/i.test(code) || /^SUTRA/i.test(code)) return true;
+      // SRA-XXXXXX, SD-XXX, या SUTRA-XXXX प्रारूप (उदा. SRA-7K3M9Q, SD-105, SUTRA-01 आदि)
+      if (/^SRA-[A-Z0-9]{4,10}$/i.test(code) || /^SD-?\d{2,6}$/i.test(code) || /^SUTRA/i.test(code)) return true;
       // सामान्य सूत्रधार या मास्टर कोड्स
       if (code === 'MASTER' || code === 'SRAGODMODE' || code === 'RAM10' || code === 'VIDYA10' || code === 'SRA10') return true;
       if (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode)) return true;
@@ -72,8 +72,65 @@
         if (sess && sess.sutradhar_id && sess.sutradhar_id.toUpperCase() === code) return true;
         var prof = JSON.parse(localStorage.getItem('sra_sutradhar_profile') || '{}');
         if (prof && prof.sutradhar_id && prof.sutradhar_id.toUpperCase() === code) return true;
+        if (prof && prof.code && prof.code.toUpperCase() === code) return true;
       } catch(e) {}
       return false;
+    },
+
+    /**
+     * सर्वर से रीयल-टाइम मूल्य और स्वचालित डिस्काउंट प्राप्त करना (10% Auto-Attribution)
+     * यदि ग्राहक का नंबर किसी सूत्रधार की सक्रिय लीड में है, तो 10% छूट अपने-आप लागू होगी।
+     */
+    fetchServerQuote: async function(customerPhone, serviceId, couponCode) {
+      var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
+      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase();
+      try {
+        var res = await fetch('/api/sutradhar/quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_phone: phone,
+            service_id: serviceId || 'manglik_dosha',
+            coupon_code: code || null
+          })
+        });
+        if (res.ok) {
+          var quote = await res.json();
+          return quote;
+        }
+      } catch (err) {
+        console.warn('[SraCouponEngine] Server quote fallback:', err);
+      }
+      return null;
+    },
+
+    /**
+     * सर्वर पर सुरक्षित एवं छेड़छाड़-मुक्त Razorpay Order ID तैयार करना
+     */
+    createServerOrder: async function(customerPhone, customerEmail, serviceId, couponCode) {
+      var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
+      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase();
+      try {
+        var res = await fetch('/api/sutradhar/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_phone: phone,
+            customer_email: customerEmail || '',
+            service_id: serviceId || 'manglik_dosha',
+            coupon_code: code || null
+          })
+        });
+        if (res.ok) {
+          return await res.json();
+        } else {
+          var errData = await res.json().catch(function() { return {}; });
+          throw new Error(errData.detail || 'ऑर्डर तैयार करने में त्रुटि');
+        }
+      } catch (err) {
+        console.error('[SraCouponEngine] createServerOrder failed:', err);
+        throw err;
+      }
     },
 
     /**

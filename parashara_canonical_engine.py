@@ -1380,6 +1380,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# SRA Sutradhar Referral & Automated Payout Engine Router
+try:
+    from sutradhar_engine import router as sutradhar_router
+    app.include_router(sutradhar_router)
+    print("[FastAPI] Sutradhar Referral & Payout Router mounted successfully at /api/sutradhar")
+except Exception as e:
+    print(f"[FastAPI] Sutradhar router mount notice: {e}")
+
 
 class ChartRequest(BaseModel):
     year: Optional[int] = None

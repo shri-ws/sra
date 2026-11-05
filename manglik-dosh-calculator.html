@@ -2382,6 +2382,36 @@
       `;
       pw.style.display = 'block';
       pw.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Auto-apply 10% discount if customer phone is in an active Sutradhar lead
+      const clientPhone = (document.getElementById('inMangalPhone') || {}).value || localStorage.getItem('sra_verified_mobile') || '';
+      if (clientPhone && window.SraCouponEngine && SraCouponEngine.fetchServerQuote && !window._manglikCoupon) {
+        SraCouponEngine.fetchServerQuote(clientPhone, 'manglik_dosha', null).then(quote => {
+          if (quote && (quote.auto_applied || quote.lead_active)) {
+            window._manglikDiscount = quote.discount_amount || 20;
+            window._manglikCoupon = quote.sutradhar_code || quote.sutradhar_id;
+            window._manglikSutradhar = quote.sutradhar_id;
+            const netEl = document.getElementById('dispManglikNetPayableInline');
+            if (netEl) netEl.innerHTML = `₹${quote.final_price || 179}`;
+            const discRow = document.getElementById('dispManglikSutraDiscRowInline');
+            if (discRow) {
+              discRow.style.display = 'flex';
+              const discVal = document.getElementById('dispManglikSutraDiscValInline');
+              if (discVal) discVal.innerText = `-₹${quote.discount_amount} (स्वचालित 10% छूट)`;
+            }
+            const payBtn = document.getElementById('btnRzpManglikPayInline');
+            if (payBtn) payBtn.innerHTML = `💳 ₹${quote.final_price || 179} ऑनलाइन भुगतान करें (10% छूट लागू)`;
+            const msgEl = document.getElementById('manglikOwnerCodeMsgInline');
+            if (msgEl) {
+              msgEl.style.color = '#15803d';
+              msgEl.innerHTML = `✨ <b>विशेष 10% छूट लागू!</b> सूत्रधार (${window._manglikCoupon}) की सक्रिय लीड के तहत स्वचालित छूट प्राप्त हुई।`;
+              msgEl.style.display = 'block';
+            }
+            const inp = document.getElementById('manglikOwnerCodeInline');
+            if (inp) inp.value = window._manglikCoupon;
+          }
+        }).catch(()=>{});
+      }
     }
 
     function applyManglikCodeInline() {
@@ -2434,7 +2464,7 @@
 
       // Fallback matching if coupon engine didn't catch or isn't loaded yet
       if (!couponRes || !couponRes.valid) {
-        if (/^SD-?\d+/i.test(val) || /^SUTRA/i.test(val) || val === 'VIDYA10' || val === 'RAM10' || val === 'SRA10') {
+        if (/^SRA-[A-Z0-9]+/i.test(val) || /^SD-?\d+/i.test(val) || /^SUTRA/i.test(val) || val === 'VIDYA10' || val === 'RAM10' || val === 'SRA10') {
           couponRes = {
             valid: true,
             code: val,

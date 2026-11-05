@@ -337,6 +337,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">🤝 &nbsp;सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">⚠️ &nbsp;सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
     </div>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
@@ -818,6 +819,43 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
         </div>
       </div>
     </div>
+
+    <!-- PANEL: SUTRADHAR REQUIRES REVIEW QUEUE -->
+    <div class="panel" id="panel-sutra-reviews">
+      <div class="card">
+        <div class="tbl-header">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="table-title">⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार (Requires Review Queue)</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="export-btn" onclick="loadSutradharReviewQueue()">↻ रिफ्रेश</button>
+            <button class="export-btn" style="background:#16a34a; border-color:#15803d; color:#fff;" onclick="triggerSutradharBatchPayouts()">⚡ सभी पेंडिंग पेआउट प्रोसेस करें</button>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 14px;">
+          यह कतार उन मामलों को पकड़ती है जहाँ RazorpayX पेआउट विफल हुआ, UPI अमान्य था, या राशि बेमेल थी। हर मामले पर 'फिर से भेजें' या 'रद्द करें (कारण सहित)' की सुविधा उपलब्ध है।
+        </p>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>कमीशन ID</th>
+                <th>भुगतान / Order ID</th>
+                <th>सूत्रधार ID व UPI</th>
+                <th>ग्राहक मोबाइल</th>
+                <th>कमीशन राशि</th>
+                <th>असफलता का कारण</th>
+                <th>तारीख</th>
+                <th>कार्यवाही (Action)</th>
+              </tr>
+            </thead>
+            <tbody id="sutra-reviews-tbody">
+              <tr><td colspan="8" class="empty-row">लोड हो रहा है...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1085,6 +1123,7 @@ async function loadAll(){
 
   if (window.SRAAdminData) { try { await SRAAdminData.ready(); } catch(e) {} }
   renderAll();
+  loadSutradharReviewQueue().catch(() => {});
 
   const t = new Date();
   document.getElementById('lastSync').textContent =
@@ -1493,7 +1532,8 @@ function showPanel(name, targetEl){
       forum: currentAdminLang === 'en' ? 'Forum Posts' : 'मंच चर्चा (Forum)',
       reviews: currentAdminLang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
       social: currentAdminLang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
-      careers: currentAdminLang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)'
+      careers: currentAdminLang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)',
+      'sutra-reviews': currentAdminLang === 'en' ? '⚠️ Sutradhar Requires Review Queue' : '⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
@@ -1509,6 +1549,8 @@ function showPanel(name, targetEl){
       loadSocialStatus();
     } else if (name === 'careers') {
       fetchCareerApplications();
+    } else if (name === 'sutra-reviews') {
+      loadSutradharReviewQueue();
     }
   } catch(e) {
     console.error("showPanel error:", e);
@@ -2058,6 +2100,113 @@ function viewResumeModal(appId) {
   if (!app) return;
   alert(`बायोडाटा / अनुभव विवरण (${app.name}):\n\n${app.experience || app.bio || 'कोई अतिरिक्त विवरण दर्ज नहीं है।'}`);
 }
+
+/* ══ SUTRADHAR REQUIRES REVIEW QUEUE ENGINE ══ */
+async function loadSutradharReviewQueue() {
+  const tbody = document.getElementById('sutra-reviews-tbody');
+  const badge = document.getElementById('badge-sutra-reviews');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="empty-row"><span class="spin"></span> लोड हो रहा है...</td></tr>';
+
+  try {
+    const res = await fetch('/api/sutradhar/admin/reviews');
+    if (!res.ok) throw new Error('सर्वर से समीक्षा कतार लोड नहीं हो सकी');
+    const data = await res.json();
+    const queue = data.queue || [];
+
+    if (badge) {
+      if (queue.length > 0) {
+        badge.textContent = queue.length;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    if (!tbody) return;
+    if (queue.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-row" style="color:#16a34a; font-weight:600; padding:24px;">✓ अति उत्तम! कोई भी अटका हुआ पेआउट नहीं है। सभी पेआउट सुचारू हैं।</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = queue.map(c => `
+      <tr>
+        <td><span style="font-family:monospace; font-weight:700; color:var(--gold);">${safe(c.id)}</span></td>
+        <td>
+          <div style="font-family:monospace; font-size:11px; font-weight:600;">Pay: ${safe(c.payment_id || '—')}</div>
+          <div style="font-family:monospace; font-size:10px; color:var(--text-muted);">Ord: ${safe(c.order_id || '—')}</div>
+        </td>
+        <td>
+          <div style="font-weight:700;">${safe(c.sutradhar_id || '—')}</div>
+          <div style="font-size:11px; color:#2563eb; font-family:monospace;">${safe(c.upi_id || '—')}</div>
+        </td>
+        <td><span style="font-family:monospace;">${safe(c.customer_phone || '—')}</span></td>
+        <td style="font-weight:700; color:#16a34a; font-size:14px;">₹${c.amount || 0}</td>
+        <td>
+          <span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #f87171; font-size:11px; white-space:normal; display:inline-block; padding:3px 7px;">
+            ⚠️ ${safe(c.failure_reason || 'जाँच आवश्यक')}
+          </span>
+        </td>
+        <td style="font-size:11px; color:var(--text-muted);">${c.created_at ? new Date(c.created_at).toLocaleString('hi-IN') : '—'}</td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button onclick="reviewActionSutradhar('${c.id}', 'retry')" style="background:#16a34a; color:#fff; border:none; padding:5px 9px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:700; display:flex; align-items:center; gap:3px;">↻ फिर से भेजें</button>
+            <button onclick="reviewActionSutradhar('${c.id}', 'cancel')" style="background:#ef4444; color:#fff; border:none; padding:5px 9px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:700; display:flex; align-items:center; gap:3px;">✕ रद्द करें</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="empty-row" style="color:#ef4444;">त्रुटि: ${safe(err.message)}</td></tr>`;
+  }
+}
+
+async function reviewActionSutradhar(commissionId, action) {
+  let reason = '';
+  if (action === 'cancel') {
+    reason = prompt('कमीशन रद्द करने का कारण दर्ज करें (यह ऑडिट लॉग में स्थायी रूप से दर्ज होगा):');
+    if (reason === null) return;
+    if (!reason.trim()) {
+      alert('कृपया रद्द करने का कारण दर्ज करें।');
+      return;
+    }
+  } else {
+    if (!confirm(`क्या आप कमीशन ID ${commissionId} को फिर से प्रोसेस करना चाहते हैं?`)) return;
+  }
+
+  try {
+    const res = await fetch('/api/sutradhar/admin/review-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ commission_id: commissionId, action: action, reason: reason })
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.detail || 'कार्यवाही विफल');
+    alert('✓ ' + (result.message || 'सफल!'));
+    loadSutradharReviewQueue();
+  } catch (err) {
+    alert('त्रुटि: ' + err.message);
+  }
+}
+
+async function triggerSutradharBatchPayouts() {
+  if (!confirm('क्या आप सभी पेंडिंग सूत्रधार पेआउट तुरंत प्रोसेस करना चाहते हैं?')) return;
+  try {
+    const res = await fetch('/api/sutradhar/payouts/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.detail || 'पेआउट प्रोसेसिंग विफल');
+    alert(`✓ पेआउट चक्र पूरा हुआ!\nसफल: ${result.processed_count || 0}\nविफल/समीक्षा: ${result.failed_count || 0}`);
+    loadSutradharReviewQueue();
+  } catch (err) {
+    alert('त्रुटि: ' + err.message);
+  }
+}
+window.loadSutradharReviewQueue = loadSutradharReviewQueue;
+window.reviewActionSutradhar = reviewActionSutradhar;
+window.triggerSutradharBatchPayouts = triggerSutradharBatchPayouts;
 
 /* ══ ADMIN BILINGUAL TRANSLATION ENGINE ══ */
 const ADMIN_I18N = {

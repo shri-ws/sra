@@ -891,17 +891,12 @@
                   </p>
                 </div>
 
-                <!-- Interactive Simulator Buttons -->
+                <!-- Live Status Indicator -->
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
-                  <button onclick="simulateAddStreakDay()" title="+1 दिन ₹3,000 स्ट्रीक जोड़ें" class="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition shadow-xs flex items-center space-x-1.5">
-                    <span>+1 दिन स्ट्रीक जोड़ें (₹3,000)</span>
-                  </button>
-                  <button onclick="simulateLevel2Unlock()" title="तुरंत लेवल 2 अनलॉक टेस्ट करें" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md shadow-blue-500/20 transition flex items-center space-x-1.5">
-                    <span>⚡ 7-दिन स्ट्रीक पूरी करें व लेवल 2 अनलॉक करें</span>
-                  </button>
-                  <button onclick="resetToLevel1()" title="लेवल 1 पर वापस रीसेट करें" class="px-3 py-2 bg-white hover:bg-slate-100 text-slate-500 border border-slate-200 rounded-xl text-xs font-medium transition">
-                    <span>🔄 रीसेट (L1)</span>
-                  </button>
+                  <span class="px-3.5 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>लाइव सर्वर ट्रैकिंग सक्रिय</span>
+                  </span>
                 </div>
               </div>
 
@@ -1016,14 +1011,6 @@
                   <p class="text-[11px] text-slate-600 leading-snug">
                     लेवल 2 में कुल मासिक इंसेंटिव ₹1,00,000 (1 लाख) पार करने पर सीधा <strong>₹10,000 नकद महा-बोनस</strong>!
                   </p>
-                  <div class="flex items-center gap-1.5 pt-1">
-                    <button onclick="addMonthlyIncentive(25000)" class="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-900 rounded-lg text-[10px] font-bold border border-purple-200 transition">
-                      +₹25k टेस्ट
-                    </button>
-                    <button onclick="simulateCrownMilestone()" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-[10px] font-bold border border-amber-300 transition">
-                      👑 ₹1 लाख पूरा करें
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -2167,9 +2154,9 @@
               </div>
 
               <div class="pt-2">
-                <button onclick="simulateFullPriceSale()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition flex items-center justify-center space-x-2">
+                <button onclick="openModal('newSaleModal')" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition flex items-center justify-center space-x-2">
                   <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                  <span>विश्वस्त ग्राहक की नई सेल दर्ज करें (+₹350 / +₹3,000)</span>
+                  <span>+ नई जातक लीड जोड़ें (72h लॉक व ऑटो-पे)</span>
                 </button>
               </div>
             </div>
@@ -2240,9 +2227,9 @@
                   <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                   <span>10% कूपन पिच कॉपी</span>
                 </button>
-                <button onclick="simulateCouponSale()" class="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center space-x-1.5">
-                  <i data-lucide="play" class="w-3.5 h-3.5"></i>
-                  <span>कूपन सेल सिमुलेट करें</span>
+                <button onclick="openModal('newSaleModal')" class="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center space-x-1.5">
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                  <span>+ नई जातक लीड जोड़ें</span>
                 </button>
               </div>
             </div>
@@ -2341,13 +2328,13 @@
               </div>
 
               <div class="flex items-center space-x-2">
-                <button onclick="simulateFullPriceSale()" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition flex items-center space-x-1">
-                  <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-600"></i>
-                  <span>+ फुल-प्राइस सेल</span>
+                <button onclick="openModal('newSaleModal')" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center space-x-1 shadow-sm">
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                  <span>+ नई लीड जोड़ें (72h लॉक)</span>
                 </button>
-                <button onclick="simulateCouponSale()" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition flex items-center space-x-1">
-                  <i data-lucide="ticket-percent" class="w-3.5 h-3.5 text-amber-600"></i>
-                  <span>+ कूपन सेल</span>
+                <button onclick="loadLiveSutradharLeads()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-bold transition flex items-center space-x-1">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-600"></i>
+                  <span>↻ रिफ्रेश</span>
                 </button>
               </div>
             </div>
@@ -3455,6 +3442,34 @@
       } catch(err) {
         console.warn('Firestore upi save note:', err);
       }
+
+      // Sync with FastAPI backend engine
+      try {
+        const regResp = await fetch('/api/sutradhar/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name || 'अधिकृत सूत्रधार',
+            phone: phone || '',
+            email: email || '',
+            upi_id: upiVal
+          })
+        });
+        if (regResp.ok) {
+          const regData = await regResp.json();
+          if (regData.sutradhar) {
+            session.sutradhar_id = regData.sutradhar.sutradhar_id;
+            session.code = regData.sutradhar.code;
+            if (registeredCandidate) {
+              registeredCandidate.sutradhar_id = regData.sutradhar.sutradhar_id;
+              registeredCandidate.code = regData.sutradhar.code;
+            }
+            localStorage.setItem('sra_sutradhar_session', JSON.stringify(session));
+          }
+        }
+      } catch (backendErr) {
+        console.warn('FastAPI engine register notice:', backendErr);
+      }
     }
 
     function goToWizStep(step) {
@@ -4368,38 +4383,6 @@
       lucide.createIcons();
     }
 
-    function simulateFullPriceSale() {
-      const newSale = {
-        id: `S-${Date.now().toString().slice(-3)}`,
-        name: 'अमित मिश्रा (प्रयागराज)',
-        product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)',
-        channel: '🤝 विश्वस्त (फुल प्राइस)',
-        coupon: 'डायरेक्ट (बिना कूपन)',
-        paid: '₹1,111',
-        incentive: '₹350',
-        payout: '⚡ 2-घंटे कतार में'
-      };
-      salesLedger.unshift(newSale);
-      renderLeadsTable();
-      showToast('सफलता! विश्वस्त ग्राहक की फुल ₹1,111 सेल दर्ज हुई। ₹350 बंपर इंसेंटिव 2-घंटे कतार में जुड़ा!');
-    }
-
-    function simulateCouponSale() {
-      const newSale = {
-        id: `S-${Date.now().toString().slice(-3)}`,
-        name: 'रोहित वर्मा (इंदौर)',
-        product: 'संपूर्ण मुहूर्त रिपोर्ट (₹1,111)',
-        channel: '🏷️ 10% कूपन क्लोजर',
-        coupon: 'आपकी सूत्रधार ID (-10% / -₹111)',
-        paid: '₹1,000',
-        incentive: '₹295',
-        payout: '⚡ 2-घंटे कतार में'
-      };
-      salesLedger.unshift(newSale);
-      renderLeadsTable();
-      showToast('सफलता! अनजान ग्राहक ने आपकी सूत्रधार ID कूपन से ₹1,000 पे किया। ₹295 इंसेंटिव (50:50 स्प्लिट) 2-घंटे कतार में जुड़ा!');
-    }
-
     function copyCouponPitch() {
       const pitch = `सर, सुरक्षा कारणों से हम व्हाट्सएप पर कोई पेमेंट लिंक नहीं भेजते। आप सीधे Google Play Store से हमारा ऑफिशियल 'श्री राम जी एस्ट्रो' ऐप डाउनलोड करें या shriramjiastro.in पर जाएं। पेमेंट स्क्रीन पर कूपन कोड आपकी सूत्रधार ID डालें, आपको संस्थान की ओर से 10% (₹111) की तुरंत दक्षिणा छूट मिलेगी और यह सिर्फ ₹1,000 में तैयार होगी!`;
       navigator.clipboard.writeText(pitch);
@@ -4466,17 +4449,15 @@
     // SUTRADHAR LEADS & ZERO-FRICTION INSTANT AUTO-PAYOUT LOGIC
     // =========================================================================
     let sutradharClaimsLedger = [];
+    let sutradharSummaryData = { today_commission: 0, month_commission: 0, lifetime_commission: 0, total_leads: 0, active_leads: 0, converted_leads: 0 };
 
     async function handleNewSaleSubmit(e) {
       e.preventDefault();
-      const agent = document.getElementById('saleAgent').value;
-      const prod = document.getElementById('saleProduct').value;
       const custName = document.getElementById('custName').value.trim() || 'जातक';
       const custPhone = document.getElementById('custPhone').value.trim().replace(/\D/g, '').slice(-10);
-      const sutraId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : 'SUTRA-7775-01');
-      const upi = registeredCandidate?.upi_id || (registeredCandidate?.phone ? `${registeredCandidate.phone}@upi` : '9517117775@upi');
+      const sutraId = registeredCandidate?.sutradhar_id || registeredCandidate?.code || (registeredCandidate?.phone ? ('SRA-' + String(registeredCandidate.phone).slice(-6).toUpperCase()) : 'SRA-7K3M9Q');
 
-      if (!custPhone || custPhone.length < 10) {
+      if (!custPhone || custPhone.length !== 10) {
         showToast('कृपया जातक का १० अंकों का वैध मोबाइल नंबर दर्ज करें।');
         return;
       }
@@ -4484,220 +4465,124 @@
       const submitBtn = document.getElementById('btnSubmitLeadForm');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spin"></span> लीड सुरक्षित हो रही है...';
+        submitBtn.innerHTML = '<span class="spin"></span> 72h ताला सक्रिय हो रहा है...';
       }
 
-      let incNum = 295;
-      let prodName = 'मेगा पाराशर संहिता कुण्डली रिपोर्ट (₹1,111)';
-      let paid = '₹1,000';
-      let coupon = `${sutraId} (-10%)`;
-      let channel = '🏷️ 10% कूपन ऑटो-पे';
-
-      if(prod === 'mega_full') {
-        incNum = 350; prodName = 'मेगा पाराशर संहिता जन्मकुण्डली रिपोर्ट (₹1,111)'; paid = '₹1,111'; coupon = 'डायरेक्ट'; channel = '🤝 विश्वस्त (फुल प्राइस)';
-      } else if(prod === 'mega_coupon') {
-        incNum = 295; prodName = 'मेगा पाराशर संहिता रिपोर्ट (₹1,111)'; paid = '₹1,000'; coupon = `${sutraId} (-10%)`; channel = '🏷️ 10% कूपन क्लोजर';
-      } else if(prod === 'muhurat_full') {
-        incNum = 350; prodName = 'सम्पूर्ण शास्त्रोक्त मुहूर्त शोधन रिपोर्ट (₹1,111)'; paid = '₹1,111'; coupon = 'डायरेक्ट'; channel = '🤝 विश्वस्त (फुल प्राइस)';
-      } else if(prod === 'muhurat_coupon') {
-        incNum = 295; prodName = 'सम्पूर्ण मुहूर्त शोधन रिपोर्ट (₹1,111)'; paid = '₹1,000'; coupon = `${sutraId} (-10%)`; channel = '🏷️ 10% कूपन क्लोजर';
-      } else if(prod === 'kaalsarp') {
-        incNum = 60; prodName = 'कालसर्प दोष एवं शांति रिपोर्ट (₹199)'; paid = '₹199'; coupon = 'डायरेक्ट'; channel = '🐍 दोष शांति रिपोर्ट';
-      } else if(prod === 'manglik') {
-        incNum = 60; prodName = 'मंगल दोष एवं परिहार रिपोर्ट (₹199)'; paid = '₹199'; coupon = 'डायरेक्ट'; channel = '🔥 मंगल परिहार रिपोर्ट';
-      } else if(prod === 'ratna') {
-        incNum = 80; prodName = 'रत्न एवं शास्त्रीय उपाय रिपोर्ट (₹249)'; paid = '₹249'; coupon = 'डायरेक्ट'; channel = '💎 रत्न-उपाय रिपोर्ट';
-      } else if(prod === 'consultation') {
-        incNum = 1500; prodName = 'दैवज्ञ 1-on-1 VIP परामर्श (₹5,100)'; paid = '₹5,100'; coupon = 'कूपन वर्जित'; channel = '🙏 VIP परामर्श';
-      } else if(prod === 'course_full') {
-        incNum = 1200; prodName = '1-वर्षीय वैदिक ज्योतिष गुरुकुल पाठ्यक्रम (₹24,000)'; paid = '₹21,600'; coupon = `${sutraId} (-10%)`; channel = '🎓 गुरुकुल एडमिशन';
-      }
-
-      // Save to server backend API
       try {
-        const resp = await fetch('api/save_sutradhar_lead.php', {
+        const resp = await fetch('/api/sutradhar/leads/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            sutradhar_id: sutraId,
-            customer_name: custName,
             customer_phone: custPhone,
-            product: prodName,
-            upi_id: upi
+            customer_name: custName,
+            sutradhar_id: sutraId
           })
         });
+
         const res = await resp.json();
-        console.log('Lead saved to server:', res);
+        if (!resp.ok) {
+          throw new Error(res.detail || 'लीड दर्ज करने में समस्या आई।');
+        }
+
+        closeModal('newSaleModal');
+        document.getElementById('custName').value = '';
+        document.getElementById('custPhone').value = '';
+
+        showToast(res.message || '✓ जातक लीड 72 घंटे के विशेष ताले में सुरक्षित हो गई!');
+        await loadLiveSutradharLeads();
+
       } catch (err) {
-        console.warn('Server lead save fallback:', err);
+        alert('लीड अस्वीकृत:\n\n' + err.message);
+        showToast('⚠️ ' + err.message);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>लीड सुरक्षित करें (72h ताला)</span>';
+        }
+        try { lucide.createIcons(); } catch(e){}
       }
-
-      const claimId = `LEAD-${custPhone.slice(-4)}-${Date.now().toString().slice(-3)}`;
-      const nowTime = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) + ', आज';
-
-      const newClaim = {
-        id: claimId,
-        sutraId: sutraId,
-        agentName: agent,
-        custName: custName,
-        custPhone: custPhone,
-        product: prodName,
-        paid: paid,
-        coupon: coupon,
-        channel: channel,
-        incentiveNum: incNum,
-        incentiveStr: `₹${incNum.toLocaleString('en-IN')}`,
-        txnRef: 'ऑटो-पे एक्टिवेटेड',
-        upi: upi,
-        status: '⏳ भुगतान प्रतीक्षित (जातक चेकआउट)',
-        isVerified: false,
-        timeStr: nowTime
-      };
-
-      sutradharClaimsLedger.unshift(newClaim);
-
-      fastPayoutQueue.unshift({
-        id: claimId,
-        agent: agent,
-        role: 'सूत्रधार',
-        product: prodName,
-        amount: paid,
-        incentive: newClaim.incentiveStr,
-        minutesAgo: 1,
-        upi: upi,
-        verified: false
-      });
-
-      salesLedger.unshift({
-        id: `L-${Date.now().toString().slice(-3)}`,
-        name: custName + ' (लीड)',
-        product: prodName,
-        channel: channel,
-        coupon: coupon,
-        paid: paid,
-        incentive: newClaim.incentiveStr,
-        payout: '⏳ जातक चेकआउट प्रतीक्षित'
-      });
-
-      updateSutradharMetricsAndClaimsUI();
-      renderLeadsTable();
-
-      closeModal('newSaleModal');
-      document.getElementById('custName').value = '';
-      document.getElementById('custPhone').value = '';
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>लीड सुरक्षित करें (ऑटो-पे एक्टिवेट)</span>';
-      }
-
-      showToast(`✓ जातक लीड (${custPhone}) सुरक्षित! जातक द्वारा कूपन से भुगतान करते ही ₹${incNum} कमीशन स्वतः आपकी UPI पर क्रेडिट हो जाएगा।`);
     }
 
     async function loadLiveSutradharLeads() {
-      const sutraId = registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SUTRA-' + String(registeredCandidate.phone).slice(-4) + '-01') : 'SUTRA-7775-01');
+      const sutraId = registeredCandidate?.sutradhar_id || registeredCandidate?.code || (registeredCandidate?.phone ? ('SRA-' + String(registeredCandidate.phone).slice(-6).toUpperCase()) : 'SRA-7K3M9Q');
+
       try {
-        const resp = await fetch(`api/get_sutradhar_leads.php?sutradhar_id=${encodeURIComponent(sutraId)}`);
-        const res = await resp.json();
-        if (res && res.leads && Array.isArray(res.leads) && res.leads.length > 0) {
-          sutradharClaimsLedger = res.leads.map(l => {
-            const isPaid = (l.status === 'paid' || l.payout_status === 'transferred');
-            const inc = l.actual_incentive || l.expected_incentive || 295;
+        const [leadsRes, sumRes] = await Promise.all([
+          fetch(`/api/sutradhar/leads/list?sutradhar_id=${encodeURIComponent(sutraId)}`),
+          fetch(`/api/sutradhar/summary?sutradhar_id=${encodeURIComponent(sutraId)}`)
+        ]);
+
+        if (sumRes.ok) {
+          const sData = await sumRes.json();
+          sutradharSummaryData = sData;
+        }
+
+        if (leadsRes.ok) {
+          const lData = await leadsRes.json();
+          const leads = lData.leads || [];
+
+          sutradharClaimsLedger = leads.map(l => {
+            const isConverted = (l.status === 'converted');
+            const isExpired = (l.status === 'expired');
             return {
-              id: l.lead_id || `LEAD-${(l.customer_phone||'').slice(-4)}`,
+              id: l.lead_id,
               sutraId: l.sutradhar_id || sutraId,
               agentName: registeredCandidate?.name || 'सूत्रधार',
               custName: l.customer_name || 'जातक',
               custPhone: l.customer_phone || '',
-              product: l.product || 'ज्योतिष रिपोर्ट',
-              paid: isPaid ? '✓ प्राप्त' : 'प्रतीक्षित',
+              product: l.product || 'वैदिक ज्योतिष सेवा',
+              paid: isConverted ? '✓ प्राप्त' : (isExpired ? 'समाप्त' : 'प्रतीक्षित'),
               coupon: `${sutraId} (-10%)`,
               channel: '🏷️ 10% कूपन ऑटो-पे',
-              incentiveNum: inc,
-              incentiveStr: `₹${inc.toLocaleString('en-IN')}`,
-              txnRef: l.razorpay_payment_id || 'ऑटो-पे सक्रिय',
-              upi: l.upi_id || '9517117775@upi',
-              status: isPaid ? `🟢 स्वीकृत व UPI ट्रांसफर्ड (${l.utr || 'Auto-Pay'})` : '⏳ भुगतान प्रतीक्षित (जातक चेकआउट)',
-              isVerified: isPaid,
+              incentiveNum: l.commission_amount || (isConverted ? 295 : 0),
+              incentiveStr: l.commission_amount ? `₹${l.commission_amount}` : '₹295 - ₹1,500',
+              status: l.status,
+              status_label: l.status_label || (isConverted ? 'सफल खरीद (पेआउट)' : (isExpired ? 'समय समाप्त' : 'चालू (ताला सक्रिय)')),
+              remaining_seconds: l.remaining_seconds || 0,
+              remaining_text: l.remaining_text || (isConverted ? 'खरीद पूर्ण' : (isExpired ? 'समय समाप्त' : '3 दिन शेष')),
+              upi: registeredCandidate?.upi_id || 'लिंक्ड UPI',
+              isVerified: isConverted,
               utr: l.utr || null,
-              timeStr: l.paid_at ? (new Date(l.paid_at).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) + ', पेआउट') : (l.created_at ? new Date(l.created_at).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) : 'आज')
+              timeStr: l.created_at ? (new Date(l.created_at).toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date(l.created_at).toLocaleDateString('hi-IN')) : 'आज'
             };
           });
+
+          salesLedger = sutradharClaimsLedger.map(c => ({
+            id: c.id,
+            name: c.custName + (c.custPhone ? ` (***${c.custPhone.slice(-4)})` : ''),
+            product: c.product,
+            channel: c.channel,
+            coupon: c.coupon,
+            paid: c.paid,
+            incentive: c.incentiveStr,
+            payout: c.isVerified ? `✓ पेआउट सफल ${c.utr ? `(${c.utr})` : ''}` : (c.status === 'expired' ? 'समय समाप्त' : `⏱️ ${c.remaining_text}`)
+          }));
+
           updateSutradharMetricsAndClaimsUI();
           renderLeadsTable();
         }
-      } catch (e) {
-        console.warn('Could not load live sutradhar leads:', e);
+      } catch (err) {
+        console.warn('Live leads fetch notice:', err);
       }
     }
 
-    async function verifySutradharClaim(claimId) {
-      const claim = sutradharClaimsLedger.find(c => c.id === claimId);
-      if (!claim) return;
-      if (claim.isVerified) {
-        showToast('यह सेल पहले ही सत्यापित व पेआउट हो चुकी है।');
-        return;
-      }
-
-      showToast('🔄 Razorpay गेटवे से पेमेंट सत्यापन व UPI पेआउट प्रोसेस हो रहा है...');
-
-      try {
-        const resp = await fetch('api/sutradhar_payout.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'verify_and_payout',
-            sutradhar_id: claim.sutraId || 'SUTRA-7775-01',
-            razorpay_payment_id: claim.txnRef || ('pay_' + Date.now()),
-            customer_phone: claim.custPhone || '',
-            product_name: claim.product || '',
-            upi_id: claim.upi || '9517117775@upi'
-          })
-        });
-        const res = await resp.json();
-
-        if (resp.status === 409) {
-          showToast(`⚠️ ${res.message || 'यह पेमेंट पहले ही पेआउट हो चुका है।'}`);
-          return;
+    // Auto-countdown ticker every 30 seconds
+    setInterval(() => {
+      let changed = false;
+      sutradharClaimsLedger.forEach(item => {
+        if (item.status === 'active' && item.remaining_seconds > 0) {
+          item.remaining_seconds = Math.max(0, item.remaining_seconds - 30);
+          const remH = Math.floor(item.remaining_seconds / 3600);
+          const remD = Math.floor(remH / 24);
+          const leftH = remH % 24;
+          item.remaining_text = `${remD} दिन ${leftH} घंटे शेष`;
+          changed = true;
         }
-
-        if (res.status === 'success' || res.verified) {
-          claim.isVerified = true;
-          claim.status = `🟢 स्वीकृत व UPI ट्रांसफर्ड (${res.utr || 'Razorpay Verified'})`;
-          claim.verifiedAt = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
-
-          const fItem = fastPayoutQueue.find(f => f.id === claimId);
-          if (fItem) fItem.verified = true;
-
-          const sItem = salesLedger.find(s => s.name && s.name.startsWith(claim.custName));
-          if (sItem) sItem.payout = `✓ पेआउट सफल (${res.utr || 'UPI'})`;
-
-          updateSutradharMetricsAndClaimsUI();
-          renderLeadsTable();
-
-          showToast(`🎉 ${res.message || `पेमेंट सत्यापित! ₹${claim.incentiveNum} UPI (${claim.upi}) पर ट्रांसफर सफल!`}`);
-          return;
-        } else {
-          showToast(`❌ सत्यापन विफल: ${res.message || 'Razorpay पेमेंट नहीं मिला।'}`);
-          return;
-        }
-      } catch (e) {
-        console.warn('Payout API fallback:', e);
-        claim.isVerified = true;
-        claim.status = '🟢 स्वीकृत व UPI ट्रांसफर्ड (Razorpay Verified)';
-        claim.verifiedAt = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
-
-        const fItem = fastPayoutQueue.find(f => f.id === claimId);
-        if (fItem) fItem.verified = true;
-
-        const sItem = salesLedger.find(s => s.name && s.name.startsWith(claim.custName));
-        if (sItem) sItem.payout = '✓ पेआउट सफल (UPI)';
-
+      });
+      if (changed) {
         updateSutradharMetricsAndClaimsUI();
-        renderLeadsTable();
-
-        showToast(`🎉 पेमेंट वेरिफाइड! ${claim.incentiveStr} दक्षिणा आपकी लिंक्ड UPI आईडी (${claim.upi}) पर 2-घंटे पेआउट के तहत ट्रांसफर कर दी गई!`);
       }
-    }
+    }, 30000);
 
     function updateSutradharMetricsAndClaimsUI() {
       const pendingClaims = sutradharClaimsLedger.filter(c => !c.isVerified);
@@ -5023,59 +4908,6 @@
       }
 
       lucide.createIcons();
-    }
-
-    function simulateAddStreakDay() {
-      if (streakDays < 7) {
-        streakDays++;
-        showToast(`शानदार! दिन ${streakDays} की ₹3,000 दैनिक दक्षिणा स्ट्रीक दर्ज हुई। (${streakDays}/7 दिन पूर्ण)`);
-        if (streakDays === 7) {
-          sutradharLevel = 2;
-          showToast('🎉 जय श्री राम! 7-दिन की लगातार ₹3,000/दिन स्ट्रीक पूरी हुई! सूत्रधार लेवल 2 अनलॉक हो गया!');
-        }
-      } else {
-        showToast('आपकी 7-दिन की स्ट्रीक पहले से पूर्ण है। सूत्रधार लेवल 2 सक्रिय है!');
-      }
-      updateLevelProgressionUI();
-    }
-
-    function simulateLevel2Unlock() {
-      streakDays = 7;
-      sutradharLevel = 2;
-      updateLevelProgressionUI();
-      showToast('🎉 अद्भुत पराक्रम! 7-दिन की ₹3,000/दिन स्ट्रीक पूर्ण ➔ सूत्रधार लेवल 2 व ₹24,000 गुरुकुल कोर्स अनलॉक हुआ!');
-    }
-
-    function resetToLevel1() {
-      sutradharLevel = 1;
-      streakDays = 0;
-      level2MonthlyIncentive = 0;
-      dailyTasksState.course.count = 0;
-      updateDailyTasksUI();
-      updateLevelProgressionUI();
-      showToast('डैशबोर्ड पुनः "सूत्रधार लेवल 1" (दैनिक मानक: ₹1,000/दिन) पर सेट हुआ।');
-    }
-
-    function addMonthlyIncentive(amt) {
-      if (sutradharLevel === 1) {
-        simulateLevel2Unlock();
-      }
-      level2MonthlyIncentive += amt;
-      updateLevelProgressionUI();
-      if (level2MonthlyIncentive >= 100000) {
-        showToast(`👑 ऐतिहासिक उपलब्धि! माह में कुल ₹${level2MonthlyIncentive.toLocaleString('en-IN')} इंसेंटिव पूरा हुआ! संस्थान द्वारा ₹10,000 नकद महा-बोनस पेआउट में जोड़ा गया!`);
-      } else {
-        showToast(`लेवल 2 मासिक इंसेंटिव में +₹${amt.toLocaleString('en-IN')} जुड़े। कुल: ₹${level2MonthlyIncentive.toLocaleString('en-IN')}`);
-      }
-    }
-
-    function simulateCrownMilestone() {
-      if (sutradharLevel === 1) {
-        simulateLevel2Unlock();
-      }
-      level2MonthlyIncentive = 100000;
-      updateLevelProgressionUI();
-      showToast('👑 बधाई! ₹1,00,000 (1 लाख) इंसेंटिव क्लब पूर्ण! ₹10,000 नकद महा-बोनस पेआउट कतार में जुड़ गया!');
     }
 
     function resetDailyTasks() {
