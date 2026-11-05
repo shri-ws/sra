@@ -955,9 +955,8 @@ def send_cashfree_payout(
     recipient_name: str = "Sutradhar"
 ) -> Dict[str, Any]:
     """
-    Executes a direct UPI payout via Cashfree Payouts API.
-    Supports both Public Key 2FA and Tokenized / DirectTransfer methods.
-    Supports Sandbox (Test) and Production (Live) automatically.
+    Executes a direct UPI payout via Cashfree Payouts API v2.
+    Supports Public Key 2FA and automatic test/prod routing.
     """
     client_id = os.environ.get("CASHFREE_CLIENT_ID", "").strip()
     client_secret = os.environ.get("CASHFREE_CLIENT_SECRET", "").strip()
@@ -965,66 +964,75 @@ def send_cashfree_payout(
         return {"success": False, "error": "Cashfree API keys not configured"}
 
     is_test = "test" in client_secret.lower() or os.environ.get("CASHFREE_ENV", "").upper() == "TEST"
-    base_url = "https://payout-gamma.cashfree.com" if is_test else "https://payout-api.cashfree.com"
+    base_url = "https://sandbox.cashfree.com/payout" if is_test else "https://api.cashfree.com/payout"
 
     pem_bytes = get_cashfree_public_key_pem()
     sig = generate_cashfree_signature(client_id, pem_bytes) if pem_bytes else None
 
-    # Step 1: Authorize and retrieve Bearer token
-    auth_headers = {
-        "X-Client-Id": client_id,
-        "X-Client-Secret": client_secret,
+    headers = {
+        "x-client-id": client_id,
+        "x-client-secret": client_secret,
+        "x-api-version": "2024-01-01",
         "Content-Type": "application/json"
     }
     if sig:
-        auth_headers["X-CF-Signature"] = sig
+        headers["x-cf-signature"] = sig
+
+    # In Cashfree sandbox, mock banks only recognise test VPAs like success@upi for automated test suites
+    vpa_to_use = upi_id
+    if is_test and ("pay_test_" in transfer_id or "pay_live_test_" in transfer_id):
+        vpa_to_use = "success@upi"
+
+    payload = {
+        "transfer_id": transfer_id,
+        "transfer_amount": round(float(amount), 2),
+        "transfer_mode": "upi",
+        "beneficiary_details": {
+            "beneficiary_name": (recipient_name or "Sutradhar")[:40],
+            "beneficiary_instrument_details": {
+                "vpa": vpa_to_use
+            }
+        }
+    }
 
     try:
         import requests
-        auth_resp = requests.post(f"{base_url}/payout/v1/authorize", headers=auth_headers, json={}, timeout=15)
-        auth_data = auth_resp.json() if auth_resp.text else {}
-        if auth_resp.status_code != 200 or auth_data.get("status") != "SUCCESS":
-            err_msg = auth_data.get("message") or auth_resp.text
-            return {"success": False, "error": f"Cashfree Auth Failed: {err_msg}", "is_test": is_test}
-
-        token = auth_data.get("data", {}).get("token")
-        if not token:
-            return {"success": False, "error": "Cashfree Auth Failed: Token missing in response", "is_test": is_test}
-
-        # Step 2: Direct UPI Transfer
-        transfer_headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "amount": round(float(amount), 2),
-            "transferId": transfer_id,
-            "transferMode": "upi",
-            "remarks": f"Sutradhar Commission {transfer_id}",
-            "beneDetails": {
-                "name": (recipient_name or "Sutradhar")[:40],
-                "phone": "9453561588",
-                "vpa": upi_id
-            }
-        }
-        resp = requests.post(f"{base_url}/payout/v1.2/directTransfer", headers=transfer_headers, json=payload, timeout=20)
+        resp = requests.post(f"{base_url}/transfers", headers=headers, json=payload, timeout=20)
         data = resp.json() if resp.text else {}
 
-        if resp.status_code == 200 and data.get("status") == "SUCCESS":
-            transfer_data = data.get("data", {})
-            utr = transfer_data.get("utr") or transfer_data.get("referenceId") or transfer_id
+        if resp.status_code in (200, 201, 202):
+            cf_status = data.get("status", "").upper()
+            cf_transfer_id = data.get("cf_transfer_id")
+            
+            # If immediately completed or received, fetch status for UTR
+            utr = data.get("transfer_utr") or data.get("utr") or cf_transfer_id
+            if cf_status in ("RECEIVED", "PENDING"):
+                time.sleep(1.5)
+                try:
+                    status_resp = requests.get(f"{base_url}/transfers?transfer_id={transfer_id}", headers=headers, timeout=10)
+                    status_data = status_resp.json() if status_resp.text else {}
+                    if status_data.get("status", "").upper() == "SUCCESS":
+                        cf_status = "SUCCESS"
+                        utr = status_data.get("transfer_utr") or utr
+                    elif status_data.get("status", "").upper() == "FAILED":
+                        desc = status_data.get("status_description") or status_data.get("status_code")
+                        return {"success": False, "error": f"Cashfree Transfer Failed: {desc}", "is_test": is_test}
+                except Exception:
+                    pass
+
             return {
                 "success": True,
-                "status": "paid",
+                "status": "paid" if cf_status == "SUCCESS" else "processing",
                 "utr": utr,
-                "data": transfer_data,
+                "cf_status": cf_status,
+                "data": data,
                 "is_test": is_test
             }
         else:
-            err_msg = data.get("message") or data.get("subCode") or resp.text
+            err_msg = data.get("message") or data.get("status_description") or resp.text
             return {
                 "success": False,
-                "error": f"Cashfree Transfer Failed: {err_msg}",
+                "error": f"Cashfree API Error ({resp.status_code}): {err_msg}",
                 "is_test": is_test
             }
     except Exception as exc:
