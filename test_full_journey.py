@@ -108,10 +108,9 @@ def run_test():
     assert quote_resp.status_code == 200, f"Quote failed: {quote_resp.text}"
     quote = quote_resp.json()
     print(f"  ✓ मूल दक्षिणा: ₹{quote['original_price']}")
-    print(f"  ✓ स्वचालित १०% छूट: -₹{quote['discount_amount']} ({quote['message']})")
-    print(f"  ✓ ग्राहक द्वारा देय शुद्ध राशि: ₹{quote['final_price']}")
-    assert quote["auto_applied"] is True, "Discount must be auto-applied!"
-    assert quote["final_price"] == 179, f"Expected 179 but got {quote['final_price']}"
+    print(f"  ✓ शुद्ध दक्षिणा: ₹{quote['final_price']} ({quote['message']})")
+    assert quote["has_active_lead"] is True, "Active lead must be recognized!"
+    assert quote["final_price"] == 199, f"Expected 199 but got {quote['final_price']}"
 
     # सर्वर-साइड सुरक्षित Razorpay ऑर्डर तैयार करना
     order_resp = client.post("/api/sutradhar/orders/create", json={
@@ -140,7 +139,7 @@ def run_test():
                 "entity": {
                     "id": test_payment_id,
                     "order_id": order_id,
-                    "amount": 17900,  # 179.00 in paise
+                    "amount": 19900,  # 199.00 in paise (Full Price)
                     "status": "captured",
                     "contact": "+91" + customer_phone,
                     "email": "rahul.lucknow@example.com",

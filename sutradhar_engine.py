@@ -446,7 +446,7 @@ async def add_lead(req: AddLeadRequest):
     return {
         "status": "success",
         "lead_id": lead_id,
-        "message": "लीड 72 घंटे के लिए आपकी है। 10% कूपन डिस्काउंट ग्राहक के चेकआउट पर स्वतः लागू होगा।",
+        "message": "लीड 72 घंटे के लिए आपकी है। 72 घंटे के भीतर इस नंबर से किसी भी रिपोर्ट की खरीद पर ₹20 का इंसेंटिव स्वतः आपके खाते में आएगा।",
         "customer_phone": clean_customer_phone,
         "expires_at": expires_at.isoformat(),
         "lock_hours": 72
@@ -527,15 +527,15 @@ async def list_sutradhar_leads(sutradhar_id: str = Query(..., description="Sutra
 
 
 # -----------------------------------------------------------------------------
-# ENDPOINT 3: SERVER QUOTATION (CHECKOUT PRICING & AUTO-COUPON)
+# ENDPOINT 3: SERVER QUOTATION (CHECKOUT PRICING & 72H PHONE ATTRIBUTION)
 # -----------------------------------------------------------------------------
 @router.post("/quote")
 async def get_checkout_quote(req: QuoteRequest):
     """
     दाम बताना (checkout से पहले):
-    1. Login किए ग्राहक के मोबाइल पर चालू लीड ढूँढता है।
-    2. मिल जाए, तो उसी सूत्रधार का कोड और 10% छूट लगाता है।
-    3. ग्राहक ने कोई और कोड डाला हो, तो जवाब देता है: "यह कूपन आपके लिए मान्य नहीं"।
+    1. Login किए ग्राहक के मोबाइल पर चालू 72-घंटे की लीड ढूँढता है।
+    2. मिल जाए, तो सूत्रधार एट्रिब्यूशन जोड़ता है (ग्राहक पूरा दक्षिणा मूल्य देता है, सूत्रधार को ₹20 इंसेंटिव)।
+    3. जय हनुमान मास्टर की 100% बायपास देती है।
     """
     clean_phone = normalize_phone(req.customer_phone)
     service_id = req.service_id.strip().lower()
@@ -560,101 +560,45 @@ async def get_checkout_quote(req: QuoteRequest):
     clean_input_code = input_code.replace("-", "").replace(" ", "").replace("_", "")
     is_master_code = clean_input_code in ("JAIHANUMAN", "जयहनुमान", "MASTER") or input_code in ("JAI HANUMAN", "जय हनुमान", "JAI_HANUMAN", "MASTER")
 
-    # Case A: Active Lead exists for this customer!
+    # Master Key Check: 100% bypass
+    if is_master_code:
+        return {
+            "status": "success",
+            "valid": True,
+            "has_active_lead": False,
+            "service_id": service_id,
+            "base_price": base_price,
+            "discount_percent": 100,
+            "discount_amount": base_price,
+            "net_price": 0,
+            "final_price": 0,
+            "net_price_paise": 0,
+            "message": "✨ जय हनुमान मास्टर की स्वीकृत! 100% अधिकृत।"
+        }
+
+    # Case A: Active Lead exists for this customer (Full price, Sutradhar gets ₹20 incentive)
     if active_lead:
         sutra_code = (active_lead.get("sutradhar_code") or active_lead.get("sutradhar_id") or "").replace("-", "")
-
-        # If customer typed a DIFFERENT code than their registered sutradhar, reject!
-        if input_code and not is_master_code and clean_input_code != sutra_code:
-            return {
-                "status": "error",
-                "valid": False,
-                "base_price": base_price,
-                "discount_amount": 0,
-                "net_price": base_price,
-                "message": "यह कूपन आपके लिए मान्य नहीं है। आपकी लीड किसी अन्य अधिकृत सूत्रधार के साथ संबद्ध है।"
-            }
-
-        discount_amount = round(base_price * 0.10)
-        net_price = max(0, base_price - discount_amount)
-
         return {
             "status": "success",
             "valid": True,
             "has_active_lead": True,
-            "auto_applied": True,
+            "auto_applied": False,
             "lead_id": active_lead["id"],
             "sutradhar_id": active_lead["sutradhar_id"],
             "sutradhar_code": sutra_code,
             "service_id": service_id,
             "base_price": base_price,
             "original_price": base_price,
-            "discount_percent": 10,
-            "discount_amount": discount_amount,
-            "net_price": net_price,
-            "final_price": net_price,
-            "net_price_paise": net_price * 100,
-            "message": "✨ आपको सूत्रधार द्वारा 10% विशेष छात्रवृत्ति छूट प्राप्त हुई है।"
-        }
-
-    # Case B: No active lead, but customer typed a manual code
-    if input_code:
-        # Check master code (जय हनुमान / JAIHANUMAN)
-        if is_master_code:
-            return {
-                "status": "success",
-                "valid": True,
-                "has_active_lead": False,
-                "service_id": service_id,
-                "base_price": base_price,
-                "discount_percent": 100,
-                "discount_amount": base_price,
-                "net_price": 0,
-                "net_price_paise": 0,
-                "message": "✨ जय हनुमान मास्टर की स्वीकृत! 100% अधिकृत।"
-            }
-
-        # Check if code belongs to a valid Sutradhar (No hyphens, no legacy RAM10/VIDYA10 codes)
-        all_sutras = SutradharStore.query_all("sutradhars")
-        matched_sutra = next(
-            (s for s in all_sutras 
-             if s.get("code", "").replace("-", "").upper() == clean_input_code or 
-                s.get("sutradhar_id", "").replace("-", "").upper() == clean_input_code or
-                (clean_input_code.startswith("SRA") and len(clean_input_code) >= 6) or
-                clean_input_code.startswith("SUTRA")), 
-            None
-        )
-
-        if matched_sutra or clean_input_code.startswith("SRA") or clean_input_code.startswith("SUTRA"):
-            disc_amt = round(base_price * 0.10)
-            net_amt = max(0, base_price - disc_amt)
-            s_id = matched_sutra.get("sutradhar_id") if matched_sutra else clean_input_code
-            clean_s_code = (matched_sutra.get("code") if matched_sutra else clean_input_code).replace("-", "")
-            return {
-                "status": "success",
-                "valid": True,
-                "has_active_lead": False,
-                "sutradhar_id": s_id,
-                "sutradhar_code": clean_s_code,
-                "service_id": service_id,
-                "base_price": base_price,
-                "discount_percent": 10,
-                "discount_amount": disc_amt,
-                "net_price": net_amt,
-                "net_price_paise": net_amt * 100,
-                "message": f"✨ सूत्रधार कूपन ({clean_s_code}) सफल! 10% छूट लागू।"
-            }
-
-        return {
-            "status": "error",
-            "valid": False,
-            "base_price": base_price,
+            "discount_percent": 0,
             "discount_amount": 0,
             "net_price": base_price,
-            "message": "यह कूपन अमान्य है। केवल अधिकृत सूत्रधार कूपन अथवा जय हनुमान मास्टर की मान्य है।"
+            "final_price": base_price,
+            "net_price_paise": base_price * 100,
+            "message": "पूर्ण दक्षिणा मूल्य (सूत्रधार 72h लीड सुरक्षित)"
         }
 
-    # Case C: Standard full price (no lead, no code)
+    # Case B: Standard full price (no active lead)
     return {
         "status": "success",
         "valid": True,
@@ -663,6 +607,7 @@ async def get_checkout_quote(req: QuoteRequest):
         "service_id": service_id,
         "base_price": base_price,
         "original_price": base_price,
+        "discount_percent": 0,
         "discount_amount": 0,
         "net_price": base_price,
         "final_price": base_price,
@@ -853,34 +798,13 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         order["paid_at"] = now_iso
         SutradharStore.set_doc("orders", order_id, order)
 
-    # Attribution is valid if:
-    # 1. Active lead exists within 72 hours, OR
-    # 2. Sutradhar code / coupon code was used in order or notes
-    has_valid_coupon = bool(notes.get("sutradhar_code") or notes.get("coupon_code") or (order and order.get("sutradhar_code")))
-    attribution_valid = is_valid_lead or has_valid_coupon
+    # Attribution is valid strictly if active lead was locked within 72 hours
+    attribution_valid = is_valid_lead
 
     # Create Commission if sutradhar attributed
-    if sutradhar_id and attribution_valid:
-        # If no prior lead existed, auto-create converted lead for tracking
-        if not lead and customer_phone:
-            lead_id = f"lead_{customer_phone}_{int(now.timestamp())}"
-            lead = {
-                "id": lead_id,
-                "customer_phone": customer_phone,
-                "customer_name": notes.get("customer_name") or (order.get("customer_name") if order else "जातक"),
-                "sutradhar_id": sutradhar_id,
-                "sutradhar_code": notes.get("sutradhar_code") or notes.get("coupon_code") or sutradhar_id,
-                "status": "converted",
-                "created_at": now_iso,
-                "expires_at": (now + timedelta(hours=72)).isoformat(),
-                "converted_at": now_iso,
-                "order_id": order_id,
-                "payment_id": payment_id
-            }
-            SutradharStore.set_doc("leads", lead_id, lead)
-
-        net_amt = order.get("net_amount", 179) if order else int(pay_entity.get("amount", 17900)) // 100
-        # Sutradhar flat commission policy (10% of order net)
+    if sutradhar_id and attribution_valid and lead:
+        net_amt = order.get("net_amount", 199) if order else int(pay_entity.get("amount", 19900)) // 100
+        # Sutradhar incentive: ₹20 per report sale (10% flat, minimum ₹20)
         comm_amount = max(20, round(net_amt * 0.10))
 
         comm_record = {
@@ -904,7 +828,7 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
             "commission_id": comm_id,
             "payment_id": payment_id,
             "amount": comm_amount,
-            "reason": "COUPON_ATTRIBUTED" if has_valid_coupon else "LEAD_ATTRIBUTED"
+            "reason": "LEAD_72H_ATTRIBUTED"
         })
 
         # Immediately dispatch automated payout runner

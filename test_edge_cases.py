@@ -47,9 +47,9 @@ def test_all_rules():
     customer_b = f"97{ts_suffix}22"[:10]
 
     # -----------------------------------------------------------------
-    # RULE 1: VALID LEAD + AUTO QUOTE
+    # RULE 1: VALID LEAD + 72H PHONE ATTRIBUTION (FULL PRICE + AUTO SUTRADHAR INCENTIVE)
     # -----------------------------------------------------------------
-    print("\n[Rule 1] वैध लीड + 10% स्वचालित छूट:")
+    print("\n[Rule 1] वैध लीड + 72 घंटे फ़ोन-लॉक एट्रिब्यूशन:")
     lead_res = client.post("/api/sutradhar/leads/add", json={
         "sutradhar_id": s1_id,
         "customer_phone": customer_a,
@@ -63,10 +63,10 @@ def test_all_rules():
         "service_id": "mangal_dosha"
     }).json()
     assert quote_res["has_active_lead"] == True
-    assert quote_res["discount_amount"] == 20
-    assert quote_res["net_price"] == 179
+    assert quote_res["discount_amount"] == 0
+    assert quote_res["net_price"] == 199
     assert quote_res["sutradhar_code"] == s1_code
-    print("  ✓ ग्राहक A के लॉगिन करते ही 10% छूट व सूत्रधार 1 का कोड अपने-आप लगा")
+    print("  ✓ ग्राहक A के नंबर पर 72 घंटे का ताला सक्रिय, जातक को पूरा मूल्य ₹199 व सूत्रधार एट्रिब्यूशन सुरक्षित")
 
     # -----------------------------------------------------------------
     # RULE 2: WITHOUT LEAD (STANDARD FULL PRICE)
@@ -152,7 +152,7 @@ def test_all_rules():
                 "entity": {
                     "id": pay_id,
                     "order_id": order_id,
-                    "amount": 17900,
+                    "amount": 19900,
                     "notes": {
                         "customer_phone": customer_a,
                         "service_id": "mangal_dosha",
@@ -174,7 +174,7 @@ def test_all_rules():
                 "entity": {
                     "id": pay_id,
                     "order_id": order_id,
-                    "amount": 17900,
+                    "amount": 19900,
                     "notes": {
                         "customer_phone": customer_a,
                         "service_id": "mangal_dosha",
@@ -209,7 +209,7 @@ def test_all_rules():
                 "entity": {
                     "id": pay_id_fail,
                     "order_id": order2["order_id"],
-                    "amount": 17900,
+                    "amount": 19900,
                     "notes": {
                         "customer_phone": customer_b,
                         "service_id": "mangal_dosha",

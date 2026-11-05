@@ -207,80 +207,12 @@
         };
       }
 
-      // २. सूत्रधार यूनिक कोड नियम (10% फ्लैट डिस्काउंट - बिना हाइफ़न)
-      if (this.isValidCode(code)) {
-        var cleanSutraCode = code.replace(/-/g, '');
-        var discountPct = 10;
-        var discountAmt = Math.round(basePrice * 0.10);
-        var finalAmt = Math.max(0, basePrice - discountAmt);
-        var finalPaise = Math.round(finalAmt * 100);
-
-        return {
-          valid: true,
-          code: cleanSutraCode,
-          sutradhar_id: cleanSutraCode,
-          type: 'sutradhar_unique_id',
-          basePrice: basePrice,
-          discountPercent: discountPct,
-          discountAmount: discountAmt,
-          finalAmount: finalAmt,
-          finalAmountPaise: finalPaise,
-          customer_phone: customerPhone || '',
-          lead_verified: true,
-          commission_eligible: true,
-          message: '✨ सूत्रधार कूपन (' + cleanSutraCode + ') सफल! 10% की छूट लागू (बचत: ₹' + discountAmt.toLocaleString('en-IN') + ')'
-        };
-      }
-
+      // २. सूत्रधार प्रणाली: कूपन कोड की आवश्यकता नहीं (72 घंटे का फ़ोन-लॉक एट्रिब्यूशन)
+      // ग्राहक पूरा दक्षिणा मूल्य देता है, और सूत्रधार को उनका ₹20 कमीशन स्वतः मिलता है।
       return {
         valid: false,
         code: code,
-        message: 'अमान्य कूपन कोड। केवल अधिकृत सूत्रधार कूपन अथवा जय हनुमान मास्टर की मान्य है।'
-      };
-    },
-
-        // जातक नंबर सत्यापन जांच (2-Factor Attribution)
-        var cPhone = customerPhone || '';
-        if (!cPhone) {
-          try {
-            cPhone = localStorage.getItem('sra_user_phone') || sessionStorage.getItem('sra_user_phone') || '';
-          } catch(e){}
-        }
-        cPhone = String(cPhone).replace(/\D/g, '').slice(-10);
-
-        var isLeadRegistered = false;
-        if (cPhone && cPhone.length === 10) {
-          try {
-            var savedLeads = JSON.parse(localStorage.getItem('sra_leads_' + code) || '[]');
-            if (Array.isArray(savedLeads)) {
-              isLeadRegistered = savedLeads.some(function(l) {
-                return String(l.customer_phone).replace(/\D/g, '').slice(-10) === cPhone;
-              });
-            }
-          } catch(e){}
-        }
-
-        return {
-          valid: true,
-          code: code,
-          sutradhar_id: code,
-          type: 'sutradhar_unique_id',
-          basePrice: basePrice,
-          discountPercent: discountPct,
-          discountAmount: discountAmt,
-          finalAmount: finalAmt,
-          finalAmountPaise: finalPaise,
-          customer_phone: cPhone,
-          lead_verified: isLeadRegistered,
-          commission_eligible: isLeadRegistered,
-          message: '✨ सूत्रधार कूपन (' + code + ') सफल! 10% की फ्लैट छूट लागू (बचत: ₹' + discountAmt.toLocaleString('en-IN') + ')'
-        };
-      }
-
-      return {
-        valid: false,
-        code: code,
-        message: 'अमान्य कूपन कोड। कृपया सूत्रधार द्वारा प्रदत्त सही आईडी (उदा. SD-105) दर्ज करें।'
+        message: 'कूपन कोड की आवश्यकता नहीं है। सूत्रधार इंसेंटिव 72 घंटे के फ़ोन-लॉक द्वारा स्वतः संबद्ध रहता है।'
       };
     },
 
