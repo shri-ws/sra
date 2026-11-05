@@ -797,9 +797,33 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         order["paid_at"] = now_iso
         SutradharStore.set_doc("orders", order_id, order)
 
+    # Attribution is valid if:
+    # 1. Active lead exists within 72 hours, OR
+    # 2. Sutradhar code / coupon code was used in order or notes
+    has_valid_coupon = bool(notes.get("sutradhar_code") or notes.get("coupon_code") or (order and order.get("sutradhar_code")))
+    attribution_valid = is_valid_lead or has_valid_coupon
+
     # Create Commission if sutradhar attributed
-    if sutradhar_id and is_valid_lead:
-        net_amt = order.get("net_amount", 179) if order else 179
+    if sutradhar_id and attribution_valid:
+        # If no prior lead existed, auto-create converted lead for tracking
+        if not lead and customer_phone:
+            lead_id = f"lead_{customer_phone}_{int(now.timestamp())}"
+            lead = {
+                "id": lead_id,
+                "customer_phone": customer_phone,
+                "customer_name": notes.get("customer_name") or (order.get("customer_name") if order else "जातक"),
+                "sutradhar_id": sutradhar_id,
+                "sutradhar_code": notes.get("sutradhar_code") or notes.get("coupon_code") or sutradhar_id,
+                "status": "converted",
+                "created_at": now_iso,
+                "expires_at": (now + timedelta(hours=72)).isoformat(),
+                "converted_at": now_iso,
+                "order_id": order_id,
+                "payment_id": payment_id
+            }
+            SutradharStore.set_doc("leads", lead_id, lead)
+
+        net_amt = order.get("net_amount", 179) if order else int(pay_entity.get("amount", 17900)) // 100
         # Sutradhar flat commission policy (10% of order net)
         comm_amount = max(20, round(net_amt * 0.10))
 
@@ -811,7 +835,7 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
             "order_id": order_id,
             "sutradhar_id": sutradhar_id,
             "customer_phone": customer_phone,
-            "product": order.get("service_id", "mangal_dosha") if order else "mangal_dosha",
+            "product": (order.get("service_id") if order else notes.get("service_id")) or "mangal_dosha",
             "order_amount": net_amt,
             "amount": comm_amount,
             "status": "created",  # created → processing → paid / requires_review
@@ -823,7 +847,8 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         log_audit_event("COMMISSION_CREATED", sutradhar_id, {
             "commission_id": comm_id,
             "payment_id": payment_id,
-            "amount": comm_amount
+            "amount": comm_amount,
+            "reason": "COUPON_ATTRIBUTED" if has_valid_coupon else "LEAD_ATTRIBUTED"
         })
 
         # Immediately dispatch automated payout runner
@@ -832,8 +857,8 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     return {
         "status": "success",
         "payment_id": payment_id,
-        "commission_id": comm_id if (is_valid_lead and bool(sutradhar_id)) else None,
-        "commission_created": is_valid_lead and bool(sutradhar_id)
+        "commission_id": comm_id if (attribution_valid and bool(sutradhar_id)) else None,
+        "commission_created": attribution_valid and bool(sutradhar_id)
     }
 
 
