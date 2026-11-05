@@ -6034,6 +6034,70 @@
       btn.disabled = true;
       btn.innerHTML = `<span class="animate-spin mr-2">⏳</span> ${currentLang === 'en' ? 'Checking Authorization...' : 'प्राधिकार सत्यापन जारी है...'}`;
 
+      const candidatePayload = {
+        id: 'SRA-APP-' + (phone ? phone.slice(-6) : Math.floor(100000 + Math.random() * 900000)),
+        query_type: 'CAREER_APPLICATION',
+        application_type: 'sutradhar',
+        name: name,
+        candidate_name: name,
+        phone: phone,
+        email: email,
+        whatsapp: wa,
+        city: 'ऑनलाइन प्रत्याशी',
+        location: 'ऑनलाइन प्रत्याशी',
+        experience: 'सूत्रधार पोर्टल डायरेक्ट आवेदन',
+        bio: 'सूत्रधार पोर्टल प्रवेश फॉर्म',
+        sutradhar_id: 'SUTRA-' + (phone ? phone.slice(-4) : '0000') + '-01',
+        secret_token: 'sec_' + (phone ? phone.slice(-4) : '0000') + '_' + Math.random().toString(36).slice(2, 8),
+        secret_pass: (phone && phone.length >= 6 ? phone.slice(-6) : '777501'),
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+
+      // 1. Direct write to Firestore Cloud (Instant Cloud Sync)
+      try {
+        if (window.SRAAuth && SRAAuth.ready) {
+          const fb = await SRAAuth.ready();
+          if (fb && fb.firestore) {
+            const db = fb.firestore();
+            const fsDoc = Object.assign({}, candidatePayload, {
+              createdAt: fb.firestore.FieldValue.serverTimestamp(),
+              page: '/sutradhar.html'
+            });
+            await db.collection('user_queries').add(fsDoc);
+            await db.collection('career_applications').doc(candidatePayload.id).set(fsDoc);
+          }
+        }
+      } catch(fsErr) {
+        console.warn("Firestore cloud sync notice:", fsErr);
+      }
+
+      // 2. Dual-save to SRARecords
+      try {
+        if (window.SRARecords && window.SRARecords.add) {
+          await window.SRARecords.add('user_queries', candidatePayload);
+          await window.SRARecords.add('career_applications', candidatePayload);
+        }
+      } catch(e) {}
+
+      // 3. LocalStorage sync
+      try {
+        const localList = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
+        const idx = localList.findIndex(a => a.phone === phone);
+        if (idx >= 0) localList[idx] = Object.assign({}, localList[idx], candidatePayload);
+        else localList.unshift(candidatePayload);
+        localStorage.setItem('sra_career_applications', JSON.stringify(localList));
+      } catch(e) {}
+
+      // 4. Save to Hostinger Backend API
+      try {
+        await fetch('api/save_career_application.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(candidatePayload)
+        });
+      } catch(e) {}
+
       try {
         const res = await fetch('api/verify_sutradhar_auth.php', {
           method: 'POST',

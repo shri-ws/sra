@@ -808,6 +808,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <div style="display:flex; gap:10px; align-items:center;">
             <input class="search-box" id="careerSearchInput" placeholder="नाम, फोन, शहर से खोजें..." oninput="filterCareersTable(this.value)"/>
             <button class="export-btn" onclick="loadCareerApplications()">↻ रिफ्रेश</button>
+            <button class="export-btn" style="background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.4); color:#ef4444;" onclick="purgeAllCareerApplications()">🗑️ सारा पुराना डेटा साफ़ करें</button>
           </div>
         </div>
         <div style="overflow-x:auto">
@@ -1664,30 +1665,8 @@ async function fetchCareerApplications() {
     local.forEach(addItem);
   } catch(e) {}
 
-  // 5. Seed default test application if totally empty so table has t1 test user
-  if (!list.length) {
-    list = [
-      {
-        id: "SRA-APP-T1-101",
-        name: "T1 Test",
-        phone: "9517117775",
-        email: "t1@shriramjiastro.in",
-        city: "वाराणसी, उत्तर प्रदेश",
-        experience: "परीक्षण खाता (T1 Test Sutradhar)",
-        bio: "अधिकृत लाइव परीक्षण सूत्रधार खाता।",
-        resume_name: "t1_test_doc.pdf",
-        sutradhar_id: "SUTRA-7775-01",
-        secret_token: "sec_7775_sra_alpha9821",
-        secret_pass: "777501",
-        status: "approved",
-        approved_at: "2026-11-04 12:00:00",
-        created_at: "2026-11-04 10:30:00"
-      }
-    ];
-  } else if (list.length > 1) {
-    // If real candidate submissions exist, filter out old legacy placeholder demo entry if present
-    list = list.filter(item => item.id !== "SRA-APP-261104-101");
-  }
+  // Filter out any legacy demo placeholder entry
+  list = list.filter(item => item.id !== "SRA-APP-261104-101");
 
   // Sort descending by created_at
   list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
@@ -1804,6 +1783,9 @@ function renderCareerRows(tbodyId, rows) {
               ${dict.btnSendWa}
             </button>
           `}
+          <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:4px 8px;" onclick="deleteCareerApplication('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}')">
+            🗑️ हटाएं
+          </button>
         </div>
       </td>
     </tr>`;
@@ -1880,6 +1862,68 @@ async function approveCareerApplication(id, phone, name) {
     }
   } catch(err) {
     alert("स्वीकृति प्रक्रिया में त्रुटि: " + err.message);
+  }
+}
+
+async function deleteCareerApplication(id, phone, name) {
+  if (!confirm(`${name || 'इस प्रत्याशी'} (ID: ${id}) का आवेदन हटाना चाहते हैं?`)) return;
+
+  try {
+    // 1. Delete from Firestore Cloud
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      try {
+        await SRAAdminData.remove('career_applications', id);
+        await SRAAdminData.remove('user_queries', id);
+      } catch(e) {}
+    }
+
+    // 2. Delete from Backend Server API
+    try {
+      await fetch('api/delete_career_application.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id, phone: phone })
+      });
+    } catch(e) {}
+
+    // 3. Delete from localStorage
+    try {
+      const local = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
+      const filtered = local.filter(c => c.id !== id && c.phone !== phone);
+      localStorage.setItem('sra_career_applications', JSON.stringify(filtered));
+    } catch(e) {}
+
+    // 4. Update memory & UI
+    D.careers = (D.careers || []).filter(c => c.id !== id && c.phone !== phone);
+    renderCareerRows('careers-tbody', D.careers);
+    updateCareerStats(D.careers);
+    alert('✓ आवेदन सफलतापूर्वक हटा दिया गया!');
+  } catch (err) {
+    alert('हटाने में त्रुटि: ' + err.message);
+  }
+}
+
+async function purgeAllCareerApplications() {
+  if (!confirm('चेतावनी: क्या आप सभी पुराने सूत्रधार आवेदनों और डमी डेटा को पूरी तरह साफ़ (Delete All) करना चाहते हैं?')) return;
+
+  try {
+    // 1. Delete from Server
+    await fetch('api/delete_career_application.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clear_all: 1 })
+    });
+
+    // 2. Delete from LocalStorage
+    localStorage.removeItem('sra_career_applications');
+
+    // 3. Clear from memory
+    D.careers = [];
+    renderCareerRows('careers-tbody', []);
+    updateCareerStats([]);
+    alert('✓ सभी पुराना डेटा पूरी तरह साफ़ कर दिया गया है!');
+  } catch (e) {
+    alert('त्रुटि: ' + e.message);
   }
 }
 
