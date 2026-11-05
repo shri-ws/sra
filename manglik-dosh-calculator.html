@@ -1482,6 +1482,13 @@
           </div>
 
           <div class="form-group">
+            <label for="mangalPhone"><span>📱</span> मोबाइल नंबर (WhatsApp / 10 अंक)</label>
+            <input type="tel" id="mangalPhone" maxlength="10" placeholder="उदा. 9876543210" pattern="[0-9]{10}" required oninput="onMangalPhoneChanged(this.value)" />
+          </div>
+
+          <div id="mangalPhoneLeadNotice" style="display:none; grid-column: 1 / -1; background:rgba(16,185,129,0.1); border:1px solid #10b981; color:#065f46; padding:8px 12px; border-radius:8px; font-size:13px; font-weight:700;"></div>
+
+          <div class="form-group">
             <label for="mangalGender"><span>⚧</span> लिंग (Gender)</label>
             <select id="mangalGender" style="width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text); font-size:14.5px;">
               <option value="male" selected>वर / पुरुष (Male)</option>
@@ -2245,9 +2252,44 @@
       }
     }
 
+    // Real-Time Phone Attribution & 10% Auto-Discount Check
+    function onMangalPhoneChanged(rawVal) {
+      const phone = (rawVal || '').replace(/\D/g, '').slice(-10);
+      if (phone.length === 10) {
+        try {
+          localStorage.setItem('sra_verified_mobile', phone);
+          localStorage.setItem('sra_user_phone', phone);
+        } catch(e) {}
+
+        if (window.SraCouponEngine && SraCouponEngine.fetchServerQuote) {
+          SraCouponEngine.fetchServerQuote(phone, 'manglik_dosha').then(quote => {
+            if (quote && (quote.auto_applied || quote.has_active_lead || quote.valid)) {
+              const cleanCode = (quote.sutradhar_code || quote.sutradhar_id || '').replace(/-/g, '');
+              window._manglikDiscount = quote.discount_amount || 20;
+              window._manglikCoupon = cleanCode;
+              window._manglikSutradhar = cleanCode;
+              window._manglikLeadId = quote.lead_id || '';
+
+              const msgEl = document.getElementById('mangalPhoneLeadNotice');
+              if (msgEl) {
+                msgEl.innerHTML = `✨ <b>सूत्रधार 10% विशेष छूट स्वतः लागू!</b> कूपन: <code>${cleanCode}</code> • दक्षिणा: ₹${quote.final_price || 179}`;
+                msgEl.style.display = 'block';
+              }
+              const btnLabel = document.getElementById('btnCalculateLabel');
+              if (btnLabel) {
+                btnLabel.textContent = `मंगल दोष एवं २१ परिहार रिपोर्ट देखें (₹${quote.final_price || 179} के पेमेंट पर - 10% छूट लागू)`;
+              }
+            }
+          }).catch(()=>{});
+        }
+      }
+    }
+
     // Trigger Primary Generation Flow
     function handleMangalReportGenerateClick() {
       const name = (document.getElementById('mangalName').value || '').trim();
+      const phoneInput = document.getElementById('mangalPhone');
+      const phone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : (localStorage.getItem('sra_verified_mobile') || '');
       const gender = document.getElementById('mangalGender').value || 'male';
       const date = document.getElementById('mangalDob').value;
       const time = document.getElementById('mangalTob').value;
@@ -2257,12 +2299,18 @@
       const tz = parseFloat(document.getElementById('mangalTz').value) || 5.5;
 
       if (!name) { alert('कृपया जातक का नाम दर्ज करें।'); document.getElementById('mangalName').focus(); return; }
+      if (!phone || phone.length !== 10) { alert('कृपया १० अंकों का वैध मोबाइल नंबर दर्ज करें।'); if (phoneInput) phoneInput.focus(); return; }
       if (!date) { alert('कृपया जन्म तिथि दर्ज करें।'); document.getElementById('mangalDob').focus(); return; }
       if (!time) { alert('कृपया जन्म समय दर्ज करें।'); document.getElementById('mangalTob').focus(); return; }
       if (!city) { alert('कृपया जन्म स्थान दर्ज करें।'); document.getElementById('mangalCity').focus(); return; }
 
+      try {
+        localStorage.setItem('sra_verified_mobile', phone);
+        localStorage.setItem('sra_user_phone', phone);
+      } catch(e) {}
+
       currentSelectedKundali = {
-        name, gender, date, time, city, lat, lon, tz
+        name, phone, gender, date, time, city, lat, lon, tz
       };
 
       // Mandatory Payment Check: Ask for ₹199 payment if not unlocked
@@ -2384,31 +2432,33 @@
       pw.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       // Auto-apply 10% discount if customer phone is in an active Sutradhar lead
-      const clientPhone = (document.getElementById('inMangalPhone') || {}).value || localStorage.getItem('sra_verified_mobile') || '';
-      if (clientPhone && window.SraCouponEngine && SraCouponEngine.fetchServerQuote && !window._manglikCoupon) {
-        SraCouponEngine.fetchServerQuote(clientPhone, 'manglik_dosha', null).then(quote => {
-          if (quote && (quote.auto_applied || quote.has_active_lead || quote.lead_active)) {
+      const clientPhone = (currentSelectedKundali && currentSelectedKundali.phone) || (document.getElementById('mangalPhone') || document.getElementById('inMangalPhone') || {}).value || localStorage.getItem('sra_verified_mobile') || '';
+      if (clientPhone && window.SraCouponEngine && SraCouponEngine.fetchServerQuote) {
+        SraCouponEngine.fetchServerQuote(clientPhone, 'manglik_dosha').then(quote => {
+          if (quote && (quote.auto_applied || quote.has_active_lead || quote.valid)) {
+            const cleanCode = (quote.sutradhar_code || quote.sutradhar_id || '').replace(/-/g, '');
             window._manglikDiscount = quote.discount_amount || 20;
-            window._manglikCoupon = quote.sutradhar_code || quote.sutradhar_id;
-            window._manglikSutradhar = quote.sutradhar_id;
+            window._manglikCoupon = cleanCode;
+            window._manglikSutradhar = cleanCode;
+            window._manglikLeadId = quote.lead_id || '';
             const netEl = document.getElementById('dispManglikNetPayableInline');
             if (netEl) netEl.innerHTML = `₹${quote.final_price || quote.net_price || 179}`;
             const discRow = document.getElementById('dispManglikSutraDiscRowInline');
             if (discRow) {
               discRow.style.display = 'flex';
               const discVal = document.getElementById('dispManglikSutraDiscValInline');
-              if (discVal) discVal.innerText = `-₹${quote.discount_amount} (स्वचालित 10% छूट)`;
+              if (discVal) discVal.innerText = `-₹${quote.discount_amount} (सूत्रधार कूपन ${cleanCode} स्वतः लागू)`;
             }
             const payBtn = document.getElementById('btnRzpManglikPayInline');
             if (payBtn) payBtn.innerHTML = `💳 ₹${quote.final_price || quote.net_price || 179} ऑनलाइन भुगतान करें (10% छूट लागू)`;
             const msgEl = document.getElementById('manglikOwnerCodeMsgInline');
             if (msgEl) {
               msgEl.style.color = '#15803d';
-              msgEl.innerHTML = `✨ <b>आपको 10% विशेष छूट मिली है।</b> (सूत्रधार कूपन ${window._manglikCoupon} स्वतः लागू)`;
+              msgEl.innerHTML = `✨ <b>आपको 10% विशेष छूट मिली है।</b> (सूत्रधार कूपन <code>${cleanCode}</code> स्वतः लागू)`;
               msgEl.style.display = 'block';
             }
             const inp = document.getElementById('manglikOwnerCodeInline');
-            if (inp) inp.value = window._manglikCoupon;
+            if (inp) inp.value = cleanCode;
           }
         }).catch(()=>{});
       }
@@ -2432,22 +2482,25 @@
 
     function applyManglikCode(rawVal, isModal) {
       const val = (rawVal || '').trim().toUpperCase();
+      const cleanVal = val.replace(/[-_\s]/g, '');
       const msgEl = document.getElementById(isModal ? 'manglikOwnerCodeMsgModal' : 'manglikOwnerCodeMsgInline');
+      const clientPhone = (currentSelectedKundali && currentSelectedKundali.phone) || (document.getElementById('mangalPhone') || document.getElementById('inMangalPhone') || {}).value || localStorage.getItem('sra_verified_mobile') || '';
 
       if (!val) {
         if (msgEl) {
           msgEl.style.color = '#b91c1c';
-          msgEl.innerHTML = '❌ कृपया कूपन कोड या पासकोड दर्ज करें।';
+          msgEl.innerHTML = '❌ कृपया कूपन कोड दर्ज करें।';
           msgEl.style.display = 'block';
         }
         return;
       }
 
-      // 1. Check Master Key (100% bypass for Owner / Acharya)
-      if (val === 'MASTER' || val === 'SRAGODMODE' || (window.sraIsMasterKey && window.sraIsMasterKey(val))) {
+      // 1. Check Master Key (जय हनुमान / JAIHANUMAN)
+      const isMaster = (cleanVal === 'JAIHANUMAN' || cleanVal === 'जयहनुमान' || val === 'JAI HANUMAN' || val === 'जय हनुमान' || val === 'JAI_HANUMAN' || val === 'MASTER' || (window.sraIsMasterKey && window.sraIsMasterKey(rawVal)));
+      if (isMaster) {
         if (msgEl) {
           msgEl.style.color = '#15803d';
-          msgEl.innerHTML = '✨ <b>मास्टर की स्वीकृत!</b> 100% निःशुल्क अधिकृत। रिपोर्ट अनलॉक की जा रही है...';
+          msgEl.innerHTML = '✨ <b>जय हनुमान मास्टर की स्वीकृत!</b> 100% निःशुल्क अधिकृत। रिपोर्ट अनलॉक की जा रही है...';
           msgEl.style.display = 'block';
         }
         setTimeout(() => {
@@ -2456,47 +2509,22 @@
         return;
       }
 
-      // 2. SraCouponEngine Validation (Sutradhar Referral / 10% Universal Coupon)
+      // 2. SraCouponEngine Validation (केवल सूत्रधार कूपन मान्य - बिना हाइफ़न)
       let couponRes = null;
       if (window.SraCouponEngine) {
-        couponRes = window.SraCouponEngine.validateAndCalculate(val, 199);
+        couponRes = window.SraCouponEngine.validateAndCalculate(val, 199, clientPhone);
       }
 
-      // Fallback matching if coupon engine didn't catch or isn't loaded yet
-      if (!couponRes || !couponRes.valid) {
-        if (/^SRA-[A-Z0-9]+/i.test(val) || /^SD-?\d+/i.test(val) || /^SUTRA/i.test(val) || val === 'VIDYA10' || val === 'RAM10' || val === 'SRA10') {
-          couponRes = {
-            valid: true,
-            code: val,
-            sutradhar_id: val,
-            discountAmount: 20,
-            finalAmount: 179
-          };
-        }
-      }
-
-      if (couponRes && couponRes.valid) {
-        if (couponRes.type === 'master') {
-          if (msgEl) {
-            msgEl.style.color = '#15803d';
-            msgEl.innerHTML = '✨ <b>मास्टर की स्वीकृत!</b> 100% निःशुल्क अधिकृत।';
-            msgEl.style.display = 'block';
-          }
-          setTimeout(() => {
-            unlockManglikReport('MASTER_KEY');
-          }, 300);
-          return;
-        }
-
-        // Apply 10% Sutradhar Coupon!
+      if (couponRes && couponRes.valid && couponRes.type !== 'master') {
+        const cleanSutra = (couponRes.code || val).replace(/-/g, '');
         const disc = couponRes.discountAmount || 20;
         const finalPayable = couponRes.finalAmount || (199 - disc);
         window._manglikDiscount = disc;
-        window._manglikCoupon = couponRes.code;
-        window._manglikSutradhar = couponRes.sutradhar_id || couponRes.code;
+        window._manglikCoupon = cleanSutra;
+        window._manglikSutradhar = cleanSutra;
 
         try {
-          localStorage.setItem('sra_sutradhar_ref', window._manglikSutradhar);
+          localStorage.setItem('sra_sutradhar_ref', cleanSutra);
         } catch(e) {}
 
         // Update Inline UI
@@ -2506,11 +2534,11 @@
         if (inlineDiscRow) {
           inlineDiscRow.style.display = 'flex';
           const discValEl = document.getElementById('dispManglikSutraDiscValInline');
-          if (discValEl) discValEl.innerText = `-₹${disc} (${couponRes.code})`;
+          if (discValEl) discValEl.innerText = `-₹${disc} (${cleanSutra})`;
         }
         const inlinePayBtn = document.getElementById('btnRzpManglikPayInline');
         if (inlinePayBtn) {
-          inlinePayBtn.innerHTML = `💳 ₹${finalPayable} ऑनलाइन भुगतान करें (10% कूपन ${couponRes.code} लागू)`;
+          inlinePayBtn.innerHTML = `💳 ₹${finalPayable} ऑनलाइन भुगतान करें (10% कूपन ${cleanSutra} लागू)`;
         }
 
         // Update Modal UI
@@ -2520,25 +2548,25 @@
         if (modalDiscRow) {
           modalDiscRow.style.display = 'flex';
           const discValEl = document.getElementById('dispManglikSutraDiscValModal');
-          if (discValEl) discValEl.innerText = `-₹${disc} (${couponRes.code})`;
+          if (discValEl) discValEl.innerText = `-₹${disc} (${cleanSutra})`;
         }
         const modalPayBtn = document.getElementById('btnRzpManglikSubmit');
         if (modalPayBtn) {
-          modalPayBtn.innerHTML = `💳 ₹${finalPayable} ऑनलाइन भुगतान करें (10% कूपन ${couponRes.code} लागू)`;
+          modalPayBtn.innerHTML = `💳 ₹${finalPayable} ऑनलाइन भुगतान करें (10% कूपन ${cleanSutra} लागू)`;
         }
 
         if (msgEl) {
           msgEl.style.color = '#15803d';
-          msgEl.innerHTML = `✨ <b>सूत्रधार कूपन (${couponRes.code}) स्वीकृत!</b> 10% छूट लागू (देय दक्षिणा: ₹${finalPayable})`;
+          msgEl.innerHTML = `✨ <b>सूत्रधार कूपन (${cleanSutra}) स्वीकृत!</b> 10% छूट लागू (देय दक्षिणा: ₹${finalPayable})`;
           msgEl.style.display = 'block';
         }
         return;
       }
 
-      // Invalid code error message
+      // Invalid code error message (Strict Whitelist)
       if (msgEl) {
         msgEl.style.color = '#b91c1c';
-        msgEl.innerHTML = '❌ यह कूपन आपके लिए मान्य नहीं है।';
+        msgEl.innerHTML = '❌ अमान्य कूपन कोड। केवल अधिकृत सूत्रधार कूपन अथवा जय हनुमान मास्टर की मान्य है।';
         msgEl.style.display = 'block';
       }
     }

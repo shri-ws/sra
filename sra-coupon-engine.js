@@ -56,23 +56,34 @@
     },
 
     /**
-     * कोड की वैधता जांचना
+     * कोड की वैधता जांचना (केवल सूत्रधार कोड अथवा जय हनुमान मास्टर की मान्य)
      */
     isValidCode: function(rawCode) {
       if (!rawCode) return false;
       var code = String(rawCode).trim().toUpperCase();
-      // SRA-XXXXXX, SD-XXX, या SUTRA-XXXX प्रारूप (उदा. SRA-7K3M9Q, SD-105, SUTRA-01 आदि)
-      if (/^SRA-[A-Z0-9]{4,10}$/i.test(code) || /^SD-?\d{2,6}$/i.test(code) || /^SUTRA/i.test(code)) return true;
-      // सामान्य सूत्रधार या मास्टर कोड्स
-      if (code === 'MASTER' || code === 'SRAGODMODE' || code === 'RAM10' || code === 'VIDYA10' || code === 'SRA10') return true;
+      var cleanCode = code.replace(/[-_\s]/g, '');
+
+      // १. जय हनुमान मास्टर की
+      if (cleanCode === 'JAIHANUMAN' || cleanCode === 'जयहनुमान' || code === 'JAI HANUMAN' || code === 'जय हनुमान' || code === 'JAI_HANUMAN' || code === 'MASTER') return true;
       if (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode)) return true;
-      // लोकल स्टोरेज में मौजूद सूत्रधार प्रोफाइल/सेशन जांच
+
+      // २. सूत्रधार यूनिक कोड प्रारूप (बिना हाइफ़न या हाइफ़न सहित: SRA..., SUTRA..., SD...)
+      if (/^SRA[A-Z0-9]{4,10}$/i.test(cleanCode) || /^SRA-[A-Z0-9]{4,10}$/i.test(code) || /^SD-?\d{2,6}$/i.test(code) || /^SUTRA/i.test(code)) return true;
+
+      // ३. लोकल स्टोरेज में मौजूद सक्रिय सूत्रधार प्रोफाइल/सेशन जांच
       try {
         var sess = JSON.parse(localStorage.getItem('sra_sutradhar_session') || '{}');
-        if (sess && sess.sutradhar_id && sess.sutradhar_id.toUpperCase() === code) return true;
+        if (sess && (sess.sutradhar_id || sess.code)) {
+          var sId = (sess.sutradhar_id || '').toUpperCase().replace(/[-_\s]/g, '');
+          var sCode = (sess.code || '').toUpperCase().replace(/[-_\s]/g, '');
+          if (sId === cleanCode || sCode === cleanCode) return true;
+        }
         var prof = JSON.parse(localStorage.getItem('sra_sutradhar_profile') || '{}');
-        if (prof && prof.sutradhar_id && prof.sutradhar_id.toUpperCase() === code) return true;
-        if (prof && prof.code && prof.code.toUpperCase() === code) return true;
+        if (prof && (prof.sutradhar_id || prof.code)) {
+          var pId = (prof.sutradhar_id || '').toUpperCase().replace(/[-_\s]/g, '');
+          var pCode = (prof.code || '').toUpperCase().replace(/[-_\s]/g, '');
+          if (pId === cleanCode || pCode === cleanCode) return true;
+        }
       } catch(e) {}
       return false;
     },
@@ -81,9 +92,34 @@
      * सर्वर से रीयल-टाइम मूल्य और स्वचालित डिस्काउंट प्राप्त करना (10% Auto-Attribution)
      * यदि ग्राहक का नंबर किसी सूत्रधार की सक्रिय लीड में है, तो 10% छूट अपने-आप लागू होगी।
      */
-    fetchServerQuote: async function(customerPhone, serviceId, couponCode) {
-      var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
-      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase();
+    fetchServerQuote: async function(arg1, arg2, arg3) {
+      var phone = '';
+      var serviceId = 'manglik_dosha';
+      var couponCode = '';
+
+      if (typeof arg1 === 'string' && /^\d{10}$/.test(arg1.replace(/\D/g, ''))) {
+        phone = arg1.replace(/\D/g, '').slice(-10);
+        serviceId = arg2 || 'manglik_dosha';
+        couponCode = arg3 || '';
+      } else if (typeof arg2 === 'string' && /^\d{10}$/.test(arg2.replace(/\D/g, ''))) {
+        serviceId = arg1 || 'manglik_dosha';
+        phone = arg2.replace(/\D/g, '').slice(-10);
+        couponCode = arg3 || '';
+      } else {
+        phone = String(arg1 || '').replace(/\D/g, '').slice(-10);
+        serviceId = arg2 || 'manglik_dosha';
+        couponCode = arg3 || '';
+      }
+
+      if (!phone) {
+        try {
+          var el = document.getElementById('mangalPhone') || document.getElementById('inMangalPhone');
+          phone = (el ? el.value : '') || localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_user_phone') || '';
+          phone = String(phone).replace(/\D/g, '').slice(-10);
+        } catch(e){}
+      }
+
+      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase().replace(/-/g, '');
       var apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
       try {
         var res = await fetch(apiBase + '/api/sutradhar/quote', {
@@ -110,7 +146,7 @@
      */
     createServerOrder: async function(customerPhone, customerEmail, serviceId, couponCode) {
       var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
-      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase();
+      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase().replace(/-/g, '');
       var apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
       try {
         var res = await fetch(apiBase + '/api/sutradhar/orders/create', {
@@ -137,25 +173,24 @@
 
     /**
      * कूपन सत्यापन व 10% डिस्काउंट की सटीक गणना
-     * 2-फैक्टर सत्यापन: जातक नंबर प्री-रजिस्ट्रेशन चेक
-     * @param {string} rawCode - ग्राहक द्वारा दर्ज किया गया कूपन कोड (सूत्रधार आईडी)
-     * @param {number} basePrice - मूल मूल्य (रुपयों में, जैसे 24000, 5100, 1100, 250)
-     * @param {string} customerPhone - ग्राहक का 10-अंकों का मोबाइल नंबर (वैकल्पिक/जाँच हेतु)
+     * केवल अधिकृत सूत्रधार कूपन अथवा जय हनुमान मास्टर की मान्य
      */
     validateAndCalculate: function(rawCode, basePrice, customerPhone) {
       var code = (rawCode || '').trim().toUpperCase();
+      var cleanCode = code.replace(/[-_\s]/g, '');
       basePrice = Number(basePrice) || 0;
 
       if (!code) {
         return {
           valid: false,
           code: '',
-          message: 'कृपया कूपन कोड या अपने सूत्रधार की आईडी (उदा. SD-105) दर्ज करें।'
+          message: 'कृपया कूपन कोड दर्ज करें।'
         };
       }
 
-      // १. मास्टर की बायपास (व्यवस्थापक / आचार्य हेतु)
-      if (code === 'MASTER' || code === 'SRAGODMODE' || (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode))) {
+      // १. जय हनुमान मास्टर की बायपास (100% निःशुल्क अधिकृत)
+      var isMaster = (cleanCode === 'JAIHANUMAN' || cleanCode === 'जयहनुमान' || code === 'JAI HANUMAN' || code === 'जय हनुमान' || code === 'JAI_HANUMAN' || code === 'MASTER' || (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode)));
+      if (isMaster) {
         return {
           valid: true,
           code: code,
@@ -168,16 +203,41 @@
           finalAmountPaise: 0,
           commission_eligible: false,
           lead_verified: true,
-          message: '✨ मास्टर की स्वीकृत! यह सत्र 100% निःशुल्क अधिकृत है।'
+          message: '✨ जय हनुमान मास्टर की स्वीकृत! 100% अधिकृत।'
         };
       }
 
-      // २. सूत्रधार यूनिक आईडी नियम (10% फ्लैट डिस्काउंट)
+      // २. सूत्रधार यूनिक कोड नियम (10% फ्लैट डिस्काउंट - बिना हाइफ़न)
       if (this.isValidCode(code)) {
+        var cleanSutraCode = code.replace(/-/g, '');
         var discountPct = 10;
         var discountAmt = Math.round(basePrice * 0.10);
         var finalAmt = Math.max(0, basePrice - discountAmt);
         var finalPaise = Math.round(finalAmt * 100);
+
+        return {
+          valid: true,
+          code: cleanSutraCode,
+          sutradhar_id: cleanSutraCode,
+          type: 'sutradhar_unique_id',
+          basePrice: basePrice,
+          discountPercent: discountPct,
+          discountAmount: discountAmt,
+          finalAmount: finalAmt,
+          finalAmountPaise: finalPaise,
+          customer_phone: customerPhone || '',
+          lead_verified: true,
+          commission_eligible: true,
+          message: '✨ सूत्रधार कूपन (' + cleanSutraCode + ') सफल! 10% की छूट लागू (बचत: ₹' + discountAmt.toLocaleString('en-IN') + ')'
+        };
+      }
+
+      return {
+        valid: false,
+        code: code,
+        message: 'अमान्य कूपन कोड। केवल अधिकृत सूत्रधार कूपन अथवा जय हनुमान मास्टर की मान्य है।'
+      };
+    },
 
         // जातक नंबर सत्यापन जांच (2-Factor Attribution)
         var cPhone = customerPhone || '';

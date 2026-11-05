@@ -3307,7 +3307,7 @@
       const email = candidateData.email || '';
       const sId = candidateData.sutradhar_id || ('SUTRA-' + (phone ? phone.slice(-4) : Math.floor(1000 + Math.random() * 9000)) + '-01');
       const promoSuffix = (phone ? phone.slice(-2) : 'A1') + Math.random().toString(36).substring(2, 4).toUpperCase();
-      const promoCode = candidateData.code || candidateData.coupon_code || ('SRA-' + (phone ? phone.slice(-4) : '0000') + promoSuffix.slice(0, 3));
+      const promoCode = (candidateData.code || candidateData.coupon_code || ('SRA' + (phone ? phone.slice(-4) : '0000') + promoSuffix.slice(0, 3))).replace(/-/g, '');
 
       registeredCandidate = {
         name: realName,
@@ -3787,8 +3787,8 @@
           email: session.email || '',
           phone: session.phone || '',
           initials: getInitials(name),
-          sutradhar_id: session.sutradhar_id || 'SRA-4B9F91',
-          code: session.code || 'SRA-4B9F91',
+          sutradhar_id: session.sutradhar_id || 'SRA4B9F91',
+          code: session.code || 'SRA4B9F91',
           upi_id: session.upi_id || 'astroraamji@ptaxis'
         };
       }
@@ -4476,7 +4476,7 @@
     }
 
     async function loadLiveSutradharLeads() {
-      const sutraId = registeredCandidate?.code || registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SRA-' + String(registeredCandidate.phone).slice(-6).toUpperCase()) : 'SRA-4B9F91');
+      const sutraId = (registeredCandidate?.code || registeredCandidate?.sutradhar_id || (registeredCandidate?.phone ? ('SRA' + String(registeredCandidate.phone).slice(-6).toUpperCase()) : 'SRA4B9F91')).replace(/-/g, '');
 
       try {
         const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
@@ -5909,8 +5909,8 @@
             phone: phone,
             email: email,
             whatsapp: wa,
-            sutradhar_id: 'SRA-4B9F91',
-            code: 'SRA-4B9F91',
+            sutradhar_id: 'SRA4B9F91',
+            code: 'SRA4B9F91',
             upi_id: 'astroraamji@ptaxis',
             role: 'अधिकृत सूत्रधार',
             onboarding_completed: true,
@@ -5971,8 +5971,8 @@
             phone: phone,
             email: email,
             whatsapp: wa,
-            sutradhar_id: 'SRA-4B9F91',
-            code: 'SRA-4B9F91',
+            sutradhar_id: 'SRA4B9F91',
+            code: 'SRA4B9F91',
             upi_id: 'astroraamji@ptaxis',
             role: 'अधिकृत सूत्रधार',
             onboarding_completed: true,

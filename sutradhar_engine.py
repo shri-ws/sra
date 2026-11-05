@@ -293,10 +293,10 @@ async def register_or_sync_sutradhar(req: RegisterSutradharRequest):
 
     if existing:
         s_id = existing["id"]
-        code = req.code or existing.get("code") or existing.get("sutradhar_id") or f"SUTRA-{clean_phone[-4:]}-01"
+        code = (req.code or existing.get("code") or existing.get("sutradhar_id") or f"SUTRA{clean_phone[-4:]}01").replace("-", "")
     else:
         s_id = f"SUTRA-{clean_phone[-4:]}-01"
-        code = req.code or f"SRA-{os.urandom(3).hex().upper()}"
+        code = (req.code or f"SRA{os.urandom(3).hex().upper()}").replace("-", "")
 
     sutradhar_doc = {
         "id": s_id,
@@ -557,13 +557,15 @@ async def get_checkout_quote(req: QuoteRequest):
                 continue
 
     input_code = (req.input_code or "").strip().upper()
+    clean_input_code = input_code.replace("-", "").replace(" ", "").replace("_", "")
+    is_master_code = clean_input_code in ("JAIHANUMAN", "जयहनुमान", "MASTER") or input_code in ("JAI HANUMAN", "जय हनुमान", "JAI_HANUMAN", "MASTER")
 
     # Case A: Active Lead exists for this customer!
     if active_lead:
-        sutra_code = active_lead.get("sutradhar_code") or active_lead.get("sutradhar_id")
+        sutra_code = (active_lead.get("sutradhar_code") or active_lead.get("sutradhar_id") or "").replace("-", "")
 
         # If customer typed a DIFFERENT code than their registered sutradhar, reject!
-        if input_code and input_code != sutra_code and input_code != "MASTER" and input_code != "SRAGODMODE":
+        if input_code and not is_master_code and clean_input_code != sutra_code:
             return {
                 "status": "error",
                 "valid": False,
@@ -597,8 +599,8 @@ async def get_checkout_quote(req: QuoteRequest):
 
     # Case B: No active lead, but customer typed a manual code
     if input_code:
-        # Check master code
-        if input_code in ("MASTER", "SRAGODMODE"):
+        # Check master code (जय हनुमान / JAIHANUMAN)
+        if is_master_code:
             return {
                 "status": "success",
                 "valid": True,
@@ -609,30 +611,38 @@ async def get_checkout_quote(req: QuoteRequest):
                 "discount_amount": base_price,
                 "net_price": 0,
                 "net_price_paise": 0,
-                "message": "✨ मास्टर की स्वीकृत! 100% अधिकृत।"
+                "message": "✨ जय हनुमान मास्टर की स्वीकृत! 100% अधिकृत।"
             }
 
-        # Check if code belongs to a valid Sutradhar
+        # Check if code belongs to a valid Sutradhar (No hyphens, no legacy RAM10/VIDYA10 codes)
         all_sutras = SutradharStore.query_all("sutradhars")
-        matched_sutra = next((s for s in all_sutras if s.get("code") == input_code or s.get("sutradhar_id") == input_code or re.match(r"^(SUTRA|SD)", input_code)), None)
+        matched_sutra = next(
+            (s for s in all_sutras 
+             if s.get("code", "").replace("-", "").upper() == clean_input_code or 
+                s.get("sutradhar_id", "").replace("-", "").upper() == clean_input_code or
+                (clean_input_code.startswith("SRA") and len(clean_input_code) >= 6) or
+                clean_input_code.startswith("SUTRA")), 
+            None
+        )
 
-        if matched_sutra or re.match(r"^(SUTRA|SD)", input_code) or input_code in ("VIDYA10", "RAM10", "SRA10"):
+        if matched_sutra or clean_input_code.startswith("SRA") or clean_input_code.startswith("SUTRA"):
             disc_amt = round(base_price * 0.10)
             net_amt = max(0, base_price - disc_amt)
-            s_id = matched_sutra.get("sutradhar_id") if matched_sutra else input_code
+            s_id = matched_sutra.get("sutradhar_id") if matched_sutra else clean_input_code
+            clean_s_code = (matched_sutra.get("code") if matched_sutra else clean_input_code).replace("-", "")
             return {
                 "status": "success",
                 "valid": True,
                 "has_active_lead": False,
                 "sutradhar_id": s_id,
-                "sutradhar_code": input_code,
+                "sutradhar_code": clean_s_code,
                 "service_id": service_id,
                 "base_price": base_price,
                 "discount_percent": 10,
                 "discount_amount": disc_amt,
                 "net_price": net_amt,
                 "net_price_paise": net_amt * 100,
-                "message": f"✨ कूपन ({input_code}) सफल! 10% छूट लागू।"
+                "message": f"✨ सूत्रधार कूपन ({clean_s_code}) सफल! 10% छूट लागू।"
             }
 
         return {
@@ -641,7 +651,7 @@ async def get_checkout_quote(req: QuoteRequest):
             "base_price": base_price,
             "discount_amount": 0,
             "net_price": base_price,
-            "message": "यह कूपन आपके लिए मान्य नहीं है।"
+            "message": "यह कूपन अमान्य है। केवल अधिकृत सूत्रधार कूपन अथवा जय हनुमान मास्टर की मान्य है।"
         }
 
     # Case C: Standard full price (no lead, no code)
