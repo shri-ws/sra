@@ -11,7 +11,7 @@ import argparse
 import datetime
 from pathlib import Path
 
-from .config import load_config, OUTPUT_DIR
+from .config import load_config, OUTPUT_DIR, BASE_DIR as ROOT_DIR
 from .content_curator import synthesize_daily_social_package, select_daily_topic
 from .video_engine import render_vertical_video
 from .publishers.reddit_publisher import publish_to_reddit
@@ -137,6 +137,15 @@ def run_daily_pipeline(
         
     with open(LATEST_STATUS_FILE, "w", encoding="utf-8") as f:
         json.dump(summary_record, f, indent=2, ensure_ascii=False)
+
+    # Keep static data/latest_social_package.json fresh for website admin
+    try:
+        data_pkg = ROOT_DIR / "data" / "latest_social_package.json"
+        data_pkg.parent.mkdir(exist_ok=True)
+        with open(data_pkg, "w", encoding="utf-8") as f:
+            json.dump(package, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"[Orchestrator] Warning copying to data/latest_social_package.json: {e}")
         
     print(f"\n=======================================================")
     print(f"✅ SRA AUTONOMOUS DAILY RUN COMPLETED SUCCESSFULLY!")
