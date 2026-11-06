@@ -335,6 +335,41 @@ def main():
     sm = sm.replace('</urlset>', entries + '\n</urlset>')
     sm_path.write_text(sm, encoding='utf-8')
 
+    # generate rss.xml (RSS 2.0 feed for Google & search aggregators)
+    import datetime
+    rss_items = []
+    sorted_arts = sorted(articles, key=lambda x: x['date'], reverse=True)
+    for a in sorted_arts[:30]:
+        y, m, d = a['date'].split('-')
+        dt = datetime.datetime(int(y), int(m), int(d), 6, 0, 0)
+        pub_date = dt.strftime('%a, %d %b %Y %H:%M:%S +0530')
+        rss_items.append(f"""    <item>
+      <title>{esc(a['title'])}</title>
+      <link>{SITE}/blog/{a['slug']}.html</link>
+      <guid isPermaLink="true">{SITE}/blog/{a['slug']}.html</guid>
+      <description>{esc(a['description'])}</description>
+      <category>{CATEGORY_HI.get(a['category'], 'वैदिक ज्योतिष')}</category>
+      <pubDate>{pub_date}</pubDate>
+    </item>""")
+
+    now_rfc = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30))).strftime('%a, %d %b %Y %H:%M:%S +0530')
+    rss_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>श्री राम जी एस्ट्रो — शोध ब्लॉग</title>
+    <link>{SITE}/blogs.html</link>
+    <description>बृहत्पाराशर होराशास्त्रम् एवं वैदिक ज्योतिष के प्रामाणिक शोध लेख व फलादेश सूत्र</description>
+    <language>hi</language>
+    <lastBuildDate>{now_rfc}</lastBuildDate>
+    <atom:link href="{SITE}/rss.xml" rel="self" type="application/rss+xml"/>
+{chr(10).join(rss_items)}
+  </channel>
+</rss>
+"""
+    (ROOT / 'rss.xml').write_text(rss_content, encoding='utf-8')
+    if (ROOT / 'public').exists():
+        (ROOT / 'public' / 'rss.xml').write_text(rss_content, encoding='utf-8')
+
 
 if __name__ == '__main__':
     main()

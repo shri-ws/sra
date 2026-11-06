@@ -14,6 +14,7 @@ from pathlib import Path
 from .config import load_config, OUTPUT_DIR, BASE_DIR as ROOT_DIR
 from .content_curator import synthesize_daily_social_package, select_daily_topic
 from .video_engine import render_vertical_video
+from .seo_agent import run_daily_seo
 from .publishers.reddit_publisher import publish_to_reddit
 from .publishers.quora_publisher import publish_to_quora
 from .publishers.facebook_publisher import publish_to_facebook
@@ -47,6 +48,15 @@ def run_daily_pipeline(
     config = load_config()
     
     # -------------------------------------------------------------
+    # Step 0: Autonomous SEO Article Generation, Sitemap, RSS & Live Push
+    # -------------------------------------------------------------
+    seo_res = {}
+    try:
+        seo_res = run_daily_seo(target_date)
+    except Exception as e:
+        print(f"[Orchestrator] Daily SEO agent notice: {e}")
+
+    # -------------------------------------------------------------
     # Step 1: Content Curation & Video Generation
     # -------------------------------------------------------------
     if not publish_only or not payload_json_path.exists():
@@ -54,6 +64,20 @@ def run_daily_pipeline(
         topic_data = select_daily_topic(target_date)
         package = synthesize_daily_social_package(topic_data)
         
+        # Attach today's live SEO article link to social payloads
+        if seo_res and seo_res.get("url"):
+            art_url = seo_res["url"]
+            art_title = seo_res.get("title", "आज का शास्त्रीय शोध लेख")
+            for plat in ["youtube", "facebook", "whatsapp"]:
+                if plat in package.get("publish_payloads", {}):
+                    cur_body = package["publish_payloads"][plat].get("description") or package["publish_payloads"][plat].get("text") or ""
+                    if art_url not in cur_body:
+                        addon = f"📖 {art_title}:\n👉 {art_url}\n\n"
+                        if "description" in package["publish_payloads"][plat]:
+                            package["publish_payloads"][plat]["description"] = addon + cur_body
+                        elif "text" in package["publish_payloads"][plat]:
+                            package["publish_payloads"][plat]["text"] = addon + cur_body
+
         print(f"[Pipeline] Step 2: Rendering 1080x1920 MP4 Video Reel & High-Res Cover...")
         media_res = render_vertical_video(package["video"], daily_output_dir)
         package["media"] = media_res
