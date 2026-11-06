@@ -113,33 +113,74 @@ def call_gemini_api(api_key: str, model: str, prompt: str) -> str:
 
 def build_video_scenes(topic_data: dict, short_theme: str) -> list:
     """
-    Five short scenes, each with its own narration, built for Shorts retention:
-    a question hook in the first 2 seconds, the shloka, the plain meaning,
-    one practical rule, and a subscribe + comment ending.
+    High-retention Dialogue Podcast format (Q&A conversation between Shishya and Acharya):
+    Shishya (Voice: hi-IN-SwaraNeural) asks the burning curious question,
+    Acharya (Voice: hi-IN-MadhurNeural) answers with classical BPHS authority and shlokas.
     """
     ch_num = topic_data["chapter_num"]
     summary = (topic_data.get("summary") or "").rstrip("।. ")
     shloka = topic_data["shloka"]
-    # Speak only the first line of the shloka (the full verse stays on screen) to keep the Short tight
+    bhashya = topic_data.get("bhashya", "")
     first_line = re.split(r"[।\n]", shloka)[0]
     shloka_spoken = re.sub(r"॥\s*[०-९\d]+\s*॥|[॥।]", " ", first_line).strip()
     topic = re.sub(r"\s*(रहस्य|सूत्र|विचार)$", "", short_theme)
+    
+    q1_display = f"गुरुजी, क्या **{topic}** से\nसच में सब बर्बाद हो जाता है?"
+    q2_display = "तो फिर लोग इतना\n**भयभीत** क्यों रहते हैं?"
+
     return [
-        {"kind": "hook", "badge": "⚡ क्या आप जानते हैं?",
-         "display": f"**{topic}**\nपर महर्षि पराशर का\nयह नियम जानते हैं?",
-         "narration": f"{topic} पर महर्षि पराशर का यह नियम बहुत कम लोग जानते हैं। अंत तक देखिए।"},
-        {"kind": "shloka", "badge": "📜 मूल श्लोक", "display": shloka,
-         "source": f"बृहत्पाराशरहोराशास्त्रम् • अध्याय {ch_num} • {topic_data['verse_label']}",
-         "narration": f"अध्याय {ch_num} में लिखा है — {shloka_spoken}।"},
-        {"kind": "meaning", "badge": "🔍 सरल अर्थ",
-         "display": summary or short_theme,
-         "narration": f"सरल शब्दों में — {summary or short_theme}।"},
-        {"kind": "tip", "badge": "💡 ज़रूरी नियम",
-         "display": "केवल राशि नहीं —\n**लग्नेश का बल** और\n**भाव-चलित** देखें",
-         "narration": "ध्यान रखिए — केवल राशि नहीं, लग्नेश का बल और भाव चलित में ग्रह की असली स्थिति देखिए।"},
-        {"kind": "cta", "badge": "🙏 आपकी बारी",
-         "display": "कमेंट में लिखें\n**अपना लग्न** 👇\nकुंडली देखें: **shriramjiastro.in**",
-         "narration": "अपनी कुंडली श्री रामजी एस्ट्रो डॉट इन पर देखिए। रोज़ एक शास्त्रीय सूत्र के लिए सब्सक्राइब कीजिए, और कमेंट में अपना लग्न लिखिए।"},
+        {
+            "speaker": "shishya",
+            "voice": "hi-IN-SwaraNeural",
+            "kind": "hook",
+            "badge": "🎙️ ज्योतिष संवाद • जिज्ञासा",
+            "q_text": q1_display,
+            "a_text": "शास्त्रीय समाधान प्रतीक्षित...",
+            "display": q1_display,
+            "narration": f"गुरुजी, क्या कुंडली में {topic} होने पर व्यक्ति का सब कुछ बर्बाद हो जाता है? इसका क्या सच है?"
+        },
+        {
+            "speaker": "acharya",
+            "voice": "hi-IN-MadhurNeural",
+            "kind": "shloka",
+            "badge": "📜 महर्षि पराशर समाधान",
+            "q_text": q1_display,
+            "a_text": f"बिल्कुल नहीं वत्स! पराशर कहते हैं:\n_{shloka_spoken}_",
+            "shloka": shloka,
+            "source": f"बृहत्पाराशरहोराशास्त्रम् • अध्याय {ch_num} • {topic_data['verse_label']}",
+            "display": shloka,
+            "narration": f"बिल्कुल नहीं वत्स! महर्षि पराशर अध्याय {ch_num} में स्पष्ट कहते हैं—{shloka_spoken}।"
+        },
+        {
+            "speaker": "shishya",
+            "voice": "hi-IN-SwaraNeural",
+            "kind": "hook",
+            "badge": "❓ शंका व प्रतिप्रश्न",
+            "q_text": q2_display,
+            "a_text": "शास्त्रीय समाधान प्रतीक्षित...",
+            "display": q2_display,
+            "narration": "तो फिर आम लोग इतना डरते क्यों हैं? इसका वास्तविक फल कैसे देखना चाहिए?"
+        },
+        {
+            "speaker": "acharya",
+            "voice": "hi-IN-MadhurNeural",
+            "kind": "meaning",
+            "badge": "💡 दैवज्ञ रहस्य",
+            "q_text": q2_display,
+            "a_text": f"क्योंकि केवल राशि मत देखिए!\n**लग्नेश का बल** और **भाव-चलित**\nमें ग्रह की असली स्थिति देखें।",
+            "display": f"क्योंकि केवल राशि मत देखिए!\n**लग्नेश का बल** और **भाव-चलित**\nमें ग्रह की असली स्थिति देखें।",
+            "narration": f"क्योंकि लोग अधूरा ज्ञान देखते हैं! पराशर के अनुसार—{summary or bhashya[:80]}। लग्नेश का बल और भाव-चलित देखना अनिवार्य है।"
+        },
+        {
+            "speaker": "both",
+            "voice": "hi-IN-MadhurNeural",
+            "kind": "cta",
+            "badge": "🙏 वैदिक समाधान",
+            "q_text": "कमेंट में लिखें **अपना लग्न** 👇",
+            "a_text": "मुफ़्त सटीक पत्रिका देखें:\n**shriramjiastro.in**",
+            "display": "कमेंट में लिखें **अपना लग्न** 👇\nकुंडली देखें: **shriramjiastro.in**",
+            "narration": "अपनी संपूर्ण जन्मपत्रिका 100% प्रामाणिक स्विस एफेमेरिस पर श्री रामजी एस्ट्रो डॉट इन पर निःशुल्क देखिए, और कमेंट में अपना लग्न लिखिए।"
+        }
     ]
 
 def generate_social_package(topic_data: dict = None) -> dict:

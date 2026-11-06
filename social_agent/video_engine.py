@@ -444,6 +444,108 @@ SCENE_CSS = """
          font-size: 58px; font-weight: 900; color: #fff; box-shadow: 0 18px 50px rgba(230, 33, 23, 0.55); }
   .cta-lines { margin-top: 50px; font-size: 54px; font-weight: 800; line-height: 1.5; white-space: pre-line; }
   .cta-lines em { font-style: normal; color: #ffd36b; }
+
+  /* Podcast Q&A Dialogue Layout */
+  .dialogue-container {
+    position: absolute;
+    top: 360px;
+    left: 55px;
+    right: 55px;
+    height: 1260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 30px;
+    z-index: 5;
+  }
+  .speaker-box {
+    border-radius: 32px;
+    padding: 40px 45px;
+    position: relative;
+    background: rgba(14, 18, 36, 0.75);
+    border: 2px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  }
+  .speaker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .speaker-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 28px;
+    border-radius: 40px;
+    font-size: 30px;
+    font-weight: 800;
+  }
+  .speaker-shishya .speaker-badge {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+  }
+  .speaker-acharya .speaker-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #1a0800;
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+  }
+  .speaker-wave {
+    font-size: 24px;
+    font-weight: 700;
+    color: #38bdf8;
+  }
+  .speaker-wave.gold {
+    color: #ffd700;
+  }
+  .speaker-wave.muted {
+    color: #94a3b8;
+    opacity: 0.6;
+  }
+  .speaker-box.active {
+    background: rgba(20, 26, 52, 0.96);
+  }
+  .speaker-box.active.speaker-shishya {
+    border: 4px solid #38bdf8;
+    box-shadow: 0 20px 50px rgba(56, 189, 248, 0.3), inset 0 0 35px rgba(56, 189, 248, 0.12);
+  }
+  .speaker-box.active.speaker-acharya {
+    border: 4px solid #ffd700;
+    box-shadow: 0 25px 60px rgba(255, 215, 0, 0.35), inset 0 0 40px rgba(255, 215, 0, 0.15);
+  }
+  .speaker-box.inactive {
+    opacity: 0.5;
+  }
+  .dialogue-text {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.45;
+    color: #ffffff;
+    white-space: pre-line;
+  }
+  .dialogue-text em {
+    font-style: normal;
+    color: #ffd36b;
+    text-shadow: 0 0 25px rgba(255, 211, 107, 0.6);
+  }
+  .dialogue-shloka {
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 42px;
+    line-height: 1.6;
+    color: #ffe8b3;
+    padding: 22px 25px;
+    background: rgba(30, 16, 10, 0.6);
+    border-radius: 20px;
+    border-left: 6px solid #d4af37;
+    margin: 15px 0 20px;
+  }
+  .dialogue-source {
+    font-size: 26px;
+    color: #e2c174;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
 """
 
 def _display_html(text: str) -> str:
@@ -455,20 +557,62 @@ def scene_html(scene: dict, branding: str) -> str:
     kind = scene.get("kind", "meaning")
     badge = html.escape(scene.get("badge", ""))
     display = scene.get("display", "")
-    if kind == "shloka":
-        stage = f'<div><div class="shloka">{html.escape(display)}</div><div class="source">{html.escape(scene.get("source", ""))}</div></div>'
+    speaker = scene.get("speaker")
+
+    # If dialogue mode with two characters
+    if speaker:
+        is_shishya = (speaker == "shishya")
+        is_both = (speaker == "both")
+        
+        shishya_active = "active" if is_shishya or is_both else "inactive"
+        shishya_text = scene.get("q_text", display if is_shishya else "गुरुजी, क्या यह दोष अनिष्टकारी है?")
+        shishya_indicator = '<span class="speaker-wave">🎙️ बोल रहे हैं...</span>' if is_shishya else '<span class="speaker-wave muted">जिज्ञासा</span>'
+        
+        acharya_active = "active" if not is_shishya or is_both else "inactive"
+        acharya_text = scene.get("a_text", display if not is_shishya else "शास्त्रीय समाधान सुनिए...")
+        acharya_indicator = '<span class="speaker-wave gold">🕉️ समाधान बोल रहे हैं...</span>' if (not is_shishya or is_both) else '<span class="speaker-wave muted">उत्तर प्रतीक्षित</span>'
+        
+        shloka_html = ""
+        if scene.get("source") and (not is_shishya or is_both):
+            shloka_val = scene.get("shloka", display)
+            shloka_html = f'<div class="dialogue-shloka">{html.escape(shloka_val)}</div><div class="dialogue-source">{html.escape(scene.get("source"))}</div>'
+
+        stage = f'''
+        <div class="dialogue-container">
+          <!-- Top Card: Shishya / Questioner -->
+          <div class="speaker-box speaker-shishya {shishya_active}">
+            <div class="speaker-header">
+              <div class="speaker-badge">🙏 जिज्ञासु शिष्य</div>
+              {shishya_indicator}
+            </div>
+            <div class="dialogue-text">{_display_html(shishya_text)}</div>
+          </div>
+
+          <!-- Bottom Card: Acharya / Sage -->
+          <div class="speaker-box speaker-acharya {acharya_active}">
+            <div class="speaker-header">
+              <div class="speaker-badge">🕉️ दैवज्ञ आचार्य</div>
+              {acharya_indicator}
+            </div>
+            {shloka_html}
+            <div class="dialogue-text">{_display_html(acharya_text)}</div>
+          </div>
+        </div>
+        '''
+    elif kind == "shloka":
+        stage = f'<div class="stage"><div><div class="shloka">{html.escape(display)}</div><div class="source">{html.escape(scene.get("source", ""))}</div></div></div>'
     elif kind == "cta":
-        stage = ('<div><div class="sub">🔔 SUBSCRIBE</div>'
-                 f'<div class="cta-lines">{_display_html(display)}</div></div>')
+        stage = ('<div class="stage"><div><div class="sub">🔔 SUBSCRIBE</div>'
+                 f'<div class="cta-lines">{_display_html(display)}</div></div></div>')
     else:
         size = 96 if kind == "hook" else (78 if len(display) < 70 else 64)
-        stage = f'<div class="display" style="font-size:{size}px">{_display_html(display)}</div>'
+        stage = f'<div class="stage"><div class="display" style="font-size:{size}px">{_display_html(display)}</div></div>'
     rings = "".join(f'<div class="ring" style="width:{d}px;height:{d}px"></div>' for d in (760, 980))
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{SCENE_CSS}</style></head>
 <body><div class="mandala"></div>{rings}<div class="frame"></div>
 <div class="top"><div class="om">ॐ</div><div class="brand">{html.escape(branding)}</div>
 <div class="badge">{badge}</div></div>
-<div class="stage">{stage}</div>
+{stage}
 <div class="foot">shriramjiastro.in</div></body></html>"""
 
 def render_html_png(html_code: str, output_path: Path) -> bool:
@@ -544,7 +688,8 @@ def render_scene_reel(scenes: list, output_dir: Path, voice: str, branding: str)
     timed, t = [], 0.0
     for i, sc in enumerate(scenes):
         mp3 = str(output_dir / f"scene_{i}.mp3")
-        words = asyncio.run(tts_with_words(sc["narration"], mp3, voice, rate))
+        scene_voice = sc.get("voice", voice)
+        words = asyncio.run(tts_with_words(sc["narration"], mp3, scene_voice, rate))
         dur = probe_duration(mp3) + SCENE_TAIL
         timed.append({**sc, "audio": mp3, "words": words, "start": t, "dur": dur})
         t += dur
