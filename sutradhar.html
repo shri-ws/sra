@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>श्री राम जी एस्ट्रो | सूत्रधार</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase (same config as rest of site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <style>
     :root { --sat: env(safe-area-inset-top,0px); --sab: env(safe-area-inset-bottom,0px); }
     body { padding-top: var(--sat); -webkit-font-smoothing: antialiased; }
@@ -54,6 +57,8 @@
         OTP भेजें
       </button>
       <div id="phoneErr" class="hidden text-sm text-red-600 bg-red-50 rounded-xl p-3 text-center"></div>
+      <!-- Invisible reCAPTCHA anchor for Firebase Phone Auth -->
+      <div id="sutradhar-recaptcha"></div>
     </div>
     <p class="text-center text-xs text-slate-400">केवल अधिकृत सूत्रधारों के लिए</p>
   </div>
@@ -471,6 +476,26 @@ let quizScore = 0;
 let selectedOptIdx = null;
 const QUIZ_PASS = 6;
 
+// Firebase config (same project as rest of site)
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
+  authDomain: "shriramjiastro-cee67.firebaseapp.com",
+  projectId: "shriramjiastro-cee67",
+  storageBucket: "shriramjiastro-cee67.firebasestorage.app",
+  messagingSenderId: "918915221342",
+  appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf"
+};
+let _fbApp = null;
+let _confirmationResult = null;
+let _recaptchaVerifier = null;
+
+function getFirebase() {
+  if (!_fbApp) {
+    _fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+  }
+  return _fbApp;
+}
+
 // -----------------------------------------------------------------------
 // QUIZ DATA
 // -----------------------------------------------------------------------
@@ -630,7 +655,7 @@ function goTo(screenId) {
 }
 
 // -----------------------------------------------------------------------
-// STEP 1: SEND OTP
+// STEP 1: SEND OTP (Firebase Phone Auth)
 // -----------------------------------------------------------------------
 async function sendOtp() {
   const phone = document.getElementById('phoneInput').value.trim().replace(/\D/g,'').slice(-10);
@@ -649,35 +674,22 @@ async function sendOtp() {
   btn.innerHTML = '<span class="spin"></span> OTP भेजा जा रहा है...';
 
   try {
-    const res = await fetch(`${API}/api/sutradhar/otp/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      errEl.textContent = data.detail || 'OTP नहीं भेजा जा सका।';
-      errEl.classList.remove('hidden');
-      return;
+    getFirebase();
+    if (!_recaptchaVerifier) {
+      _recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sutradhar-recaptcha', { size: 'invisible' });
     }
+    _confirmationResult = await firebase.auth().signInWithPhoneNumber('+91' + phone, _recaptchaVerifier);
 
-    const otpMsgEl = document.getElementById('otpSentMsg');
-    if (data.dev_otp) {
-      // Dev mode: show OTP on screen (remove in production when SMS is live)
-      otpMsgEl.textContent = `Dev mode — OTP: ${data.dev_otp}`;
-      otpMsgEl.className = 'text-sm font-bold text-blue-700';
-    } else {
-      otpMsgEl.textContent = `${phone} पर OTP भेजा गया।`;
-      otpMsgEl.className = 'text-sm text-slate-500';
-    }
-
+    document.getElementById('otpSentMsg').textContent = `+91 ${phone} पर OTP भेजा गया।`;
+    document.getElementById('otpSentMsg').className = 'text-sm text-slate-500';
     document.getElementById('otpInput').value = '';
     document.getElementById('otpErr').classList.add('hidden');
     goTo('screen-otp');
 
   } catch(e) {
-    errEl.textContent = 'नेटवर्क समस्या। पुनः प्रयास करें।';
+    // reCAPTCHA needs reset on error
+    if (_recaptchaVerifier) { try { _recaptchaVerifier.clear(); } catch(_) {} _recaptchaVerifier = null; }
+    errEl.textContent = e.message || 'OTP नहीं भेजा जा सका। पुनः प्रयास करें।';
     errEl.classList.remove('hidden');
   } finally {
     btn.disabled = false;
@@ -686,7 +698,7 @@ async function sendOtp() {
 }
 
 // -----------------------------------------------------------------------
-// STEP 2: VERIFY OTP
+// STEP 2: VERIFY OTP (Firebase confirm)
 // -----------------------------------------------------------------------
 async function verifyOtp() {
   const otp = document.getElementById('otpInput').value.trim();
@@ -704,32 +716,27 @@ async function verifyOtp() {
   btn.innerHTML = '<span class="spin"></span> सत्यापित हो रहा है...';
 
   try {
-    const res = await fetch(`${API}/api/sutradhar/otp/verify`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: pendingPhone, otp })
-    });
-    const data = await res.json();
+    if (!_confirmationResult) throw new Error('OTP session expired. Please resend.');
+    await _confirmationResult.confirm(otp);
 
-    if (!res.ok) {
-      errEl.textContent = data.detail || 'OTP गलत है।';
-      errEl.classList.remove('hidden');
-      return;
-    }
+    // OTP verified by Firebase — now check if registered sutradhar
+    const res = await fetch(`${API}/api/sutradhar/login?phone=${encodeURIComponent(pendingPhone)}`);
 
-    if (data.exists && data.sutradhar) {
-      // Returning user — go directly to app
+    if (res.ok) {
+      const data = await res.json();
       profile = data.sutradhar;
       localStorage.setItem('sra_sutradhar_session', JSON.stringify(profile));
       localStorage.setItem('sra_quiz_passed_' + profile.phone, '1');
       goToApp();
     } else {
-      // New user — go to registration form
+      // New user — go to registration
       goTo('screen-register');
     }
 
   } catch(e) {
-    errEl.textContent = 'नेटवर्क समस्या। पुनः प्रयास करें।';
+    errEl.textContent = e.code === 'auth/invalid-verification-code'
+      ? 'OTP गलत है। पुनः प्रयास करें।'
+      : (e.message || 'सत्यापन विफल। पुनः OTP मंगाएं।');
     errEl.classList.remove('hidden');
   } finally {
     btn.disabled = false;
