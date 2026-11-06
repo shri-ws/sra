@@ -113,9 +113,9 @@ def call_gemini_api(api_key: str, model: str, prompt: str) -> str:
 
 def build_video_scenes(topic_data: dict, short_theme: str) -> list:
     """
-    High-retention Dialogue Podcast format (Q&A conversation between Shishya and Acharya):
-    Shishya (Voice: hi-IN-SwaraNeural) asks the burning curious question,
-    Acharya (Voice: hi-IN-MadhurNeural) answers with classical BPHS authority and shlokas.
+    High-retention single-narrator cinematic format with human conversational pacing:
+    Warm, curious hook -> Classical Parashara shloka -> Plain human explanation ->
+    Actionable kundli check rule -> Direct, warm invitation to check chart & comment.
     """
     ch_num = topic_data["chapter_num"]
     summary = (topic_data.get("summary") or "").rstrip("।. ")
@@ -124,62 +124,38 @@ def build_video_scenes(topic_data: dict, short_theme: str) -> list:
     first_line = re.split(r"[।\n]", shloka)[0]
     shloka_spoken = re.sub(r"॥\s*[०-९\d]+\s*॥|[॥।]", " ", first_line).strip()
     topic = re.sub(r"\s*(रहस्य|सूत्र|विचार)$", "", short_theme)
-    
-    q1_display = f"गुरुजी, क्या **{topic}** से\nसच में सब बर्बाद हो जाता है?"
-    q2_display = "तो फिर लोग इतना\n**भयभीत** क्यों रहते हैं?"
 
     return [
         {
-            "speaker": "shishya",
-            "voice": "hi-IN-SwaraNeural",
             "kind": "hook",
-            "badge": "🎙️ ज्योतिष संवाद • जिज्ञासा",
-            "q_text": q1_display,
-            "a_text": "शास्त्रीय समाधान प्रतीक्षित...",
-            "display": q1_display,
-            "narration": f"गुरुजी, क्या कुंडली में {topic} होने पर व्यक्ति का सब कुछ बर्बाद हो जाता है? इसका क्या सच है?"
+            "badge": "⚡ क्या आपकी कुंडली में है?",
+            "display": f"क्या आपकी कुंडली में भी\n**{topic}** है?\nज़रा ध्यान से सुनिए...",
+            "narration": f"क्या आपकी कुंडली में भी {topic} का योग बन रहा है? अक्सर लोग इसे लेकर भ्रमित रहते हैं, पर सच कुछ और है।"
         },
         {
-            "speaker": "acharya",
-            "voice": "hi-IN-MadhurNeural",
             "kind": "shloka",
-            "badge": "📜 महर्षि पराशर समाधान",
-            "q_text": q1_display,
-            "a_text": f"बिल्कुल नहीं वत्स! पराशर कहते हैं:\n_{shloka_spoken}_",
-            "shloka": shloka,
-            "source": f"बृहत्पाराशरहोराशास्त्रम् • अध्याय {ch_num} • {topic_data['verse_label']}",
+            "badge": f"📜 अध्याय {ch_num} का गुप्त सूत्र",
             "display": shloka,
-            "narration": f"बिल्कुल नहीं वत्स! महर्षि पराशर अध्याय {ch_num} में स्पष्ट कहते हैं—{shloka_spoken}।"
+            "source": f"बृहत्पाराशरहोराशास्त्रम् • अध्याय {ch_num} • {topic_data['verse_label']}",
+            "narration": f"महर्षि पराशर ने बृहत्पाराशर होराशास्त्र में साफ़ कहा है—{shloka_spoken}।"
         },
         {
-            "speaker": "shishya",
-            "voice": "hi-IN-SwaraNeural",
-            "kind": "hook",
-            "badge": "❓ शंका व प्रतिप्रश्न",
-            "q_text": q2_display,
-            "a_text": "शास्त्रीय समाधान प्रतीक्षित...",
-            "display": q2_display,
-            "narration": "तो फिर आम लोग इतना डरते क्यों हैं? इसका वास्तविक फल कैसे देखना चाहिए?"
-        },
-        {
-            "speaker": "acharya",
-            "voice": "hi-IN-MadhurNeural",
             "kind": "meaning",
-            "badge": "💡 दैवज्ञ रहस्य",
-            "q_text": q2_display,
-            "a_text": f"क्योंकि केवल राशि मत देखिए!\n**लग्नेश का बल** और **भाव-चलित**\nमें ग्रह की असली स्थिति देखें।",
-            "display": f"क्योंकि केवल राशि मत देखिए!\n**लग्नेश का बल** और **भाव-चलित**\nमें ग्रह की असली स्थिति देखें।",
-            "narration": f"क्योंकि लोग अधूरा ज्ञान देखते हैं! पराशर के अनुसार—{summary or bhashya[:80]}। लग्नेश का बल और भाव-चलित देखना अनिवार्य है।"
+            "badge": "🔍 सीधा और सच्चा अर्थ",
+            "display": f"महर्षि पराशर का स्पष्ट नियम:\n**{summary or short_theme}**",
+            "narration": f"इसका सीधा अर्थ यह है कि, {summary or bhashya[:85]}। इसलिए बिना समझे कभी घबराना नहीं चाहिए।"
         },
         {
-            "speaker": "both",
-            "voice": "hi-IN-MadhurNeural",
+            "kind": "tip",
+            "badge": "💡 अपनी कुंडली में यह जाँचें",
+            "display": "केवल राशि नहीं —\n**लग्नेश का बल** और\n**भाव-चलित** में ग्रह की असली स्थिति देखें",
+            "narration": "एक बात हमेशा याद रखिए—केवल लग्न राशि मत देखिए, लग्नेश का बल और भाव-चलित में ग्रह की असली स्थिति परखिए।"
+        },
+        {
             "kind": "cta",
-            "badge": "🙏 वैदिक समाधान",
-            "q_text": "कमेंट में लिखें **अपना लग्न** 👇",
-            "a_text": "मुफ़्त सटीक पत्रिका देखें:\n**shriramjiastro.in**",
-            "display": "कमेंट में लिखें **अपना लग्न** 👇\nकुंडली देखें: **shriramjiastro.in**",
-            "narration": "अपनी संपूर्ण जन्मपत्रिका 100% प्रामाणिक स्विस एफेमेरिस पर श्री रामजी एस्ट्रो डॉट इन पर निःशुल्क देखिए, और कमेंट में अपना लग्न लिखिए।"
+            "badge": "🙏 अपना लग्न बताएं",
+            "display": "कमेंट में लिखें **अपना लग्न** 👇\nसटीक पत्रिका: **shriramjiastro.in**",
+            "narration": "अपनी पूरी जन्मपत्रिका श्री रामजी एस्ट्रो डॉट इन पर मुफ़्त देखिए। रोज़ एक प्रामाणिक सूत्र के लिए सब्सक्राइब कीजिए, और कमेंट में अपना लग्न बताइए।"
         }
     ]
 
@@ -361,11 +337,11 @@ Return a valid JSON object with exact keys:
 5. "facebook_post": Formatted Facebook post with emojis and clean line breaks
 6. "voice_script": Smooth, natural 45-second Hindi narration script for vertical video
 7. "hook_display": On-screen hook for the first 2 seconds of the Short: a Hindi question of at most 9 words about this theme that makes the viewer ask "is this in MY kundli?". Wrap the 1-3 key words in **double asterisks**. No fear-mongering, no invented statistics.
-8. "hook_narration": Spoken hook, Hindi, 1-2 short sentences (under 16 words), ends by telling the viewer to watch till the end.
-9. "meaning_narration": Plain, warm Hindi explanation of what this shloka/theme means for a person's chart (under 30 words). Stay faithful to the shloka and bhashya; do not invent rules.
-10. "tip_narration": One practical, classical rule the viewer can check in their own chart (under 26 words).
+8. "hook_narration": Warm, human, engaging spoken hook in conversational Hindi (under 18 words). Ask directly and naturally if this is in their chart. Sound like a knowledgeable, warm mentor talking one-on-one. NEVER say "अंत तक देखिए", "लाइक करें", or robotic filler phrases.
+9. "meaning_narration": Warm, human Hindi explanation of what this shloka means for a person's life (under 28 words). Keep it relatable and grounded in Parashara; do not sound like a machine.
+10. "tip_narration": One practical, eye-opening classical check in warm Hindi (under 24 words). e.g. checking lagnesha strength or bhava chalita.
 10b. "tip_display": The same rule as on-screen text, at most 10 Hindi words, key words in **double asterisks**.
-11. "cta_narration": Hindi ending under 24 words: check your kundli at "श्री रामजी एस्ट्रो डॉट इन", subscribe for one classical sutra daily, and write your lagna in the comments.
+11. "cta_narration": Warm, genuine ending (under 22 words): invite them to check their chart at "श्री रामजी एस्ट्रो डॉट इन", subscribe for daily wisdom, and write their lagna in the comments.
 DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
 """
             gemini_resp = call_gemini_api(api_key, model, prompt)
