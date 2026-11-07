@@ -148,10 +148,21 @@
       var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
       var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase().replace(/-/g, '');
       var apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+      var headers = { 'Content-Type': 'application/json' };
+      try {
+        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+          var token = await firebase.auth().currentUser.getIdToken();
+          if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
+          }
+        }
+      } catch (authErr) {
+        console.warn('[SraCouponEngine] Error obtaining Firebase token:', authErr);
+      }
       try {
         var res = await fetch(apiBase + '/api/sutradhar/orders/create', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify({
             customer_phone: phone,
             customer_email: customerEmail || '',

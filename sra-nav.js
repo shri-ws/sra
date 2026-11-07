@@ -141,7 +141,17 @@
       </div>
       <div class="sra-gd-account"></div>
       <div class="sra-gd-body"></div>
-      <div class="sra-gd-foot"><button type="button" class="sra-gn-app sra-gd-app"></button></div>`;
+      <div class="sra-gd-foot">
+        <button type="button" class="sra-gn-app sra-gd-app"></button>
+        <div class="sra-gd-support" style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);text-align:center;font-size:12px;color:#94a3b8;">
+          सहायता / Support: <a href="mailto:support@shriramjiastro.in" style="color:#d4af37;text-decoration:none;font-weight:600;">support@shriramjiastro.in</a>
+        </div>
+        <div class="sra-gd-wa-community" style="margin-top:8px;text-align:center;">
+          <a href="https://chat.whatsapp.com/CbJyZIEC5Lc02ytEVTGPIb" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.35);color:#25d366;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;text-decoration:none;">
+            💬 WhatsApp ज्योतिष समूह जॉइन करें ➔
+          </a>
+        </div>
+      </div>`;
     backdrop = document.createElement('div');
     backdrop.className = 'sra-gbackdrop';
 
@@ -441,7 +451,236 @@
     claimDrawerApi();
     window.addEventListener('load', claimDrawerApi);
     window.SRANav = { open: () => toggleDrawer(true), close: () => toggleDrawer(false) };
+
+    injectFooterSupport();
+    window.addEventListener('load', injectFooterSupport);
   }
+
+  function injectWhatsAppFloatingWidget() {
+    if (document.getElementById('sra-wa-float-btn')) return;
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', injectWhatsAppFloatingWidget);
+      return;
+    }
+    const groupUrl = "https://chat.whatsapp.com/CbJyZIEC5Lc02ytEVTGPIb";
+    
+    const container = document.createElement('div');
+    container.id = 'sra-wa-float-container';
+    container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;pointer-events:auto;';
+
+    container.innerHTML = `
+      <style>
+        #sra-wa-popover {
+          position: absolute;
+          bottom: 74px;
+          right: 0;
+          width: 320px;
+          background: #11141c;
+          border: 1.5px solid rgba(212, 175, 55, 0.4);
+          border-radius: 18px;
+          padding: 18px 18px 16px;
+          box-shadow: 0 16px 40px rgba(0,0,0,0.65), 0 0 25px rgba(37,211,102,0.15);
+          color: #ffffff;
+          display: none;
+          flex-direction: column;
+          gap: 12px;
+          animation: sraWaFadeIn 0.25s ease-out;
+          transform-origin: bottom right;
+        }
+        #sra-wa-popover.sra-open {
+          display: flex !important;
+        }
+        @keyframes sraWaFadeIn {
+          from { opacity: 0; transform: translateY(10px) scale(0.96); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .sra-wa-pop-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .sra-wa-pop-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+          color: #25D366;
+          background: rgba(37, 211, 102, 0.12);
+          padding: 4px 10px;
+          border-radius: 20px;
+          border: 1px solid rgba(37, 211, 102, 0.3);
+        }
+        .sra-wa-pop-close {
+          background: none;
+          border: none;
+          color: #94a3b8;
+          font-size: 16px;
+          cursor: pointer;
+          padding: 2px 6px;
+          line-height: 1;
+          border-radius: 6px;
+          transition: color 0.15s, background 0.15s;
+        }
+        .sra-wa-pop-close:hover {
+          color: #ffffff;
+          background: rgba(255,255,255,0.1);
+        }
+        .sra-wa-pop-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #f1d58a;
+          line-height: 1.3;
+        }
+        .sra-wa-pop-desc {
+          font-size: 13px;
+          line-height: 1.45;
+          color: #cbd5e1;
+        }
+        .sra-wa-pop-cta {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          background: #25D366;
+          color: #0b101b;
+          font-size: 14px;
+          font-weight: 800;
+          padding: 12px 16px;
+          border-radius: 12px;
+          text-decoration: none;
+          box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+          transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .sra-wa-pop-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 22px rgba(37,211,102,0.55);
+        }
+        .sra-wa-pop-sub {
+          font-size: 11px;
+          text-align: center;
+          color: #64748b;
+        }
+        #sra-wa-float-btn {
+          width: 58px;
+          height: 58px;
+          border-radius: 50%;
+          background: #25D366;
+          box-shadow: 0 6px 24px rgba(37,211,102,0.5), 0 2px 6px rgba(0,0,0,0.3);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #sra-wa-float-btn:hover {
+          transform: scale(1.08);
+        }
+        #sra-wa-float-btn:active {
+          transform: scale(0.95);
+        }
+        .sra-wa-badge-pulse {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 14px;
+          height: 14px;
+          background: #ff4757;
+          border: 2px solid #ffffff;
+          border-radius: 50%;
+          animation: sraWaPulse 2s infinite;
+        }
+        @keyframes sraWaPulse {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+          70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 71, 87, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+        }
+        .sra-wa-hint {
+          position: absolute;
+          right: 68px;
+          top: 50%;
+          transform: translateY(-50%);
+          white-space: nowrap;
+          background: rgba(17, 20, 28, 0.95);
+          border: 1px solid rgba(212, 175, 55, 0.4);
+          color: #f1d58a;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 7px 14px;
+          border-radius: 20px;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+          pointer-events: none;
+          opacity: 0.95;
+          transition: opacity 0.2s;
+        }
+        @media (max-width: 640px) {
+          #sra-wa-float-container { bottom: 20px; right: 20px; }
+          #sra-wa-popover { width: calc(100vw - 40px); max-width: 310px; right: 0; }
+          .sra-wa-hint { display: none; }
+        }
+      </style>
+
+      <div id="sra-wa-popover">
+        <div class="sra-wa-pop-top">
+          <span class="sra-wa-pop-badge">🟢 Live Vedic Community</span>
+          <button type="button" class="sra-wa-pop-close" id="sra-wa-close-btn" aria-label="Close">✕</button>
+        </div>
+        <div class="sra-wa-pop-title">Join Our WhatsApp Group ✨</div>
+        <div class="sra-wa-pop-desc">
+          Get daily authentic Panchang, BPHS planetary insights, auspicious Muhurtas, and classical remedies directly on WhatsApp.
+        </div>
+        <a class="sra-wa-pop-cta" href="${groupUrl}" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+          Join WhatsApp Group ➔
+        </a>
+        <div class="sra-wa-pop-sub">Direct access • Free & spam-free community</div>
+      </div>
+
+      <button type="button" id="sra-wa-float-btn" aria-label="Join WhatsApp Group for daily updates">
+        <span class="sra-wa-hint">Daily Updates 💬</span>
+        <span class="sra-wa-badge-pulse"></span>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#ffffff">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+      </button>
+    `;
+
+    document.body.appendChild(container);
+
+    const popover = document.getElementById('sra-wa-popover');
+    const floatBtn = document.getElementById('sra-wa-float-btn');
+    const closeBtn = document.getElementById('sra-wa-close-btn');
+
+    floatBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      popover.classList.toggle('sra-open');
+    });
+
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      popover.classList.remove('sra-open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!container.contains(e.target)) {
+        popover.classList.remove('sra-open');
+      }
+    });
+  }
+
+  // Run floating widget independently
+  if (document.body) {
+    injectWhatsAppFloatingWidget();
+  } else {
+    document.addEventListener('DOMContentLoaded', injectWhatsAppFloatingWidget);
+  }
+  window.addEventListener('load', injectWhatsAppFloatingWidget);
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

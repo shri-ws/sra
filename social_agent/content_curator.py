@@ -159,6 +159,61 @@ def build_video_scenes(topic_data: dict, short_theme: str) -> list:
         }
     ]
 
+def build_video_scenes_en(topic_data: dict, theme_en: str) -> list:
+    """
+    Cinematic English vertical video scenes with pure Sanskrit shloka recitation
+    and crystal-clear English explanation, practical tips, and CTA.
+    """
+    ch_num = topic_data["chapter_num"]
+    shloka = topic_data["shloka"]
+    verse_lbl_en = re.sub(r"श्लोक", "Verse", topic_data.get("verse_label", "Verse"))
+    first_line = re.split(r"[।\n]", shloka)[0]
+    shloka_spoken = re.sub(r"॥\s*[०-९\d]+\s*॥|[॥।]", " ", first_line).strip()
+
+    return [
+        {
+            "kind": "hook",
+            "lang": "en",
+            "voice": "en-US-ChristopherNeural",
+            "badge": "VEDIC WISDOM",
+            "display": f"Is this rare\n**{theme_en}**\nin your birth chart?",
+            "narration": f"Do you have this rare {theme_en} in your birth chart? Sage Parashara reveals the classical truth."
+        },
+        {
+            "kind": "shloka",
+            "lang": "sa",
+            "voice": "hi-IN-MadhurNeural",
+            "badge": f"BPHS • CHAPTER {ch_num}",
+            "display": shloka,
+            "source": f"Brihat Parashara Hora Shastra • Chapter {ch_num} • {verse_lbl_en}",
+            "narration": shloka_spoken
+        },
+        {
+            "kind": "meaning",
+            "lang": "en",
+            "voice": "en-US-ChristopherNeural",
+            "badge": "SACRED MEANING",
+            "display": f"Sage Parashara's Principle:\n**{theme_en}**",
+            "narration": "This classical formula governs life trajectory and reveals the deeper karmic blueprint behind planetary combinations."
+        },
+        {
+            "kind": "tip",
+            "lang": "en",
+            "voice": "en-US-ChristopherNeural",
+            "badge": "CHART CHECK",
+            "display": "Never judge by sign alone —\ncheck **Ascendant Lord strength** &\n**Bhava Chalita** position",
+            "narration": "Always remember—never judge by sign alone. Verify your Ascendant Lord's potency and its true position in Bhava Chalita."
+        },
+        {
+            "kind": "cta",
+            "lang": "en",
+            "voice": "en-US-ChristopherNeural",
+            "badge": "YOUR BIRTH CHART",
+            "display": "Comment your **Rising Sign** 👇\nFree Chart: **shriramjiastro.in**",
+            "narration": "Calculate your authentic birth chart with precision at shriramjiastro.in. Subscribe for daily classical wisdom, and comment your rising sign."
+        }
+    ]
+
 def generate_social_package(topic_data: dict = None) -> dict:
     """
     Generate an authoritative, captivating, multi-platform social media package.
@@ -196,6 +251,7 @@ def generate_social_package(topic_data: dict = None) -> dict:
     # Standard trending hashtags
     trending_hashtags = "#jyotish #vedicastrology #astrology #kundli #rashifal #horoscope #parashara #shriramjiastro #astrologytips #sanatandharma #shorts #viralastrology"
     ig_hashtags = "#jyotish #vedicastrology #reels #kundli #astrology #rashifal #horoscope #parashara #shriramjiastro #trending #viralreels #astrologytips"
+    wa_group_url = "https://chat.whatsapp.com/CbJyZIEC5Lc02ytEVTGPIb"
 
     # 1. YouTube Title & Description
     scenes = build_video_scenes(topic_data, short_theme)
@@ -216,10 +272,45 @@ def generate_social_package(topic_data: dict = None) -> dict:
 ✔️ शुभ ग्रहों (गुरु, शुक्र) की दृष्टि और लग्नेश के बल का विचार करें।
 ✔️ नवग्रह शांति एवं वैदिक मंत्र जप से शुभ फलों में वृद्धि करें।
 
+💬 दैनिक शास्त्रीय ज्योतिष चर्चा एवं निःशुल्क मार्गदर्शन हेतु हमारे WhatsApp ग्रुप से जुड़ें:
+👉 {wa_group_url}
+
 🌐 अपनी संपूर्ण जन्मपत्रिका (100% प्रामाणिक स्विस एफेमेरिस DE431 गणना आधारित) अभी देखें:
 👉 https://shriramjiastro.in
 
 {trending_hashtags}
+"""
+
+    # English Channel (Channel 2) Scenes and Metadata
+    m = re.search(r"\(([^)]+)\)", theme)
+    theme_en = m.group(1).strip() if m else topic_data.get("chapter_english", "Vedic Wisdom")
+    verse_lbl_en = re.sub(r"श्लोक", "Verse", verse_lbl)
+    scenes_en = build_video_scenes_en(topic_data, theme_en)
+
+    yt_title_en = f"{theme_en} | Sage Parashara's Rule 🔱 #Shorts #VedicAstrology"
+    if len(yt_title_en) > 95:
+        yt_title_en = yt_title_en[:95]
+
+    yt_description_en = f"""✨ Sage Parashara Vedic Sutra: {theme_en} (BPHS Chapter {ch_num}) ✨
+
+📜 Original Sanskrit Shloka ({verse_lbl_en}):
+{shloka}
+
+🔍 Classical Wisdom & Meaning:
+In Brihat Parashara Hora Shastra, Maharishi Parashara reveals how specific planetary configurations shape intellect, fortune, and karmic destiny.
+
+💡 Essential Kundli Analysis Checklist:
+✔️ Verify the real planetary degrees in Sripati Bhava Chalita.
+✔️ Inspect the strength of your Ascendant Lord (Lagnesha) and benefic aspects (Jupiter, Venus).
+✔️ Perform daily mantra recitation and satvik karma to harmonize challenging transits.
+
+💬 Join our official Vedic Astrology WhatsApp Community for daily Sutras:
+👉 {wa_group_url}
+
+🌐 Explore your complete 100% authentic Vedic Birth Chart (NASA JPL DE431 Swiss Ephemeris):
+👉 https://shriramjiastro.in
+
+#vedicastrology #astrology #kundli #bphs #parashara #shriramjiastro #shorts #zodiac #jyotish
 """
 
     # 2. Instagram Caption
@@ -233,6 +324,9 @@ def generate_social_package(topic_data: dict = None) -> dict:
 {bhashya}
 
 💡 फलित सूत्र: केवल राशि नहीं, बल्कि श्रीपति भाव-चलित में ग्रह की वास्तविक स्थिति और लग्नेश का बल अवश्य देखें।
+
+💬 दैनिक ज्योतिष चर्चा एवं अध्ययन WhatsApp ग्रुप:
+👉 {wa_group_url}
 
 👉 अपनी संपूर्ण जन्मपत्रिका जांचें: https://shriramjiastro.in
 
@@ -253,6 +347,9 @@ _{shloka}_
 ✔️ अपनी लग्न कुंडली में लग्नेश और संबंधित भावेश की दृष्टि अवश्य देखें।
 ✔️ श्रीपति भाव-चलित में ग्रह की संधि स्थिति जांचें।
 ✔️ शुभ फलों की प्राप्ति हेतु नित्य वैदिक मंत्र जप करें।
+
+💬 *हमारे मुख्य ज्योतिष चर्चा WhatsApp समूह से जुड़ें:*
+👉 {wa_group_url}
 
 🌐 *अपनी संपूर्ण कुंडली व सटीक फलादेश अभी देखें:*
 👉 https://shriramjiastro.in
@@ -276,6 +373,9 @@ _{shloka}_
 ✔️ केवल राशि नहीं, बल्कि श्रीपति भाव-चलित में ग्रह की स्थिति जांचें।
 ✔️ शुभ फलों की प्राप्ति हेतु नित्य वैदिक मंत्र जप करें।
 
+💬 निःशुल्क वैदिक ज्योतिष ज्ञान, श्लोक व कुंडली चर्चा WhatsApp ग्रुप से जुड़ें:
+👉 {wa_group_url}
+
 🌐 अपनी कुंडली का 100% प्रामाणिक स्विस एफेमेरिस आधारित विश्लेषण करने के लिए आज ही विजिट करें:
 👉 https://shriramjiastro.in
 
@@ -297,6 +397,8 @@ _{shloka}_
 2. **षड्बल** में ग्रह का स्थान-बल और दिग्बल देखें।
 3. **श्रीपति भाव-चलित** में सुनिश्चित करें कि ग्रह भाव-मध्य के निकट है या भाव-संधि पर।
 
+💬 *दैनिक वैदिक ज्योतिष चर्चा और प्रामाणिक श्लोक अध्ययन के लिए हमारे [आधिकारिक WhatsApp समूह]({wa_group_url}) से जुड़ें।*
+
 🌐 *अधिक शास्त्रीय अध्ययन एवं अपनी व्यक्तिगत जन्मपत्रिका के सटीक विश्लेषण के लिए आप [श्री रामजी एस्ट्रो (Shri Ramji Astro)](https://shriramjiastro.in) देख सकते हैं।*
 """
 
@@ -314,6 +416,8 @@ _{shloka}_
 {bhashya}
 
 ---
+💬 *Join our Vedic Astrology study & discussion WhatsApp group:* {wa_group_url}
+
 🌐 *Authentic Parashara Calculations powered by Swiss Ephemeris (JPL DE431) at [Shri Ramji Astro](https://shriramjiastro.in)*
 """
 
@@ -327,7 +431,9 @@ Shloka: {shloka}
 Bhashya: {bhashya}
 
 Website to promote: https://shriramjiastro.in
+WhatsApp Group to promote: {wa_group_url}
 Required Hashtags: #jyotish #vedicastrology #astrology #kundli #parashara #shriramjiastro
+Always include both the website link and the WhatsApp group invite link ({wa_group_url}) in youtube_description, youtube_description_en, instagram_caption, facebook_post, and whatsapp_post.
 
 Return a valid JSON object with exact keys:
 1. "youtube_title": Catchy, curiosity-inducing YouTube Shorts title under 95 characters (must end with "#Shorts #Jyotish")
@@ -342,6 +448,15 @@ Return a valid JSON object with exact keys:
 10. "tip_narration": One practical, eye-opening classical check in warm Hindi (under 24 words). e.g. checking lagnesha strength or bhava chalita.
 10b. "tip_display": The same rule as on-screen text, at most 10 Hindi words, key words in **double asterisks**.
 11. "cta_narration": Warm, genuine ending (under 22 words): invite them to check their chart at "श्री रामजी एस्ट्रो डॉट इन", subscribe for daily wisdom, and write their lagna in the comments.
+12. "youtube_title_en": Catchy, curiosity-inducing English Shorts title under 90 characters (must end with "#Shorts #VedicAstrology")
+13. "youtube_description_en": Full engaging English description with theme, shloka, meaning, tips, website link, and hashtags
+14. "hook_display_en": On-screen English hook under 9 words with key words in **double asterisks**
+15. "hook_narration_en": Spoken English hook in warm, authoritative voice under 18 words
+16. "meaning_display_en": English display text under 14 words with key words in **double asterisks**
+17. "meaning_narration_en": Clear, eloquent English explanation of this shloka under 28 words
+18. "tip_display_en": English display text under 10 words with key words in **double asterisks**
+19. "tip_narration_en": Spoken practical chart check in English under 22 words
+20. "cta_narration_en": Spoken English ending under 20 words inviting them to shriramjiastro.in
 DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
 """
             gemini_resp = call_gemini_api(api_key, model, prompt)
@@ -375,19 +490,42 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
                 hook_display = (enhanced.get("hook_display") or "").strip()
                 if hook_display and len(hook_display) <= 70:
                     scenes[0]["display"] = hook_display
-                print("[Curator] Content successfully enhanced via Gemini AI!")
+
+                # Channel 2 (English) enhancements
+                yt_title_en = enhanced.get("youtube_title_en", yt_title_en)
+                yt_description_en = enhanced.get("youtube_description_en", yt_description_en)
+                limits_en = {"hook": ("hook_narration_en", 160), "meaning": ("meaning_narration_en", 300),
+                             "tip": ("tip_narration_en", 240), "cta": ("cta_narration_en", 240)}
+                tip_display_en = (enhanced.get("tip_display_en") or "").strip()
+                for sc in scenes_en:
+                    key, cap = limits_en.get(sc["kind"], (None, 0))
+                    val = (enhanced.get(key) or "").strip() if key else ""
+                    if val and len(val) <= cap:
+                        sc["narration"] = val
+                        if sc["kind"] == "tip" and tip_display_en and len(tip_display_en) <= 80:
+                            sc["display"] = tip_display_en
+                hook_display_en = (enhanced.get("hook_display_en") or "").strip()
+                if hook_display_en and len(hook_display_en) <= 70:
+                    scenes_en[0]["display"] = hook_display_en
+                meaning_display_en = (enhanced.get("meaning_display_en") or "").strip()
+                if meaning_display_en and len(meaning_display_en) <= 80:
+                    scenes_en[2]["display"] = meaning_display_en
+                print("[Curator] Content successfully enhanced via Gemini AI (Hindi & English)!")
         except Exception as e:
             print(f"[Curator] Note: Using built-in canonical BPHS synthesis ({e})")
 
-    # Safety check on YouTube title length
+    # Safety check on YouTube title lengths
     if len(yt_title) > 98:
         yt_title = yt_title[:95]
+    if len(yt_title_en) > 98:
+        yt_title_en = yt_title_en[:95]
 
     return {
         "date": topic_data["date"],
         "topic": topic_data,
         "video": {
             "title": f"BPHS सूत्र: {short_theme}",
+            "lang": "hi",
             "voice_script": voice_script,
             "scenes": scenes,
             "slides": [
@@ -397,10 +535,22 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
                 {"heading": "🕉️ अचूक वैदिक उपाय", "body": slide_4_remedy, "duration": 10}
             ]
         },
+        "video_en": {
+            "title": f"BPHS: {theme_en}",
+            "lang": "en",
+            "voice": "en-US-ChristopherNeural",
+            "branding": "SHRI RAMJI ASTRO • VEDIC WISDOM",
+            "scenes": scenes_en
+        },
         "youtube": {
             "title": yt_title,
             "description": yt_description,
             "tags": ["Shorts", "Jyotish", "VedicAstrology", "Astrology", "Kundli", "Rashifal", "Horoscope", "BPHS", "Parashara", "ShriRamjiAstro"]
+        },
+        "youtube_channel2": {
+            "title": yt_title_en,
+            "description": yt_description_en,
+            "tags": ["Shorts", "VedicAstrology", "Astrology", "Kundli", "Horoscope", "BPHS", "Parashara", "ShriRamjiAstro", "Zodiac", "SpiritualWisdom"]
         },
         "instagram": {
             "caption": ig_caption

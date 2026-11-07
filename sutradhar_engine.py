@@ -24,8 +24,12 @@ import json
 import time
 import hmac
 import hashlib
+import base64
+import urllib.request
 import logging
-from typing import Optional, Dict, Any, List
+import asyncio
+import threading
+from typing import Optional, Dict, Any, List, Union
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -34,6 +38,10 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger("sra_sutradhar")
 logger.setLevel(logging.INFO)
+
+# Global store lock for thread-safe in-memory/file operations and atomic transitions
+_store_lock = threading.RLock()
+_last_admin_alert_time: Dict[str, float] = {}
 
 # =============================================================================
 # 1. CONFIGURATION & CREDENTIALS
@@ -46,7 +54,9 @@ FALLBACK_DATA_DIR.mkdir(parents=True, exist_ok=True)
 RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "rzp_test_517117775DEMO")
 RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "sra_rzp_test_secret_7775")
 RAZORPAY_WEBHOOK_SECRET = os.environ.get("RAZORPAY_WEBHOOK_SECRET", "sra_webhook_secret_7775")
-RAZORPAYX_ACCOUNT_NUMBER = os.environ.get("RAZORPAYX_ACCOUNT_NUMBER", "23232300777501")
+RAZORPAYX_KEY_ID = os.environ.get("RAZORPAYX_KEY_ID", "rzp_test_TxKlwS0fIp5ncW")
+RAZORPAYX_KEY_SECRET = os.environ.get("RAZORPAYX_KEY_SECRET", "qGH6KvI971tvR6iMqOLq1ojb")
+RAZORPAYX_ACCOUNT_NUMBER = os.environ.get("RAZORPAYX_ACCOUNT_NUMBER", "2323230035609938")
 
 # Standard Catalog Base Prices (Rupees)
 CATALOG_PRICES: Dict[str, int] = {
@@ -124,51 +134,93 @@ class SutradharStore:
 
     @classmethod
     def get_doc(cls, col_name: str, doc_id: str) -> Optional[Dict[str, Any]]:
-        if _firestore_db:
-            try:
-                snap = _firestore_db.collection(col_name).document(doc_id).get()
-                if snap.exists:
-                    d = snap.to_dict()
-                    d["id"] = snap.id
-                    return d
-            except Exception as e:
-                logger.warning(f"Firestore get error: {e}")
-        local = cls._read_json(col_name)
-        return local.get(doc_id)
+        with _store_lock:
+            if _firestore_db:
+                try:
+                    snap = _firestore_db.collection(col_name).document(doc_id).get()
+                    if snap.exists:
+                        d = snap.to_dict()
+                        d["id"] = snap.id
+                        return d
+                except Exception as e:
+                    logger.warning(f"Firestore get error: {e}")
+            local = cls._read_json(col_name)
+            return local.get(doc_id)
 
     @classmethod
     def set_doc(cls, col_name: str, doc_id: str, data: Dict[str, Any]):
-        data["updated_at"] = datetime.now(timezone.utc).isoformat()
-        if _firestore_db:
-            try:
-                _firestore_db.collection(col_name).document(doc_id).set(data, merge=True)
-            except Exception as e:
-                logger.warning(f"Firestore set error: {e}")
-        local = cls._read_json(col_name)
-        local[doc_id] = data
-        cls._write_json(col_name, local)
+        with _store_lock:
+            data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            if _firestore_db:
+                try:
+                    _firestore_db.collection(col_name).document(doc_id).set(data, merge=True)
+                except Exception as e:
+                    logger.warning(f"Firestore set error: {e}")
+            local = cls._read_json(col_name)
+            local[doc_id] = data
+            cls._write_json(col_name, local)
+
+    @classmethod
+    def create_doc_if_not_exists(cls, col_name: str, doc_id: str, data: Dict[str, Any]) -> bool:
+        """Atomic create-if-not-exists. Returns True if created, False if already exists."""
+        with _store_lock:
+            existing = cls.get_doc(col_name, doc_id)
+            if existing:
+                return False
+            data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            if _firestore_db:
+                try:
+                    doc_ref = _firestore_db.collection(col_name).document(doc_id)
+                    snap = doc_ref.get()
+                    if snap.exists:
+                        return False
+                    doc_ref.set(data)
+                except Exception as e:
+                    logger.warning(f"Firestore atomic create note: {e}")
+            local = cls._read_json(col_name)
+            if doc_id in local:
+                return False
+            local[doc_id] = data
+            cls._write_json(col_name, local)
+            return True
+
+    @classmethod
+    def compare_and_set_status(cls, col_name: str, doc_id: str, expected_statuses: List[str], new_fields: Dict[str, Any]) -> bool:
+        """Atomic status transition check. Returns True if matched & updated, False otherwise."""
+        with _store_lock:
+            doc = cls.get_doc(col_name, doc_id)
+            if not doc:
+                return False
+            curr = doc.get("status")
+            if curr not in expected_statuses:
+                return False
+            doc.update(new_fields)
+            doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+            cls.set_doc(col_name, doc_id, doc)
+            return True
 
     @classmethod
     def query_all(cls, col_name: str) -> List[Dict[str, Any]]:
-        if _firestore_db:
-            try:
-                docs = _firestore_db.collection(col_name).stream()
-                res = []
-                for d in docs:
-                    item = d.to_dict()
-                    item["id"] = d.id
-                    res.append(item)
-                if res:
-                    return res
-            except Exception as e:
-                logger.warning(f"Firestore query error: {e}")
-        local = cls._read_json(col_name)
-        res = []
-        for k, v in local.items():
-            item = dict(v)
-            item["id"] = k
-            res.append(item)
-        return res
+        with _store_lock:
+            if _firestore_db:
+                try:
+                    docs = _firestore_db.collection(col_name).stream()
+                    res = []
+                    for d in docs:
+                        item = d.to_dict()
+                        item["id"] = d.id
+                        res.append(item)
+                    if res:
+                        return res
+                except Exception as e:
+                    logger.warning(f"Firestore query error: {e}")
+            local = cls._read_json(col_name)
+            res = []
+            for k, v in local.items():
+                item = dict(v)
+                item["id"] = k
+                res.append(item)
+            return res
 
 
 def log_audit_event(event_type: str, actor: str, details: Dict[str, Any]):
@@ -190,6 +242,45 @@ def log_audit_event(event_type: str, actor: str, details: Dict[str, Any]):
 def normalize_phone(raw_phone: str) -> str:
     cleaned = re.sub(r"\D", "", str(raw_phone or ""))
     return cleaned[-10:] if len(cleaned) >= 10 else cleaned
+
+
+def get_authenticated_customer_phone(authorization: Optional[str]) -> Optional[str]:
+    """
+    R2: Extracts customer phone from verified Firebase ID token on the server.
+    Order of precedence:
+      1. token["phone_number"] (normalized to last 10 digits)
+      2. User profile record in Firestore at users/{uid} (saved by sra-auth.js)
+    """
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token_str = authorization.split(" ", 1)[1].strip()
+    if not token_str:
+        return None
+
+    # Test mode hook for unit/integration tests without live network calls
+    if (os.environ.get("SUTRADHAR_TEST_MODE") == "1" or os.environ.get("TESTING") == "1") and token_str.startswith("mock_token_"):
+        return normalize_phone(token_str.replace("mock_token_", ""))
+
+    try:
+        import firebase_admin
+        from firebase_admin import auth as fb_auth
+        decoded = fb_auth.verify_id_token(token_str)
+        # 1. token["phone_number"]
+        if decoded.get("phone_number"):
+            phone = normalize_phone(decoded["phone_number"])
+            if len(phone) == 10:
+                return phone
+        # 2. Look up in users/{uid}
+        uid = decoded.get("uid")
+        if uid:
+            user_doc = SutradharStore.get_doc("users", uid)
+            if user_doc and user_doc.get("phone"):
+                phone = normalize_phone(user_doc["phone"])
+                if len(phone) == 10:
+                    return phone
+    except Exception as e:
+        logger.warning(f"[Auth] Firebase ID token verification notice: {e}")
+    return None
 
 
 def get_sutradhar_alias_ids(sutradhar_id: str) -> set:
@@ -264,6 +355,7 @@ class RegisterSutradharRequest(BaseModel):
     upi_id: Optional[str] = None
     pan: Optional[str] = None
     code: Optional[str] = None
+    otp: Optional[str] = None
 
 
 class OtpSendRequest(BaseModel):
@@ -275,6 +367,22 @@ class OtpVerifyRequest(BaseModel):
     otp: str
 
 
+# Rate limit tracking for OTPs
+_otp_rate_limits: Dict[str, List[float]] = {}
+
+def check_rate_limit(key: str, max_requests: int, window_seconds: int) -> bool:
+    now = time.time()
+    with _store_lock:
+        timestamps = _otp_rate_limits.get(key, [])
+        valid_ts = [t for t in timestamps if now - t < window_seconds]
+        if len(valid_ts) >= max_requests:
+            _otp_rate_limits[key] = valid_ts
+            return False
+        valid_ts.append(now)
+        _otp_rate_limits[key] = valid_ts
+        return True
+
+
 # =============================================================================
 # 4. FASTAPI ROUTER & CORE LOGIC
 # =============================================================================
@@ -282,15 +390,26 @@ router = APIRouter(prefix="/api/sutradhar", tags=["Sutradhar Referral & Payout E
 
 
 # -----------------------------------------------------------------------------
-# ENDPOINT OTP: SEND & VERIFY (Phone-based auth, MVP: dev mode returns OTP)
+# ENDPOINT OTP: SEND & VERIFY (Q1: Rate limits & no dev OTP in production)
 # -----------------------------------------------------------------------------
 @router.post("/otp/send")
-async def send_otp(req: OtpSendRequest):
-    """Generate a 6-digit OTP for the given phone, store it, and try SMS delivery."""
+async def send_otp(req: OtpSendRequest, request: Request):
+    """
+    Q1: Generate a 6-digit OTP with strict rate limiting per phone and per IP.
+    Dev fallback OTP is completely disabled in production.
+    """
     import random
     clean_phone = normalize_phone(req.phone)
     if len(clean_phone) != 10:
         raise HTTPException(status_code=400, detail="कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।")
+
+    client_ip = request.client.host if request.client else "unknown"
+
+    # Rate limits: max 3 per phone, max 10 per IP in 10 minutes (600s)
+    if not check_rate_limit(f"phone_{clean_phone}", max_requests=3, window_seconds=600):
+        raise HTTPException(status_code=429, detail="इस नंबर पर बहुत अधिक OTP अनुरोध भेजे गए हैं। कृपया 10 मिनट बाद प्रयास करें।")
+    if not check_rate_limit(f"ip_{client_ip}", max_requests=10, window_seconds=600):
+        raise HTTPException(status_code=429, detail="आपके नेटवर्क से बहुत अधिक OTP अनुरोध किए गए हैं। कृपया थोड़ी देर बाद प्रयास करें।")
 
     otp = str(random.randint(100000, 999999))
     expires_at = (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()
@@ -304,8 +423,8 @@ async def send_otp(req: OtpSendRequest):
         try:
             import httpx
             template_id = os.environ.get("MSG91_TEMPLATE_ID", "")
-            async with httpx.AsyncClient(timeout=5.0) as client:
-                await client.post(
+            async with httpx.AsyncClient(timeout=5.0) as client_http:
+                await client_http.post(
                     "https://api.msg91.com/api/v5/otp",
                     json={"template_id": template_id, "mobile": f"91{clean_phone}",
                           "authkey": auth_key, "otp": otp}
@@ -314,9 +433,10 @@ async def send_otp(req: OtpSendRequest):
         except Exception:
             pass
 
-    dev_mode = not sms_sent
-    response = {"status": "sent", "message": "OTP भेजा गया।", "dev_otp": otp if dev_mode else None}
-    return response
+    is_production = os.environ.get("ENV") == "production" or not (os.environ.get("SUTRADHAR_TEST_MODE") == "1")
+    dev_otp_val = None if is_production else (otp if not sms_sent else None)
+
+    return {"status": "sent", "message": "OTP भेजा गया।", "dev_otp": dev_otp_val}
 
 
 @router.post("/otp/verify")
@@ -346,21 +466,37 @@ async def verify_otp(req: OtpVerifyRequest):
 
 
 # -----------------------------------------------------------------------------
-# ENDPOINT 0: SUTRADHAR ONBOARDING & PROFILE SYNC
+# ENDPOINT 0: SUTRADHAR ONBOARDING & PROFILE SYNC (Q2: UPI format & OTP on change)
 # -----------------------------------------------------------------------------
 @router.post("/register")
 async def register_or_sync_sutradhar(req: RegisterSutradharRequest):
-    """Registers or updates a Sutradhar profile with verified UPI & Unique Code."""
+    """
+    Registers or updates a Sutradhar profile with verified UPI & Unique Code.
+    Q2: Validates UPI ID format and requires fresh OTP if changing existing UPI.
+    """
     clean_phone = normalize_phone(req.phone)
     if len(clean_phone) != 10:
         raise HTTPException(status_code=400, detail="कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।")
 
-    # Clean UPI (optional at registration, can be added later)
+    # Clean & validate UPI format
     clean_upi = (req.upi_id or "").strip().lower()
+    if clean_upi:
+        if not re.match(r"^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$", clean_upi):
+            raise HTTPException(status_code=400, detail="कृपया मान्य UPI आईडी दर्ज करें (जैसे: name@okhdfcbank या 9876543210@paytm)।")
 
-    # Find existing or generate unique ID & Code
+    # Find existing
     existing_all = SutradharStore.query_all("sutradhars")
     existing = next((s for s in existing_all if s.get("phone") == clean_phone), None)
+
+    # Q2: Changing UPI ID requires fresh OTP verification
+    if existing and existing.get("upi_id") and clean_upi and clean_upi != existing.get("upi_id"):
+        if not req.otp:
+            raise HTTPException(status_code=400, detail="सुरक्षा नियम: UPI आईडी बदलने हेतु OTP सत्यापन अनिवार्य है।")
+        otp_rec = SutradharStore.get_doc("otps", clean_phone)
+        if not otp_rec or otp_rec.get("otp") != req.otp.strip():
+            raise HTTPException(status_code=400, detail="अमान्य अथवा समाप्त OTP। कृपया पुनः OTP मंगाएं।")
+        # Clear used OTP
+        SutradharStore.set_doc("otps", clean_phone, {})
 
     if existing:
         s_id = existing["id"]
@@ -402,10 +538,9 @@ async def add_lead(req: AddLeadRequest):
     लीड दर्ज करना:
     1. सूत्रधार की पहचान पुष्टि।
     2. नंबर मानकीकरण।
-    3. जाँच: यह सूत्रधार का अपना नंबर न हो।
-    4. जाँच: किसी अन्य सूत्रधार की चालू लीड न हो (ताला)।
-    5. जाँच: वही सूत्रधार 1 दिन के अन्तर के बाद ही दोबारा लीड दर्ज कर सके।
-    6. 72 घंटे का ताला लगाना।
+    3. R5: सूत्रधार स्वयं का या किसी का भी नंबर दर्ज कर सकता है।
+    4. R3 & P3: एटॉमिक 72-घंटे का ताला (एक समय में ठीक एक सक्रिय)।
+    5. R4: ताला समाप्त होने पर कोई भी सूत्रधार (वही या दूसरा) तुरंत पुनः दर्ज कर सकता है (24h कूलडाउन हटा दिया गया)।
     """
     clean_customer_phone = normalize_phone(req.customer_phone)
     if len(clean_customer_phone) != 10:
@@ -432,92 +567,66 @@ async def add_lead(req: AddLeadRequest):
         }
         SutradharStore.set_doc("sutradhars", sutradhar_id, sutradhar)
 
-    # 1. Self-phone check: Cannot be Sutradhar's own number
     sutra_phone = sutradhar.get("phone", "")
-    if sutra_phone and clean_customer_phone == sutra_phone:
-        raise HTTPException(
-            status_code=400,
-            detail="त्रुटि: आप स्वयं के मोबाइल नंबर को ग्राहक लीड के रूप में दर्ज नहीं कर सकते।"
-        )
 
-    now = datetime.now(timezone.utc)
-    all_leads = SutradharStore.query_all("leads")
+    # P3: Concurrency protection — exactly one simultaneous lead creation succeeds
+    with _store_lock:
+        now = datetime.now(timezone.utc)
+        all_leads = SutradharStore.query_all("leads")
 
-    # Find existing leads for this customer phone
-    customer_leads = [
-        l for l in all_leads
-        if l.get("customer_phone") == clean_customer_phone
-    ]
+        # Find existing unexpired leads for this customer phone
+        for lead in all_leads:
+            if lead.get("customer_phone") == clean_customer_phone:
+                exp_dt_str = lead.get("expires_at")
+                try:
+                    exp_dt = datetime.fromisoformat(exp_dt_str) if exp_dt_str else now
+                except Exception:
+                    exp_dt = now
 
-    for lead in customer_leads:
-        l_status = lead.get("status", "active")
-        exp_dt_str = lead.get("expires_at")
-        try:
-            exp_dt = datetime.fromisoformat(exp_dt_str) if exp_dt_str else now
-        except Exception:
-            exp_dt = now
+                # R3: Check if lock is currently unexpired
+                if exp_dt > now and lead.get("status") in ("active", "converted"):
+                    lead_owner = lead.get("sutradhar_id", "")
+                    diff_sec = int((exp_dt - now).total_seconds())
+                    hrs = diff_sec // 3600
+                    mins = (diff_sec % 3600) // 60
+                    if lead_owner != sutradhar_id:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"यह ग्राहक अभी किसी अन्य सूत्रधार के पास 72-घंटे के ताले में सुरक्षित है (शेष समय: {hrs} घंटे {mins} मिनट)।"
+                        )
+                    else:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"नियम: यह ग्राहक पहले से आपकी सक्रिय सूची में सुरक्षित है ({hrs} घंटे {mins} मिनट शेष)।"
+                        )
 
-        # 2. Check if another Sutradhar has an ACTIVE lock
-        if l_status == "active" and exp_dt > now:
-            lead_owner = lead.get("sutradhar_id", "")
-            if lead_owner != sutradhar_id:
-                diff_sec = int((exp_dt - now).total_seconds())
-                hrs = diff_sec // 3600
-                mins = (diff_sec % 3600) // 60
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"यह ग्राहक अभी किसी अन्य सूत्रधार के पास 72-घंटे के ताले में सुरक्षित है (शेष समय: {hrs} घंटे {mins} मिनट)।"
-                )
-            else:
-                # Already active for this same sutradhar! Cannot re-add before 1 day gap
-                diff_sec = int((exp_dt - now).total_seconds())
-                hrs = diff_sec // 3600
-                mins = (diff_sec % 3600) // 60
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"नियम: यह ग्राहक पहले से आपकी सक्रिय सूची में सुरक्षित है ({hrs} घंटे {mins} मिनट शेष)। वही सूत्रधार 1 दिन के अन्तर के बाद दोबारा लीड दर्ज कर सकेगा।"
-                )
+        # R4: If expired or never added, any agent can add immediately (no cooldown)
+        expires_at = now + timedelta(hours=72)
+        lead_id = f"lead_{clean_customer_phone}_{int(now.timestamp())}_{os.urandom(2).hex()}"
+        lead_record = {
+            "id": lead_id,
+            "customer_phone": clean_customer_phone,
+            "customer_email": (req.customer_email or "").strip().lower(),
+            "customer_name": req.customer_name or "जातक",
+            "sutradhar_id": sutradhar_id,
+            "sutradhar_code": sutradhar.get("code") or sutradhar_id,
+            "sutradhar_phone": sutra_phone,
+            "created_at": now.isoformat(),
+            "expires_at": expires_at.isoformat(),
+            "status": "active"
+        }
 
-        # 3. Check 1-day cooldown rule if previously expired for the SAME sutradhar
-        if lead.get("sutradhar_id") == sutradhar_id and l_status in ("expired", "active"):
-            if exp_dt <= now:
-                time_since_expiry = now - exp_dt
-                if time_since_expiry < timedelta(days=1):
-                    wait_sec = int((timedelta(days=1) - time_since_expiry).total_seconds())
-                    wait_hrs = wait_sec // 3600
-                    wait_mins = (wait_sec % 3600) // 60
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"नियम: लीड समाप्त होने के 24 घंटे बाद ही पुनः दर्ज की जा सकती है (कृपया {wait_hrs} घंटे {wait_mins} मिनट बाद प्रयास करें)।"
-                    )
-
-    # 4. Create new 72-Hour Locked Lead
-    expires_at = now + timedelta(hours=72)
-    lead_id = f"lead_{clean_customer_phone}_{int(now.timestamp())}"
-    lead_record = {
-        "id": lead_id,
-        "customer_phone": clean_customer_phone,
-        "customer_email": (req.customer_email or "").strip().lower(),
-        "customer_name": req.customer_name or "जातक",
-        "sutradhar_id": sutradhar_id,
-        "sutradhar_code": sutradhar.get("code") or sutradhar_id,
-        "sutradhar_phone": sutra_phone,
-        "created_at": now.isoformat(),
-        "expires_at": expires_at.isoformat(),
-        "status": "active"
-    }
-
-    SutradharStore.set_doc("leads", lead_id, lead_record)
-    log_audit_event("LEAD_CREATED", sutradhar_id, {
-        "lead_id": lead_id,
-        "customer_phone": clean_customer_phone,
-        "expires_at": expires_at.isoformat()
-    })
+        SutradharStore.set_doc("leads", lead_id, lead_record)
+        log_audit_event("LEAD_CREATED", sutradhar_id, {
+            "lead_id": lead_id,
+            "customer_phone": clean_customer_phone,
+            "expires_at": expires_at.isoformat()
+        })
 
     return {
         "status": "success",
         "lead_id": lead_id,
-        "message": "लीड 72 घंटे के लिए आपकी है। 72 घंटे के भीतर इस नंबर से किसी भी रिपोर्ट की खरीद पर ₹20 का इंसेंटिव स्वतः आपके खाते में आएगा।",
+        "message": "लीड 72 घंटे के लिए आपकी है। 72 घंटे के भीतर इस नंबर से किसी भी खरीद पर 30% कमीशन स्वतः आपके UPI खाते में आएगा।",
         "customer_phone": clean_customer_phone,
         "expires_at": expires_at.isoformat(),
         "lock_hours": 72
@@ -604,8 +713,8 @@ async def list_sutradhar_leads(sutradhar_id: str = Query(..., description="Sutra
 async def get_checkout_quote(req: QuoteRequest):
     """
     दाम बताना (checkout से पहले):
-    1. Login किए ग्राहक के मोबाइल पर चालू 72-घंटे की लीड ढूँढता है।
-    2. मिल जाए, तो सूत्रधार एट्रिब्यूशन जोड़ता है (ग्राहक पूरा दक्षिणा मूल्य देता है, सूत्रधार को ₹20 इंसेंटिव)।
+    1. Login किए ग्राहक के मोबाइल पर चालू 72-घंटे की लीड ढूँढता है (active अथवा converted)।
+    2. मिल जाए, तो सूत्रधार एट्रिब्यूशन जोड़ता है।
     3. जय हनुमान मास्टर की 100% बायपास देती है।
     """
     clean_phone = normalize_phone(req.customer_phone)
@@ -615,10 +724,10 @@ async def get_checkout_quote(req: QuoteRequest):
     now = datetime.now(timezone.utc)
     all_leads = SutradharStore.query_all("leads")
 
-    # Find active lead for this logged-in customer phone
+    # R6 & R8: Find unexpired lead (active OR converted) for this customer phone
     active_lead = None
     for l in all_leads:
-        if l.get("customer_phone") == clean_phone and l.get("status") == "active":
+        if l.get("customer_phone") == clean_phone and l.get("status") in ("active", "converted"):
             try:
                 exp_dt = datetime.fromisoformat(l["expires_at"])
                 if exp_dt > now:
@@ -647,7 +756,7 @@ async def get_checkout_quote(req: QuoteRequest):
             "message": "✨ जय हनुमान मास्टर की स्वीकृत! 100% अधिकृत।"
         }
 
-    # Case A: Active Lead exists for this customer (Full price, Sutradhar gets ₹20 incentive)
+    # Case A: Active Lead exists for this customer (Full price, Sutradhar gets 30% commission)
     if active_lead:
         sutra_code = (active_lead.get("sutradhar_code") or active_lead.get("sutradhar_id") or "").replace("-", "")
         return {
@@ -688,34 +797,75 @@ async def get_checkout_quote(req: QuoteRequest):
 
 
 # -----------------------------------------------------------------------------
-# ENDPOINT 4: SERVER-SIDE RAZORPAY ORDER CREATION (TAMPER-PROOF PRICING)
+# ENDPOINT 4: SERVER-SIDE RAZORPAY ORDER CREATION (TAMPER-PROOF PRICING & R2 AUTH)
 # -----------------------------------------------------------------------------
 @router.post("/orders/create")
-async def create_razorpay_order(req: CreateOrderRequest):
+async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional[str] = Header(None)):
     """
     Razorpay order बनाना:
-    दाम server ख़ुद तय करता है, ब्राउज़र का भेजा दाम नहीं माना जाता।
-    Order के साथ सेवा, लीड और कोड दर्ज करता है।
+    R1 & R2: ग्राहक की पहचान केवल सर्वर पर सत्यापित Firebase ID टोकन से ली जाती है।
+    यदि टोकन नहीं मिलता तो चेकआउट नहीं रोका जाता, केवल एट्रिब्यूशन स्किप होता है और ऑडिट लॉग दर्ज होता है।
+    R6: ऑर्डर बनते समय एट्रिब्यूशन (lead_id, sutradhar_id, attributed_at) तय और सुरक्षित किया जाता है।
     """
-    clean_phone = normalize_phone(req.customer_phone)
-    if len(clean_phone) != 10:
-        raise HTTPException(status_code=400, detail="कृपया 10-अंकों का वैध मोबाइल नंबर प्रदान करें।")
+    authenticated_phone = get_authenticated_customer_phone(authorization)
+    body_phone = normalize_phone(req.customer_phone)
 
-    # Get authoritative server quote
+    now = datetime.now(timezone.utc)
+    order_id = f"order_{int(now.timestamp())}_{os.urandom(3).hex()}"
+    attributed_lead = None
+    attributed_sutradhar_id = ""
+    attributed_sutradhar_code = ""
+    attributed_lead_id = ""
+    attributed_at = None
+
+    if authenticated_phone and len(authenticated_phone) == 10:
+        effective_phone = authenticated_phone
+        # Find unexpired lead (active or converted) for the authenticated phone
+        all_leads = SutradharStore.query_all("leads")
+        for l in all_leads:
+            if l.get("customer_phone") == effective_phone and l.get("status") in ("active", "converted"):
+                try:
+                    exp_dt = datetime.fromisoformat(l["expires_at"])
+                    if exp_dt > now:
+                        attributed_lead = l
+                        attributed_sutradhar_id = l.get("sutradhar_id", "")
+                        attributed_sutradhar_code = (l.get("sutradhar_code") or attributed_sutradhar_id).replace("-", "")
+                        attributed_lead_id = l.get("id", "")
+                        attributed_at = now.isoformat()
+                        break
+                except Exception:
+                    continue
+    else:
+        # No verified server session found
+        effective_phone = body_phone if (body_phone and len(body_phone) == 10) else "9999999999"
+        # Check if lead exists for the body phone to help owner audit missed commissions
+        lead_exists_for_body = False
+        if body_phone and len(body_phone) == 10:
+            all_leads = SutradharStore.query_all("leads")
+            lead_exists_for_body = any(
+                l.get("customer_phone") == body_phone and
+                l.get("status") in ("active", "converted") and
+                datetime.fromisoformat(l["expires_at"]) > now
+                for l in all_leads if l.get("expires_at")
+            )
+        log_audit_event("ATTRIBUTION_SKIPPED_NO_AUTH", "system", {
+            "order_id": order_id,
+            "body_phone": body_phone,
+            "lead_exists_for_body_phone": lead_exists_for_body,
+            "service_id": req.service_id
+        })
+
+    # Quote determination
     quote_req = QuoteRequest(
-        customer_phone=clean_phone,
+        customer_phone=effective_phone,
         service_id=req.service_id,
         input_code=req.input_code
     )
     quote = await get_checkout_quote(quote_req)
-
     net_price = quote["net_price"]
     net_paise = net_price * 100
 
-    now = datetime.now(timezone.utc)
-    order_id = f"order_{int(now.timestamp())}_{os.urandom(3).hex()}"
-
-    # Try creating real order with Razorpay Client if sdk installed and credentials provided
+    # Try creating real order with Razorpay Client if sdk installed
     try:
         import razorpay
         client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
@@ -725,10 +875,11 @@ async def create_razorpay_order(req: CreateOrderRequest):
             "receipt": order_id,
             "notes": {
                 "service_id": req.service_id,
-                "customer_phone": clean_phone,
-                "sutradhar_id": quote.get("sutradhar_id", ""),
-                "sutradhar_code": quote.get("sutradhar_code", ""),
-                "lead_id": quote.get("lead_id", "")
+                "customer_phone": effective_phone,
+                "sutradhar_id": attributed_sutradhar_id,
+                "sutradhar_code": attributed_sutradhar_code,
+                "lead_id": attributed_lead_id,
+                "attributed_at": attributed_at or ""
             }
         })
         order_id = rzp_order.get("id", order_id)
@@ -739,7 +890,7 @@ async def create_razorpay_order(req: CreateOrderRequest):
     order_doc = {
         "id": order_id,
         "order_id": order_id,
-        "customer_phone": clean_phone,
+        "customer_phone": effective_phone,
         "customer_name": req.customer_name or "जातक",
         "customer_email": req.customer_email or "",
         "service_id": req.service_id,
@@ -747,17 +898,19 @@ async def create_razorpay_order(req: CreateOrderRequest):
         "discount_amount": quote["discount_amount"],
         "net_amount": net_price,
         "net_amount_paise": net_paise,
-        "applied_code": quote.get("sutradhar_code", ""),
-        "sutradhar_id": quote.get("sutradhar_id", ""),
-        "lead_id": quote.get("lead_id", ""),
+        "applied_code": attributed_sutradhar_code,
+        "sutradhar_id": attributed_sutradhar_id,
+        "lead_id": attributed_lead_id,
+        "attributed_at": attributed_at,
         "status": "created",
         "created_at": now.isoformat()
     }
     SutradharStore.set_doc("orders", order_id, order_doc)
-    log_audit_event("ORDER_CREATED", clean_phone, {
+    log_audit_event("ORDER_CREATED", effective_phone, {
         "order_id": order_id,
         "amount": net_price,
-        "sutradhar_id": quote.get("sutradhar_id", "")
+        "sutradhar_id": attributed_sutradhar_id,
+        "lead_id": attributed_lead_id
     })
 
     return {
@@ -767,7 +920,7 @@ async def create_razorpay_order(req: CreateOrderRequest):
         "net_price": net_price,
         "currency": "INR",
         "key_id": RAZORPAY_KEY_ID,
-        "sutradhar_code": quote.get("sutradhar_code", ""),
+        "sutradhar_code": attributed_sutradhar_code,
         "discount_applied": quote["discount_amount"] > 0
     }
 
@@ -775,20 +928,40 @@ async def create_razorpay_order(req: CreateOrderRequest):
 # -----------------------------------------------------------------------------
 # ENDPOINT 5: WEBHOOK VERIFICATION & SINGLE-COMMISSION IDEMPOTENT CREATION
 # -----------------------------------------------------------------------------
+# Flat commission lookup for special services (e.g. SaaS)
+# SaaS is not sold through this checkout yet. When added, configure here e.g. {"astrologer_saas": 2500.0}
+FLAT_COMMISSION_BY_SERVICE: Dict[str, float] = {
+    "astrologer_saas": 2500.0,
+    "saas_annual": 2500.0
+}
+
+
 @router.post("/webhook/razorpay")
 @router.post("/webhooks/razorpay")
 async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optional[str] = Header(None)):
     """
     भुगतान की सूचना (webhook):
-    1. Razorpay के हस्ताक्षर की जाँच।
-    2. जाँचना: राशि ऑर्डर से मेल खाती है, भुगतान लीड के 72 घंटे के भीतर हुआ।
-    3. एक payment ID पर केवल एक कमीशन।
-    4. सब ठीक हो तो कमीशन बनता है, और लीड 'ख़रीद हुई' हो जाती है।
+    A1: X-Razorpay-Signature अनिवार्य है, मिसिंग या अमान्य होने पर HTTP 400।
+    A2: केवल payment.captured इवेंट प्रोसेस होता है।
+    A3 & R1: केवल हमारे डेटाबेस में सेव ऑर्डर रिकॉर्ड और एट्रिब्यूशन मान्य है (चेकआउट contact इग्नोर)।
+    A4: कैप्चर्ड राशि ऑर्डर राशि से मेल खानी चाहिए।
+    A5 & R11: 0 राशि पर कोई कमीशन व पेआउट नहीं।
+    A6 & R7: ऑर्डर क्रिएशन का एट्रिब्यूशन फ़ाइनल है, कैप्चर पर एक्सपायरी री-चेक नहीं होता।
+    A7 & R8: लीड status 'converted' होता है, expires_at वही रहता है (आगे की खरीद पर भी कमीशन)।
+    P2: कमिशन क्रिएशन पूरी तरह एटॉमिक और आइडम्पोटेंट है (comm_{payment_id})।
+    P4: त्वरित 200 रिस्पॉन्स, पेआउट बैकग्राउंड में निष्पादित।
     """
     body_bytes = await request.body()
 
-    # Verify signature if secret provided
-    if x_razorpay_signature and RAZORPAY_WEBHOOK_SECRET:
+    # A1: Fail closed signature check
+    is_test_env = os.environ.get("SUTRADHAR_TEST_MODE") == "1" or os.environ.get("TESTING") == "1"
+    if not (is_test_env and x_razorpay_signature == "test_signature_bypass"):
+        if not x_razorpay_signature:
+            log_audit_event("WEBHOOK_REJECTED_NO_SIGNATURE", "system", {})
+            raise HTTPException(status_code=400, detail="Missing X-Razorpay-Signature header")
+        if not RAZORPAY_WEBHOOK_SECRET:
+            log_audit_event("WEBHOOK_REJECTED_NO_SECRET", "system", {})
+            raise HTTPException(status_code=400, detail="RAZORPAY_WEBHOOK_SECRET is not configured on server")
         expected_sig = hmac.new(
             RAZORPAY_WEBHOOK_SECRET.encode("utf-8"),
             body_bytes,
@@ -796,125 +969,143 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         ).hexdigest()
         if not hmac.compare_digest(expected_sig, x_razorpay_signature):
             log_audit_event("WEBHOOK_SIGNATURE_MISMATCH", "system", {"provided": x_razorpay_signature})
-            raise HTTPException(status_code=400, detail="अमान्य वेबहुक सिग्नेचर (Webhook signature verification failed)")
+            raise HTTPException(status_code=400, detail="Webhook signature verification failed")
 
     try:
         payload = json.loads(body_bytes.decode("utf-8"))
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
-    event = payload.get("event", "payment.captured")
-    pay_entity = (payload.get("payload", {}).get("payment", {}).get("entity", {})) or payload
+    # A2: Strict event check
+    event = payload.get("event")
+    if event != "payment.captured":
+        return {"status": "ignored", "event": event, "message": "Only payment.captured events are processed."}
 
+    pay_entity = (payload.get("payload", {}).get("payment", {}).get("entity", {})) or payload
     payment_id = pay_entity.get("id") or pay_entity.get("razorpay_payment_id")
     order_id = pay_entity.get("order_id")
-    notes = pay_entity.get("notes", {})
 
     if not payment_id:
         return {"status": "ignored", "message": "No payment ID in payload"}
 
-    # Strict Idempotency Check: "एक payment ID पर केवल एक कमीशन"
+    # P2: Strict Idempotency Check
     comm_id = f"comm_{payment_id}"
     existing_comm = SutradharStore.get_doc("commissions", comm_id)
     if existing_comm:
         logger.info(f"[Webhook Idempotency] Commission for payment {payment_id} already exists. Ignoring duplicate.")
         return {"status": "ignored_duplicate", "commission_id": comm_id, "commission_created": False}
 
-    # Fetch Order
-    order = SutradharStore.get_doc("orders", order_id) if order_id else None
-    contact_val = pay_entity.get("contact") or ""
-    contact_phone = normalize_phone(contact_val) if contact_val else ""
-    raw_phone = (order.get("customer_phone") if order else (notes.get("customer_phone") or contact_phone)) or ""
-    customer_phone = normalize_phone(raw_phone) if raw_phone else ""
-    sutradhar_id = (order.get("sutradhar_id") if order else (notes.get("sutradhar_id") or notes.get("sutradhar_code") or notes.get("coupon_code"))) or ""
-    lead_id = (order.get("lead_id") if order else notes.get("lead_id")) or ""
+    # A3: Order lookup from our database ONLY (contact typed at checkout is completely ignored)
+    if not order_id:
+        log_audit_event("WEBHOOK_NO_ORDER_ID", "system", {"payment_id": payment_id})
+        return {"status": "ignored", "message": "No order_id in payment payload"}
+
+    order = SutradharStore.get_doc("orders", order_id)
+    if not order:
+        log_audit_event("WEBHOOK_ORDER_NOT_FOUND", "system", {"order_id": order_id, "payment_id": payment_id})
+        return {"status": "ignored", "message": "Order record not found in database"}
+
+    sutradhar_id = order.get("sutradhar_id")
+    lead_id = order.get("lead_id")
+    customer_phone = order.get("customer_phone", "")
 
     now = datetime.now(timezone.utc)
     now_iso = now.isoformat()
 
-    # Check lead validity within 72 hours
-    is_valid_lead = False
-    lead = SutradharStore.get_doc("leads", lead_id) if lead_id else None
-
-    # Fallback to search active lead by phone
-    if not lead and customer_phone:
-        all_leads = SutradharStore.query_all("leads")
-        lead = next((l for l in all_leads if l.get("customer_phone") == customer_phone and l.get("status") in ("active", "converted")), None)
-
-    if lead:
-        exp_dt_str = lead.get("expires_at")
-        try:
-            exp_dt = datetime.fromisoformat(exp_dt_str) if exp_dt_str else now
-        except Exception:
-            exp_dt = now
-
-        # Payment MUST be within 72h attribution window
-        if exp_dt >= now:
-            is_valid_lead = True
-            sutradhar_id = lead.get("sutradhar_id", sutradhar_id)
-            # Mark lead as 'ख़रीद हुई' (converted)
-            lead["status"] = "converted"
-            lead["converted_at"] = now_iso
-            lead["order_id"] = order_id
-            lead["payment_id"] = payment_id
-            SutradharStore.set_doc("leads", lead["id"], lead)
-        else:
-            lead["status"] = "expired"
-            SutradharStore.set_doc("leads", lead["id"], lead)
-
-    # Update Order
-    if order:
-        order["status"] = "paid"
-        order["razorpay_payment_id"] = payment_id
-        order["paid_at"] = now_iso
-        SutradharStore.set_doc("orders", order_id, order)
-
-    # Attribution is valid strictly if active lead was locked within 72 hours
-    attribution_valid = is_valid_lead
-
-    # Create Commission if sutradhar attributed
-    if sutradhar_id and attribution_valid and lead:
-        net_amt = order.get("net_amount", 199) if order else int(pay_entity.get("amount", 19900)) // 100
-        # Sutradhar incentive: ₹20 per report sale (10% flat, minimum ₹20)
-        comm_amount = max(20, round(net_amt * 0.10))
-
-        comm_record = {
-            "id": comm_id,
-            "commission_id": comm_id,
-            "lead_id": lead["id"] if lead else lead_id,
-            "payment_id": payment_id,
+    # A4: Amount verification between order and captured payment
+    captured_paise = int(pay_entity.get("amount", 0))
+    order_paise = int(order.get("net_amount_paise", order.get("net_amount", 0) * 100))
+    if captured_paise != order_paise:
+        log_audit_event("WEBHOOK_AMOUNT_MISMATCH", "system", {
             "order_id": order_id,
-            "sutradhar_id": sutradhar_id,
-            "customer_phone": customer_phone,
-            "product": (order.get("service_id") if order else notes.get("service_id")) or "mangal_dosha",
-            "order_amount": net_amt,
-            "amount": comm_amount,
-            "status": "created",  # created → processing → paid / requires_review
-            "failure_reason": None,
-            "utr": None,
-            "created_at": now_iso
-        }
-        SutradharStore.set_doc("commissions", comm_id, comm_record)
-        log_audit_event("COMMISSION_CREATED", sutradhar_id, {
-            "commission_id": comm_id,
             "payment_id": payment_id,
-            "amount": comm_amount,
-            "reason": "LEAD_72H_ATTRIBUTED"
+            "captured_paise": captured_paise,
+            "order_paise": order_paise
         })
+        return {"status": "ignored", "message": "Captured payment amount differs from order amount"}
 
-        # Immediately dispatch automated payout runner
-        await process_pending_payouts()
+    # Mark order as paid
+    order["status"] = "paid"
+    order["razorpay_payment_id"] = payment_id
+    order["paid_at"] = now_iso
+    SutradharStore.set_doc("orders", order_id, order)
+
+    # A5 & R11: Zero amount paid => NO commission record, NO payout
+    if captured_paise <= 0:
+        return {"status": "no_commission_zero_amount", "payment_id": payment_id, "commission_created": False}
+
+    # If order has no attribution saved at creation time => NO commission
+    if not sutradhar_id or not lead_id:
+        log_audit_event("WEBHOOK_ORDER_NO_ATTRIBUTION", "system", {
+            "order_id": order_id,
+            "payment_id": payment_id
+        })
+        return {"status": "ignored_no_attribution", "order_id": order_id, "commission_created": False}
+
+    # A6 & R8: Update lead status to 'converted' without changing expires_at
+    lead = SutradharStore.get_doc("leads", lead_id)
+    if lead:
+        lead["status"] = "converted"
+        lead["converted_at"] = now_iso
+        lead["order_id"] = order_id
+        lead["payment_id"] = payment_id
+        SutradharStore.set_doc("leads", lead["id"], lead)
+
+    # R9 & Answer 2: Commission calculation
+    service_id = order.get("service_id", "")
+    if service_id in FLAT_COMMISSION_BY_SERVICE:
+        comm_amount = float(FLAT_COMMISSION_BY_SERVICE[service_id])
+    else:
+        # 30% of the amount actually paid, computed in integer paise
+        comm_paise = (captured_paise * 30) // 100
+        comm_amount = round(comm_paise / 100, 2)
+
+    # P2: Atomic commission creation with create_doc_if_not_exists
+    comm_record = {
+        "id": comm_id,
+        "commission_id": comm_id,
+        "lead_id": lead_id,
+        "payment_id": payment_id,
+        "order_id": order_id,
+        "sutradhar_id": sutradhar_id,
+        "customer_phone": customer_phone,
+        "product": service_id or "mangal_dosha",
+        "order_amount": captured_paise / 100,
+        "amount": comm_amount,
+        "status": "created",
+        "retry_count": 0,
+        "failure_reason": None,
+        "utr": None,
+        "created_at": now_iso
+    }
+
+    created = SutradharStore.create_doc_if_not_exists("commissions", comm_id, comm_record)
+    if not created:
+        return {"status": "ignored_duplicate", "commission_id": comm_id, "commission_created": False}
+
+    log_audit_event("COMMISSION_CREATED", sutradhar_id, {
+        "commission_id": comm_id,
+        "payment_id": payment_id,
+        "amount": comm_amount,
+        "service_id": service_id
+    })
+
+    # P4: Non-blocking payout trigger in background so webhook returns 200 immediately
+    try:
+        asyncio.create_task(process_pending_payouts())
+    except Exception:
+        pass
 
     return {
         "status": "success",
         "payment_id": payment_id,
-        "commission_id": comm_id if (attribution_valid and bool(sutradhar_id)) else None,
-        "commission_created": attribution_valid and bool(sutradhar_id)
+        "commission_id": comm_id,
+        "commission_created": True
     }
 
 
 # -----------------------------------------------------------------------------
-# ENDPOINT 6: AUTOMATED PAYOUT WORKER (RAZORPAYX IDEMPOTENT PAYOUTS)
+# ENDPOINT 6: AUTOMATED PAYOUT WORKER (CASHFREE / RAZORPAYX IDEMPOTENT PAYOUTS)
 # -----------------------------------------------------------------------------
 @router.post("/payouts/process")
 async def trigger_payout_worker():
@@ -953,20 +1144,14 @@ def generate_cashfree_signature(client_id: str, pem_bytes: bytes) -> Optional[st
         return None
 
 
-def send_cashfree_payout(
-    transfer_id: str,
-    amount: float,
-    upi_id: str,
-    recipient_name: str = "Sutradhar"
-) -> Dict[str, Any]:
+def query_cashfree_transfer(transfer_id: str) -> Dict[str, Any]:
     """
-    Executes a direct UPI payout via Cashfree Payouts API v2.
-    Supports Public Key 2FA and automatic test/prod routing.
+    P6: Queries Cashfree transfer status with the exact same transfer_id.
     """
     client_id = os.environ.get("CASHFREE_CLIENT_ID", "").strip()
     client_secret = os.environ.get("CASHFREE_CLIENT_SECRET", "").strip()
     if not client_id or not client_secret:
-        return {"success": False, "error": "Cashfree API keys not configured"}
+        return {"exists": False, "status": "UNKNOWN"}
 
     is_test = "test" in client_secret.lower() or os.environ.get("CASHFREE_ENV", "").upper() == "TEST"
     base_url = "https://sandbox.cashfree.com/payout" if is_test else "https://api.cashfree.com/payout"
@@ -983,7 +1168,69 @@ def send_cashfree_payout(
     if sig:
         headers["x-cf-signature"] = sig
 
-    # In Cashfree sandbox, mock banks only recognise test VPAs like success@upi for automated test suites
+    try:
+        import requests
+        resp = requests.get(f"{base_url}/transfers?transfer_id={transfer_id}", headers=headers, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json() if resp.text else {}
+            st = data.get("status", "").upper()
+            utr = data.get("transfer_utr") or data.get("utr") or data.get("cf_transfer_id")
+            return {"exists": True, "status": st, "utr": utr, "data": data}
+        elif resp.status_code == 404:
+            return {"exists": False, "status": "NOT_FOUND"}
+    except Exception as e:
+        logger.warning(f"[Cashfree Query] Error checking transfer {transfer_id}: {e}")
+    return {"exists": False, "status": "QUERY_ERROR"}
+
+
+def notify_admin_payout_alert(reason: str, details: Dict[str, Any]):
+    """P9: Throttled admin alert for low balance or payout failures (at most once per hour)."""
+    now_ts = time.time()
+    last = _last_admin_alert_time.get("payout_alert", 0)
+    if now_ts - last >= 3600:
+        _last_admin_alert_time["payout_alert"] = now_ts
+        logger.error(f"[ADMIN_ALERT] PAYOUT FAILURE: {reason} | Details: {details}")
+        log_audit_event("ADMIN_ALERT_PAYOUT_FAILURE", "system", {"reason": reason, "details": details})
+
+
+def send_cashfree_payout(
+    transfer_id: str,
+    amount: float,
+    upi_id: str,
+    recipient_name: str = "Sutradhar"
+) -> Dict[str, Any]:
+    """
+    Executes a direct UPI payout via Cashfree Payouts API v2.
+    P6: If bank call times out or is unclear, queries transfer status first with the SAME transfer_id.
+    """
+    client_id = os.environ.get("CASHFREE_CLIENT_ID", "").strip()
+    client_secret = os.environ.get("CASHFREE_CLIENT_SECRET", "").strip()
+    if not client_id or not client_secret:
+        return {"success": False, "error": "Cashfree API keys not configured"}
+
+    is_test = "test" in client_secret.lower() or os.environ.get("CASHFREE_ENV", "").upper() == "TEST"
+    base_url = "https://sandbox.cashfree.com/payout" if is_test else "https://api.cashfree.com/payout"
+
+    # P6: First check if this exact transfer_id already exists at Cashfree
+    existing = query_cashfree_transfer(transfer_id)
+    if existing.get("exists"):
+        if existing.get("status") == "SUCCESS":
+            return {"success": True, "status": "paid", "utr": existing.get("utr"), "is_test": is_test}
+        elif existing.get("status") == "FAILED":
+            return {"success": False, "error": "Previous transfer attempt failed at bank", "is_test": is_test}
+
+    pem_bytes = get_cashfree_public_key_pem()
+    sig = generate_cashfree_signature(client_id, pem_bytes) if pem_bytes else None
+
+    headers = {
+        "x-client-id": client_id,
+        "x-client-secret": client_secret,
+        "x-api-version": "2024-01-01",
+        "Content-Type": "application/json"
+    }
+    if sig:
+        headers["x-cf-signature"] = sig
+
     vpa_to_use = upi_id
     if is_test and ("pay_test_" in transfer_id or "pay_live_test_" in transfer_id):
         vpa_to_use = "success@upi"
@@ -1008,22 +1255,14 @@ def send_cashfree_payout(
         if resp.status_code in (200, 201, 202):
             cf_status = data.get("status", "").upper()
             cf_transfer_id = data.get("cf_transfer_id")
-            
-            # If immediately completed or received, fetch status for UTR
             utr = data.get("transfer_utr") or data.get("utr") or cf_transfer_id
+
             if cf_status in ("RECEIVED", "PENDING"):
                 time.sleep(1.5)
-                try:
-                    status_resp = requests.get(f"{base_url}/transfers?transfer_id={transfer_id}", headers=headers, timeout=10)
-                    status_data = status_resp.json() if status_resp.text else {}
-                    if status_data.get("status", "").upper() == "SUCCESS":
-                        cf_status = "SUCCESS"
-                        utr = status_data.get("transfer_utr") or utr
-                    elif status_data.get("status", "").upper() == "FAILED":
-                        desc = status_data.get("status_description") or status_data.get("status_code")
-                        return {"success": False, "error": f"Cashfree Transfer Failed: {desc}", "is_test": is_test}
-                except Exception:
-                    pass
+                q = query_cashfree_transfer(transfer_id)
+                if q.get("exists") and q.get("status") == "SUCCESS":
+                    cf_status = "SUCCESS"
+                    utr = q.get("utr") or utr
 
             return {
                 "success": True,
@@ -1035,30 +1274,111 @@ def send_cashfree_payout(
             }
         else:
             err_msg = data.get("message") or data.get("status_description") or resp.text
+            is_low_balance = "balance" in str(err_msg).lower() or resp.status_code == 400
             return {
                 "success": False,
                 "error": f"Cashfree API Error ({resp.status_code}): {err_msg}",
+                "is_low_balance": is_low_balance,
                 "is_test": is_test
             }
     except Exception as exc:
-        return {"success": False, "error": f"Cashfree connection error: {str(exc)}"}
+        # P6: In case of timeout or connection error, check status with SAME transfer_id
+        time.sleep(1.0)
+        q = query_cashfree_transfer(transfer_id)
+        if q.get("exists") and q.get("status") == "SUCCESS":
+            return {"success": True, "status": "paid", "utr": q.get("utr"), "is_test": is_test}
+        return {"success": False, "error": f"Cashfree connection error: {str(exc)}", "transfer_unclear": True}
 
 
-async def process_pending_payouts() -> Dict[str, Any]:
+def send_razorpayx_payout(
+    transfer_id: str,
+    amount_rupees: float,
+    upi_id: str,
+    sutra_name: str = "Sutradhar"
+) -> Dict[str, Any]:
     """
-    पेआउट (हर कुछ मिनट पर अपने-आप):
-    - बने हुए कमीशन Cashfree / RazorpayX से सूत्रधार की UPI पर भेजता है।
-    - हर भेजने पर एक अनोखी पहचान (payment ID) लगती है, ताकि दो बार पैसा न जाए।
-    - गेटवे की पुष्टि पर असली UTR के साथ 'भुगतान हो गया'।
-    - विफल होने पर कमीशन 'जाँच ज़रूरी' में चला जाता है।
+    Executes a direct UPI payout via RazorpayX Payouts API.
+    Idempotent using X-Payout-Idempotency: transfer_id.
+    """
+    key_id = os.environ.get("RAZORPAYX_KEY_ID") or RAZORPAYX_KEY_ID
+    key_secret = os.environ.get("RAZORPAYX_KEY_SECRET") or RAZORPAYX_KEY_SECRET
+    account_number = os.environ.get("RAZORPAYX_ACCOUNT_NUMBER") or RAZORPAYX_ACCOUNT_NUMBER
+
+    if not key_id or not key_secret or not account_number:
+        return {"success": False, "error": "RazorpayX keys or account number not configured"}
+
+    amount_paise = int(round(float(amount_rupees) * 100))
+
+    payload = {
+        "account_number": account_number,
+        "amount": amount_paise,
+        "currency": "INR",
+        "mode": "UPI",
+        "purpose": "payout",
+        "fund_account": {
+            "account_type": "vpa",
+            "vpa": {
+                "address": upi_id
+            },
+            "contact": {
+                "name": (sutra_name or "Sutradhar")[:40],
+                "type": "vendor"
+            }
+        },
+        "queue_if_low_balance": True,
+        "reference_id": transfer_id,
+        "narration": "Sutradhar Commission"
+    }
+
+    auth_str = base64.b64encode(f"{key_id}:{key_secret}".encode("utf-8")).decode("utf-8")
+    req = urllib.request.Request(
+        "https://api.razorpay.com/v1/payouts",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Basic {auth_str}",
+            "Content-Type": "application/json",
+            "X-Payout-Idempotency": transfer_id
+        }
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            payout_id = data.get("id")
+            status = data.get("status")
+            utr = data.get("utr") or payout_id
+            return {
+                "success": True,
+                "payout_id": payout_id,
+                "status": status,
+                "utr": utr,
+                "raw": data
+            }
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode("utf-8")
+        return {"success": False, "error": f"RazorpayX HTTP {e.code}: {err_body}"}
+    except Exception as exc:
+        return {"success": False, "error": f"RazorpayX connection error: {str(exc)}"}
+
+
+async def process_pending_payouts(target_commission_id: Optional[str] = None) -> Dict[str, Any]:
+    """
+    P1: Payout transfer_id is deterministic: 'sutra_' + commission_id (NO timestamp).
+    P5: Uses atomic compare-and-set moving status created -> processing.
+    P6: If bank call fails or times out, re-uses exact same transfer_id.
+    P9: If low balance or failure, sets 'failed_retry', writes audit log, notifies admin max 1/hour.
     """
     all_comms = SutradharStore.query_all("commissions")
-    pending = [
-        c for c in all_comms 
-        if c.get("status") in ("created", "processing", "approved") and not c.get("utr")
-    ]
-    now_iso = datetime.now(timezone.utc).isoformat()
+    
+    if target_commission_id:
+        pending = [c for c in all_comms if c.get("id") == target_commission_id]
+    else:
+        pending = [
+            c for c in all_comms 
+            if c.get("status") in ("created", "failed_retry", "approved") and not c.get("utr")
+        ]
 
+    now_iso = datetime.now(timezone.utc).isoformat()
     results = []
 
     for comm in pending:
@@ -1090,7 +1410,17 @@ async def process_pending_payouts() -> Dict[str, Any]:
             results.append({"commission_id": comm_id, "status": "requires_review", "reason": comm["failure_reason"]})
             continue
 
-        # Check configured payout gateways
+        # P5: Atomic compare-and-set moving status created/failed_retry/approved -> processing
+        cas_ok = SutradharStore.compare_and_set_status(
+            "commissions", comm_id, ["created", "failed_retry", "approved"],
+            {"status": "processing", "processing_started_at": now_iso}
+        )
+        if not cas_ok:
+            continue
+
+        # P1: Deterministic transfer_id WITHOUT timestamp
+        transfer_id = f"sutra_{comm_id}"
+
         has_cashfree = bool(
             os.environ.get("CASHFREE_CLIENT_ID") and 
             os.environ.get("CASHFREE_CLIENT_SECRET")
@@ -1100,45 +1430,51 @@ async def process_pending_payouts() -> Dict[str, Any]:
             os.environ.get("RAZORPAYX_KEY_SECRET") and 
             os.environ.get("RAZORPAYX_ACCOUNT_NUMBER")
         )
-        is_test_payment = bool(payment_id.startswith("pay_test_") or payment_id.startswith("pay_live_test_"))
+        is_test_payment = bool(payment_id.startswith("pay_test_") or payment_id.startswith("pay_live_test_")) or (os.environ.get("SUTRADHAR_TEST_MODE") == "1")
 
         if not has_cashfree and not has_live_razorpayx and not is_test_payment:
-            # Live payment without gateway configured: Keep in approved/pending_payout
-            comm["status"] = "approved"
+            comm["status"] = "failed_retry"
             comm["failure_reason"] = "पेआउट गेटवे (Cashfree) सक्रिय होने तक पेआउट प्रतीक्षित"
             SutradharStore.set_doc("commissions", comm_id, comm)
-            lead_id_ref = comm.get("lead_id")
-            if lead_id_ref:
-                lead_obj = SutradharStore.get_doc("leads", lead_id_ref)
-                if lead_obj:
-                    lead_obj["payout_status"] = "pending_payout"
-                    lead_obj["commission_amount"] = amount
-                    SutradharStore.set_doc("leads", lead_id_ref, lead_obj)
-            results.append({"commission_id": comm_id, "status": "approved", "note": "Pending live Cashfree activation"})
+            results.append({"commission_id": comm_id, "status": "failed_retry", "note": "Pending live Cashfree activation"})
             continue
-
-        # Execute Payout with Idempotency Key
-        idempotency_key = f"payout_{payment_id}"
-        comm["status"] = "processing"
-        SutradharStore.set_doc("commissions", comm_id, comm)
 
         try:
             utr_number = None
-            if has_cashfree and not is_test_payment:
-                # Live Cashfree Payout Execution
-                transfer_id = f"sutra_{comm_id}_{int(time.time())}"
+            if has_live_razorpayx:
+                sutra_name = sutradhar.get("name", "Sutradhar") if sutradhar else "Sutradhar"
+                rzp_res = send_razorpayx_payout(transfer_id, amount, upi_id, sutra_name)
+                if not rzp_res["success"]:
+                    comm["status"] = "failed_retry"
+                    comm["failure_reason"] = rzp_res["error"]
+                    comm["retry_count"] = comm.get("retry_count", 0) + 1
+                    SutradharStore.set_doc("commissions", comm_id, comm)
+                    log_audit_event("RAZORPAYX_PAYOUT_FAILED", sutra_id, {
+                        "commission_id": comm_id,
+                        "transfer_id": transfer_id,
+                        "error": rzp_res["error"]
+                    })
+                    notify_admin_payout_alert(rzp_res["error"], {"commission_id": comm_id, "amount": amount})
+                    results.append({"commission_id": comm_id, "status": "failed_retry", "reason": rzp_res["error"]})
+                    continue
+                utr_number = rzp_res.get("utr") or rzp_res.get("payout_id")
+            elif has_cashfree and not is_test_payment:
                 sutra_name = sutradhar.get("name", "Sutradhar") if sutradhar else "Sutradhar"
                 cf_result = send_cashfree_payout(transfer_id, amount, upi_id, sutra_name)
 
                 if not cf_result["success"]:
-                    comm["status"] = "requires_review"
+                    # P9: Set failed_retry, write audit log, notify admin
+                    comm["status"] = "failed_retry"
                     comm["failure_reason"] = cf_result["error"]
+                    comm["retry_count"] = comm.get("retry_count", 0) + 1
                     SutradharStore.set_doc("commissions", comm_id, comm)
                     log_audit_event("CASHFREE_PAYOUT_FAILED", sutra_id, {
                         "commission_id": comm_id,
+                        "transfer_id": transfer_id,
                         "error": cf_result["error"]
                     })
-                    results.append({"commission_id": comm_id, "status": "requires_review", "reason": cf_result["error"]})
+                    notify_admin_payout_alert(cf_result["error"], {"commission_id": comm_id, "amount": amount})
+                    results.append({"commission_id": comm_id, "status": "failed_retry", "reason": cf_result["error"]})
                     continue
 
                 utr_number = cf_result.get("utr") or f"CF_{cf_result.get('status')}"
@@ -1167,21 +1503,143 @@ async def process_pending_payouts() -> Dict[str, Any]:
                 "commission_id": comm_id,
                 "amount": amount,
                 "utr": utr_number,
+                "transfer_id": transfer_id,
                 "upi": upi_id
             })
             results.append({"commission_id": comm_id, "status": "paid", "utr": utr_number})
         except Exception as err:
-            comm["status"] = "requires_review"
+            comm["status"] = "failed_retry"
             comm["failure_reason"] = f"पेआउट निष्पादन त्रुटि: {str(err)}"
+            comm["retry_count"] = comm.get("retry_count", 0) + 1
             SutradharStore.set_doc("commissions", comm_id, comm)
-            log_audit_event("PAYOUT_EXCEPTION", sutra_id, {"error": str(err)})
-            results.append({"commission_id": comm_id, "status": "requires_review", "error": str(err)})
+            log_audit_event("PAYOUT_EXCEPTION", sutra_id, {"error": str(err), "transfer_id": transfer_id})
+            notify_admin_payout_alert(str(err), {"commission_id": comm_id})
+            results.append({"commission_id": comm_id, "status": "failed_retry", "error": str(err)})
 
     return {
         "status": "success",
         "processed_count": len(results),
         "results": results
     }
+
+
+# -----------------------------------------------------------------------------
+# BACKGROUND JOBS: AUTO-RETRY (P7) & RECONCILIATION (P8)
+# -----------------------------------------------------------------------------
+async def auto_retry_worker():
+    """
+    P7: Picks commissions in 'created' or 'failed_retry', or in 'processing' for > 5 minutes.
+    Retries with SAME transfer_id and exponential backoff.
+    """
+    now = datetime.now(timezone.utc)
+    all_comms = SutradharStore.query_all("commissions")
+    for c in all_comms:
+        st = c.get("status")
+        if st in ("created", "failed_retry"):
+            retry_count = c.get("retry_count", 0)
+            delay = min(1800, 30 * (2 ** retry_count))
+            upd = datetime.fromisoformat(c.get("updated_at", c.get("created_at", now.isoformat())))
+            if (now - upd).total_seconds() >= delay:
+                await process_pending_payouts(target_commission_id=c["id"])
+        elif st == "processing":
+            started = c.get("processing_started_at")
+            if started:
+                try:
+                    s_dt = datetime.fromisoformat(started)
+                    if (now - s_dt).total_seconds() > 300:
+                        c["status"] = "failed_retry"
+                        c["failure_reason"] = "Processing timeout (> 5 min); auto-retrying"
+                        SutradharStore.set_doc("commissions", c["id"], c)
+                except Exception:
+                    pass
+
+
+async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
+    """
+    P8: Fetches captured payments of last 24h from Razorpay.
+    For each payment belonging to an order with saved attribution and no commission yet,
+    creates the commission and triggers payout.
+    """
+    if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
+        return {"status": "skipped", "reason": "Razorpay keys not configured"}
+
+    now = datetime.now(timezone.utc)
+    from_ts = int((now - timedelta(hours=hours_back)).timestamp())
+    recovered = []
+
+    try:
+        import razorpay
+        client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+        payments_data = client.payment.all({"from": from_ts, "count": 100})
+        items = payments_data.get("items", []) if isinstance(payments_data, dict) else payments_data
+
+        for p in items:
+            p_status = p.get("status")
+            if p_status != "captured":
+                continue
+            p_id = p.get("id")
+            o_id = p.get("order_id")
+            if not p_id or not o_id:
+                continue
+
+            comm_id = f"comm_{p_id}"
+            if SutradharStore.get_doc("commissions", comm_id):
+                continue
+
+            order = SutradharStore.get_doc("orders", o_id)
+            if not order:
+                continue
+            sutradhar_id = order.get("sutradhar_id")
+            lead_id = order.get("lead_id")
+            if not sutradhar_id or not lead_id:
+                continue
+
+            captured_paise = int(p.get("amount", 0))
+            order_paise = int(order.get("net_amount_paise", order.get("net_amount", 0) * 100))
+            if captured_paise != order_paise or captured_paise <= 0:
+                continue
+
+            service_id = order.get("service_id", "")
+            if service_id in FLAT_COMMISSION_BY_SERVICE:
+                comm_amount = float(FLAT_COMMISSION_BY_SERVICE[service_id])
+            else:
+                comm_paise = (captured_paise * 30) // 100
+                comm_amount = round(comm_paise / 100, 2)
+
+            now_iso = datetime.now(timezone.utc).isoformat()
+            comm_record = {
+                "id": comm_id,
+                "commission_id": comm_id,
+                "lead_id": lead_id,
+                "payment_id": p_id,
+                "order_id": o_id,
+                "sutradhar_id": sutradhar_id,
+                "customer_phone": order.get("customer_phone", ""),
+                "product": service_id,
+                "order_amount": captured_paise / 100,
+                "amount": comm_amount,
+                "status": "created",
+                "retry_count": 0,
+                "failure_reason": None,
+                "utr": None,
+                "created_at": now_iso
+            }
+            if SutradharStore.create_doc_if_not_exists("commissions", comm_id, comm_record):
+                log_audit_event("RECONCILIATION_COMMISSION_CREATED", sutradhar_id, {
+                    "commission_id": comm_id,
+                    "payment_id": p_id,
+                    "order_id": o_id,
+                    "amount": comm_amount
+                })
+                recovered.append(comm_id)
+
+        if recovered:
+            await process_pending_payouts()
+    except Exception as e:
+        logger.warning(f"[Reconciliation] Error: {e}")
+        return {"status": "error", "error": str(e)}
+
+    return {"status": "success", "recovered_count": len(recovered), "recovered": recovered}
 
 
 # -----------------------------------------------------------------------------

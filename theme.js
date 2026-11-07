@@ -2308,7 +2308,6 @@
           <a href="consultation.html" data-i18n="nav_consult" style="color:var(--gold-dark); font-weight:800;">1-on-1 प्रीमियम परामर्श</a>
           <a href="course.html" data-i18n="nav_course">कोर्स (Academy)</a>
           <a href="about.html" data-i18n="nav_about">अबाउट व ब्लॉग</a>
-          <a href="admin.html" data-i18n="nav_admin">एडमिन</a>
         `;
       }
     });

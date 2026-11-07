@@ -1786,6 +1786,15 @@ def ai_chat(body: AIChatRequest, request: Request):
     return {"text": text, "model": model}
 
 
+# SRA Personalized Panchang & Daily Morning Guide Router
+try:
+    from panchang_notification_dispatcher import router as panchang_router
+    app.include_router(panchang_router)
+    print("[FastAPI] Personalized Panchang Router mounted successfully at /api/panchang/personalized")
+except Exception as e:
+    print(f"[FastAPI] Personalized Panchang router mount notice: {e}")
+
+
 if __name__ == "__main__":
     import uvicorn
     print("Starting SRA Parashara Canonical Microservice on http://0.0.0.0:8000 ...")

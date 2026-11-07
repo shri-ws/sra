@@ -3292,7 +3292,6 @@
     <a href="course.html" data-i18n="nav_course">कोर्स (Academy)</a>
     <a href="blogs.html" style="color:var(--gold-dark); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:6px 10px; border-radius:8px;"><span>📜</span> <span>शोध पत्रिका व 50+ ब्लॉग्स</span></a>
       <a href="about.html" data-i18n="nav_about">अबाउट अस</a>
-    <a href="admin.html" data-i18n="nav_admin">एडमिन</a>
   </div>
   <div style="display:flex; align-items:center; gap:8px;">
     <!-- APP DOWNLOAD BUTTON -->
@@ -3341,7 +3340,6 @@
   <a href="consultation.html" onclick="closeMobileMenu()" data-i18n="nav_consult" style="color:var(--gold); font-weight:800;">1-on-1 Sanctuary Consultation</a>
   <a href="course.html" onclick="closeMobileMenu()" data-i18n="nav_course">1-Year Vedic Astrology Course</a>
   <a href="about.html" onclick="closeMobileMenu()" data-i18n="nav_about">अबाउट अस व ज्योतिष ब्लॉग</a>
-  <a href="admin.html" onclick="closeMobileMenu()" data-i18n="nav_admin">एडमिन डैशबोर्ड</a>
   <div style="height:1px;background:var(--gold-border);margin:6px 0"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
     <button type="button" class="lang-pill-btn" onclick="toggleLanguage()" style="flex:1; justify-content:center;">
@@ -3908,6 +3906,25 @@
             <p class="panchang-sub" id="panchangBirthSummary">जन्म समय सम्मत पञ्चाङ्ग के ५ प्रधान अंग, सौर-चान्द्र मान, तात्कालिक मुहूर्त व अवकहड़ा चक्र</p>
           </div>
           <div id="panchangVishtiTopAlert"></div>
+        </div>
+
+        <!-- DAILY PERSONALIZED PANCHANG SUBSCRIPTION BOX -->
+        <div class="personalized-panchang-sub-box" id="personalizedPanchangSubBox" style="margin: 16px 0 22px 0; background: linear-gradient(135deg, rgba(124,19,5,0.05), rgba(180,83,9,0.09)); border: 1.5px solid var(--gold-border, #d97706); border-radius: 12px; padding: 16px 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+          <div style="flex: 1 1 320px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(180,83,9,0.15); color: #7c1305; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 12px; margin-bottom: 6px; letter-spacing: 0.5px;">
+              <span>🔔 दैनिक प्रातः 07:00 बजे अलर्ट</span>
+            </div>
+            <h4 style="margin: 0 0 4px 0; font-size: 1.05rem; color: #7c1305; font-weight: 700;">डेली पर्सनलाइज्ड गाइडेंस — सब्सक्राइब नाउ</h4>
+            <p style="margin: 0; font-size: 0.88rem; color: #475569; line-height: 1.55;">
+              Daily personalized guidance based on <strong>99+ classical factors</strong> (त्रि-दशा, D1-D60 गोचर, सुदर्शन चक्र, नक्षत्र उपस्वामी, भावत भावम एवं पंचांग अंगों) according to your personalized kundali.
+            </p>
+          </div>
+          <div>
+            <button type="button" class="btn-subscribe-panchang" id="btnSubscribePanchang" onclick="handlePanchangSubscription()" style="background: linear-gradient(135deg, #7c1305, #b45309); color: #fff; border: none; padding: 11px 22px; font-size: 0.92rem; font-weight: 700; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(124,19,5,0.22); transition: all 0.2s ease;">
+              <span>🔔 Subscribe Free for Daily Personalized Panchang Guidance</span>
+            </button>
+            <div id="subPanchangStatus" style="font-size: 12px; color: #047857; font-weight: 600; margin-top: 6px; display: none;"></div>
+          </div>
         </div>
 
         <!-- 5 Core Limbs (पञ्च-अंग) Grid -->
@@ -6471,10 +6488,11 @@ async function executeParasharaMaster() {
   // Pre-paint indicator so UI does not feel frozen during heavy calculations
   const calcBtn = document.getElementById("btnGenerateKundali") || document.getElementById("btnExecuteParashara") || document.querySelector("button[onclick*='executeParasharaMaster']") || document.querySelector(".btn-submit");
   let origBtnHtml = "";
+  const isEnMode = (document.documentElement.lang || 'hi').toLowerCase() === 'en';
   if (calcBtn) {
     origBtnHtml = calcBtn.innerHTML;
     calcBtn.disabled = true;
-    calcBtn.innerHTML = `<span>⏳</span> गणना हो रही है...`;
+    calcBtn.innerHTML = isEnMode ? `<span>⏳</span> Calculating...` : `<span>⏳</span> गणना हो रही है...`;
   }
   await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
 
@@ -6598,7 +6616,7 @@ async function executeParasharaMaster() {
   } finally {
     if (calcBtn) {
       calcBtn.disabled = false;
-      calcBtn.innerHTML = origBtnHtml || "✨ अपनी जन्म पत्रिका देखें ➔";
+      calcBtn.innerHTML = origBtnHtml || (isEnMode ? "✨ View Your Birth Chart ➔" : "✨ अपनी जन्म पत्रिका देखें ➔");
     }
   }
 }
@@ -11349,6 +11367,153 @@ window.setLanguage = function(lang) {
     }
   }
 };
+
+// DAILY PERSONALIZED PANCHANG SUBSCRIPTION HANDLER
+window.handlePanchangSubscription = async function() {
+  const btn = document.getElementById("btnSubscribePanchang");
+  const statusEl = document.getElementById("subPanchangStatus");
+  if (!btn) return;
+
+  // 1. Gather birth details from current calculation or input fields
+  let name = (document.getElementById("inName")?.value || "").trim() || "जातक";
+  let dob = document.getElementById("inDate")?.value || "";
+  let tob = document.getElementById("inTime")?.value || "";
+  let lat = parseFloat(document.getElementById("inLat")?.value || "27.5667");
+  let lon = parseFloat(document.getElementById("inLon")?.value || "80.6833");
+
+  if (window.currentCalculation && window.currentCalculation.birthDetails) {
+    const bd = window.currentCalculation.birthDetails;
+    name = window.currentCalculation.native || name;
+    if (bd.year && bd.month && bd.day) {
+      dob = `${bd.year}-${String(bd.month).padStart(2,'0')}-${String(bd.day).padStart(2,'0')}`;
+    }
+    if (bd.hour !== undefined && bd.minute !== undefined) {
+      tob = `${String(bd.hour).padStart(2,'0')}:${String(bd.minute).padStart(2,'0')}:00`;
+    }
+    if (bd.lat) lat = bd.lat;
+    if (bd.lon) lon = bd.lon;
+  }
+
+  if (!dob || !tob) {
+    if (typeof showKundaliToast === "function") {
+      showKundaliToast("कृपया पहले अपना जन्म विवरण (तारीख व समय) दर्ज करें।");
+    } else {
+      alert("कृपया पहले अपना जन्म विवरण (तारीख व समय) दर्ज करें।");
+    }
+    return;
+  }
+
+  const [yearStr, monthStr, dayStr] = dob.split("-");
+  const [hourStr, minStr] = tob.split(":");
+
+  const profilePayload = {
+    name: name,
+    year: parseInt(yearStr, 10),
+    month: parseInt(monthStr, 10),
+    day: parseInt(dayStr, 10),
+    hour: parseInt(hourStr, 10),
+    minute: parseInt(minStr, 10),
+    lat: lat || 27.5667,
+    lon: lon || 80.6833,
+    current_lat: lat || 27.5667,
+    current_lon: lon || 80.6833
+  };
+
+  btn.disabled = true;
+  btn.innerHTML = `<span>⏳ सब्सक्राइब हो रहा है...</span>`;
+
+  // 2. Request browser notification permission if available
+  let permissionGranted = false;
+  if ("Notification" in window) {
+    try {
+      const permission = await Notification.requestPermission();
+      permissionGranted = (permission === "granted");
+    } catch (e) {
+      console.warn("Notification permission notice:", e);
+    }
+  }
+
+  try {
+    // 3. Call backend endpoint to trigger test-notification & register subscriber
+    const res = await fetch("/api/panchang/personalized/test-notification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profilePayload)
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      
+      try {
+        localStorage.setItem("sra_panchang_subscribed", "true");
+        localStorage.setItem("sra_panchang_profile", JSON.stringify(profilePayload));
+      } catch(e) {}
+
+      // Trigger instant confirmation push notification if permission is granted
+      if (permissionGranted && data.notification) {
+        try {
+          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification(data.notification.title, {
+                body: data.notification.body,
+                icon: "/icon-192.png",
+                badge: "/icon-192.png",
+                data: data.data || {}
+              });
+            });
+          } else {
+            new Notification(data.notification.title, {
+              body: data.notification.body,
+              icon: "/icon-192.png"
+            });
+          }
+        } catch(notifErr) {
+          console.warn("Direct Notification trigger notice:", notifErr);
+        }
+      }
+
+      btn.style.background = "#047857";
+      btn.innerHTML = `<span>✅ Subscribed! Daily 07:00 AM Alert Active</span>`;
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.innerHTML = `✨ बधाई! प्रतिदिन सुबह 07:00 बजे 99+ फैक्टर्स सम्मत पर्सनलाइज्ड पंचांग का पुश नोटिफिकेशन आपके डिवाइस पर सक्रिय हो गया है।`;
+      }
+
+      if (typeof showKundaliToast === "function") {
+        showKundaliToast("✅ सब्सक्राइब सफल! प्रतिदिन प्रातः 07:00 बजे आपको दैनिक पर्सनलाइज्ड पंचांग अलर्ट प्राप्त होगा।");
+      }
+    } else {
+      throw new Error("Server status: " + res.status);
+    }
+  } catch (err) {
+    console.error("Subscription error:", err);
+    btn.disabled = false;
+    btn.style.background = "linear-gradient(135deg, #7c1305, #b45309)";
+    btn.innerHTML = `<span>🔔 Subscribe Free for Daily Personalized Panchang Guidance</span>`;
+    if (typeof showKundaliToast === "function") {
+      showKundaliToast("⚠️ सब्सक्राइब करने में त्रुटि आई। कृपया पुनः प्रयास करें।");
+    } else {
+      alert("⚠️ सब्सक्राइब करने में त्रुटि आई। कृपया पुनः प्रयास करें।");
+    }
+  }
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+  try {
+    if (localStorage.getItem("sra_panchang_subscribed") === "true") {
+      const btn = document.getElementById("btnSubscribePanchang");
+      const statusEl = document.getElementById("subPanchangStatus");
+      if (btn) {
+        btn.style.background = "#047857";
+        btn.innerHTML = `<span>✅ Subscribed! Daily 07:00 AM Alert Active</span>`;
+      }
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.innerHTML = `✨ प्रतिदिन सुबह 07:00 बजे 99+ फैक्टर्स सम्मत पर्सनलाइज्ड पंचांग का पुश नोटिफिकेशन आपके डिवाइस पर सक्रिय है।`;
+      }
+    }
+  } catch(e) {}
+});
 
 </script>
 

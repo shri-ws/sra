@@ -413,37 +413,90 @@ SCENE_CSS = """
     width: 1080px; height: 1920px; overflow: hidden; position: relative;
     font-family: 'Noto Sans Devanagari', 'Kohinoor Devanagari', sans-serif; color: #fff;
     background:
-      radial-gradient(circle at 50% 30%, rgba(255, 196, 61, 0.22) 0%, rgba(255, 196, 61, 0) 42%),
-      radial-gradient(ellipse at 50% 110%, #3a0d16 0%, rgba(58, 13, 22, 0) 60%),
-      linear-gradient(180deg, #120a1c 0%, #0a0d1c 55%, #07070f 100%);
+      radial-gradient(ellipse at 50% 20%, rgba(233, 207, 142, 0.30) 0%, rgba(176, 141, 62, 0.14) 36%, transparent 68%),
+      radial-gradient(circle at 50% 85%, rgba(58, 13, 22, 0.40) 0%, transparent 55%),
+      linear-gradient(180deg, #181412 0%, #0f0c0b 40%, #080606 100%);
   }
   .mandala {
-    position: absolute; left: 50%; top: 600px; width: 1500px; height: 1500px;
-    transform: translate(-50%, -50%); border-radius: 50%; opacity: 0.16;
-    background: repeating-conic-gradient(from 0deg, #d4af37 0deg 2deg, transparent 2deg 15deg);
-    -webkit-mask: radial-gradient(circle, transparent 22%, #000 23%, #000 48%, transparent 49%);
+    position: absolute; left: 50%; top: 680px; width: 1400px; height: 1400px;
+    transform: translate(-50%, -50%); border-radius: 50%; opacity: 0.14;
+    background: repeating-conic-gradient(from 0deg, #d6b76a 0deg 1.5deg, transparent 1.5deg 12deg);
+    -webkit-mask: radial-gradient(circle, transparent 24%, #000 25%, #000 48%, transparent 49%);
   }
-  .ring { position: absolute; left: 50%; top: 600px; border-radius: 50%; transform: translate(-50%, -50%);
-          border: 2px solid rgba(212, 175, 55, 0.35); }
-  .frame { position: absolute; inset: 34px; border: 2px solid rgba(212, 175, 55, 0.55); border-radius: 28px; }
-  .top { position: absolute; top: 110px; width: 100%; text-align: center; }
-  .om { font-size: 74px; color: #ffd36b; text-shadow: 0 0 34px rgba(255, 200, 80, 0.8); line-height: 1; }
-  .brand { margin-top: 14px; font-size: 30px; font-weight: 700; letter-spacing: 1px; color: #f1d58a; }
-  .badge { display: inline-block; margin-top: 26px; padding: 12px 36px; border-radius: 60px; font-size: 32px; font-weight: 800;
-           color: #1a0d05; background: linear-gradient(135deg, #ffe08a, #e0a526); box-shadow: 0 10px 30px rgba(224, 165, 38, 0.45); }
-  .stage { position: absolute; top: 430px; left: 65px; right: 65px; height: 960px;
+  .ring { position: absolute; left: 50%; top: 680px; border-radius: 50%; transform: translate(-50%, -50%);
+          border: 1.5px solid rgba(214, 183, 106, 0.35); box-shadow: 0 0 25px rgba(214, 183, 106, 0.12); }
+  .frame-outer { position: absolute; inset: 36px; border: 1.5px solid rgba(214, 183, 106, 0.45); border-radius: 28px; pointer-events: none; }
+  .frame-inner { position: absolute; inset: 48px; border: 1px solid rgba(214, 183, 106, 0.22); border-radius: 20px; pointer-events: none; }
+  
+  .top { position: absolute; top: 220px; width: 100%; text-align: center; }
+  .om { font-size: 72px; color: #e9cf8e; text-shadow: 0 0 35px rgba(233, 207, 142, 0.75), 0 2px 10px rgba(0,0,0,0.8); line-height: 1; }
+  .brand { margin-top: 16px; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #e9cf8e; text-shadow: 0 2px 12px rgba(0,0,0,0.7); }
+  .badge { display: inline-block; margin-top: 26px; padding: 12px 38px; border-radius: 40px; font-size: 28px; font-weight: 800;
+           color: #fdf6e2; background: linear-gradient(135deg, rgba(58, 13, 22, 0.90) 0%, rgba(28, 8, 12, 0.95) 100%);
+           border: 1.5px solid rgba(214, 183, 106, 0.65); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(233, 207, 142, 0.3); }
+  
+  .stage { position: absolute; top: 540px; left: 65px; right: 65px; height: 860px;
            display: flex; align-items: center; justify-content: center; text-align: center; }
   .display { font-weight: 900; line-height: 1.35; color: #fff; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.85); white-space: pre-line; }
-  .display em { font-style: normal; color: #ffd36b; text-shadow: 0 0 40px rgba(255, 200, 80, 0.7), 0 6px 30px rgba(0, 0, 0, 0.8); }
-  .shloka { font-family: 'Noto Serif Devanagari', serif; font-weight: 700; font-size: 52px; line-height: 1.65; color: #ffe6a8;
+  .display em { font-style: normal; color: #f6d88e; text-shadow: 0 0 40px rgba(246, 216, 142, 0.7), 0 6px 30px rgba(0, 0, 0, 0.8); }
+  .shloka { font-family: 'Noto Serif Devanagari', serif; font-weight: 700; font-size: 52px; line-height: 1.65; color: #fff4d4;
             white-space: pre-line; padding: 45px 35px; border-radius: 28px;
-            background: rgba(20, 10, 24, 0.65); border: 2.5px solid rgba(212, 175, 55, 0.6); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7); }
-  .source { margin-top: 26px; font-size: 32px; color: #f1d58a; font-weight: 700; }
-  .foot { position: absolute; bottom: 120px; width: 100%; text-align: center; font-size: 34px; font-weight: 800; color: #ffd36b; letter-spacing: 1px; }
-  .sub { display: inline-flex; align-items: center; gap: 18px; padding: 26px 64px; border-radius: 80px; background: #e62117;
-         font-size: 58px; font-weight: 900; color: #fff; box-shadow: 0 18px 50px rgba(230, 33, 23, 0.55); }
-  .cta-lines { margin-top: 50px; font-size: 54px; font-weight: 800; line-height: 1.5; white-space: pre-line; }
-  .cta-lines em { font-style: normal; color: #ffd36b; }
+            background: rgba(22, 16, 16, 0.85); border: 2px solid rgba(214, 183, 106, 0.55);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(233, 207, 142, 0.25); }
+  .source { margin-top: 26px; font-size: 32px; color: #e9cf8e; font-weight: 700; }
+  .foot { position: absolute; bottom: 120px; width: 100%; text-align: center; font-size: 32px; font-weight: 800; color: #d6b76a; letter-spacing: 2px; }
+  .sub { display: inline-flex; align-items: center; gap: 18px; padding: 24px 60px; border-radius: 80px;
+         background: linear-gradient(135deg, #d4af37, #966f10); font-size: 52px; font-weight: 900; color: #0b0704;
+         box-shadow: 0 18px 50px rgba(212, 175, 55, 0.45); }
+  .cta-lines { margin-top: 50px; font-size: 52px; font-weight: 800; line-height: 1.5; white-space: pre-line; }
+  .cta-lines em { font-style: normal; color: #f6d88e; }
+"""
+
+SCENE_CSS_EN = """
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Noto+Serif+Devanagari:wght@600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1080px; height: 1920px; overflow: hidden; position: relative;
+    font-family: 'Cinzel', 'Cormorant Garamond', 'Georgia', serif; color: #fff;
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(233, 207, 142, 0.32) 0%, rgba(176, 141, 62, 0.15) 35%, transparent 68%),
+      radial-gradient(circle at 50% 85%, rgba(58, 13, 22, 0.40) 0%, transparent 55%),
+      linear-gradient(180deg, #181412 0%, #0f0c0b 40%, #080606 100%);
+  }
+  .mandala {
+    position: absolute; left: 50%; top: 680px; width: 1400px; height: 1400px;
+    transform: translate(-50%, -50%); border-radius: 50%; opacity: 0.14;
+    background: repeating-conic-gradient(from 0deg, #d6b76a 0deg 1.5deg, transparent 1.5deg 12deg);
+    -webkit-mask: radial-gradient(circle, transparent 24%, #000 25%, #000 48%, transparent 49%);
+  }
+  .ring { position: absolute; left: 50%; top: 680px; border-radius: 50%; transform: translate(-50%, -50%);
+          border: 1.5px solid rgba(214, 183, 106, 0.35); box-shadow: 0 0 25px rgba(214, 183, 106, 0.12); }
+  .frame-outer { position: absolute; inset: 36px; border: 1.5px solid rgba(214, 183, 106, 0.45); border-radius: 28px; pointer-events: none; }
+  .frame-inner { position: absolute; inset: 48px; border: 1px solid rgba(214, 183, 106, 0.22); border-radius: 20px; pointer-events: none; }
+  
+  .top { position: absolute; top: 220px; width: 100%; text-align: center; }
+  .om { font-size: 72px; color: #e9cf8e; text-shadow: 0 0 35px rgba(233, 207, 142, 0.75), 0 2px 10px rgba(0,0,0,0.8); line-height: 1; font-family: 'Noto Serif Devanagari', serif; }
+  .brand { margin-top: 16px; font-size: 26px; font-weight: 700; letter-spacing: 5px; color: #e9cf8e; text-transform: uppercase; text-shadow: 0 2px 12px rgba(0,0,0,0.7); }
+  .badge { display: inline-block; margin-top: 26px; padding: 12px 38px; border-radius: 40px; font-size: 24px; font-weight: 700;
+           letter-spacing: 2px; color: #fdf6e2; background: linear-gradient(135deg, rgba(58, 13, 22, 0.90) 0%, rgba(28, 8, 12, 0.95) 100%);
+           border: 1.5px solid rgba(214, 183, 106, 0.65); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(233, 207, 142, 0.3); text-transform: uppercase; }
+  
+  .stage { position: absolute; top: 540px; left: 70px; right: 70px; height: 860px;
+           display: flex; align-items: center; justify-content: center; text-align: center; }
+  .display { font-family: 'Cinzel', 'Georgia', serif; font-weight: 700; line-height: 1.4; color: #ffffff;
+             text-shadow: 0 6px 30px rgba(0, 0, 0, 0.9); white-space: pre-line; letter-spacing: 0.5px; }
+  .display em { font-style: normal; color: #f6d88e; text-shadow: 0 0 35px rgba(246, 216, 142, 0.6), 0 4px 20px rgba(0, 0, 0, 0.8); }
+  .shloka { font-family: 'Noto Serif Devanagari', serif; font-weight: 700; font-size: 50px; line-height: 1.7; color: #fff4d4;
+            white-space: pre-line; padding: 45px 35px; border-radius: 24px;
+            background: rgba(22, 16, 16, 0.85); border: 2px solid rgba(214, 183, 106, 0.55);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(233, 207, 142, 0.25); }
+  .source { margin-top: 26px; font-family: 'Cinzel', serif; font-size: 24px; color: #e9cf8e; font-weight: 600; letter-spacing: 1.5px; }
+  .foot { position: absolute; bottom: 120px; width: 100%; text-align: center; font-family: 'Cinzel', serif; font-size: 26px; font-weight: 700; color: #d6b76a; letter-spacing: 3px; }
+  .sub { display: inline-flex; align-items: center; gap: 14px; padding: 18px 50px; border-radius: 40px;
+         background: linear-gradient(135deg, #d4af37, #966f10); font-family: 'Cinzel', serif;
+         font-size: 40px; font-weight: 800; color: #0b0704; letter-spacing: 2px; box-shadow: 0 12px 35px rgba(212, 175, 55, 0.35); }
+  .cta-lines { margin-top: 45px; font-family: 'Cinzel', serif; font-size: 44px; font-weight: 700; line-height: 1.5; white-space: pre-line; }
+  .cta-lines em { font-style: normal; color: #f6d88e; }
 """
 
 def _display_html(text: str) -> str:
@@ -453,26 +506,24 @@ def _display_html(text: str) -> str:
 
 def scene_html(scene: dict, branding: str) -> str:
     kind = scene.get("kind", "meaning")
+    lang = scene.get("lang", "hi")
     badge = html.escape(scene.get("badge", ""))
     display = scene.get("display", "")
+    is_en = (lang in ("en", "english"))
+    css = SCENE_CSS_EN if is_en else SCENE_CSS
 
     if kind == "shloka":
         stage = f'<div class="stage"><div><div class="shloka">{html.escape(display)}</div><div class="source">{html.escape(scene.get("source", ""))}</div></div></div>'
     elif kind == "cta":
-        stage = ('<div class="stage"><div><div class="sub">🔔 SUBSCRIBE</div>'
+        sub_label = "🔔 SUBSCRIBE"
+        stage = (f'<div class="stage"><div><div class="sub">{sub_label}</div>'
                  f'<div class="cta-lines">{_display_html(display)}</div></div></div>')
     else:
         size = 88 if kind == "hook" else (74 if len(display) < 75 else 62)
         stage = f'<div class="stage"><div class="display" style="font-size:{size}px">{_display_html(display)}</div></div>'
     rings = "".join(f'<div class="ring" style="width:{d}px;height:{d}px"></div>' for d in (760, 980))
-    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{SCENE_CSS}</style></head>
-<body><div class="mandala"></div>{rings}<div class="frame"></div>
-<div class="top"><div class="om">ॐ</div><div class="brand">{html.escape(branding)}</div>
-<div class="badge">{badge}</div></div>
-{stage}
-<div class="foot">shriramjiastro.in</div></body></html>"""
-    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{SCENE_CSS}</style></head>
-<body><div class="mandala"></div>{rings}<div class="frame"></div>
+    return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{css}</style></head>
+<body><div class="mandala"></div>{rings}<div class="frame-outer"></div><div class="frame-inner"></div>
 <div class="top"><div class="om">ॐ</div><div class="brand">{html.escape(branding)}</div>
 <div class="badge">{badge}</div></div>
 {stage}
@@ -502,8 +553,15 @@ def _ass_time(t: float) -> str:
     cs = int(round(t * 100))
     return f"{cs // 360000}:{cs // 6000 % 60:02d}:{cs // 100 % 60:02d}.{cs % 100:02d}"
 
-def build_captions_ass(timed_scenes: list, ass_path: Path):
+def build_captions_ass(timed_scenes: list, ass_path: Path, lang: str = "hi"):
     """Karaoke captions: 2-4 words at a time, each word fills white → gold as it is spoken."""
+    is_en = (lang in ("en", "english"))
+    font_name = "Georgia" if is_en else CAPTION_FONT
+    font_size = 80 if is_en else 90
+    outline_val = 4 if is_en else 6
+    shadow_val = 2 if is_en else 3
+    margin_v = 490 if is_en else 520
+
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: 1080
@@ -512,7 +570,7 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,{CAPTION_FONT},90,&H0036D3FF,&H00FFFFFF,&H00120A08,&H96000000,1,0,0,0,100,100,0,0,1,6,3,2,70,70,520,1
+Style: Cap,{font_name},{font_size},&H0036D3FF,&H00FFFFFF,&H00120A08,&H96000000,1,0,0,0,100,100,0,0,1,{outline_val},{shadow_val},2,70,70,{margin_v},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -542,7 +600,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             events.append(f"Dialogue: 0,{_ass_time(start)},{_ass_time(end)},Cap,,0,0,0,,{pop}{''.join(parts).strip()}")
     ass_path.write_text(header + "\n".join(events) + "\n", encoding="utf-8")
 
-def render_scene_reel(scenes: list, output_dir: Path, voice: str, branding: str) -> dict:
+def render_scene_reel(scenes: list, output_dir: Path, voice: str, branding: str, lang: str = "hi") -> dict:
     output_dir = Path(output_dir)
     exe = imageio_ffmpeg.get_ffmpeg_exe()
     rate = load_config()["content"].get("voice_rate", "+0%")
@@ -569,7 +627,7 @@ def render_scene_reel(scenes: list, output_dir: Path, voice: str, branding: str)
 
     # 3. Captions
     ass_path = output_dir / "captions.ass"
-    build_captions_ass(timed, ass_path)
+    build_captions_ass(timed, ass_path, lang=lang)
 
     # 4. One ffmpeg pass: zoom per scene → crossfades → progress bar → captions; voice + drone
     n = len(timed)
@@ -631,11 +689,15 @@ def render_vertical_video(
 
     if video_data.get("scenes"):
         config = load_config()
+        lang = video_data.get("lang", "hi")
+        default_voice = "en-US-ChristopherNeural" if lang in ("en", "english") else config["content"].get("voice", "hi-IN-MadhurNeural")
+        default_branding = "SHRI RAMJI ASTRO • VEDIC WISDOM" if lang in ("en", "english") else config["content"].get("branding", "श्री रामजी एस्ट्रो")
         try:
             return render_scene_reel(
                 video_data["scenes"], output_dir,
-                voice=config["content"].get("voice", "hi-IN-MadhurNeural"),
-                branding=config["content"].get("branding", "श्री रामजी एस्ट्रो"))
+                voice=video_data.get("voice", default_voice),
+                branding=video_data.get("branding", default_branding),
+                lang=lang)
         except Exception as e:
             # Never lose the day's post: fall back to the classic slide reel below.
             print(f"[VideoEngine] Scene reel failed, using classic slides: {e}")

@@ -56,7 +56,9 @@ print(json.dumps(res))`;
     if (spawnProc.status !== 0) {
       throw new Error("Python Canonical Engine Error: " + spawnProc.stderr);
     }
-    return JSON.parse(spawnProc.stdout);
+    const stdoutLines = spawnProc.stdout.trim().split('\n');
+    const jsonLine = stdoutLines.filter(l => l.startsWith('{') || l.startsWith('[')).pop() || spawnProc.stdout;
+    return JSON.parse(jsonLine);
   }
 
   function calculateBatchSyncNode(batchInput) {
@@ -94,7 +96,9 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
     if (spawnProc.status !== 0) {
       throw new Error("Python Canonical Engine Batch Error: " + spawnProc.stderr);
     }
-    return JSON.parse(spawnProc.stdout);
+    const stdoutLines = spawnProc.stdout.trim().split('\n');
+    const jsonLine = stdoutLines.filter(l => l.startsWith('{') || l.startsWith('[')).pop() || spawnProc.stdout;
+    return JSON.parse(jsonLine);
   }
 
   /**
