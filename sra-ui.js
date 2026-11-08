@@ -189,14 +189,23 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleFitNav);
     // theme.js and page scripts inject nav pieces and cards after load
     let queued = false;
-    new MutationObserver(() => {
+    new MutationObserver((mutations) => {
+      let needsToggle = false, needsReveal = false;
+      for (const m of mutations) {
+        for (const n of m.addedNodes) {
+          if (n.nodeType === 1) {
+            if (n.matches && (n.matches(TOGGLE_SELECTOR) || n.querySelector(TOGGLE_SELECTOR))) needsToggle = true;
+            if (n.matches && (n.matches(REVEAL_SELECTOR) || n.querySelector(REVEAL_SELECTOR))) needsReveal = true;
+          }
+        }
+      }
+      if (!needsToggle && !needsReveal) return;
       if (queued) return;
       queued = true;
       requestAnimationFrame(() => {
         queued = false;
-        upgradeAllToggles();
-        observeReveal(document);
-        fitGnav();
+        if (needsToggle) upgradeAllToggles();
+        if (needsReveal) observeReveal(document);
       });
     }).observe(document.body, { childList: true, subtree: true });
   }
@@ -396,8 +405,17 @@
 
   function start() {
     ensure();
-    new MutationObserver(later).observe(document.body, { childList: true, subtree: true });
     window.addEventListener('load', ensure);
+    const footers = document.querySelectorAll('footer.site-global-footer, footer.sra-footer');
+    if (footers.length > 0 && Array.from(footers).every(f => f.querySelector('.sra-social'))) return;
+    const obs = new MutationObserver(() => {
+      ensure();
+      const fs = document.querySelectorAll('footer.site-global-footer, footer.sra-footer');
+      if (fs.length > 0 && Array.from(fs).every(f => f.querySelector('.sra-social'))) {
+        obs.disconnect();
+      }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

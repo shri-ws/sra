@@ -452,8 +452,8 @@
     window.addEventListener('load', claimDrawerApi);
     window.SRANav = { open: () => toggleDrawer(true), close: () => toggleDrawer(false) };
 
-    injectFooterSupport();
-    window.addEventListener('load', injectFooterSupport);
+    injectWhatsAppFloatingWidget();
+    window.addEventListener('load', injectWhatsAppFloatingWidget);
   }
 
   function injectWhatsAppFloatingWidget() {

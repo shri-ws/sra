@@ -2333,8 +2333,9 @@
         });
 
       let refreshing = false;
+      let hadController = Boolean(navigator.serviceWorker.controller);
       navigator.serviceWorker.addEventListener('controllerchange', function() {
-        if (!refreshing) {
+        if (!refreshing && hadController) {
           refreshing = true;
           console.log('[SRA PWA] New Service Worker active, reloading page...');
           window.location.reload();
