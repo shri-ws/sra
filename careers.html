@@ -678,9 +678,14 @@
         <div style="margin-top:6px; font-size:11.5px; color:var(--muted);">* चयन की सूचना व आपकी गुप्त ऑनबोर्डिंग लिंक सीधे आपके व्हाट्सएप पर प्रेषित की जाएगी।</div>
       </div>
 
-      <button type="button" class="btn-submit" onclick="closeModalAndRedirect()" style="padding:12px 24px;">
-        मुख्य पृष्ठ पर लौटें ➔
-      </button>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+        <button type="button" class="btn-submit" onclick="proceedToTermsPage()" style="padding:14px 24px; font-weight:700;">
+          📜 जॉब डिस्क्रिप्शन, इंसेंटिव व नियम देखें (अगला चरण) ➔
+        </button>
+        <button type="button" onclick="closeModalAndRedirect()" style="background:transparent; border:none; color:var(--muted); font-size:13px; cursor:pointer; text-decoration:underline;">
+          मुख्य पृष्ठ पर लौटें
+        </button>
+      </div>
     </div>
   </div>
 
@@ -840,6 +845,14 @@
         document.getElementById('resCandPhone').innerText = payload.phone;
         document.getElementById('confirmModal').classList.add('active');
 
+        // Auto-redirect to the intermediate Job Description & Terms page after short delay
+        window._pendingTermsUrl = `sutradhar-terms.html?phone=${encodeURIComponent(payload.phone)}&name=${encodeURIComponent(payload.name)}&email=${encodeURIComponent(payload.email || '')}`;
+        setTimeout(() => {
+          if (document.getElementById('confirmModal').classList.contains('active')) {
+            proceedToTermsPage();
+          }
+        }, 2200);
+
       } catch (err) {
         console.error("Submission error:", err);
         // Resilient fallback: Still confirm to user and save locally
@@ -857,6 +870,14 @@
         btn.disabled = false;
         btn.innerText = "🏛️ सूत्रधार पद हेतु आवेदन समर्पित करें";
       }
+    }
+
+    function proceedToTermsPage() {
+      const phone = document.getElementById('cand_phone')?.value.replace(/[^0-9]/g, '').slice(-10) || '';
+      const name = document.getElementById('cand_name')?.value.trim() || '';
+      const email = document.getElementById('cand_email')?.value.trim() || '';
+      const targetUrl = window._pendingTermsUrl || `sutradhar-terms.html?phone=${encodeURIComponent(phone)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+      window.location.href = targetUrl;
     }
 
     function closeModalAndRedirect() {

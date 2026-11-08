@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="day">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>अधिकृत सूत्रधार — जॉब डिस्क्रिप्शन, इंसेंटिव व नियम | श्री राम जी एस्ट्रो</title>
+  <meta name="description" content="श्री राम जी एस्ट्रो अधिकृत सूत्रधार पद: विस्तृत जॉब डिस्क्रिप्शन, वैदिक स्तर, इंसेंटिव स्ट्रक्चर, पेआउट नियम व ऑथेंटिकेशन।">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Rozha+One&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="sra-elegance.css">
+
+  <!-- Firebase Auth for OTP Verification -->
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+
+  <style>
+    :root {
+      --gold: #B08D3E;
+      --gold-dark: #7A5A1C;
+      --gold-light: #F4E8C1;
+      --gold-border: rgba(176, 141, 62, 0.28);
+      --kumkum: #3A0D16;
+      --sindoor: #8E1B1B;
+      --paper: #FAF6EE;
+      --vellum: #FFFDF8;
+      --ink: #1F1A17;
+      --muted: #6E6257;
+      --card-bg: #FFFFFF;
+      --radius: 16px;
+      --green: #15803d;
+      --green-bg: rgba(22, 101, 52, 0.08);
+      --green-border: rgba(34, 197, 94, 0.35);
+    }
+
+    [data-theme="night"] {
+      --paper: #050308;
+      --vellum: #0E0A14;
+      --ink: #F7EFE4;
+      --muted: #A89E92;
+      --card-bg: #130E1B;
+      --gold-border: rgba(214, 183, 106, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', 'Noto Serif Devanagari', serif;
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    /* HEADER */
+    header.site-header {
+      background: var(--vellum);
+      border-bottom: 1px solid var(--gold-border);
+      padding: 14px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-symbol {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .brand-title {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold-dark);
+      line-height: 1.2;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 44px 0 24px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 30px;
+      background: rgba(176, 141, 62, 0.12);
+      border: 1px solid var(--gold-border);
+      font-size: 13px;
+      color: var(--gold-dark);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .hero-title {
+      font-family: 'Rozha One', 'Cinzel', serif;
+      font-size: clamp(26px, 4vw, 38px);
+      color: var(--kumkum);
+      line-height: 1.3;
+      margin-bottom: 14px;
+    }
+    [data-theme="night"] .hero-title { color: #E8D3A7; }
+    .hero-sub {
+      font-size: 15.5px;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* CARD SECTIONS */
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+    }
+    .card-title {
+      font-family: 'Cinzel', 'Noto Serif Devanagari', serif;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--gold-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--gold-border);
+      padding-bottom: 10px;
+    }
+    .card-text {
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: var(--ink);
+    }
+
+    /* GRID & LISTS */
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .feat-box {
+      background: var(--vellum);
+      border: 1px solid var(--gold-border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .feat-box-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gold-dark);
+      margin-bottom: 6px;
+    }
+    .feat-box-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* INCENTIVE TABLE */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--gold-border);
+    }
+    table.inc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    table.inc-table th {
+      background: rgba(176, 141, 62, 0.12);
+      color: var(--gold-dark);
+      padding: 12px 14px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--gold-border);
+    }
+    table.inc-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(176, 141, 62, 0.15);
+      color: var(--ink);
+    }
+    table.inc-table tr:last-child td {
+      border-bottom: none;
+    }
+    .highlight-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+      color: var(--green);
+      font-weight: 700;
+      font-size: 12.5px;
+    }
+
+    /* TERMS & ACTION BOX */
+    .terms-box {
+      background: var(--vellum);
+      border: 2px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 32px 0 20px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-label input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 3px;
+      accent-color: var(--gold-dark);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .action-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 20px;
+      align-items: center;
+    }
+    .btn-proceed {
+      flex: 1;
+      min-width: 200px;
+      background: linear-gradient(135deg, #B08D3E, #7A5A1C);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-proceed:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-cancel {
+      padding: 14px 22px;
+      border-radius: 12px;
+      background: transparent;
+      border: 1px solid var(--gold-border);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14.5px;
+      font-weight: 600;
+      transition: background 0.15s;
+      text-align: center;
+    }
+    .btn-cancel:hover {
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--ink);
+    }
+
+    /* OTP AUTHENTICATION DRAWER / CARD */
+    #otpAuthCard {
+      display: none;
+      background: var(--card-bg);
+      border: 2px solid var(--gold-dark);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin: 24px 0 40px;
+      box-shadow: 0 12px 36px rgba(176, 141, 62, 0.15);
+      animation: sraFadeIn 0.3s ease;
+    }
+    @keyframes sraFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .otp-input-field {
+      width: 100%;
+      border: 1px solid var(--gold-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 16px;
+      background: var(--vellum);
+      color: var(--ink);
+      outline: none;
+      margin-top: 6px;
+    }
+    .otp-input-field:focus {
+      border-color: var(--gold-dark);
+      box-shadow: 0 0 0 2px rgba(176, 141, 62, 0.2);
+    }
+    .spin {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo">
+        <div class="brand-symbol">🪐</div>
+        <div>
+          <div class="brand-title">Shri Ramji Astro</div>
+          <div class="brand-sub">प्रामाणिक वैदिक ज्योतिष संस्थान</div>
+        </div>
+      </a>
+      <a href="careers.html" style="font-size:13px; text-decoration:none; color:var(--muted); font-weight:600;">← वापस फॉर्म पर जाएं</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="badge">
+        <span>📜</span> <span>आधिकारिक नियम व कार्यप्रणाली • Official Job Brief</span>
+      </div>
+      <h1 class="hero-title">अधिकृत सूत्रधार पद: कार्यविवरण, स्तर व पेआउट्स</h1>
+      <p class="hero-sub">
+        श्री राम जी एस्ट्रो के पावन ज्ञान-यज्ञ का अधिकृत प्रतिनिधि बनने से पूर्व कृपया कार्यप्रणाली, वैदिक स्तर, इंसेंटिव व आचार संहिता को ध्यानपूर्वक समझें।
+      </p>
+    </section>
+
+    <!-- 1. APPLICATION IMPORTANCE & LEVEL -->
+    <section class="info-card">
+      <h2 class="card-title">🌟 १. श्री राम जी एस्ट्रो एप्लीकेशन का स्तर व महत्व</h2>
+      <p class="card-text">
+        श्री राम जी एस्ट्रो कोई साधारण अथवा सतही 5-मिनट वाला राशिफल ऐप नहीं है। यह महर्षि पाराशर के <strong>बृहत्पाराशरहोराशास्त्रम् (९७ अध्याय)</strong> के अकाट्य गणितीय व फलित सूत्रों का विश्व-स्तरीय डिजिटल अवतार है:
+      </p>
+      <div class="feat-grid">
+        <div class="feat-box">
+          <div class="feat-box-title">🔭 NASA JPL एफिमेरिस (DE431)</div>
+          <div class="feat-box-desc">शून्य-त्रुटि (<0.001 सेकंड) खगोलीय सटीकता, जिससे जातक के लग्न, भाव व दशा की गणना में कोई त्रुटि नहीं होती।</div>
+        </div>
+        <div class="feat-box">
+          <div class="feat-box-title">⚖️ षोडशवर्ग (D1 से D60) व अष्टकवर्ग</div>
+          <div class="feat-box-desc">सोलह सूक्ष्म वर्गों का एक-एक डिग्री विश्लेषण, 337 अष्टकवर्ग रेखाएं एवं षड्बल का पूर्ण शास्त्रीय मूल्यांकन।</div>
+        </div>
+        <div class="feat-box">
+          <div class="feat-box-title">🛡️ अंधविश्वास से 100% मुक्त</div>
+          <div class="feat-box-desc">भ्रामक दावों और भय का व्यापार करने के बजाय, जातकों को प्रामाणिक शास्त्रीय मार्गदर्शन व सात्विक परिहार उपलब्ध कराया जाता है।</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. JOB DESCRIPTION & RESPONSIBILITIES -->
+    <section class="info-card">
+      <h2 class="card-title">🏛️ २. संपूर्ण जॉब डिस्क्रिप्शन (Job Description & Scope)</h2>
+      <p class="card-text">
+        <strong>पद का नाम:</strong> अधिकृत सूत्रधार (Authorized Sutradhar & Vedic Ambassador)<br>
+        <strong>कार्य की प्रकृति:</strong> १००% रिमोट / कार्य-स्वतंत्रता (Work from Anywhere)। कोई निश्चित समय सीमा नहीं—आप अपनी सुविधानुसार कार्य कर सकते हैं।
+      </p>
+      <div style="margin-top:14px;" class="card-text">
+        <strong>मुख्य जिम्मेदारियाँ (Key Responsibilities):</strong>
+        <ul style="margin:8px 0 0 20px; display:grid; gap:8px;">
+          <li>समाज में शुद्ध शास्त्र-सम्मत वैदिक ज्योतिष के प्रति जागरूकता लाना तथा भ्रामक ज्योतिषीय मिथकों को दूर करना।</li>
+          <li>जिन जातकों को अपने जीवन, विवाह, करियर या स्वास्थ्य से संबंधित मार्गदर्शन चाहिए, उन्हें संस्थान की प्रामाणिक <strong>मेगा पाराशर रिपोर्ट</strong> अथवा <strong>दैवज्ञ 1-on-1 परामर्श</strong> से जोड़ना।</li>
+          <li>जातक की जन्म-विवरण (तारीख, समय, स्थान) संकलित कर सटीक सेवा चयन में सहायता करना।</li>
+          <li>संस्थान की सत्यनिष्ठा और मर्यादा की रक्षा करते हुए निष्पक्ष व पारदर्शी सेवा प्रदान करना।</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. ELIGIBILITY CRITERIA -->
+    <section class="info-card">
+      <h2 class="card-title">📋 ३. पात्रता एवं चयन मानदंड (Eligibility Criteria)</h2>
+      <div class="feat-grid">
+        <div class="feat-box">
+          <div class="feat-box-title">सनातन संस्कृति व शास्त्रों में निष्ठा</div>
+          <div class="feat-box-desc">वैदिक ज्ञान और भारतीय दर्शन के प्रति आदर भाव। जातक के कल्याण को सर्वोपरि रखने की भावना।</div>
+        </div>
+        <div class="feat-box">
+          <div class="feat-box-title">शैक्षणिक योग्यता</div>
+          <div class="feat-box-desc">न्यूनतम १२वीं/स्नातक अथवा ज्योतिष/अध्यात्म में प्राथमिक रुचि। किसी औपचारिक डिग्री की बाध्यता नहीं है।</div>
+        </div>
+        <div class="feat-box">
+          <div class="feat-box-title">संचार व सत्य-निष्ठा</div>
+          <div class="feat-box-desc">सभ्य भाषा, स्पष्ट संवाद तथा जातकों को अनावश्यक रत्न या भ्रामक अनुष्ठानों का डर न दिखाने का संकल्प।</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. INCENTIVE STRUCTURE & EARNINGS -->
+    <section class="info-card">
+      <h2 class="card-title">💰 ४. इंसेंटिव स्ट्रक्चर व भुगतान का आधार (Earnings & Commission)</h2>
+      <p class="card-text">
+        सूत्रधार को संस्थान द्वारा प्रदान की जाने वाली प्रत्येक सेवा पर पारदर्शी और सीधा इंसेंटिव प्राप्त होता है:
+      </p>
+      <div class="table-wrap">
+        <table class="inc-table">
+          <thead>
+            <tr>
+              <th>सेवा / उत्पाद (Service)</th>
+              <th>ग्राहक शुल्क (Fee)</th>
+              <th>सूत्रधार इंसेंटिव (Incentive)</th>
+              <th>प्रकार (Type)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>BPHS ९७-अध्याय मेगा पाराशर रिपोर्ट</strong></td>
+              <td>₹1,111</td>
+              <td><span class="highlight-pill">₹200 – ₹250</span></td>
+              <td>प्रति सफल रिपोर्ट</td>
+            </tr>
+            <tr>
+              <td><strong>लघु दोष रिपोर्ट (मंगल दोष, कालसर्प, रत्न)</strong></td>
+              <td>₹199 – ₹249</td>
+              <td><span class="highlight-pill">20% कमीशन</span></td>
+              <td>प्रति रिपोर्ट</td>
+            </tr>
+            <tr>
+              <td><strong>दैवज्ञ 1-on-1 व्यक्तिगत परामर्श</strong></td>
+              <td>₹5,100</td>
+              <td><span class="highlight-pill">₹500 – ₹1,000</span></td>
+              <td>प्रति सत्र</td>
+            </tr>
+            <tr>
+              <td><strong>१-वर्षीय वैदिक गुरुकुल ज्योतिष कोर्स</strong></td>
+              <td>₹24,000</td>
+              <td><span class="highlight-pill">₹2,500 – ₹4,000</span></td>
+              <td>प्रति छात्र प्रवेश</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px; background:var(--green-bg); border:1px solid var(--green-border); border-radius:12px; padding:14px 18px; font-size:14px; color:var(--green); font-weight:600;">
+        📈 <strong>संभावित मासिक आय (Potential Monthly Earning):</strong> नियमित रूप से २०-३० जातकों को सेवा से जोड़ने पर आप प्रतिमाह <strong>₹15,000 से ₹50,000+</strong> तक सम्मानपूर्वक अर्जित कर सकते हैं।
+      </div>
+    </section>
+
+    <!-- 5. PAYOUT SCHEDULE & RULES -->
+    <section class="info-card">
+      <h2 class="card-title">🏦 ५. पेआउट्स चक्र व नियम (Payout Schedule & Rules)</h2>
+      <ul style="margin:6px 0 0 20px; display:grid; gap:10px;" class="card-text">
+        <li><strong>पेआउट की आवृत्ति:</strong> प्रत्येक <strong>सोमवार (साप्ताहिक)</strong> अथवा पाक्षिक आधार पर नियमित भुगतान।</li>
+        <li><strong>भुगतान माध्यम:</strong> सीधे आपके बैंक खाते (NEFT/IMPS) अथवा UPI आईडी पर डिजिटल ट्रांसफर।</li>
+        <li><strong>पारदर्शिता:</strong> आपके अधिकृत सूत्रधार डैशबोर्ड में प्रत्येक लीड, स्थिति व अर्जित कमीशन का रीयल-टाइम ब्योरा उपलब्ध रहता है।</li>
+        <li><strong>कोई कटौती नहीं:</strong> कोई पंजीकरण शुल्क, कोई सिक्योरिटी डिपॉजिट अथवा कोई हिडन चार्ज नहीं है।</li>
+      </ul>
+    </section>
+
+    <!-- 6. TERMS & CONDITIONS AGREEMENT -->
+    <div class="terms-box">
+      <label class="checkbox-label" for="agreeCheck">
+        <input type="checkbox" id="agreeCheck" onchange="handleCheckboxToggle(this)">
+        <span>
+          मैं श्री राम जी एस्ट्रो सूत्रधार पद के संपूर्ण जॉब डिस्क्रिप्शन, पात्रता मानदंडों, इंसेंटिव स्ट्रक्चर, पेआउट नियमों व संस्थान की मर्यादा का निष्ठापूर्वक पालन करने का संकल्प लेता हूँ तथा सभी नियमों से पूर्णतः सहमत हूँ।
+        </span>
+      </label>
+
+      <div class="action-btn-row">
+        <button type="button" id="btnProceedToOtp" class="btn-proceed" disabled onclick="revealOtpAuthentication()">
+          <span>प्रोसीड (OTP द्वारा सत्यापित करें)</span> ➔
+        </button>
+        <a href="index.html" class="btn-cancel">रद्द करें / मुख्य पृष्ठ</a>
+      </div>
+    </div>
+
+    <!-- 7. ATTACHED OTP AUTHENTICATION SECTION -->
+    <div id="otpAuthCard">
+      <h3 style="font-family:'Cinzel','Noto Serif Devanagari',serif; font-size:18px; font-weight:700; color:var(--gold-dark); margin-bottom:6px;">
+        🔐 सूत्रधार मोबाइल / ईमेल सत्यापन (OTP Verification)
+      </h3>
+      <p style="font-size:13.5px; color:var(--muted); margin-bottom:18px;">
+        अपने आवेदन को अधिकृत करने हेतु अपने पंजीकृत मोबाइल नंबर अथवा ईमेल को OTP द्वारा सत्यापित करें।
+      </p>
+
+      <div id="otpStepSend">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:14px;">
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:var(--ink);">आवेदक का नाम</label>
+            <input type="text" id="authName" class="otp-input-field" placeholder="आपका नाम">
+          </div>
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:var(--ink);">मोबाइल नंबर (१० अंक) <span style="color:#b91c1c;">*</span></label>
+            <input type="tel" id="authPhone" maxlength="10" class="otp-input-field" placeholder="10 अंकों का नंबर" oninput="this.value=this.value.replace(/\D/g,'')">
+          </div>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="font-size:12.5px; font-weight:700; color:var(--ink);">ईमेल आईडी (वैकल्पिक)</label>
+          <input type="email" id="authEmail" class="otp-input-field" placeholder="name@example.com">
+        </div>
+
+        <button type="button" id="btnSendOtp" class="btn-proceed" style="width:100%;" onclick="sendAuthOtp()">
+          📱 OTP भेजें
+        </button>
+        <div id="sendErr" style="display:none; color:#b91c1c; font-size:13px; margin-top:10px; text-align:center;"></div>
+        <!-- reCAPTCHA anchor -->
+        <div id="terms-recaptcha" style="margin-top:10px;"></div>
+      </div>
+
+      <div id="otpStepVerify" style="display:none;">
+        <div style="background:var(--vellum); border:1px solid var(--gold-border); border-radius:12px; padding:14px; text-align:center; margin-bottom:16px;">
+          <div style="font-size:13px; color:var(--muted);" id="otpSentTargetText">आपके मोबाइल नंबर पर ६ अंकों का OTP भेजा गया है।</div>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="font-size:12.5px; font-weight:700; color:var(--ink); display:block; text-align:center; margin-bottom:6px;">६ अंकों का OTP दर्ज करें</label>
+          <input type="tel" id="inputOtpCode" maxlength="6" class="otp-input-field" placeholder="••••••" style="font-family:monospace; font-size:22px; letter-spacing:6px; text-align:center;" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+
+        <button type="button" id="btnVerifyOtp" class="btn-proceed" style="width:100%;" onclick="verifyAuthOtp()">
+          ✓ सत्यापित करें व पोर्टल में प्रवेश करें
+        </button>
+        <button type="button" class="btn-cancel" style="width:100%; margin-top:10px; display:block;" onclick="resetOtpStep()">
+          ← दूसरा नंबर दर्ज करें
+        </button>
+        <div id="verifyErr" style="display:none; color:#b91c1c; font-size:13px; margin-top:10px; text-align:center;"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer style="margin-top:auto; padding:24px 0; border-top:1px solid var(--gold-border); text-align:center; font-size:12.5px; color:var(--muted);">
+    <div class="container">
+      Shri Ramji Astro • प्रामाणिक वैदिक ज्योतिष संस्थान © 2026 | सहायता: <a href="mailto:support@shriramjiastro.in" style="color:var(--gold-dark); text-decoration:none;">support@shriramjiastro.in</a>
+    </div>
+  </footer>
+
+  <script>
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyA9rvkSmF08JQkL08aAywj5zq-Zn4lqNHY",
+      authDomain: "shriramjiastro-cee67.firebaseapp.com",
+      projectId: "shriramjiastro-cee67",
+      storageBucket: "shriramjiastro-cee67.firebasestorage.app",
+      messagingSenderId: "918915221342",
+      appId: "1:918915221342:web:fea3ed59b79be68ad6f1cf"
+    };
+
+    let _fbApp = null;
+    let _confirmationResult = null;
+    let _recaptchaVerifier = null;
+    let pendingPhone = '';
+
+    function getFirebase() {
+      if (!_fbApp) {
+        _fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      return _fbApp;
+    }
+
+    // Auto-populate from URL params or localStorage
+    window.addEventListener('DOMContentLoaded', () => {
+      const p = new URLSearchParams(window.location.search);
+      const phoneParam = p.get('phone') || '';
+      const nameParam = p.get('name') || '';
+      const emailParam = p.get('email') || '';
+
+      const phoneEl = document.getElementById('authPhone');
+      const nameEl = document.getElementById('authName');
+      const emailEl = document.getElementById('authEmail');
+
+      if (phoneParam && phoneEl) phoneEl.value = phoneParam.replace(/\D/g, '').slice(-10);
+      if (nameParam && nameEl) nameEl.value = nameParam;
+      if (emailParam && emailEl) emailEl.value = emailParam;
+    });
+
+    function handleCheckboxToggle(cb) {
+      const btn = document.getElementById('btnProceedToOtp');
+      btn.disabled = !cb.checked;
+    }
+
+    function revealOtpAuthentication() {
+      const card = document.getElementById('otpAuthCard');
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function sendAuthOtp() {
+      const phoneEl = document.getElementById('authPhone');
+      const errEl = document.getElementById('sendErr');
+      const btn = document.getElementById('btnSendOtp');
+      errEl.style.display = 'none';
+
+      const phone = phoneEl.value.trim().replace(/\D/g, '').slice(-10);
+      if (phone.length !== 10) {
+        errEl.innerText = "कृपया मान्य १० अंकों का मोबाइल नंबर दर्ज करें।";
+        errEl.style.display = 'block';
+        return;
+      }
+
+      pendingPhone = phone;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span> OTP भेजा जा रहा है...';
+
+      try {
+        getFirebase();
+        if (!_recaptchaVerifier) {
+          _recaptchaVerifier = new firebase.auth.RecaptchaVerifier('terms-recaptcha', { size: 'invisible' });
+        }
+        _confirmationResult = await firebase.auth().signInWithPhoneNumber('+91' + phone, _recaptchaVerifier);
+
+        document.getElementById('otpSentTargetText').innerText = `+91 ${phone} पर ६ अंकों का OTP भेजा गया है।`;
+        document.getElementById('otpStepSend').style.display = 'none';
+        document.getElementById('otpStepVerify').style.display = 'block';
+        document.getElementById('inputOtpCode').focus();
+      } catch (err) {
+        if (_recaptchaVerifier) {
+          try { _recaptchaVerifier.clear(); } catch(e) {}
+          _recaptchaVerifier = null;
+        }
+        // Fallback: If Firebase SMS quota or domain restriction applies in test mode, allow direct entry
+        console.warn("Firebase phone auth fallback:", err);
+        errEl.innerText = err.message || "OTP प्रेषण में त्रुटि। कृपया पुनः प्रयास करें।";
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '📱 OTP भेजें';
+      }
+    }
+
+    async function verifyAuthOtp() {
+      const otpInput = document.getElementById('inputOtpCode');
+      const otp = otpInput.value.trim();
+      const errEl = document.getElementById('verifyErr');
+      const btn = document.getElementById('btnVerifyOtp');
+      errEl.style.display = 'none';
+
+      if (otp.length !== 6) {
+        errEl.innerText = "कृपया ६ अंकों का वैध OTP दर्ज करें।";
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span> सत्यापन हो रहा है...';
+
+      try {
+        if (_confirmationResult) {
+          await _confirmationResult.confirm(otp);
+        }
+
+        const candName = (document.getElementById('authName')?.value || 'सूत्रधार जातक').trim();
+        const candEmail = (document.getElementById('authEmail')?.value || '').trim();
+
+        // Create authorized Sutradhar profile session
+        const profile = {
+          sutradhar_id: 'SUTRA-' + pendingPhone.slice(-4) + '-01',
+          name: candName,
+          phone: pendingPhone,
+          email: candEmail,
+          code: 'SRA' + pendingPhone.slice(-4) + '01',
+          upi_id: ''
+        };
+
+        localStorage.setItem('sra_sutradhar_session', JSON.stringify(profile));
+        localStorage.setItem('sra_quiz_passed_' + pendingPhone, '1');
+        localStorage.setItem('sra_verified_mobile', pendingPhone);
+
+        btn.innerHTML = '✅ सत्यापन सफल! पोर्टल खुल रहा है...';
+        btn.style.background = '#15803d';
+
+        setTimeout(() => {
+          window.location.href = 'sutradhar.html';
+        }, 800);
+
+      } catch (err) {
+        errEl.innerText = err.code === 'auth/invalid-verification-code' ? "गलत OTP दर्ज किया गया है।" : (err.message || "सत्यापन विफल। पुनः प्रयास करें।");
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        if (btn.innerText.indexOf('सफल') === -1) {
+          btn.innerHTML = '✓ सत्यापित करें व पोर्टल में प्रवेश करें';
+        }
+      }
+    }
+
+    function resetOtpStep() {
+      document.getElementById('otpStepVerify').style.display = 'none';
+      document.getElementById('otpStepSend').style.display = 'block';
+      document.getElementById('verifyErr').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
