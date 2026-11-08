@@ -2417,6 +2417,9 @@
           <span style="font-size:13px; color:var(--text-muted); font-weight:700;">सम्पूर्ण संहिता (अखिल ९७ अध्याय: पूर्व एवं उत्तर खण्ड) का विस्तृत फलितार्थ एवं आधुनिक विश्लेषण</span>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="btn-act btn-top-print" onclick="promptAndSendEmail()" style="background:linear-gradient(135deg, #1d4ed8, #1e40af);">
+            <span>📧 ईमेल पर भेजें</span>
+          </button>
           <button type="button" class="btn-act btn-top-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534);">
             <span>📥 A4 PDF डाउनलोड करें</span>
           </button>
@@ -2437,6 +2440,9 @@
 
       <!-- BOTTOM ACTION BUTTONS -->
       <div class="action-row">
+        <button type="button" class="btn-act btn-act-print" onclick="promptAndSendEmail()" style="background:linear-gradient(135deg, #1d4ed8, #1e40af); box-shadow:0 4px 14px rgba(29,78,216,0.35);">
+          <span>📧 ईमेल पर भेजें (Send to Email)</span>
+        </button>
         <button type="button" class="btn-act btn-act-print" onclick="downloadPdfReport()" style="background:linear-gradient(135deg, #15803d, #166534); box-shadow:0 4px 14px rgba(21,128,61,0.35);">
           <span>📥 सम्पूर्ण रिपोर्ट A4 PDF डाउनलोड करें</span>
         </button>
@@ -3782,6 +3788,41 @@
         });
       } catch (e) {
         console.warn("[Email] Trigger error:", e);
+      }
+    }
+
+    async function promptAndSendEmail() {
+      if (!currentParasharaReport) {
+        alert("कृपया पहले 'सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट जनरेट करें' बटन दबाकर अपनी रिपोर्ट जनरेट करें।");
+        return;
+      }
+      let email = (document.getElementById('inEmail')?.value || '').trim() || localStorage.getItem('sra_verified_email') || '';
+      email = prompt("वह ईमेल आईडी दर्ज करें जिस पर आप रिपोर्ट प्राप्त करना चाहते हैं:", email);
+      if (!email || !email.includes('@')) {
+        if (email !== null) alert("कृपया मान्य ईमेल पता दर्ज करें।");
+        return;
+      }
+      const name = currentParasharaReport.name || 'जातक';
+      try {
+        const apiBase = window.SRA_API_BASE || '';
+        const endpoint = apiBase + '/api/report/send-email';
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipient_email: email,
+            recipient_name: name,
+            report_title: 'मेगा पाराशर कुण्डली रिपोर्ट'
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data && data.status === 'success') {
+          alert(`✅ रिपोर्ट सफलतापूर्वक ${email} पर प्रेषित कर दी गई है!`);
+        } else {
+          alert(`सूचना: ${data.message || 'ईमेल प्रेषित हो गई है।'}`);
+        }
+      } catch (e) {
+        alert("ईमेल सर्वर से संपर्क नहीं हो सका। कृपया पुनः प्रयास करें।");
       }
     }
 
