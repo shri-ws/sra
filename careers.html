@@ -627,6 +627,12 @@
             </div>
 
             <div class="form-group full">
+              <label class="form-label">पेआउट हेतु आपकी UPI ID (वैकल्पिक)</label>
+              <input type="text" id="cand_upi" class="form-input" placeholder="उदा. 94150XXXXX@upi अथवा yourname@oksbi">
+              <span style="font-size:11px; color:var(--muted); margin-top:2px;">* आपके सूत्रधार कमीशन पेआउट्स सीधे इसी UPI पर भेजे जाएंगे। (इसे बाद में भी जोड़ सकते हैं)</span>
+            </div>
+
+            <div class="form-group full">
               <label class="form-label">ज्योतिष, परामर्श या लोक-संवाद में आपकी रुचि व पूर्व अनुभव</label>
               <textarea id="cand_experience" class="form-textarea" placeholder="अपने पूर्व अध्ययन, ज्योतिष में रुचि, अथवा जनसंपर्क के अनुभव के विषय में संक्षेप में बताएं..."></textarea>
             </div>
@@ -739,6 +745,7 @@
       const cleanPhone = rawPhone.replace(/[^0-9]/g, '').slice(-10);
       const emailVal = document.getElementById('cand_email').value.trim();
       const cityVal = document.getElementById('cand_city').value.trim();
+      const upiVal = (document.getElementById('cand_upi')?.value || '').trim();
       const expVal = document.getElementById('cand_experience').value.trim();
 
       const appId = 'SRA-APP-' + Math.floor(100000 + Math.random() * 900000);
@@ -758,6 +765,8 @@
         email: emailVal,
         city: cityVal,
         location: cityVal,
+        upi_id: upiVal,
+        upi: upiVal,
         experience: expVal,
         bio: expVal,
         resume_name: uploadedFileName,
@@ -846,7 +855,7 @@
         document.getElementById('confirmModal').classList.add('active');
 
         // Auto-redirect to the intermediate Job Description & Terms page after short delay
-        window._pendingTermsUrl = `sutradhar-terms.html?phone=${encodeURIComponent(payload.phone)}&name=${encodeURIComponent(payload.name)}&email=${encodeURIComponent(payload.email || '')}`;
+        window._pendingTermsUrl = `sutradhar-terms.html?phone=${encodeURIComponent(payload.phone)}&name=${encodeURIComponent(payload.name)}&email=${encodeURIComponent(payload.email || '')}&upi=${encodeURIComponent(upiVal || '')}`;
         setTimeout(() => {
           if (document.getElementById('confirmModal').classList.contains('active')) {
             proceedToTermsPage();
@@ -876,7 +885,8 @@
       const phone = document.getElementById('cand_phone')?.value.replace(/[^0-9]/g, '').slice(-10) || '';
       const name = document.getElementById('cand_name')?.value.trim() || '';
       const email = document.getElementById('cand_email')?.value.trim() || '';
-      const targetUrl = window._pendingTermsUrl || `sutradhar-terms.html?phone=${encodeURIComponent(phone)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+      const upi = (document.getElementById('cand_upi')?.value || '').trim();
+      const targetUrl = window._pendingTermsUrl || `sutradhar-terms.html?phone=${encodeURIComponent(phone)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&upi=${encodeURIComponent(upi)}`;
       window.location.href = targetUrl;
     }
 

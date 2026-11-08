@@ -883,6 +883,72 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       </div>
     </div>
   </div>
+
+  <!-- MANUAL UPI PAYOUT MODAL -->
+  <div id="modalManualUpi" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--card-bg, #1a1622); border:1px solid var(--gold, #b08d3e); border-radius:16px; max-width:480px; width:100%; padding:24px; box-shadow:0 20px 50px rgba(0,0,0,0.5); color:var(--text, #fff); font-family:sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(176,141,62,0.3); padding-bottom:10px;">
+        <h3 style="margin:0; font-size:17px; font-weight:700; color:var(--gold, #d4af37); display:flex; align-items:center; gap:8px;">
+          ⚡ सूत्रधार मैन्युअल UPI भुगतान (Instant Payout)
+        </h3>
+        <button onclick="closeManualUpiModal()" style="background:none; border:none; color:#9ca3af; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">सूत्रधार का नाम व ID</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:8px;">
+            <span id="mUpiName" style="font-weight:700; font-size:14px;">—</span>
+            <code id="mUpiSutraId" style="color:#3b82f6; font-size:12px; font-weight:700;">—</code>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">सूत्रधार की UPI ID</label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="mUpiIdInput" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-family:monospace; font-size:14px;" placeholder="उदा. 94150XXXXX@upi" oninput="updateUpiPayLinks()">
+            <button class="export-btn" onclick="copyUpiId()" style="padding:0 12px;">📋 कॉपी</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">भुगतान राशि (₹)</label>
+            <input type="number" id="mUpiAmtInput" value="250" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#10b981; font-weight:800; font-size:16px;" oninput="updateUpiPayLinks()">
+          </div>
+          <div>
+            <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">संदर्भ / रिमार्क</label>
+            <input type="text" id="mUpiRemarkInput" value="SRA_Commission" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:13px;" oninput="updateUpiPayLinks()">
+          </div>
+        </div>
+
+        <!-- QR Code & App Direct Payment -->
+        <div style="text-align:center; padding:12px; background:rgba(255,255,255,0.03); border:1px dashed rgba(176,141,62,0.4); border-radius:12px; margin-top:4px;">
+          <div style="font-size:12px; font-weight:600; color:var(--gold, #d4af37); margin-bottom:8px;">
+            📸 फोन के किसी भी UPI ऐप (GPay / PhonePe / Paytm) से QR स्कैन करें
+          </div>
+          <div style="display:inline-block; padding:8px; background:#fff; border-radius:10px;">
+            <img id="mUpiQrImg" src="" alt="UPI QR" style="width:150px; height:150px; display:block;">
+          </div>
+          <div style="margin-top:10px;">
+            <a id="mUpiDeepLink" href="#" class="export-btn" style="background:#16a34a; color:#fff; text-decoration:none; padding:10px 18px; font-weight:700; font-size:13px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+              📱 UPI ऐप से सीधे पे करें ➔
+            </a>
+          </div>
+        </div>
+
+        <!-- Action Confirmation Row -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+          <button class="export-btn" style="background:#2563eb; color:#fff; font-weight:700; padding:12px; font-size:13px;" onclick="confirmManualPayoutSaved()">
+            ✓ भुगतान पूर्ण दर्ज करें (Mark as Paid in Ledger)
+          </button>
+          <button class="export-btn" style="background:#059669; color:#fff; font-weight:700; padding:10px; font-size:12px;" onclick="sendSutradharWhatsAppReceipt()">
+            💬 सूत्रधार को WhatsApp पर रसीद भेजें
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1411,15 +1477,28 @@ function renderPaymentRows(tbodyId, rows){
     return `<tr>
       <td><div class="name-cell">${safe(p.student_name || 'जातक')}</div><div class="email-cell">${safe(p.student_email)}</div></td>
       <td>${waLink}</td>
-      <td style="font-size:12px;max-width:180px;font-weight:600">${safe(p.plan_name)}</td>
+      <td style="font-size:12px;max-width:180px;font-weight:600">
+        ${safe(p.plan_name)}
+        ${p.sutradhar_id ? `<div style="font-size:11px; color:#2563eb; font-weight:700; margin-top:2px;">🤝 सूत्रधार: ${safe(p.sutradhar_id)}</div>` : ''}
+      </td>
       <td class="amount-cell" style="color:var(--gold);font-weight:800">${fmtAmt(p.amount)}</td>
       <td>${badge(p.status || 'completed')}</td>
       <td>${pid(payId)}</td>
       <td class="date-cell">${fmtDate(p.created_at)}</td>
       <td>
-        <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deletePayment('${safe(payId)}')">
-          🗑️ हटाएं
-        </button>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <button class="export-btn" style="background:#059669; color:#fff; font-size:10px; padding:4px 8px; font-weight:600;" onclick="sendCustomerPaymentWhatsApp('${safe(p.student_name || 'जातक')}', '${safe(cleanPhone)}', '${safe(payId)}', '${safe(p.plan_name || 'मेगा पाराशर कुण्डली रिपोर्ट')}')">
+            💬 ग्राहक को WhatsApp पुष्टि
+          </button>
+          ${p.sutradhar_id ? `
+            <button class="export-btn" style="background:#16a34a; color:#fff; font-size:10px; padding:4px 8px; font-weight:600;" onclick="openPaymentSutradharUpiModal('${safe(p.sutradhar_id)}', '${safe(p.student_name)}', '${safe(cleanPhone)}', '${safe(payId)}')">
+              ⚡ सूत्रधार को UPI पे करें
+            </button>
+          ` : ''}
+          <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deletePayment('${safe(payId)}')">
+            🗑️ हटाएं
+          </button>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -2061,6 +2140,7 @@ function renderCareerRows(tbodyId, rows) {
           <div><span style="color:var(--muted);">ID:</span> <code style="background:rgba(59,130,246,0.15); color:#2563eb; padding:2px 5px; border-radius:4px; font-weight:700;">${app.sutradhar_id || ('SUTRA-' + (app.phone ? app.phone.slice(-4) : '0000') + '-01')}</code></div>
           <div><span style="color:var(--muted);">10% कूपन:</span> <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${app.code ? app.code.replace(/-/g, '') : (app.coupon_code ? app.coupon_code.replace(/-/g, '') : ('SRA' + (app.phone ? app.phone.slice(-4) : '0000') + 'X1'))}</code></div>
           <div><span style="color:var(--muted);">पासकोड:</span> <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
+          <div><span style="color:var(--muted);">UPI ID:</span> <code style="background:rgba(34,197,94,0.12); color:#16a34a; padding:2px 5px; border-radius:4px; font-weight:700;">${safe(app.upi_id || app.upi || 'दर्ज नहीं')}</code></div>
           <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}', '${safe(app.name)}', '${safe(app.email || '')}')">${dict.btnCopyLink}</button>
         </div>
       </td>
@@ -2075,6 +2155,9 @@ function renderCareerRows(tbodyId, rows) {
               ${dict.btnSendWa}
             </button>
           `}
+          <button class="export-btn" style="background:#16a34a; color:#fff; font-weight:700; font-size:11px;" onclick="openManualUpiModal('${safe(app.name)}', '${safe(app.sutradhar_id || '')}', '${safe(app.upi_id || app.upi || '')}', '${safe(app.phone)}', 250)">
+            ⚡ UPI भुगतान करें
+          </button>
           <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:4px 8px;" onclick="deleteCareerApplication('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}')">
             🗑️ हटाएं
           </button>
@@ -2272,6 +2355,171 @@ function viewResumeModal(appId) {
   const app = (D.careers || []).find(c => c.id === appId);
   if (!app) return;
   alert(`बायोडाटा / अनुभव विवरण (${app.name}):\n\n${app.experience || app.bio || 'कोई अतिरिक्त विवरण दर्ज नहीं है।'}`);
+}
+
+/* ══ SUTRADHAR MANUAL UPI PAYOUT & WHATSAPP CONFIRMATION SUITE ══ */
+let currentUpiPayout = null;
+
+function openManualUpiModal(name, sutraId, upiId, phone, defaultAmt = 250, payId = '', custName = '') {
+  currentUpiPayout = {
+    name: name || 'सूत्रधार',
+    sutraId: sutraId || ('SUTRA-' + (phone ? phone.slice(-4) : '0000') + '-01'),
+    upiId: upiId || (phone ? `${phone}@upi` : ''),
+    phone: phone || '',
+    amount: defaultAmt || 250,
+    payId: payId || ('RZP_MANUAL_' + Date.now().toString().slice(-6)),
+    custName: custName || ''
+  };
+
+  document.getElementById('mUpiName').textContent = currentUpiPayout.name;
+  document.getElementById('mUpiSutraId').textContent = currentUpiPayout.sutraId;
+  document.getElementById('mUpiIdInput').value = currentUpiPayout.upiId;
+  document.getElementById('mUpiAmtInput').value = currentUpiPayout.amount;
+  document.getElementById('mUpiRemarkInput').value = 'SRA_' + currentUpiPayout.sutraId;
+
+  updateUpiPayLinks();
+  const m = document.getElementById('modalManualUpi');
+  if (m) m.style.display = 'flex';
+}
+
+function closeManualUpiModal() {
+  const m = document.getElementById('modalManualUpi');
+  if (m) m.style.display = 'none';
+}
+
+function updateUpiPayLinks() {
+  const upiId = (document.getElementById('mUpiIdInput')?.value || '').trim();
+  const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
+  const name = currentUpiPayout?.name || 'SRA Sutradhar';
+  const remark = (document.getElementById('mUpiRemarkInput')?.value || 'SRA_Commission').trim();
+
+  if (currentUpiPayout) {
+    currentUpiPayout.upiId = upiId;
+    currentUpiPayout.amount = amt;
+  }
+
+  const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amt.toFixed(2)}&cu=INR&tn=${encodeURIComponent(remark)}`;
+  
+  const linkEl = document.getElementById('mUpiDeepLink');
+  if (linkEl) linkEl.href = upiUri;
+
+  const qrImg = document.getElementById('mUpiQrImg');
+  if (qrImg) {
+    if (upiId && upiId.includes('@')) {
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUri)}`;
+      qrImg.style.opacity = '1';
+    } else {
+      qrImg.src = '';
+      qrImg.style.opacity = '0.3';
+    }
+  }
+}
+
+function copyUpiId() {
+  const upi = document.getElementById('mUpiIdInput')?.value || '';
+  if (!upi) { alert('UPI ID दर्ज नहीं है।'); return; }
+  navigator.clipboard.writeText(upi);
+  alert('✓ UPI ID क्लिपबोर्ड पर कॉपी हो गई: ' + upi);
+}
+
+async function confirmManualPayoutSaved() {
+  if (!currentUpiPayout) return;
+  const upi = (document.getElementById('mUpiIdInput')?.value || '').trim();
+  const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
+
+  if (!upi || !upi.includes('@')) {
+    alert('कृपया मान्य UPI ID (उदा. 94150XXXXX@upi) दर्ज करें।');
+    return;
+  }
+
+  const payoutRecord = {
+    payout_id: 'PO_MANUAL_' + Date.now().toString().slice(-6),
+    sutradhar_id: currentUpiPayout.sutraId,
+    razorpay_payment_id: currentUpiPayout.payId,
+    customer_name: currentUpiPayout.custName || 'ग्राहक जातक',
+    customer_phone: currentUpiPayout.phone,
+    product: 'मेगा पाराशर कुण्डली कमीशन',
+    amount: amt,
+    upi_id: upi,
+    utr: 'MANUAL_UPI_' + Math.floor(100000000000 + Math.random() * 900000000000),
+    status: 'paid',
+    gateway: 'Admin Manual UPI Transfer',
+    transferred_at: new Date().toISOString()
+  };
+
+  // Try backend save
+  try {
+    await fetch('api/sutradhar_payout.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payoutRecord)
+    });
+  } catch(e) {}
+
+  // Also store in LocalStorage payouts ledger
+  try {
+    const localLedger = JSON.parse(localStorage.getItem('sra_sutradhar_payouts_ledger') || '[]');
+    localLedger.unshift(payoutRecord);
+    localStorage.setItem('sra_sutradhar_payouts_ledger', JSON.stringify(localLedger));
+  } catch(e) {}
+
+  alert(`✅ सफल! सूत्रधार ${currentUpiPayout.name} को ₹${amt} का UPI भुगतान लेजर में सफलतापूर्वक दर्ज कर दिया गया है।`);
+  closeManualUpiModal();
+  renderAll();
+}
+
+function sendSutradharWhatsAppReceipt() {
+  if (!currentUpiPayout) return;
+  const phone = (currentUpiPayout.phone || '').replace(/\D/g, '').slice(-10);
+  const upi = (document.getElementById('mUpiIdInput')?.value || currentUpiPayout.upiId || '').trim();
+  const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
+
+  const msg = `सादर प्रणाम ${currentUpiPayout.name || 'सूत्रधार जी'}!\n\n`
+    + `शुभ सूचना! श्री राम जी एस्ट्रो द्वारा आपकी लीड का देय सूत्रधार कमीशन ₹${amt} आपके UPI (${upi || 'पंजीकृत UPI'}) पर प्रेषित कर दिया गया है।\n\n`
+    + `📌 भुगतान विवरण:\n`
+    + `• सूत्रधार ID: ${currentUpiPayout.sutraId}\n`
+    + `• कमीशन राशि: ₹${amt}\n`
+    + `• स्थिति: सफल (Paid)\n`
+    + `• तारीख: ${new Date().toLocaleDateString('hi-IN')}\n\n`
+    + `आप अपने सूत्रधार डैशबोर्ड (https://shriramjiastro.in/sutradhar.html) में जाकर कुल अर्जित राशि देख सकते हैं।\n\n`
+    + `शास्त्र-ज्ञान के प्रचार-प्रसार में आपके योगदान हेतु साधुवाद!\n— श्री राम जी एस्ट्रो`;
+
+  if (phone) {
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  } else {
+    prompt('कृपया सूत्रधार का 10-अंकीय व्हाट्सएप नंबर दर्ज करें:', '');
+  }
+}
+
+function sendCustomerPaymentWhatsApp(custName, custPhone, payId, planName) {
+  const cleanPhone = (custPhone || '').replace(/\D/g, '').slice(-10);
+  if (!cleanPhone) {
+    alert('ग्राहक का मोबाइल नंबर उपलब्ध नहीं है।');
+    return;
+  }
+
+  const msg = `सादर प्रणाम ${custName || 'जातक'} जी!\n\n`
+    + `श्री राम जी एस्ट्रो पर आपका ${planName || 'मेगा पाराशर कुण्डली रिपोर्ट'} हेतु दक्षिणा भुगतान (रसीद संख्या: ${payId}) सफलतापूर्वक प्राप्त हो गया है।\n\n`
+    + `आपकी प्रामाणिक ९७-अध्याय सम्पूर्ण पाराशर कुण्डली रिपोर्ट डिजिटल रूप से अनलॉक कर दी गई है।\n\n`
+    + `🔗 अपनी रिपोर्ट देखें अथवा ईमेल पर मंगाएं:\nhttps://shriramjiastro.in/parashara-report.html\n\n`
+    + `यदि कोई प्रश्न अथवा सहायता अपेक्षित हो, तो इसी नंबर पर उत्तर दें।\n\n`
+    + `शुभम् भवतु!\n— श्री राम जी एस्ट्रो (shriramjiastro.in)`;
+
+  window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function openPaymentSutradharUpiModal(sutradharId, custName, custPhone, payId) {
+  let matched = (D.careers || []).find(c => 
+    (c.sutradhar_id && c.sutradhar_id === sutradharId) ||
+    (c.code && c.code.replace(/-/g, '') === sutradharId.replace(/-/g, '')) ||
+    (c.coupon_code && c.coupon_code.replace(/-/g, '') === sutradharId.replace(/-/g, ''))
+  );
+
+  const name = matched?.name || sutradharId;
+  const upi = matched?.upi_id || matched?.upi || (matched?.phone ? `${matched.phone}@upi` : '');
+  const phone = matched?.phone || '';
+
+  openManualUpiModal(name, sutradharId, upi, phone, 250, payId, custName);
 }
 
 /* ══ SUTRADHAR REQUIRES REVIEW QUEUE ENGINE ══ */

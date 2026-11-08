@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="robots" content="noindex, nofollow"/>
 <title>Admin — Shri Ramji Astro</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 <script src="theme.js"></script>
+<script src="sra-config.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root, [data-theme="day"] {
@@ -81,6 +85,50 @@
 [data-theme="night"] .label-day { color: var(--muted); }
 [data-theme="night"] .label-night { color: #000000; }
 
+/* ELEGANT LANGUAGE TOGGLE SWITCH STYLING */
+.lang-toggle-container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 90px;
+  height: 30px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  padding: 2px;
+  user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.lang-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 42px;
+  height: 24px;
+  background: var(--toggle-slider-bg);
+  border-radius: 14px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+[data-admin-lang="en"] .lang-slider {
+  transform: translateX(42px);
+}
+.lang-label {
+  flex: 1;
+  text-align: center;
+  font-family: 'Lato', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+:root:not([data-admin-lang="en"]) .label-hi { color: #ffffff; }
+:root:not([data-admin-lang="en"]) .label-en { color: var(--muted); }
+[data-admin-lang="en"] .label-en { color: #ffffff; }
+[data-admin-lang="en"] .label-hi { color: var(--muted); }
+
 body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-size:14px;min-height:100vh;transition:background 0.3s ease, color 0.3s ease}
 
 /* LOGIN */
@@ -94,6 +142,9 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .lf input:focus{border-color:var(--gold);box-shadow:0 0 8px rgba(201,168,76,0.3)}
 .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#8b6a1a);border:none;border-radius:9px;color:#ffffff;font-family:'Cinzel',serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .login-btn:hover{filter:brightness(1.1)}
+.google-admin-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:14px 18px;background:#ffffff;color:#1f2937;border:1.5px solid #d1d5db;border-radius:10px;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s ease;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.google-admin-btn:hover{background:#f9fafb;border-color:var(--gold);box-shadow:0 4px 14px rgba(201,168,76,0.25);transform:translateY(-1px)}
+.google-admin-btn:disabled{opacity:0.7;cursor:not-allowed;transform:none}
 .login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
 
 /* LAYOUT */
@@ -119,6 +170,13 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.acc-auth{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 20px}
+.acc-auth-title{font-weight:700;color:var(--gold);margin-bottom:4px}
+.acc-auth-sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.acc-err{color:var(--red)}
+.acc-kund > td{background:rgba(201,168,76,0.05);padding:10px 16px !important}
+.acc-kund-tbl{margin:0;font-size:12.5px}
+.acc-empty{padding:14px;text-align:center;color:var(--muted);font-size:13px}
 .stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:2px}
 .stat-sub{font-size:11px;color:var(--muted)}
@@ -174,7 +232,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 @media(max-width:960px){.social-split{grid-template-columns:1fr}}
 .social-phone-frame{width:100%;max-width:290px;height:515px;background:#000;border-radius:24px;margin:0 auto 14px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.3);border:3px solid rgba(201,168,76,0.35)}
 .social-phone-frame video{width:100%;height:100%;object-fit:cover}
-.social-tabs-nav{display:flex;gap:6px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;overflow-x:auto}
+.social-tabs-nav{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px}
 .social-tab-btn{padding:7px 12px;border-radius:6px;background:transparent;border:1px solid transparent;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted)}
 .social-tab-btn.active{background:rgba(201,168,76,0.12);border-color:var(--border);color:var(--gold)}
 .social-tab-content{display:none}
@@ -184,20 +242,104 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 .social-form-group label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
 .social-form-group input,.social-form-group select{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;outline:none}
 .social-form-group input:focus{border-color:var(--gold)}
+
+/* ══ EVERY SCREEN: phone, tablet, laptop, desktop ══════════════════════════
+   Up to 900px the left sidebar becomes a top bar (logo + logout, then every tab
+   as a pill, wrapping onto more lines so all of them are visible at once) and
+   the content takes the full width. Up to 700px each
+   table row becomes a card that lists every column as "label — value", so no
+   table is cut off or needs sideways scrolling. Labels come from the table
+   headers (script at the end of this page). */
+.main{min-width:0}
+.tbl td{overflow-wrap:anywhere}
+@media (max-width:900px){
+  .sidebar{position:static;bottom:auto;width:auto;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;
+    gap:8px 10px;padding:10px 12px;border-right:0;border-bottom:1px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .sidebar-logo{flex:1 1 auto;min-width:0;padding:0;border:0}
+  .sidebar-logo-text{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sidebar-logo-sub{display:none}
+  .sidebar-footer{flex:none;padding:0;border:0}
+  .logout-btn{width:auto;padding:7px 12px}
+  .sidebar-nav{order:3;flex:1 1 100%;flex-direction:row;flex-wrap:wrap;padding:2px 0 2px;gap:6px}
+  .nav-item{flex:0 1 auto;white-space:normal;padding:7px 11px;font-size:12.5px;line-height:1.3;margin-top:0 !important;
+    border:1px solid var(--border) !important;border-radius:18px !important}
+  .social-tabs-nav{flex-wrap:wrap;overflow:visible}
+  .nav-item.active{background:rgba(201,168,76,0.16) !important}
+  .main{margin-left:0;padding:16px 14px}
+  .topbar{margin-bottom:16px}
+  .topbar > div{flex-wrap:wrap}
+}
+@media (max-width:700px){
+  .topbar h1{font-size:17px;flex:1 1 100%}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat-card{padding:14px;min-width:0}
+  .stat-val{font-size:20px;overflow-wrap:anywhere}
+  .table-header{padding:12px 14px}
+  .table-header > *{max-width:100%}
+  .search-box{width:100%;flex:1 1 100%}
+  .acc-auth{padding:14px}
+  .social-status-card{padding:16px}
+  .social-actions-bar .social-btn{flex:1 1 100%;justify-content:center;white-space:normal;text-align:center}
+  .social-tab-content [style*="space-between"], #panel-careers [style*="space-between"]{flex-wrap:wrap;gap:8px}
+  #socialSettingsBox{padding:16px !important}
+  .login-box{padding:32px 20px}
+
+  /* Tables → cards */
+  .tbl thead{display:none}
+  .tbl, .tbl tbody, .tbl tr{display:block;width:100%}
+  .tbl tr{width:auto;margin:10px;border:1px solid var(--border);border-radius:12px;background:var(--card);padding:4px 0;overflow:hidden}
+  .tbl tr:hover td{background:none}
+  .tbl td{display:block;position:relative;max-width:none !important;white-space:normal !important;text-align:left !important;
+    padding:8px 12px 8px calc(36% + 14px) !important;min-height:34px;border-bottom:1px solid rgba(201,168,76,0.08) !important}
+  .tbl tr td:last-child{border-bottom:0 !important}
+  .tbl td::before{content:attr(data-label);position:absolute;left:12px;top:9px;width:34%;font-family:'Cinzel',serif;font-size:9.5px;
+    letter-spacing:1px;text-transform:uppercase;color:var(--muted);line-height:1.4;overflow-wrap:anywhere}
+  .tbl td[data-label=""], .tbl td:not([data-label]){padding-left:12px !important}
+  .tbl td[data-label=""]::before, .tbl td:not([data-label])::before{display:none}
+  .tbl td .date-cell, .tbl .date-cell{white-space:normal}
+  .tbl td.empty-row, .tbl td.loading-row{padding:22px 12px !important;text-align:center !important}
+  .tbl .tbl tr{margin:8px 0}
+}
+@media (max-width:340px){ .stats-grid{grid-template-columns:1fr} }
+@media (max-width:380px){
+  .tbl td{padding-left:12px !important;padding-top:24px !important}
+  .tbl td::before{top:7px;width:auto;right:12px}
+  .tbl td[data-label=""], .tbl td:not([data-label]){padding-top:8px !important}
+}
 </style>
+<script src="admin-accounts.js?v=20261105_05" defer></script>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-box">
-    <div style="font-size:40px;margin-bottom:14px">🔐</div>
-    <h2>Admin Login</h2>
-    <p>Shri Ramji Astro Dashboard</p>
-    <div class="lf"><label>Username</label><input type="text" id="lu" placeholder="Username" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <button class="login-btn" onclick="doLogin()">Enter Dashboard</button>
-    <div class="login-err" id="loginErr"></div>
+  <div class="login-box" style="max-width:440px;padding:42px 34px;box-shadow:0 16px 48px rgba(0,0,0,0.22);border-radius:20px;">
+    <div style="font-size:46px;margin-bottom:12px">🪐</div>
+    <h2 style="font-family:'Cinzel',serif;font-size:22px;color:var(--gold);margin-bottom:6px">श्री राम जी एस्ट्रो · एडमिन</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px">सुरक्षित व्यवस्थापक पोर्टल (Admin Dashboard)</p>
+
+    <!-- Unified 1-Click Google Sign In (NO PASSWORDS) -->
+    <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.25);border-radius:14px;padding:24px 18px;margin-bottom:16px;">
+      <div style="font-size:12.5px;color:var(--text);margin-bottom:14px;line-height:1.5;">
+        डैशबोर्ड में प्रवेश के लिए अपने अधिकृत Google खाते से लॉगिन करें:
+      </div>
+
+      <button id="googleAdminBtn" class="google-admin-btn" onclick="doGoogleAdminLogin()" type="button">
+        <svg width="22" height="22" viewBox="0 0 24 24" style="flex-shrink:0;">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Google से सीधा लॉगिन करें</span>
+      </button>
+
+      <div style="font-size:11.5px;color:var(--muted);margin-top:12px;">
+        अधिकृत ईमेल: <b style="color:var(--gold);">shriramjiastro7@gmail.com</b>
+      </div>
+    </div>
+
+    <div class="login-err" id="loginErr" style="margin-bottom:12px;font-weight:600;min-height:18px;"></div>
   </div>
 </div>
 
@@ -210,6 +352,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="showPanel('overview', this)">📊 &nbsp;Overview</div>
+      <div class="nav-item" onclick="showPanel('accounts', this)" style="color:var(--gold);font-weight:700">👤 &nbsp;Website Accounts</div>
       <div class="nav-item" onclick="showPanel('emails', this)">📧 &nbsp;Verified Email Logins</div>
       <div class="nav-item" onclick="showPanel('users', this)">📱 &nbsp;Registered Users & Queries</div>
       <div class="nav-item" onclick="showPanel('students', this)">🎓 &nbsp;Students</div>
@@ -218,8 +361,11 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item" onclick="showPanel('forum', this)">💬 &nbsp;Forum Posts</div>
       <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
+      <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">🤝 &nbsp;सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">⚠️ &nbsp;सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
     </div>
     <div class="sidebar-footer">
+      <div id="admin-user-badge" style="font-size:11px;color:var(--gold);padding:6px 10px;background:rgba(201,168,76,0.08);border-radius:6px;margin-bottom:8px;word-break:break-all;text-align:center;">👤 व्यवस्थापक</div>
       <button class="logout-btn" onclick="doLogout()">⎋ Logout</button>
     </div>
   </div>
@@ -233,6 +379,13 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <span class="theme-label label-day">DAY</span>
           <span class="theme-slider"></span>
           <span class="theme-label label-night">NIGHT</span>
+        </div>
+
+        <!-- ELEGANT LANGUAGE TOGGLE SWITCH (HI / EN) -->
+        <div class="lang-toggle-container" onclick="toggleAdminLanguage()" id="adminLangToggleBtn" title="Switch Language (English / हिन्दी)">
+          <span class="lang-label label-hi">हिन्दी</span>
+          <span class="lang-slider"></span>
+          <span class="lang-label label-en">EN</span>
         </div>
         <span id="lastSync" style="font-size:11px;color:var(--muted)"></span>
         <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
@@ -306,7 +459,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Interest</th><th>Joined</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Course &amp; payment</th><th>Enrolled</th><th>कार्रवाई</th></tr></thead>
           <tbody id="students-tbody"></tbody>
         </table></div>
       </div>
@@ -317,13 +470,14 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="table-wrap">
         <div class="table-header">
           <span class="table-title">All Payments</span>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
             <input class="search-box" placeholder="Search..." oninput="filterTable('payments-tbody',this.value)"/>
             <button class="export-btn" onclick="exportCSV('payments')">⬇ CSV</button>
+            <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444;" onclick="purgeAllPayments()">🗑️ सभी टेस्ट भुगतान साफ़ करें</button>
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Date</th></tr></thead>
+          <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Amount</th><th>Status</th><th>Payment ID</th><th>Date</th><th>कार्रवाई</th></tr></thead>
           <tbody id="payments-tbody"></tbody>
         </table></div>
       </div>
@@ -337,7 +491,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           <button class="export-btn" onclick="exportCSV('consultations')">⬇ CSV</button>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>DOB</th><th>Place</th><th>Question</th><th>Date</th></tr></thead>
+          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>DOB</th><th>Place</th><th>Question</th><th>Date</th><th>कार्रवाई</th></tr></thead>
           <tbody id="consultations-tbody"></tbody>
         </table></div>
       </div>
@@ -348,9 +502,46 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="table-wrap">
         <div class="table-header"><span class="table-title">Forum Posts</span></div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Likes</th><th>Date</th></tr></thead>
+          <thead><tr><th>Title</th><th>Author</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
           <tbody id="forum-tbody"></tbody>
         </table></div>
+      </div>
+    </div>
+
+    <!-- WEBSITE ACCOUNTS (Firebase login + kundalis saved to the account) -->
+    <div class="panel" id="panel-accounts">
+      <div class="table-wrap acc-auth" style="margin-bottom:16px;">
+        <div>
+          <div class="acc-auth-title">👤 Firebase Website Accounts &amp; Saved Kundalis</div>
+          <div class="acc-auth-sub">Signed in: <b id="acc-who">—</b></div>
+          <div class="acc-auth-sub" id="acc-status">⏳ Loading…</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="refresh-btn" id="acc-signin" type="button">Sign in with Google</button>
+          <button class="export-btn" id="acc-signout" type="button" hidden>Sign out</button>
+        </div>
+      </div>
+      <div id="acc-body" hidden>
+        <div class="stats-grid">
+          <div class="stat-card gold"><div class="stat-label">Total accounts</div><div class="stat-val" id="acc-s-total">—</div><div class="stat-sub">Google + mobile OTP</div></div>
+          <div class="stat-card green"><div class="stat-label">New (7 days)</div><div class="stat-val" id="acc-s-new">—</div><div class="stat-sub">Accounts created</div></div>
+          <div class="stat-card"><div class="stat-label">Active (7 days)</div><div class="stat-val" id="acc-s-active">—</div><div class="stat-sub">Logged in recently</div></div>
+          <div class="stat-card"><div class="stat-label">Saved kundalis</div><div class="stat-val" id="acc-s-kund">—</div><div class="stat-sub">In all accounts</div></div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">👤 Website accounts &amp; their kundalis (live from Firebase)</span>
+            <div style="display:flex;gap:8px">
+              <input class="search-box" id="acc-search" placeholder="Search name / email / mobile / kundali…"/>
+              <button class="export-btn" id="acc-refresh" type="button">↻ Refresh</button>
+              <button class="export-btn" id="acc-csv" type="button">⬇ CSV</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto"><table class="tbl">
+            <thead><tr><th>Name</th><th>Email / Mobile</th><th>Login method</th><th>Joined</th><th>Last login</th><th>Kundalis</th><th>UID</th></tr></thead>
+            <tbody id="acc-tbody"></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
 
@@ -358,7 +549,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <div class="panel" id="panel-emails">
       <div class="table-wrap">
         <div class="table-header">
-          <span class="table-title">📧 Verified Google Email Accounts & Logins (Hostinger DB)</span>
+          <span class="table-title">📧 Verified Google Email Accounts & Logins (Firebase)</span>
           <div style="display:flex;gap:8px">
             <input class="search-box" placeholder="Search Email / Name..." oninput="filterTable('emails-tbody',this.value)"/>
             <button class="export-btn" onclick="exportCSV('emails')">⬇ CSV</button>
@@ -375,14 +566,14 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     <div class="panel" id="panel-users">
       <div class="table-wrap">
         <div class="table-header">
-          <span class="table-title">📱 Registered Users & Kundli Query Log (Hostinger DB)</span>
+          <span class="table-title">📱 Registered Users & Kundli Query Log (Firebase)</span>
           <div style="display:flex;gap:8px">
             <input class="search-box" placeholder="Search Mobile / Candidate..." oninput="filterTable('users-tbody',this.value)"/>
             <button class="export-btn" onclick="exportCSV('users')">⬇ CSV</button>
           </div>
         </div>
         <div style="overflow-x:auto"><table class="tbl">
-          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Login / Auth Method</th><th>DOB & Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th><th>WhatsApp</th></tr></thead>
+          <thead><tr><th>Mobile Number</th><th>Candidate Name</th><th>Login / Auth Method</th><th>DOB & Time</th><th>Location</th><th>Lat / Lon</th><th>Logged Time</th><th>WhatsApp</th><th>कार्रवाई</th></tr></thead>
           <tbody id="users-tbody"></tbody>
         </table></div>
       </div>
@@ -538,8 +729,6 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
           </div>
         </div>
       </div>
-        </div>
-      </div>
 
       <!-- Settings Collapsible Card -->
       <div class="table-wrap" id="socialSettingsBox" style="padding:22px;display:none;margin-bottom:22px">
@@ -583,6 +772,182 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
         </div>
       </div>
     </div>
+
+    <!-- 🤝 CAREERS & SUTRADHAR APPLICATION MANAGEMENT -->
+    <div class="panel" id="panel-careers">
+      <!-- Top Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card gold">
+          <div class="stat-label">कुल प्राप्त आवेदन</div>
+          <div class="stat-val" id="s-career-total">—</div>
+          <div class="stat-sub">सूत्रधार पद हेतु प्रत्याशी</div>
+        </div>
+        <div class="stat-card" style="border-left: 3px solid #f59e0b;">
+          <div class="stat-label">प्रक्रियाधीन (Under Process)</div>
+          <div class="stat-val" id="s-career-pending" style="color:#d97706;">—</div>
+          <div class="stat-sub">आचार्य समिति समीक्षा में</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">स्वीकृत सक्रिय सूत्रधार</div>
+          <div class="stat-val" id="s-career-approved">—</div>
+          <div class="stat-sub">ऑनबोर्डिंग लिंक प्रेषित</div>
+        </div>
+      </div>
+
+      <!-- Overview Guidance Banner -->
+      <div class="table-wrap" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(124,19,5,0.04)); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="font-family:'Cinzel',serif; font-size:14px; font-weight:700; color:var(--gold); margin-bottom:4px;">
+            🏛️ सूत्रधार ऑनबोर्डिंग व चयन प्रक्रिया (SOP)
+          </div>
+          <p style="font-size:12px; color:var(--muted); margin:0; line-height:1.6;">
+            करियर फॉर्म भरने वाले अभ्यर्थियों का विवरण यहां दिखेगा। प्रत्याशी को रिव्यू करने के बाद <strong>"स्वीकृत करें व लिंक जनरेट करें"</strong> दबाएं। यह उनका गुप्त पासकोड और व्यक्तिगत ऑनबोर्डिंग लिंक तैयार कर देगा, जिसे आप 1-क्लिक में सीधे उनके व्हाट्सएप पर भेज सकते हैं।
+          </p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <a href="careers.html" target="_blank" class="export-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+            <span>🌐 करियर पेज देखें ➔</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Applications Table Wrap -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="table-title">🤝 सूत्रधार प्रत्याशी आवेदन तालिका</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input class="search-box" id="careerSearchInput" placeholder="नाम, फोन, शहर से खोजें..." oninput="filterCareersTable(this.value)"/>
+            <button class="export-btn" onclick="loadCareerApplications()">↻ रिफ्रेश</button>
+            <button class="export-btn" style="background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.4); color:#ef4444;" onclick="purgeAllCareerApplications()">🗑️ सारा पुराना डेटा साफ़ करें</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>आवेदन ID व दिनांक</th>
+                <th>प्रत्याशी का नाम</th>
+                <th>व्हाट्सएप नंबर (यूजर ID)</th>
+                <th>शहर व राज्य</th>
+                <th>अनुभव / संक्षिप्त परिचय</th>
+                <th>बायोडाटा / रिज्यूमे</th>
+                <th>स्थिति (Status)</th>
+                <th>गुप्त पासकोड व लिंक</th>
+                <th>कार्यवाही (Action)</th>
+              </tr>
+            </thead>
+            <tbody id="careers-tbody">
+              <tr><td colspan="9" class="empty-row">लोड हो रहा है...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: SUTRADHAR REQUIRES REVIEW QUEUE -->
+    <div class="panel" id="panel-sutra-reviews">
+      <div class="card">
+        <div class="tbl-header">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="table-title">⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार (Requires Review Queue)</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="export-btn" onclick="loadSutradharReviewQueue()">↻ रिफ्रेश</button>
+            <button class="export-btn" style="background:#16a34a; border-color:#15803d; color:#fff;" onclick="triggerSutradharBatchPayouts()">⚡ सभी पेंडिंग पेआउट प्रोसेस करें</button>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 14px;">
+          यह कतार उन मामलों को पकड़ती है जहाँ RazorpayX पेआउट विफल हुआ, UPI अमान्य था, या राशि बेमेल थी। हर मामले पर 'फिर से भेजें' या 'रद्द करें (कारण सहित)' की सुविधा उपलब्ध है।
+        </p>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>कमीशन ID</th>
+                <th>भुगतान / Order ID</th>
+                <th>सूत्रधार ID व UPI</th>
+                <th>ग्राहक मोबाइल</th>
+                <th>कमीशन राशि</th>
+                <th>असफलता का कारण</th>
+                <th>तारीख</th>
+                <th>कार्यवाही (Action)</th>
+              </tr>
+            </thead>
+            <tbody id="sutra-reviews-tbody">
+              <tr><td colspan="8" class="empty-row">लोड हो रहा है...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL UPI PAYOUT MODAL -->
+  <div id="modalManualUpi" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--card-bg, #1a1622); border:1px solid var(--gold, #b08d3e); border-radius:16px; max-width:480px; width:100%; padding:24px; box-shadow:0 20px 50px rgba(0,0,0,0.5); color:var(--text, #fff); font-family:sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(176,141,62,0.3); padding-bottom:10px;">
+        <h3 style="margin:0; font-size:17px; font-weight:700; color:var(--gold, #d4af37); display:flex; align-items:center; gap:8px;">
+          ⚡ सूत्रधार मैन्युअल UPI भुगतान (Instant Payout)
+        </h3>
+        <button onclick="closeManualUpiModal()" style="background:none; border:none; color:#9ca3af; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">सूत्रधार का नाम व ID</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:8px;">
+            <span id="mUpiName" style="font-weight:700; font-size:14px;">—</span>
+            <code id="mUpiSutraId" style="color:#3b82f6; font-size:12px; font-weight:700;">—</code>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">सूत्रधार की UPI ID</label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="mUpiIdInput" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-family:monospace; font-size:14px;" placeholder="उदा. 94150XXXXX@upi" oninput="updateUpiPayLinks()">
+            <button class="export-btn" onclick="copyUpiId()" style="padding:0 12px;">📋 कॉपी</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">भुगतान राशि (₹)</label>
+            <input type="number" id="mUpiAmtInput" value="250" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#10b981; font-weight:800; font-size:16px;" oninput="updateUpiPayLinks()">
+          </div>
+          <div>
+            <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">संदर्भ / रिमार्क</label>
+            <input type="text" id="mUpiRemarkInput" value="SRA_Commission" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:13px;" oninput="updateUpiPayLinks()">
+          </div>
+        </div>
+
+        <!-- QR Code & App Direct Payment -->
+        <div style="text-align:center; padding:12px; background:rgba(255,255,255,0.03); border:1px dashed rgba(176,141,62,0.4); border-radius:12px; margin-top:4px;">
+          <div style="font-size:12px; font-weight:600; color:var(--gold, #d4af37); margin-bottom:8px;">
+            📸 फोन के किसी भी UPI ऐप (GPay / PhonePe / Paytm) से QR स्कैन करें
+          </div>
+          <div style="display:inline-block; padding:8px; background:#fff; border-radius:10px;">
+            <img id="mUpiQrImg" src="" alt="UPI QR" style="width:150px; height:150px; display:block;">
+          </div>
+          <div style="margin-top:10px;">
+            <a id="mUpiDeepLink" href="#" class="export-btn" style="background:#16a34a; color:#fff; text-decoration:none; padding:10px 18px; font-weight:700; font-size:13px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+              📱 UPI ऐप से सीधे पे करें ➔
+            </a>
+          </div>
+        </div>
+
+        <!-- Action Confirmation Row -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+          <button class="export-btn" style="background:#2563eb; color:#fff; font-weight:700; padding:12px; font-size:13px;" onclick="confirmManualPayoutSaved()">
+            ✓ भुगतान पूर्ण दर्ज करें (Mark as Paid in Ledger)
+          </button>
+          <button class="export-btn" style="background:#059669; color:#fff; font-weight:700; padding:10px; font-size:12px;" onclick="sendSutradharWhatsAppReceipt()">
+            💬 सूत्रधार को WhatsApp पर रसीद भेजें
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -590,71 +955,84 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 /* ══ CONFIG ══ */
 const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
-const ADMIN_USER = 'panditji';
-
 /* ══ DATA CACHE ══ */
-let D = { students:[], payments:[], consultations:[], forum:[], users:[] };
+let D = { students:[], payments:[], consultations:[], forum:[], users:[], careers:[] };
 
-/* ══ LOGIN & AUTH RESTORATION ══ */
-async function hashPass(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Valid password hashes: SRA@Admin2025, 7775, 95171, astroraamji
-const VALID_AUTH_HASHES = [
-  '79c1e7a552834b6b19d44f77c617b0709b82aaedfb7d1d2938a1649a21d15bf1', // SRA@Admin2025
-  'faee8c187f66a87756f082e666a7b746366f07f4e7c7a25037d4e5f7b8893d56', // 7775
-  'df01b7a702741d48c087955f26938d21c3fa6759fa20b57e4e1dfcbdb88d75ea', // 95171
-  '3a9856f6e80b2a3f91807d8985160e1d0f5c1d3f6a2b8e90141a0529d89004d8'  // astroraamji
-];
-
-async function doLogin(){
+/* ══ UNIFIED GOOGLE ADMIN AUTHENTICATION ══ */
+async function doGoogleAdminLogin() {
+  const btn = document.getElementById('googleAdminBtn');
+  const err = document.getElementById('loginErr');
+  if (err) err.textContent = '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span>⏳ Google से कनेक्ट हो रहा है...</span>`;
+  }
   try {
-    const lu = document.getElementById('lu');
-    const lp = document.getElementById('lp');
-    const u = lu ? lu.value.trim() : '';
-    const p = lp ? lp.value.trim() : '';
-    const err = document.getElementById('loginErr');
-    
-    // Direct check or hashed check
-    const pHash = await hashPass(p);
-    const isValid = (u.toLowerCase() === 'panditji' || u.toLowerCase() === 'admin') && 
-                    (p === 'SRA@Admin2025' || p === '7775' || p === '95171' || VALID_AUTH_HASHES.includes(pHash));
-
-    if(isValid){
+    if (!window.SRAAdminAccounts || !SRAAdminAccounts.signIn) {
+      throw new Error('प्रमाणीकरण मॉड्यूल लोड हो रहा है, कृपया 2 सेकंड बाद पुनः प्रयास करें।');
+    }
+    const user = await SRAAdminAccounts.signIn('shriramjiastro7@gmail.com');
+    if (user && user.email) {
       sessionStorage.setItem('sra_admin_auth', 'true');
-      sessionStorage.setItem('sra_admin_token', p || '7775');
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      if (err) err.textContent = '';
+      sessionStorage.setItem('sra_admin_email', user.email.toLowerCase());
+      const loginScr = document.getElementById('loginScreen');
+      const appScr = document.getElementById('app');
+      if (loginScr) loginScr.style.display = 'none';
+      if (appScr) appScr.style.display = 'block';
+      const badge = document.getElementById('admin-user-badge');
+      if (badge) badge.textContent = '👤 ' + user.email;
       loadAll();
-    } else {
-      if (err) err.textContent = 'Invalid credentials. Username or Password incorrect.';
     }
   } catch(e) {
-    console.error("doLogin error:", e);
-    const err = document.getElementById('loginErr');
-    if (err) err.textContent = 'Login error. Please check inputs.';
+    console.error('doGoogleAdminLogin error:', e);
+    if (!/popup-closed|cancelled/i.test(e.code || e.message || '')) {
+      if (err) err.textContent = e.message || 'Google लॉगिन विफल रहा। कृपया shriramjiastro7@gmail.com चुनें।';
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg width="22" height="22" viewBox="0 0 24 24" style="flex-shrink:0;">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Google से सीधा लॉगिन करें</span>
+      `;
+    }
   }
 }
 
 function checkAdminAuth() {
-  if (sessionStorage.getItem('sra_admin_auth') === 'true') {
-    const loginScr = document.getElementById('loginScreen');
-    const appScr = document.getElementById('app');
+  const isGoogleAdmin = !!(window.SRAAdminAccounts && SRAAdminAccounts.isAdminSignedIn && SRAAdminAccounts.isAdminSignedIn());
+  const loginScr = document.getElementById('loginScreen');
+  const appScr = document.getElementById('app');
+
+  if (isGoogleAdmin) {
     if (loginScr) loginScr.style.display = 'none';
     if (appScr) appScr.style.display = 'block';
+    const email = sessionStorage.getItem('sra_admin_email') || 'shriramjiastro7@gmail.com';
+    const badge = document.getElementById('admin-user-badge');
+    if (badge && email) badge.textContent = '👤 ' + email;
     loadAll();
+  } else {
+    if (loginScr) loginScr.style.display = 'flex';
+    if (appScr) appScr.style.display = 'none';
   }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   checkAdminAuth();
+  applyAdminLanguage(currentAdminLang);
 });
 
-function doLogout(){
+async function doLogout(){
+  if (window.SRAAdminAccounts && SRAAdminAccounts.signOut) {
+    try { await SRAAdminAccounts.signOut(); } catch(e) {}
+  }
   sessionStorage.removeItem('sra_admin_auth');
+  sessionStorage.removeItem('sra_admin_email');
   sessionStorage.removeItem('sra_admin_token');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
@@ -662,38 +1040,15 @@ function doLogout(){
 
 /* ══ FETCH ══ */
 async function fetchTable(table){
+  if (!window.SRAAdminData || !SRAAdminData.isAdmin()) return [];
   try {
-    const url = `${SUPA_URL}/rest/v1/${table}?select=*&order=created_at.desc&limit=500`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-
-    const text = await res.text();
-    if(!res.ok){
-      showDebug(`ℹ️ ${table}: Server database paused or unavailable.`);
-      return [];
+    if (window.SRAAdminData && SRAAdminData.list) {
+      return await SRAAdminData.list(table);
     }
-    const data = JSON.parse(text);
-    if(!Array.isArray(data)){
-      return [];
-    }
-    return data;
   } catch(e){
-    // Graceful handling when Supabase free tier project is paused or network unreachable
-    showDebug(`⚡ ${table}: Remote database currently offline or paused. Displaying cached records.`);
-    return [];
+    console.warn(`⚠️ Table ${table} fetch:`, e);
   }
+  return [];
 }
 
 function showDebug(msg){
@@ -703,36 +1058,31 @@ function showDebug(msg){
 }
 
 async function fetchPayments(){
-  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  const sraKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'SRA#2026';
   let serverPayments = [];
   try {
-    const res = await fetch('api/get_payments.php?admin_key=' + encodeURIComponent(adminToken), {
-      headers: {
-        'X-Admin-Auth': adminToken
+    const resp = await fetch('api/get_payments.php?admin_key=' + encodeURIComponent(sraKey));
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.payments && Array.isArray(data.payments)) {
+        serverPayments = data.payments;
       }
-    });
-    if(res.ok){
-      const json = await res.json();
-      if(json && json.data) serverPayments = json.data;
     }
-  } catch(e){
-    console.warn("api/get_payments.php note:", e);
+  } catch(e) {
+    console.warn("Could not fetch server payments:", e);
   }
 
-  // Also query Supabase if reachable
-  let supaPayments = [];
-  try {
-    supaPayments = await fetchTable('payments');
-  } catch(e) {}
+  const firestorePayments = await fetchTable('payments');
 
   // Check any local unlocks/payments stored in localStorage on this device
   const localPayments = [];
+  const deletedPayIds = new Set(JSON.parse(localStorage.getItem('sra_deleted_pay_ids') || '[]'));
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && (key.startsWith('sra_mega_payid_') || key.startsWith('sra_parashara_') || key.startsWith('sra_dhan_pay_id_') || key.startsWith('sra_mangal_pay_id_'))) {
         const payId = localStorage.getItem(key);
-        if (payId && (payId.startsWith('pay_') || payId.startsWith('RZP_'))) {
+        if (payId && (payId.startsWith('pay_') || payId.startsWith('RZP_')) && !deletedPayIds.has(payId)) {
           localPayments.push({
             razorpay_payment_id: payId,
             student_name: 'वेरिफाइड जातक',
@@ -747,13 +1097,14 @@ async function fetchPayments(){
     }
   } catch(e) {}
 
-  // Merge and deduplicate by razorpay_payment_id
-  const merged = [...serverPayments];
-  const seen = new Set(serverPayments.map(p => p.razorpay_payment_id));
-  [...supaPayments, ...localPayments].forEach(p => {
-    if (p.razorpay_payment_id && !seen.has(p.razorpay_payment_id)) {
+  // Merge and deduplicate by razorpay_payment_id, excluding deleted ones
+  const merged = [];
+  const seen = new Set();
+  [...serverPayments, ...firestorePayments, ...localPayments].forEach(p => {
+    const pid = p.razorpay_payment_id || p.id;
+    if (pid && !seen.has(pid) && !deletedPayIds.has(pid)) {
       merged.push(p);
-      seen.add(p.razorpay_payment_id);
+      seen.add(pid);
     }
   });
 
@@ -762,38 +1113,52 @@ async function fetchPayments(){
 }
 
 async function fetchUserQueries(){
-  const adminToken = sessionStorage.getItem('sra_admin_token') || '7775';
+  const sraKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'SRA#2026';
   let serverData = [];
   try {
-    const res = await fetch('api/get_users.php?admin_key=' + encodeURIComponent(adminToken), {
-      headers: {
-        'X-Admin-Auth': adminToken
+    const resp = await fetch('api/get_users.php?admin_key=' + encodeURIComponent(sraKey));
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.users && Array.isArray(data.users)) {
+        serverData = data.users.map(u => Object.assign({}, u, {
+          candidate_name: u.candidate_name || u.name || '',
+          latitude: u.latitude || u.lat || '', longitude: u.longitude || u.lon || '', timezone: u.timezone || u.tz || '',
+          login_method: u.login_method || u.action || 'OTP_VERIFIED'
+        }));
       }
-    });
-    if(res.ok){
-      const json = await res.json();
-      if(json && json.data) serverData = json.data;
     }
-  } catch(e){
-    showDebug(`ℹ️ Registered Users DB endpoint fallback active.`);
+  } catch(e) {
+    console.warn("Could not fetch server users:", e);
   }
 
+  const firestoreData = (await fetchTable('user_queries')).map(u => Object.assign({}, u, {
+    candidate_name: u.candidate_name || u.name || '',
+    latitude: u.latitude || u.lat || '', longitude: u.longitude || u.lon || '', timezone: u.timezone || u.tz || '',
+    login_method: u.login_method || u.action || 'OTP_VERIFIED'
+  }));
+
   let local = [];
+  const deletedUserIds = new Set(JSON.parse(localStorage.getItem('sra_deleted_user_ids') || '[]'));
   try {
     local = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
   } catch(e) {}
 
-  // Merge server + local
-  const combined = [...serverData];
+  // Merge server + firestore + local
+  const combined = [];
   const seen = new Set();
-  serverData.forEach(u => {
-    seen.add((u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16));
+  [...serverData, ...firestoreData].forEach(u => {
+    const k = (u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16);
+    const uid = u.id || u.phone;
+    if (!seen.has(k) && !deletedUserIds.has(uid) && !deletedUserIds.has(u.phone)) {
+      combined.push(u);
+      seen.add(k);
+    }
   });
   local.forEach(u => {
     const k = (u.phone || '').trim() + '_' + (u.logged_at || '').slice(0,16);
-    if (!seen.has(k)) {
+    if (!seen.has(k) && !deletedUserIds.has(u.phone)) {
       combined.push({
-        id: 'local_' + Math.random().toString(36).substring(7),
+        id: 'local_' + (u.phone || Math.random().toString(36).substring(7)),
         phone: u.phone,
         email: u.email,
         candidate_name: u.name,
@@ -834,10 +1199,8 @@ async function fetchConsultations(){
 }
 
 async function fetchReviews(){
-  try {
-    const data = await fetchTable('reviews');
-    if (data && data.length) return data;
-  } catch(e) {}
+  const data = await fetchTable('reviews');
+  if (data.length) return data;
   const pending = JSON.parse(localStorage.getItem('sra_pending_reviews_db') || '[]');
   const approved = JSON.parse(localStorage.getItem('sra_approved_reviews_db') || '[]');
   return [...pending, ...approved];
@@ -850,23 +1213,34 @@ async function loadAll(){
 
   setLoading();
 
-  const [students, payments, consultations, forum, users, reviews] = await Promise.all([
+  // Fetch user_queries first so career applications can immediately inspect user_queries
+  let users = [];
+  try {
+    users = await fetchUserQueries();
+  } catch(e) {
+    console.warn("fetchUserQueries error:", e);
+  }
+  D.users = users;
+
+  const [students, payments, consultations, forum, reviews, careers] = await Promise.all([
     fetchTable('students'),
     fetchPayments(),
     fetchConsultations(),
     fetchTable('forum_posts'),
-    fetchUserQueries(),
-    fetchReviews()
+    fetchReviews(),
+    fetchCareerApplications(users)
   ]);
 
   D.students     = students;
   D.payments     = payments;
   D.consultations= consultations;
   D.forum        = forum;
-  D.users        = users;
   D.reviews      = reviews;
+  D.careers      = careers;
 
+  if (window.SRAAdminData) { try { await SRAAdminData.ready(); } catch(e) {} }
   renderAll();
+  loadSutradharReviewQueue().catch(() => {});
 
   const t = new Date();
   document.getElementById('lastSync').textContent =
@@ -874,7 +1248,7 @@ async function loadAll(){
 }
 
 function setLoading(){
-  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-payments-tbody','recent-users-tbody','reviews-tbody'].forEach(id=>{
+  ['students-tbody','payments-tbody','consultations-tbody','forum-tbody','users-tbody','emails-tbody','recent-payments-tbody','recent-users-tbody','reviews-tbody','careers-tbody'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML=`<tr><td colspan="10" class="loading-row"><span class="spin"></span> Loading...</td></tr>`;
   });
@@ -928,13 +1302,15 @@ function renderAll(){
   renderRecentUserRows('recent-users-tbody', D.users.slice(0,8));
 
   /* Full tables */
-  renderStudentRows('students-tbody', D.students.length ? D.students : D.users.slice(0, 50));
+  renderStudentRows('students-tbody', D.students);  // only paid ₹24,000 course enrolments (payment.html)
   renderPaymentRows('payments-tbody', D.payments);
   renderConsultRows('consultations-tbody', D.consultations);
   renderForumRows('forum-tbody', D.forum);
   renderUserQueryRows('users-tbody', D.users);
-  renderEmailRows('emails-tbody', D.users);
+  renderEmailRows('emails-tbody', [...(window.SRAAdminData ? SRAAdminData.accountRows() : []), ...D.users]);
   renderReviewRows('reviews-tbody', D.reviews);
+  renderCareerRows('careers-tbody', D.careers);
+  updateCareerStats(D.careers);
 }
 
 function renderRecentPaymentRows(tbodyId, rows){
@@ -994,19 +1370,9 @@ async function approveReview(idx) {
 
   item.status = 'approved';
 
-  // Save to Supabase if ID exists
-  if (item.id) {
-    try {
-      await fetch(`${SUPA_URL}/rest/v1/reviews?id=eq.${item.id}`, {
-        method: 'PATCH',
-        headers: {
-          'apikey': SUPA_KEY,
-          'Authorization': 'Bearer ' + SUPA_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: 'approved' })
-      });
-    } catch(e) {}
+  if (item.id && window.SRAAdminData) {
+    try { await SRAAdminData.update('reviews', item.id, { status: 'approved' }); }
+    catch(e) { item.status = 'pending'; alert('Could not approve: ' + (e.code || e.message)); return; }
   }
 
   // Update LocalStorage queues
@@ -1053,13 +1419,14 @@ function renderEmailRows(tbodyId, rows){
 
 function renderUserQueryRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No registered user queries or OTP logins recorded yet</td></tr>`; return; }
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="9" class="empty-row">No registered user queries or OTP logins recorded yet</td></tr>`; return; }
   el.innerHTML=rows.map(u=>{
     const methodBadge = getAuthMethodBadge(u.login_method || u.action);
     const dobTob = [safe(u.dob), safe(u.tob)].filter(x=>x&&x!=='—').join(' • ') || '—';
     const coords = (u.latitude || u.lat) ? `${safe(u.latitude || u.lat)}, ${safe(u.longitude || u.lon)}` : '—';
     const cleanPhone = (u.phone || '').replace(/\D/g,'').slice(-10);
     const waChat = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (u.candidate_name||u.name||'जातक') + ' जी, श्री रामजी एस्ट्रो में आपका स्वागत है।')}" target="_blank">💬 WhatsApp</a>` : '—';
+    const uId = u.id || '';
 
     return `<tr>
       <td>${wa(u.phone)}</td>
@@ -1070,45 +1437,154 @@ function renderUserQueryRows(tbodyId, rows){
       <td style="font-size:11px;font-family:monospace;color:var(--muted)">${coords}</td>
       <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
       <td>${waChat}</td>
+      <td>
+        <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deleteUserQuery('${safe(uId)}')">
+          🗑️ हटाएं
+        </button>
+      </td>
     </tr>`;
   }).join('');
 }
 
 function renderStudentRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No students or applicants registered yet</td></tr>`; return; }
-  el.innerHTML=rows.map(s=>`<tr>
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No paid ₹24,000 course enrolments yet</td></tr>`; return; }
+  el.innerHTML=rows.map(s=>{
+    const sId = s.id || '';
+    return `<tr>
     <td><div class="name-cell">${safe(s.first_name || s.candidate_name || s.name || 'जातक')} ${safe(s.last_name || '')}</div></td>
     <td class="email-cell">${safe(s.email)}</td>
     <td>${wa(s.phone)}</td>
     <td style="font-size:12px;color:var(--muted)">${safe(s.city || s.location)}</td>
-    <td style="font-size:12px">${safe(s.course_interest || s.login_method || 'Vedic Astrology')}</td>
+    <td style="font-size:12px">${safe(s.course_interest || 'Vedic Astrology')}<div style="color:var(--gold);font-weight:700">${fmtAmt(s.amount_paid)}</div>${pid(s.razorpay_payment_id)}</td>
     <td class="date-cell">${fmtDate(s.created_at || s.logged_at)}</td>
-  </tr>`).join('');
+    <td>
+      <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deleteStudent('${safe(sId)}')">
+        🗑️ हटाएं
+      </button>
+    </td>
+  </tr>`;
+  }).join('');
 }
 
 function renderPaymentRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
+  if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No customer payments recorded yet</td></tr>`; return; }
   el.innerHTML=rows.map(p=>{
     const cleanPhone = (p.student_phone || '').replace(/\D/g,'').slice(-10);
     const waLink = cleanPhone ? `<a class="wa-link" href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent('नमस्ते ' + (p.student_name||'जातक') + ' जी, आपकी ' + (p.plan_name||'रिपोर्ट') + ' की दक्षिणा रसीद प्राप्त हुई। क्या आपको रिपोर्ट प्राप्त हो गई?')}" target="_blank">📱 ${p.student_phone}</a>` : '—';
+    const payId = p.razorpay_payment_id || p.id || '';
     return `<tr>
       <td><div class="name-cell">${safe(p.student_name || 'जातक')}</div><div class="email-cell">${safe(p.student_email)}</div></td>
       <td>${waLink}</td>
-      <td style="font-size:12px;max-width:180px;font-weight:600">${safe(p.plan_name)}</td>
+      <td style="font-size:12px;max-width:180px;font-weight:600">
+        ${safe(p.plan_name)}
+        ${p.sutradhar_id ? `<div style="font-size:11px; color:#2563eb; font-weight:700; margin-top:2px;">🤝 सूत्रधार: ${safe(p.sutradhar_id)}</div>` : ''}
+      </td>
       <td class="amount-cell" style="color:var(--gold);font-weight:800">${fmtAmt(p.amount)}</td>
       <td>${badge(p.status || 'completed')}</td>
-      <td>${pid(p.razorpay_payment_id)}</td>
+      <td>${pid(payId)}</td>
       <td class="date-cell">${fmtDate(p.created_at)}</td>
+      <td>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <button class="export-btn" style="background:#059669; color:#fff; font-size:10px; padding:4px 8px; font-weight:600;" onclick="sendCustomerPaymentWhatsApp('${safe(p.student_name || 'जातक')}', '${safe(cleanPhone)}', '${safe(payId)}', '${safe(p.plan_name || 'मेगा पाराशर कुण्डली रिपोर्ट')}')">
+            💬 ग्राहक को WhatsApp पुष्टि
+          </button>
+          ${p.sutradhar_id ? `
+            <button class="export-btn" style="background:#16a34a; color:#fff; font-size:10px; padding:4px 8px; font-weight:600;" onclick="openPaymentSutradharUpiModal('${safe(p.sutradhar_id)}', '${safe(p.student_name)}', '${safe(cleanPhone)}', '${safe(payId)}')">
+              ⚡ सूत्रधार को UPI पे करें
+            </button>
+          ` : ''}
+          <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deletePayment('${safe(payId)}')">
+            🗑️ हटाएं
+          </button>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
 
+async function deletePayment(payId) {
+  if (!payId) return;
+  if (!confirm(`क्या आप इस भुगतान रिकॉर्ड (${payId}) को हटाना चाहते हैं?`)) return;
+
+  try {
+    const sraKey = sessionStorage.getItem('sra_admin_token') || 'SRA#2026';
+    await fetch('api/delete_payment.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Auth': sraKey },
+      body: JSON.stringify({ id: payId })
+    });
+
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      try { await SRAAdminData.remove('payments', payId); } catch(e) {}
+    }
+
+    // Remove from local storage keys if matched (safe array collection)
+    try {
+      const toRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && localStorage.getItem(k) === payId) toRemove.push(k);
+      }
+      toRemove.forEach(k => localStorage.removeItem(k));
+      // Mark as deleted in session so it never resurrects
+      const deletedPay = JSON.parse(localStorage.getItem('sra_deleted_pay_ids') || '[]');
+      if (!deletedPay.includes(payId)) {
+        deletedPay.push(payId);
+        localStorage.setItem('sra_deleted_pay_ids', JSON.stringify(deletedPay));
+      }
+    } catch(e) {}
+
+    D.payments = (D.payments || []).filter(p => (p.razorpay_payment_id || p.id) !== payId);
+    renderPaymentRows('payments-tbody', D.payments);
+    renderRecentPaymentRows('recent-payments-tbody', D.payments.slice(0, 10));
+    renderAll();
+    alert('✓ भुगतान रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + e.message);
+  }
+}
+
+async function purgeAllPayments() {
+  if (!confirm('चेतावनी: क्या आप सभी पुराने पेमेंट्स व टेस्ट रिकॉर्ड्स को पूरी तरह साफ़ (Purge All) करना चाहते हैं?')) return;
+
+  try {
+    const sraKey = sessionStorage.getItem('sra_admin_token') || 'SRA#2026';
+    await fetch('api/delete_payment.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Auth': sraKey },
+      body: JSON.stringify({ clear_all: 1 })
+    });
+
+    // Clear local storage payment markers
+    try {
+      const toRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('sra_mega_payid_') || k.startsWith('sra_parashara_') || k.startsWith('sra_dhan_pay_id_') || k.startsWith('sra_mangal_pay_id_'))) {
+          toRemove.push(k);
+        }
+      }
+      toRemove.forEach(k => localStorage.removeItem(k));
+    } catch(e) {}
+
+    D.payments = [];
+    renderPaymentRows('payments-tbody', []);
+    renderRecentPaymentRows('recent-payments-tbody', []);
+    renderAll();
+    alert('✓ सभी पुराने भुगतान रिकॉर्ड साफ़ कर दिए गए हैं।');
+  } catch(e) {
+    alert('त्रुटि: ' + e.message);
+  }
+}
+
 function renderConsultRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows.length){ el.innerHTML=`<tr><td colspan="7" class="empty-row">No consultations yet</td></tr>`; return; }
-  el.innerHTML=rows.map(c=>`<tr>
+  if(!rows.length){ el.innerHTML=`<tr><td colspan="8" class="empty-row">No consultations yet</td></tr>`; return; }
+  el.innerHTML=rows.map(c=>{
+    const cId = c.id || '';
+    return `<tr>
     <td class="name-cell">${safe(c.full_name)}</td>
     <td>${wa(c.phone)}</td>
     <td class="email-cell">${safe(c.email)}</td>
@@ -1116,19 +1592,104 @@ function renderConsultRows(tbodyId, rows){
     <td style="font-size:12px">${safe(c.place_of_birth)}</td>
     <td style="font-size:12px;color:var(--muted);max-width:180px">${(c.question||'—').slice(0,60)}</td>
     <td class="date-cell">${fmtDate(c.created_at)}</td>
-  </tr>`).join('');
+    <td>
+      <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deleteConsultation('${safe(cId)}')">
+        🗑️ हटाएं
+      </button>
+    </td>
+  </tr>`;
+  }).join('');
+}
+
+async function deleteConsultation(id) {
+  if (!id) return;
+  if (!confirm(`क्या आप इस परामर्श अनुरोध (${id}) को हटाना चाहते हैं?`)) return;
+  try {
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      await SRAAdminData.remove('consultations', id);
+    }
+    try {
+      let localCon = JSON.parse(localStorage.getItem('sra_consultation_db') || '[]');
+      localCon = localCon.filter(c => c.id !== id);
+      localStorage.setItem('sra_consultation_db', JSON.stringify(localCon));
+    } catch(e) {}
+
+    D.consultations = (D.consultations || []).filter(c => c.id !== id);
+    renderConsultRows('consultations-tbody', D.consultations);
+    alert('✓ परामर्श रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + (e.message || e));
+  }
+}
+
+async function deleteStudent(id) {
+  if (!id) return;
+  if (!confirm(`क्या आप इस छात्र पंजीकरण (${id}) को हटाना चाहते हैं?`)) return;
+  try {
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      await SRAAdminData.remove('students', id);
+    }
+    D.students = (D.students || []).filter(s => s.id !== id);
+    renderStudentRows('students-tbody', D.students);
+    alert('✓ छात्र रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + (e.message || e));
+  }
+}
+
+async function deleteUserQuery(id) {
+  if (!id) return;
+  if (!confirm(`क्या आप इस यूज़र क्वेरी रिकॉर्ड को हटाना चाहते हैं?`)) return;
+  try {
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      await SRAAdminData.remove('user_queries', id);
+    }
+    try {
+      let localUsers = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
+      localUsers = localUsers.filter(u => u.id !== id && u.phone !== id);
+      localStorage.setItem('sra_user_db', JSON.stringify(localUsers));
+
+      const deletedUsers = JSON.parse(localStorage.getItem('sra_deleted_user_ids') || '[]');
+      if (!deletedUsers.includes(id)) {
+        deletedUsers.push(id);
+        localStorage.setItem('sra_deleted_user_ids', JSON.stringify(deletedUsers));
+      }
+    } catch(e) {}
+    D.users = (D.users || []).filter(u => u.id !== id);
+    renderUserQueryRows('users-tbody', D.users);
+    renderRecentUserRows('recent-users-tbody', D.users.slice(0, 8));
+    alert('✓ यूज़र रिकॉर्ड हटा दिया गया।');
+  } catch(e) {
+    alert('त्रुटि: ' + (e.message || e));
+  }
 }
 
 function renderForumRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
-  if(!rows.length){ el.innerHTML=`<tr><td colspan="5" class="empty-row">No forum posts yet</td></tr>`; return; }
-  el.innerHTML=rows.map(f=>`<tr>
-    <td style="max-width:220px;font-size:13px;font-weight:700;color:#fff">${safe(f.title)}</td>
-    <td style="font-size:12px">${safe(f.author_name)}${f.is_admin?'<span style="font-size:9px;color:var(--gold);margin-left:6px">★ ADMIN</span>':''}</td>
+  if(!rows.length){ el.innerHTML=`<tr><td colspan="6" class="empty-row">No articles yet — posts published on about.html appear here</td></tr>`; return; }
+  el.innerHTML=rows.map((f,i)=>`<tr>
+    <td style="max-width:260px;font-size:13px;font-weight:700"><a href="about.html?post=${encodeURIComponent(f.id)}" target="_blank" style="color:inherit">${safe(f.title)}</a></td>
+    <td style="font-size:12px">${safe(f.author || f.author_name)}${(f.isAdmin||f.is_admin)?'<span style="font-size:9px;color:var(--gold);margin-left:6px">★ ADMIN</span>':''}</td>
     <td style="font-size:12px;color:var(--muted)">${safe(f.category)}</td>
-    <td style="font-family:Cinzel,serif;font-size:13px;color:var(--gold)">${f.likes||0}</td>
+    <td>${badge(f.status||'pending')}</td>
     <td class="date-cell">${fmtDate(f.created_at)}</td>
+    <td style="white-space:nowrap">${f.status==='approved' ? '' : `<button onclick="approvePost(${i})" style="background:var(--green);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">Approve</button>`}
+      <button onclick="deleteForumPost(${i})" style="background:var(--red,#b91c1c);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;margin-left:4px">Delete</button></td>
   </tr>`).join('');
+}
+
+async function approvePost(idx){
+  const f=D.forum[idx];
+  if(!f || !window.SRAAdminData) return;
+  try { await SRAAdminData.update('forum_posts', f.id, { status:'approved' }); f.status='approved'; renderForumRows('forum-tbody', D.forum); }
+  catch(e){ alert('Could not approve: '+(e.code||e.message)); }
+}
+
+async function deleteForumPost(idx){
+  const f=D.forum[idx];
+  if(!f || !confirm('Delete "'+(f.title||'this post')+'" permanently?')) return;
+  try { await SRAAdminData.remove('forum_posts', f.id); D.forum.splice(idx,1); renderForumRows('forum-tbody', D.forum); }
+  catch(e){ alert('Could not delete: '+(e.code||e.message)); }
 }
 
 /* ══ FILTER ══ */
@@ -1184,21 +1745,35 @@ function showPanel(name, targetEl){
     }
 
     const titles = {
-      overview: 'Overview',
-      emails: 'Verified Email Logins',
-      users: 'Registered Users & Kundli Query Log',
-      students: 'Students',
-      payments: 'Payments',
-      consultations: 'Consultations',
-      forum: 'Forum Posts',
-      reviews: 'Client Reviews',
-      social: '🤖 Autonomous Social Media AI Agent (Autopilot)'
+      overview: currentAdminLang === 'en' ? 'Overview' : 'अवलोकन (Overview)',
+      accounts: currentAdminLang === 'en' ? 'Website Accounts (Firebase)' : 'वेबसाइट खाते (Accounts)',
+      emails: currentAdminLang === 'en' ? 'Verified Email Logins' : 'सत्यापित ईमेल लॉगिन',
+      users: currentAdminLang === 'en' ? 'Registered Users & Kundli Query Log' : 'पंजीकृत उपयोगकर्ता व कुण्डली लॉग',
+      students: currentAdminLang === 'en' ? 'Students (Gurukul)' : 'गुरुकुल छात्र (Students)',
+      payments: currentAdminLang === 'en' ? 'Customer Payments' : 'ग्राहक भुगतान (Payments)',
+      consultations: currentAdminLang === 'en' ? 'VIP Consultations' : 'ज्योतिष परामर्श (Consultations)',
+      forum: currentAdminLang === 'en' ? 'Forum Posts' : 'मंच चर्चा (Forum)',
+      reviews: currentAdminLang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
+      social: currentAdminLang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
+      careers: currentAdminLang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)',
+      'sutra-reviews': currentAdminLang === 'en' ? '⚠️ Sutradhar Requires Review Queue' : '⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
 
+    if (window.innerWidth <= 900) {
+      const mainEl = document.querySelector('.main');
+      if (mainEl) mainEl.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
     if (name === 'social') {
       loadSocialStatus();
+    } else if (name === 'careers') {
+      fetchCareerApplications();
+    } else if (name === 'sutra-reviews') {
+      loadSutradharReviewQueue();
     }
   } catch(e) {
     console.error("showPanel error:", e);
@@ -1377,6 +1952,907 @@ async function saveSocialSettings() {
     alert("सेव करने में त्रुटि: " + err.message);
   }
 }
+
+/* ══ CAREERS & SUTRADHAR APPLICATIONS ══ */
+async function fetchCareerApplications(passedUsers) {
+  let list = [];
+  const seen = new Set();
+  const deletedCareers = new Set(JSON.parse(localStorage.getItem('sra_deleted_career_ids') || '[]'));
+
+  function addItem(item) {
+    if (!item) return;
+    if (deletedCareers.has(item.id) || deletedCareers.has(item.phone)) return;
+    const k = item.id || item.phone;
+    if (k && !seen.has(k)) {
+      seen.add(k);
+      list.push(Object.assign({}, item, {
+        id: item.id || ('SRA-APP-' + String(item.phone || '').slice(-6)),
+        name: item.name || item.candidate_name || 'प्रत्याशी',
+        phone: item.phone || '',
+        city: item.city || item.location || '—',
+        experience: item.experience || item.bio || '—',
+        status: item.status || 'pending',
+        created_at: item.created_at || (item.createdAt && item.createdAt.toDate ? item.createdAt.toDate().toISOString() : new Date().toISOString())
+      }));
+    }
+  }
+
+  // 0. Primary: Fetch all career applications directly from Hostinger server API
+  try {
+    const sraKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'SRA#2026';
+    const serverResp = await fetch('api/get_career_applications.php?admin_key=' + encodeURIComponent(sraKey));
+    if (serverResp.ok) {
+      const serverData = await serverResp.json();
+      if (serverData && serverData.applications && Array.isArray(serverData.applications)) {
+        serverData.applications.forEach(addItem);
+      }
+    }
+  } catch (err) {
+    console.warn("Could not fetch server career applications:", err);
+  }
+
+  // 1. Check passedUsers and D.users (fetched from user_queries)
+  const candidatePool = (passedUsers && Array.isArray(passedUsers) && passedUsers.length)
+    ? passedUsers
+    : (D.users && Array.isArray(D.users) ? D.users : []);
+
+  candidatePool.filter(u => 
+    u && (
+      u.query_type === 'CAREER_APPLICATION' || 
+      u.application_type === 'sutradhar' || 
+      (u.sutradhar_id && !u.dob) ||
+      (u.id && String(u.id).startsWith('SRA-APP-'))
+    )
+  ).forEach(addItem);
+
+  // 2. Query SRAAdminData user_queries directly if admin is signed in
+  if (window.SRAAdminData && SRAAdminData.isAdmin()) {
+    try {
+      const uq = await SRAAdminData.list('user_queries');
+      (uq || []).filter(u => 
+        u.query_type === 'CAREER_APPLICATION' || 
+        u.application_type === 'sutradhar' || 
+        (u.sutradhar_id && !u.dob) ||
+        (u.id && String(u.id).startsWith('SRA-APP-'))
+      ).forEach(addItem);
+    } catch(e) {}
+  }
+
+  // 3. Try SRAAdminData career_applications
+  if (window.SRAAdminData) {
+    try {
+      const fsList = await SRAAdminData.list('career_applications');
+      if (fsList && Array.isArray(fsList)) {
+        fsList.forEach(addItem);
+      }
+    } catch(e) {}
+  }
+
+  // 4. Merge with local storage fallback
+  try {
+    const local = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
+    local.forEach(addItem);
+  } catch(e) {}
+
+  // Filter out any legacy demo placeholder entry
+  list = list.filter(item => item.id !== "SRA-APP-261104-101");
+
+  // Sort descending by created_at
+  list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+  D.careers = list;
+  renderCareerRows('careers-tbody', D.careers);
+  updateCareerStats(D.careers);
+
+  // Update Auth Notice banner in careers panel
+  const authNotice = document.getElementById('careerAuthNotice');
+  if (authNotice) {
+    const isSigned = !!(window.SRAAdminData && SRAAdminData.isAdmin());
+    authNotice.style.display = isSigned ? 'none' : 'flex';
+  }
+
+  return list;
+}
+
+window.loadCareerApplications = fetchCareerApplications;
+
+function signInFromCareerPanel() {
+  if (window.SRAAdminAccounts && SRAAdminAccounts.signIn) {
+    SRAAdminAccounts.signIn();
+  } else {
+    const btn = document.getElementById('acc-signin');
+    if (btn) btn.click();
+  }
+}
+
+function updateCareerStats(rows) {
+  const total = rows.length;
+  const pending = rows.filter(r => (r.status || 'pending') === 'pending').length;
+  const approved = rows.filter(r => r.status === 'approved').length;
+
+  const totalEl = document.getElementById('s-career-total');
+  const pendingEl = document.getElementById('s-career-pending');
+  const approvedEl = document.getElementById('s-career-approved');
+  const badgeEl = document.getElementById('badge-careers');
+
+  if (totalEl) totalEl.textContent = total;
+  if (pendingEl) pendingEl.textContent = pending;
+  if (approvedEl) approvedEl.textContent = approved;
+  if (badgeEl) {
+    if (pending > 0) {
+      badgeEl.textContent = pending + ' NEW';
+      badgeEl.style.display = 'inline-block';
+    } else {
+      badgeEl.style.display = 'none';
+    }
+  }
+}
+
+function renderCareerRows(tbodyId, rows) {
+  const el = document.getElementById(tbodyId);
+  if (!el) return;
+  const dict = ADMIN_I18N[currentAdminLang] || ADMIN_I18N.hi;
+  if (!rows || !rows.length) {
+    el.innerHTML = `<tr><td colspan="9" class="empty-row">${currentAdminLang === 'en' ? 'No applications received yet' : 'अभी कोई सूत्रधार आवेदन प्राप्त नहीं हुआ है'}</td></tr>`;
+    return;
+  }
+
+  el.innerHTML = rows.map(app => {
+    const isApproved = app.status === 'approved';
+    const statusBadge = isApproved 
+      ? `<span class="badge" style="background:#d1fae5; color:#065f46; border:1px solid #10b981; font-weight:700;">${dict.statusApproved}</span>`
+      : `<span class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; font-weight:700;">${dict.statusPending}</span>`;
+    
+    const token = app.secret_token || 'sec_' + (app.phone || '0000').slice(-4);
+    const pass = app.secret_pass || (app.phone ? app.phone.slice(-6) : '123456');
+    const liveDomain = (window.location.origin && window.location.origin.includes('shriramjiastro.in')) ? window.location.origin : 'https://shriramjiastro.in';
+    const inviteUrl = `${liveDomain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(app.phone || '')}&name=${encodeURIComponent(app.name || '')}&email=${encodeURIComponent(app.email || '')}`;
+
+    return `<tr>
+      <td>
+        <div style="font-family:monospace; font-size:11px; font-weight:700; color:var(--gold);">${safe(app.id)}</div>
+        <div class="date-cell" style="font-size:11px;">${fmtDate(app.created_at)}</div>
+      </td>
+      <td>
+        <div class="name-cell" style="font-weight:700; font-size:13px;">${safe(app.name)}</div>
+        <div class="email-cell">${safe(app.email || '—')}</div>
+      </td>
+      <td>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span>${safe(app.phone)}</span>
+          <a href="https://wa.me/91${safe(app.phone)}" target="_blank" title="WhatsApp पर चैट करें" style="text-decoration:none; font-size:14px;">💬</a>
+        </div>
+      </td>
+      <td style="font-size:12px;">${safe(app.city || '—')}</td>
+      <td style="font-size:12px; max-width:200px;">
+        <div style="white-space:normal; line-height:1.4;" title="${safe(app.experience || app.bio || '')}">
+          ${safe((app.experience || app.bio || '—').slice(0, 90))}${(app.experience || app.bio || '').length > 90 ? '...' : ''}
+        </div>
+      </td>
+      <td>
+        ${app.resume_name 
+          ? `<span class="badge" style="background:rgba(201,168,76,0.15); color:var(--gold); cursor:pointer;" onclick="viewResumeModal('${safe(app.id)}')">📄 ${safe(app.resume_name.slice(0,18))}</span>`
+          : `<span style="font-size:11px; color:var(--muted);">${currentAdminLang === 'en' ? 'None' : 'उपलब्ध नहीं'}</span>`}
+      </td>
+      <td>${statusBadge}</td>
+      <td>
+        <div style="font-size:11px; display:flex; flex-direction:column; gap:4px;">
+          <div><span style="color:var(--muted);">ID:</span> <code style="background:rgba(59,130,246,0.15); color:#2563eb; padding:2px 5px; border-radius:4px; font-weight:700;">${app.sutradhar_id || ('SUTRA-' + (app.phone ? app.phone.slice(-4) : '0000') + '-01')}</code></div>
+          <div><span style="color:var(--muted);">10% कूपन:</span> <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${app.code ? app.code.replace(/-/g, '') : (app.coupon_code ? app.coupon_code.replace(/-/g, '') : ('SRA' + (app.phone ? app.phone.slice(-4) : '0000') + 'X1'))}</code></div>
+          <div><span style="color:var(--muted);">पासकोड:</span> <code style="background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 5px; border-radius:4px; font-weight:700;">${pass}</code></div>
+          <div><span style="color:var(--muted);">UPI ID:</span> <code style="background:rgba(34,197,94,0.12); color:#16a34a; padding:2px 5px; border-radius:4px; font-weight:700;">${safe(app.upi_id || app.upi || 'दर्ज नहीं')}</code></div>
+          <button class="export-btn" style="font-size:10px; padding:3px 8px;" onclick="copyCareerInviteLink('${safe(app.phone)}', '${token}', '${safe(app.name)}', '${safe(app.email || '')}')">${dict.btnCopyLink}</button>
+        </div>
+      </td>
+      <td>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${!isApproved ? `
+            <button class="export-btn" style="background:var(--gold); color:#000; font-weight:700; font-size:11px;" onclick="approveCareerApplication('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}')">
+              ${dict.btnApprove}
+            </button>
+          ` : `
+            <button class="export-btn" style="background:#059669; color:#fff; font-weight:700; font-size:11px;" onclick="sendCareerWhatsApp('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}', '${pass}', '${token}')">
+              ${dict.btnSendWa}
+            </button>
+          `}
+          <button class="export-btn" style="background:#16a34a; color:#fff; font-weight:700; font-size:11px;" onclick="openManualUpiModal('${safe(app.name)}', '${safe(app.sutradhar_id || '')}', '${safe(app.upi_id || app.upi || '')}', '${safe(app.phone)}', 250)">
+            ⚡ UPI भुगतान करें
+          </button>
+          <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:4px 8px;" onclick="deleteCareerApplication('${safe(app.id)}', '${safe(app.phone)}', '${safe(app.name)}')">
+            🗑️ हटाएं
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCareersTable(query) {
+  const q = (query || '').toLowerCase().trim();
+  if (!q) {
+    renderCareerRows('careers-tbody', D.careers);
+    return;
+  }
+  const filtered = (D.careers || []).filter(app => 
+    (app.name || '').toLowerCase().includes(q) ||
+    (app.phone || '').includes(q) ||
+    (app.city || '').toLowerCase().includes(q) ||
+    (app.id || '').toLowerCase().includes(q) ||
+    (app.status || '').toLowerCase().includes(q)
+  );
+  renderCareerRows('careers-tbody', filtered);
+}
+
+async function approveCareerApplication(id, phone, name) {
+  if (!confirm(`${name} जी (फोन: ${phone}) को अधिकृत सूत्रधार के रूप में स्वीकृत करें?`)) return;
+
+  try {
+    const adminKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'JAIHANUMAN';
+    
+    // 1. Update in Firestore via SRAAdminData
+    if (window.SRAAdminData && SRAAdminData.update) {
+      try {
+        await SRAAdminData.update('career_applications', id, { 
+          status: 'approved', 
+          approved_at: new Date().toISOString() 
+        });
+      } catch(fsErr) {
+        console.warn("Firestore update notice:", fsErr);
+      }
+    }
+
+    // 2. Call backend / intercepted API endpoint
+    let result = null;
+    try {
+      const res = await fetch('api/update_career_status.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Auth': adminKey },
+        body: JSON.stringify({ id: id, status: 'approved', admin_key: adminKey })
+      });
+      if (res.ok) result = await res.json();
+    } catch(apiErr) {
+      console.warn("API update notice:", apiErr);
+    }
+
+    const target = (D.careers || []).find(c => c.id === id);
+    if (target) {
+      target.status = 'approved';
+      target.approved_at = new Date().toISOString();
+      if (result && result.secret_pass) target.secret_pass = result.secret_pass;
+      if (result && result.secret_token) target.secret_token = result.secret_token;
+    }
+
+    try {
+      localStorage.setItem('sra_career_applications', JSON.stringify(D.careers));
+    } catch(e) {}
+
+    renderCareerRows('careers-tbody', D.careers);
+    updateCareerStats(D.careers);
+
+    const pass = target?.secret_pass || (result?.secret_pass) || (phone.slice(-6));
+    const token = target?.secret_token || (result?.secret_token) || ('sec_' + phone.slice(-4));
+
+    if (confirm(`सफलतापूर्वक स्वीकृत!\n\nयूजर आईडी: ${phone}\nगुप्त पासकोड: ${pass}\n\nक्या आप अभी सीधे प्रत्याशी के व्हाट्सएप पर आमंत्रण संदेश भेजना चाहते हैं?`)) {
+      sendCareerWhatsApp(id, phone, name, pass, token);
+    }
+  } catch(err) {
+    alert("स्वीकृति प्रक्रिया में त्रुटि: " + err.message);
+  }
+}
+
+async function deleteCareerApplication(id, phone, name) {
+  if (!confirm(`${name || 'इस प्रत्याशी'} (ID: ${id}) का आवेदन हटाना चाहते हैं?`)) return;
+
+  try {
+    // 1. Delete from Firestore Cloud
+    if (window.SRAAdminData && SRAAdminData.remove) {
+      try {
+        await SRAAdminData.remove('career_applications', id);
+        await SRAAdminData.remove('user_queries', id);
+        if (window.SRAAdminAccounts && SRAAdminAccounts.ensureFirebase) {
+          const ctx = await SRAAdminAccounts.ensureFirebase();
+          if (ctx && ctx.firestore) {
+            const db = ctx.firestore;
+            if (phone) {
+              const uqSnap = await db.collection('user_queries').where('phone', '==', String(phone)).get();
+              uqSnap.forEach(d => d.ref.delete().catch(() => {}));
+              const caSnap = await db.collection('career_applications').where('phone', '==', String(phone)).get();
+              caSnap.forEach(d => d.ref.delete().catch(() => {}));
+            }
+          }
+        }
+      } catch(e) {}
+    }
+
+    // 2. Delete from Backend Server API
+    try {
+      await fetch('api/delete_career_application.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id, phone: phone })
+      });
+    } catch(e) {}
+
+    // 3. Delete from localStorage and mark persistently deleted
+    try {
+      const local = JSON.parse(localStorage.getItem('sra_career_applications') || '[]');
+      const filtered = local.filter(c => c.id !== id && c.phone !== phone);
+      localStorage.setItem('sra_career_applications', JSON.stringify(filtered));
+
+      const deletedCareers = JSON.parse(localStorage.getItem('sra_deleted_career_ids') || '[]');
+      if (id && !deletedCareers.includes(id)) deletedCareers.push(id);
+      if (phone && !deletedCareers.includes(phone)) deletedCareers.push(phone);
+      localStorage.setItem('sra_deleted_career_ids', JSON.stringify(deletedCareers));
+    } catch(e) {}
+
+    // 4. Update memory & UI
+    D.careers = (D.careers || []).filter(c => c.id !== id && c.phone !== phone);
+    renderCareerRows('careers-tbody', D.careers);
+    updateCareerStats(D.careers);
+    alert('✓ आवेदन सफलतापूर्वक हटा दिया गया!');
+  } catch (err) {
+    alert('हटाने में त्रुटि: ' + err.message);
+  }
+}
+
+async function purgeAllCareerApplications() {
+  if (!confirm('चेतावनी: क्या आप सभी पुराने सूत्रधार आवेदनों और डमी डेटा को पूरी तरह साफ़ (Delete All) करना चाहते हैं?')) return;
+
+  try {
+    // 1. Delete from Server
+    await fetch('api/delete_career_application.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clear_all: 1 })
+    });
+
+    // 2. Delete from LocalStorage
+    localStorage.removeItem('sra_career_applications');
+
+    // 3. Clear from memory
+    D.careers = [];
+    renderCareerRows('careers-tbody', []);
+    updateCareerStats([]);
+    alert('✓ सभी पुराना डेटा पूरी तरह साफ़ कर दिया गया है!');
+  } catch (e) {
+    alert('त्रुटि: ' + e.message);
+  }
+}
+
+function sendCareerWhatsApp(id, phone, name, pass, token) {
+  const domain = (window.location.origin && window.location.origin.includes('shriramjiastro.in')) ? window.location.origin : 'https://shriramjiastro.in';
+  const app = (D.careers || []).find(c => c.id === id || c.phone === phone);
+  const email = app?.email || '';
+  const candName = name || app?.name || '';
+  const sId = app?.sutradhar_id || ('SUTRA-' + (phone ? phone.slice(-4) : '0000') + '-01');
+  const promoCode = app?.code ? app.code.replace(/-/g, '') : (app?.coupon_code ? app.coupon_code.replace(/-/g, '') : ('SRA' + (phone ? phone.slice(-4) : '0000') + 'X1'));
+  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}&name=${encodeURIComponent(candName)}&email=${encodeURIComponent(email)}`;
+  const msg = `सादर प्रणाम ${candName || 'जी'}!\n\n`
+    + `श्री राम जी एस्ट्रो आचार्य परिषद द्वारा आपका सूत्रधार (वैदिक दूत) आवेदन स्वीकृत कर लिया गया है।\n\n`
+    + `📌 आपकी सूत्रधार क्रेडेंशियल्स:\n`
+    + `• सूत्रधार यूनिक ID: ${sId}\n`
+    + `• आपका 10% कूपन कोड: ${promoCode}\n`
+    + `• यूजर आईडी (Login): ${phone}\n`
+    + `• गुप्त पासकोड (PIN): ${pass}\n\n`
+    + `🔐 आपकी व्यक्तिगत ऑनबोर्डिंग लिंक:\n${inviteUrl}\n\n`
+    + `इस लिंक पर क्लिक करके आप अपना दैनिक टास्क व शास्त्रोक्त प्रशिक्षण तत्काल प्रारंभ कर सकते हैं।\n\n`
+    + `शुभम् भवतु!\n— श्री राम जी एस्ट्रो (shriramjiastro.in)`;
+
+  window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function copyCareerInviteLink(phone, token, name, email) {
+  const domain = (window.location.origin && window.location.origin.includes('shriramjiastro.in')) ? window.location.origin : 'https://shriramjiastro.in';
+  const app = (D.careers || []).find(c => c.phone === phone);
+  const candName = name || app?.name || '';
+  const candEmail = email || app?.email || '';
+  const inviteUrl = `${domain}/sutradhar.html?auth=${encodeURIComponent(token)}&user=${encodeURIComponent(phone)}${candName ? `&name=${encodeURIComponent(candName)}` : ''}${candEmail ? `&email=${encodeURIComponent(candEmail)}` : ''}`;
+  navigator.clipboard.writeText(inviteUrl);
+  alert("गोपनीय ऑनबोर्डिंग लिंक क्लिपबोर्ड पर कॉपी हो गया!\n\n" + inviteUrl);
+}
+
+function viewResumeModal(appId) {
+  const app = (D.careers || []).find(c => c.id === appId);
+  if (!app) return;
+  alert(`बायोडाटा / अनुभव विवरण (${app.name}):\n\n${app.experience || app.bio || 'कोई अतिरिक्त विवरण दर्ज नहीं है।'}`);
+}
+
+/* ══ SUTRADHAR MANUAL UPI PAYOUT & WHATSAPP CONFIRMATION SUITE ══ */
+let currentUpiPayout = null;
+
+function openManualUpiModal(name, sutraId, upiId, phone, defaultAmt = 250, payId = '', custName = '') {
+  currentUpiPayout = {
+    name: name || 'सूत्रधार',
+    sutraId: sutraId || ('SUTRA-' + (phone ? phone.slice(-4) : '0000') + '-01'),
+    upiId: upiId || (phone ? `${phone}@upi` : ''),
+    phone: phone || '',
+    amount: defaultAmt || 250,
+    payId: payId || ('RZP_MANUAL_' + Date.now().toString().slice(-6)),
+    custName: custName || ''
+  };
+
+  document.getElementById('mUpiName').textContent = currentUpiPayout.name;
+  document.getElementById('mUpiSutraId').textContent = currentUpiPayout.sutraId;
+  document.getElementById('mUpiIdInput').value = currentUpiPayout.upiId;
+  document.getElementById('mUpiAmtInput').value = currentUpiPayout.amount;
+  document.getElementById('mUpiRemarkInput').value = 'SRA_' + currentUpiPayout.sutraId;
+
+  updateUpiPayLinks();
+  const m = document.getElementById('modalManualUpi');
+  if (m) m.style.display = 'flex';
+}
+
+function closeManualUpiModal() {
+  const m = document.getElementById('modalManualUpi');
+  if (m) m.style.display = 'none';
+}
+
+function updateUpiPayLinks() {
+  const upiId = (document.getElementById('mUpiIdInput')?.value || '').trim();
+  const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
+  const name = currentUpiPayout?.name || 'SRA Sutradhar';
+  const remark = (document.getElementById('mUpiRemarkInput')?.value || 'SRA_Commission').trim();
+
+  if (currentUpiPayout) {
+    currentUpiPayout.upiId = upiId;
+    currentUpiPayout.amount = amt;
+  }
+
+  const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(name)}&am=${amt.toFixed(2)}&cu=INR&tn=${encodeURIComponent(remark)}`;
+  
+  const linkEl = document.getElementById('mUpiDeepLink');
+  if (linkEl) linkEl.href = upiUri;
+
+  const qrImg = document.getElementById('mUpiQrImg');
+  if (qrImg) {
+    if (upiId && upiId.includes('@')) {
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUri)}`;
+      qrImg.style.opacity = '1';
+    } else {
+      qrImg.src = '';
+      qrImg.style.opacity = '0.3';
+    }
+  }
+}
+
+function copyUpiId() {
+  const upi = document.getElementById('mUpiIdInput')?.value || '';
+  if (!upi) { alert('UPI ID दर्ज नहीं है।'); return; }
+  navigator.clipboard.writeText(upi);
+  alert('✓ UPI ID क्लिपबोर्ड पर कॉपी हो गई: ' + upi);
+}
+
+async function confirmManualPayoutSaved() {
+  if (!currentUpiPayout) return;
+  const upi = (document.getElementById('mUpiIdInput')?.value || '').trim();
+  const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
+
+  if (!upi || !upi.includes('@')) {
+    alert('कृपया मान्य UPI ID (उदा. 94150XXXXX@upi) दर्ज करें।');
+    return;
+  }
+
+  const payoutRecord = {
+    payout_id: 'PO_MANUAL_' + Date.now().toString().slice(-6),
+    sutradhar_id: currentUpiPayout.sutraId,
+    razorpay_payment_id: currentUpiPayout.payId,
+    customer_name: currentUpiPayout.custName || 'ग्राहक जातक',
+    customer_phone: currentUpiPayout.phone,
+    product: 'मेगा पाराशर कुण्डली कमीशन',
+    amount: amt,
+    upi_id: upi,
+    utr: 'MANUAL_UPI_' + Math.floor(100000000000 + Math.random() * 900000000000),
+    status: 'paid',
+    gateway: 'Admin Manual UPI Transfer',
+    transferred_at: new Date().toISOString()
+  };
+
+  // Try backend save
+  try {
+    await fetch('api/sutradhar_payout.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payoutRecord)
+    });
+  } catch(e) {}
+
+  // Also store in LocalStorage payouts ledger
+  try {
+    const localLedger = JSON.parse(localStorage.getItem('sra_sutradhar_payouts_ledger') || '[]');
+    localLedger.unshift(payoutRecord);
+    localStorage.setItem('sra_sutradhar_payouts_ledger', JSON.stringify(localLedger));
+  } catch(e) {}
+
+  alert(`✅ सफल! सूत्रधार ${currentUpiPayout.name} को ₹${amt} का UPI भुगतान लेजर में सफलतापूर्वक दर्ज कर दिया गया है।`);
+  closeManualUpiModal();
+  renderAll();
+}
+
+function sendSutradharWhatsAppReceipt() {
+  if (!currentUpiPayout) return;
+  const phone = (currentUpiPayout.phone || '').replace(/\D/g, '').slice(-10);
+  const upi = (document.getElementById('mUpiIdInput')?.value || currentUpiPayout.upiId || '').trim();
+  const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
+
+  const msg = `सादर प्रणाम ${currentUpiPayout.name || 'सूत्रधार जी'}!\n\n`
+    + `शुभ सूचना! श्री राम जी एस्ट्रो द्वारा आपकी लीड का देय सूत्रधार कमीशन ₹${amt} आपके UPI (${upi || 'पंजीकृत UPI'}) पर प्रेषित कर दिया गया है।\n\n`
+    + `📌 भुगतान विवरण:\n`
+    + `• सूत्रधार ID: ${currentUpiPayout.sutraId}\n`
+    + `• कमीशन राशि: ₹${amt}\n`
+    + `• स्थिति: सफल (Paid)\n`
+    + `• तारीख: ${new Date().toLocaleDateString('hi-IN')}\n\n`
+    + `आप अपने सूत्रधार डैशबोर्ड (https://shriramjiastro.in/sutradhar.html) में जाकर कुल अर्जित राशि देख सकते हैं।\n\n`
+    + `शास्त्र-ज्ञान के प्रचार-प्रसार में आपके योगदान हेतु साधुवाद!\n— श्री राम जी एस्ट्रो`;
+
+  if (phone) {
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+  } else {
+    prompt('कृपया सूत्रधार का 10-अंकीय व्हाट्सएप नंबर दर्ज करें:', '');
+  }
+}
+
+function sendCustomerPaymentWhatsApp(custName, custPhone, payId, planName) {
+  const cleanPhone = (custPhone || '').replace(/\D/g, '').slice(-10);
+  if (!cleanPhone) {
+    alert('ग्राहक का मोबाइल नंबर उपलब्ध नहीं है।');
+    return;
+  }
+
+  const msg = `सादर प्रणाम ${custName || 'जातक'} जी!\n\n`
+    + `श्री राम जी एस्ट्रो पर आपका ${planName || 'मेगा पाराशर कुण्डली रिपोर्ट'} हेतु दक्षिणा भुगतान (रसीद संख्या: ${payId}) सफलतापूर्वक प्राप्त हो गया है।\n\n`
+    + `आपकी प्रामाणिक ९७-अध्याय सम्पूर्ण पाराशर कुण्डली रिपोर्ट डिजिटल रूप से अनलॉक कर दी गई है।\n\n`
+    + `🔗 अपनी रिपोर्ट देखें अथवा ईमेल पर मंगाएं:\nhttps://shriramjiastro.in/parashara-report.html\n\n`
+    + `यदि कोई प्रश्न अथवा सहायता अपेक्षित हो, तो इसी नंबर पर उत्तर दें।\n\n`
+    + `शुभम् भवतु!\n— श्री राम जी एस्ट्रो (shriramjiastro.in)`;
+
+  window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function openPaymentSutradharUpiModal(sutradharId, custName, custPhone, payId) {
+  let matched = (D.careers || []).find(c => 
+    (c.sutradhar_id && c.sutradhar_id === sutradharId) ||
+    (c.code && c.code.replace(/-/g, '') === sutradharId.replace(/-/g, '')) ||
+    (c.coupon_code && c.coupon_code.replace(/-/g, '') === sutradharId.replace(/-/g, ''))
+  );
+
+  const name = matched?.name || sutradharId;
+  const upi = matched?.upi_id || matched?.upi || (matched?.phone ? `${matched.phone}@upi` : '');
+  const phone = matched?.phone || '';
+
+  openManualUpiModal(name, sutradharId, upi, phone, 250, payId, custName);
+}
+
+/* ══ SUTRADHAR REQUIRES REVIEW QUEUE ENGINE ══ */
+async function loadSutradharReviewQueue() {
+  const tbody = document.getElementById('sutra-reviews-tbody');
+  const badge = document.getElementById('badge-sutra-reviews');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="empty-row"><span class="spin"></span> लोड हो रहा है...</td></tr>';
+
+  try {
+    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const res = await fetch(apiBase + '/api/sutradhar/admin/reviews');
+    if (!res.ok) throw new Error('सर्वर से समीक्षा कतार लोड नहीं हो सकी');
+    const data = await res.json();
+    const queue = data.queue || [];
+
+    if (badge) {
+      if (queue.length > 0) {
+        badge.textContent = queue.length;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    if (!tbody) return;
+    if (queue.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-row" style="color:#16a34a; font-weight:600; padding:24px;">✓ अति उत्तम! कोई भी अटका हुआ पेआउट नहीं है। सभी पेआउट सुचारू हैं।</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = queue.map(c => `
+      <tr>
+        <td><span style="font-family:monospace; font-weight:700; color:var(--gold);">${safe(c.id)}</span></td>
+        <td>
+          <div style="font-family:monospace; font-size:11px; font-weight:600;">Pay: ${safe(c.payment_id || '—')}</div>
+          <div style="font-family:monospace; font-size:10px; color:var(--text-muted);">Ord: ${safe(c.order_id || '—')}</div>
+        </td>
+        <td>
+          <div style="font-weight:700;">${safe(c.sutradhar_id || '—')}</div>
+          <div style="font-size:11px; color:#2563eb; font-family:monospace;">${safe(c.upi_id || '—')}</div>
+        </td>
+        <td><span style="font-family:monospace;">${safe(c.customer_phone || '—')}</span></td>
+        <td style="font-weight:700; color:#16a34a; font-size:14px;">₹${c.amount || 0}</td>
+        <td>
+          <span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #f87171; font-size:11px; white-space:normal; display:inline-block; padding:3px 7px;">
+            ⚠️ ${safe(c.failure_reason || 'जाँच आवश्यक')}
+          </span>
+        </td>
+        <td style="font-size:11px; color:var(--text-muted);">${c.created_at ? new Date(c.created_at).toLocaleString('hi-IN') : '—'}</td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button onclick="reviewActionSutradhar('${c.id}', 'retry')" style="background:#16a34a; color:#fff; border:none; padding:5px 9px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:700; display:flex; align-items:center; gap:3px;">↻ फिर से भेजें</button>
+            <button onclick="reviewActionSutradhar('${c.id}', 'cancel')" style="background:#ef4444; color:#fff; border:none; padding:5px 9px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:700; display:flex; align-items:center; gap:3px;">✕ रद्द करें</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="empty-row" style="color:#ef4444;">त्रुटि: ${safe(err.message)}</td></tr>`;
+  }
+}
+
+async function reviewActionSutradhar(commissionId, action) {
+  let reason = '';
+  if (action === 'cancel') {
+    reason = prompt('कमीशन रद्द करने का कारण दर्ज करें (यह ऑडिट लॉग में स्थायी रूप से दर्ज होगा):');
+    if (reason === null) return;
+    if (!reason.trim()) {
+      alert('कृपया रद्द करने का कारण दर्ज करें।');
+      return;
+    }
+  } else {
+    if (!confirm(`क्या आप कमीशन ID ${commissionId} को फिर से प्रोसेस करना चाहते हैं?`)) return;
+  }
+
+  try {
+    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const res = await fetch(apiBase + '/api/sutradhar/admin/review-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ commission_id: commissionId, action: action, reason: reason })
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.detail || 'कार्यवाही विफल');
+    alert('✓ ' + (result.message || 'सफल!'));
+    loadSutradharReviewQueue();
+  } catch (err) {
+    alert('त्रुटि: ' + err.message);
+  }
+}
+
+async function triggerSutradharBatchPayouts() {
+  if (!confirm('क्या आप सभी पेंडिंग सूत्रधार पेआउट तुरंत प्रोसेस करना चाहते हैं?')) return;
+  try {
+    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const res = await fetch(apiBase + '/api/sutradhar/payouts/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.detail || 'पेआउट प्रोसेसिंग विफल');
+    alert(`✓ पेआउट चक्र पूरा हुआ!\nसफल: ${result.processed_count || 0}\nविफल/समीक्षा: ${result.failed_count || 0}`);
+    loadSutradharReviewQueue();
+  } catch (err) {
+    alert('त्रुटि: ' + err.message);
+  }
+}
+window.loadSutradharReviewQueue = loadSutradharReviewQueue;
+window.reviewActionSutradhar = reviewActionSutradhar;
+window.triggerSutradharBatchPayouts = triggerSutradharBatchPayouts;
+
+/* ══ ADMIN BILINGUAL TRANSLATION ENGINE ══ */
+const ADMIN_I18N = {
+  hi: {
+    overview: '📊 &nbsp;Overview (अवलोकन)',
+    accounts: '👤 &nbsp;Website Accounts (खाते)',
+    emails: '📧 &nbsp;Verified Email Logins',
+    users: '📱 &nbsp;Registered Users & Queries',
+    students: '🎓 &nbsp;Students (गुरुकुल छात्र)',
+    payments: '💰 &nbsp;Payments (भुगतान)',
+    consultations: '🔮 &nbsp;Consultations (परामर्श)',
+    forum: '💬 &nbsp;Forum Posts',
+    reviews: '⭐ &nbsp;Client Reviews',
+    social: '🤖 &nbsp;Social Media AI Agent',
+    careers: '🤝 &nbsp;सूत्रधार आवेदन (Careers)',
+    refresh: '↻ रिफ्रेश',
+    logout: '⎋ लॉगआउट',
+    careerTotal: 'कुल प्राप्त आवेदन',
+    careerPending: 'प्रक्रियाधीन (Under Process)',
+    careerApproved: 'स्वीकृत सक्रिय सूत्रधार',
+    careerBannerTitle: '🏛️ सूत्रधार ऑनबोर्डिंग व चयन प्रक्रिया (SOP)',
+    careerBannerSub: 'करियर फॉर्म भरने वाले अभ्यर्थियों का विवरण यहां दिखेगा। प्रत्याशी को रिव्यू करने के बाद "स्वीकृत करें व लिंक जनरेट करें" दबाएं।',
+    careerTableTitle: '🤝 सूत्रधार प्रत्याशी आवेदन तालिका',
+    thAppId: 'आवेदन ID व दिनांक',
+    thName: 'प्रत्याशी का नाम',
+    thPhone: 'व्हाट्सएप (यूजर ID)',
+    thCity: 'शहर व राज्य',
+    thExp: 'अनुभव / संक्षिप्त परिचय',
+    thResume: 'बायोडाटा / रिज्यूमे',
+    thStatus: 'स्थिति (Status)',
+    thPass: 'गुप्त पासकोड व लिंक',
+    thAction: 'कार्यवाही (Action)',
+    btnApprove: '⚡ स्वीकृत करें',
+    btnSendWa: '📲 व्हाट्सएप भेजें',
+    btnCopyLink: '📋 लिंक कॉपी',
+    searchPh: 'नाम, फोन, शहर से खोजें...',
+    statusPending: '⏳ अंडर प्रोसेस',
+    statusApproved: '✓ स्वीकृत (Active)'
+  },
+  en: {
+    overview: '📊 &nbsp;Overview',
+    accounts: '👤 &nbsp;Website Accounts',
+    emails: '📧 &nbsp;Verified Email Logins',
+    users: '📱 &nbsp;Registered Users & Queries',
+    students: '🎓 &nbsp;Students (Gurukul)',
+    payments: '💰 &nbsp;Customer Payments',
+    consultations: '🔮 &nbsp;VIP Consultations',
+    forum: '💬 &nbsp;Forum Posts',
+    reviews: '⭐ &nbsp;Client Reviews',
+    social: '🤖 &nbsp;Social Media AI Agent',
+    careers: '🤝 &nbsp;Sutradhar Careers Hub',
+    refresh: '↻ Refresh',
+    logout: '⎋ Logout',
+    careerTotal: 'Total Applications',
+    careerPending: 'Under Process',
+    careerApproved: 'Approved Active Sutradhars',
+    careerBannerTitle: '🏛️ Sutradhar Onboarding & Selection Process (SOP)',
+    careerBannerSub: 'Candidate applications appear here. Review and click "Approve & Generate Link" to activate their secret PIN and personal invite link.',
+    careerTableTitle: '🤝 Sutradhar Candidate Directory',
+    thAppId: 'Application ID & Date',
+    thName: 'Candidate Name',
+    thPhone: 'WhatsApp (User ID)',
+    thCity: 'City & State',
+    thExp: 'Experience / Brief Bio',
+    thResume: 'Resume / Bio',
+    thStatus: 'Status',
+    thPass: 'Passcode & Link',
+    thAction: 'Action',
+    btnApprove: '⚡ Approve & Generate Link',
+    btnSendWa: '📲 Send WhatsApp',
+    btnCopyLink: '📋 Copy Link',
+    searchPh: 'Search by name, phone, city...',
+    statusPending: '⏳ Under Process',
+    statusApproved: '✓ Approved (Active)'
+  }
+};
+
+let currentAdminLang = localStorage.getItem('sra_admin_lang') || 'hi';
+
+function applyAdminLanguage(lang) {
+  currentAdminLang = lang;
+  localStorage.setItem('sra_admin_lang', lang);
+  document.documentElement.setAttribute('data-admin-lang', lang);
+  
+  const dict = ADMIN_I18N[lang] || ADMIN_I18N.hi;
+
+  // Sidebar navigation items
+  const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+  if (navItems.length >= 11) {
+    navItems[0].innerHTML = dict.overview;
+    navItems[1].innerHTML = dict.accounts;
+    navItems[2].innerHTML = dict.emails;
+    navItems[3].innerHTML = dict.users;
+    navItems[4].innerHTML = dict.students;
+    navItems[5].innerHTML = dict.payments;
+    navItems[6].innerHTML = dict.consultations;
+    navItems[7].innerHTML = dict.forum;
+    navItems[8].innerHTML = dict.reviews;
+    navItems[9].innerHTML = dict.social + ' &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span>';
+    const pendingCount = (D.careers || []).filter(c => (c.status || 'pending') === 'pending').length;
+    navItems[10].innerHTML = dict.careers + ` &nbsp;<span id="badge-careers" style="${pendingCount > 0 ? '' : 'display:none;'} font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">${pendingCount > 0 ? pendingCount + ' NEW' : '0'}</span>`;
+  }
+
+  // Refresh and logout buttons
+  const refBtn = document.querySelector('.topbar .refresh-btn');
+  if (refBtn) refBtn.textContent = dict.refresh;
+  const logoutBtn = document.querySelector('.logout-btn');
+  if (logoutBtn) logoutBtn.textContent = dict.logout;
+
+  // Careers Panel Titles & Banners
+  const bannerBox = document.querySelector('#panel-careers .table-wrap');
+  if (bannerBox) {
+    const titleEl = bannerBox.querySelector('div[style*="Cinzel"]');
+    if (titleEl) titleEl.textContent = dict.careerBannerTitle;
+    const subEl = bannerBox.querySelector('p');
+    if (subEl) subEl.textContent = dict.careerBannerSub;
+  }
+  const tableTitle = document.querySelector('#panel-careers .table-title');
+  if (tableTitle) tableTitle.textContent = dict.careerTableTitle;
+  const searchInput = document.getElementById('careerSearchInput');
+  if (searchInput) searchInput.placeholder = dict.searchPh;
+
+  // Career stat cards labels
+  const statLabels = document.querySelectorAll('#panel-careers .stat-card .stat-label');
+  if (statLabels.length >= 3) {
+    statLabels[0].textContent = dict.careerTotal;
+    statLabels[1].textContent = dict.careerPending;
+    statLabels[2].textContent = dict.careerApproved;
+  }
+
+  // Career Table Headers
+  const ths = document.querySelectorAll('#panel-careers table thead th');
+  if (ths.length >= 9) {
+    ths[0].textContent = dict.thAppId;
+    ths[1].textContent = dict.thName;
+    ths[2].textContent = dict.thPhone;
+    ths[3].textContent = dict.thCity;
+    ths[4].textContent = dict.thExp;
+    ths[5].textContent = dict.thResume;
+    ths[6].textContent = dict.thStatus;
+    ths[7].textContent = dict.thPass;
+    ths[8].textContent = dict.thAction;
+  }
+
+  // Re-render table rows
+  if (D.careers && D.careers.length) {
+    renderCareerRows('careers-tbody', D.careers);
+    updateCareerStats(D.careers);
+  }
+
+  // Update current panelTitle
+  const activePanel = document.querySelector('.panel.active');
+  if (activePanel) {
+    const pName = activePanel.id.replace('panel-', '');
+    const titles = {
+      overview: lang === 'en' ? 'Overview' : 'अवलोकन (Overview)',
+      accounts: lang === 'en' ? 'Website Accounts (Firebase)' : 'वेबसाइट खाते (Accounts)',
+      emails: lang === 'en' ? 'Verified Email Logins' : 'सत्यापित ईमेल लॉगिन',
+      users: lang === 'en' ? 'Registered Users & Kundli Query Log' : 'पंजीकृत उपयोगकर्ता व कुण्डली लॉग',
+      students: lang === 'en' ? 'Students (Gurukul)' : 'गुरुकुल छात्र (Students)',
+      payments: lang === 'en' ? 'Customer Payments' : 'ग्राहक भुगतान (Payments)',
+      consultations: lang === 'en' ? 'VIP Consultations' : 'ज्योतिष परामर्श (Consultations)',
+      forum: lang === 'en' ? 'Forum Posts' : 'मंच चर्चा (Forum)',
+      reviews: lang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
+      social: lang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
+      careers: lang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)'
+    };
+    const tEl = document.getElementById('panelTitle');
+    if (tEl) tEl.textContent = titles[pName] || pName;
+  }
+
+  // Overview stats translation
+  const ovLabels = document.querySelectorAll('#panel-overview .stat-label');
+  if (ovLabels.length >= 4) {
+    ovLabels[0].textContent = lang === 'en' ? 'Total Revenue' : 'कुल राजस्व (Total Revenue)';
+    ovLabels[1].textContent = lang === 'en' ? 'Paid Customers' : 'सफल ग्राहक (Paid Customers)';
+    ovLabels[2].textContent = lang === 'en' ? 'Registered / Logins' : 'पंजीकृत खाते (Registered)';
+    ovLabels[3].textContent = lang === 'en' ? 'Kundli Queries' : 'कुण्डली गणना (Calculations)';
+  }
+}
+
+function toggleAdminLanguage() {
+  const next = currentAdminLang === 'hi' ? 'en' : 'hi';
+  applyAdminLanguage(next);
+}
+</script>
+<script>
+/* Phones: every table cell carries its column name (shown when rows become cards),
+   and choosing a tab on a phone jumps to that tab's content. */
+(function () {
+  function label() {
+    document.querySelectorAll('table.tbl').forEach(function (t) {
+      var heads = [];
+      var hr = t.tHead && t.tHead.rows[t.tHead.rows.length - 1];
+      if (hr) [].forEach.call(hr.cells, function (th) { for (var s = 0; s < (th.colSpan || 1); s++) heads.push(th.textContent.replace(/\s+/g, ' ').trim()); });
+      [].forEach.call(t.tBodies, function (tb) {
+        [].forEach.call(tb.rows, function (tr) {
+          var i = 0;
+          [].forEach.call(tr.cells, function (td) {
+            var span = td.colSpan || 1;
+            var want = span > 1 ? '' : (heads[i] || '');
+            if (td.getAttribute('data-label') !== want) td.setAttribute('data-label', want);
+            i += span;
+          });
+        });
+      });
+    });
+  }
+  var queued = false;
+  function later() { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; label(); }); }
+  label();
+  new MutationObserver(function (muts) {
+    for (var m of muts) if (m.type === 'childList') { later(); return; }
+  }).observe(document.body, { childList: true, subtree: true });
+  document.addEventListener('click', function (e) {
+    var item = e.target.closest && e.target.closest('.sidebar-nav .nav-item');
+    if (item && window.matchMedia('(max-width:900px)').matches) {
+      var main = document.querySelector('.main');   // jump to the chosen tab's content
+      if (main) window.scrollTo({ top: main.getBoundingClientRect().top + window.scrollY - 8, behavior: 'smooth' });
+    }
+  });
+})();
 </script>
 </body>
 </html>

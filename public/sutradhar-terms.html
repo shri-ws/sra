@@ -533,9 +533,15 @@
             <input type="tel" id="authPhone" maxlength="10" class="otp-input-field" placeholder="10 अंकों का नंबर" oninput="this.value=this.value.replace(/\D/g,'')">
           </div>
         </div>
-        <div style="margin-bottom:18px;">
-          <label style="font-size:12.5px; font-weight:700; color:var(--ink);">ईमेल आईडी (वैकल्पिक)</label>
-          <input type="email" id="authEmail" class="otp-input-field" placeholder="name@example.com">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:18px;">
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:var(--ink);">ईमेल आईडी (वैकल्पिक)</label>
+            <input type="email" id="authEmail" class="otp-input-field" placeholder="name@example.com">
+          </div>
+          <div>
+            <label style="font-size:12.5px; font-weight:700; color:var(--ink);">पेआउट हेतु आपकी UPI ID (वैकल्पिक)</label>
+            <input type="text" id="authUpi" class="otp-input-field" placeholder="उदा. 94150XXXXX@upi अथवा yourname@oksbi">
+          </div>
         </div>
 
         <button type="button" id="btnSendOtp" class="btn-proceed" style="width:100%;" onclick="sendAuthOtp()">
@@ -600,14 +606,17 @@
       const phoneParam = p.get('phone') || '';
       const nameParam = p.get('name') || '';
       const emailParam = p.get('email') || '';
+      const upiParam = p.get('upi') || '';
 
       const phoneEl = document.getElementById('authPhone');
       const nameEl = document.getElementById('authName');
       const emailEl = document.getElementById('authEmail');
+      const upiEl = document.getElementById('authUpi');
 
       if (phoneParam && phoneEl) phoneEl.value = phoneParam.replace(/\D/g, '').slice(-10);
       if (nameParam && nameEl) nameEl.value = nameParam;
       if (emailParam && emailEl) emailEl.value = emailParam;
+      if (upiParam && upiEl) upiEl.value = upiParam;
     });
 
     function handleCheckboxToggle(cb) {
@@ -687,6 +696,7 @@
 
         const candName = (document.getElementById('authName')?.value || 'सूत्रधार जातक').trim();
         const candEmail = (document.getElementById('authEmail')?.value || '').trim();
+        const candUpi = (document.getElementById('authUpi')?.value || '').trim();
 
         // Create authorized Sutradhar profile session
         const profile = {
@@ -695,7 +705,8 @@
           phone: pendingPhone,
           email: candEmail,
           code: 'SRA' + pendingPhone.slice(-4) + '01',
-          upi_id: ''
+          upi_id: candUpi,
+          upi: candUpi
         };
 
         localStorage.setItem('sra_sutradhar_session', JSON.stringify(profile));
