@@ -321,7 +321,7 @@
 
   function scan() {
     if (!PHONE.matches) { document.querySelectorAll('.sra-onetab').forEach(r => r.classList.remove('sra-onetab')); return; }
-    document.querySelectorAll('body *').forEach(el => {
+    document.querySelectorAll('.mobile-tab-bar, [role="tablist"], .v-tabs, .panchang-tabs, .tab-bar').forEach(el => {
       if (el.classList.contains('sra-onetab') || el.childElementCount < 3) return;
       if (needsOneTab(el)) enhance(el);
     });
@@ -331,7 +331,6 @@
   const later = () => { if (pending) return; pending = true; setTimeout(() => { pending = false; scan(); }, 200); };
   function start() {
     scan();
-    new MutationObserver(later).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
     PHONE.addEventListener('change', scan);
     window.addEventListener('resize', later);
   }

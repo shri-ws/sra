@@ -132,20 +132,10 @@
   </script>
 
   <!-- RAZORPAY CHECKOUT SCRIPT -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-  <!-- HTML2PDF BUNDLE SCRIPT (FOR RELIABLE CLIENT-SIDE A4 PDF DOWNLOAD) -->
-  <script src="/html2pdf.bundle.min.js"></script>
-  <script>
-    if (typeof html2pdf === 'undefined') {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      document.head.appendChild(s);
-    }
-  </script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 
   <!-- Global Unified Theme & Navigation Engine -->
-  <script src="/theme.js"></script>
+  <script src="/theme.js" defer></script>
 
   <!-- Google Fonts: Royal Vedic & Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -2029,9 +2019,7 @@
   <!-- PDF GENERATION LOADING OVERLAY WITH SACRED SURYA-SWASTIKA -->
   <div id="pdfLoadingMask" class="sra-sacred-loader-overlay" style="display:none;">
     <div class="sra-surya-loader-graphic">
-      <script>
-        document.write(typeof window.SRA_Loader !== 'undefined' && window.SRA_Loader.getSuryaSwastikaSVG ? window.SRA_Loader.getSuryaSwastikaSVG(130) : '<svg viewBox="0 0 200 200" width="130" height="130"><circle cx="100" cy="100" r="50" fill="#f59e0b"/></svg>');
-      </script>
+      <svg viewBox="0 0 200 200" width="130" height="130"><circle cx="100" cy="100" r="50" fill="#f59e0b"/></svg>
     </div>
     <div class="sra-loader-title">
       श्री रामजी एस्ट्रो • SHRI RAMJI ASTRO
@@ -4440,10 +4428,21 @@
       // Small pause to allow render
       await new Promise(r => setTimeout(r, 200));
 
-      // Wait if html2pdf is still loading
-      for (let i = 0; i < 20; i++) {
-        if (typeof html2pdf === 'function') break;
-        await new Promise(r => setTimeout(r, 100));
+      // Lazy-load html2pdf on-demand if not already loaded
+      if (typeof html2pdf !== 'function') {
+        await new Promise((resolve) => {
+          const s = document.createElement('script');
+          s.src = '/html2pdf.bundle.min.js';
+          s.onload = resolve;
+          s.onerror = () => {
+            const fallback = document.createElement('script');
+            fallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            fallback.onload = resolve;
+            fallback.onerror = resolve;
+            document.head.appendChild(fallback);
+          };
+          document.head.appendChild(s);
+        });
       }
 
       if (typeof html2pdf === 'function') {
