@@ -1786,6 +1786,124 @@ def ai_chat(body: AIChatRequest, request: Request):
     return {"text": text, "model": model}
 
 
+# =============================================================================
+# 13. AUTOMATED EMAIL DISPATCH FOR MEGA PARASHARA REPORT
+# =============================================================================
+import smtplib
+import base64
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+
+class SendReportEmailRequest(BaseModel):
+    recipient_email: str
+    recipient_name: Optional[str] = "जातक"
+    pdf_base64: Optional[str] = None
+    pdf_filename: Optional[str] = None
+    report_title: Optional[str] = "मेगा पाराशर कुण्डली रिपोर्ट"
+
+@app.post("/api/report/send-email")
+def send_report_email(body: SendReportEmailRequest):
+    recipient_email = (body.recipient_email or "").strip()
+    if not recipient_email or "@" not in recipient_email:
+        raise HTTPException(status_code=400, detail="अमान्य ईमेल आईडी (Invalid email address)")
+
+    sender_email = _ai_setting("SMTP_SENDER_EMAIL", "shriramjiastro7@gmail.com")
+    app_pwd = (_ai_setting("GMAIL_APP_PASSWORD") or _ai_setting("SMTP_PASSWORD") or "").replace(" ", "").strip()
+    name = (body.recipient_name or "जातक").strip()
+    subject = "आपकी सम्पूर्ण ९७-अध्याय मेगा पाराशर संहिता कुण्डली रिपोर्ट — श्री रामजी एस्ट्रो"
+
+    text_content = f"""आदरणीय {name} जी,
+सादर प्रणाम।
+
+श्री रामजी एस्ट्रो द्वारा तैयार की गई आपकी सम्पूर्ण ९७-अध्याय मेगा पाराशर संहिता कुण्डली रिपोर्ट संलग्न (Attach) कर प्रेषित की जा रही है।
+
+यह रिपोर्ट महर्षि पराशर प्रणीत बृहत्पाराशरहोराशास्त्रम् के प्रामाणिक सूत्रों, NASA JPL Swiss Ephemeris (<0.001" सटीकता) एवं श्रीपति भाव-चलित पद्धति पर आधारित है।
+
+इस रिपोर्ट के मुख्य आकर्षण:
+1. षोडशवर्ग सूक्ष्म चक्र (D1 से D60): आपके जीवन के समस्त १६ आयामों का सूक्ष्म विश्लेषण।
+2. षड्बल एवं सर्वाष्टकवर्ग शोधन: ग्रहों का वास्तविक सामर्थ्य एवं त्रिकोण/एकाधिपत्य शोधन।
+3. काल-चक्र एवं विंशोत्तरी दशा क्रम: आगामी समय की दशाओं का काल-खंड विवरण।
+4. राजयोग, धन योग एवं इन्दु लग्न: वित्तीय क्षमता एवं कर्मक्षेत्र का शास्त्रीय आंकलन।
+5. वैदिक शान्ति एवं समिधा विधान: शास्त्रीय मंत्र, रत्न एवं नित्य जीवन मार्गदर्शिका।
+
+संलग्न PDF फ़ाइल डाउनलोड कर आप इसका अध्ययन कर सकते हैं। किसी भी प्रश्न अथवा परामर्श के लिए आप इस ईमेल पर प्रत्युत्तर दे सकते हैं।
+
+शुभकामनाएं,
+श्री रामजी एस्ट्रो
+वेबसाइट: https://shriramjiastro.in
+सहायता: support@shriramjiastro.in
+"""
+
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #222; max-width: 650px; margin: 0 auto; padding: 20px;">
+  <p>आदरणीय <strong>{name}</strong> जी,<br>सादर प्रणाम।</p>
+  <p>श्री रामजी एस्ट्रो द्वारा तैयार की गई आपकी <strong>सम्पूर्ण ९७-अध्याय मेगा पाराशर संहिता कुण्डली रिपोर्ट</strong> संलग्न (Attach) कर प्रेषित की जा रही है।</p>
+  <p>यह रिपोर्ट महर्षि पराशर प्रणीत <em>बृहत्पाराशरहोराशास्त्रम्</em> के प्रामाणिक सूत्रों, NASA JPL Swiss Ephemeris (&lt;0.001" सटीकता) एवं श्रीपति भाव-चलित पद्धति पर आधारित है।</p>
+  
+  <h4 style="color: #7c1305; margin-bottom: 8px;">इस रिपोर्ट के मुख्य आकर्षण:</h4>
+  <ol style="padding-left: 20px; line-height: 1.7;">
+    <li><strong>षोडशवर्ग सूक्ष्म चक्र (D1 से D60):</strong> आपके जीवन के समस्त १६ आयामों का सूक्ष्म विश्लेषण।</li>
+    <li><strong>षड्बल एवं सर्वाष्टकवर्ग शोधन:</strong> ग्रहों का वास्तविक सामर्थ्य एवं त्रिकोण/एकाधिपत्य शोधन।</li>
+    <li><strong>काल-चक्र एवं विंशोत्तरी दशा क्रम:</strong> आगामी समय की दशाओं का काल-खंड विवरण।</li>
+    <li><strong>राजयोग, धन योग एवं इन्दु लग्न:</strong> वित्तीय क्षमता एवं कर्मक्षेत्र का शास्त्रीय आंकलन।</li>
+    <li><strong>वैदिक शान्ति एवं समिधा विधान:</strong> शास्त्रीय मंत्र, रत्न एवं नित्य जीवन मार्गदर्शिका।</li>
+  </ol>
+  
+  <p>संलग्न PDF फ़ाइल डाउनलोड कर आप इसका अध्ययन कर सकते हैं। किसी भी प्रश्न अथवा परामर्श के लिए आप इस ईमेल पर प्रत्युत्तर दे सकते हैं।</p>
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+  <p style="font-size: 13px; color: #64748b; line-height: 1.5;">
+    शुभकामनाएं,<br>
+    <strong style="color: #7c1305;">श्री रामजी एस्ट्रो</strong><br>
+    वेबसाइट: <a href="https://shriramjiastro.in" style="color: #b45309;">https://shriramjiastro.in</a><br>
+    सहायता: <a href="mailto:support@shriramjiastro.in" style="color: #b45309;">support@shriramjiastro.in</a>
+  </p>
+</body>
+</html>"""
+
+    if not app_pwd:
+        return {
+            "status": "pending_credentials",
+            "message": "ईमेल टेम्प्लेट तैयार है। लाइव डिलीवरी हेतु सर्वर पर्यावरण चर GMAIL_APP_PASSWORD में 16-अंकीय Google App Password सेट करें।",
+            "recipient": recipient_email,
+            "sender": sender_email
+        }
+
+    try:
+        msg = MIMEMultipart("mixed")
+        msg["From"] = f"श्री रामजी एस्ट्रो <{sender_email}>"
+        msg["To"] = recipient_email
+        msg["Subject"] = subject
+        msg["Reply-To"] = "support@shriramjiastro.in"
+
+        alt_part = MIMEMultipart("alternative")
+        alt_part.attach(MIMEText(text_content, "plain", "utf-8"))
+        alt_part.attach(MIMEText(html_content, "html", "utf-8"))
+        msg.attach(alt_part)
+
+        if body.pdf_base64:
+            clean_b64 = body.pdf_base64
+            if "," in clean_b64:
+                clean_b64 = clean_b64.split(",", 1)[1]
+            pdf_bytes = base64.b64decode(clean_b64)
+            filename = body.pdf_filename or f"मेगा_पाराशर_कुण्डली_रिपोर्ट_{name}.pdf"
+            pdf_part = MIMEApplication(pdf_bytes, _subtype="pdf")
+            pdf_part.add_header("Content-Disposition", "attachment", filename=("utf-8", "", filename))
+            msg.attach(pdf_part)
+
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(sender_email, app_pwd)
+            server.sendmail(sender_email, [recipient_email], msg.as_string())
+
+        return {"status": "success", "message": f"रिपोर्ट सफलतापूर्वक {recipient_email} पर प्रेषित कर दी गई है।"}
+    except Exception as e:
+        return {"status": "error", "message": f"ईमेल प्रेषण में त्रुटि: {str(e)}"}
+
+
 # SRA Personalized Panchang & Daily Morning Guide Router
 try:
     from panchang_notification_dispatcher import router as panchang_router

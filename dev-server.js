@@ -272,6 +272,26 @@ function watchDirectory(dir) {
 
 watchDirectory(ROOT_DIR);
 
+// ENSURE SRA PYTHON CANONICAL ENGINE (:8000) IS RUNNING
+const cp = require('child_process');
+const pyBin = path.join(ROOT_DIR, '.venv', 'bin', 'python');
+const pyScript = path.join(ROOT_DIR, 'parashara_canonical_engine.py');
+
+if (fs.existsSync(pyBin) && fs.existsSync(pyScript)) {
+  const checkReq = http.get('http://127.0.0.1:8000/health', (res) => {
+    // Already running
+  });
+  checkReq.on('error', () => {
+    const pyProc = cp.spawn(pyBin, [pyScript], {
+      cwd: ROOT_DIR,
+      env: { ...process.env, PYTHONPATH: ROOT_DIR },
+      stdio: 'ignore',
+      detached: true
+    });
+    pyProc.unref();
+  });
+}
+
 // START SERVER
 server.listen(PORT, '0.0.0.0', () => {
   const localIp = getLocalIp();

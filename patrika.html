@@ -3362,6 +3362,29 @@
     <p data-i18n-hi="बृहत्पाराशर होराशास्त्र सम्मत पंचांग, षोडशवर्ग सूक्ष्म चक्र, श्रीपति भाव चलित एवं प्रामाणिक ग्रह स्पष्ट" data-i18n-en="Brihat Parashara Hora Shastra Panchang, Shodashvarga Charts, Sripati Bhava Chalit and Planetary Positions">बृहत्पाराशर होराशास्त्र सम्मत पंचांग, षोडशवर्ग सूक्ष्म चक्र, श्रीपति भाव चलित एवं प्रामाणिक ग्रह स्पष्ट</p>
   </div>
 
+  <!-- TOP PERMANENT HERO: DAILY PERSONALIZED PANCHANG GUIDANCE -->
+  <div class="top-personalized-panchang-banner" id="topPersonalizedPanchangBanner" style="margin-bottom: 22px; background: linear-gradient(135deg, rgba(124,19,5,0.06), rgba(180,83,9,0.12)); border: 1.5px solid var(--gold-border, #d97706); border-radius: 14px; padding: 18px 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+      <div style="flex: 1 1 320px;">
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(180,83,9,0.18); color: #7c1305; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 20px; margin-bottom: 8px; letter-spacing: 0.5px;">
+          <span>🔔 दैनिक अलर्ट • प्रातः 07:00 बजे</span>
+        </div>
+        <h3 style="margin: 0 0 6px 0; font-size: 1.22rem; color: #7c1305; font-weight: 800; font-family: 'Cinzel', serif;">
+          डेली पर्सनलाइज्ड गाइडेंस — सब्सक्राइब नाउ
+        </h3>
+        <p style="margin: 0; font-size: 0.9rem; color: #475569; line-height: 1.55;">
+          Daily personalized guidance based on <strong>99+ classical factors</strong> (त्रि-दशा, D1-D60 गोचर, सुदर्शन चक्र, नक्षत्र उपस्वामी, भावत भावम एवं पंचांग अंगों) according to your personalized kundali.
+        </p>
+      </div>
+      <div>
+        <button type="button" class="btn-subscribe-panchang-top" id="btnSubscribePanchangTop" onclick="handlePanchangSubscription()" style="background: linear-gradient(135deg, #7c1305, #b45309); color: #fff; border: none; padding: 12px 24px; font-size: 0.95rem; font-weight: 700; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124,19,5,0.25); transition: all 0.2s ease;">
+          <span>🔔 Subscribe Free for Daily Personalized Panchang Guidance</span>
+        </button>
+        <div id="subPanchangTopStatus" style="font-size: 12px; color: #047857; font-weight: 700; margin-top: 6px; display: none;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Universal Birth Input Form -->
   <div class="input-panel" id="inputPanelWrapper">
     <!-- Form Header: Details & Saved Kundalis Trigger -->
@@ -3517,6 +3540,10 @@
           <option value="लंदन, यूके (London)"></option>
           <option value="न्यूयॉर्क, यूएसए (New York)"></option>
         </datalist>
+      </div>
+      <div class="field" style="grid-column: 1 / -1;">
+        <label data-i18n-hi="ईमेल आईडी (रिपोर्ट प्राप्त करने हेतु)" data-i18n-en="Email Address (To Receive Report)">ईमेल आईडी (रिपोर्ट प्राप्त करने हेतु) <span style="color:var(--muted); font-size:12px; font-weight:normal;">(रिपोर्ट जनरेट होते ही इस पर स्वतः ईमेल भेजी जाएगी)</span></label>
+        <input type="email" id="inEmail" placeholder="उदा. yourname@gmail.com">
       </div>
     </div>
 
@@ -6610,6 +6637,12 @@ async function executeParasharaMaster() {
     }
   }
 
+  // Automated email dispatch to user's email ID
+  const userEmail = (document.getElementById("inEmail")?.value || "").trim() || localStorage.getItem("sra_verified_email") || "";
+  if (userEmail && userEmail.includes("@")) {
+    dispatchReportEmail(candidateName, userEmail);
+  }
+
   } catch (err) {
     console.error("Critical calculation error in executeParasharaMaster:", err);
     alert("कुण्डली गणना के दौरान समस्या आई: " + (err.message || err));
@@ -6618,6 +6651,34 @@ async function executeParasharaMaster() {
       calcBtn.disabled = false;
       calcBtn.innerHTML = origBtnHtml || (isEnMode ? "✨ View Your Birth Chart ➔" : "✨ अपनी जन्म पत्रिका देखें ➔");
     }
+  }
+}
+
+async function dispatchReportEmail(name, email) {
+  if (!email || !email.includes('@')) return;
+  try {
+    const apiBase = window.SRA_API_BASE || '';
+    const endpoint = apiBase + '/api/report/send-email';
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        recipient_email: email,
+        recipient_name: name || 'जातक',
+        report_title: 'मेगा पाराशर कुण्डली रिपोर्ट'
+      })
+    }).then(r => r.json()).then(data => {
+      if (data && data.status === 'success') {
+        console.log(`[Email] Report successfully dispatched to ${email}`);
+        if (typeof showKundaliToast === 'function') {
+          showKundaliToast(`📧 रिपोर्ट आपके ईमेल ${email} पर प्रेषित कर दी गई है!`);
+        }
+      }
+    }).catch(err => {
+      console.warn("[Email] Dispatch notice:", err);
+    });
+  } catch (e) {
+    console.warn("[Email] Trigger error:", e);
   }
 }
 
@@ -8189,7 +8250,7 @@ async function printParasharaReport(reportType) {
       filename: filename,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
-        scale: 2,
+        scale: 1,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -11370,9 +11431,8 @@ window.setLanguage = function(lang) {
 
 // DAILY PERSONALIZED PANCHANG SUBSCRIPTION HANDLER
 window.handlePanchangSubscription = async function() {
-  const btn = document.getElementById("btnSubscribePanchang");
-  const statusEl = document.getElementById("subPanchangStatus");
-  if (!btn) return;
+  const btns = document.querySelectorAll("#btnSubscribePanchang, #btnSubscribePanchangTop, .btn-subscribe-panchang-top");
+  const statusEls = document.querySelectorAll("#subPanchangStatus, #subPanchangTopStatus");
 
   // 1. Gather birth details from current calculation or input fields
   let name = (document.getElementById("inName")?.value || "").trim() || "जातक";
@@ -11419,8 +11479,10 @@ window.handlePanchangSubscription = async function() {
     current_lon: lon || 80.6833
   };
 
-  btn.disabled = true;
-  btn.innerHTML = `<span>⏳ सब्सक्राइब हो रहा है...</span>`;
+  btns.forEach(b => {
+    b.disabled = true;
+    b.innerHTML = `<span>⏳ सब्सक्राइब हो रहा है...</span>`;
+  });
 
   // 2. Request browser notification permission if available
   let permissionGranted = false;
@@ -11472,12 +11534,14 @@ window.handlePanchangSubscription = async function() {
         }
       }
 
-      btn.style.background = "#047857";
-      btn.innerHTML = `<span>✅ Subscribed! Daily 07:00 AM Alert Active</span>`;
-      if (statusEl) {
-        statusEl.style.display = "block";
-        statusEl.innerHTML = `✨ बधाई! प्रतिदिन सुबह 07:00 बजे 99+ फैक्टर्स सम्मत पर्सनलाइज्ड पंचांग का पुश नोटिफिकेशन आपके डिवाइस पर सक्रिय हो गया है।`;
-      }
+      btns.forEach(b => {
+        b.style.background = "#047857";
+        b.innerHTML = `<span>✅ Subscribed! Daily 07:00 AM Alert Active</span>`;
+      });
+      statusEls.forEach(s => {
+        s.style.display = "block";
+        s.innerHTML = `✨ बधाई! प्रतिदिन सुबह 07:00 बजे 99+ फैक्टर्स सम्मत पर्सनलाइज्ड पंचांग का पुश नोटिफिकेशन आपके डिवाइस पर सक्रिय हो गया है।`;
+      });
 
       if (typeof showKundaliToast === "function") {
         showKundaliToast("✅ सब्सक्राइब सफल! प्रतिदिन प्रातः 07:00 बजे आपको दैनिक पर्सनलाइज्ड पंचांग अलर्ट प्राप्त होगा।");
@@ -11487,9 +11551,11 @@ window.handlePanchangSubscription = async function() {
     }
   } catch (err) {
     console.error("Subscription error:", err);
-    btn.disabled = false;
-    btn.style.background = "linear-gradient(135deg, #7c1305, #b45309)";
-    btn.innerHTML = `<span>🔔 Subscribe Free for Daily Personalized Panchang Guidance</span>`;
+    btns.forEach(b => {
+      b.disabled = false;
+      b.style.background = "linear-gradient(135deg, #7c1305, #b45309)";
+      b.innerHTML = `<span>🔔 Subscribe Free for Daily Personalized Panchang Guidance</span>`;
+    });
     if (typeof showKundaliToast === "function") {
       showKundaliToast("⚠️ सब्सक्राइब करने में त्रुटि आई। कृपया पुनः प्रयास करें।");
     } else {
@@ -11501,16 +11567,16 @@ window.handlePanchangSubscription = async function() {
 document.addEventListener("DOMContentLoaded", function() {
   try {
     if (localStorage.getItem("sra_panchang_subscribed") === "true") {
-      const btn = document.getElementById("btnSubscribePanchang");
-      const statusEl = document.getElementById("subPanchangStatus");
-      if (btn) {
-        btn.style.background = "#047857";
-        btn.innerHTML = `<span>✅ Subscribed! Daily 07:00 AM Alert Active</span>`;
-      }
-      if (statusEl) {
-        statusEl.style.display = "block";
-        statusEl.innerHTML = `✨ प्रतिदिन सुबह 07:00 बजे 99+ फैक्टर्स सम्मत पर्सनलाइज्ड पंचांग का पुश नोटिफिकेशन आपके डिवाइस पर सक्रिय है।`;
-      }
+      const btns = document.querySelectorAll("#btnSubscribePanchang, #btnSubscribePanchangTop, .btn-subscribe-panchang-top");
+      const statusEls = document.querySelectorAll("#subPanchangStatus, #subPanchangTopStatus");
+      btns.forEach(b => {
+        b.style.background = "#047857";
+        b.innerHTML = `<span>✅ Subscribed! Daily 07:00 AM Alert Active</span>`;
+      });
+      statusEls.forEach(s => {
+        s.style.display = "block";
+        s.innerHTML = `✨ प्रतिदिन सुबह 07:00 बजे 99+ फैक्टर्स सम्मत पर्सनलाइज्ड पंचांग का पुश नोटिफिकेशन आपके डिवाइस पर सक्रिय है।`;
+      });
     }
   } catch(e) {}
 });

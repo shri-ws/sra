@@ -1488,67 +1488,70 @@
         background: var(--bg);
       }
 
-      /* 3. TOP SEGMENTED HORIZONTAL CHIP BAR */
+      /* 3. TOP SEGMENTED HORIZONTAL CHIP BAR (SINGLE FULL-WIDTH TAB PER SCREEN) */
       .mobile-tab-bar {
         flex-shrink: 0;
-        height: 48px;
+        height: 50px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 0 12px;
-        overflow-x: auto;
+        gap: 0;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: hidden;
         white-space: nowrap;
         scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
         background: var(--bg2, #FAF6EF);
-        border-bottom: 1px solid var(--gold-border, rgba(197, 160, 89, 0.28));
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        border-bottom: 2px solid var(--gold-border, rgba(197, 160, 89, 0.35));
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
         position: sticky;
         top: 0;
         z-index: 100;
+        box-sizing: border-box;
       }
       .mobile-tab-bar::-webkit-scrollbar {
         display: none;
       }
 
       .app-tab-chip {
-        flex-shrink: 0;
-        height: 32px;
-        padding: 0 14px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.55);
-        border: 1px solid var(--gold-border, rgba(197, 160, 89, 0.3));
-        color: var(--muted, #64748B);
-        font-family: var(--font-devanagari-body, 'Poppins', sans-serif);
-        font-size: 12px;
-        font-weight: 600;
+        flex: 0 0 100%;
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 50px;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        justify-content: space-between;
+        padding: 0 14px;
+        font-family: var(--font-devanagari-heading, 'Cinzel', serif);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        color: var(--muted, #64748B);
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: color 0.2s ease, background 0.2s ease;
         text-decoration: none;
         user-select: none;
+        box-sizing: border-box;
       }
       .app-tab-chip:active {
-        transform: scale(0.96);
+        background: rgba(180, 83, 9, 0.08);
       }
       .app-tab-chip.active {
-        background: linear-gradient(135deg, rgba(197, 160, 89, 0.28), rgba(140, 109, 43, 0.35));
-        border: 1.5px solid var(--gold-dark, #8C6D2B);
-        color: var(--heading-color, #4A0E17);
-        font-weight: 700;
-        box-shadow: 0 2px 8px rgba(197, 160, 89, 0.25);
-        transform: scale(1.02);
+        color: #7c1305;
+        background: linear-gradient(180deg, rgba(180, 83, 9, 0.06) 0%, rgba(124, 19, 5, 0.12) 100%);
+        border-bottom: 3.5px solid #7c1305;
+        font-size: 17px;
+        font-weight: 800;
       }
       [data-theme="night"] .app-tab-chip {
-        background: rgba(25, 30, 38, 0.6);
-        border-color: rgba(197, 160, 89, 0.25);
         color: #94A3B8;
       }
       [data-theme="night"] .app-tab-chip.active {
-        background: linear-gradient(135deg, rgba(197, 160, 89, 0.35), rgba(140, 109, 43, 0.45));
-        border-color: var(--gold, #D4AF37);
+        background: linear-gradient(180deg, rgba(197, 160, 89, 0.1) 0%, rgba(140, 109, 43, 0.25) 100%);
+        border-bottom-color: var(--gold, #D4AF37);
         color: #F4E8C1;
       }
 
@@ -2531,25 +2534,37 @@
        ══════════════════════════════════════════════════════════════════════════ -->
   <div class="mobile-app-shell" id="mobileAppShell">
 
-    <!-- TOP SEGMENTED HORIZONTAL TAB BAR -->
+    <!-- TOP SEGMENTED HORIZONTAL TAB BAR (SINGLE FULL-SCREEN TAB) -->
     <div class="mobile-tab-bar" id="mobileTabBar" role="tablist" aria-label="App Navigation Tabs">
       <button type="button" class="app-tab-chip active" data-tab-index="0" role="tab" aria-selected="true" onclick="switchMobileTab(0)">
-        <span>🏠</span> <span data-i18n="tab_home">होम</span>
+        <span style="visibility:hidden; width:22px;">‹</span>
+        <span><span>🏠</span> <span data-i18n="tab_home">होम</span></span>
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(1);" aria-label="Next">›</span>
       </button>
-      <a href="patrika.html" class="app-tab-chip" id="tabChipKundli" role="tab" aria-selected="false">
-        <span>📜</span> <span data-i18n="tab_kundli">कुण्डली</span>
-      </a>
-      <button type="button" class="app-tab-chip" data-tab-index="1" role="tab" aria-selected="false" onclick="switchMobileTab(1)">
-        <span>📿</span> <span data-i18n="tab_panchang">पञ्चाङ्ग</span>
+      <button type="button" class="app-tab-chip" data-tab-index="1" id="tabChipKundli" role="tab" aria-selected="false" onclick="switchMobileTab(1)">
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(0);" aria-label="Previous">‹</span>
+        <span><span>📜</span> <span data-i18n="tab_kundli">कुण्डली</span></span>
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(2);" aria-label="Next">›</span>
       </button>
       <button type="button" class="app-tab-chip" data-tab-index="2" role="tab" aria-selected="false" onclick="switchMobileTab(2)">
-        <span>💍</span> <span data-i18n="tab_muhurat">मुहूर्त</span>
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(1);" aria-label="Previous">‹</span>
+        <span><span>📿</span> <span data-i18n="tab_panchang">पञ्चाङ्ग</span></span>
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(3);" aria-label="Next">›</span>
       </button>
-      <button type="button" class="app-tab-chip chip-highlight-vip" data-tab-index="3" role="tab" aria-selected="false" onclick="switchMobileTab(3)">
-        <span>🌟</span> <span data-i18n="tab_sanctuary">1-on-1 परामर्श</span>
+      <button type="button" class="app-tab-chip" data-tab-index="3" role="tab" aria-selected="false" onclick="switchMobileTab(3)">
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(2);" aria-label="Previous">‹</span>
+        <span><span>💍</span> <span data-i18n="tab_muhurat">मुहूर्त</span></span>
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(4);" aria-label="Next">›</span>
       </button>
-      <button type="button" class="app-tab-chip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
-        <span>📊</span> <span data-i18n="tab_reports">रिपोर्ट्स</span>
+      <button type="button" class="app-tab-chip chip-highlight-vip" data-tab-index="4" role="tab" aria-selected="false" onclick="switchMobileTab(4)">
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(3);" aria-label="Previous">‹</span>
+        <span><span>🌟</span> <span data-i18n="tab_sanctuary">1-on-1 परामर्श</span></span>
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(5);" aria-label="Next">›</span>
+      </button>
+      <button type="button" class="app-tab-chip" data-tab-index="5" role="tab" aria-selected="false" onclick="switchMobileTab(5)">
+        <span style="font-size:20px; font-weight:800; color:var(--gold,#C5A059); padding:4px 8px; cursor:pointer;" onclick="event.stopPropagation(); switchMobileTab(4);" aria-label="Previous">‹</span>
+        <span><span>📊</span> <span data-i18n="tab_reports">रिपोर्ट्स</span></span>
+        <span style="visibility:hidden; width:22px;">›</span>
       </button>
     </div>
 
@@ -2563,7 +2578,7 @@
 
         <!-- COMPACT VEDIC STATUS / GREETING BAR WITH DYNAMIC TITHI -->
         <div class="mobile-greeting-bar">
-          <button type="button" class="vedic-date-chip" id="dynamicPanchangChip" onclick="if (window.switchMobileTab) switchMobileTab(1)" aria-label="आज का पञ्चाङ्ग खोलें">
+          <button type="button" class="vedic-date-chip" id="dynamicPanchangChip" onclick="if (window.switchMobileTab) switchMobileTab(2)" aria-label="आज का पञ्चाङ्ग खोलें">
             <span class="live-dot"></span>
             <span class="tithi-ticker" data-no-i18n translate="no">
               <span class="tithi-track" id="homeTithiTrack"><span id="homeTithiText">आज का पञ्चाङ्ग</span></span>
@@ -2727,11 +2742,70 @@
         
       </section>
 
-      <!-- ─── TAB 1: DAILY PANCHANG VIEW (CLASSICAL EPHEMERIS & CALENDAR) ─── -->
+      <!-- ─── TAB 1: KUNDLI VIEW (NATIVE VEDIC BIRTH CHART GENERATOR) ─── -->
+      <section class="view-page" id="viewKundli" role="tabpanel" aria-label="Kundli View">
+        <div class="page-hero-header">
+          <h2 class="page-hero-title">वैदिक जन्म पत्रिका (Patrika)</h2>
+          <p class="page-hero-sub">बृहत्पाराशर होराशास्त्र सम्मत षोडशवर्ग चक्र, भाव चलित एवं दशा विश्लेषण</p>
+        </div>
+
+        <div class="app-glass-panel" style="padding:18px; margin-bottom:16px;">
+          <form id="mobileKundliForm" onsubmit="handleMobileKundliSubmit(event)">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div>
+                <label for="mKundliName" class="app-form-label">जातक का नाम (Full Name)</label>
+                <input type="text" id="mKundliName" class="app-form-input" placeholder="उदा. राम शर्मा" value="जातक">
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div>
+                  <label for="mKundliDob" class="app-form-label">जन्म दिनांक (Date of Birth)</label>
+                  <input type="date" id="mKundliDob" class="app-form-input" required>
+                </div>
+                <div>
+                  <label for="mKundliTob" class="app-form-label">जन्म समय (Time of Birth)</label>
+                  <input type="time" id="mKundliTob" class="app-form-input" required>
+                </div>
+              </div>
+
+              <div>
+                <label for="mKundliCity" class="app-form-label">जन्म स्थान (City / Place)</label>
+                <input type="text" id="mKundliCity" class="app-form-input" placeholder="उदा. सीतापुर, उत्तर प्रदेश" value="सीतापुर" required>
+              </div>
+
+              <button type="submit" class="app-primary-btn" style="background:linear-gradient(135deg, #7c1305, #b45309); font-size:15px; font-weight:700; padding:13px; margin-top:4px;">
+                ✨ अपनी जन्म पत्रिका देखें ➔
+              </button>
+
+              <a href="patrika.html" style="text-align:center; color:var(--gold,#C5A059); font-size:13px; font-weight:600; text-decoration:none; padding:8px 4px; display:inline-block;">
+                📜 संपूर्ण विस्तृत पत्रिका पेज (D1-D60) खोलें ➔
+              </a>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ─── TAB 2: DAILY PANCHANG VIEW (CLASSICAL EPHEMERIS & CALENDAR) ─── -->
       <section class="view-page" id="viewPanchang" role="tabpanel" aria-label="Daily Panchang View">
         <div class="page-hero-header">
           <h2 class="page-hero-title">दैनिक शास्त्रीय पञ्चाङ्ग</h2>
           <p class="page-hero-sub">तिथि, वार, नक्षत्र, योग, करण, सूर्योदय एवं तात्कालिक मुहूर्त</p>
+        </div>
+
+        <!-- DAILY PERSONALIZED PANCHANG GUIDANCE IN PANCHANG VIEW -->
+        <div class="personalized-panchang-sub-box" style="margin: 0 0 16px 0; background: linear-gradient(135deg, rgba(124,19,5,0.06), rgba(180,83,9,0.11)); border: 1.5px solid var(--gold-border, #d97706); border-radius: 14px; padding: 16px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+          <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(180,83,9,0.18); color:#7c1305; font-size:11px; font-weight:800; padding:2px 10px; border-radius:12px; margin-bottom:6px;">
+            <span>🔔 दैनिक अलर्ट • प्रातः 07:00 बजे</span>
+          </div>
+          <h4 style="margin:0 0 4px 0; font-size:1.1rem; color:#7c1305; font-weight:800; font-family:'Cinzel', serif;">
+            डेली पर्सनलाइज्ड गाइडेंस — सब्सक्राइब नाउ
+          </h4>
+          <p style="margin:0 0 10px 0; font-size:0.88rem; color:#475569; line-height:1.5;">
+            Daily personalized guidance based on <strong>99+ classical factors</strong> (त्रि-दशा, D1-D60 गोचर, सुदर्शन चक्र, नक्षत्र उपस्वामी, भावत भावम एवं पंचांग अंगों) according to your personalized kundali.
+          </p>
+          <a href="patrika.html#topPersonalizedPanchangBanner" style="background:linear-gradient(135deg, #7c1305, #b45309); color:#fff; text-decoration:none; padding:10px 18px; font-size:0.9rem; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:8px; box-shadow:0 3px 10px rgba(124,19,5,0.22);">
+            <span>🔔 Subscribe Free for Daily Personalized Panchang Guidance</span>
+          </a>
         </div>
 
         <!-- DATE & CALENDAR PICKER CARD -->
@@ -4378,17 +4452,21 @@
   // ══════════════════════════════════════════════════════════════════════════
   function initMobileViewpager() {
     const pager = document.getElementById('mobileViewpager');
+    const tabBar = document.getElementById('mobileTabBar');
     const tabs = document.querySelectorAll('.app-tab-chip[data-tab-index]');
     if (!pager || !tabs.length) return;
 
     window.switchMobileTab = function(index) {
       const width = pager.clientWidth;
-      pager.scrollTo({
-        left: index * width,
-        behavior: 'smooth'
-      });
+      const targetLeft = index * width;
+      if (Math.abs(pager.scrollLeft - targetLeft) > 2) {
+        pager.scrollTo({
+          left: targetLeft,
+          behavior: 'smooth'
+        });
+      }
       setActiveTab(index);
-      if (index === 1) {
+      if (index === 2) {
         calculateLandingPanchang();
       }
     };
@@ -4401,21 +4479,20 @@
         t.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
 
-      // Auto-scroll the active chip into view inside the tab bar
-      const activeTab = document.querySelector(`.app-tab-chip[data-tab-index="${index}"]`);
-      if (activeTab && activeTab.parentElement) {
-        const container = activeTab.parentElement;
-        const chipLeft = activeTab.offsetLeft;
-        const chipWidth = activeTab.offsetWidth;
-        const containerWidth = container.clientWidth;
-        container.scrollTo({
-          left: chipLeft - (containerWidth / 2) + (chipWidth / 2),
-          behavior: 'smooth'
-        });
+      // Synchronize single full-width tab chip in top bar (1 screen = 1 tab)
+      if (tabBar) {
+        const barWidth = tabBar.clientWidth;
+        const targetBarLeft = index * barWidth;
+        if (Math.abs(tabBar.scrollLeft - targetBarLeft) > 2) {
+          tabBar.scrollTo({
+            left: targetBarLeft,
+            behavior: 'smooth'
+          });
+        }
       }
     }
 
-    // Scroll listener for horizontal swipe
+    // Scroll listener for horizontal swipe on viewpager
     let scrollTimeout;
     pager.addEventListener('scroll', () => {
       clearTimeout(scrollTimeout);
@@ -4425,13 +4502,37 @@
           const activeIndex = Math.round(pager.scrollLeft / width);
           if (activeIndex >= 0 && activeIndex < tabs.length) {
             setActiveTab(activeIndex);
-            if (activeIndex === 1) {
+            if (activeIndex === 2) {
               calculateLandingPanchang();
             }
           }
         }
       }, 50);
     }, { passive: true });
+
+    // Touch swipe gesture on single top tab bar (swiping header switches tabs)
+    let barTouchStartX = 0;
+    if (tabBar) {
+      tabBar.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+          barTouchStartX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      tabBar.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || !e.changedTouches[0]) return;
+        const diff = e.changedTouches[0].clientX - barTouchStartX;
+        if (Math.abs(diff) > 40) {
+          const width = pager.clientWidth;
+          const curIndex = width > 0 ? Math.round(pager.scrollLeft / width) : 0;
+          if (diff < 0 && curIndex < tabs.length - 1) {
+            window.switchMobileTab(curIndex + 1);
+          } else if (diff > 0 && curIndex > 0) {
+            window.switchMobileTab(curIndex - 1);
+          }
+        }
+      }, { passive: true });
+    }
   }
 
   function handleMobileKundliSubmit(e) {
@@ -5443,7 +5544,7 @@
   function openLandingPanchang() {
     if (window.innerWidth <= 768) {
       if (typeof window.switchMobileTab === 'function') {
-        window.switchMobileTab(1);
+        window.switchMobileTab(2);
       }
     } else {
       const el = document.getElementById('desktopPanchangSection');
@@ -5507,8 +5608,16 @@
   window.addEventListener('DOMContentLoaded', () => {
     initMobileViewpager();
 
-    // Initialize landing Panchang date inputs
+    // Initialize landing Kundli & Panchang date inputs
     const todayStr = new Date().toISOString().split('T')[0];
+    const mDob = document.getElementById('mKundliDob');
+    if (mDob && !mDob.value) mDob.value = todayStr;
+    const mTob = document.getElementById('mKundliTob');
+    if (mTob && !mTob.value) {
+      const now = new Date();
+      mTob.value = now.toTimeString().split(' ')[0].substring(0, 5);
+    }
+
     landingPanchangState.date = todayStr;
     const mDateIn = document.getElementById('inLandingPanchangDate');
     if (mDateIn) mDateIn.value = todayStr;

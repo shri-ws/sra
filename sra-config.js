@@ -5,7 +5,7 @@
    Locally (node dev-server.js) the dev server proxies the same paths to :8000. */
 (function() {
   var PRODUCTION_API = 'https://sra-canonical-engine.onrender.com';
-  var local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  var local = /^(localhost|127\.0\.0\.1|\[::1\]|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)$/.test(location.hostname);
   var base = local ? '' : PRODUCTION_API;
 
   window.SRA_API_BASE = base;

@@ -35,7 +35,8 @@
     const path = require('path');
     const pythonBin = path.join(__dirname, '.venv', 'bin', 'python');
 
-    const pyCode = `import json, sys
+    const pyCode = `import json, sys, os
+sys.path.insert(0, r"${__dirname}")
 from parashara_canonical_engine import calculate_canonical_chart, parse_date_time
 inp = json.loads(sys.argv[1])
 d = inp.get("date") or inp.get("dob")
@@ -56,7 +57,9 @@ print(json.dumps(res))`;
     if (spawnProc.status !== 0) {
       throw new Error("Python Canonical Engine Error: " + spawnProc.stderr);
     }
-    return JSON.parse(spawnProc.stdout);
+    const stdoutLines = spawnProc.stdout.trim().split('\n');
+    const jsonLine = stdoutLines.filter(l => l.startsWith('{') || l.startsWith('[')).pop() || spawnProc.stdout;
+    return JSON.parse(jsonLine);
   }
 
   function calculateBatchSyncNode(batchInput) {
@@ -64,7 +67,8 @@ print(json.dumps(res))`;
     const path = require('path');
     const pythonBin = path.join(__dirname, '.venv', 'bin', 'python');
 
-    const pyCode = `import json, sys
+    const pyCode = `import json, sys, os
+sys.path.insert(0, r"${__dirname}")
 from parashara_canonical_engine import calculate_canonical_chart, parse_date_time
 raw = json.loads(sys.argv[1])
 items = raw if isinstance(raw, list) else raw.get("items", [])
@@ -94,7 +98,9 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
     if (spawnProc.status !== 0) {
       throw new Error("Python Canonical Engine Batch Error: " + spawnProc.stderr);
     }
-    return JSON.parse(spawnProc.stdout);
+    const stdoutLines = spawnProc.stdout.trim().split('\n');
+    const jsonLine = stdoutLines.filter(l => l.startsWith('{') || l.startsWith('[')).pop() || spawnProc.stdout;
+    return JSON.parse(jsonLine);
   }
 
   /**
@@ -136,9 +142,28 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
         }
         return data;
       } catch (err) {
+        // Automatic fallback: If local /calculate was unreachable, try production cloud engine
+        if (!endpoint && (targetEndpoint === '/calculate' || targetEndpoint.endsWith('/calculate')) && typeof window !== 'undefined' && !targetEndpoint.includes('onrender.com')) {
+          try {
+            console.warn("Primary endpoint unreachable, retrying via production cloud engine...");
+            const fbRes = await fetch('https://sra-canonical-engine.onrender.com/calculate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(input)
+            });
+            if (fbRes.ok) {
+              const fbData = await fbRes.json();
+              if (fbData && fbData.planets && Array.isArray(fbData.planets)) {
+                return fbData;
+              }
+            }
+          } catch(fbErr) {
+            console.warn("Cloud fallback also failed:", fbErr);
+          }
+        }
         console.error("SRA Parashara Canonical Microservice failure:", err);
         throw new Error(
-          "गणना सर्वर (Swiss Ephemeris Microservice) अनुपलब्ध है।\n" +
+          "गणना सर्वर अनुपलब्ध है।\n" +
           "कृपया सुनिश्चित करें कि बैकएंड सर्वर सक्रिय है।\n" +
           (err.message || err)
         );
@@ -452,6 +477,9 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
     } catch(e) {
       console.warn("getAllSavedKundalis note:", e);
     }
+    // Newest first: the report pages open the first entry, which must be the
+    // kundali the visitor just generated on patrika.html (savedTimestamp is set on every save).
+    list.sort((a, b) => (b.savedTimestamp || 0) - (a.savedTimestamp || 0));
     return list;
   }
 

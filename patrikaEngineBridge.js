@@ -35,7 +35,8 @@
     const path = require('path');
     const pythonBin = path.join(__dirname, '.venv', 'bin', 'python');
 
-    const pyCode = `import json, sys
+    const pyCode = `import json, sys, os
+sys.path.insert(0, r"${__dirname}")
 from parashara_canonical_engine import calculate_canonical_chart, parse_date_time
 inp = json.loads(sys.argv[1])
 d = inp.get("date") or inp.get("dob")
@@ -66,7 +67,8 @@ print(json.dumps(res))`;
     const path = require('path');
     const pythonBin = path.join(__dirname, '.venv', 'bin', 'python');
 
-    const pyCode = `import json, sys
+    const pyCode = `import json, sys, os
+sys.path.insert(0, r"${__dirname}")
 from parashara_canonical_engine import calculate_canonical_chart, parse_date_time
 raw = json.loads(sys.argv[1])
 items = raw if isinstance(raw, list) else raw.get("items", [])
@@ -140,6 +142,25 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
         }
         return data;
       } catch (err) {
+        // Automatic fallback: If local /calculate was unreachable, try production cloud engine
+        if (!endpoint && (targetEndpoint === '/calculate' || targetEndpoint.endsWith('/calculate')) && typeof window !== 'undefined' && !targetEndpoint.includes('onrender.com')) {
+          try {
+            console.warn("Primary endpoint unreachable, retrying via production cloud engine...");
+            const fbRes = await fetch('https://sra-canonical-engine.onrender.com/calculate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(input)
+            });
+            if (fbRes.ok) {
+              const fbData = await fbRes.json();
+              if (fbData && fbData.planets && Array.isArray(fbData.planets)) {
+                return fbData;
+              }
+            }
+          } catch(fbErr) {
+            console.warn("Cloud fallback also failed:", fbErr);
+          }
+        }
         console.error("SRA Parashara Canonical Microservice failure:", err);
         throw new Error(
           "गणना सर्वर अनुपलब्ध है।\n" +

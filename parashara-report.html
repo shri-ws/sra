@@ -2347,6 +2347,11 @@
               </div>
               <datalist id="patrikaPresetCities"></datalist>
             </div>
+
+            <div class="patrika-field" style="grid-column: 1 / -1;">
+              <label for="inEmail">ईमेल आईडी (रिपोर्ट प्राप्त करने हेतु) <span style="color:#64748b; font-size:12px; font-weight:normal;">(रिपोर्ट जनरेट होते ही इस पर स्वतः ईमेल भेजी जाएगी)</span></label>
+              <input type="email" id="inEmail" class="patrika-input" placeholder="उदा. yourname@gmail.com" />
+            </div>
           </div>
 
           <!-- GEOGRAPHICAL COORDINATES -->
@@ -3541,6 +3546,9 @@
 
       currentSelectedKundali = k;
       document.getElementById('inName').value = k.name || '';
+      if (document.getElementById('inEmail')) {
+        document.getElementById('inEmail').value = k.email || localStorage.getItem('sra_verified_email') || '';
+      }
       if (document.getElementById('inGender') && k.gender) {
         document.getElementById('inGender').value = k.gender;
       }
@@ -3629,6 +3637,7 @@
     // FORM SUBMIT HANDLER
     async function handleGenerateReportClick() {
       const name = (document.getElementById('inName').value || '').trim();
+      const email = (document.getElementById('inEmail') ? document.getElementById('inEmail').value : '').trim();
       const gender = document.getElementById('inGender') ? document.getElementById('inGender').value : 'male';
       const date = (document.getElementById('inDate').value || '').trim();
       const time = (document.getElementById('inTime').value || '').trim();
@@ -3677,6 +3686,7 @@
       const currentK = {
         id: 'knd_' + Date.now(),
         name,
+        email,
         gender,
         date,
         time,
@@ -3738,9 +3748,40 @@
       renderReportUI(rep);
       renderAdvancedPhasesUI(calc, rep);
 
+      // Automated email dispatch to user's email ID
+      const targetEmail = (k.email || (document.getElementById('inEmail')?.value || '').trim() || localStorage.getItem('sra_verified_email') || '').trim();
+      if (targetEmail && targetEmail.includes('@')) {
+        dispatchReportEmail(k.name, targetEmail);
+      }
+
       const repContainer = document.getElementById('reportViewContainer');
       if (repContainer) {
         repContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    async function dispatchReportEmail(name, email) {
+      if (!email || !email.includes('@')) return;
+      try {
+        const apiBase = window.SRA_API_BASE || '';
+        const endpoint = apiBase + '/api/report/send-email';
+        fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipient_email: email,
+            recipient_name: name || 'जातक',
+            report_title: 'मेगा पाराशर कुण्डली रिपोर्ट'
+          })
+        }).then(r => r.json()).then(data => {
+          if (data && data.status === 'success') {
+            console.log(`[Email] Report successfully dispatched to ${email}`);
+          }
+        }).catch(err => {
+          console.warn("[Email] Dispatch notice:", err);
+        });
+      } catch (e) {
+        console.warn("[Email] Trigger error:", e);
       }
     }
 
@@ -4371,7 +4412,7 @@
             filename: filename,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
-              scale: 2,
+              scale: 1,
               useCORS: true,
               logging: false,
               backgroundColor: '#ffffff',

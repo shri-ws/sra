@@ -1992,6 +1992,15 @@
     }
   </style>
     <link rel="stylesheet" href="ui-overrides.css" />
+<link rel="stylesheet" href="sra-elegance.css" />
+<script src="sra-ui.js?v=32" defer></script>
+<script src="sra-auth.js" defer></script>
+<script src="sra-records.js" defer></script>
+<script src="sra-translate.js" defer></script>
+<script src="sra-nav.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-coupon-engine.js" defer></script>
+<script src="sra-i18n.js" defer></script>
   <style id="sra-layout">
     /* पाराशर रिपोर्ट पृष्ठ: सरल ऊपरी लेआउट (केवल नई क्लास, बाकी CSS अछूता) */
     .sra-hero{max-width:760px;margin:0 auto;padding:36px 4px 8px;text-align:left}
@@ -2119,7 +2128,7 @@
   <div class="nav-drawer" id="navDrawer" role="dialog" aria-modal="true" aria-label="Navigation Menu">
     <div class="drawer-header">
       <div class="drawer-brand">
-        <img src="/assets/logo.png" alt="Shri Ramji Astro Logo" class="drawer-logo-img" />
+        <img src="/logo.png" alt="Shri Ramji Astro Logo" class="drawer-logo-img" />
         <div class="drawer-brand-text">
           <span class="drawer-brand-title">श्री रामजी एस्ट्रो</span>
           <span class="drawer-brand-sub">बृहत्पाराशरहोराशास्त्रम् शोध</span>
@@ -2199,7 +2208,7 @@
               <span class="drawer-sub-hint">२३ प्रामाणिक धन योग व इन्दु लग्न</span>
             </div>
           </a>
-          <a href="/manglik-calculator" onclick="closeNavDrawer()" class="drawer-sub-item">
+          <a href="/manglik-dosh-calculator" onclick="closeNavDrawer()" class="drawer-sub-item">
             <span>🔴</span>
             <div class="drawer-sub-text">
               <span class="drawer-sub-title">मांगलिक दोष विश्लेषण</span>
@@ -2231,7 +2240,7 @@
   <header>
     <div class="container header-inner">
       <a href="/" class="brand">
-        <img src="/assets/logo.png" alt="Shri Ramji Astro Logo" />
+        <img src="/logo.png" alt="Shri Ramji Astro Logo" />
         <div class="brand-text-group">
           <span class="brand-text">श्री रामजी एस्ट्रो</span>
           <span class="brand-sub">बृहत्पाराशरहोराशास्त्रम् शोध</span>
@@ -2296,12 +2305,7 @@
             <h3 style="margin:0; font-size:17px; color:var(--primary); font-weight:800;">जन्म कुण्डली विवरण</h3>
           </div>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <label for="selSavedKundali" style="font-size:12px; font-weight:700; color:var(--gold-dark); white-space:nowrap;">
-                📂 सुरक्षित कुण्डलियां:
-              </label>
-              <select id="selSavedKundali" class="sel-kundali" onchange="onSavedKundaliSelected()" style="max-width:240px; font-size:12.5px; padding:6px 10px;"></select>
-            </div>
+            <div id="sraPickSlotParashara"></div>
             <button type="button" class="btn-new-k" onclick="createNewKundaliEntry()" title="नया खाली फॉर्म भरें" style="padding:6px 12px; font-size:12px;">
               <span>➕ नया फॉर्म</span>
             </button>
@@ -2342,6 +2346,11 @@
                 </button>
               </div>
               <datalist id="patrikaPresetCities"></datalist>
+            </div>
+
+            <div class="patrika-field" style="grid-column: 1 / -1;">
+              <label for="inEmail">ईमेल आईडी (रिपोर्ट प्राप्त करने हेतु) <span style="color:#64748b; font-size:12px; font-weight:normal;">(रिपोर्ट जनरेट होते ही इस पर स्वतः ईमेल भेजी जाएगी)</span></label>
+              <input type="email" id="inEmail" class="patrika-input" placeholder="उदा. yourname@gmail.com" />
             </div>
           </div>
 
@@ -2449,7 +2458,7 @@
         <span class="section-pill">विश्व का सर्वोच्च ज्योतिषीय शोध</span>
         <h2 class="section-title">मेगा पाराशर रिपोर्ट की १० अद्वितीय विशेषताएं</h2>
         <p class="section-sub">
-          महर्षि पराशर प्रणीत बृहत्पाराशरहोराशास्त्रम् एवं नासा JPL एफिमरिस के समन्वय से निर्मित विश्व की एकमात्र पूर्णतः प्रामाणिक वैदिक रिपोर्ट
+          महर्षि पराशर प्रणीत बृहत्पाराशरहोराशास्त्रम् से निर्मित विश्व की एकमात्र पूर्णतः प्रामाणिक वैदिक रिपोर्ट
         </p>
       </div>
 
@@ -2466,19 +2475,6 @@
           </p>
         </div>
 
-        <!-- Pillar 2 -->
-        <div class="highlight-card">
-          <div class="hl-header">
-            <span class="hl-icon">🪐</span>
-            <span class="hl-badge">&lt;0.001" परिशुद्धता</span>
-          </div>
-          <h3 class="hl-title">Swiss Ephemeris (JPL DE431 आधारित)</h3>
-          <p class="hl-desc">
-            विश्व की सर्वोच्च खगोलीय परिशुद्धता (<0.001 आर्क-सेकंड) के साथ सभी ग्रहों व लग्नों का गणितीय निर्धारण, जो किसी भी आधुनिक सॉफ्टवेयर की अशुद्धियों को समूल समाप्त करता है।
-          </p>
-        </div>
-
-        <!-- Pillar 3 -->
         <div class="highlight-card">
           <div class="hl-header">
             <span class="hl-icon">✨</span>
@@ -2725,11 +2721,6 @@
           </thead>
           <tbody>
             <tr>
-              <td><strong>गणितीय परिशुद्धता</strong></td>
-              <td><span style="color:#15803d; font-weight:800;">✓ Swiss Ephemeris (JPL DE431 आधारित) (&lt;0.001" परिशुद्धता)</span></td>
-              <td><span style="color:#991b1b;">✗ १ से २ अंश तक का विचलन (सामान्य फॉर्मूला आधारित)</span></td>
-            </tr>
-            <tr>
               <td><strong>अध्याय कवरेज</strong></td>
               <td><span style="color:#15803d; font-weight:800;">✓ सम्पूर्ण ९७ अध्याय (पूर्व एवं उत्तर खण्ड, शान्ति सहित)</span></td>
               <td><span style="color:#991b1b;">✗ केवल २०-३० अध्यायों का सतही व अधूरा विवरण</span></td>
@@ -2769,84 +2760,6 @@
       </div>
     </section>
 
-    <!-- SECTION: ASTRONOMICAL & MATHEMATICAL FOUNDATION (पेज के एकदम नीचे) -->
-    <section id="astronomicalFoundationSection" style="margin-top: 50px; margin-bottom: 30px;">
-      <div class="section-header-wrap">
-        <span class="section-pill">शास्त्रीय खगोलीय गणना आधार (Astronomical Baseline)</span>
-        <h2 class="section-title">Swiss Ephemeris (JPL DE431 आधारित) एवं शुद्ध खगोलीय गणित</h2>
-        <p class="section-sub">
-          मेगा पाराशर रिपोर्ट की प्रामाणिकता का मूल आधार — आधुनिक अंतरिक्ष विज्ञान एवं महर्षि पराशर के मूल सूत्रों का दिव्य संगम
-        </p>
-      </div>
-
-      <div class="highlights-grid">
-        <div class="highlight-card">
-          <div class="hl-header">
-            <span class="hl-icon">🪐</span>
-            <span class="hl-badge">&lt;0.001" परिशुद्धता</span>
-          </div>
-          <h3 class="hl-title">Swiss Ephemeris (JPL DE431 आधारित)</h3>
-          <p class="hl-desc">
-            compressed `.se1` पंचांग फाइलों एवं DE431 न्यूमेरिकल इंटीग्रेशन द्वारा 0.001 आर्क-सेकंड से भी सूक्ष्म ग्रह स्पष्ट मान, जो हर प्रकार की आधुनिक सॉफ्टवेयर अशुद्धि को दूर करता है।
-          </p>
-        </div>
-
-        <div class="highlight-card">
-          <div class="hl-header">
-            <span class="hl-icon">✨</span>
-            <span class="hl-badge">Mode 27 सिद्ध</span>
-          </div>
-          <h3 class="hl-title">सत्य चित्रा पक्ष अयनांश</h3>
-          <p class="hl-desc">
-            चित्रा नक्षत्र के मुख्य तारे (स्पिका / α Virginis) के १८०°००'००" वास्तविक खगोलीय देशांतर पर आधारित दृक-सिद्ध अयनांश, जिससे नक्षत्र सीमाओं व दशा-संधि में शून्य विचलन रहता है।
-          </p>
-        </div>
-
-        <div class="highlight-card">
-          <div class="hl-header">
-            <span class="hl-icon">🌅</span>
-            <span class="hl-badge">सूर्य-बिम्ब केन्द्र</span>
-          </div>
-          <h3 class="hl-title">सूर्य-बिम्ब का केन्द्र, अपवर्तन सहित</h3>
-          <p class="hl-desc">
-            सूर्य-बिम्ब के केन्द्र एवं वायुमंडलीय अपवर्तन के सम्मिश्रण से वास्तविक सूर्योदय, जिससे होरा लग्न (HL) और घटी लग्न (GL) का अचूक निर्धारण होता है।
-          </p>
-        </div>
-
-        <div class="highlight-card">
-          <div class="hl-header">
-            <span class="hl-icon">⏱️</span>
-            <span class="hl-badge">३६५.२५ दिन</span>
-          </div>
-          <h3 class="hl-title">सौर वर्ष-मान विंशोत्तरी दशा</h3>
-          <p class="hl-desc">
-            ३६०-सावन वर्ष के असमंजस से परे, वास्तविक ३६५.२५ दिन सौर वर्ष-मान से विंशोत्तरी महादशा, अन्तर्दशा एवं प्रत्यन्तर्दशा की तिथियों का अचूक दिन-प्रतिदिन काल-निर्णय।
-          </p>
-        </div>
-
-        <div class="highlight-card">
-          <div class="hl-header">
-            <span class="hl-icon">🌐</span>
-            <span class="hl-badge">समभाव Whole Sign</span>
-          </div>
-          <h3 class="hl-title">वैदिक समभाव व ध्रुवीय अक्षांश सुरक्षा</h3>
-          <p class="hl-desc">
-            Equal Whole Sign पद्धति द्वारा भाव विकृति और ६६.५° से ऊपर उच्च अक्षांशों पर भी सुरक्षित, स्थिर एवं शास्त्रोक्त भाव व्यवस्था का शत-प्रतिशत पालन।
-          </p>
-        </div>
-
-        <div class="highlight-card">
-          <div class="hl-header">
-            <span class="hl-icon">📊</span>
-            <span class="hl-badge">३३७ बिंदु शोधन</span>
-          </div>
-          <h3 class="hl-title">सर्वाष्टकवर्ग ३३७ बिंदु, त्रिकोण व एकाधिपत्य शोधन</h3>
-          <p class="hl-desc">
-            मूल ३३७ बिंदु चक्र के आधार पर त्रिकोण शोधन, एकाधिपत्य शोधन और राशि-ग्रह पिण्डों से शुद्धाशुद्ध फल व आय (११वां भाव) बनाम व्यय (१२वां भाव) का सटीक गणितीय मूल्यांकन।
-          </p>
-        </div>
-      </div>
-    </section>
 
     <!-- SECTION 5: FREQUENTLY ASKED QUESTIONS (FAQ ACCORDION) -->
     <section id="faqSection" style="margin-top: 48px;">
@@ -2866,7 +2779,7 @@
             <span class="faq-icon" style="font-size:18px;">➕</span>
           </button>
           <div class="faq-body">
-            मेगा पाराशर कुण्डली रिपोर्ट महर्षि पराशर प्रणीत मूल ग्रंथ <strong>बृहत्पाराशरहोराशास्त्रम्</strong> के सम्पूर्ण ९७ अध्यायों (पूर्व एवं उत्तर खण्ड) पर आधारित विश्व की एकमात्र शत-प्रतिशत प्रामाणिक वैदिक रिपोर्ट है। सामान्य ज्योतिष ऐप्स केवल २०-३० अध्यायों का सतही फलित देते हैं, जबकि यह रिपोर्ट नासा JPL Swiss Ephemeris DE431 के सूक्ष्म गणितीय निर्देशांकों से आपकी जन्म कुंडली के एक-एक श्लोक का मिलान कर फलित प्रस्तुत करती है।
+            मेगा पाराशर कुण्डली रिपोर्ट महर्षि पराशर प्रणीत मूल ग्रंथ <strong>बृहत्पाराशरहोराशास्त्रम्</strong> के सम्पूर्ण ९७ अध्यायों (पूर्व एवं उत्तर खण्ड) पर आधारित विश्व की एकमात्र शत-प्रतिशत प्रामाणिक वैदिक रिपोर्ट है। सामान्य ज्योतिष ऐप्स केवल २०-३० अध्यायों का सतही फलित देते हैं, जबकि यह रिपोर्ट आपकी जन्म कुंडली के एक-एक श्लोक का मिलान कर फलित प्रस्तुत करती है।
           </div>
         </div>
 
@@ -2877,7 +2790,7 @@
             <span class="faq-icon" style="font-size:18px;">➕</span>
           </button>
           <div class="faq-body">
-            इस रिपोर्ट में <strong>Swiss Ephemeris (JPL DE431 आधारित)</strong> (&lt;0.001" परिशुद्धता), <strong>सत्य चित्रा पक्ष अयनांश</strong> (Mode 27 / स्पिका तारा १८०°००'००"), <strong>मध्य राहु-केतु</strong>, <strong>श्रीपति भाव-चलित</strong>, <strong>सूर्य-बिम्ब का केन्द्र, अपवर्तन सहित</strong>, <strong>सौर वर्ष-मान</strong> (३६५.२५ दिन) विंशोत्तरी दशा, एवं <strong>वैदिक समभाव (Whole Sign)</strong> चक्र का कड़ाई से पालन किया गया है, जिससे गणनाओं में किसी भी प्रकार की अशुद्धि की गुंजाइश नहीं रहती।
+            इस रिपोर्ट में <strong>सत्य चित्रा पक्ष अयनांश</strong> (Mode 27 / स्पिका तारा १८०°००'००"), <strong>मध्य राहु-केतु</strong>, <strong>श्रीपति भाव-चलित</strong>, <strong>सूर्य-बिम्ब का केन्द्र, अपवर्तन सहित</strong>, <strong>सौर वर्ष-मान</strong> (३६५.२५ दिन) विंशोत्तरी दशा, एवं <strong>वैदिक समभाव (Whole Sign)</strong> चक्र का कड़ाई से पालन किया गया है, जिससे गणनाओं में किसी भी प्रकार की अशुद्धि की गुंजाइश नहीं रहती।
           </div>
         </div>
 
@@ -2935,11 +2848,11 @@
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:28px; margin-bottom:30px;">
         <div>
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-            <img src="/assets/logo.png" alt="Shri Ramji Astro" style="width:36px; height:36px; border-radius:50%;" />
+            <img src="/logo.png" alt="Shri Ramji Astro" style="width:36px; height:36px; border-radius:50%;" />
             <span style="font-size:19px; font-weight:900; color:#d4af37; font-family:var(--font-hindi);">श्री रामजी एस्ट्रो</span>
           </div>
           <p style="font-size:13.5px; line-height:1.7; color:#94a3b8;">
-            वैदिक ज्योतिष का सर्वोच्च प्रामाणिक शोध संस्थान। महर्षि पराशर प्रणीत बृहत्पाराशरहोराशास्त्रम् एवं Swiss Ephemeris (JPL DE431 आधारित) के समन्वय से संचालित।
+            वैदिक ज्योतिष का सर्वोच्च प्रामाणिक शोध संस्थान। महर्षि पराशर प्रणीत बृहत्पाराशरहोराशास्त्रम् के समन्वय से संचालित।
           </p>
         </div>
         <div>
@@ -2948,14 +2861,13 @@
             <li><a href="/" style="color:#cbd5e1; text-decoration:none;">🏠 मुख्य पृष्ठ (Home)</a></li>
             <li><a href="/patrika" style="color:#cbd5e1; text-decoration:none;">🪐 संपूर्ण जन्म पत्रिका (Patrika)</a></li>
             <li><a href="/dhana-yoga-calculator" style="color:#cbd5e1; text-decoration:none;">💰 धन योग कैलकुलेटर (Dhana Yoga)</a></li>
-            <li><a href="/manglik-calculator" style="color:#cbd5e1; text-decoration:none;">🔴 मांगलिक दोष विश्लेषण (Manglik Dosh)</a></li>
+            <li><a href="/manglik-dosh-calculator" style="color:#cbd5e1; text-decoration:none;">🔴 मांगलिक दोष विश्लेषण (Manglik Dosh)</a></li>
             <li><a href="/about" style="color:#cbd5e1; text-decoration:none;">📜 हमारे बारे में (About Research)</a></li>
           </ul>
         </div>
         <div>
           <h4 style="font-size:15px; font-weight:800; color:#f1f5f9; margin-bottom:14px; font-family:var(--font-hindi);">गणना आधार (Astronomical Baseline)</h4>
           <ul style="list-style:none; padding:0; margin:0; font-size:13px; line-height:1.9; color:#94a3b8;">
-            <li>🪐 <b>Ephemeris:</b> Swiss Ephemeris (JPL DE431 आधारित) (&lt;0.001")</li>
             <li>✨ <b>Ayanamsa:</b> True Chitra Paksha (Mode 27)</li>
             <li>🌅 <b>Sunrise:</b> सूर्य-बिम्ब का केन्द्र, अपवर्तन सहित</li>
             <li>⏱️ <b>Dasha Year:</b> 365.25 Days (विंशोत्तरी)</li>
@@ -2972,6 +2884,7 @@
 
 
   <!-- SCRIPTS -->
+  <script src="sra-config.js"></script>
   <script src="./patrikaEngineBridge.js"></script>
   <script src="./parasharaEngine.js"></script>
   <script src="./shadbalaEngine.js"></script>
@@ -3244,13 +3157,20 @@
       }
       localStorage.setItem('sra_verified_mobile', clientMobile);
 
+      const baseAmt = 1111;
+      const appliedDisc = window._parasharaDiscount || 0;
+      const finalAmt = Math.max(0, baseAmt - appliedDisc);
+      const finalPaise = finalAmt * 100;
+      const sutradharRef = window._parasharaSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const couponUsed = window._parasharaCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+
       const options = {
         key: PARASHARA_RZP_KEY,
-        amount: PARASHARA_PRICE_PAISE,
+        amount: finalPaise,
         currency: "INR",
         name: "श्री रामजी एस्ट्रो",
-        description: `मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय) - ${clientName}`,
-        image: "/assets/logo.png",
+        description: `मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय) - ${clientName}` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
+        image: "/logo.png",
         prefill: {
           name: clientName,
           contact: clientMobile
@@ -3262,7 +3182,10 @@
           report_type: "mega_parashara_97_chapters",
           report_title: "मेगा पाराशर संहिता कुण्डली रिपोर्ट",
           kundali_key: getKundaliPaymentKey(k),
-          amount: "1111"
+          amount: String(finalAmt),
+          coupon_code: couponUsed,
+          sutradhar_id: sutradharRef,
+          discount: String(appliedDisc)
         },
         handler: function (response) {
           const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : ('RZP_MEGA_' + Date.now());
@@ -3282,7 +3205,10 @@
             student_email: localStorage.getItem('sra_verified_email') || '',
             plan_name: 'मेगा पाराशर संहिता कुण्डली रिपोर्ट (९७ अध्याय)',
             report_type: 'mega_parashara_97_chapters',
-            amount: 1111,
+            amount: finalAmt,
+            discount: appliedDisc,
+            coupon_code: couponUsed,
+            sutradhar_id: sutradharRef,
             kundali_key: kKey
           });
 
@@ -3347,7 +3273,13 @@
       }
       const input = document.getElementById('gatePasscodeInput');
       if (input) {
-        input.value = '';
+        const activeRef = window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '';
+        if (activeRef) {
+          input.value = activeRef;
+          verifyGatePasscode();
+        } else {
+          input.value = '';
+        }
       }
     }
 
@@ -3371,16 +3303,53 @@
 
     async function verifyGatePasscode() {
       const inp = document.getElementById('gatePasscodeInput');
-      const input = (inp ? inp.value : '').trim();
+      const input = (inp ? inp.value : '').trim().toUpperCase();
       const err = document.getElementById('gateErrMsg');
       const btn = document.querySelector('.passcode-card button');
 
       if (!input) {
         if (err) {
-          err.innerText = "❌ कृपया एक्सेस कोड दर्ज करें।";
+          err.innerText = "❌ कृपया सूत्रधार कूपन कोड अथवा एक्सेस कोड दर्ज करें।";
+          err.style.color = '#b91c1c';
           err.style.display = 'block';
           setTimeout(() => { err.style.display = 'none'; }, 3000);
         }
+        return;
+      }
+
+      // 1. SraCouponEngine Validation (Sutradhar ID = 10% coupon, MASTER = 100% bypass)
+      if (window.SraCouponEngine) {
+        const res = window.SraCouponEngine.validateAndCalculate(input, 1111);
+        if (res.valid) {
+          if (res.type === 'master') {
+            sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+            closeGateModal();
+            updateAuthBadge();
+            updateGenerateButtonState(currentSelectedKundali);
+            generateMegaParasharaReport(true);
+            return;
+          } else {
+            window._parasharaDiscount = res.discountAmount;
+            window._parasharaCoupon = res.code;
+            window._parasharaSutradhar = res.sutradhar_id;
+            const payBtn = document.querySelector('#gateOverlay button.btn-hero-primary span');
+            if (payBtn) payBtn.innerHTML = `🔒 Razorpay द्वारा ₹${res.finalAmount} भुगतान करें (10% कूपन ${res.code} लागू)`;
+            if (err) {
+              err.style.color = '#15803d';
+              err.innerHTML = `✨ <b>सूत्रधार कूपन (${res.code}) स्वीकृत!</b> 10% छूट लागू (देय राशि: ₹${res.finalAmount})`;
+              err.style.display = 'block';
+            }
+            return;
+          }
+        }
+      }
+
+      if (window.sraIsMasterKey && window.sraIsMasterKey(input)) {
+        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+        closeGateModal();
+        updateAuthBadge();
+        updateGenerateButtonState(currentSelectedKundali);
+        generateMegaParasharaReport(true);
         return;
       }
 
@@ -3527,19 +3496,7 @@
         list = window.PatrikaEngineBridge.getAllSavedKundalis();
       }
 
-      if (!list || list.length === 0) {
-        list = [{
-          id: 'sample_1',
-          name: 'श्रीधर मिश्र',
-          gender: 'male',
-          date: '1993-10-26',
-          time: '02:55',
-          city: 'सीतापुर, उत्तर प्रदेश (Sitapur)',
-          lat: 27.5667,
-          lon: 80.6833,
-          tz: 5.5
-        }];
-      }
+      if (!Array.isArray(list)) list = [];   // no made-up sample kundali
 
       savedKundalisList = list;
       const sel = document.getElementById('selSavedKundali');
@@ -3589,6 +3546,9 @@
 
       currentSelectedKundali = k;
       document.getElementById('inName').value = k.name || '';
+      if (document.getElementById('inEmail')) {
+        document.getElementById('inEmail').value = k.email || localStorage.getItem('sra_verified_email') || '';
+      }
       if (document.getElementById('inGender') && k.gender) {
         document.getElementById('inGender').value = k.gender;
       }
@@ -3607,6 +3567,15 @@
       updateAuthBadge();
       updateGenerateButtonState(k);
     }
+
+    // "सेव्ड कुंडली से चुनें" (sra-saved-pick.js) has filled the form with this kundali
+    window.sraOnSavedKundaliPicked = function (k) {
+      currentSelectedKundali = k;
+      const statusEl = document.getElementById('geoStatusText');
+      if (statusEl) statusEl.innerHTML = `📍 <strong>${(k.city || 'चयनित स्थान').replace(/</g, '&lt;')}</strong> (${k.lat || 0}°, ${k.lon || 0}° | UTC +${k.tz || 5.5})`;
+      updateAuthBadge();
+      updateGenerateButtonState(k);
+    };
 
     function createNewKundaliEntry() {
       currentSelectedKundali = null;
@@ -3668,6 +3637,7 @@
     // FORM SUBMIT HANDLER
     async function handleGenerateReportClick() {
       const name = (document.getElementById('inName').value || '').trim();
+      const email = (document.getElementById('inEmail') ? document.getElementById('inEmail').value : '').trim();
       const gender = document.getElementById('inGender') ? document.getElementById('inGender').value : 'male';
       const date = (document.getElementById('inDate').value || '').trim();
       const time = (document.getElementById('inTime').value || '').trim();
@@ -3716,6 +3686,7 @@
       const currentK = {
         id: 'knd_' + Date.now(),
         name,
+        email,
         gender,
         date,
         time,
@@ -3777,9 +3748,40 @@
       renderReportUI(rep);
       renderAdvancedPhasesUI(calc, rep);
 
+      // Automated email dispatch to user's email ID
+      const targetEmail = (k.email || (document.getElementById('inEmail')?.value || '').trim() || localStorage.getItem('sra_verified_email') || '').trim();
+      if (targetEmail && targetEmail.includes('@')) {
+        dispatchReportEmail(k.name, targetEmail);
+      }
+
       const repContainer = document.getElementById('reportViewContainer');
       if (repContainer) {
         repContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    async function dispatchReportEmail(name, email) {
+      if (!email || !email.includes('@')) return;
+      try {
+        const apiBase = window.SRA_API_BASE || '';
+        const endpoint = apiBase + '/api/report/send-email';
+        fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipient_email: email,
+            recipient_name: name || 'जातक',
+            report_title: 'मेगा पाराशर कुण्डली रिपोर्ट'
+          })
+        }).then(r => r.json()).then(data => {
+          if (data && data.status === 'success') {
+            console.log(`[Email] Report successfully dispatched to ${email}`);
+          }
+        }).catch(err => {
+          console.warn("[Email] Dispatch notice:", err);
+        });
+      } catch (e) {
+        console.warn("[Email] Trigger error:", e);
       }
     }
 
@@ -4410,7 +4412,7 @@
             filename: filename,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
-              scale: 2,
+              scale: 1,
               useCORS: true,
               logging: false,
               backgroundColor: '#ffffff',
