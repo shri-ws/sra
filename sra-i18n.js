@@ -20,7 +20,7 @@
   // translation still carries one, the icon layer converts it again.
   const KEEP_SIGNS = '♈♉♊♋♌♍♎♏♐♑♒♓♂♀⚧☉☽☾☿♃♄♅♆♇☊☋⚶★☆✓✗✕✖✦✧➔❮❯☰⎋⌘⌂☐❖✱✳❇';
   const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B05}-\u{2B55}\u{1F3FB}-\u{1F3FF}\u200D]/gu;
-  const stripEmoji = s => s.replace(EMOJI, c => (KEEP_SIGNS.includes(c) ? c : '')).replace(/\s+/g, ' ').trim();
+  const stripEmoji = s => s.replace(EMOJI, c => (KEEP_SIGNS.includes(c) ? c : '')).replace(/[\uFE0E\uFE0F]/g, '').replace(/\s+/g, ' ').trim();
   const hasEmoji = s => { EMOJI.lastIndex = 0; return [...s.matchAll(EMOJI)].some(m => !KEEP_SIGNS.includes(m[0])); };
 
   // Patterns for text built at runtime, e.g. "September 2026" → "सितम्बर 2026".
@@ -83,7 +83,9 @@
       origin.set(node, key);
     }
     const target = pair[currentLang === 'en' ? 1 : 0];
-    if (!target || norm(raw) === target) return;
+    // compare normalised forms: a target that differs only by a variation selector or
+    // spacing must not be written again (each write re-triggers the observer: endless loop)
+    if (!target || norm(raw) === norm(target)) return;
     const lead = raw.match(/^\s*/)[0];
     const trail = raw.match(/\s*$/)[0];
     node.nodeValue = lead + target + trail;
