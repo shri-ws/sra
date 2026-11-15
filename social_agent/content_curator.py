@@ -540,7 +540,12 @@ DO NOT wrap in markdown ticks or say anything else, return raw JSON only.
             "lang": "en",
             "voice": "en-US-ChristopherNeural",
             "branding": "SHRI RAMJI ASTRO • VEDIC WISDOM",
-            "scenes": scenes_en
+            "scenes": scenes_en,
+            "voice_script": " ".join(s.get("narration", "") for s in scenes_en),
+            "slides": [
+                {"heading": s.get("badge", "⚡ Vedic Wisdom"), "body": s.get("display", "") or s.get("narration", ""), "duration": 8}
+                for s in scenes_en
+            ]
         },
         "youtube": {
             "title": yt_title,

@@ -394,16 +394,24 @@ def probe_duration(path: str) -> float:
     return float(m.group(1)) * 3600 + float(m.group(2)) * 60 + float(m.group(3))
 
 async def tts_with_words(text: str, output_path: str, voice: str, rate: str) -> list:
-    """Synthesize narration and return its word timings as (word, start_sec, end_sec)."""
-    communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
-    words = []
-    with open(output_path, "wb") as f:
-        async for chunk in communicate.stream():
-            if chunk["type"] == "audio":
-                f.write(chunk["data"])
-            elif chunk["type"] == "WordBoundary":
-                start = chunk["offset"] / 1e7
-                words.append((chunk["text"], start, start + chunk["duration"] / 1e7))
+    """Synthesize narration and return its word timings as (word, start_sec, end_sec) with retries."""
+    for attempt in range(1, 4):
+        try:
+            communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
+            words = []
+            with open(output_path, "wb") as f:
+                async for chunk in communicate.stream():
+                    if chunk["type"] == "audio":
+                        f.write(chunk["data"])
+                    elif chunk["type"] == "WordBoundary":
+                        start = chunk["offset"] / 1e7
+                        words.append((chunk["text"], start, start + chunk["duration"] / 1e7))
+            if os.path.exists(output_path) and os.path.getsize(output_path) > 500:
+                return words
+            print(f"[VideoEngine] TTS attempt {attempt} returned empty or corrupt audio (<500B), retrying...")
+        except Exception as e:
+            print(f"[VideoEngine] TTS attempt {attempt} error: {e}")
+        await asyncio.sleep(1.5 * attempt)
     return words
 
 SCENE_CSS = """
@@ -714,6 +722,16 @@ def render_vertical_video(
     voice_script = video_data.get("voice_script", "")
     slides = video_data.get("slides", [])
     title = video_data.get("title", "बृहत्पाराशरहोराशास्त्रम् रहस्य")
+
+    # If falling back from scene reel, derive voice script & slides from scenes
+    if not slides and video_data.get("scenes"):
+        scenes = video_data["scenes"]
+        if not voice_script:
+            voice_script = " ".join(s.get("narration", "") for s in scenes)
+        slides = [
+            {"heading": s.get("badge", "⚡ वैदिक सूत्र"), "body": s.get("display", "") or s.get("narration", "")}
+            for s in scenes
+        ]
     
     # Step 1: Synthesize Voiceover
     print(f"[VideoEngine] Generating voiceover ({voice})...")

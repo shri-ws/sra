@@ -216,7 +216,7 @@ def run_daily_pipeline(
 
 SCHEDULE_START_CH1 = datetime.time(7, 0)   # Channel 1 (Hindi) & social platforms: 07:00 AM IST
 SCHEDULE_START_CH2 = datetime.time(19, 0)  # Channel 2 (English Shorts): 07:00 PM IST (US/UK/Canada prime)
-SCHEDULE_CUTOFF = datetime.time(23, 30)
+SCHEDULE_CUTOFF = datetime.time(23, 59)
 MAX_ATTEMPTS_PER_DAY = 3
 LOCK_FILE = OUTPUT_DIR / ".daily_run.lock"
 ATTEMPTS_FILE = OUTPUT_DIR / ".attempts.json"
@@ -247,6 +247,7 @@ def run_scheduled() -> None:
     now = datetime.datetime.now()
     date_str = now.date().isoformat()
     if not (SCHEDULE_START_CH1 <= now.time() <= SCHEDULE_CUTOFF):
+        print(f"[Scheduler] Current time {now:%H:%M} is outside active window (07:00 - 23:59).")
         return
 
     ch1_done = is_channel_posted_today(date_str, "channel_1")
@@ -270,11 +271,24 @@ def run_scheduled() -> None:
             attempts = {}
     attempt_key = f"{date_str}_{target_channel}"
     if attempts.get(attempt_key, 0) >= MAX_ATTEMPTS_PER_DAY:
+        print(f"[Scheduler] Max daily attempts ({MAX_ATTEMPTS_PER_DAY}) reached for {attempt_key}. Skipping.")
         return
 
-    # One run at a time; lock older than 2 hours is considered stale
-    if LOCK_FILE.exists() and (now.timestamp() - LOCK_FILE.stat().st_mtime) < 7200:
-        return
+    # One run at a time; check PID liveness and auto-clean dead locks
+    if LOCK_FILE.exists():
+        try:
+            pid = int(LOCK_FILE.read_text().strip())
+            os.kill(pid, 0)
+            if (now.timestamp() - LOCK_FILE.stat().st_mtime) < 7200:
+                print(f"[Scheduler] Process {pid} is currently running. Skipping.")
+                return
+        except (ProcessLookupError, ValueError):
+            print(f"[Scheduler] Found stale lock from dead process. Removing.")
+            LOCK_FILE.unlink(missing_ok=True)
+        except PermissionError:
+            if (now.timestamp() - LOCK_FILE.stat().st_mtime) < 7200:
+                return
+
     LOCK_FILE.write_text(str(os.getpid()))
     try:
         attempts[attempt_key] = attempts.get(attempt_key, 0) + 1
