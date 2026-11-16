@@ -3,7 +3,7 @@
  * Enables PWA native installability and offline caching
  */
 
-const CACHE_NAME = 'sra-patrika-v37';
+const CACHE_NAME = 'sra-patrika-v38';
 const ASSETS_TO_CACHE = [
   '/',
   '/patrika.html',
@@ -101,16 +101,16 @@ self.addEventListener('push', event => {
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
+  // open the full forecast behind the notification (today's page for this subscriber)
+  const target = new URL((event.notification.data && event.notification.data.url) || '/aaj-panchang.html', self.location.origin).href;
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
       for (const client of clientList) {
-        if (client.url.includes('patrika.html') && 'focus' in client) {
-          return client.focus();
+        if (client.url.startsWith(self.location.origin) && 'navigate' in client) {
+          return client.navigate(target).then(c => (c || client).focus()).catch(() => clients.openWindow(target));
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow('/patrika.html?domain=panchang');
-      }
+      return clients.openWindow(target);
     })
   );
 });

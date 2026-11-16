@@ -91,6 +91,17 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     document.head.appendChild(st);
   }
 
+  // WhatsApp goes only to the number the user proved with an OTP: the server reads it
+  // from the Firebase ID token, nothing typed here is trusted
+  async function otpUser() {
+    try {
+      if (!window.SRAAuth || !window.SRAAuth.ready) return null;
+      const fb = await window.SRAAuth.ready();
+      const u = await new Promise(res => { const un = fb.auth().onAuthStateChanged(x => { un(); res(x); }); setTimeout(() => res(fb.auth().currentUser), 4000); });
+      return u && u.phoneNumber ? u : null;
+    } catch (e) { return null; }
+  }
+
   async function getConfig() {
     try {
       const r = await fetch(API() + '/config');
@@ -121,9 +132,8 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     if (!profile) { toast(L('कृपया पहले अपनी कुण्डली बनाएँ (जन्म तिथि, समय व स्थान)।', 'Please make your kundali first (birth date, time and place).')); return; }
     injectCss();
     const s = saved();
-    const verified = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
-    const phonePrefill = (s && s.whatsapp) || (/^[6-9]\d{9}$/.test(verified) ? verified : '');
-    const cfg = await getConfig();
+    const [cfg, waUser] = await Promise.all([getConfig(), otpUser()]);
+    const waPhone = waUser ? waUser.phoneNumber : '';
     const serverReady = !!(cfg && cfg.storage_ready);
     const deviceCanPush = pushSupported() && !(isIOS() && !standalone());
     const canPush = deviceCanPush && !!(cfg && cfg.push_ready && cfg.vapid_public_key);
@@ -140,11 +150,13 @@ body.ps-open #sra-wa-float-container{display:none !important;}
           : deviceCanPush ? L('नोटिफ़िकेशन सेवा जल्द चालू होगी — अभी WhatsApp चुनें।', 'Notifications are coming soon — choose WhatsApp for now.')
           : isIOS() ? L('iPhone पर: Safari में Share → "Add to Home Screen" करें, फिर वहीं से साइट खोलकर सब्सक्राइब करें।', 'On iPhone: Safari Share → "Add to Home Screen", then open the site from there and subscribe.')
           : L('यह ब्राउज़र नोटिफ़िकेशन नहीं दिखा सकता — WhatsApp चुनें।', 'This browser cannot show notifications — choose WhatsApp.'))}</small></span></label>
-      <label class="ps-opt"><input type="checkbox" id="psWa" ${phonePrefill || !canPush ? 'checked' : ''}>
+      <label class="ps-opt"><input type="checkbox" id="psWa" ${waPhone ? ((s && s.channels && s.channels.whatsapp) || !canPush ? 'checked' : '') : 'disabled'}>
         <span style="flex:1"><b>💬 WhatsApp</b>
-        <small>${esc(cfg && cfg.whatsapp_ready ? L('हर सुबह आपके WhatsApp पर संदेश।', 'A message on your WhatsApp every morning.')
-          : L('WhatsApp संदेश जल्द शुरू होंगे — नंबर अभी दर्ज कर लें, शुरू होते ही आने लगेंगे। तब तक नोटिफ़िकेशन भी चुनें।', 'WhatsApp messages start soon — save your number now and they will begin automatically. Choose notifications too meanwhile.'))}</small>
-        <div class="ps-phone"><span>+91</span><input id="psPhone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" value="${esc(phonePrefill)}" aria-label="WhatsApp number"></div></span></label>
+        ${waPhone ? `<small>${esc(L('आपके लॉगिन नंबर पर: ', 'To your login number: '))}<b style="display:inline">${esc(waPhone)}</b></small>` : ''}
+        <small>${esc(!waPhone ? L('WhatsApp केवल उसी नंबर पर जाता है जिससे आपने OTP द्वारा लॉगिन किया है।', 'WhatsApp goes only to the number you logged in with by OTP.')
+          : cfg && cfg.whatsapp_ready ? L('हर सुबह आपके WhatsApp पर संदेश।', 'A message on your WhatsApp every morning.')
+          : L('WhatsApp संदेश जल्द शुरू होंगे — शुरू होते ही अपने-आप आने लगेंगे। तब तक नोटिफ़िकेशन भी चुनें।', 'WhatsApp messages start soon and will then begin by themselves. Choose notifications too meanwhile.'))}</small>
+        ${waPhone ? '' : `<button type="button" class="ps-x" id="psLogin" style="margin-top:8px;padding:8px 12px">📲 ${esc(L('मोबाइल OTP से लॉगिन करें', 'Log in with mobile OTP'))}</button>`}</span></label>
       ${serverReady ? '' : `<div class="ps-note" style="background:rgba(185,28,28,.08)">${esc(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कुछ समय बाद सब्सक्राइब कर सकेंगे।', 'The daily panchang service is being switched on — you can subscribe a little later.'))}</div>`}
       <div class="ps-note">${esc(L('WhatsApp चुनने पर आप प्रतिदिन सुबह संदेश पाने की सहमति देते हैं। कभी भी यहीं से बंद कर सकते हैं।', 'By choosing WhatsApp you agree to get a message every morning. You can stop it here any time.'))}</div>
       <div class="ps-err" id="psErr" role="alert"></div>
@@ -158,16 +170,20 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     const close = () => { back.remove(); document.body.classList.remove('ps-open'); };
     $('psClose').onclick = close;
     back.addEventListener('click', e => { if (e.target === back) close(); });
-    $('psPhone').addEventListener('input', () => { $('psWa').checked = true; });
+    if ($('psLogin')) $('psLogin').onclick = e => {
+      e.preventDefault();
+      close();
+      const logged = window.SRAAuth && window.SRAAuth.user && window.SRAAuth.user();
+      if (logged) toast(L('आप Google से लॉगिन हैं। WhatsApp के लिए लॉग-आउट करके मोबाइल नंबर (OTP) से लॉगिन करें, फिर यहीं सब्सक्राइब करें।', 'You are logged in with Google. For WhatsApp, log out and log in with your mobile number (OTP), then subscribe here.'));
+      else if (window.SRAAuth) window.SRAAuth.open();
+    };
     if ($('psStop')) $('psStop').onclick = async () => { await stop(); close(); };
 
     $('psGo').onclick = async () => {
       const err = $('psErr'), go = $('psGo');
       err.textContent = '';
       const wantPush = $('psPush').checked, wantWa = $('psWa').checked;
-      const phone = $('psPhone').value.replace(/\D/g, '');
       if (!wantPush && !wantWa) { err.textContent = L('कम से कम एक तरीका चुनें।', 'Choose at least one way.'); return; }
-      if (wantWa && !/^[6-9]\d{9}$/.test(phone)) { err.textContent = L('10 अंकों का सही मोबाइल नंबर लिखें।', 'Enter a valid 10-digit mobile number.'); return; }
       go.disabled = true; go.textContent = L('⏳ जुड़ रहा है…', '⏳ Connecting…');
       try {
         if (!serverReady) throw new Error(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कृपया कुछ समय बाद प्रयास करें।', 'The daily panchang service is being switched on — please try again a little later.'));
@@ -181,9 +197,10 @@ body.ps-open #sra-wa-float-container{display:none !important;}
               : L('इस ब्राउज़र में नोटिफ़िकेशन चालू नहीं हो सका — WhatsApp चुनें।', 'Could not turn on notifications in this browser — choose WhatsApp.'));
           }
         }
+        const idToken = wantWa && waUser ? await waUser.getIdToken() : null;
         const r = await fetch(API() + '/subscribe', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(Object.assign({}, profile, { push, whatsapp: wantWa ? phone : null, whatsapp_consent: wantWa }))
+          body: JSON.stringify(Object.assign({}, profile, { push, whatsapp_consent: wantWa, id_token: idToken }))
         });
         const data = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(data.detail || L('सब्सक्राइब नहीं हो सका, कृपया पुनः प्रयास करें।', 'Could not subscribe, please try again.'));
@@ -191,13 +208,13 @@ body.ps-open #sra-wa-float-container{display:none !important;}
         if (old && old.id && old.id !== data.id) {   // moved to another channel key: drop the old entry
           fetch(API() + '/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: old.id, secret: old.secret }) }).catch(() => {});
         }
-        localStorage.setItem(STORE, JSON.stringify({ id: data.id, secret: data.secret, channels: data.channels, name: profile.name, whatsapp: wantWa ? phone : '' }));
+        localStorage.setItem(STORE, JSON.stringify({ id: data.id, secret: data.secret, channels: data.channels, name: profile.name }));
         localStorage.removeItem('sra_panchang_subscribed');
         paintButtons();
         close();
         toast(L('✅ सब्सक्राइब हो गया! कल से हर सुबह 7 बजे आपका पंचांग आएगा। आज का:', '✅ Subscribed! From tomorrow your panchang arrives at 7 AM. Today:') + '\n' + data.notification.title);
         if (push && data.notification) {
-          navigator.serviceWorker.ready.then(reg => reg.showNotification(data.notification.title, { body: data.notification.body, icon: '/icon-192.png', badge: '/icon-192.png' })).catch(() => {});
+          navigator.serviceWorker.ready.then(reg => reg.showNotification(data.notification.title, { body: data.notification.body, icon: '/icon-192.png', badge: '/icon-192.png', data: { url: '/aaj-panchang.html' } })).catch(() => {});
         }
       } catch (e) {
         err.textContent = e.message || String(e);

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="day">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>आज का पर्सनलाइज़्ड पंचांग | Shri Ramji Astro</title>
+  <meta name="description" content="आपकी कुण्डली के अनुसार आज का दैनिक पंचांग — दिन की ऊर्जा, क्या करें, क्या न करें, शुभ समय, राहुकाल, दशा और उपाय।">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sra-elegance.css">
+  <style>
+    :root { --kumkum:#7c1305; --gold:#B08D3E; --gold-dark:#7A5A1C; --paper:#FAF6EE; --card:#fff; --ink:#1F1A17; --muted:#6E6257; --line:rgba(176,141,62,.28); }
+    [data-theme="night"] { --paper:#050308; --card:#110D18; --ink:#F7EFE4; --muted:#A89E92; --line:rgba(214,183,106,.25); }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:'Plus Jakarta Sans','Noto Serif Devanagari',-apple-system,sans-serif; line-height:1.6; }
+    .ap { max-width:640px; margin:0 auto; padding:76px 14px 60px; }
+    .ap-card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:12px; }
+    .ap-hero { text-align:center; background:linear-gradient(135deg,#4a0d18,#7c1305 60%,#b45309); color:#fff; border:0; padding:22px 16px; }
+    .ap-hero h1 { margin:0; color:#fff !important; font-family:'Noto Serif Devanagari',serif; font-size:22px; }
+    .ap-hero .who { opacity:.85; font-size:13px; margin-top:2px; }
+    .ap-score { width:118px; height:118px; margin:14px auto 8px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.12); border:3px solid #f4c95d; }
+    .ap-score b { font-size:40px; line-height:1; }
+    .ap-score small { font-size:12px; opacity:.85; }
+    .ap-mood { display:inline-block; background:#f4c95d; color:#4a0d18; font-weight:700; border-radius:20px; padding:3px 14px; font-size:14px; }
+    .ap-theme { margin-top:12px; font-size:15px; line-height:1.55; }
+    h2 { font-family:'Noto Serif Devanagari',serif; font-size:17px; margin:0 0 8px; color:var(--kumkum); }
+    [data-theme="night"] h2 { color:#e9c46a; }
+    ul { margin:0; padding-left:20px; }
+    li { margin-bottom:5px; }
+    .ap-two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:520px){ .ap-two { grid-template-columns:1fr; } }
+    .ap-do h2 { color:#047857; }
+    .ap-dont h2 { color:#b91c1c; }
+    .ap-time { display:flex; gap:10px; padding:8px 0; border-top:1px dashed var(--line); font-size:14px; }
+    .ap-time:first-of-type { border-top:0; }
+    .ap-time span:first-child { flex:none; }
+    .ap-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px 14px; font-size:14px; }
+    .ap-grid div span { display:block; color:var(--muted); font-size:12px; }
+    .ap-alert { background:#fff1f2; border:1px solid #fecdd3; color:#9f1239; border-radius:12px; padding:10px 12px; margin-bottom:12px; font-weight:600; font-size:14px; }
+    .ap-remedy { background:linear-gradient(135deg,rgba(176,141,62,.1),rgba(176,141,62,.03)); }
+    .ap-msg { text-align:center; padding:40px 16px; color:var(--muted); }
+    .ap-btn { display:inline-block; margin-top:14px; background:var(--kumkum); color:#fff; text-decoration:none; font-weight:700; border-radius:12px; padding:11px 18px; }
+    .ap-foot { text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px; }
+    .ap-foot a { color:var(--gold-dark); font-weight:700; }
+    .spin { width:34px; height:34px; border:3px solid var(--line); border-top-color:var(--kumkum); border-radius:50%; margin:0 auto 12px; animation:sp 1s linear infinite; }
+    @keyframes sp { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <main class="ap" id="ap" data-no-i18n>
+    <div class="ap-msg"><div class="spin"></div><span id="apLoading">आज का पंचांग तैयार हो रहा है…</span></div>
+  </main>
+
+  <script src="theme.js"></script>
+  <script src="sra-config.js"></script>
+  <script src="sra-nav.js" defer></script>
+  <script src="sra-i18n.js" defer></script>
+  <script>
+  (function () {
+    const main = document.getElementById('ap');
+    const hi = () => !(document.documentElement.lang || '').startsWith('en');
+    const L = (h, e) => hi() ? h : e;
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const API = (window.SRA_API_BASE || '') + '/api/panchang/personalized';
+    let sub = null;
+    try { sub = JSON.parse(localStorage.getItem('sra_panchang_sub') || 'null'); } catch (e) {}
+
+    function message(text, linkText, href) {
+      main.innerHTML = `<div class="ap-card ap-msg">${esc(text)}${linkText ? `<br><a class="ap-btn" href="${href}">${esc(linkText)}</a>` : ''}</div>`;
+    }
+
+    if (!sub || !sub.id || !sub.secret) {
+      message(L('इस फ़ोन/ब्राउज़र पर दैनिक पंचांग की सदस्यता नहीं मिली। अपनी कुण्डली बनाकर निःशुल्क सब्सक्राइब करें।', 'No daily panchang subscription on this phone/browser. Make your kundali and subscribe for free.'),
+        L('कुण्डली बनाएँ', 'Make kundali'), 'patrika.html#topPersonalizedPanchangBanner');
+      return;
+    }
+    // Render's free server can take up to a minute to wake
+    const slow = setTimeout(() => { const el = document.getElementById('apLoading'); if (el) el.textContent = L('सर्वर जाग रहा है, कृपया थोड़ी प्रतीक्षा करें…', 'Waking the server, please wait a moment…'); }, 6000);
+
+    fetch(API + '/today', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: sub.id, secret: sub.secret }) })
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        clearTimeout(slow);
+        if (!ok) { message(d.detail || L('पंचांग नहीं मिल सका।', 'Could not load the panchang.'), L('दोबारा सब्सक्राइब करें', 'Subscribe again'), 'patrika.html#topPersonalizedPanchangBanner'); return; }
+        render(d);
+      })
+      .catch(() => { clearTimeout(slow); message(L('इंटरनेट या सर्वर से जुड़ नहीं सका। थोड़ी देर बाद फिर खोलें।', 'Could not reach the server. Please open again in a little while.'), L('फिर से प्रयास करें', 'Try again'), 'aaj-panchang.html'); });
+
+    function list(items) { return `<ul>${(items || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`; }
+
+    function render(d) {
+      const f = d.forecast, t = f.day_timings || {}, ps = f.panchang_summary || {}, v = (f.active_dashas || {}).vimshottari || {},
+        y = (f.active_dashas || {}).yogini || {}, ak = (f.active_dashas || {}).jaimini_ak || {}, tb = f.tara_bala || {},
+        moon = ((f.micro_nakshatra || {}).transit_moon) || {}, sg = f.sudarshan_gochar_summary || {};
+      const date = f.execution_date.split('-').reverse().join('-');
+      const score = Math.round(f.overall_day_score);
+      const mood = String(f.sentiment || '').split(' (')[0];
+      main.innerHTML = `
+        <div class="ap-card ap-hero">
+          <h1>🌅 ${esc(L('आज का पर्सनलाइज़्ड पंचांग', "Today's personalised panchang"))}</h1>
+          <div class="who">${esc(d.name)} • ${esc(t.vaar || '')} ${esc(date)}</div>
+          <div class="ap-score"><b>${score}</b><small>/ 100</small></div>
+          <span class="ap-mood">${esc(mood)}</span>
+          <div class="ap-theme">${esc(f.core_theme)}</div>
+        </div>
+        ${sg.is_chandrashtama ? `<div class="ap-alert">⚠️ ${esc(sg.chandrashtama_alert || L('आज चन्द्राष्टम है — बड़े निर्णय टालें।', 'Chandrashtama today — postpone big decisions.'))}</div>` : ''}
+        <div class="ap-two">
+          <div class="ap-card ap-do"><h2>✅ ${esc(L('क्या करें', 'Do'))}</h2>${list(f.dos)}</div>
+          <div class="ap-card ap-dont"><h2>❌ ${esc(L('क्या न करें', "Don't"))}</h2>${list(f.donts)}</div>
+        </div>
+        <div class="ap-card">
+          <h2>⏰ ${esc(L('आज के समय', "Today's timings"))}</h2>
+          ${(f.personalized_windows.golden_hours || []).map(g => `<div class="ap-time"><span>✨</span><span>${esc(g)}</span></div>`).join('')}
+          ${(f.personalized_windows.caution_windows || []).map(g => `<div class="ap-time"><span>⚠️</span><span>${esc(g)}</span></div>`).join('')}
+          <div class="ap-time"><span>🌄</span><span>${esc(L('सूर्योदय', 'Sunrise'))} ${esc(t.sunrise || '')} • ${esc(L('सूर्यास्त', 'Sunset'))} ${esc(t.sunset || '')}${t.abhijit ? ` • ${esc(L('अभिजित', 'Abhijit'))} ${esc(t.abhijit)}` : ''}</span></div>
+        </div>
+        <div class="ap-card">
+          <h2>🪐 ${esc(L('आपके लिए आज की ग्रह स्थिति', "Today's planetary picture for you"))}</h2>
+          <div class="ap-grid">
+            <div><span>${esc(L('विंशोत्तरी दशा', 'Vimshottari dasha'))}</span>${esc([v.maha_lord_hi, v.antar_lord_hi, v.pratyantar_lord_hi].filter(Boolean).join(' – '))}</div>
+            <div><span>${esc(L('योगिनी दशा', 'Yogini dasha'))}</span>${esc([y.major_hi, y.sub_hi].filter(Boolean).join(' – '))}</div>
+            <div><span>${esc(L('तारा बल', 'Tara bala'))}</span>${esc(tb.tara_name_hi || '')}</div>
+            <div><span>${esc(L('चन्द्र गोचर', 'Moon transit'))}</span>${esc(moon.nakshatra_name_hi || ps.nakshatra || '')}${moon.pada ? ' ' + esc(L('चरण', 'pada')) + ' ' + esc(moon.pada) : ''}</div>
+            <div><span>${esc(L('तिथि', 'Tithi'))}</span>${esc(ps.tithi || '')}</div>
+            <div><span>${esc(L('योग • करण', 'Yoga • Karana'))}</span>${esc([ps.yoga, ps.karana].filter(Boolean).join(' • '))}</div>
+            <div><span>${esc(L('आत्मकारक', 'Atmakaraka'))}</span>${esc(ak.planet_hi || '')}</div>
+            <div><span>${esc(L('अष्टकवर्ग (चन्द्र राशि)', 'Ashtakavarga (Moon sign)'))}</span>${esc(sg.moon_bav_points)} / 8 • SAV ${esc(sg.sav_points)}</div>
+          </div>
+          ${tb.description ? `<p style="margin:10px 0 0;font-size:14px;color:var(--muted)">${esc(tb.description)}</p>` : ''}
+        </div>
+        <div class="ap-card ap-remedy"><h2>🙏 ${esc(L('आज का उपाय', "Today's remedy"))}</h2><div>${esc(f.micro_remedy)}</div></div>
+        <div class="ap-foot">${esc(L('जन्म', 'Birth'))}: ${esc(d.birth)} •
+          <a href="patrika.html">${esc(L('पूरी कुण्डली', 'Full kundali'))}</a> •
+          <a href="parashara-report.html">${esc(L('मेगा पाराशर रिपोर्ट', 'Mega Parashara Report'))}</a> •
+          <a href="donate.html?src=aaj">${esc(L('सहयोग करें', 'Donate'))}</a></div>`;
+    }
+  })();
+  </script>
+</body>
+</html>

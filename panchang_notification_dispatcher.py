@@ -363,8 +363,27 @@ class PushSubscription(BaseModel):
 
 class SubscribeRequest(NativeBirthProfile):
     push: Optional[PushSubscription] = None
-    whatsapp: Optional[str] = Field(None, max_length=20)
     whatsapp_consent: bool = False
+    # Firebase ID token of the logged-in user; the WhatsApp number is read from it, so a
+    # message can only go to the number that the subscriber proved with an OTP
+    id_token: Optional[str] = Field(None, max_length=4096)
+
+
+def _verified_phone(id_token: Optional[str]) -> Optional[str]:
+    if not id_token or not _ensure_fcm_initialized():
+        return None
+    try:
+        from firebase_admin import auth as fb_auth
+        claims = fb_auth.verify_id_token(id_token)
+        return _clean_phone(claims.get("phone_number"))
+    except Exception as e:
+        logger.info(f"[PanchangSubs] id token rejected: {e}")
+        return None
+
+
+class TodayRequest(BaseModel):
+    id: str = Field(..., max_length=64)
+    secret: str = Field(..., max_length=64)
 
 
 class UnsubscribeRequest(BaseModel):
@@ -400,7 +419,7 @@ def _send_push(sub: Dict[str, Any], title: str, body: str) -> str:
     """Returns 'sent', 'gone' (browser unsubscribed) or 'error'."""
     from pywebpush import webpush, WebPushException
     payload = json.dumps({"title": title, "body": body,
-                          "data": {"url": "/patrika.html?domain=panchang", "type": "DAILY_PERSONALIZED_PANCHANG"}},
+                          "data": {"url": "/aaj-panchang.html", "type": "DAILY_PERSONALIZED_PANCHANG"}},
                          ensure_ascii=False)
     try:
         webpush(subscription_info=sub["push"], data=payload,
@@ -479,9 +498,11 @@ def subscribe(req: SubscribeRequest, request: Request):
     db = _db()
     if db is None:
         raise HTTPException(status_code=503, detail="दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कृपया कुछ समय बाद प्रयास करें।")
-    phone = _clean_phone(req.whatsapp) if req.whatsapp_consent else None
-    if req.whatsapp and req.whatsapp_consent and not phone:
-        raise HTTPException(status_code=400, detail="WhatsApp नंबर सही नहीं है।")
+    phone = None
+    if req.whatsapp_consent:
+        phone = _verified_phone(req.id_token)
+        if not phone:
+            raise HTTPException(status_code=401, detail="WhatsApp के लिए पहले अपने मोबाइल नंबर से OTP द्वारा लॉगिन करें — संदेश केवल उसी नंबर पर जाएगा।")
     if not req.push and not phone:
         raise HTTPException(status_code=400, detail="नोटिफ़िकेशन या WhatsApp — कम से कम एक चुनें।")
     if not (1800 <= req.year <= 2100 and 1 <= req.month <= 12 and 1 <= req.day <= 31 and 0 <= req.hour <= 23 and 0 <= req.minute <= 59
@@ -501,7 +522,8 @@ def subscribe(req: SubscribeRequest, request: Request):
         "current_lat": req.current_lat if req.current_lat is not None else req.lat,
         "current_lon": req.current_lon if req.current_lon is not None else req.lon,
         "push": req.push.model_dump() if req.push else None,
-        "whatsapp": phone, "whatsapp_consent_at": datetime.now(timezone.utc).isoformat() if phone else None,
+        "whatsapp": phone, "whatsapp_verified": bool(phone),
+        "whatsapp_consent_at": datetime.now(timezone.utc).isoformat() if phone else None,
         "active": True, "secret": secret, "fails": 0,
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -521,6 +543,24 @@ def subscribe(req: SubscribeRequest, request: Request):
     return {"status": "success", "id": doc_id, "secret": secret,
             "channels": {"push": bool(req.push), "whatsapp": bool(phone)},
             "notification": {"title": title, "body": body}}
+
+
+@router.post("/today")
+def today_for_subscriber(req: TodayRequest):
+    """The full forecast behind the 7 AM message; the page sends the id and secret that
+    this device received when it subscribed."""
+    db = _db()
+    if db is None:
+        raise HTTPException(status_code=503, detail="सेवा उपलब्ध नहीं")
+    snap = db.collection(SUB_COLLECTION).document(req.id).get()
+    sub = snap.to_dict() if snap.exists else None
+    if not sub or not secrets.compare_digest(sub.get("secret", ""), req.secret):
+        raise HTTPException(status_code=404, detail="सदस्यता नहीं मिली — कृपया दोबारा सब्सक्राइब करें।")
+    forecast = _forecast_for(sub)
+    birth = f"{sub['day']:02d}-{sub['month']:02d}-{sub['year']} {sub['hour']:02d}:{sub['minute']:02d}"
+    return {"status": "success", "name": sub.get("name") or "जातक", "birth": birth,
+            "channels": {"push": bool(sub.get("push")), "whatsapp": bool(sub.get("whatsapp"))},
+            "forecast": forecast}
 
 
 @router.post("/unsubscribe")
@@ -571,7 +611,8 @@ def run_daily_dispatch() -> Dict[str, Any]:
                         update["active"] = False
                 else:
                     stats["errors"] += 1
-            if sub.get("whatsapp") and wa_ok:
+            # only numbers proven by OTP login (entries typed into the first version are skipped)
+            if sub.get("whatsapp") and sub.get("whatsapp_verified") and wa_ok:
                 attempted = True
                 if _send_whatsapp(sub["whatsapp"], sub.get("name") or "जातक", forecast) == "sent":
                     stats["whatsapp_sent"] += 1; sent_any = True
