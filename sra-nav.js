@@ -151,6 +151,11 @@
             💬 WhatsApp ज्योतिष समूह जॉइन करें ➔
           </a>
         </div>
+        <div class="sra-gd-legal" style="margin-top:10px;text-align:center;font-size:11px;color:#64748b;display:flex;justify-content:center;gap:12px;">
+          <a href="privacy.html" style="color:#94a3b8;text-decoration:none;">Privacy Policy</a>
+          <span>•</span>
+          <a href="terms.html" style="color:#94a3b8;text-decoration:none;">Terms of Service</a>
+        </div>
       </div>`;
     backdrop = document.createElement('div');
     backdrop.className = 'sra-gbackdrop';
