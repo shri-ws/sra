@@ -139,7 +139,10 @@
 .kp-sheet-card .close{background:#f5f5f4;color:#44403c;border-color:#d6d3d1;}
 
 /* the report itself (A4 inner width ≈ 733 CSS px) */
-.kp-doc{width:733px;background:#fff;color:#1c1917;font-size:12px;line-height:1.4;}
+.kp-doc{width:714px;max-width:714px;overflow:hidden;background:#fff;color:#1c1917;font-size:12px;line-height:1.4;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+.kp-doc table{max-width:100%;}
+.kp-dblock td{white-space:nowrap;}
+.kp-doc img{max-width:100%;}
 .kp-doc *{box-sizing:border-box;}
 .kp-runhead{display:flex;justify-content:space-between;border-bottom:1.5px solid #b45309;padding:0 0 4px;margin-bottom:10px;font-size:10.5px;color:#7c1305;font-weight:700;}
 .kp-h2{font-size:16px;color:#7c1305;margin:14px 0 8px;padding:4px 10px;background:#fdf6e3;border-left:4px solid #b45309;font-weight:700;}
@@ -162,13 +165,13 @@
 .kp-chart{border:1px solid #e7d3a1;border-radius:8px;padding:6px 6px 4px;text-align:center;}
 .kp-chart h4{margin:0 0 4px;font-size:12.5px;color:#7c1305;font-weight:700;}
 .kp-chart .sub{font-size:10px;color:#78716c;margin:0 0 4px;}
-.kp-chart img{width:330px;height:330px;display:block;margin:0 auto;}
+.kp-chart img{width:320px;height:320px;display:block;margin:0 auto;}
 .kp-sud{border:1px solid #e7d3a1;border-radius:8px;padding:8px;text-align:center;}
-.kp-sud img{width:560px;height:560px;display:block;margin:0 auto;}
+.kp-sud img{width:540px;height:540px;display:block;margin:0 auto;}
 .kp-dblock{border:1px solid #e7d3a1;border-radius:8px;overflow:hidden;}
 .kp-dblock .bh{background:#7c1305;color:#fff;padding:5px 8px;font-weight:700;font-size:11.5px;display:flex;justify-content:space-between;gap:6px;}
 .kp-dblock.kp-now .bh{background:#b45309;}
-.kp-dblock table{width:100%;border-collapse:collapse;font-size:10.5px;}
+.kp-dblock table{width:100%;border-collapse:collapse;font-size:10px;}
 .kp-dblock td{padding:3px 6px;border-bottom:1px solid #f1e3c0;}
 .kp-dblock tr.kp-now td{background:#fde68a;font-weight:700;}
 .kp-pan .panchang-grid-5,.kp-pan .muhurta-grid{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
@@ -260,7 +263,7 @@
   // charts go into the report as images: html2canvas draws inline SVG shifted and clipped
   const svgImg = (svg, size) => `<img alt="" width="${size}" height="${size}" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}">`;
   function chartCard(title, sub, svg) {
-    return `<div class="kp-chart"><h4>${esc(title)}</h4>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}${svgImg(svg, 330)}</div>`;
+    return `<div class="kp-chart"><h4>${esc(title)}</h4>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}${svgImg(svg, 320)}</div>`;
   }
 
   // ---------- Sudarshan chakra: inner ring Lagna, middle Moon, outer Sun ----------
@@ -572,7 +575,7 @@
     if (o.sudarshan) {
       push(`<div class="kp-h2">${L('सुदर्शन चक्र', 'Sudarshan Chakra')}</div>
 <div class="kp-note">${L('भीतरी वृत्त = लग्न कुण्डली (लाल), मध्य वृत्त = चन्द्र कुण्डली (नीला), बाहरी वृत्त = सूर्य कुण्डली (सुनहरा)। हर खाने में छोटा अंक राशि क्रमांक है; केंद्र के पास भाव संख्या। * = वक्री।', 'Inner ring = Lagna chart (red), middle = Moon chart (blue), outer = Sun chart (gold). Small number = sign number; numbers near the centre = house. * = retrograde.')}</div>
-<div class="kp-sud kp-avoid">${svgImg(sudarshanSvg(calc.planets), 560)}</div>
+<div class="kp-sud kp-avoid">${svgImg(sudarshanSvg(calc.planets), 540)}</div>
 <div class="kp-note">${['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu', 'Lagna'].map(id => plShort(id) + ' = ' + plName(id)).join(' • ')}</div>`);
     }
 
@@ -646,7 +649,9 @@
       margin: [9, 8, 11, 8],
       filename: fname,
       image: { type: 'jpeg', quality: 0.86 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
+      // lay the copy out in a desktop-width window: on phones (Safari above all) the
+      // default is the phone's own width, which clips the right side of the A4 page
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, windowWidth: 1024 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.kp-avoid'] }
     };
@@ -654,11 +659,18 @@
     window.scrollTo(0, 0);
     try {
       progress(1, chunks.length);
-      let w = html2pdf().set(opt).from(makeEl(chunks[0])).toPdf();
+      // html2pdf centres its copy inside a screen-sized box that clips overflow: on a phone
+      // the A4 page is wider than the screen and its right side was cut. Pin it left.
+      const pin = c => {
+        const ov = c && c.parentNode;
+        if (ov && ov.style) { ov.style.right = 'auto'; ov.style.bottom = 'auto'; ov.style.width = '1024px'; ov.style.height = 'auto'; ov.style.overflow = 'visible'; }
+        if (c && c.style) { c.style.left = '0'; c.style.right = 'auto'; c.style.margin = '0'; }
+      };
+      let w = html2pdf().set(opt).from(makeEl(chunks[0])).toContainer().get('container').then(pin).toCanvas().toPdf();
       for (let i = 1; i < chunks.length; i++) {
         const idx = i;
         w = w.get('pdf').then(pdf => { progress(idx + 1, chunks.length); pdf.addPage(); })
-          .from(makeEl(chunks[idx])).toContainer().toCanvas().toPdf();
+          .from(makeEl(chunks[idx])).toContainer().get('container').then(pin).toCanvas().toPdf();
       }
       // page numbers
       w = w.get('pdf').then(pdf => {
