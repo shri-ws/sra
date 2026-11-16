@@ -511,7 +511,10 @@ def subscribe(req: SubscribeRequest, request: Request):
     if phone:   # one WhatsApp number gets one message a day
         for d in col.where("whatsapp", "==", phone).stream():
             if d.id != doc_id:
-                d.reference.update({"whatsapp": None})
+                if (d.to_dict() or {}).get("push"):
+                    d.reference.update({"whatsapp": None})
+                else:
+                    d.reference.delete()   # it had no other way to reach this person
 
     forecast = _forecast_for(record)
     title, body = build_message(record["name"], forecast)
