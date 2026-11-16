@@ -555,9 +555,10 @@ def run_daily_dispatch() -> Dict[str, Any]:
         try:
             forecast = _forecast_for(sub)
             title, body = build_message(sub.get("name") or "जातक", forecast)
-            update: Dict[str, Any] = {"last_sent": today}
-            sent_any = False
+            update: Dict[str, Any] = {}
+            sent_any = attempted = False
             if sub.get("push") and push_ok:
+                attempted = True
                 res = _send_push(sub, title, body)
                 if res == "sent":
                     stats["push_sent"] += 1; sent_any = True
@@ -568,10 +569,19 @@ def run_daily_dispatch() -> Dict[str, Any]:
                 else:
                     stats["errors"] += 1
             if sub.get("whatsapp") and wa_ok:
+                attempted = True
                 if _send_whatsapp(sub["whatsapp"], sub.get("name") or "जातक", forecast) == "sent":
                     stats["whatsapp_sent"] += 1; sent_any = True
                 else:
                     stats["errors"] += 1
+            if not attempted:
+                # no channel of this subscriber is switched on yet (e.g. WhatsApp
+                # awaiting Meta approval): try again on the next run, count nothing
+                stats["waiting_for_channel"] = stats.get("waiting_for_channel", 0) + 1
+                if update:
+                    snap.reference.update(update)
+                continue
+            update["last_sent"] = today
             update["fails"] = 0 if sent_any else int(sub.get("fails", 0)) + 1
             if update["fails"] >= 14:      # two weeks of failures: stop trying
                 update["active"] = False

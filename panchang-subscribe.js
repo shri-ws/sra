@@ -142,7 +142,8 @@ body.ps-open #sra-wa-float-container{display:none !important;}
           : L('यह ब्राउज़र नोटिफ़िकेशन नहीं दिखा सकता — WhatsApp चुनें।', 'This browser cannot show notifications — choose WhatsApp.'))}</small></span></label>
       <label class="ps-opt"><input type="checkbox" id="psWa" ${phonePrefill || !canPush ? 'checked' : ''}>
         <span style="flex:1"><b>💬 WhatsApp</b>
-        <small>${esc(L('हर सुबह आपके WhatsApp पर संदेश।', 'A message on your WhatsApp every morning.'))}</small>
+        <small>${esc(cfg && cfg.whatsapp_ready ? L('हर सुबह आपके WhatsApp पर संदेश।', 'A message on your WhatsApp every morning.')
+          : L('WhatsApp संदेश जल्द शुरू होंगे — नंबर अभी दर्ज कर लें, शुरू होते ही आने लगेंगे। तब तक नोटिफ़िकेशन भी चुनें।', 'WhatsApp messages start soon — save your number now and they will begin automatically. Choose notifications too meanwhile.'))}</small>
         <div class="ps-phone"><span>+91</span><input id="psPhone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" value="${esc(phonePrefill)}" aria-label="WhatsApp number"></div></span></label>
       ${serverReady ? '' : `<div class="ps-note" style="background:rgba(185,28,28,.08)">${esc(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कुछ समय बाद सब्सक्राइब कर सकेंगे।', 'The daily panchang service is being switched on — you can subscribe a little later.'))}</div>`}
       <div class="ps-note">${esc(L('WhatsApp चुनने पर आप प्रतिदिन सुबह संदेश पाने की सहमति देते हैं। कभी भी यहीं से बंद कर सकते हैं।', 'By choosing WhatsApp you agree to get a message every morning. You can stop it here any time.'))}</div>
