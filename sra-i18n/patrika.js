@@ -53,6 +53,8 @@ SRA_I18N.add([
   ["विवरण बदलें", "Edit details"],
   ["प्रिंट / PDF", "Print / PDF"],
   ["पूरी कुण्डली का प्रिंट / PDF", "Print / PDF of the full kundali"],
+  ["सहयोग करें", "Donate"],
+  ["अपनी इच्छा से कोई भी राशि सहयोग करें", "Support us with any amount you wish"],
   ["नया जातक फॉर्म भरें", "Fill a new native form"],
   ["कुण्डलियां (", "Charts ("],
   ["लग्न कुण्डली (D1 राशि)", "Lagna chart (D1 Rashi)"],

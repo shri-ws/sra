@@ -177,6 +177,7 @@
 .kp-pan .panchang-grid-5,.kp-pan .muhurta-grid{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
 .kp-pan *{color:#1c1917 !important;box-shadow:none !important;animation:none !important;}
 .kp-pan [class*="card"],.kp-pan [class*="item"],.kp-pan [class*="box"]{background:#fffaf0 !important;border:1px solid #eee3c6 !important;}
+.kp-support{margin-top:14px;padding:9px 12px;border:1px dashed #c9a84c;border-radius:8px;background:#fffaf0;font-size:11.5px;color:#5b4a2e;text-align:center;}
 .kp-pan h4{color:#7c1305 !important;margin:9px 0 5px !important;}
 .kp-pan [class*="card"],.kp-pan [class*="item"],.kp-pan [class*="box"]{padding:6px 9px !important;margin:0 !important;min-height:0 !important;}
 .kp-pan [class*="grid"]{gap:6px !important;margin:0 !important;}
@@ -563,6 +564,7 @@
     let first = '';
     if (o.birth) first += secBirth(calc);
     if (o.planets) first += secPlanets(calc);
+    if (first) first += `<div class="kp-support">${L('यह कुण्डली निःशुल्क है। इस सेवा को चलाए रखने में सहयोग करना चाहें तो हर पन्ने के नीचे <b>Donate / Support us</b> पर क्लिक करें, या <b>shriramjiastro.in/donate.html</b> खोलें। अपनी इच्छा से कोई भी राशि दे सकते हैं।', 'This kundali is free. To help keep the service running, tap <b>Donate / Support us</b> at the foot of any page, or open <b>shriramjiastro.in/donate.html</b>. Give any amount you wish.')}</div>`;
     push(first);
 
     const charts = [];
@@ -622,6 +624,8 @@
     const tryLoad = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
     return tryLoad('/html2pdf.bundle.min.js?v=13').catch(() => tryLoad('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'));
   }
+  const SITE_URL = 'https://shriramjiastro.in/?src=pdf';
+  const DONATE_URL = 'https://shriramjiastro.in/donate.html?src=pdf';
   const PDF_FONT = "'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Mukta', system-ui, sans-serif";
   function makeEl(html) {
     const box = document.createElement('div');
@@ -686,9 +690,18 @@
         const n = pdf.internal.getNumberOfPages();
         for (let p = 1; p <= n; p++) {
           pdf.setPage(p);
+          // clickable footer: website on the left, donate on the right (jsPDF's built-in
+          // font has no Devanagari, so these stay in English)
           pdf.setFontSize(8);
           pdf.setTextColor(120);
-          pdf.text(`shriramjiastro.in   •   ${p} / ${n}`, 105, 292, { align: 'center' });
+          pdf.text(`${p} / ${n}`, 105, 292, { align: 'center' });
+          pdf.setTextColor(122, 90, 28);
+          pdf.textWithLink('shriramjiastro.in', 10, 292, { url: SITE_URL });
+          pdf.setTextColor(154, 27, 10);
+          pdf.setFont(undefined, 'bold');
+          const dn = 'Donate / Support us';
+          pdf.textWithLink(dn, 200 - pdf.getTextWidth(dn), 292, { url: DONATE_URL });
+          pdf.setFont(undefined, 'normal');
         }
       });
       const blob = await w.outputPdf('blob');
