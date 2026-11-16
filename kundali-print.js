@@ -177,7 +177,13 @@
 .kp-pan .panchang-grid-5,.kp-pan .muhurta-grid{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
 .kp-pan *{color:#1c1917 !important;box-shadow:none !important;animation:none !important;}
 .kp-pan [class*="card"],.kp-pan [class*="item"],.kp-pan [class*="box"]{background:#fffaf0 !important;border:1px solid #eee3c6 !important;}
-.kp-pan h4{color:#7c1305 !important;}
+.kp-pan h4{color:#7c1305 !important;margin:9px 0 5px !important;}
+.kp-pan [class*="card"],.kp-pan [class*="item"],.kp-pan [class*="box"]{padding:6px 9px !important;margin:0 !important;min-height:0 !important;}
+.kp-pan [class*="grid"]{gap:6px !important;margin:0 !important;}
+.kp-pan .muhurta-item{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;}
+.kp-pan .muhurta-item-name,.kp-pan .muhurta-item-time{border:0 !important;padding:0 !important;background:none !important;font-size:12px !important;line-height:1.3 !important;}
+.kp-pan .muhurta-item-time{text-align:right !important;}
+.kp-pan td strong,.kp-pan td b{font-size:11.5px !important;}
 .kp-pan table{width:100%;border-collapse:collapse;}
 .kp-pan td,.kp-pan th{border:1px solid #eee3c6 !important;padding:4px 6px !important;font-size:11px !important;background:#fff !important;}
 .kp-avoid{page-break-inside:avoid;break-inside:avoid;}
