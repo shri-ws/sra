@@ -563,12 +563,11 @@ def calculate_canonical_astronomy(
     def calculate_arudha(ref_sign: int, lord_name: str) -> int:
         lord_sign = planet_map[lord_name]["sign"]
         distance = (lord_sign - ref_sign + 12) % 12
-        if distance == 0:
-            arudha = (ref_sign + 9) % 12
-        elif distance == 6:
-            arudha = (ref_sign + 9) % 12
-        else:
-            arudha = (lord_sign + distance) % 12
+        arudha = (lord_sign + distance) % 12
+        # BPHS Padadhyaya: a pada falling in the house itself or its 7th is taken
+        # 10th from there (lord in 1st/7th AND lord in 4th/10th)
+        if (arudha - ref_sign) % 12 in (0, 6):
+            arudha = (arudha + 9) % 12
         return arudha
 
     arudha_lagna_sign = calculate_arudha(lagna_sign, RASHI_LORDS[lagna_sign])

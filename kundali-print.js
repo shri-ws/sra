@@ -83,7 +83,7 @@
       ['bhava', 'श्रीपति भाव स्पष्ट (भाव आरम्भ, मध्य, अन्त)', 'Sripati bhava cusps (start, middle, end)', false],
       ['sandhi', 'भाव संधि व ग्रह विस्थापन विश्लेषण', 'Bhava sandhi & planet shift analysis', false],
       ['upagraha', 'उपग्रह (गुलिक, मान्दि आदि)', 'Upagrahas (Gulika, Mandi etc.)', false],
-      ['speciallagna', 'विशेष लग्न (होरा, घटी, प्राणपद आदि)', 'Special lagnas (Hora, Ghati, Pranapada etc.)', false],
+      ['speciallagna', 'विशेष लग्न (होरा, घटी, प्राणपद, इन्दु, आरूढ़, उपपद आदि)', 'Special lagnas (Hora, Ghati, Pranapada, Indu, Arudha, Upapada etc.)', false],
       ['ashtakavarga', 'अष्टकवर्ग (भिन्नाष्टक व सर्वाष्टक)', 'Ashtakavarga (Bhinna & Sarva)', false]
     ] }
   ];
@@ -177,6 +177,7 @@
 .kp-pan .panchang-grid-5,.kp-pan .muhurta-grid{display:grid !important;grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
 .kp-pan *{color:#1c1917 !important;box-shadow:none !important;animation:none !important;}
 .kp-pan [class*="card"],.kp-pan [class*="item"],.kp-pan [class*="box"]{background:#fffaf0 !important;border:1px solid #eee3c6 !important;}
+.kp-mega{border-color:#9a1b0a !important;background:#fff5f2 !important;color:#7c1305 !important;}
 .kp-support{margin-top:14px;padding:9px 12px;border:1px dashed #c9a84c;border-radius:8px;background:#fffaf0;font-size:11.5px;color:#5b4a2e;text-align:center;}
 .kp-pan h4{color:#7c1305 !important;margin:9px 0 5px !important;}
 .kp-pan [class*="card"],.kp-pan [class*="item"],.kp-pan [class*="box"]{padding:6px 9px !important;margin:0 !important;min-height:0 !important;}
@@ -529,11 +530,21 @@
     const rows = bh.map(b => `<tr><td><b>${L('भाव', 'House')} ${b.house}</b></td><td>${esc(signName(b.sandhi1Sign))} ${dms(b.sandhi1Deg)}</td><td><b>${esc(signName(b.midSign))} ${dms(b.midDeg)}</b></td><td>${esc(signName(b.sandhi2Sign))} ${dms(b.sandhi2Deg)}</td></tr>`).join('');
     return `<div class="kp-h2">${L('श्रीपति भाव स्पष्ट', 'Sripati bhava cusps')}</div><table class="kp-tbl"><thead><tr><th>${L('भाव', 'House')}</th><th>${L('आरम्भ (संधि)', 'Start (sandhi)')}</th><th>${L('भाव मध्य', 'Middle')}</th><th>${L('अन्त (संधि)', 'End (sandhi)')}</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
-  function secPoints(list, title) {
-    const arr = Array.isArray(list) ? list : (list ? Object.values(list) : []);
+  // English names by engine key (the engine names are Hindi)
+  const POINT_EN = { HoraLagna: 'Hora Lagna (HL)', GhatiLagna: 'Ghati Lagna (GL)', BhavaLagna: 'Bhava Lagna (BL)', Pranapada: 'Pranapada Lagna', SreeLagna: 'Sree Lagna (SL)', InduLagna: 'Indu Lagna', ArudhaLagna: 'Arudha Lagna (AL)', UpapadaLagna: 'Upapada Lagna (UL)' };
+  function secPoints(list, title, lagnaSign) {
+    const arr = Array.isArray(list) ? list.map(u => [u.id || u.name, u]) : (list ? Object.entries(list) : []);
     if (!arr.length) return '';
-    const rows = arr.map(u => `<tr><td><b>${esc(u.name)}</b></td><td>${esc(signName(Math.floor(u.abs / 30)))}</td><td>${dms(u.abs % 30)}</td></tr>`).join('');
-    return `<div class="kp-h2">${title}</div><table class="kp-tbl"><thead><tr><th>${L('नाम', 'Name')}</th><th>${L('राशि', 'Sign')}</th><th>${L('अंश', 'Degree')}</th></tr></thead><tbody>${rows}</tbody></table>`;
+    // Indu, Arudha and Upapada lagna are whole-sign points: the engine gives a sign, no degree
+    const rows = arr.map(([key, u]) => {
+      const hasDeg = typeof u.abs === 'number' && isFinite(u.abs);
+      const sign = hasDeg ? Math.floor(u.abs / 30) : u.sign;
+      if (typeof sign !== 'number' || !isFinite(sign)) return '';
+      const house = u.house || (typeof lagnaSign === 'number' ? (sign - lagnaSign + 12) % 12 + 1 : '');
+      const name = hi() ? u.name : (POINT_EN[key] || u.name);
+      return `<tr><td><b>${esc(name)}</b></td><td>${esc(signName(sign))}</td><td>${hasDeg ? dms(u.abs % 30) : L('— (राशि मात्र)', '— (sign only)')}</td><td>${house}</td></tr>`;
+    }).join('');
+    return `<div class="kp-h2">${title}</div><table class="kp-tbl"><thead><tr><th>${L('नाम', 'Name')}</th><th>${L('राशि', 'Sign')}</th><th>${L('अंश', 'Degree')}</th><th>${L('भाव', 'House')}</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
   function secAshtaka(calc) {
     const a = calc.ashtakavarga;
@@ -564,7 +575,8 @@
     let first = '';
     if (o.birth) first += secBirth(calc);
     if (o.planets) first += secPlanets(calc);
-    if (first) first += `<div class="kp-support">${L('यह कुण्डली निःशुल्क है। इस सेवा को चलाए रखने में सहयोग करना चाहें तो हर पन्ने के नीचे <b>Donate / Support us</b> पर क्लिक करें, या <b>shriramjiastro.in/donate.html</b> खोलें। अपनी इच्छा से कोई भी राशि दे सकते हैं।', 'This kundali is free. To help keep the service running, tap <b>Donate / Support us</b> at the foot of any page, or open <b>shriramjiastro.in/donate.html</b>. Give any amount you wish.')}</div>`;
+    if (first) first += `<div class="kp-support kp-mega" data-href="${MEGA_URL}">${L('अपनी कुण्डली का विस्तृत विश्लेषण चाहते हैं? <b>हमारी मेगा पाराशर रिपोर्ट डाउनलोड करें</b> — यहाँ क्लिक करें या <b>shriramjiastro.in/parashara-report.html</b> खोलें।', 'Want a detailed analysis of your kundali? <b>Download our Mega Parashara Report</b> — click here or open <b>shriramjiastro.in/parashara-report.html</b>.')}</div>`;
+    if (first) first += `<div class="kp-support" data-href="${DONATE_URL}">${L('यह कुण्डली निःशुल्क है। इस सेवा को चलाए रखने में सहयोग करना चाहें तो यहाँ या हर पन्ने के नीचे <b>Donate / Support us</b> पर क्लिक करें, या <b>shriramjiastro.in/donate.html</b> खोलें। अपनी इच्छा से कोई भी राशि दे सकते हैं।', 'This kundali is free. To help keep the service running, tap here or <b>Donate / Support us</b> at the foot of any page, or open <b>shriramjiastro.in/donate.html</b>. Give any amount you wish.')}</div>`;
     push(first);
 
     const charts = [];
@@ -610,8 +622,9 @@
     let more = '';
     if (o.bhava) more += secBhava(calc);
     if (o.sandhi) more += secSandhi();
-    if (o.upagraha) more += secPoints(calc.upagrahas, L('उपग्रह', 'Upagrahas'));
-    if (o.speciallagna) more += secPoints(calc.specialLagnas, L('विशेष लग्न', 'Special lagnas'));
+    const lagSign = (calc.planets.find(p => p.id === 'Lagna') || {}).sign;
+    if (o.upagraha) more += secPoints(calc.upagrahas, L('उपग्रह', 'Upagrahas'), lagSign);
+    if (o.speciallagna) more += secPoints(calc.specialLagnas, L('विशेष लग्न', 'Special lagnas'), lagSign);
     push(more);
     if (o.ashtakavarga) push(secAshtaka(calc));
     return chunks;
@@ -626,6 +639,7 @@
   }
   const SITE_URL = 'https://shriramjiastro.in/?src=pdf';
   const DONATE_URL = 'https://shriramjiastro.in/donate.html?src=pdf';
+  const MEGA_URL = 'https://shriramjiastro.in/parashara-report.html';
   const PDF_FONT = "'Noto Sans Devanagari', 'Kohinoor Devanagari', 'Devanagari Sangam MN', 'Mukta', system-ui, sans-serif";
   function makeEl(html) {
     const box = document.createElement('div');
@@ -679,7 +693,18 @@
         if (ov && ov.style) { ov.style.right = 'auto'; ov.style.bottom = 'auto'; ov.style.width = '1024px'; ov.style.height = 'auto'; ov.style.overflow = 'visible'; }
         if (c && c.style) { c.style.left = '0'; c.style.right = 'auto'; c.style.margin = '0'; }
       };
-      let w = html2pdf().set(opt).from(makeEl(chunks[0])).toContainer().get('container').then(pin).toCanvas().toPdf();
+      // boxes with data-href on the first part become clickable areas on page 1
+      const links = [];
+      const measure = c => {
+        pin(c);
+        const box = c.getBoundingClientRect(), k = (210 - opt.margin[1] - opt.margin[3]) / box.width;
+        c.querySelectorAll('[data-href]').forEach(el => {
+          const r = el.getBoundingClientRect();
+          links.push({ url: el.getAttribute('data-href'), x: opt.margin[1] + (r.left - box.left) * k, y: opt.margin[0] + (r.top - box.top) * k, w: r.width * k, h: r.height * k });
+        });
+      };
+      let w = html2pdf().set(opt).from(makeEl(chunks[0])).toContainer().get('container').then(measure).toCanvas().toPdf()
+        .get('pdf').then(pdf => links.forEach(l => { if (l.y + l.h < 297 - opt.margin[2]) pdf.link(l.x, l.y, l.w, l.h, { url: l.url }); }));
       for (let i = 1; i < chunks.length; i++) {
         const idx = i;
         w = w.get('pdf').then(pdf => { progress(idx + 1, chunks.length); pdf.addPage(); })
