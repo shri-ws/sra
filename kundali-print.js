@@ -651,7 +651,10 @@
       image: { type: 'jpeg', quality: 0.86 },
       // lay the copy out in a desktop-width window: on phones (Safari above all) the
       // default is the phone's own width, which clips the right side of the A4 page
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, windowWidth: 1024 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, windowWidth: 1024,
+        // html2canvas copies the whole page for every part; the kundali page is huge, so copy
+        // only the report (this was most of the wait, worst on phones)
+        ignoreElements: el => el.parentNode === document.body && !(el.classList && el.classList.contains('html2pdf__overlay')) },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.kp-avoid'] }
     };
