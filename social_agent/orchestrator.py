@@ -254,25 +254,26 @@ def run_scheduled() -> None:
     ch2_done = is_channel_posted_today(date_str, "channel_2")
     ch2_time_reached = (now.time() >= SCHEDULE_START_CH2)
 
-    target_channel = None
-    if not ch1_done and now.time() >= SCHEDULE_START_CH1:
-        target_channel = "channel_1"
-    elif not ch2_done and ch2_time_reached:
-        target_channel = "channel_2"
-
-    if not target_channel:
-        return
-
     attempts = {}
     if ATTEMPTS_FILE.exists():
         try:
             attempts = json.loads(ATTEMPTS_FILE.read_text())
         except Exception:
             attempts = {}
-    attempt_key = f"{date_str}_{target_channel}"
-    if attempts.get(attempt_key, 0) >= MAX_ATTEMPTS_PER_DAY:
-        print(f"[Scheduler] Max daily attempts ({MAX_ATTEMPTS_PER_DAY}) reached for {attempt_key}. Skipping.")
+
+    target_channel = None
+    # In the evening (>= 19:00 IST), Channel 2 (English Shorts) has primary schedule priority
+    if ch2_time_reached and not ch2_done and attempts.get(f"{date_str}_channel_2", 0) < MAX_ATTEMPTS_PER_DAY:
+        target_channel = "channel_2"
+    elif not ch1_done and now.time() >= SCHEDULE_START_CH1 and attempts.get(f"{date_str}_channel_1", 0) < MAX_ATTEMPTS_PER_DAY:
+        target_channel = "channel_1"
+    elif not ch2_done and ch2_time_reached and attempts.get(f"{date_str}_channel_2", 0) < MAX_ATTEMPTS_PER_DAY:
+        target_channel = "channel_2"
+
+    if not target_channel:
         return
+
+    attempt_key = f"{date_str}_{target_channel}"
 
     # One run at a time; check PID liveness and auto-clean dead locks
     if LOCK_FILE.exists():

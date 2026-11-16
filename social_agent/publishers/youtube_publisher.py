@@ -121,6 +121,11 @@ def publish_to_youtube_shorts(yt_payload: dict, video_path: str, config: dict, d
             ch_secrets = ch.get("client_secrets_file", client_secrets)
             ch_token = ch.get("credentials_file", token_pickle)
             
+            # If multi-channel routing is active, only publish to requested channels
+            if isinstance(yt_payload, dict) and any(k in ("channel_1", "channel_2") for k in yt_payload):
+                if ch_id not in yt_payload:
+                    continue
+            
             # Resolve channel-specific payload and video file if provided
             ch_data = yt_payload.get(ch_id) if isinstance(yt_payload, dict) and ch_id in yt_payload else yt_payload
             if isinstance(ch_data, dict) and ("payload" in ch_data or "video_path" in ch_data):
