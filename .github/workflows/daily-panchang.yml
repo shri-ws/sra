@@ -1,0 +1,37 @@
+# Sends the daily personalised panchang at 07:00 IST (01:30 UTC).
+# The calculation server (sra-canonical-engine on Render) does the work; this only wakes it
+# and starts the run. Needs the repository secret PANCHANG_CRON_KEY, the same value as the
+# PANCHANG_CRON_KEY environment variable on Render. GitHub may start a scheduled run a few
+# minutes late; running twice the same day sends nothing twice.
+name: Daily personalised panchang
+
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wake the calculation server
+        run: |
+          for i in 1 2 3 4 5 6; do
+            curl -fsS --max-time 90 https://sra-canonical-engine.onrender.com/health && exit 0
+            sleep 20
+          done
+          exit 1
+      - name: Start today's run
+        env:
+          CRON_KEY: ${{ secrets.PANCHANG_CRON_KEY }}
+        run: |
+          curl -fsS --max-time 60 -X POST -H "x-cron-key: $CRON_KEY" \
+            https://sra-canonical-engine.onrender.com/api/panchang/personalized/dispatch-daily
+      - name: Report
+        env:
+          CRON_KEY: ${{ secrets.PANCHANG_CRON_KEY }}
+        run: |
+          sleep 120
+          curl -fsS --max-time 60 -H "x-cron-key: $CRON_KEY" \
+            https://sra-canonical-engine.onrender.com/api/panchang/personalized/dispatch-status

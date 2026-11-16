@@ -305,8 +305,9 @@ def calculate_yogini_dasha(moon_abs_deg: float, target_jd: float, birth_jd: floa
     # Yogini at birth:
     # Formula: (Nakshatra_Index (1-based) + 3) % 8
     # Ashwini (1) + 3 = 4 -> Bhramari.
-    # In 0-based nak_idx: (nak_idx + 1 + 3) % 8 -> (nak_idx + 4) % 8
-    start_yogini_idx = (nak_idx + 4) % 8
+    # Remainder 1 = Mangala ... 7 = Siddha, 0 = Sankata; YOGINI_ORDER starts at Mangala,
+    # so the 0-based index is (nak_number + 3 - 1) % 8 = (nak_idx + 3) % 8
+    start_yogini_idx = (nak_idx + 3) % 8
     start_yogini = YOGINI_ORDER[start_yogini_idx]
 
     # Total duration of starting yogini
@@ -323,6 +324,8 @@ def calculate_yogini_dasha(moon_abs_deg: float, target_jd: float, birth_jd: floa
 
     if elapsed_days <= curr_remaining:
         active_major = YOGINI_ORDER[curr_idx]
+        # part of the birth yogini had already run before birth
+        elapsed_days += full_duration_days - balance_days
     else:
         elapsed_days -= curr_remaining
         curr_idx = (curr_idx + 1) % 8
@@ -371,6 +374,135 @@ def calculate_yogini_dasha(moon_abs_deg: float, target_jd: float, birth_jd: floa
         "sub_hi": active_sub["name_hi"],
         "sub_lord": active_sub["lord"],
         "score": composite_yogini_score
+    }
+
+
+# =============================================================================
+# 4b. RUNNING VIMSHOTTARI (from the natal timeline) & REAL DAY WINDOWS
+# =============================================================================
+
+def _parse_day(s: str) -> datetime:
+    return datetime.strptime(s[:10], "%Y-%m-%d")
+
+
+def find_active_vimshottari(vim: Dict[str, Any], when: datetime) -> Dict[str, Any]:
+    """Maha and antar come from the engine's own timeline (same as the kundali page);
+    pratyantar, sukshma and prana are the classical proportional subdivisions."""
+    when = when.replace(tzinfo=None)
+    md = ad = None
+    for m in vim.get("timeline", []):
+        if _parse_day(m["start"]) <= when < _parse_day(m["end"]):
+            md = m
+            for a in m.get("antardashas", []):
+                if _parse_day(a["start"]) <= when < _parse_day(a["end"]):
+                    ad = a
+                    break
+            break
+    if md is None:
+        return {}
+    if ad is None:
+        ad = (md.get("antardashas") or [{"subLord": md["lord"], "start": md["start"], "durationDays": md["durationDays"]}])[-1]
+
+    def subdivide(start: datetime, total_days: float, first_lord: str):
+        i0 = VIMSHOTTARI_ORDER.index(first_lord)
+        t = start
+        for k in range(9):
+            lord = VIMSHOTTARI_ORDER[(i0 + k) % 9]
+            span = total_days * VIMSHOTTARI_YEARS[lord] / 120.0
+            end = t + timedelta(days=span)
+            if when < end or k == 8:
+                return lord, t, span, end
+            t = end
+
+    ad_start = _parse_day(ad["start"])
+    pd_lord, pd_start, pd_days, pd_end = subdivide(ad_start, ad["durationDays"], ad["subLord"])
+    sk_lord, sk_start, sk_days, sk_end = subdivide(pd_start, pd_days, pd_lord)
+    pr_lord, _, _, _ = subdivide(sk_start, sk_days, sk_lord)
+    return {
+        "maha_lord": md["lord"], "maha_end": md["end"],
+        "antar_lord": ad["subLord"], "antar_end": ad["end"],
+        "pratyantar_lord": pd_lord, "pratyantar_end": pd_end.strftime("%Y-%m-%d"),
+        "sukshma_lord": sk_lord, "pran_lord": pr_lord,
+    }
+
+
+# Day division tables (Sunday = 0), same as the kundali page's birth panchang
+RAHU_SLOTS = [7, 1, 6, 4, 5, 3, 2]
+YAMA_SLOTS = [4, 3, 2, 1, 0, 6, 5]
+GULIKA_SLOTS = [6, 5, 4, 3, 2, 1, 0]
+DAY_CHOGHADIYA = [
+    ["Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg"],
+    ["Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit"],
+    ["Rog", "Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog"],
+    ["Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh"],
+    ["Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh"],
+    ["Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char"],
+    ["Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit", "Kaal"],
+]
+CHOGHADIYA_HI = {"Amrit": "अमृत", "Shubh": "शुभ", "Labh": "लाभ", "Char": "चर", "Udveg": "उद्वेग", "Kaal": "काल", "Rog": "रोग"}
+VAAR_HI = ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"]
+
+
+def fmt_clock_hi(hrs: float) -> str:
+    hrs %= 24.0
+    total = int(round(hrs * 60))
+    h, m = divmod(total, 60)
+    h %= 24
+    part = "रात्रि" if h < 4 else "प्रातः" if h < 12 else "दोपहर" if h < 16 else "सायं" if h < 19 else "रात्रि"
+    h12 = h % 12 or 12
+    return f"{part} {h12:02d}:{m:02d}"
+
+
+def _span_hi(a: float, b: float) -> str:
+    return f"{fmt_clock_hi(a)} से {fmt_clock_hi(b)}"
+
+
+def compute_day_windows(sunrise: float, sunset: float, weekday: int, day_good: bool) -> Dict[str, Any]:
+    """Rahu kaal, Yamaganda, Gulika, Abhijit and good choghadiyas for the actual day and
+    place (sunrise/sunset in local hours). Good windows exclude the three kaal periods."""
+    dm = sunset - sunrise
+    part = dm / 8.0
+    rahu = (sunrise + RAHU_SLOTS[weekday] * part, sunrise + (RAHU_SLOTS[weekday] + 1) * part)
+    yama = (sunrise + YAMA_SLOTS[weekday] * part, sunrise + (YAMA_SLOTS[weekday] + 1) * part)
+    gulika = (sunrise + GULIKA_SLOTS[weekday] * part, sunrise + (GULIKA_SLOTS[weekday] + 1) * part)
+    bad = sorted([rahu, yama, gulika])
+    abhijit = (sunrise + 7 * dm / 15.0, sunrise + 8 * dm / 15.0)
+
+    def minus_bad(a: float, b: float):
+        segs = [(a, b)]
+        for x, y in bad:
+            nxt = []
+            for p, q in segs:
+                if y <= p or x >= q:
+                    nxt.append((p, q))
+                else:
+                    if x > p: nxt.append((p, x))
+                    if y < q: nxt.append((y, q))
+            segs = nxt
+        return [(p, q) for p, q in segs if q - p >= 0.5]   # keep pieces of 30 min or more
+
+    rank = {"Amrit": 0, "Shubh": 1, "Labh": 2}
+    candidates = []
+    for i, name in enumerate(DAY_CHOGHADIYA[weekday]):
+        if name in rank:
+            for p, q in minus_bad(sunrise + i * part, sunrise + (i + 1) * part):
+                candidates.append((rank[name], p, q, f"{CHOGHADIYA_HI[name]} चौघड़िया"))
+    if weekday != 3:   # Abhijit is not taken on Wednesday
+        for p, q in minus_bad(*abhijit):
+            candidates.append((1, p, q, "अभिजित मुहूर्त"))
+    best = sorted(candidates)[:3]
+    note = "" if day_good else " — केवल नियमित कार्य"
+    golden = [f"{_span_hi(p, q)} ({label}{note})" for _, p, q, label in sorted(best, key=lambda c: c[1])]
+    caution = [
+        f"{_span_hi(*rahu)} (राहुकाल — नया कार्य आरम्भ न करें)",
+        f"{_span_hi(*yama)} (यमगण्ड)",
+        f"{_span_hi(*gulika)} (गुलिक काल)",
+    ]
+    return {
+        "golden": golden, "caution": caution,
+        "sunrise": fmt_clock_hi(sunrise), "sunset": fmt_clock_hi(sunset), "vaar": VAAR_HI[weekday],
+        "rahu_kaal": _span_hi(*rahu), "yamaganda": _span_hi(*yama), "gulika": _span_hi(*gulika),
+        "abhijit": _span_hi(*abhijit) if weekday != 3 else None,
     }
 
 
@@ -749,16 +881,23 @@ class PersonalizedPanchangEngine:
         current_lat: float,
         current_lon: float,
         target_date: Optional[datetime] = None,
-        name: str = "जातक"
+        name: str = "जातक",
+        birth_tz: Optional[float] = None
     ) -> Dict[str, Any]:
         """
         Executes end-to-end multi-dasha, micro-nakshatra, Sudarshan transit,
         and panchang calibration to produce the daily forecast card.
         """
+        # The day is judged in the native's present place and its own time zone
+        now_utc = datetime.now(timezone.utc)
+        cur_tz_name, _, _ = pce.resolve_timezone_and_offset(current_lat, current_lon, now_utc.year, now_utc.month, now_utc.day, 12, 0)
         if target_date is None:
-            target_date = datetime.now(ZoneInfo("Asia/Kolkata"))
+            target_date = datetime.now(ZoneInfo(cur_tz_name))
+        elif target_date.tzinfo is not None:
+            target_date = target_date.astimezone(ZoneInfo(cur_tz_name))
 
-        # 1. Compute Natal Chart using Canonical Engine
+        # 1. Compute Natal Chart using Canonical Engine (birth time zone resolved from
+        # the birth place and date unless the caller gives it)
         natal_chart = pce.calculate_canonical_chart(
             year=birth_year,
             month=birth_month,
@@ -767,7 +906,7 @@ class PersonalizedPanchangEngine:
             minute=birth_minute,
             lat=birth_lat,
             lon=birth_lon,
-            tz=5.5,
+            tz=birth_tz,
             name=name
         )
 
@@ -781,8 +920,13 @@ class PersonalizedPanchangEngine:
             second=float(target_date.second),
             lat=current_lat,
             lon=current_lon,
-            tz=5.5,
+            tz=None,
             name="दैनिक गोचर"
+        )
+        # Same day at local noon: that day's sunrise, sunset and weekday for the time windows
+        day_chart = pce.calculate_canonical_chart(
+            year=target_date.year, month=target_date.month, day=target_date.day,
+            hour=12, minute=0, lat=current_lat, lon=current_lon, tz=None, name="दिन"
         )
 
         # Helper to create planet_map dict from planets list
@@ -805,20 +949,23 @@ class PersonalizedPanchangEngine:
         # 5. Multi-Dasha Convergence:
         # 5.1 Vimshottari Dasha (active at target_date)
         vimshottari_data = natal_chart.get("vimshottariDasa", {})
-        # Pick currently active Maha, Antar, Pratyantar, Sukshma, Pran
-        active_pran_lord = natal_moon_micro["sub_sub_lord"]
-        active_sukshma_lord = natal_moon_micro["sub_lord"]
-        active_pratyantar_lord = natal_moon_micro["pada_lord"]
-        active_antar_lord = natal_moon_micro["nakshatra_lord"]
-        active_maha_lord = natal_moon_micro["nakshatra_lord"]
+        active_vim = find_active_vimshottari(vimshottari_data, target_date)
+        active_maha_lord = active_vim.get("maha_lord", natal_moon_micro["nakshatra_lord"])
+        active_antar_lord = active_vim.get("antar_lord", active_maha_lord)
+        active_pratyantar_lord = active_vim.get("pratyantar_lord", active_antar_lord)
+        active_sukshma_lord = active_vim.get("sukshma_lord", active_pratyantar_lord)
+        active_pran_lord = active_vim.get("pran_lord", active_sukshma_lord)
 
-        vimshottari_score = 65.0  # Baseline
-        # Check active dasha lord's relationship with today's Nakshatra lord
+        # Today's star lord against the running antar and pratyantar lords
+        vimshottari_score = 65.0
         today_star_lord = transit_moon_micro["nakshatra_lord"]
-        if today_star_lord in NATURAL_FRIENDSHIP.get(active_pran_lord, {}).get("friends", []):
-            vimshottari_score += 25.0
-        elif today_star_lord in NATURAL_FRIENDSHIP.get(active_pran_lord, {}).get("enemies", []):
-            vimshottari_score -= 20.0
+        for lord, plus, minus in ((active_antar_lord, 15.0, 12.0), (active_pratyantar_lord, 10.0, 8.0)):
+            rel = NATURAL_FRIENDSHIP.get(lord, {})
+            if today_star_lord == lord or today_star_lord in rel.get("friends", []):
+                vimshottari_score += plus
+            elif today_star_lord in rel.get("enemies", []):
+                vimshottari_score -= minus
+        vimshottari_score = max(5.0, min(99.0, vimshottari_score))
 
         # 5.2 Yogini Dasha
         yogini_res = calculate_yogini_dasha(
@@ -846,8 +993,8 @@ class PersonalizedPanchangEngine:
         moon_bav_pts = 4
         sav_pts = 28
         try:
-            moon_bav_pts = ashtakavarga.get("bav", {}).get("Moon", [4]*12)[transit_moon_sign]
-            sav_pts = ashtakavarga.get("sav", [28]*12)[transit_moon_sign]
+            moon_bav_pts = ashtakavarga["bhinnashtakavarga"]["Moon"][transit_moon_sign]
+            sav_pts = ashtakavarga["sarvashtakavarga"][transit_moon_sign]
         except Exception:
             pass
 
@@ -896,12 +1043,16 @@ class PersonalizedPanchangEngine:
             transit_moon_micro=transit_moon_micro
         )
 
-        golden_windows, caution_windows = PersonalizedPanchangEngine._generate_personalized_windows(
-            day_score=final_day_score,
-            tara_bala=tara_bala,
-            deep_panchang=deep_panchang,
-            active_pran_lord=active_pran_lord
+        dbd = day_chart["birthDetails"]
+        day_windows = compute_day_windows(
+            dbd["sunriseHrs"], dbd["sunsetHrs"], int(dbd["weekday"]) % 7,
+            day_good=final_day_score >= 55 and tara_bala["score"] >= 40
         )
+        golden_windows, caution_windows = day_windows["golden"], list(day_windows["caution"])
+        if sudarshan_res["is_chandrashtama"]:
+            caution_windows.insert(0, "पूरा दिन — चन्द्राष्टम (चन्द्र जन्म राशि से 8वें भाव में): बड़े निर्णय टालें")
+        if deep_panchang["karana"]["is_bhadra"]:
+            caution_windows.append("भद्रा (विष्टि करण) — शुभ कार्य टालें")
 
         return {
             "execution_date": target_date.strftime("%Y-%m-%d"),
@@ -922,7 +1073,12 @@ class PersonalizedPanchangEngine:
                     "pratyantar_lord": active_pratyantar_lord,
                     "sukshma_lord": active_sukshma_lord,
                     "pran_lord": active_pran_lord,
-                    "pran_lord_hi": PLANET_NAMES_HI.get(active_pran_lord, active_pran_lord)
+                    "pran_lord_hi": PLANET_NAMES_HI.get(active_pran_lord, active_pran_lord),
+                    "maha_lord_hi": PLANET_NAMES_HI.get(active_maha_lord, active_maha_lord),
+                    "antar_lord_hi": PLANET_NAMES_HI.get(active_antar_lord, active_antar_lord),
+                    "pratyantar_lord_hi": PLANET_NAMES_HI.get(active_pratyantar_lord, active_pratyantar_lord),
+                    "maha_end": active_vim.get("maha_end"),
+                    "antar_end": active_vim.get("antar_end")
                 },
                 "yogini": yogini_res,
                 "jaimini_ak": jaimini_factors.get("AK")
@@ -953,6 +1109,8 @@ class PersonalizedPanchangEngine:
                 "golden_hours": golden_windows,
                 "caution_windows": caution_windows
             },
+            "day_timings": {k: day_windows[k] for k in ("sunrise", "sunset", "vaar", "rahu_kaal", "yamaganda", "gulika", "abhijit")},
+            "timezone": cur_tz_name,
             "micro_remedy": remedy
         }
 
@@ -1028,31 +1186,6 @@ class PersonalizedPanchangEngine:
             remedy = f"पक्षियों को दाना डालें अथवा किसी जरूरतमंद को फल दान करें।"
 
         return theme, dos, donts, remedy
-
-    @staticmethod
-    def _generate_personalized_windows(
-        day_score: float,
-        tara_bala: Dict[str, Any],
-        deep_panchang: Dict[str, Any],
-        active_pran_lord: str
-    ) -> Tuple[List[str], List[str]]:
-        if day_score >= 70 and not deep_panchang["karana"]["is_bhadra"]:
-            golden = [
-                "प्रातः 10:15 से 11:45 (शुभ चौघड़िया + साधक तारा का श्रेष्ठ संयोग)",
-                "अपराह्न 03:20 से 04:50 (अनुकूल होरा व अमृत काल)"
-            ]
-            caution = [
-                "दोपहर 01:30 से 02:45 (सामान्य ऊर्जा अंतराल — बड़े निर्णय टालें)"
-            ]
-        else:
-            golden = [
-                "प्रातः 09:30 से 10:45 (संतुलित कार्य अवधि — केवल दैनिक कार्य)"
-            ]
-            caution = [
-                "प्रातः 07:45 से 09:00 (संवेदनशील समय)",
-                "दोपहर 01:30 से 03:00 (राहुकाल + भद्रा / प्रतिकूल योग का संगम)"
-            ]
-        return golden, caution
 
 
 if __name__ == "__main__":

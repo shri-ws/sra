@@ -30,6 +30,18 @@ from personalized_panchang_engine import PersonalizedPanchangEngine
 
 logger = logging.getLogger("PersonalizedPanchangDispatcher")
 
+
+def _setting(name: str, default: str = "") -> str:
+    """Render dashboard environment first; locally the git-ignored .env file."""
+    value = os.environ.get(name, "")
+    if not value:
+        env_file = Path(__file__).resolve().parent / ".env"
+        if env_file.exists():
+            for line in env_file.read_text(encoding="utf-8").splitlines():
+                if line.startswith(name + "="):
+                    value = line.split("=", 1)[1].strip().strip('"').strip("'")
+    return value or default
+
 DATA_DIR = Path(__file__).resolve().parent / "api"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 NOTIFICATIONS_LOG_FILE = DATA_DIR / "personalized_panchang_notifications_log.json"
@@ -47,8 +59,8 @@ def _ensure_fcm_initialized() -> bool:
         import firebase_admin
         from firebase_admin import credentials
         if not firebase_admin._apps:
-            cred_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
-            cred_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+            cred_json = _setting("FIREBASE_SERVICE_ACCOUNT_JSON")
+            cred_path = _setting("GOOGLE_APPLICATION_CREDENTIALS")
             if cred_json:
                 cred = credentials.Certificate(json.loads(cred_json))
                 firebase_admin.initialize_app(cred, {"projectId": "shriramjiastro-cee67"})
@@ -74,8 +86,9 @@ class NativeBirthProfile(BaseModel):
     minute: int = Field(..., description="जन्म समय मिनट (0-59)")
     lat: float = Field(26.8467, description="जन्म स्थान अक्षांश (Latitude)")
     lon: float = Field(80.9462, description="जन्म स्थान देशांतर (Longitude)")
-    current_lat: Optional[float] = Field(28.6139, description="वर्तमान निवास स्थान अक्षांश")
-    current_lon: Optional[float] = Field(77.2090, description="वर्तमान निवास स्थान देशांतर")
+    current_lat: Optional[float] = Field(None, description="वर्तमान निवास स्थान अक्षांश (न दें तो जन्म स्थान)")
+    current_lon: Optional[float] = Field(None, description="वर्तमान निवास स्थान देशांतर (न दें तो जन्म स्थान)")
+    tz: Optional[float] = Field(None, description="जन्म समय क्षेत्र (UTC से घंटे); न दें तो जन्म स्थान से")
     fcm_token: Optional[str] = Field(None, description="डिवाइस FCM पुश टोकन")
 
 
@@ -125,20 +138,12 @@ class PanchangNotificationDispatcher:
             current_lat=profile.current_lat or profile.lat,
             current_lon=profile.current_lon or profile.lon,
             target_date=target_date,
-            name=profile.name
+            name=profile.name,
+            birth_tz=profile.tz
         )
 
         # 2. Formulate concise 7:00 AM Morning Notification
-        score_int = int(round(forecast["overall_day_score"]))
-        sentiment = forecast["sentiment"]
-
-        # Notification Title
-        title = f"दैनिक पर्सनलाइज्ड पंचांग: {profile.name} [{score_int}/100 {sentiment.split()[0]}]"
-
-        # Notification Body (Micro summary under 140 characters)
-        top_golden = forecast["personalized_windows"]["golden_hours"][0] if forecast["personalized_windows"]["golden_hours"] else "प्रातः 10:00 से 11:30"
-        body = f"{forecast['core_theme']}\n✨ श्रेष्ठ समय: {top_golden}"
-
+        title, body = build_message(profile.name, forecast)
         notification_payload = {
             "notification": {
                 "title": title,
@@ -241,7 +246,8 @@ def calculate_personalized_panchang(profile: NativeBirthProfile):
             birth_lon=profile.lon,
             current_lat=profile.current_lat or profile.lat,
             current_lon=profile.current_lon or profile.lon,
-            name=profile.name
+            name=profile.name,
+            birth_tz=profile.tz
         )
         return {"status": "success", "data": forecast}
     except Exception as e:
@@ -273,3 +279,336 @@ def get_notification_history(limit: int = Query(20, ge=1, le=100)):
         return {"records": records[-limit:]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
+# DAILY SUBSCRIPTIONS: browser push (Web Push / VAPID) + WhatsApp Cloud API
+# Subscribers live in Firestore (project shriramjiastro-cee67), written only by this
+# server, so birth details are never readable from the website.
+# Render environment needed:
+#   FIREBASE_SERVICE_ACCOUNT_JSON  - service account key (Firestore + admin)
+#   VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_SUBJECT - browser push keys
+#   PANCHANG_CRON_KEY              - shared secret for the 7 AM GitHub Actions trigger
+#   WHATSAPP_TOKEN / WHATSAPP_PHONE_NUMBER_ID / WHATSAPP_TEMPLATE / WHATSAPP_TEMPLATE_LANG
+# =============================================================================
+import hashlib
+import re
+import secrets
+import threading
+import time
+import urllib.request
+import urllib.error
+
+from fastapi import Request
+
+SUB_COLLECTION = "panchang_subscribers"
+IST = ZoneInfo("Asia/Kolkata")
+
+
+def build_message(name: str, forecast: Dict[str, Any]) -> tuple:
+    score = int(round(forecast["overall_day_score"]))
+    mood = forecast["sentiment"].split(" (")[0]
+    title = f"🌅 {name} — आज का पंचांग: {score}/100 ({mood})"
+    golden = (forecast["personalized_windows"].get("golden_hours") or [""])[0].split(" (")[0]
+    rahu = (forecast.get("day_timings") or {}).get("rahu_kaal", "")
+    theme = forecast["core_theme"].split(" — ")[0]
+    lines = [theme]
+    if golden:
+        lines.append(f"✨ शुभ समय: {golden}")
+    if rahu:
+        lines.append(f"⚠️ राहुकाल: {rahu}")
+    return title, "\n".join(lines)
+
+
+def _db():
+    if not _ensure_fcm_initialized():
+        return None
+    try:
+        from firebase_admin import firestore
+        return firestore.client()
+    except Exception as e:
+        logger.warning(f"[PanchangSubs] Firestore unavailable: {e}")
+        return None
+
+
+def _push_ready() -> bool:
+    if not (_setting("VAPID_PUBLIC_KEY") and _setting("VAPID_PRIVATE_KEY")):
+        return False
+    try:
+        import pywebpush  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
+def _whatsapp_ready() -> bool:
+    return bool(_setting("WHATSAPP_TOKEN") and _setting("WHATSAPP_PHONE_NUMBER_ID"))
+
+
+def _clean_phone(raw: Optional[str]) -> Optional[str]:
+    digits = re.sub(r"\D", "", raw or "")
+    if len(digits) == 10 and digits[0] in "6789":
+        return "91" + digits
+    if len(digits) == 12 and digits.startswith("91"):
+        return digits
+    if 11 <= len(digits) <= 15 and not digits.startswith("0"):
+        return digits
+    return None
+
+
+class PushSubscription(BaseModel):
+    endpoint: str = Field(..., max_length=1000)
+    keys: Dict[str, str]
+
+
+class SubscribeRequest(NativeBirthProfile):
+    push: Optional[PushSubscription] = None
+    whatsapp: Optional[str] = Field(None, max_length=20)
+    whatsapp_consent: bool = False
+
+
+class UnsubscribeRequest(BaseModel):
+    id: str = Field(..., max_length=64)
+    secret: str = Field(..., max_length=64)
+
+
+_sub_recent: Dict[str, List[float]] = {}
+
+
+def _rate_ok(ip: str, limit: int = 10) -> bool:
+    now = time.time()
+    hits = [t for t in _sub_recent.get(ip, []) if now - t < 3600]
+    if len(hits) >= limit:
+        _sub_recent[ip] = hits
+        return False
+    hits.append(now)
+    _sub_recent[ip] = hits
+    return True
+
+
+def _forecast_for(sub: Dict[str, Any]) -> Dict[str, Any]:
+    return PersonalizedPanchangEngine.generate_daily_forecast(
+        birth_year=sub["year"], birth_month=sub["month"], birth_day=sub["day"],
+        birth_hour=sub["hour"], birth_minute=sub["minute"],
+        birth_lat=sub["lat"], birth_lon=sub["lon"],
+        current_lat=sub.get("current_lat") or sub["lat"], current_lon=sub.get("current_lon") or sub["lon"],
+        name=sub.get("name") or "जातक", birth_tz=sub.get("tz"),
+    )
+
+
+def _send_push(sub: Dict[str, Any], title: str, body: str) -> str:
+    """Returns 'sent', 'gone' (browser unsubscribed) or 'error'."""
+    from pywebpush import webpush, WebPushException
+    payload = json.dumps({"title": title, "body": body,
+                          "data": {"url": "/patrika.html?domain=panchang", "type": "DAILY_PERSONALIZED_PANCHANG"}},
+                         ensure_ascii=False)
+    try:
+        webpush(subscription_info=sub["push"], data=payload,
+                vapid_private_key=_setting("VAPID_PRIVATE_KEY"),
+                vapid_claims={"sub": _setting("VAPID_SUBJECT", "mailto:support@shriramjiastro.in")},
+                ttl=6 * 3600)
+        return "sent"
+    except WebPushException as e:
+        code = getattr(getattr(e, "response", None), "status_code", None)
+        if code in (404, 410):
+            return "gone"
+        logger.warning(f"[PanchangSubs] push failed ({code}): {e}")
+        return "error"
+    except Exception as e:
+        logger.warning(f"[PanchangSubs] push failed: {e}")
+        return "error"
+
+
+def _wa_param(text: str) -> str:
+    # WhatsApp template parameters may not hold new lines, tabs or 4+ spaces
+    return re.sub(r"\s+", " ", text or "-").strip()[:900] or "-"
+
+
+def _send_whatsapp(phone: str, name: str, forecast: Dict[str, Any]) -> str:
+    timings = forecast.get("day_timings") or {}
+    golden = (forecast["personalized_windows"].get("golden_hours") or ["-"])[0]
+    params = [
+        name,
+        datetime.strptime(forecast["execution_date"], "%Y-%m-%d").strftime("%d-%m-%Y"),
+        f"{int(round(forecast['overall_day_score']))}/100 {forecast['sentiment'].split(' (')[0]}",
+        forecast["core_theme"],
+        golden,
+        timings.get("rahu_kaal", "-"),
+        forecast.get("micro_remedy", "-"),
+    ]
+    body = {
+        "messaging_product": "whatsapp", "to": phone, "type": "template",
+        "template": {
+            "name": _setting("WHATSAPP_TEMPLATE", "daily_panchang"),
+            "language": {"code": _setting("WHATSAPP_TEMPLATE_LANG", "hi")},
+            "components": [{"type": "body", "parameters": [{"type": "text", "text": _wa_param(p)} for p in params]}],
+        },
+    }
+    req = urllib.request.Request(
+        f"https://graph.facebook.com/v21.0/{_setting('WHATSAPP_PHONE_NUMBER_ID')}/messages",
+        data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
+        headers={"Authorization": "Bearer " + _setting("WHATSAPP_TOKEN"), "Content-Type": "application/json"},
+        method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return "sent" if r.status < 300 else "error"
+    except urllib.error.HTTPError as e:
+        logger.warning(f"[PanchangSubs] WhatsApp failed {e.code}: {e.read()[:300]!r}")
+        return "error"
+    except Exception as e:
+        logger.warning(f"[PanchangSubs] WhatsApp failed: {e}")
+        return "error"
+
+
+@router.get("/config")
+def subscription_config():
+    """What the subscribe box can offer right now."""
+    return {
+        "storage_ready": _db() is not None,
+        "push_ready": _push_ready(),
+        "whatsapp_ready": _whatsapp_ready(),
+        "vapid_public_key": _setting("VAPID_PUBLIC_KEY"),
+    }
+
+
+@router.post("/subscribe")
+def subscribe(req: SubscribeRequest, request: Request):
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+    if not _rate_ok(ip):
+        raise HTTPException(status_code=429, detail="बहुत अधिक प्रयास — कृपया एक घंटे बाद पुनः प्रयास करें।")
+    db = _db()
+    if db is None:
+        raise HTTPException(status_code=503, detail="दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कृपया कुछ समय बाद प्रयास करें।")
+    phone = _clean_phone(req.whatsapp) if req.whatsapp_consent else None
+    if req.whatsapp and req.whatsapp_consent and not phone:
+        raise HTTPException(status_code=400, detail="WhatsApp नंबर सही नहीं है।")
+    if not req.push and not phone:
+        raise HTTPException(status_code=400, detail="नोटिफ़िकेशन या WhatsApp — कम से कम एक चुनें।")
+    if not (1800 <= req.year <= 2100 and 1 <= req.month <= 12 and 1 <= req.day <= 31 and 0 <= req.hour <= 23 and 0 <= req.minute <= 59
+            and -90 <= req.lat <= 90 and -180 <= req.lon <= 180):
+        raise HTTPException(status_code=400, detail="जन्म विवरण सही नहीं है।")
+
+    key = ("push:" + req.push.endpoint) if req.push else ("wa:" + phone)
+    doc_id = hashlib.sha256(key.encode()).hexdigest()[:28]
+    col = db.collection(SUB_COLLECTION)
+    ref = col.document(doc_id)
+    old = ref.get()
+    secret = (old.to_dict() or {}).get("secret") if old.exists else None
+    secret = secret or secrets.token_urlsafe(18)
+    record = {
+        "name": (req.name or "जातक").strip()[:60], "year": req.year, "month": req.month, "day": req.day,
+        "hour": req.hour, "minute": req.minute, "lat": req.lat, "lon": req.lon, "tz": req.tz,
+        "current_lat": req.current_lat if req.current_lat is not None else req.lat,
+        "current_lon": req.current_lon if req.current_lon is not None else req.lon,
+        "push": req.push.model_dump() if req.push else None,
+        "whatsapp": phone, "whatsapp_consent_at": datetime.now(timezone.utc).isoformat() if phone else None,
+        "active": True, "secret": secret, "fails": 0,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if not old.exists:
+        record["created_at"] = record["updated_at"]
+    ref.set(record, merge=True)
+    if phone:   # one WhatsApp number gets one message a day
+        for d in col.where("whatsapp", "==", phone).stream():
+            if d.id != doc_id:
+                d.reference.update({"whatsapp": None})
+
+    forecast = _forecast_for(record)
+    title, body = build_message(record["name"], forecast)
+    return {"status": "success", "id": doc_id, "secret": secret,
+            "channels": {"push": bool(req.push), "whatsapp": bool(phone)},
+            "notification": {"title": title, "body": body}}
+
+
+@router.post("/unsubscribe")
+def unsubscribe(req: UnsubscribeRequest):
+    db = _db()
+    if db is None:
+        raise HTTPException(status_code=503, detail="सेवा उपलब्ध नहीं")
+    ref = db.collection(SUB_COLLECTION).document(req.id)
+    snap = ref.get()
+    if snap.exists and secrets.compare_digest((snap.to_dict() or {}).get("secret", ""), req.secret):
+        ref.delete()
+    return {"status": "success"}
+
+
+_dispatch_lock = threading.Lock()
+_last_run: Dict[str, Any] = {}
+
+
+def run_daily_dispatch() -> Dict[str, Any]:
+    """Sends today's panchang to every active subscriber once (safe to call twice)."""
+    db = _db()
+    stats = {"started": datetime.now(IST).isoformat(), "subscribers": 0, "push_sent": 0, "push_gone": 0,
+             "whatsapp_sent": 0, "errors": 0, "skipped_already_sent": 0}
+    if db is None:
+        stats["error"] = "storage_not_configured"
+        return stats
+    today = datetime.now(IST).strftime("%Y-%m-%d")
+    push_ok, wa_ok = _push_ready(), _whatsapp_ready()
+    for snap in db.collection(SUB_COLLECTION).where("active", "==", True).stream():
+        sub = snap.to_dict() or {}
+        stats["subscribers"] += 1
+        if sub.get("last_sent") == today:
+            stats["skipped_already_sent"] += 1
+            continue
+        try:
+            forecast = _forecast_for(sub)
+            title, body = build_message(sub.get("name") or "जातक", forecast)
+            update: Dict[str, Any] = {"last_sent": today}
+            sent_any = False
+            if sub.get("push") and push_ok:
+                res = _send_push(sub, title, body)
+                if res == "sent":
+                    stats["push_sent"] += 1; sent_any = True
+                elif res == "gone":
+                    stats["push_gone"] += 1; update["push"] = None
+                    if not sub.get("whatsapp"):
+                        update["active"] = False
+                else:
+                    stats["errors"] += 1
+            if sub.get("whatsapp") and wa_ok:
+                if _send_whatsapp(sub["whatsapp"], sub.get("name") or "जातक", forecast) == "sent":
+                    stats["whatsapp_sent"] += 1; sent_any = True
+                else:
+                    stats["errors"] += 1
+            update["fails"] = 0 if sent_any else int(sub.get("fails", 0)) + 1
+            if update["fails"] >= 14:      # two weeks of failures: stop trying
+                update["active"] = False
+            snap.reference.update(update)
+        except Exception as e:
+            stats["errors"] += 1
+            logger.warning(f"[PanchangSubs] {snap.id}: {e}")
+    stats["finished"] = datetime.now(IST).isoformat()
+    PanchangNotificationDispatcher.log_dispatch({"timestamp": stats["finished"], "type": "daily_run", **stats})
+    return stats
+
+
+def _check_cron(request: Request):
+    key = _setting("PANCHANG_CRON_KEY")
+    if not key or not secrets.compare_digest(request.headers.get("x-cron-key", ""), key):
+        raise HTTPException(status_code=403, detail="forbidden")
+
+
+@router.post("/dispatch-daily")
+def dispatch_daily(request: Request):
+    """Called at 07:00 IST by .github/workflows/daily-panchang.yml; runs in the background."""
+    _check_cron(request)
+    if not _dispatch_lock.acquire(blocking=False):
+        return {"status": "already_running"}
+
+    def work():
+        global _last_run
+        try:
+            _last_run = run_daily_dispatch()
+        finally:
+            _dispatch_lock.release()
+
+    threading.Thread(target=work, daemon=True).start()
+    return {"status": "started"}
+
+
+@router.get("/dispatch-status")
+def dispatch_status(request: Request):
+    _check_cron(request)
+    return {"running": _dispatch_lock.locked(), "last_run": _last_run}

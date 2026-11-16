@@ -1,0 +1,230 @@
+/* Daily personalised panchang subscription (patrika.html).
+   The calculation server keeps the subscriber list (Firestore, server-side only) and sends
+   the 07:00 IST message as a browser notification (Web Push) and/or on WhatsApp.
+   Endpoints: /api/panchang/personalized/{config,subscribe,unsubscribe} on SRA_API_BASE. */
+(function () {
+  'use strict';
+  const API = () => (window.SRA_API_BASE || '') + '/api/panchang/personalized';
+  const STORE = 'sra_panchang_sub';
+  const hi = () => !(document.documentElement.lang || '').startsWith('en');
+  const L = (h, e) => hi() ? h : e;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const BTN_SEL = '#btnSubscribePanchang, #btnSubscribePanchangTop, .btn-subscribe-panchang-top';
+  const STATUS_SEL = '#subPanchangStatus, #subPanchangTopStatus';
+
+  const saved = () => { try { return JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) { return null; } };
+  const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+  function toast(msg) {
+    if (typeof window.showKundaliToast === 'function') window.showKundaliToast(msg); else alert(msg);
+  }
+
+  function b64ToBytes(b64) {
+    const pad = '='.repeat((4 - b64.length % 4) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(raw, c => c.charCodeAt(0));
+  }
+
+  function profileFromPage() {
+    // patrika keeps it in a top-level `let`, which is not a window property
+    const calc = window.currentCalculation || (typeof currentCalculation !== 'undefined' ? currentCalculation : null); // eslint-disable-line no-undef
+    const bd = calc && calc.birthDetails;
+    if (!bd || !bd.year) return null;
+    return {
+      name: String((typeof calc.native === 'string' && calc.native) || (calc.native && calc.native.name) || bd.candidateName || (document.getElementById('inName') || {}).value || 'जातक').trim().slice(0, 60),
+      year: bd.year, month: bd.month, day: bd.day, hour: bd.hour, minute: bd.minute,
+      lat: bd.lat, lon: bd.lon, tz: typeof bd.tz === 'number' ? bd.tz : null,
+      current_lat: bd.lat, current_lon: bd.lon
+    };
+  }
+
+  function paintButtons() {
+    const s = saved();
+    document.querySelectorAll(BTN_SEL).forEach(b => {
+      b.disabled = false;
+      if (s) {
+        b.style.background = '#047857';
+        b.innerHTML = `<span>✅ ${esc(L('दैनिक पंचांग सक्रिय — बदलें / बंद करें', 'Daily panchang on — change / stop'))}</span>`;
+      } else {
+        b.style.background = 'linear-gradient(135deg, #7c1305, #b45309)';
+        b.innerHTML = `<span>🔔 ${esc(L('निःशुल्क दैनिक पर्सनलाइज़्ड पंचांग पाएँ', 'Subscribe free for daily personalised panchang'))}</span>`;
+      }
+    });
+    document.querySelectorAll(STATUS_SEL).forEach(el => {
+      if (!s) { el.style.display = 'none'; return; }
+      const ch = [s.channels && s.channels.push ? L('नोटिफ़िकेशन', 'notification') : '', s.channels && s.channels.whatsapp ? 'WhatsApp' : ''].filter(Boolean).join(' + ');
+      el.style.display = 'block';
+      el.textContent = L(`✨ ${s.name || ''} — हर सुबह 7 बजे (${ch})`, `✨ ${s.name || ''} — every morning at 7 AM (${ch})`);
+    });
+  }
+
+  function injectCss() {
+    if (document.getElementById('ps-css')) return;
+    const st = document.createElement('style');
+    st.id = 'ps-css';
+    st.textContent = `
+body.ps-open #sra-wa-float-container{display:none !important;}
+.ps-back{position:fixed;inset:0;z-index:100000;background:rgba(20,8,4,.55);display:flex;align-items:flex-end;justify-content:center;}
+@media(min-width:640px){.ps-back{align-items:center;}}
+.ps-card{background:#fffdf8;color:#1f1a17;width:100%;max-width:440px;border-radius:18px 18px 0 0;padding:20px 18px 18px;box-shadow:0 -10px 40px rgba(0,0,0,.25);max-height:92vh;overflow:auto;font-family:inherit;}
+@media(min-width:640px){.ps-card{border-radius:18px;}}
+[data-theme="night"] .ps-card{background:#140f1a;color:#f7efe4;}
+.ps-card h4{margin:0 0 4px;color:#7c1305;font-size:18px;}
+[data-theme="night"] .ps-card h4{color:#e9c46a;}
+.ps-sub{font-size:13px;opacity:.8;margin:0 0 14px;}
+.ps-opt{display:flex;gap:10px;align-items:flex-start;border:1.5px solid rgba(176,141,62,.35);border-radius:12px;padding:11px 12px;margin-bottom:10px;cursor:pointer;}
+.ps-opt input[type=checkbox]{width:20px;height:20px;margin-top:2px;accent-color:#7c1305;flex:none;}
+.ps-opt b{display:block;font-size:15px;}
+.ps-opt small{display:block;font-size:12px;opacity:.75;line-height:1.4;margin-top:2px;}
+.ps-phone{display:flex;margin-top:8px;border:1.5px solid rgba(176,141,62,.45);border-radius:10px;overflow:hidden;}
+.ps-phone span{padding:9px 10px;font-weight:700;background:rgba(176,141,62,.12);}
+.ps-phone input{flex:1;min-width:0;border:0;outline:0;padding:9px 10px;font-size:16px;background:transparent;color:inherit;}
+.ps-note{font-size:12px;background:rgba(176,141,62,.1);border-radius:10px;padding:9px 11px;margin:4px 0 12px;line-height:1.45;}
+.ps-err{color:#b91c1c;font-size:13px;min-height:18px;margin:2px 0 6px;}
+.ps-row{display:flex;gap:10px;}
+.ps-go{flex:1;border:0;border-radius:12px;padding:13px;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,#7c1305,#b45309);cursor:pointer;}
+.ps-go:disabled{opacity:.6;}
+.ps-x{border:1.5px solid rgba(176,141,62,.45);background:transparent;color:inherit;border-radius:12px;padding:13px 16px;font-weight:600;cursor:pointer;}
+.ps-stop{display:block;width:100%;margin-top:10px;background:none;border:0;color:#b91c1c;font-weight:600;cursor:pointer;padding:6px;}`;
+    document.head.appendChild(st);
+  }
+
+  async function getConfig() {
+    try {
+      const r = await fetch(API() + '/config');
+      if (r.ok) return await r.json();
+    } catch (e) { /* offline or server asleep */ }
+    return null;
+  }
+
+  async function pushSubscription(vapidKey) {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') throw new Error('denied');
+    let reg = await navigator.serviceWorker.getRegistration('/');
+    if (!reg) reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      // a subscription made with another server key cannot be reused
+      const k = sub.options && sub.options.applicationServerKey;
+      const same = k && btoa(String.fromCharCode(...new Uint8Array(k))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') === vapidKey;
+      if (!same) { await sub.unsubscribe(); sub = null; }
+    }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(vapidKey) });
+    return sub.toJSON();
+  }
+
+  async function open() {
+    const profile = profileFromPage();
+    if (!profile) { toast(L('कृपया पहले अपनी कुण्डली बनाएँ (जन्म तिथि, समय व स्थान)।', 'Please make your kundali first (birth date, time and place).')); return; }
+    injectCss();
+    const s = saved();
+    const verified = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
+    const phonePrefill = (s && s.whatsapp) || (/^[6-9]\d{9}$/.test(verified) ? verified : '');
+    const cfg = await getConfig();
+    const serverReady = !!(cfg && cfg.storage_ready);
+    const deviceCanPush = pushSupported() && !(isIOS() && !standalone());
+    const canPush = deviceCanPush && !!(cfg && cfg.push_ready && cfg.vapid_public_key);
+
+    const back = document.createElement('div');
+    back.className = 'ps-back';
+    back.setAttribute('data-no-i18n', '');
+    back.innerHTML = `<div class="ps-card" role="dialog" aria-modal="true">
+      <h4>🌅 ${esc(L('दैनिक पर्सनलाइज़्ड पंचांग', 'Daily personalised panchang'))}</h4>
+      <p class="ps-sub">${esc(L(`${profile.name} की कुण्डली के अनुसार — हर सुबह 7 बजे: आज का अंक, शुभ समय, राहुकाल, दशा और उपाय।`, `For ${profile.name}'s kundali — every morning at 7 AM: today's score, good hours, Rahu kaal, dasha and remedy.`))}</p>
+      <label class="ps-opt"><input type="checkbox" id="psPush" ${canPush ? 'checked' : 'disabled'}>
+        <span><b>📱 ${esc(L('फ़ोन / ब्राउज़र नोटिफ़िकेशन', 'Phone / browser notification'))}</b>
+        <small>${esc(canPush ? L('इसी फ़ोन या कंप्यूटर पर सूचना आएगी।', 'Arrives on this phone or computer.')
+          : deviceCanPush ? L('नोटिफ़िकेशन सेवा जल्द चालू होगी — अभी WhatsApp चुनें।', 'Notifications are coming soon — choose WhatsApp for now.')
+          : isIOS() ? L('iPhone पर: Safari में Share → "Add to Home Screen" करें, फिर वहीं से साइट खोलकर सब्सक्राइब करें।', 'On iPhone: Safari Share → "Add to Home Screen", then open the site from there and subscribe.')
+          : L('यह ब्राउज़र नोटिफ़िकेशन नहीं दिखा सकता — WhatsApp चुनें।', 'This browser cannot show notifications — choose WhatsApp.'))}</small></span></label>
+      <label class="ps-opt"><input type="checkbox" id="psWa" ${phonePrefill || !canPush ? 'checked' : ''}>
+        <span style="flex:1"><b>💬 WhatsApp</b>
+        <small>${esc(L('हर सुबह आपके WhatsApp पर संदेश।', 'A message on your WhatsApp every morning.'))}</small>
+        <div class="ps-phone"><span>+91</span><input id="psPhone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" value="${esc(phonePrefill)}" aria-label="WhatsApp number"></div></span></label>
+      ${serverReady ? '' : `<div class="ps-note" style="background:rgba(185,28,28,.08)">${esc(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कुछ समय बाद सब्सक्राइब कर सकेंगे।', 'The daily panchang service is being switched on — you can subscribe a little later.'))}</div>`}
+      <div class="ps-note">${esc(L('WhatsApp चुनने पर आप प्रतिदिन सुबह संदेश पाने की सहमति देते हैं। कभी भी यहीं से बंद कर सकते हैं।', 'By choosing WhatsApp you agree to get a message every morning. You can stop it here any time.'))}</div>
+      <div class="ps-err" id="psErr" role="alert"></div>
+      <div class="ps-row"><button type="button" class="ps-x" id="psClose">${esc(L('रद्द करें', 'Cancel'))}</button>
+        <button type="button" class="ps-go" id="psGo">🔔 ${esc(s ? L('अपडेट करें', 'Update') : L('सब्सक्राइब करें', 'Subscribe'))}</button></div>
+      ${s ? `<button type="button" class="ps-stop" id="psStop">${esc(L('दैनिक पंचांग बंद करें', 'Stop daily panchang'))}</button>` : ''}
+    </div>`;
+    document.body.appendChild(back);
+    document.body.classList.add('ps-open');
+    const $ = id => back.querySelector('#' + id);
+    const close = () => { back.remove(); document.body.classList.remove('ps-open'); };
+    $('psClose').onclick = close;
+    back.addEventListener('click', e => { if (e.target === back) close(); });
+    $('psPhone').addEventListener('input', () => { $('psWa').checked = true; });
+    if ($('psStop')) $('psStop').onclick = async () => { await stop(); close(); };
+
+    $('psGo').onclick = async () => {
+      const err = $('psErr'), go = $('psGo');
+      err.textContent = '';
+      const wantPush = $('psPush').checked, wantWa = $('psWa').checked;
+      const phone = $('psPhone').value.replace(/\D/g, '');
+      if (!wantPush && !wantWa) { err.textContent = L('कम से कम एक तरीका चुनें।', 'Choose at least one way.'); return; }
+      if (wantWa && !/^[6-9]\d{9}$/.test(phone)) { err.textContent = L('10 अंकों का सही मोबाइल नंबर लिखें।', 'Enter a valid 10-digit mobile number.'); return; }
+      go.disabled = true; go.textContent = L('⏳ जुड़ रहा है…', '⏳ Connecting…');
+      try {
+        if (!serverReady) throw new Error(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कृपया कुछ समय बाद प्रयास करें।', 'The daily panchang service is being switched on — please try again a little later.'));
+        let push = null;
+        if (wantPush) {
+          if (!cfg.push_ready || !cfg.vapid_public_key) throw new Error(L('नोटिफ़िकेशन सेवा अभी चालू नहीं है — अभी WhatsApp चुनें।', 'Notifications are not switched on yet — choose WhatsApp for now.'));
+          try { push = await pushSubscription(cfg.vapid_public_key); }
+          catch (e) {
+            throw new Error(e.message === 'denied'
+              ? L('नोटिफ़िकेशन की अनुमति नहीं मिली। ब्राउज़र सेटिंग में इस साइट के लिए Notifications चालू करें, या WhatsApp चुनें।', 'Notification permission was not given. Allow notifications for this site in browser settings, or choose WhatsApp.')
+              : L('इस ब्राउज़र में नोटिफ़िकेशन चालू नहीं हो सका — WhatsApp चुनें।', 'Could not turn on notifications in this browser — choose WhatsApp.'));
+          }
+        }
+        const r = await fetch(API() + '/subscribe', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({}, profile, { push, whatsapp: wantWa ? phone : null, whatsapp_consent: wantWa }))
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.detail || L('सब्सक्राइब नहीं हो सका, कृपया पुनः प्रयास करें।', 'Could not subscribe, please try again.'));
+        const old = saved();
+        if (old && old.id && old.id !== data.id) {   // moved to another channel key: drop the old entry
+          fetch(API() + '/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: old.id, secret: old.secret }) }).catch(() => {});
+        }
+        localStorage.setItem(STORE, JSON.stringify({ id: data.id, secret: data.secret, channels: data.channels, name: profile.name, whatsapp: wantWa ? phone : '' }));
+        localStorage.removeItem('sra_panchang_subscribed');
+        paintButtons();
+        close();
+        toast(L('✅ सब्सक्राइब हो गया! कल से हर सुबह 7 बजे आपका पंचांग आएगा। आज का:', '✅ Subscribed! From tomorrow your panchang arrives at 7 AM. Today:') + '\n' + data.notification.title);
+        if (push && data.notification) {
+          navigator.serviceWorker.ready.then(reg => reg.showNotification(data.notification.title, { body: data.notification.body, icon: '/icon-192.png', badge: '/icon-192.png' })).catch(() => {});
+        }
+      } catch (e) {
+        err.textContent = e.message || String(e);
+        go.disabled = false; go.textContent = '🔔 ' + L('सब्सक्राइब करें', 'Subscribe');
+      }
+    };
+  }
+
+  async function stop() {
+    const s = saved();
+    if (!s) return;
+    try {
+      await fetch(API() + '/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, secret: s.secret }) });
+      if (s.channels && s.channels.push && navigator.serviceWorker) {
+        const reg = await navigator.serviceWorker.getRegistration('/');
+        const sub = reg && await reg.pushManager.getSubscription();
+        if (sub) await sub.unsubscribe();
+      }
+    } catch (e) { /* the server drops dead entries by itself */ }
+    localStorage.removeItem(STORE);
+    paintButtons();
+    toast(L('दैनिक पंचांग बंद कर दिया गया।', 'Daily panchang stopped.'));
+  }
+
+  window.handlePanchangSubscription = open;
+  window.SRAPanchangSubscribe = { open, stop };
+  // the old flow only set this flag without really subscribing
+  try { localStorage.removeItem('sra_panchang_subscribed'); } catch (e) {}
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintButtons); else paintButtons();
+  new MutationObserver(paintButtons).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+})();
