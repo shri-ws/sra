@@ -471,18 +471,35 @@ def _gemini_reading(name: str, forecast: Dict[str, Any]) -> Optional[Dict[str, s
     key = _setting("GEMINI_API_KEY").strip().strip('"').strip("'")
     if not key:
         return None
-    model = _setting("GEMINI_MODEL", "gemini-3.5-flash").strip()
     body = {
         "contents": [{"parts": [{"text": AI_PROMPT + json.dumps(_ai_facts(name, forecast), ensure_ascii=False, indent=1)}]}],
         "generationConfig": {"responseMimeType": "application/json", "temperature": 0.8},
     }
-    req = urllib.request.Request(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
-        data=json.dumps(body, ensure_ascii=False).encode("utf-8"), headers={"Content-Type": "application/json"})
+    data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    # Google answers 503/429 when busy: wait and retry, then try the always-current flash model
+    models = list(dict.fromkeys([_setting("GEMINI_MODEL", "gemini-3.5-flash").strip(), "gemini-flash-latest"]))
+    import time as _time
+    text = None
     try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            reply = json.load(r)
-        text = "".join(p.get("text", "") for p in reply["candidates"][0]["content"]["parts"])
+        for model in models:
+            for wait in (0, 3, 8):
+                if wait:
+                    _time.sleep(wait)
+                req = urllib.request.Request(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
+                    data=data, headers={"Content-Type": "application/json"})
+                try:
+                    with urllib.request.urlopen(req, timeout=30) as r:
+                        reply = json.load(r)
+                    text = "".join(p.get("text", "") for p in reply["candidates"][0]["content"]["parts"])
+                    break
+                except urllib.error.HTTPError as e:
+                    if e.code not in (429, 500, 503):
+                        raise
+            if text:
+                break
+        if not text:
+            return None
         out = json.loads(text[text.find("{"): text.rfind("}") + 1])
         short, long_ = str(out.get("short", "")).strip(), str(out.get("long", "")).strip()
         if not short or not long_:
