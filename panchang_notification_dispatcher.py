@@ -443,6 +443,9 @@ def _wa_param(text: str) -> str:
     return re.sub(r"\s+", " ", text or "-").strip()[:900] or "-"
 
 
+_wa_errors: List[str] = []
+
+
 def _send_whatsapp(phone: str, name: str, forecast: Dict[str, Any]) -> str:
     timings = forecast.get("day_timings") or {}
     golden = (forecast["personalized_windows"].get("golden_hours") or ["-"])[0]
@@ -456,7 +459,7 @@ def _send_whatsapp(phone: str, name: str, forecast: Dict[str, Any]) -> str:
         forecast.get("micro_remedy", "-"),
     ]
     body = {
-        "messaging_product": "whatsapp", "to": phone, "type": "template",
+        "messaging_product": "whatsapp", "to": re.sub(r"\D", "", phone), "type": "template",
         "template": {
             "name": _setting("WHATSAPP_TEMPLATE", "daily_panchang"),
             "language": {"code": _setting("WHATSAPP_TEMPLATE_LANG", "hi")},
@@ -472,10 +475,17 @@ def _send_whatsapp(phone: str, name: str, forecast: Dict[str, Any]) -> str:
         with urllib.request.urlopen(req, timeout=20) as r:
             return "sent" if r.status < 300 else "error"
     except urllib.error.HTTPError as e:
-        logger.warning(f"[PanchangSubs] WhatsApp failed {e.code}: {e.read()[:300]!r}")
+        raw = e.read()[:600]
+        logger.warning(f"[PanchangSubs] WhatsApp failed {e.code}: {raw!r}")
+        try:   # Meta's reason, without the number, for /dispatch-status
+            err = json.loads(raw.decode("utf-8", "replace")).get("error", {})
+            _wa_errors.append(f"{e.code} #{err.get('code')}: {err.get('message', '')} {(err.get('error_data') or {}).get('details', '')}".strip()[:300])
+        except Exception:
+            _wa_errors.append(f"{e.code}")
         return "error"
     except Exception as e:
         logger.warning(f"[PanchangSubs] WhatsApp failed: {e}")
+        _wa_errors.append(type(e).__name__)
         return "error"
 
 
@@ -588,11 +598,17 @@ def run_daily_dispatch() -> Dict[str, Any]:
         stats["error"] = "storage_not_configured"
         return stats
     today = datetime.now(IST).strftime("%Y-%m-%d")
+    _wa_errors.clear()
     push_ok, wa_ok = _push_ready(), _whatsapp_ready()
     for snap in db.collection(SUB_COLLECTION).where("active", "==", True).stream():
         sub = snap.to_dict() or {}
         stats["subscribers"] += 1
-        if sub.get("last_sent") == today:
+        # each channel goes once a day, so a failed WhatsApp can be retried without a second push
+        # (entries from before per-channel dates count last_sent for push only: no WhatsApp went out yet)
+        push_done = sub.get("push_sent_on", sub.get("last_sent")) == today
+        wa_done = sub.get("wa_sent_on") == today
+        if (push_done or not sub.get("push")) and (wa_done or not (sub.get("whatsapp") and sub.get("whatsapp_verified"))) \
+                and sub.get("last_sent") == today:
             stats["skipped_already_sent"] += 1
             continue
         try:
@@ -600,11 +616,11 @@ def run_daily_dispatch() -> Dict[str, Any]:
             title, body = build_message(sub.get("name") or "जातक", forecast)
             update: Dict[str, Any] = {}
             sent_any = attempted = False
-            if sub.get("push") and push_ok:
+            if sub.get("push") and push_ok and not push_done:
                 attempted = True
                 res = _send_push(sub, title, body)
                 if res == "sent":
-                    stats["push_sent"] += 1; sent_any = True
+                    stats["push_sent"] += 1; sent_any = True; update["push_sent_on"] = today
                 elif res == "gone":
                     stats["push_gone"] += 1; update["push"] = None
                     if not sub.get("whatsapp"):
@@ -612,10 +628,10 @@ def run_daily_dispatch() -> Dict[str, Any]:
                 else:
                     stats["errors"] += 1
             # only numbers proven by OTP login (entries typed into the first version are skipped)
-            if sub.get("whatsapp") and sub.get("whatsapp_verified") and wa_ok:
+            if sub.get("whatsapp") and sub.get("whatsapp_verified") and wa_ok and not wa_done:
                 attempted = True
                 if _send_whatsapp(sub["whatsapp"], sub.get("name") or "जातक", forecast) == "sent":
-                    stats["whatsapp_sent"] += 1; sent_any = True
+                    stats["whatsapp_sent"] += 1; sent_any = True; update["wa_sent_on"] = today
                 else:
                     stats["errors"] += 1
             if not attempted:
@@ -633,6 +649,8 @@ def run_daily_dispatch() -> Dict[str, Any]:
         except Exception as e:
             stats["errors"] += 1
             logger.warning(f"[PanchangSubs] {snap.id}: {e}")
+    if _wa_errors:
+        stats["whatsapp_errors"] = list(dict.fromkeys(_wa_errors))[:5]
     stats["finished"] = datetime.now(IST).isoformat()
     PanchangNotificationDispatcher.log_dispatch({"timestamp": stats["finished"], "type": "daily_run", **stats})
     return stats
