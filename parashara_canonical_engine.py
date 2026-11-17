@@ -1754,7 +1754,7 @@ def ai_chat(body: AIChatRequest, request: Request):
     origin = request.headers.get("origin", "")
     if origin and not origin.startswith(AI_ALLOWED_ORIGINS):
         raise HTTPException(status_code=403, detail="origin not allowed")
-    key = _ai_setting("GEMINI_API_KEY")
+    key = _ai_setting("GEMINI_API_KEY").strip().strip('"').strip("'")   # pasted values often carry quotes/spaces
     if not key:
         raise HTTPException(status_code=503, detail="AI is not configured on the server")
 
@@ -1770,7 +1770,7 @@ def ai_chat(body: AIChatRequest, request: Request):
         mime, data = body.image[5:].split(",", 1)
         parts.append({"inline_data": {"mime_type": mime.split(";")[0], "data": data}})
 
-    model = _ai_setting("GEMINI_MODEL", "gemini-3.5-flash")
+    model = _ai_setting("GEMINI_MODEL", "gemini-3.5-flash").strip()
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
     req = _urlreq.Request(url, data=json.dumps({"contents": [{"parts": parts}]}).encode("utf-8"),
                           headers={"Content-Type": "application/json"})
@@ -1779,7 +1779,11 @@ def ai_chat(body: AIChatRequest, request: Request):
             reply = json.load(res)
         text = "".join(p.get("text", "") for p in reply["candidates"][0]["content"]["parts"])
     except _urlerr.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Gemini error {e.code}")
+        try:   # Google's own reason (never contains the key), e.g. "API key not valid"
+            reason = json.loads(e.read().decode("utf-8", "replace")).get("error", {}).get("message", "")[:200]
+        except Exception:
+            reason = ""
+        raise HTTPException(status_code=502, detail=f"Gemini error {e.code}" + (f": {reason}" if reason else ""))
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Gemini unavailable: {type(e).__name__}")
     return {"text": text, "model": model}

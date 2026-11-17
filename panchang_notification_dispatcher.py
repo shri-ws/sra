@@ -468,10 +468,10 @@ def _ai_facts(name: str, f: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _gemini_reading(name: str, forecast: Dict[str, Any]) -> Optional[Dict[str, str]]:
-    key = _setting("GEMINI_API_KEY")
+    key = _setting("GEMINI_API_KEY").strip().strip('"').strip("'")
     if not key:
         return None
-    model = _setting("GEMINI_MODEL", "gemini-3.5-flash")
+    model = _setting("GEMINI_MODEL", "gemini-3.5-flash").strip()
     body = {
         "contents": [{"parts": [{"text": AI_PROMPT + json.dumps(_ai_facts(name, forecast), ensure_ascii=False, indent=1)}]}],
         "generationConfig": {"responseMimeType": "application/json", "temperature": 0.8},
