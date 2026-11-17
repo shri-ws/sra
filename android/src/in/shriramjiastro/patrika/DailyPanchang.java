@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -32,6 +33,7 @@ import java.util.Locale;
 public class DailyPanchang extends BroadcastReceiver {
 
     static final String PREFS = "daily_panchang";
+    private static final String TAG = "SRADailyPanchang";
     static final String ACTION_ALARM = "in.shriramjiastro.patrika.DAILY_PANCHANG";
     static final String ACTION_TEST = "in.shriramjiastro.patrika.DAILY_PANCHANG_TEST";
     static final String CHANNEL = "daily_panchang";
@@ -101,7 +103,10 @@ public class DailyPanchang extends BroadcastReceiver {
     static boolean fetchAndNotify(Context c, boolean test) {
         SharedPreferences p = prefs(c);
         String api = p.getString("api", null), id = p.getString("id", null), secret = p.getString("secret", null);
-        if (api == null || id == null || secret == null) return false;
+        if (api == null || id == null || secret == null) {
+            Log.w(TAG, "not subscribed in this app");
+            return false;
+        }
         HttpURLConnection con = null;
         try {
             JSONObject req = new JSONObject();
@@ -121,6 +126,7 @@ public class DailyPanchang extends BroadcastReceiver {
                 disable(c);
                 return true;
             }
+            Log.i(TAG, "today: HTTP " + code);
             if (code != 200) return false;
             InputStream in = con.getInputStream();
             ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -138,6 +144,7 @@ public class DailyPanchang extends BroadcastReceiver {
             if (!test) p.edit().putString("last_day", today()).apply();
             return true;
         } catch (Exception e) {
+            Log.w(TAG, "today failed: " + e);
             return false;
         } finally {
             if (con != null) con.disconnect();
@@ -152,7 +159,7 @@ public class DailyPanchang extends BroadcastReceiver {
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(c, 7, open, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
         Notification.Builder nb = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CHANNEL) : new Notification.Builder(c);
-        nb.setSmallIcon(R.drawable.ic_launcher)
+        nb.setSmallIcon(android.R.drawable.ic_popup_reminder)   // status-bar icons must be one colour
                 .setContentTitle(title)
                 .setContentText(body)
                 .setStyle(new Notification.BigTextStyle().bigText(body))
@@ -176,7 +183,15 @@ public class DailyPanchang extends BroadcastReceiver {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
         PendingIntent pi = alarmIntent(c);
-        if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, pi);
+        // on time where Android allows exact alarms (most phones up to Android 13); otherwise
+        // Android may deliver it up to an hour late
+        boolean exact = Build.VERSION.SDK_INT >= 23 && (Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms());
+        if (exact) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, pi);
+        else if (Build.VERSION.SDK_INT >= 23) {
+            // an inexact alarm can come up to an hour after its time: aim at 06:40 so it lands near 7
+            if (when == nextMorning()) when -= 20 * 60 * 1000L;
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, pi);
+        }
         else am.set(AlarmManager.RTC_WAKEUP, when, pi);
     }
 
