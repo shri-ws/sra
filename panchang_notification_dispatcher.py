@@ -480,23 +480,29 @@ def _gemini_reading(name: str, forecast: Dict[str, Any]) -> Optional[Dict[str, s
     models = list(dict.fromkeys([_setting("GEMINI_MODEL", "gemini-3.5-flash").strip(), "gemini-flash-latest"]))
     import time as _time
     text = None
+    deadline = _time.time() + 50          # the app waits about 90 s for /today; never hold it longer
     try:
         for model in models:
             for wait in (0, 3, 8):
                 if wait:
                     _time.sleep(wait)
+                left = deadline - _time.time()
+                if left < 5:
+                    break
                 req = urllib.request.Request(
                     f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
                     data=data, headers={"Content-Type": "application/json"})
                 try:
-                    with urllib.request.urlopen(req, timeout=30) as r:
+                    with urllib.request.urlopen(req, timeout=min(25, left)) as r:
                         reply = json.load(r)
                     text = "".join(p.get("text", "") for p in reply["candidates"][0]["content"]["parts"])
                     break
                 except urllib.error.HTTPError as e:
                     if e.code not in (429, 500, 503):
                         raise
-            if text:
+                except (TimeoutError, urllib.error.URLError, OSError):
+                    pass                  # slow or unreachable: next try
+            if text or deadline - _time.time() < 5:
                 break
         if not text:
             return None
