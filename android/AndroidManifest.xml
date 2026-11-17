@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="in.shriramjiastro.patrika"
-    android:versionCode="260"
-    android:versionName="2.6.0">
+    android:versionCode="261"
+    android:versionName="2.6.1">
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -13,9 +13,6 @@
     <!-- daily personalised panchang: the app's own 7 AM notification -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <!-- updating the app from the website (Android still asks the person to confirm) -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:allowBackup="true"
@@ -48,13 +45,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver
-            android:name=".AppUpdate"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

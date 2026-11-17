@@ -2,17 +2,14 @@ package in.shriramjiastro.patrika;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,12 +23,10 @@ import java.net.URL;
 /**
  * Updates the app from the website. build_apk.sh publishes app-version.json next to the APK;
  * the app compares it with its own version on start (and with the daily alarm), offers the
- * update, downloads the APK with the system download manager and hands it to the Android
- * installer. Android always asks the person to confirm an install from outside the Play
- * Store, so this is one tap on "Update", never a silent install.
+ * update and opens the APK in the phone's browser; Android then asks to confirm "Update".
  * Most changes need none of this: the app shows the live website, so they appear by themselves.
  */
-public class AppUpdate extends BroadcastReceiver {
+public class AppUpdate {
 
     // the website first, GitHub's copy of the same file if the site cannot be reached
     static final String[] VERSION_URLS = {
@@ -131,69 +126,19 @@ public class AppUpdate extends BroadcastReceiver {
                 .show();
     }
 
-    /** Asks for the one-time "install unknown apps" permission if needed, then downloads. */
+    /**
+     * Opens the new APK in the phone's browser, which downloads it; opening the file installs
+     * the update. The app itself does not install apps: that permission makes Play Protect
+     * call an app harmful, so the browser (which already has it) does that part.
+     */
     static void start(Activity a, Info i) {
-        prefs(a).edit().putString("pending_apk", i.apk).putString("pending_name", i.name).apply();
-        if (Build.VERSION.SDK_INT >= 26 && !a.getPackageManager().canRequestPackageInstalls()) {
-            Toast.makeText(a, "एक बार अनुमति दें: \"इस स्रोत से अनुमति दें\" चालू करके वापस आएँ।", Toast.LENGTH_LONG).show();
-            a.startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                    Uri.parse("package:" + a.getPackageName())));
-            return;   // MainActivity.onResume continues
-        }
-        download(a);
-    }
-
-    /** Called from onResume: continue an update that waited for the permission. */
-    static void resume(Activity a) {
-        if (prefs(a).getString("pending_apk", null) == null) return;
-        if (prefs(a).getLong("download_id", -1) != -1) return;
-        if (Build.VERSION.SDK_INT >= 26 && !a.getPackageManager().canRequestPackageInstalls()) return;
-        download(a);
-    }
-
-    private static void download(Context c) {
-        SharedPreferences p = prefs(c);
-        String apk = p.getString("pending_apk", null);
-        if (apk == null) return;
-        DownloadManager dm = (DownloadManager) c.getSystemService(Context.DOWNLOAD_SERVICE);
-        if (dm == null) return;
-        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(apk + "?v=" + p.getString("pending_name", "")))
-                .setTitle("श्री रामजी एस्ट्रो — अपडेट")
-                .setDescription("नया संस्करण डाउनलोड हो रहा है")
-                .setMimeType("application/vnd.android.package-archive")
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-        r.setDestinationInExternalFilesDir(c, Environment.DIRECTORY_DOWNLOADS, "patrika-astro-update.apk");
-        new java.io.File(c.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "patrika-astro-update.apk").delete();
-        long id = dm.enqueue(r);
-        p.edit().putLong("download_id", id).apply();
-        Toast.makeText(c, "⬇️ अपडेट डाउनलोड हो रहा है… पूरा होते ही इंस्टॉल पूछा जाएगा।", Toast.LENGTH_LONG).show();
-    }
-
-    /** DOWNLOAD_COMPLETE (registered in the manifest, so it works after the app is closed). */
-    @Override
-    public void onReceive(Context c, Intent intent) {
-        if (!DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) return;
-        long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-        SharedPreferences p = prefs(c);
-        if (id == -1 || id != p.getLong("download_id", -2)) return;
-        p.edit().remove("download_id").remove("pending_apk").apply();
-        DownloadManager dm = (DownloadManager) c.getSystemService(Context.DOWNLOAD_SERVICE);
-        Uri file = dm == null ? null : dm.getUriForDownloadedFile(id);
-        if (file == null) {
-            Toast.makeText(c, "अपडेट डाउनलोड नहीं हो सका, बाद में फिर प्रयास करें।", Toast.LENGTH_LONG).show();
-            return;
-        }
-        Intent install = new Intent(Intent.ACTION_VIEW);
-        install.setDataAndType(file, "application/vnd.android.package-archive");
-        install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-        // Android may block opening the installer when the app is not on screen (it does so
-        // silently), so a notification to tap is always left as well
-        note(c, "अपडेट तैयार है — इंस्टॉल करने के लिए टैप करें",
-                PendingIntent.getActivity(c, 8, install, PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0)));
         try {
-            c.startActivity(install);
+            Intent view = new Intent(Intent.ACTION_VIEW, Uri.parse(i.apk + "?v=" + i.name));
+            view.addCategory(Intent.CATEGORY_BROWSABLE);
+            a.startActivity(view);
+            Toast.makeText(a, "⬇️ डाउनलोड पूरा होने पर फ़ाइल खोलकर \"Update\" दबाएँ।", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            Log.w(TAG, "installer not opened: " + e);
+            Toast.makeText(a, "ब्राउज़र नहीं खुल सका।", Toast.LENGTH_LONG).show();
         }
     }
 

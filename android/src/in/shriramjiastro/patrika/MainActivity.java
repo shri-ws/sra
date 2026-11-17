@@ -94,11 +94,6 @@ public class MainActivity extends Activity {
         if (intent.getBooleanExtra(EXTRA_CHECK_UPDATE, false)) AppUpdate.check(this, false);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        AppUpdate.resume(this);   // continue an update that waited for the install permission
-    }
 
     /** Only our own pages may be opened from a notification. */
     private static String urlFrom(Intent intent) {
