@@ -1,0 +1,205 @@
+"""
+Festivals and vrats of the day, worked out from the panchang (no fixed calendar to keep up).
+
+A festival is fixed by (amanta month, paksha, tithi) and the tithi is taken at the time it
+counts for that observance: sunrise for most, sunset (pradosh) for Pradosh, Diwali and
+Holika Dahan, midnight for Shivratri and Janmashtami, evening/moonrise for the Chaturthi
+fasts. Sankranti is the day the Sun changes sign. In an adhik (extra) month the yearly
+festivals are not shown, so none appears twice.
+
+Months here are AMANTA (new moon to new moon): in Krishna paksha this is one month behind the
+purnimanta month North India names (Diwali = Ashwin amanta amavasya = Kartik amavasya).
+Sun/Moon positions come from Swiss Ephemeris through the canonical engine; the Sun-Moon
+elongation is moved linearly within the day, which is accurate to a few minutes.
+"""
+from __future__ import annotations
+
+import math
+from typing import Any, Dict, List, Optional
+
+import swisseph as swe
+
+MASA = ["चैत्र", "वैशाख", "ज्येष्ठ", "आषाढ़", "श्रावण", "भाद्रपद", "आश्विन", "कार्तिक",
+        "मार्गशीर्ष", "पौष", "माघ", "फाल्गुन"]
+RASHI = ["मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुंभ", "मीन"]
+
+# Ekadashi names by amanta month: (shukla, krishna)
+EKADASHI = [("कामदा", "वरूथिनी"), ("मोहिनी", "अपरा"), ("निर्जला", "योगिनी"), ("देवशयनी", "कामिका"),
+            ("श्रावण पुत्रदा", "अजा"), ("परिवर्तिनी (पद्मा)", "इन्दिरा"), ("पापांकुशा", "रमा"),
+            ("देवउठनी (प्रबोधिनी)", "उत्पन्ना"), ("मोक्षदा", "सफला"), ("पौष पुत्रदा", "षट्तिला"),
+            ("जया", "विजया"), ("आमलकी", "पापमोचनी")]
+
+EKADASHI_RULES = ("दशमी की रात से सात्त्विक रहें; एकादशी को अन्न (विशेषकर चावल) न लें — फलाहार या निर्जल, "
+                  "जैसी सामर्थ्य हो। भगवान विष्णु की पूजा, 'ॐ नमो भगवते वासुदेवाय' का जप करें; "
+                  "पारण अगले दिन द्वादशी में सूर्योदय के बाद करें।")
+
+# (amanta month, tithi 1-30 where 16-30 = krishna 1-15, when: rise|set|night|moon, name, rules)
+YEARLY = [
+    (0, 1, "rise", "चैत्र नवरात्रि आरम्भ • हिन्दू नव संवत्सर",
+     "घटस्थापना शुभ मुहूर्त में करें; नौ दिन माँ दुर्गा की पूजा, सात्त्विक भोजन और ब्रह्मचर्य का पालन।"),
+    (0, 8, "rise", "चैत्र दुर्गा अष्टमी", "माँ महागौरी की पूजा और कन्या पूजन करें।"),
+    (0, 9, "noon", "श्री राम नवमी", "व्रत रखें, मध्याह्न में श्रीराम जन्मोत्सव की पूजा करें; रामचरितमानस या रामरक्षा स्तोत्र का पाठ।"),
+    (0, 15, "rise", "हनुमान जयन्ती", "हनुमान जी को सिन्दूर-चोला और गुड़-चना अर्पित करें; हनुमान चालीसा या सुन्दरकाण्ड का पाठ।"),
+    (1, 3, "rise", "अक्षय तृतीया", "स्नान-दान, जौ/सत्तू व जल-पात्र का दान; नए शुभ कार्य, सोना-चाँदी की ख़रीद के लिए अबूझ मुहूर्त।"),
+    (1, 15, "rise", "बुद्ध पूर्णिमा • वैशाख पूर्णिमा", "पवित्र स्नान, दान और सत्यनारायण कथा; सात्त्विक रहें।"),
+    (1, 30, "rise", "वट सावित्री व्रत • शनि जयन्ती",
+     "सुहागिनें वट (बरगद) वृक्ष की पूजा कर कच्चा सूत लपेटते हुए परिक्रमा करें, सावित्री-सत्यवान कथा सुनें; शनि देव को तेल अर्पित करें।"),
+    (2, 10, "rise", "गंगा दशहरा", "गंगा या किसी पवित्र जल में स्नान, दस वस्तुओं का दान; माँ गंगा का स्मरण।"),
+    (3, 2, "rise", "जगन्नाथ रथ यात्रा", "भगवान जगन्नाथ, बलभद्र और सुभद्रा का पूजन; रथ यात्रा के दर्शन।"),
+    (3, 15, "rise", "गुरु पूर्णिमा", "अपने गुरु और वेद व्यास जी का पूजन करें; गुरुजनों का आशीर्वाद लें, दान करें।"),
+    (4, 3, "rise", "हरियाली तीज", "सुहागिनें निर्जल या फलाहार व्रत रखकर शिव-पार्वती की पूजा करें; हरे वस्त्र-श्रृंगार शुभ।"),
+    (4, 5, "rise", "नाग पंचमी", "नाग देवता का दूध-लावा से पूजन; आज भूमि खोदना टालें।"),
+    (4, 15, "rise", "रक्षाबंधन • श्रावण पूर्णिमा", "भद्रा समाप्त होने के बाद राखी बाँधें; भाई-बहन एक-दूसरे की रक्षा का संकल्प लें।"),
+    (4, 23, "night", "श्री कृष्ण जन्माष्टमी", "दिन भर व्रत, रात्रि 12 बजे श्रीकृष्ण जन्म की पूजा, माखन-मिश्री का भोग; पारण अगले दिन।"),
+    (5, 3, "rise", "हरतालिका तीज", "सुहागिनें निर्जल व्रत रखकर बालू/मिट्टी के शिव-पार्वती की पूजा करें, रात्रि जागरण।"),
+    (5, 4, "noon", "श्री गणेश चतुर्थी", "मध्याह्न में गणपति स्थापना, दूर्वा-मोदक का भोग; आज चन्द्र दर्शन न करें।"),
+    (5, 14, "rise", "अनन्त चतुर्दशी", "भगवान अनन्त (विष्णु) की पूजा, 14 गाँठ वाला अनन्त सूत्र बाँधें; गणेश विसर्जन।"),
+    (5, 30, "rise", "सर्वपितृ अमावस्या", "जिन पितरों की तिथि ज्ञात न हो उनका श्राद्ध-तर्पण आज करें; ब्राह्मण भोजन और दान।"),
+    (6, 1, "rise", "शारदीय नवरात्रि आरम्भ", "घटस्थापना शुभ मुहूर्त में; नौ दिन माँ दुर्गा की पूजा, सात्त्विक भोजन।"),
+    (6, 8, "rise", "दुर्गा अष्टमी (महा अष्टमी)", "माँ महागौरी की पूजा और कन्या पूजन करें।"),
+    (6, 9, "rise", "महा नवमी", "माँ सिद्धिदात्री की पूजा, हवन और कन्या पूजन।"),
+    (6, 10, "aparahna", "विजयादशमी (दशहरा)", "शस्त्र और शमी वृक्ष का पूजन, अपराजिता पूजा; नए कार्य आरम्भ के लिए शुभ दिन।"),
+    (6, 15, "rise", "शरद पूर्णिमा", "रात्रि में खीर बनाकर चाँदनी में रखें और प्रातः प्रसाद लें; माँ लक्ष्मी का पूजन।"),
+    (6, 19, "moon", "करवा चौथ", "सुहागिनें सूर्योदय से निर्जल व्रत रखें, शाम को करवा माता की कथा, चन्द्रोदय पर अर्घ्य देकर व्रत खोलें।"),
+    (6, 23, "rise", "अहोई अष्टमी", "माताएँ संतान के लिए व्रत रखें, शाम को तारे देखकर अहोई माता की पूजा व अर्घ्य।"),
+    (6, 28, "set", "धनतेरस • धन्वन्तरि जयन्ती", "प्रदोष काल में धन्वन्तरि व कुबेर-लक्ष्मी पूजन; बर्तन या धातु की ख़रीद शुभ; यम-दीप दान।"),
+    (6, 29, "rise", "नरक चतुर्दशी (छोटी दीपावली)", "प्रातः अभ्यंग (तेल) स्नान; शाम को यम के नाम दीप जलाएँ।"),
+    (6, 30, "set", "दीपावली • महालक्ष्मी पूजन", "प्रदोष काल में श्री गणेश-लक्ष्मी पूजन, घर में दीप जलाएँ; घर साफ़-सुथरा रखें, जुआ-मदिरा से दूर रहें।"),
+    (7, 1, "rise", "गोवर्धन पूजा • अन्नकूट", "गोवर्धन और गौ-माता की पूजा, अन्नकूट का भोग लगाएँ।"),
+    (7, 2, "rise", "भाई दूज", "बहनें भाई को तिलक कर भोजन कराएँ, भाई उपहार दें; यमुना स्नान शुभ।"),
+    (7, 6, "rise", "छठ पूजा (षष्ठी)", "निर्जल व्रत, डूबते और अगली सुबह उगते सूर्य को अर्घ्य; शुद्धता का विशेष पालन।"),
+    (7, 15, "rise", "कार्तिक पूर्णिमा • देव दीपावली • गुरु नानक जयन्ती", "पवित्र स्नान, दीपदान और दान; तुलसी व भगवान विष्णु की पूजा।"),
+    (8, 5, "rise", "विवाह पंचमी", "श्रीराम-सीता विवाह का उत्सव; रामचरितमानस का बालकाण्ड पाठ शुभ।"),
+    (8, 11, "rise", "गीता जयन्ती", "श्रीमद्भगवद्गीता का पाठ या कम से कम एक अध्याय पढ़ें; मोक्षदा एकादशी का व्रत।"),
+    (9, 30, "rise", "मौनी अमावस्या", "मौन रहकर पवित्र स्नान और दान करें; पितरों का तर्पण।"),
+    (10, 5, "rise", "वसन्त पंचमी • सरस्वती पूजा", "माँ सरस्वती की पूजा, पीले वस्त्र पहनें; विद्या आरम्भ के लिए शुभ।"),
+    (10, 7, "rise", "रथ सप्तमी", "सूर्योदय से पहले स्नान कर सूर्य को अर्घ्य दें; आदित्य हृदय स्तोत्र का पाठ।"),
+    (10, 15, "rise", "माघ पूर्णिमा", "पवित्र स्नान, दान और सत्यनारायण कथा।"),
+    (10, 29, "night", "महाशिवरात्रि", "दिन भर व्रत, रात्रि के चारों प्रहर शिव पूजा — जल, दूध, बेलपत्र; 'ॐ नमः शिवाय' का जप और जागरण।"),
+    (11, 15, "set", "होलिका दहन", "भद्रा रहित प्रदोष काल में होलिका पूजन व दहन; परिक्रमा कर नई फ़सल की बालियाँ अर्पित करें।"),
+    (11, 16, "rise", "होली (रंगोत्सव)", "रंग-गुलाल से उत्सव; प्राकृतिक रंगों का प्रयोग और बड़ों का आशीर्वाद लें।"),
+]
+
+MONTHLY_RULES = {
+    "pradosh": "सूर्यास्त के बाद प्रदोष काल में शिव पूजा करें — जल, बेलपत्र, दीप; दिन में फलाहार या एक समय भोजन।",
+    "shivratri": "रात्रि में शिवलिंग पर जल-बेलपत्र अर्पित करें, 'ॐ नमः शिवाय' का जप; व्रत रखें।",
+    "sankashti": "दिन भर व्रत, चन्द्रोदय पर गणेश जी की पूजा कर चन्द्रमा को अर्घ्य दें, फिर व्रत खोलें।",
+    "vinayaka": "गणेश जी को दूर्वा और मोदक अर्पित करें; दोपहर में पूजा श्रेष्ठ।",
+    "purnima": "पवित्र स्नान, दान और सत्यनारायण कथा; चन्द्रमा को अर्घ्य दें।",
+    "amavasya": "पितरों के लिए तर्पण-दान करें; सात्त्विक रहें, नया कार्य आरम्भ न करें।",
+    "sankranti": "पवित्र स्नान, सूर्य को अर्घ्य और दान; पुण्य काल में दान का विशेष फल।",
+}
+SANKRANTI_SPECIAL = {9: ("मकर संक्रान्ति", "पवित्र स्नान, तिल-गुड़ और खिचड़ी का दान व सेवन; सूर्य को अर्घ्य। आज से उत्तरायण।"),
+                     0: ("मेष संक्रान्ति (सौर नववर्ष)", "पवित्र स्नान, सत्तू-जल का दान; सूर्य को अर्घ्य।")}
+
+
+class _Clock:
+    """Tithi from the Sun-Moon elongation moved linearly within the day; the month from the
+    exact new moons around the moment (Swiss Ephemeris, sidereal Lahiri)."""
+    def __init__(self, sun: Dict[str, Any], moon: Dict[str, Any], at: float, jd_at: Optional[float]):
+        self.s0, self.m0, self.at, self.jd_at = sun["abs"], moon["abs"], at, jd_at
+        self.ss, self.ms = sun.get("speed", 1.0), moon.get("speed", 13.2)
+
+    def sun(self, h: float) -> float:
+        if self.jd_at is not None:
+            return self._sid(self.jd_at + (h - self.at) / 24.0, swe.SUN)[0]
+        return (self.s0 + self.ss * (h - self.at) / 24.0) % 360.0
+
+    def elong(self, h: float) -> float:
+        if self.jd_at is not None:              # exact, so every day agrees with the next
+            jd = self.jd_at + (h - self.at) / 24.0
+            return (self._sid(jd, swe.MOON)[0] - self._sid(jd, swe.SUN)[0]) % 360.0
+        return (self.m0 - self.s0 + (self.ms - self.ss) * (h - self.at) / 24.0) % 360.0
+
+    def tithi(self, h: float) -> int:          # 1..30
+        return int(self.elong(h) // 12) + 1
+
+    def tithis(self, h: float) -> set:
+        """The tithi at h, plus one that began and ended since the same hour yesterday
+        (a kshaya tithi is observed on this day)."""
+        now, before = self.tithi(h), self.tithi(h - 24.0)
+        got = set() if now == before else {now}      # a tithi on two days (vriddhi): the first day
+        if (now - before) % 30 == 2:
+            got.add((before % 30) + 1)
+        return got
+
+    @staticmethod
+    def _sid(jd: float, body: int) -> List[float]:
+        swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
+        return swe.calc_ut(jd, body, swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED)[0]
+
+    @classmethod
+    def _new_moon(cls, jd: float) -> float:
+        for _ in range(8):                      # Newton on the elongation
+            s, m = cls._sid(jd, swe.SUN), cls._sid(jd, swe.MOON)
+            e = (m[0] - s[0] + 180.0) % 360.0 - 180.0
+            jd -= e / max(10.0, m[3] - s[3])
+            if abs(e) < 1e-5:
+                break
+        return jd
+
+    def amanta(self, h: float) -> Dict[str, Any]:
+        e = self.elong(h)
+        if self.jd_at is None:                  # no exact time given: estimate
+            rel = max(10.0, self.ms - self.ss)
+            sp = (self.sun(h) - self.ss * e / rel) % 360.0
+            sn = (self.sun(h) + self.ss * (360.0 - e) / rel) % 360.0
+        else:
+            jd = self.jd_at + (h - self.at) / 24.0
+            prev_nm = self._new_moon(jd - e / 12.19)
+            next_nm = self._new_moon(jd + (360.0 - e) / 12.19)
+            sp, sn = self._sid(prev_nm, swe.SUN)[0], self._sid(next_nm, swe.SUN)[0]
+        return {"idx": (int(sp // 30) - 11) % 12, "adhik": int(sp // 30) == int(sn // 30)}
+
+
+def festivals_today(sun: Dict[str, Any], moon: Dict[str, Any], at_hours: float,
+                    sunrise: float, sunset: float, weekday: int,
+                    jd_at: Optional[float] = None) -> List[Dict[str, str]]:
+    c = _Clock(sun, moon, at_hours, jd_at)
+    day = sunset - sunrise
+    when = {"rise": sunrise + 0.1, "noon": sunrise + day / 2.0, "aparahna": sunrise + day * 0.7,
+            "set": sunset + 0.75, "night": 24.0, "moon": sunset + 2.5}
+    out: List[Dict[str, str]] = []
+    seen = set()
+
+    def add(name: str, rules: str, kind: str):
+        if name not in seen:
+            seen.add(name)
+            out.append({"name": name, "rules": rules, "kind": kind})
+
+    m_rise = c.amanta(when["rise"])
+    if not m_rise["adhik"]:
+        for month, tithi, w, name, rules in YEARLY:
+            m = c.amanta(when[w])
+            if not m["adhik"] and m["idx"] == month and tithi in c.tithis(when[w]):
+                add(name, rules, "parv")
+
+    t_rise = c.tithi(when["rise"])
+    rise_set = c.tithis(when["rise"])
+    vaar = ["रवि", "सोम", "भौम", "बुध", "गुरु", "शुक्र", "शनि"][weekday]
+    eka = rise_set & {11, 26}
+    if eka:
+        shukla = 11 in eka
+        nm = "अधिक मास" if m_rise["adhik"] else EKADASHI[m_rise["idx"]][0 if shukla else 1]
+        add(f"{nm} एकादशी व्रत", EKADASHI_RULES, "vrat")
+    if c.tithis(when["set"]) & {13, 28}:
+        add(f"{vaar} प्रदोष व्रत", MONTHLY_RULES["pradosh"], "vrat")
+    if 29 in c.tithis(when["night"]) and "महाशिवरात्रि" not in seen:
+        add("मासिक शिवरात्रि", MONTHLY_RULES["shivratri"], "vrat")
+    if 19 in c.tithis(when["moon"]) and "करवा चौथ" not in seen:
+        add("संकष्टी चतुर्थी" + (" (अंगारकी)" if weekday == 2 else ""), MONTHLY_RULES["sankashti"], "vrat")
+    if 4 in rise_set and "श्री गणेश चतुर्थी" not in seen:
+        add("विनायक चतुर्थी", MONTHLY_RULES["vinayaka"], "vrat")
+    if 15 in rise_set and not any("पूर्णिमा" in n for n in seen):
+        add(f"{'अधिक ' if m_rise['adhik'] else ''}{MASA[m_rise['idx']]} पूर्णिमा व्रत", MONTHLY_RULES["purnima"], "vrat")
+    if 30 in rise_set:
+        special = {1: "सोमवती अमावस्या", 6: "शनि अमावस्या"}.get(weekday)
+        if not any("अमावस्या" in n for n in seen) or special:
+            add(special or "अमावस्या", MONTHLY_RULES["amavasya"] + (" आज पीपल की पूजा-परिक्रमा का विशेष महत्व है।" if special else ""), "vrat")
+
+    # Sankranti: the Sun enters a new sign between this sunrise and the next
+    s1, s2 = int(c.sun(sunrise) // 30), int(c.sun(sunrise + 24.0) // 30)
+    if s1 != s2:
+        name, rules = SANKRANTI_SPECIAL.get(s2, (f"{RASHI[s2]} संक्रान्ति", MONTHLY_RULES["sankranti"]))
+        add(name, rules, "parv")
+    return out

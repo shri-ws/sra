@@ -50,6 +50,12 @@
     .ap-talk h3 { font-size:15px; margin:14px 0 6px; }
     .ap-talk ul { margin:0 0 4px; padding-left:20px; }
     .ap-areas { display:grid; gap:8px; }
+    .ap-parv { background:linear-gradient(135deg,#fff7e6,#ffe8c2); border:2px solid #f0a94b; }
+    .ap-parv h2 { color:#9a3412; }
+    .ap-parv-item { background:rgba(255,255,255,.7); border-radius:12px; padding:10px 12px; margin-bottom:8px; font-size:15px; line-height:1.6; }
+    .ap-parv-item b { display:block; font-size:16px; color:#7c2d12; margin-bottom:2px; }
+    .ap-parv-item.big b { font-size:18px; }
+    .ap-parv small { color:#9a6b3c; font-size:12px; }
     .ap-areas div { display:flex; gap:8px; align-items:flex-start; background:rgba(255,255,255,.55); border-radius:10px; padding:8px 10px; }
     .ap-areas b { flex:none; min-width:74px; max-width:42%; }
     .ap-msg { text-align:center; padding:40px 16px; color:var(--muted); }
@@ -133,6 +139,7 @@
           ${ex.upay ? `<h3>🙏 ${esc(ex.h_upay || L('आज का उपाय', "Today's remedy"))}</h3><p>${esc(ex.upay)}</p>` : ''}
           ${ex.close ? `<p style="margin-top:12px;font-weight:600">${esc(ex.close)}</p>` : ''}
         </div>` : ''}
+        ${(ex.parv || []).length ? `<div class="ap-card ap-parv"><h2>🪔 ${esc(L('आज का पर्व / व्रत', "Today's festival / vrat"))}</h2>${ex.parv.map(p => `<div class="ap-parv-item ${p.kind === 'parv' ? 'big' : ''}"><b>${esc(p.name)}</b><div>${esc(p.rules)}</div></div>`).join('')}<small>${esc(L('व्रत-त्योहार पंचांग की गणना से हैं; स्थानीय परम्परा में एक दिन का अंतर हो सकता है।', 'From the panchang calculation; local custom may differ by a day.'))}</small></div>` : ''}
         ${sg.is_chandrashtama ? `<div class="ap-alert">⚠️ ${esc(sg.chandrashtama_alert || L('आज चन्द्राष्टम है — बड़े निर्णय टालें।', 'Chandrashtama today — postpone big decisions.'))}</div>` : ''}
         ${f.dasha_focus ? `<div class="ap-card"><h2>🎯 ${esc(L('इन दिनों आपका फोकस', 'Your focus these days'))}</h2><div style="font-size:15px;line-height:1.6">${esc(f.dasha_focus)}</div></div>` : ''}
         ${ex.line ? '' : `<div class="ap-two">

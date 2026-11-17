@@ -1524,6 +1524,14 @@ class PersonalizedPanchangEngine:
                 break
 
         explain["savdhani"] = list(donts)          # includes the Bhadra hours added above
+        # festivals and vrats of the day (in the person's present place and time zone)
+        try:
+            from panchang_festivals import festivals_today
+            festivals = festivals_today(transit_planet_map["Sun"], transit_planet_map["Moon"], now_hours,
+                                        sunrise, sunset, weekday, transit_chart["astronomy"]["jd_ut"])
+        except Exception:
+            festivals = []
+        explain["parv"] = festivals
         return {
             "execution_date": target_date.strftime("%Y-%m-%d"),
             "user_name": name,
@@ -1539,6 +1547,7 @@ class PersonalizedPanchangEngine:
             },
             "today_moon_rashi_hi": RASHI_NAMES_HI[transit_planet_map["Moon"]["sign"]],
             "panchang_line": panchang_line,
+            "festivals": explain.get("parv", []),
             "sukshma_lord_hi": sukshma_hi,
             "explain": explain,
             "dasha_focus": reading["focus"],

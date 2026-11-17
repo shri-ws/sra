@@ -314,6 +314,9 @@ def build_message(name: str, forecast: Dict[str, Any], ai: Optional[Dict[str, st
     theme = ((ai or {}).get("short") or (forecast.get("explain") or {}).get("short")
              or forecast.get("headline") or forecast["core_theme"].split("। ")[0])
     lines = [theme]
+    parv = [f["name"].split(" •")[0] for f in (forecast.get("festivals") or [])]
+    if parv:
+        lines.insert(0, "🪔 आज: " + ", ".join(parv[:2]))
     if golden:
         lines.append(f"✨ शुभ समय: {golden}")
     if rahu:
