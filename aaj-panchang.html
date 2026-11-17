@@ -43,6 +43,7 @@
     .ap-grid div span { display:block; color:var(--muted); font-size:12px; }
     .ap-alert { background:#fff1f2; border:1px solid #fecdd3; color:#9f1239; border-radius:12px; padding:10px 12px; margin-bottom:12px; font-weight:600; font-size:14px; }
     .ap-remedy { background:linear-gradient(135deg,rgba(176,141,62,.1),rgba(176,141,62,.03)); }
+    .ap-talk { border-left:4px solid #b08d3e; background:linear-gradient(135deg,rgba(124,19,5,.06),rgba(176,141,62,.05)); }
     .ap-msg { text-align:center; padding:40px 16px; color:var(--muted); }
     .ap-btn { display:inline-block; margin-top:14px; background:var(--kumkum); color:#fff; text-decoration:none; font-weight:700; border-radius:12px; padding:11px 18px; }
     .ap-foot { text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px; }
@@ -103,11 +104,12 @@
       main.innerHTML = `
         <div class="ap-card ap-hero">
           <h1>🌅 ${esc(L('आज का पर्सनलाइज़्ड पंचांग', "Today's personalised panchang"))}</h1>
-          <div class="who">${esc(d.name)} • ${esc(t.vaar || '')} ${esc(date)}</div>
+          <div class="who">${esc(d.name)} • ${esc(t.vaar || '')} ${esc(date)}${d.current_place ? ' • 📍 ' + esc(d.current_place) : ''}</div>
           <div class="ap-score"><b>${score}</b><small>/ 100</small></div>
           <span class="ap-mood">${esc(mood)}</span>
           <div class="ap-theme">${esc(f.core_theme)}</div>
         </div>
+        ${f.ai_talk ? `<div class="ap-card ap-talk"><h2>💬 ${esc(L('आज आपसे दो बातें', 'A word with you today'))}</h2><div style="font-size:16px;line-height:1.75">${esc(f.ai_talk)}</div></div>` : ''}
         ${sg.is_chandrashtama ? `<div class="ap-alert">⚠️ ${esc(sg.chandrashtama_alert || L('आज चन्द्राष्टम है — बड़े निर्णय टालें।', 'Chandrashtama today — postpone big decisions.'))}</div>` : ''}
         ${f.dasha_focus ? `<div class="ap-card"><h2>🎯 ${esc(L('इन दिनों आपका फोकस', 'Your focus these days'))}</h2><div style="font-size:15px;line-height:1.6">${esc(f.dasha_focus)}</div></div>` : ''}
         <div class="ap-two">

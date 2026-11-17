@@ -305,13 +305,13 @@ SUB_COLLECTION = "panchang_subscribers"
 IST = ZoneInfo("Asia/Kolkata")
 
 
-def build_message(name: str, forecast: Dict[str, Any]) -> tuple:
+def build_message(name: str, forecast: Dict[str, Any], ai: Optional[Dict[str, str]] = None) -> tuple:
     score = int(round(forecast["overall_day_score"]))
     mood = forecast["sentiment"].split(" (")[0]
     title = f"🌅 {name} — आज का पंचांग: {score}/100 ({mood})"
     golden = (forecast["personalized_windows"].get("golden_hours") or [""])[0].split(" (")[0]
     rahu = (forecast.get("day_timings") or {}).get("rahu_kaal", "")
-    theme = forecast.get("headline") or forecast["core_theme"].split("। ")[0]
+    theme = (ai or {}).get("short") or forecast.get("headline") or forecast["core_theme"].split("। ")[0]
     lines = [theme]
     if golden:
         lines.append(f"✨ शुभ समय: {golden}")
@@ -372,6 +372,8 @@ class SubscribeRequest(NativeBirthProfile):
     # the Android app shows its own 7 AM notification (a WebView has no web push): it only
     # needs an entry whose /today it can read, keyed by the app's install id
     app_device: Optional[str] = Field(None, pattern=r"^[0-9a-fA-F-]{16,64}$")
+    # where the person lives now (timings are for this place); empty = the birth place
+    current_place: Optional[str] = Field(None, max_length=120)
 
 
 def _verified_phone(id_token: Optional[str]) -> Optional[str]:
@@ -418,6 +420,92 @@ def _forecast_for(sub: Dict[str, Any]) -> Dict[str, Any]:
         current_lat=sub.get("current_lat") or sub["lat"], current_lon=sub.get("current_lon") or sub["lon"],
         name=sub.get("name") or "जातक", birth_tz=sub.get("tz"),
     )
+
+
+# ---------------------------------------------------------------------------
+# The conversational reading (Gemini). The rules above decide WHAT the day holds for this
+# person; Gemini only says it the way a friendly family astrologer would, from those facts.
+# One call per subscriber per day, kept on the subscriber's entry ("ai").
+# ---------------------------------------------------------------------------
+AI_PROMPT = """आप "श्री रामजी एस्ट्रो" के स्नेही पारिवारिक ज्योतिषी हैं और सुबह-सुबह फ़ोन पर अपने किसी जानने वाले से
+बात कर रहे हैं। नीचे उसकी जन्म कुण्डली और आज के पंचांग से निकले तथ्य (JSON) हैं। उसे आज के बारे में ऐसे बताइए
+जैसे कोई अपना, हल्के-फुल्के बोलचाल के लहजे में बात करता है — "देखिए", "चलिए", "बस इतना ध्यान रखिए" जैसी
+सहज हिन्दी (देवनागरी), "आप" और नाम के साथ "जी"। रिपोर्ट या सूची जैसा नहीं, बातचीत जैसा।
+
+नियम:
+- केवल दिए गए तथ्यों पर बात करें; कोई नई भविष्यवाणी, घटना, बीमारी, मृत्यु, दुर्घटना या डर की बात न जोड़ें।
+- उसकी कुण्डली (राशि/दशा) और आज के पंचांग (तारा, चन्द्र, शुभ समय) को जोड़कर सिर्फ़ 2-3 सबसे काम की बातें चुनिए:
+  आज किस काम में मन लगाएँ, किसमें संभलें, और कौन-सा समय अच्छा है। सारे तथ्य दोहराने की ज़रूरत नहीं।
+- शुभ समय और राहुकाल जैसे दिए गए हैं वैसे ही लिखें, समय न बदलें। उपाय वही बताइए जो दिया गया है, एक वाक्य में।
+- ज्योतिष के भारी शब्द (भाव, प्रत्यन्तर्दशा, विष्टि करण) कम से कम; ज़रूरत हो तो आसान शब्दों में समझाइए।
+- "short": सूचना की एक पंक्ति, अधिकतम 100 अक्षर, जैसे कोई मैसेज कर रहा हो।
+- "long": 4 से 6 छोटे, सहज वाक्य, एक ही पैराग्राफ़।
+केवल JSON लौटाइए: {"short": "...", "long": "..."}
+
+तथ्य:
+"""
+
+
+def _ai_facts(name: str, f: Dict[str, Any]) -> Dict[str, Any]:
+    v = f["active_dashas"]["vimshottari"]
+    t = f.get("day_timings") or {}
+    return {
+        "नाम": name,
+        "जन्म_कुण्डली": {**(f.get("natal") or {}),
+                        "दशा": f"{v.get('maha_lord_hi')} महादशा, {v.get('antar_lord_hi')} अन्तर्दशा, {v.get('pratyantar_lord_hi')} प्रत्यन्तर्दशा"},
+        "आज": {
+            "वार": t.get("vaar"), "तिथि": f["panchang_summary"].get("tithi"), "नक्षत्र": f["panchang_summary"].get("nakshatra"),
+            "चन्द्र_राशि": f.get("today_moon_rashi_hi"),
+            "दिन_का_अंक": f"{int(round(f['overall_day_score']))}/100 ({f['sentiment'].split(' (')[0]})",
+            "तारा": f["tara_bala"]["tara_name_hi"], "मुख्य_बात": f["core_theme"],
+            "इन_दिनों_का_फोकस": f.get("dasha_focus"),
+            "करें": f["dos"], "न_करें": f["donts"],
+            "शुभ_समय": f["personalized_windows"]["golden_hours"][:2],
+            "राहुकाल": t.get("rahu_kaal"), "दिन_की_सूचनाएँ": f.get("day_notes") or [],
+            "उपाय": f["micro_remedy"],
+        },
+    }
+
+
+def _gemini_reading(name: str, forecast: Dict[str, Any]) -> Optional[Dict[str, str]]:
+    key = _setting("GEMINI_API_KEY")
+    if not key:
+        return None
+    model = _setting("GEMINI_MODEL", "gemini-3.5-flash")
+    body = {
+        "contents": [{"parts": [{"text": AI_PROMPT + json.dumps(_ai_facts(name, forecast), ensure_ascii=False, indent=1)}]}],
+        "generationConfig": {"responseMimeType": "application/json", "temperature": 0.8},
+    }
+    req = urllib.request.Request(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
+        data=json.dumps(body, ensure_ascii=False).encode("utf-8"), headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            reply = json.load(r)
+        text = "".join(p.get("text", "") for p in reply["candidates"][0]["content"]["parts"])
+        out = json.loads(text[text.find("{"): text.rfind("}") + 1])
+        short, long_ = str(out.get("short", "")).strip(), str(out.get("long", "")).strip()
+        if not short or not long_:
+            return None
+        return {"short": short[:160], "long": long_[:1500]}
+    except Exception as e:
+        logger.warning(f"[PanchangSubs] Gemini reading failed: {type(e).__name__}: {str(e)[:200]}")
+        return None
+
+
+def _ai_for(sub: Dict[str, Any], ref, forecast: Dict[str, Any]) -> Optional[Dict[str, str]]:
+    """Today's conversational reading for this subscriber, made once a day and kept."""
+    day = forecast["execution_date"]
+    cached = sub.get("ai") or {}
+    if cached.get("day") == day and cached.get("short"):
+        return {"short": cached["short"], "long": cached.get("long", "")}
+    ai = _gemini_reading(sub.get("name") or "जातक", forecast)
+    if ai and ref is not None:
+        try:
+            ref.update({"ai": {"day": day, **ai}})
+        except Exception:
+            pass
+    return ai
 
 
 def _send_push(sub: Dict[str, Any], title: str, body: str, info: Optional[Dict[str, Any]] = None) -> str:
@@ -541,9 +629,11 @@ def subscribe(req: SubscribeRequest, request: Request):
         "current_lon": req.current_lon if req.current_lon is not None else req.lon,
         "push": req.push.model_dump() if req.push else None,
         "app_device": req.app_device.lower() if req.app_device else None,
+        "current_place": (req.current_place or "").strip()[:120] or None,
         "whatsapp": phone, "whatsapp_verified": bool(phone),
         "whatsapp_consent_at": datetime.now(timezone.utc).isoformat() if phone else None,
         "active": True, "secret": secret, "fails": 0,
+        "ai": None,                       # birth details may have changed: write today's anew
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     if not old.exists:
@@ -576,10 +666,13 @@ def today_for_subscriber(req: TodayRequest):
     if not sub or not secrets.compare_digest(sub.get("secret", ""), req.secret):
         raise HTTPException(status_code=404, detail="सदस्यता नहीं मिली — कृपया दोबारा सब्सक्राइब करें।")
     forecast = _forecast_for(sub)
-    title, body = build_message(sub.get("name") or "जातक", forecast)
+    ai = _ai_for(sub, db.collection(SUB_COLLECTION).document(req.id), forecast)
+    title, body = build_message(sub.get("name") or "जातक", forecast, ai)
+    forecast["ai_talk"] = (ai or {}).get("long")
     birth = f"{sub['day']:02d}-{sub['month']:02d}-{sub['year']} {sub['hour']:02d}:{sub['minute']:02d}"
     return {"status": "success", "name": sub.get("name") or "जातक", "birth": birth,
             "channels": {"push": bool(sub.get("push")), "whatsapp": bool(sub.get("whatsapp")), "app": bool(sub.get("app_device"))},
+            "current_place": sub.get("current_place"),
             "notification": {"title": title, "body": body},
             "forecast": forecast}
 
@@ -612,7 +705,8 @@ def test_push(req: UnsubscribeRequest, request: Request):
         raise HTTPException(status_code=404, detail="सदस्यता नहीं मिली — कृपया दोबारा सब्सक्राइब करें।")
     if not sub.get("push"):
         raise HTTPException(status_code=400, detail="इस सदस्यता में नोटिफ़िकेशन चालू नहीं है।")
-    title, body = build_message(sub.get("name") or "जातक", _forecast_for(sub))
+    forecast = _forecast_for(sub)
+    title, body = build_message(sub.get("name") or "जातक", forecast, _ai_for(sub, ref, forecast))
     info: Dict[str, Any] = {}
     res = _send_push(sub, "🔔 " + title, body, info)
     if res == "gone":
@@ -652,7 +746,8 @@ def run_daily_dispatch() -> Dict[str, Any]:
             continue
         try:
             forecast = _forecast_for(sub)
-            title, body = build_message(sub.get("name") or "जातक", forecast)
+            ai = _ai_for(sub, snap.reference, forecast) if (sub.get("push") and not push_done) else None
+            title, body = build_message(sub.get("name") or "जातक", forecast, ai)
             update: Dict[str, Any] = {}
             sent_any = attempted = False
             if sub.get("push") and push_ok and not push_done:

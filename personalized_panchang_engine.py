@@ -1302,6 +1302,13 @@ class PersonalizedPanchangEngine:
             "sentiment": "उत्कृष्ट (Favorable)" if final_day_score >= 70 else ("सामान्य (Moderate)" if final_day_score >= 45 else "सतर्कता (Cautionary)"),
             "core_theme": theme,
             "headline": reading["head"],
+            "natal": {
+                "lagna_hi": RASHI_NAMES_HI[natal_chart["lagnaSign"]],
+                "moon_rashi_hi": RASHI_NAMES_HI[natal_planet_map["Moon"]["sign"]],
+                "nakshatra_hi": NAKSHATRA_NAMES_HI[natal_moon_micro["nakshatra_index"]],
+                "lagna_lord_hi": PLANET_NAMES_HI[RASHI_LORDS[natal_chart["lagnaSign"]]],
+            },
+            "today_moon_rashi_hi": RASHI_NAMES_HI[transit_planet_map["Moon"]["sign"]],
             "dasha_focus": reading["focus"],
             "moon_house_from_moon": moon_house,
             "moon_house_from_lagna": moon_house_from_lagna,

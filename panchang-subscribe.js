@@ -44,6 +44,28 @@
     return Uint8Array.from(raw, c => c.charCodeAt(0));
   }
 
+  // "Where do you live now": the day's timings are for this city (birth place if unchanged)
+  async function findPlace(q) {
+    q = (q || '').trim();
+    if (!q) return null;
+    try {
+      const c = typeof findCityInPresets === 'function' ? findCityInPresets(q) : null;   // eslint-disable-line no-undef
+      if (c) return { lat: c.lat, lon: c.lon, name: `${c.name} (${c.en})` };
+    } catch (e) { /* not on patrika */ }
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`, { headers: { 'Accept-Language': 'hi,en' } });
+      const d = r.ok ? await r.json() : [];
+      if (d && d[0]) return { lat: +d[0].lat, lon: +d[0].lon, name: d[0].display_name.split(',').slice(0, 2).join(',') };
+    } catch (e) { /* try the next */ }
+    try {
+      const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&format=json`);
+      const d = r.ok ? await r.json() : {};
+      const i = d.results && d.results[0];
+      if (i) return { lat: i.latitude, lon: i.longitude, name: `${i.name}${i.admin1 ? ', ' + i.admin1 : ''}` };
+    } catch (e) { /* none found */ }
+    return null;
+  }
+
   function profileFromPage() {
     // patrika keeps it in a top-level `let`, which is not a window property
     const calc = window.currentCalculation || (typeof currentCalculation !== 'undefined' ? currentCalculation : null); // eslint-disable-line no-undef
@@ -53,7 +75,8 @@
       name: String((typeof calc.native === 'string' && calc.native) || (calc.native && calc.native.name) || bd.candidateName || (document.getElementById('inName') || {}).value || 'जातक').trim().slice(0, 60),
       year: bd.year, month: bd.month, day: bd.day, hour: bd.hour, minute: bd.minute,
       lat: bd.lat, lon: bd.lon, tz: typeof bd.tz === 'number' ? bd.tz : null,
-      current_lat: bd.lat, current_lon: bd.lon
+      current_lat: bd.lat, current_lon: bd.lon,
+      birth_place: String(bd.placeName || (document.getElementById('inCitySearch') || {}).value || (document.getElementById('inPlace') || {}).value || '').trim().slice(0, 60)
     };
   }
 
@@ -204,6 +227,19 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     back.innerHTML = `<div class="ps-card" role="dialog" aria-modal="true">
       <h4>🌅 ${esc(L('दैनिक पर्सनलाइज़्ड पंचांग', 'Daily personalised panchang'))}</h4>
       <p class="ps-sub">${esc(L(`${profile.name} की कुण्डली के अनुसार — हर सुबह 7 बजे: आज का अंक, शुभ समय, राहुकाल, दशा और उपाय।`, `For ${profile.name}'s kundali — every morning at 7 AM: today's score, good hours, Rahu kaal, dasha and remedy.`))}</p>
+      <div class="ps-opt" style="display:block;cursor:default">
+        <b>📍 ${esc(L('अभी आप कहाँ रहते हैं?', 'Where do you live now?'))}</b>
+        <small style="display:block;margin:2px 0 8px;color:#6b5a3e">${esc(L('सूर्योदय, राहुकाल और शुभ समय इसी शहर के हिसाब से बनेंगे।', 'Sunrise, Rahu kaal and good hours are worked out for this city.'))}</small>
+        <label style="display:flex;gap:8px;align-items:center;margin:4px 0;cursor:pointer"><input type="radio" name="psPlace" value="birth" ${s && s.place ? '' : 'checked'}>
+          <span>${esc(L('जन्म-स्थान पर ही', 'At my birth place'))}${profile.birth_place ? ` (${esc(profile.birth_place)})` : ''}</span></label>
+        <label style="display:flex;gap:8px;align-items:center;margin:4px 0;cursor:pointer"><input type="radio" name="psPlace" value="other" ${s && s.place ? 'checked' : ''}>
+          <span>${esc(L('किसी दूसरे शहर में', 'In another city'))}</span></label>
+        <div id="psPlaceRow" style="display:${s && s.place ? 'flex' : 'none'};gap:8px;margin-top:6px">
+          <input id="psPlaceIn" type="text" autocomplete="off" value="${esc(s && s.place ? s.place.name : '')}" placeholder="${esc(L('शहर का नाम, जैसे मुंबई', 'City, e.g. Mumbai'))}" style="flex:1;min-width:0;padding:9px 10px;border:1.5px solid rgba(176,141,62,.45);border-radius:10px;font:inherit">
+          <button type="button" class="ps-x" id="psPlaceFind" style="padding:8px 12px">${esc(L('खोजें', 'Find'))}</button>
+        </div>
+        <small id="psPlaceSt" style="display:block;margin-top:4px;color:#047857">${s && s.place ? '✅ ' + esc(s.place.name) : ''}</small>
+      </div>
       <label class="ps-opt"><input type="checkbox" id="psPush" ${canPush ? 'checked' : 'disabled'}>
         <span><b>📱 ${esc(app ? L('ऐप नोटिफ़िकेशन', 'App notification') : L('फ़ोन / ब्राउज़र नोटिफ़िकेशन', 'Phone / browser notification'))}</b>
         <small>${esc(canPush ? (app ? L('हर सुबह 7 बजे इसी फ़ोन पर सूचना आएगी।', 'Arrives on this phone every morning at 7.') : L('इसी फ़ोन या कंप्यूटर पर सूचना आएगी।', 'Arrives on this phone or computer.'))
@@ -240,6 +276,22 @@ body.ps-open #sra-wa-float-container{display:none !important;}
       if (logged) toast(L('आप Google से लॉगिन हैं। WhatsApp के लिए लॉग-आउट करके मोबाइल नंबर (OTP) से लॉगिन करें, फिर यहीं सब्सक्राइब करें।', 'You are logged in with Google. For WhatsApp, log out and log in with your mobile number (OTP), then subscribe here.'));
       else if (window.SRAAuth) window.SRAAuth.open();
     };
+    let place = s && s.place ? s.place : null;
+    back.querySelectorAll('input[name=psPlace]').forEach(r => r.onchange = () => {
+      $('psPlaceRow').style.display = back.querySelector('input[name=psPlace][value=other]').checked ? 'flex' : 'none';
+    });
+    const findNow = async () => {
+      const st = $('psPlaceSt');
+      st.style.color = '#6b5a3e'; st.textContent = L('⏳ खोज रहे हैं…', '⏳ Searching…');
+      const p = await findPlace($('psPlaceIn').value);
+      place = p;
+      st.style.color = p ? '#047857' : '#b91c1c';
+      st.textContent = p ? '✅ ' + p.name : L('शहर नहीं मिला — नाम दूसरी तरह लिखकर देखें (जैसे Mumbai)।', 'City not found — try another spelling (e.g. Mumbai).');
+      return p;
+    };
+    $('psPlaceFind').onclick = findNow;
+    $('psPlaceIn').addEventListener('input', () => { place = null; $('psPlaceSt').textContent = ''; });
+    $('psPlaceIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); findNow(); } });
     if ($('psTest')) $('psTest').onclick = () => testPush($('psTest'));
     if ($('psStop')) $('psStop').onclick = async () => { await stop(); close(); };
 
@@ -250,6 +302,13 @@ body.ps-open #sra-wa-float-container{display:none !important;}
       if (!wantPush && !wantWa) { err.textContent = L('कम से कम एक तरीका चुनें।', 'Choose at least one way.'); return; }
       go.disabled = true; go.textContent = L('⏳ जुड़ रहा है…', '⏳ Connecting…');
       try {
+        const other = back.querySelector('input[name=psPlace][value=other]').checked;
+        if (other && !place) place = await findNow();
+        if (other && !place) throw new Error(L('अभी जहाँ रहते हैं वह शहर लिखकर "खोजें" दबाएँ।', 'Type the city you live in now and press Find.'));
+        const here = other ? place : null;
+        profile.current_lat = here ? here.lat : profile.lat;
+        profile.current_lon = here ? here.lon : profile.lon;
+        profile.current_place = here ? here.name : null;
         if (!serverReady) throw new Error(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कृपया कुछ समय बाद प्रयास करें।', 'The daily panchang service is being switched on — please try again a little later.'));
         let push = null, appDevice = null;
         if (wantPush && app) {
@@ -279,7 +338,7 @@ body.ps-open #sra-wa-float-container{display:none !important;}
         if (old && old.id && old.id !== data.id) {   // moved to another channel key: drop the old entry
           fetch(API() + '/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: old.id, secret: old.secret }) }).catch(() => {});
         }
-        localStorage.setItem(STORE, JSON.stringify({ id: data.id, secret: data.secret, channels: data.channels, name: profile.name }));
+        localStorage.setItem(STORE, JSON.stringify({ id: data.id, secret: data.secret, channels: data.channels, name: profile.name, place: profile.current_place ? { name: profile.current_place, lat: profile.current_lat, lon: profile.current_lon } : null }));
         if (appDevice) { app.enableDaily(apiAbs(), data.id, data.secret); app.testNow(); }
         localStorage.removeItem('sra_panchang_subscribed');
         paintButtons();
