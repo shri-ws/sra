@@ -2352,7 +2352,27 @@
     document.querySelectorAll(".pwa-install-card, #pwaInstallCard").forEach(c => c.style.display = "block");
   });
 
+  // Inside our Android app the "download app" entries become "check for app update"
+  // (SRAAndroid comes from MainActivity; version 2.6+). The old app (no bridge) cannot
+  // download inside its WebView, so it gets the APK through the phone's browser.
+  const inAppBridge = () => window.SRAAndroid && typeof window.SRAAndroid.checkUpdate === "function";
+  const inOldApp = () => !inAppBridge() && /Android/.test(navigator.userAgent) && /; wv\)/.test(navigator.userAgent);
+  function relabelForApp() {
+    if (!inAppBridge() && !inOldApp()) return;
+    const hi = "ऐप अपडेट जाँचें", en = "Check for app update";
+    document.querySelectorAll('.nav-app-label, .drawer-app-download span[data-i18n-hi]').forEach(el => {
+      el.setAttribute("data-i18n-hi", hi);
+      el.setAttribute("data-i18n-en", en);
+      el.textContent = (document.documentElement.lang || "hi").startsWith("en") ? en : hi;
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(relabelForApp, 300));
+  else setTimeout(relabelForApp, 300);
+  setTimeout(relabelForApp, 2000);   // the top bar button is added a little later
+
   window.openAppDownloadModal = function() {
+    if (inAppBridge()) { window.SRAAndroid.checkUpdate(); return; }
+    if (inOldApp()) { window.location.href = "https://raw.githubusercontent.com/shri-ws/sra/main/downloads/patrika-astro.apk"; return; }
     let m = document.getElementById("modalAppDownload");
     if (!m) {
       injectAppModalHtml();

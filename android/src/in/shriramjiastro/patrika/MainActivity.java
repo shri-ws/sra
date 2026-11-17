@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
 
     private static final String START_URL = "https://shriramjiastro.in/patrika.html";
     static final String EXTRA_URL = "open_url";
+    static final String EXTRA_CHECK_UPDATE = "check_update";
     private static final int REQ_NOTIFY = 77;
     private WebView webView;
     private volatile String currentHost = "shriramjiastro.in";
@@ -71,6 +72,9 @@ public class MainActivity extends Activity {
 
         setupWebView();
 
+        // a newer app version? (asks only when there is one)
+        AppUpdate.check(this, true);
+
         String open = urlFrom(getIntent());
         if (open != null) {
             webView.loadUrl(open);
@@ -87,6 +91,13 @@ public class MainActivity extends Activity {
         setIntent(intent);
         String open = urlFrom(intent);
         if (open != null && webView != null) webView.loadUrl(open);
+        if (intent.getBooleanExtra(EXTRA_CHECK_UPDATE, false)) AppUpdate.check(this, false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppUpdate.resume(this);   // continue an update that waited for the install permission
     }
 
     /** Only our own pages may be opened from a notification. */
@@ -131,7 +142,13 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public int version() { return 250; }
+        public int version() { return AppUpdate.myVersion(MainActivity.this); }
+
+        /** The website's "check for app update" button. */
+        @JavascriptInterface
+        public void checkUpdate() {
+            if (ours()) AppUpdate.check(MainActivity.this, false);
+        }
 
         @JavascriptInterface
         public String deviceId() {

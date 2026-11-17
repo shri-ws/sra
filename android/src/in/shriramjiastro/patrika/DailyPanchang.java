@@ -78,6 +78,7 @@ public class DailyPanchang extends BroadcastReceiver {
             @Override
             public void run() {
                 try {
+                    if (!test) AppUpdate.notifyIfNewer(context);   // once per new version
                     if (test || !sentToday(context)) {
                         boolean ok = fetchAndNotify(context, test);
                         if (!test) {

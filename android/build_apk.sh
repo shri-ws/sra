@@ -124,6 +124,14 @@ cp bin/patrika-astro.apk "$TARGET_DIR/patrika-astro.apk"
 cp bin/patrika-astro.apk "$TARGET_DIR/downloads/patrika-astro.apk"
 cp bin/patrika-astro.apk "$TARGET_DIR/public/downloads/patrika-astro.apk"
 
+# 11. Tell installed apps about this version (AppUpdate.java reads it; commit it with the APK)
+VCODE=$(sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p' AndroidManifest.xml)
+VNAME=$(sed -n 's/.*android:versionName="\([^"]*\)".*/\1/p' AndroidManifest.xml)
+NOTES="${UPDATE_NOTES:-सुधार और नई सुविधाएँ}"
+printf '{\n  "versionCode": %s,\n  "versionName": "%s",\n  "apk": "https://shriramjiastro.in/downloads/patrika-astro.apk",\n  "notes": "%s"\n}\n' "$VCODE" "$VNAME" "$NOTES" > "$TARGET_DIR/app-version.json"
+cp "$TARGET_DIR/app-version.json" "$TARGET_DIR/public/app-version.json"
+echo "app-version.json -> $VNAME ($VCODE)"
+
 echo "=========================================================="
 echo "SUCCESS! Production Android APK successfully built & signed:"
 ls -lh "$TARGET_DIR/downloads/patrika-astro.apk"
