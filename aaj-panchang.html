@@ -51,7 +51,7 @@
     .ap-talk ul { margin:0 0 4px; padding-left:20px; }
     .ap-areas { display:grid; gap:8px; }
     .ap-areas div { display:flex; gap:8px; align-items:flex-start; background:rgba(255,255,255,.55); border-radius:10px; padding:8px 10px; }
-    .ap-areas b { flex:none; min-width:74px; }
+    .ap-areas b { flex:none; min-width:74px; max-width:42%; }
     .ap-msg { text-align:center; padding:40px 16px; color:var(--muted); }
     .ap-btn { display:inline-block; margin-top:14px; background:var(--kumkum); color:#fff; text-decoration:none; font-weight:700; border-radius:12px; padding:11px 18px; }
     .ap-foot { text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px; }
@@ -128,6 +128,8 @@
           <h3>🚀 ${esc(ex.h_aage || L('इन कामों में आगे बढ़ सकते हैं', 'Go ahead with'))}</h3>${list(ex.aage_badhen)}
           <h3>🧭 ${esc(ex.h_dhyan || L('आज इनका ध्यान रखें', 'Mind these today'))}</h3>
           <div class="ap-areas">${Object.entries(ex.dhyan || {}).map(([k, v]) => `<div><b>${({'रिश्ते': '❤️', 'धन': '💰', 'परिवार': '🏠', 'सेहत': '🩺', 'खान-पान': '🍲'})[k] || '•'} ${esc(k)}</b><span>${esc(v)}</span></div>`).join('')}</div>
+          ${ex.dincharya ? `<h3>✨ ${esc(ex.h_dincharya || L('आज की दिनचर्या', 'Your routine today'))}${ex.helper_planet ? ` <small style="font-weight:400;color:var(--muted)">(${esc(L('सहायक ग्रह', 'helper planet'))}: ${esc(ex.helper_planet)})</small>` : ''}</h3>
+          <div class="ap-areas">${Object.entries(ex.dincharya).map(([k, v]) => `<div><b>${({'वस्त्र का रंग': '👕', 'इत्र / सुगंध': '🌸', 'सुबह की शुरुआत': '🌅', 'घर से निकलते समय': '🚪', 'आज का भोजन': '🍽️'})[k] || '•'} ${esc(k)}</b><span>${esc(v)}</span></div>`).join('')}</div>` : ''}
           ${ex.upay ? `<h3>🙏 ${esc(ex.h_upay || L('आज का उपाय', "Today's remedy"))}</h3><p>${esc(ex.upay)}</p>` : ''}
           ${ex.close ? `<p style="margin-top:12px;font-weight:600">${esc(ex.close)}</p>` : ''}
         </div>` : ''}

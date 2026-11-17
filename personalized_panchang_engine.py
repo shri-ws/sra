@@ -778,6 +778,68 @@ def life_area_hints(tara_idx: int, moon_kind: str, house_from_lagna: int, house_
     return {"रिश्ते": rel, "धन": money, "परिवार": family, "सेहत": health, "खान-पान": food}
 
 
+# Daily routine suggestions from the person's helper planet for the day (traditional
+# associations of each graha: colour, fragrance, a morning act, an act before leaving home, food)
+PLANET_ROUTINE = {
+    "Sun": {"rang": "केसरिया, नारंगी या हल्का लाल", "itra": "केसर या चन्दन की सुगंध",
+            "subah": "उगते सूर्य को ताँबे के लोटे से जल अर्पित करें और 'ॐ सूर्याय नमः' कहें",
+            "nikalte": "थोड़ा गुड़ खाकर और पिता या किसी बड़े को प्रणाम करके निकलें",
+            "bhojan": "गेहूँ की रोटी, गुड़ और मौसमी फल"},
+    "Moon": {"rang": "सफ़ेद, क्रीम या हल्का चाँदी जैसा", "itra": "चमेली या मोगरे की हल्की सुगंध",
+             "subah": "उठकर एक गिलास पानी पिएँ, माता को प्रणाम करें और शिवलिंग पर जल चढ़ाएँ",
+             "nikalte": "दही-चीनी (या मिश्री) खाकर घर से निकलें",
+             "bhojan": "चावल, दूध, खीर या दही — ठंडी तासीर वाला सादा भोजन"},
+    "Mars": {"rang": "लाल या मैरून", "itra": "गुलाब की सुगंध",
+             "subah": "हनुमान जी को प्रणाम करें और थोड़ा व्यायाम या तेज़ सैर करें",
+             "nikalte": "हनुमान चालीसा की एक चौपाई पढ़कर और थोड़ा मीठा खाकर निकलें",
+             "bhojan": "मसूर की दाल, गुड़ और ऊर्जा देने वाला भोजन"},
+    "Mercury": {"rang": "हरा या हल्का हरा", "itra": "तुलसी या ताज़ी हर्बल सुगंध",
+                "subah": "गणेश जी का स्मरण करें और घर के पौधों में पानी डालें",
+                "nikalte": "तुलसी का एक पत्ता या हरी इलायची मुँह में रखकर निकलें",
+                "bhojan": "हरी मूँग, हरी सब्ज़ियाँ और सलाद"},
+    "Jupiter": {"rang": "पीला या सुनहरा", "itra": "चन्दन या केसर की सुगंध",
+                "subah": "भगवान विष्णु या अपने गुरु का स्मरण करें और बड़ों का आशीर्वाद लें",
+                "nikalte": "माथे पर हल्दी या केसर का तिलक लगाकर निकलें",
+                "bhojan": "चने की दाल, बेसन की चीज़ें, केला या पीले फल"},
+    "Venus": {"rang": "सफ़ेद, क्रीम या हल्का गुलाबी", "itra": "गुलाब या कोई मीठी फूलों वाली सुगंध",
+              "subah": "स्नान के बाद साफ़-सुथरे कपड़े पहनें और माँ लक्ष्मी का स्मरण करें",
+              "nikalte": "इत्र लगाकर और थोड़ा दही या मिश्री खाकर निकलें",
+              "bhojan": "खीर, दही, चावल और मीठे फल"},
+    "Saturn": {"rang": "नीला, गहरा नीला या स्लेटी", "itra": "अगर (ऊद) या कस्तूरी जैसी गहरी सुगंध",
+               "subah": "पीपल को जल अर्पित करें या 'ॐ शं शनैश्चराय नमः' का जप करें",
+               "nikalte": "थोड़े तिल या तिल की कोई चीज़ खाकर निकलें, और किसी श्रमिक से विनम्रता से बात करें",
+               "bhojan": "उड़द या काले चने, तिल और सादा, कम मसाले का भोजन"},
+}
+VAAR_RANG = ["लाल या नारंगी", "सफ़ेद", "लाल", "हरा", "पीला", "सफ़ेद या हल्का गुलाबी", "नीला"]
+# Disha shool: the direction not to set out in on each weekday (Sun..Sat)
+DISHA_SHOOL = ["पश्चिम", "पूर्व", "उत्तर", "उत्तर", "दक्षिण", "पश्चिम", "पूर्व"]
+NATURAL_BENEFICS = ("Jupiter", "Venus", "Mercury", "Moon")
+
+
+def helper_planet(moon_kind: str, pratyantar: str, lagna_lord: str) -> Tuple[str, str]:
+    """The planet whose things suit the person today, and why."""
+    if moon_kind in ("bad", "worst"):
+        return "Moon", "आज चन्द्र बल कमज़ोर है, इसलिए मन को सँभालने वाले चन्द्रमा की चीज़ें"
+    if pratyantar in NATURAL_BENEFICS:
+        return pratyantar, f"आपकी प्रत्यन्तर्दशा {PLANET_NAMES_HI[pratyantar]} की है, इसलिए उसी की चीज़ें"
+    return lagna_lord, f"आपके लग्नेश {PLANET_NAMES_HI[lagna_lord]} हैं, इसलिए उन्हीं की चीज़ें"
+
+
+def daily_routine(helper: str, why: str, weekday: int, tara_idx: int, chandrashtama: bool) -> Dict[str, Any]:
+    r = PLANET_ROUTINE[helper]
+    vaar = VAAR_HI[weekday]
+    rang = f"{r['rang']} — {why} शुभ रहेंगी।"
+    if VAAR_RANG[weekday] not in r["rang"]:
+        rang += f" ({vaar} का रंग {VAAR_RANG[weekday]} है; उसे रूमाल या छोटी चीज़ में साथ रख सकते हैं।)"
+    subah = r["subah"] + "।"          # the day's remedy (tara/chandrashtama) is given under उपाय
+    nikalte = (r["nikalte"] + f"। आज {vaar} को {DISHA_SHOOL[weekday]} दिशा में दिशा शूल है — "
+               f"उस ओर की यात्रा टाल सकें तो अच्छा।")
+    return {"helper": PLANET_NAMES_HI[helper],
+            "items": {"वस्त्र का रंग": rang, "इत्र / सुगंध": r["itra"] + " आज आपके लिए अच्छी रहेगी।",
+                      "सुबह की शुरुआत": subah, "घर से निकलते समय": nikalte,
+                      "आज का भोजन": f"आज के भोजन में {r['bhojan']} रखना आपके लिए अच्छा रहेगा।"}}
+
+
 SATURN_TRANSIT = {12: "शनि की साढ़ेसाती का पहला चरण चल रहा है", 1: "शनि की साढ़ेसाती का मध्य चरण चल रहा है",
                   2: "शनि की साढ़ेसाती का अन्तिम चरण चल रहा है", 4: "शनि की ढैय्या (कण्टक शनि) चल रही है",
                   8: "शनि की ढैय्या (अष्टम शनि) चल रही है"}
@@ -1408,7 +1470,16 @@ class PersonalizedPanchangEngine:
             "mood": mood_word, "score": int(round(final_day_score)),
             "headline": reading["head"],
         })
+        node = {"Rahu": "Saturn", "Ketu": "Mars"}
+        helper, why = helper_planet(reading["moon_kind"], node.get(active_pratyantar_lord, active_pratyantar_lord),
+                                    RASHI_LORDS[natal_chart["lagnaSign"]])
+        routine = daily_routine(helper, why, int(day_chart["birthDetails"]["weekday"]) % 7,
+                                tara_bala["tara_index"], sudarshan_res["is_chandrashtama"])
+        ROUTINE_HEADS = ["आज की दिनचर्या", "आज आपके लिए शुभ", "दिन की शुरुआत से शाम तक",
+                         "आज के छोटे-छोटे शुभ संकेत", "पहनावा, सुगंध और भोजन", "आज क्या अपनाएँ"]
         explain = {
+            "dincharya": routine["items"], "helper_planet": routine["helper"],
+            "h_dincharya": ROUTINE_HEADS[voice_no % len(ROUTINE_HEADS)],
             "voice": voice["voice"], "greet": voice["greet"], "line": voice["line"], "lead": voice["lead"],
             "dasha_phal": voice["dasha"], "close": voice["close"], "short": voice["short"],
             "h_savdhani": voice["h_savdhani"], "h_aage": voice["h_aage"],
