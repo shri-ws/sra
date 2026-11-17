@@ -684,6 +684,67 @@ def day_wide_notes(sun: Dict[str, Any], moon: Dict[str, Any], at_hours: float,
     return notes
 
 
+MASA_HI = ["चैत्र", "वैशाख", "ज्येष्ठ", "आषाढ़", "श्रावण", "भाद्रपद",
+           "आश्विन", "कार्तिक", "मार्गशीर्ष", "पौष", "माघ", "फाल्गुन"]
+
+
+def lunar_month(sun: Dict[str, Any], moon: Dict[str, Any], krishna: bool) -> str:
+    """Month name: the amanta month is named by the Sun's sign at the last new moon (new moon
+    with the Sun in Meena begins Chaitra); in Krishna paksha North India (purnimanta) already
+    counts the next month."""
+    rel = max(10.0, moon.get("speed", 13.2) - sun.get("speed", 1.0))
+    since_new_moon = ((moon["abs"] - sun["abs"]) % 360.0) / rel
+    sun_then = (sun["abs"] - sun.get("speed", 1.0) * since_new_moon) % 360.0
+    idx = (int(sun_then // 30) - 11) % 12
+    if krishna:
+        idx = (idx + 1) % 12
+    return MASA_HI[idx]
+
+
+def life_area_hints(tara_idx: int, moon_kind: str, house_from_lagna: int, house_from_moon: int,
+                    tithi_name: str) -> Dict[str, str]:
+    """One line each for relationships, money, family, health and food, from the day's tara,
+    the Moon's house from the birth Moon (chandra bal) and from the lagna."""
+    bad = moon_kind in ("bad", "worst")
+    hL = house_from_lagna
+    if tara_idx == 5 or (hL == 7 and bad):
+        rel = "बातचीत में नरमी रखें; छोटी बात पर बहस बढ़ सकती है, सुनना ज़्यादा, बोलना कम।"
+    elif hL == 7:
+        rel = "जीवनसाथी या साझेदार के साथ अच्छा तालमेल रहेगा; साथ में कुछ समय बिताएँ।"
+    elif tara_idx in (8, 9):
+        rel = "मित्रों और बड़ों का साथ मिलेगा; किसी पुराने साथी से बात करना अच्छा रहेगा।"
+    else:
+        rel = "अपनों की बात ध्यान से सुनें; छोटी बातों को तूल न दें।"
+    if tara_idx in (3, 7) or hL == 12 or moon_kind == "worst":
+        money = "पैसे के बड़े फ़ैसले, उधार या निवेश आज टालें; ख़र्च पर नज़र रखें।"
+    elif tara_idx == 2 or (hL in (2, 11) and not bad):
+        money = "धन लाभ के अवसर हैं; रुके भुगतान, सौदे या ख़रीद-बिक्री आगे बढ़ा सकते हैं।"
+    else:
+        money = "ख़र्च सोच-समझकर करें और हिसाब साफ़ रखें।"
+    if hL == 4 or house_from_moon == 4:
+        family = "घर-परिवार पर ध्यान रहेगा; माता और बड़ों के साथ समय दें, घर की कोई ज़रूरत पूरी करें।"
+    elif tara_idx == 4:
+        family = "घर में सुख-शान्ति का दिन; परिवार के साथ भोजन या बातचीत अच्छी रहेगी।"
+    else:
+        family = "शाम को परिवार के साथ थोड़ा समय ज़रूर बिताएँ।"
+    if moon_kind == "worst" or tara_idx in (1, 7) or hL in (6, 8, 12):
+        health = "आराम पूरा लें, थकान को अनदेखा न करें; वाहन और सीढ़ियों पर सावधानी रखें।"
+    elif moon_kind == "good":
+        health = "ऊर्जा अच्छी रहेगी; थोड़ा टहलना या व्यायाम दिन को और बेहतर बनाएगा।"
+    else:
+        health = "नींद और पानी का ध्यान रखें; मन को शान्त रखने के लिए कुछ देर ध्यान करें।"
+    t = tithi_name or ""
+    if "एकादशी" in t:
+        food = "एकादशी है — हो सके तो अन्न कम या फलाहार लें।"
+    elif "अमावस्या" in t or "पूर्णिमा" in t:
+        food = "आज सात्त्विक, हल्का भोजन लें; ज़्यादा तला-भुना और देर रात का भोजन टालें।"
+    elif bad:
+        food = "हल्का और घर का बना भोजन लें; बाहर का तला-भुना आज टालें।"
+    else:
+        food = "समय पर भोजन करें और पानी भरपूर पिएँ।"
+    return {"रिश्ते": rel, "धन": money, "परिवार": family, "सेहत": health, "खान-पान": food}
+
+
 def build_personal_reading(name: str, score: float, tara_bala: Dict[str, Any], moon_house: int,
                            moon_house_from_lagna: int, natal_planet_map: Dict[str, Any], lagna_sign: int,
                            antar: str, pratyantar: str) -> Dict[str, Any]:
@@ -1262,6 +1323,33 @@ class PersonalizedPanchangEngine:
             natal_planet_map, natal_chart["lagnaSign"], active_antar_lord, active_pratyantar_lord)
         theme, dos, donts, remedy = reading["theme"], reading["dos"], reading["donts"], reading["remedy"]
 
+        dp_tithi = daily_panchang.get("tithi", {}) or {}
+        krishna = not dp_tithi.get("isShukla", True)
+        tithi_plain = str(dp_tithi.get("name", "")).split(" (")[0]
+        masa = lunar_month(transit_planet_map["Sun"], transit_planet_map["Moon"], krishna)
+        panchang_line = {
+            "masa": masa, "paksha": dp_tithi.get("paksha") or ("कृष्ण पक्ष" if krishna else "शुक्ल पक्ष"),
+            "tithi": tithi_plain, "nakshatra": (daily_panchang.get("nakshatra", {}) or {}).get("name"),
+            "moon_rashi": RASHI_NAMES_HI[transit_planet_map["Moon"]["sign"]],
+        }
+        hints = life_area_hints(tara_bala["tara_index"], reading["moon_kind"], moon_house_from_lagna,
+                                moon_house, tithi_plain)
+        sukshma_hi = PLANET_NAMES_HI.get(active_sukshma_lord, active_sukshma_lord)
+        explain = {
+            "line": (f"आज {masa} मास, {panchang_line['paksha']} की {tithi_plain} तिथि है। आज {panchang_line['nakshatra']} नक्षत्र है "
+                     f"और चन्द्रमा {panchang_line['moon_rashi']} राशि में है।"),
+            "lead": "देखते हैं, आज की ग्रह दशा आपकी कुण्डली के अनुसार कैसा फल देगी।",
+            "dasha_phal": (f"आपकी {PLANET_NAMES_HI.get(active_maha_lord)} महादशा और {PLANET_NAMES_HI.get(active_antar_lord)} अन्तर्दशा में "
+                           f"अभी {PLANET_NAMES_HI.get(active_pratyantar_lord)} की प्रत्यन्तर्दशा और {sukshma_hi} की सूक्ष्म दशा चल रही है। "
+                           f"चन्द्र बल: {MOON_HOUSE_GUIDE[moon_house][0]}। तारा बल: {TARA_GUIDE[tara_bala['tara_index']]['head']}। "
+                           f"कुल मिलाकर आज का दिन {('अच्छा' if final_day_score >= 70 else 'सामान्य' if final_day_score >= 45 else 'संभलकर चलने का')} "
+                           f"रहेगा ({int(round(final_day_score))}/100)।"),
+            "savdhani": list(donts),
+            "aage_badhen": list(dos),
+            "dhyan": hints,
+            "upay": remedy,
+        }
+
         dbd = day_chart["birthDetails"]
         sunrise, sunset, weekday = dbd["sunriseHrs"], dbd["sunsetHrs"], int(dbd["weekday"]) % 7
         day_windows = compute_day_windows(
@@ -1295,6 +1383,7 @@ class PersonalizedPanchangEngine:
                 donts.append("भद्रा के समय (" + n["text"].split(": ", 1)[1].split(" — ")[0] + ") गृह-प्रवेश, यात्रा या नया काम शुरू न करें।")
                 break
 
+        explain["savdhani"] = list(donts)          # includes the Bhadra hours added above
         return {
             "execution_date": target_date.strftime("%Y-%m-%d"),
             "user_name": name,
@@ -1309,6 +1398,9 @@ class PersonalizedPanchangEngine:
                 "lagna_lord_hi": PLANET_NAMES_HI[RASHI_LORDS[natal_chart["lagnaSign"]]],
             },
             "today_moon_rashi_hi": RASHI_NAMES_HI[transit_planet_map["Moon"]["sign"]],
+            "panchang_line": panchang_line,
+            "sukshma_lord_hi": sukshma_hi,
+            "explain": explain,
             "dasha_focus": reading["focus"],
             "moon_house_from_moon": moon_house,
             "moon_house_from_lagna": moon_house_from_lagna,

@@ -43,7 +43,15 @@
     .ap-grid div span { display:block; color:var(--muted); font-size:12px; }
     .ap-alert { background:#fff1f2; border:1px solid #fecdd3; color:#9f1239; border-radius:12px; padding:10px 12px; margin-bottom:12px; font-weight:600; font-size:14px; }
     .ap-remedy { background:linear-gradient(135deg,rgba(176,141,62,.1),rgba(176,141,62,.03)); }
-    .ap-talk { border-left:4px solid #b08d3e; background:linear-gradient(135deg,rgba(124,19,5,.06),rgba(176,141,62,.05)); }
+    .ap-talk { border-left:4px solid #b08d3e; background:linear-gradient(135deg,rgba(124,19,5,.06),rgba(176,141,62,.05)); font-size:16px; line-height:1.75; }
+    .ap-talk p { margin:0 0 10px; }
+    .ap-talk .ap-line { font-weight:700; color:var(--ink, #3b2a12); }
+    .ap-talk .ap-lead { font-style:italic; color:var(--muted); }
+    .ap-talk h3 { font-size:15px; margin:14px 0 6px; }
+    .ap-talk ul { margin:0 0 4px; padding-left:20px; }
+    .ap-areas { display:grid; gap:8px; }
+    .ap-areas div { display:flex; gap:8px; align-items:flex-start; background:rgba(255,255,255,.55); border-radius:10px; padding:8px 10px; }
+    .ap-areas b { flex:none; min-width:74px; }
     .ap-msg { text-align:center; padding:40px 16px; color:var(--muted); }
     .ap-btn { display:inline-block; margin-top:14px; background:var(--kumkum); color:#fff; text-decoration:none; font-weight:700; border-radius:12px; padding:11px 18px; }
     .ap-foot { text-align:center; font-size:12.5px; color:var(--muted); margin-top:14px; }
@@ -101,6 +109,7 @@
       const date = f.execution_date.split('-').reverse().join('-');
       const score = Math.round(f.overall_day_score);
       const mood = String(f.sentiment || '').split(' (')[0];
+      const ex = f.explain || {};
       main.innerHTML = `
         <div class="ap-card ap-hero">
           <h1>🌅 ${esc(L('आज का पर्सनलाइज़्ड पंचांग', "Today's personalised panchang"))}</h1>
@@ -109,13 +118,23 @@
           <span class="ap-mood">${esc(mood)}</span>
           <div class="ap-theme">${esc(f.core_theme)}</div>
         </div>
-        ${f.ai_talk ? `<div class="ap-card ap-talk"><h2>💬 ${esc(L('आज आपसे दो बातें', 'A word with you today'))}</h2><div style="font-size:16px;line-height:1.75">${esc(f.ai_talk)}</div></div>` : ''}
+        ${ex.line ? `<div class="ap-card ap-talk">
+          <h2>📜 ${esc(L('आज का दिन आपके लिए', 'Your day today'))}</h2>
+          <p class="ap-line">${esc(ex.line)}</p>
+          <p class="ap-lead">${esc(ex.lead || '')}</p>
+          <p>${esc(ex.dasha_phal || '')}</p>
+          <h3>⚠️ ${esc(L('इन बातों में सावधानी रखें', 'Be careful about'))}</h3>${list(ex.savdhani)}
+          <h3>🚀 ${esc(L('इन कामों में आगे बढ़ सकते हैं', 'Go ahead with'))}</h3>${list(ex.aage_badhen)}
+          <h3>🧭 ${esc(L('आज इनका ध्यान रखें', 'Mind these today'))}</h3>
+          <div class="ap-areas">${Object.entries(ex.dhyan || {}).map(([k, v]) => `<div><b>${({'रिश्ते': '❤️', 'धन': '💰', 'परिवार': '🏠', 'सेहत': '🩺', 'खान-पान': '🍲'})[k] || '•'} ${esc(k)}</b><span>${esc(v)}</span></div>`).join('')}</div>
+          ${ex.upay ? `<h3>🙏 ${esc(L('आज का उपाय', "Today's remedy"))}</h3><p>${esc(ex.upay)}</p>` : ''}
+        </div>` : ''}
         ${sg.is_chandrashtama ? `<div class="ap-alert">⚠️ ${esc(sg.chandrashtama_alert || L('आज चन्द्राष्टम है — बड़े निर्णय टालें।', 'Chandrashtama today — postpone big decisions.'))}</div>` : ''}
         ${f.dasha_focus ? `<div class="ap-card"><h2>🎯 ${esc(L('इन दिनों आपका फोकस', 'Your focus these days'))}</h2><div style="font-size:15px;line-height:1.6">${esc(f.dasha_focus)}</div></div>` : ''}
-        <div class="ap-two">
+        ${ex.line ? '' : `<div class="ap-two">
           <div class="ap-card ap-do"><h2>✅ ${esc(L('क्या करें', 'Do'))}</h2>${list(f.dos)}</div>
           <div class="ap-card ap-dont"><h2>❌ ${esc(L('क्या न करें', "Don't"))}</h2>${list(f.donts)}</div>
-        </div>
+        </div>`}
         <div class="ap-card">
           <h2>⏰ ${esc(L('आज के समय', "Today's timings"))}</h2>
           ${(f.personalized_windows.golden_hours || []).map(g => `<div class="ap-time"><span>✨</span><span>${esc(g)}</span></div>`).join('')}
@@ -136,7 +155,7 @@
           </div>
           ${tb.description ? `<p style="margin:10px 0 0;font-size:14px;color:var(--muted)">${esc(tb.description)}</p>` : ''}
         </div>
-        <div class="ap-card ap-remedy"><h2>🙏 ${esc(L('आज का उपाय', "Today's remedy"))}</h2><div>${esc(f.micro_remedy)}</div></div>
+        ${ex.line ? '' : `<div class="ap-card ap-remedy"><h2>🙏 ${esc(L('आज का उपाय', "Today's remedy"))}</h2><div>${esc(f.micro_remedy)}</div></div>`}
         <div class="ap-foot">${esc(L('जन्म', 'Birth'))}: ${esc(d.birth)} •
           <a href="patrika.html">${esc(L('पूरी कुण्डली', 'Full kundali'))}</a> •
           <a href="parashara-report.html">${esc(L('मेगा पाराशर रिपोर्ट', 'Mega Parashara Report'))}</a> •

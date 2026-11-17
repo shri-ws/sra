@@ -427,20 +427,25 @@ def _forecast_for(sub: Dict[str, Any]) -> Dict[str, Any]:
 # person; Gemini only says it the way a friendly family astrologer would, from those facts.
 # One call per subscriber per day, kept on the subscriber's entry ("ai").
 # ---------------------------------------------------------------------------
-AI_PROMPT = """आप "श्री रामजी एस्ट्रो" के स्नेही पारिवारिक ज्योतिषी हैं और सुबह-सुबह फ़ोन पर अपने किसी जानने वाले से
-बात कर रहे हैं। नीचे उसकी जन्म कुण्डली और आज के पंचांग से निकले तथ्य (JSON) हैं। उसे आज के बारे में ऐसे बताइए
-जैसे कोई अपना, हल्के-फुल्के बोलचाल के लहजे में बात करता है — "देखिए", "चलिए", "बस इतना ध्यान रखिए" जैसी
-सहज हिन्दी (देवनागरी), "आप" और नाम के साथ "जी"। रिपोर्ट या सूची जैसा नहीं, बातचीत जैसा।
+AI_PROMPT = """आप "श्री रामजी एस्ट्रो" के स्नेही पारिवारिक ज्योतिषी हैं और सुबह-सुबह अपने किसी जानने वाले को उसका
+आज का पंचांग समझा रहे हैं। नीचे उसकी जन्म कुण्डली और आज के पंचांग से निकले तथ्य (JSON) हैं, और "नियमों_से_बना_पाठ"
+में हर हिस्से का सीधा-सादा फल। आपको वही बातें सहज, आत्मीय, बोलचाल की हिन्दी (देवनागरी) में कहनी हैं — "आप" और
+नाम के साथ "जी", जैसे कोई अपना समझा रहा हो।
 
 नियम:
-- केवल दिए गए तथ्यों पर बात करें; कोई नई भविष्यवाणी, घटना, बीमारी, मृत्यु, दुर्घटना या डर की बात न जोड़ें।
-- उसकी कुण्डली (राशि/दशा) और आज के पंचांग (तारा, चन्द्र, शुभ समय) को जोड़कर सिर्फ़ 2-3 सबसे काम की बातें चुनिए:
-  आज किस काम में मन लगाएँ, किसमें संभलें, और कौन-सा समय अच्छा है। सारे तथ्य दोहराने की ज़रूरत नहीं।
-- शुभ समय और राहुकाल जैसे दिए गए हैं वैसे ही लिखें, समय न बदलें। उपाय वही बताइए जो दिया गया है, एक वाक्य में।
-- ज्योतिष के भारी शब्द (भाव, प्रत्यन्तर्दशा, विष्टि करण) कम से कम; ज़रूरत हो तो आसान शब्दों में समझाइए।
-- "short": सूचना की एक पंक्ति, अधिकतम 100 अक्षर, जैसे कोई मैसेज कर रहा हो।
-- "long": 4 से 6 छोटे, सहज वाक्य, एक ही पैराग्राफ़।
-केवल JSON लौटाइए: {"short": "...", "long": "..."}
+- केवल दिए गए तथ्यों और नियमों_से_बना_पाठ के फल पर बात करें; कोई नई भविष्यवाणी, घटना, बीमारी, मृत्यु, दुर्घटना या
+  डर की बात न जोड़ें। अच्छे-कठिन का निर्णय वही रहे जो नियमों_से_बना_पाठ में है।
+- समय (शुभ समय, राहुकाल, भद्रा) जैसे दिए हैं वैसे ही लिखें।
+- भारी शब्द कम; जो आएँ उनका आसान अर्थ साथ में।
+
+केवल यह JSON लौटाइए:
+{
+ "short": "सूचना की एक पंक्ति, अधिकतम 100 अक्षर, मैसेज जैसी",
+ "dasha_phal": "3-4 वाक्य: आज के गोचर, प्रत्यन्तर्दशा व सूक्ष्म दशा, चन्द्र बल और तारा बल के अनुसार आपका दिन कैसा जाएगा",
+ "savdhani": ["किन बातों में सावधानी रखनी है — 2 या 3 छोटी पंक्तियाँ"],
+ "aage_badhen": ["किन कामों में आगे बढ़ सकते हैं — 2 या 3 छोटी पंक्तियाँ"],
+ "dhyan": {"रिश्ते": "एक वाक्य", "धन": "एक वाक्य", "परिवार": "एक वाक्य", "सेहत": "एक वाक्य", "खान-पान": "एक वाक्य"}
+}
 
 तथ्य:
 """
@@ -463,7 +468,9 @@ def _ai_facts(name: str, f: Dict[str, Any]) -> Dict[str, Any]:
             "शुभ_समय": f["personalized_windows"]["golden_hours"][:2],
             "राहुकाल": t.get("rahu_kaal"), "दिन_की_सूचनाएँ": f.get("day_notes") or [],
             "उपाय": f["micro_remedy"],
+            "सूक्ष्म_दशा": f.get("sukshma_lord_hi"),
         },
+        "नियमों_से_बना_पाठ": {k: v for k, v in (f.get("explain") or {}).items() if k != "line"},
     }
 
 
@@ -507,10 +514,16 @@ def _gemini_reading(name: str, forecast: Dict[str, Any]) -> Optional[Dict[str, s
         if not text:
             return None
         out = json.loads(text[text.find("{"): text.rfind("}") + 1])
-        short, long_ = str(out.get("short", "")).strip(), str(out.get("long", "")).strip()
-        if not short or not long_:
+        short = str(out.get("short", "")).strip()
+        if not short:
             return None
-        return {"short": short[:160], "long": long_[:1500]}
+        clean_list = lambda v: [str(x).strip()[:200] for x in v][:3] if isinstance(v, list) else None
+        dhyan = out.get("dhyan") if isinstance(out.get("dhyan"), dict) else {}
+        return {"short": short[:160],
+                "dasha_phal": str(out.get("dasha_phal", "")).strip()[:900] or None,
+                "savdhani": clean_list(out.get("savdhani")),
+                "aage_badhen": clean_list(out.get("aage_badhen")),
+                "dhyan": {k: str(dhyan.get(k, "")).strip()[:240] for k in ("रिश्ते", "धन", "परिवार", "सेहत", "खान-पान") if dhyan.get(k)}}
     except Exception as e:
         logger.warning(f"[PanchangSubs] Gemini reading failed: {type(e).__name__}: {str(e)[:200]}")
         return None
@@ -520,8 +533,8 @@ def _ai_for(sub: Dict[str, Any], ref, forecast: Dict[str, Any]) -> Optional[Dict
     """Today's conversational reading for this subscriber, made once a day and kept."""
     day = forecast["execution_date"]
     cached = sub.get("ai") or {}
-    if cached.get("day") == day and cached.get("short"):
-        return {"short": cached["short"], "long": cached.get("long", "")}
+    if cached.get("day") == day and cached.get("short") and "dasha_phal" in cached:
+        return {k: v for k, v in cached.items() if k != "day"}
     ai = _gemini_reading(sub.get("name") or "जातक", forecast)
     if ai and ref is not None:
         try:
@@ -529,6 +542,20 @@ def _ai_for(sub: Dict[str, Any], ref, forecast: Dict[str, Any]) -> Optional[Dict
         except Exception:
             pass
     return ai
+
+
+def explain_for(forecast: Dict[str, Any], ai: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """The day's explanation in the fixed template: the panchang line is calculated; the
+    other parts are Gemini's wording where it gave them, the rule-based text otherwise."""
+    ex = dict(forecast.get("explain") or {})
+    if ai:
+        for k in ("dasha_phal", "savdhani", "aage_badhen"):
+            if ai.get(k):
+                ex[k] = ai[k]
+        if ai.get("dhyan"):
+            ex["dhyan"] = {**(ex.get("dhyan") or {}), **ai["dhyan"]}
+        ex["by_ai"] = True
+    return ex
 
 
 def _send_push(sub: Dict[str, Any], title: str, body: str, info: Optional[Dict[str, Any]] = None) -> str:
@@ -691,7 +718,7 @@ def today_for_subscriber(req: TodayRequest):
     forecast = _forecast_for(sub)
     ai = _ai_for(sub, db.collection(SUB_COLLECTION).document(req.id), forecast)
     title, body = build_message(sub.get("name") or "जातक", forecast, ai)
-    forecast["ai_talk"] = (ai or {}).get("long")
+    forecast["explain"] = explain_for(forecast, ai)
     birth = f"{sub['day']:02d}-{sub['month']:02d}-{sub['year']} {sub['hour']:02d}:{sub['minute']:02d}"
     return {"status": "success", "name": sub.get("name") or "जातक", "birth": birth,
             "channels": {"push": bool(sub.get("push")), "whatsapp": bool(sub.get("whatsapp")), "app": bool(sub.get("app_device"))},
