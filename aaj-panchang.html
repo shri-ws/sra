@@ -120,14 +120,16 @@
         </div>
         ${ex.line ? `<div class="ap-card ap-talk">
           <h2>📜 ${esc(L('आज का दिन आपके लिए', 'Your day today'))}</h2>
+          ${ex.greet ? `<p>${esc(ex.greet)}</p>` : ''}
           <p class="ap-line">${esc(ex.line)}</p>
           <p class="ap-lead">${esc(ex.lead || '')}</p>
           <p>${esc(ex.dasha_phal || '')}</p>
-          <h3>⚠️ ${esc(L('इन बातों में सावधानी रखें', 'Be careful about'))}</h3>${list(ex.savdhani)}
-          <h3>🚀 ${esc(L('इन कामों में आगे बढ़ सकते हैं', 'Go ahead with'))}</h3>${list(ex.aage_badhen)}
-          <h3>🧭 ${esc(L('आज इनका ध्यान रखें', 'Mind these today'))}</h3>
+          <h3>⚠️ ${esc(ex.h_savdhani || L('इन बातों में सावधानी रखें', 'Be careful about'))}</h3>${list(ex.savdhani)}
+          <h3>🚀 ${esc(ex.h_aage || L('इन कामों में आगे बढ़ सकते हैं', 'Go ahead with'))}</h3>${list(ex.aage_badhen)}
+          <h3>🧭 ${esc(ex.h_dhyan || L('आज इनका ध्यान रखें', 'Mind these today'))}</h3>
           <div class="ap-areas">${Object.entries(ex.dhyan || {}).map(([k, v]) => `<div><b>${({'रिश्ते': '❤️', 'धन': '💰', 'परिवार': '🏠', 'सेहत': '🩺', 'खान-पान': '🍲'})[k] || '•'} ${esc(k)}</b><span>${esc(v)}</span></div>`).join('')}</div>
-          ${ex.upay ? `<h3>🙏 ${esc(L('आज का उपाय', "Today's remedy"))}</h3><p>${esc(ex.upay)}</p>` : ''}
+          ${ex.upay ? `<h3>🙏 ${esc(ex.h_upay || L('आज का उपाय', "Today's remedy"))}</h3><p>${esc(ex.upay)}</p>` : ''}
+          ${ex.close ? `<p style="margin-top:12px;font-weight:600">${esc(ex.close)}</p>` : ''}
         </div>` : ''}
         ${sg.is_chandrashtama ? `<div class="ap-alert">⚠️ ${esc(sg.chandrashtama_alert || L('आज चन्द्राष्टम है — बड़े निर्णय टालें।', 'Chandrashtama today — postpone big decisions.'))}</div>` : ''}
         ${f.dasha_focus ? `<div class="ap-card"><h2>🎯 ${esc(L('इन दिनों आपका फोकस', 'Your focus these days'))}</h2><div style="font-size:15px;line-height:1.6">${esc(f.dasha_focus)}</div></div>` : ''}

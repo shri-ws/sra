@@ -702,47 +702,102 @@ def lunar_month(sun: Dict[str, Any], moon: Dict[str, Any], krishna: bool) -> str
 
 
 def life_area_hints(tara_idx: int, moon_kind: str, house_from_lagna: int, house_from_moon: int,
-                    tithi_name: str) -> Dict[str, str]:
+                    tithi_name: str, seed: int = 0) -> Dict[str, str]:
     """One line each for relationships, money, family, health and food, from the day's tara,
-    the Moon's house from the birth Moon (chandra bal) and from the lagna."""
+    the Moon's house from the birth Moon (chandra bal) and from the lagna. Which advice is
+    given is decided by those rules; seed only picks one of the wordings of that advice."""
     bad = moon_kind in ("bad", "worst")
     hL = house_from_lagna
+    pick = lambda options, k: options[(seed + k) % len(options)]
     if tara_idx == 5 or (hL == 7 and bad):
-        rel = "बातचीत में नरमी रखें; छोटी बात पर बहस बढ़ सकती है, सुनना ज़्यादा, बोलना कम।"
+        rel = pick(["बातचीत में नरमी रखें; छोटी बात पर बहस बढ़ सकती है, सुनना ज़्यादा, बोलना कम।",
+                    "आज शब्द तौलकर बोलें; किसी की बात चुभे तो जवाब शाम तक टाल दें।",
+                    "रिश्तों में आज धैर्य ही सबसे बड़ा सहारा है — बहस जीतने से ज़्यादा ज़रूरी रिश्ता है।"], 0)
     elif hL == 7:
-        rel = "जीवनसाथी या साझेदार के साथ अच्छा तालमेल रहेगा; साथ में कुछ समय बिताएँ।"
+        rel = pick(["जीवनसाथी या साझेदार के साथ अच्छा तालमेल रहेगा; साथ में कुछ समय बिताएँ।",
+                    "साथी से मन की बात कहने का अच्छा दिन है; साथ बैठकर कोई योजना बनाइए।",
+                    "साझेदारी और दाम्पत्य में मिठास रहेगी; छोटा-सा सरप्राइज़ भी अच्छा लगेगा।"], 0)
     elif tara_idx in (8, 9):
-        rel = "मित्रों और बड़ों का साथ मिलेगा; किसी पुराने साथी से बात करना अच्छा रहेगा।"
+        rel = pick(["मित्रों और बड़ों का साथ मिलेगा; किसी पुराने साथी से बात करना अच्छा रहेगा।",
+                    "दोस्तों से मिलना-जुलना आज फ़ायदेमंद रहेगा; किसी पुराने मित्र को फ़ोन कर लें।",
+                    "बड़ों का आशीर्वाद और मित्रों का सहयोग आज साथ है — उनसे सलाह लें।"], 0)
     else:
-        rel = "अपनों की बात ध्यान से सुनें; छोटी बातों को तूल न दें।"
+        rel = pick(["अपनों की बात ध्यान से सुनें; छोटी बातों को तूल न दें।",
+                    "घर और दफ़्तर, दोनों जगह रिश्तों में सहजता रखें; ग़लतफ़हमी हो तो तुरंत साफ़ कर लें।",
+                    "किसी अपने की तारीफ़ कीजिए — आज छोटी बातें बड़े रिश्ते बनाएँगी।"], 0)
     if tara_idx in (3, 7) or hL == 12 or moon_kind == "worst":
-        money = "पैसे के बड़े फ़ैसले, उधार या निवेश आज टालें; ख़र्च पर नज़र रखें।"
+        money = pick(["पैसे के बड़े फ़ैसले, उधार या निवेश आज टालें; ख़र्च पर नज़र रखें।",
+                      "आज किसी को उधार न दें और कोई बड़ा भुगतान बिना जाँचे न करें।",
+                      "निवेश या बड़ी ख़रीद अगले अच्छे दिन तक रोक लें; आज सिर्फ़ ज़रूरी ख़र्च।"], 1)
     elif tara_idx == 2 or (hL in (2, 11) and not bad):
-        money = "धन लाभ के अवसर हैं; रुके भुगतान, सौदे या ख़रीद-बिक्री आगे बढ़ा सकते हैं।"
+        money = pick(["धन लाभ के अवसर हैं; रुके भुगतान, सौदे या ख़रीद-बिक्री आगे बढ़ा सकते हैं।",
+                      "पैसे के मामले में आज हाथ खुला है — रुका पैसा माँगने या सौदा पक्का करने का अच्छा दिन।",
+                      "आमदनी बढ़ाने वाला कोई क़दम आज उठाइए; बचत की योजना भी बनाइए।"], 1)
     else:
-        money = "ख़र्च सोच-समझकर करें और हिसाब साफ़ रखें।"
+        money = pick(["ख़र्च सोच-समझकर करें और हिसाब साफ़ रखें।",
+                      "आज का ख़र्च लिखकर रखें; छोटी-छोटी बचत भी काम आएगी।",
+                      "पैसे के मामले में सामान्य दिन — योजना के बाहर ख़र्च न करें।"], 1)
     if hL == 4 or house_from_moon == 4:
-        family = "घर-परिवार पर ध्यान रहेगा; माता और बड़ों के साथ समय दें, घर की कोई ज़रूरत पूरी करें।"
+        family = pick(["घर-परिवार पर ध्यान रहेगा; माता और बड़ों के साथ समय दें, घर की कोई ज़रूरत पूरी करें।",
+                       "आज घर का माहौल आपका ध्यान माँगेगा; माँ से बात करें और घर का कोई अधूरा काम निपटाएँ।",
+                       "परिवार के साथ बैठकर बात करने का दिन है; बड़ों की सेहत का हाल ज़रूर पूछें।"], 2)
     elif tara_idx == 4:
-        family = "घर में सुख-शान्ति का दिन; परिवार के साथ भोजन या बातचीत अच्छी रहेगी।"
+        family = pick(["घर में सुख-शान्ति का दिन; परिवार के साथ भोजन या बातचीत अच्छी रहेगी।",
+                       "परिवार के साथ आज अच्छा समय बीतेगा; मिलकर भोजन करें।",
+                       "घर में अपनापन रहेगा — बच्चों या बड़ों के साथ थोड़ा खेल-बातचीत करें।"], 2)
     else:
-        family = "शाम को परिवार के साथ थोड़ा समय ज़रूर बिताएँ।"
+        family = pick(["शाम को परिवार के साथ थोड़ा समय ज़रूर बिताएँ।",
+                       "दिन भर की भागदौड़ में भी घर वालों के लिए दस मिनट निकालें।",
+                       "किसी परिजन को फ़ोन करके हाल-चाल पूछ लें — उन्हें अच्छा लगेगा।"], 2)
     if moon_kind == "worst" or tara_idx in (1, 7) or hL in (6, 8, 12):
-        health = "आराम पूरा लें, थकान को अनदेखा न करें; वाहन और सीढ़ियों पर सावधानी रखें।"
+        health = pick(["आराम पूरा लें, थकान को अनदेखा न करें; वाहन और सीढ़ियों पर सावधानी रखें।",
+                       "आज शरीर की सुनें — नींद पूरी करें और जल्दबाज़ी में चोट से बचें।",
+                       "सेहत के मामले में सतर्क रहें; ज़रूरत हो तो काम के बीच छोटा विश्राम लें।"], 3)
     elif moon_kind == "good":
-        health = "ऊर्जा अच्छी रहेगी; थोड़ा टहलना या व्यायाम दिन को और बेहतर बनाएगा।"
+        health = pick(["ऊर्जा अच्छी रहेगी; थोड़ा टहलना या व्यायाम दिन को और बेहतर बनाएगा।",
+                       "आज फुर्ती रहेगी — सुबह की सैर या योग का पूरा लाभ मिलेगा।",
+                       "तन-मन में ताज़गी रहेगी; इस ऊर्जा को अच्छे कामों में लगाइए।"], 3)
     else:
-        health = "नींद और पानी का ध्यान रखें; मन को शान्त रखने के लिए कुछ देर ध्यान करें।"
+        health = pick(["नींद और पानी का ध्यान रखें; मन को शान्त रखने के लिए कुछ देर ध्यान करें।",
+                       "सेहत सामान्य रहेगी; दिन में दो-तीन बार गहरी साँस लेकर तनाव उतारें।",
+                       "हल्का व्यायाम और समय पर आराम — आज इतना काफ़ी है।"], 3)
     t = tithi_name or ""
     if "एकादशी" in t:
         food = "एकादशी है — हो सके तो अन्न कम या फलाहार लें।"
     elif "अमावस्या" in t or "पूर्णिमा" in t:
-        food = "आज सात्त्विक, हल्का भोजन लें; ज़्यादा तला-भुना और देर रात का भोजन टालें।"
+        food = pick(["आज सात्त्विक, हल्का भोजन लें; ज़्यादा तला-भुना और देर रात का भोजन टालें।",
+                     "आज के दिन सादा, सात्त्विक भोजन सबसे अच्छा; देर रात खाने से बचें।"], 4)
     elif bad:
-        food = "हल्का और घर का बना भोजन लें; बाहर का तला-भुना आज टालें।"
+        food = pick(["हल्का और घर का बना भोजन लें; बाहर का तला-भुना आज टालें।",
+                     "आज पेट पर बोझ न डालें — घर का सादा खाना और गुनगुना पानी लें।",
+                     "मसालेदार और बासी भोजन से आज दूर रहें; हल्का खाएँ।"], 4)
     else:
-        food = "समय पर भोजन करें और पानी भरपूर पिएँ।"
+        food = pick(["समय पर भोजन करें और पानी भरपूर पिएँ।",
+                     "आज मौसमी फल ज़रूर लें और भोजन का समय न टालें।",
+                     "संतुलित भोजन और भरपूर पानी — आज के दिन के लिए यही ठीक है।"], 4)
     return {"रिश्ते": rel, "धन": money, "परिवार": family, "सेहत": health, "खान-पान": food}
+
+
+SATURN_TRANSIT = {12: "शनि की साढ़ेसाती का पहला चरण चल रहा है", 1: "शनि की साढ़ेसाती का मध्य चरण चल रहा है",
+                  2: "शनि की साढ़ेसाती का अन्तिम चरण चल रहा है", 4: "शनि की ढैय्या (कण्टक शनि) चल रही है",
+                  8: "शनि की ढैय्या (अष्टम शनि) चल रही है"}
+
+
+def slow_transits(transit_planet_map: Dict[str, Any], natal_moon_sign: int) -> str:
+    """Saturn and Jupiter counted from the birth Moon (classical gochar)."""
+    hs = ((transit_planet_map["Saturn"]["sign"] - natal_moon_sign) % 12) + 1
+    hj = ((transit_planet_map["Jupiter"]["sign"] - natal_moon_sign) % 12) + 1
+    if hs in SATURN_TRANSIT:
+        sat = f"{SATURN_TRANSIT[hs]} (शनि जन्म राशि से {HOUSE_ORD_HI[hs]} भाव में) — धैर्य और मेहनत से ही काम बनेंगे"
+    elif hs in (3, 6, 11):
+        sat = f"शनि जन्म राशि से {HOUSE_ORD_HI[hs]} भाव में शुभ गोचर कर रहे हैं — मेहनत का फल मिलेगा"
+    else:
+        sat = f"शनि जन्म राशि से {HOUSE_ORD_HI[hs]} भाव में हैं — सामान्य प्रभाव"
+    if hj in (2, 5, 7, 9, 11):
+        jup = f"गुरु जन्म राशि से {HOUSE_ORD_HI[hj]} भाव में शुभ हैं — भाग्य और अच्छी सलाह का साथ"
+    else:
+        jup = f"गुरु जन्म राशि से {HOUSE_ORD_HI[hj]} भाव में हैं — बड़े फ़ैसलों में बड़ों की सलाह लें"
+    return f"{sat}; {jup}"
 
 
 def build_personal_reading(name: str, score: float, tara_bala: Dict[str, Any], moon_house: int,
@@ -1332,18 +1387,32 @@ class PersonalizedPanchangEngine:
             "tithi": tithi_plain, "nakshatra": (daily_panchang.get("nakshatra", {}) or {}).get("name"),
             "moon_rashi": RASHI_NAMES_HI[transit_planet_map["Moon"]["sign"]],
         }
+        from panchang_voices import person_offset, voice_index, render as render_voice
+        offset = person_offset(birth_year, birth_month, birth_day, birth_hour, birth_minute)
+        voice_no = voice_index(target_date.date(), offset)
         hints = life_area_hints(tara_bala["tara_index"], reading["moon_kind"], moon_house_from_lagna,
-                                moon_house, tithi_plain)
+                                moon_house, tithi_plain, seed=voice_no)
         sukshma_hi = PLANET_NAMES_HI.get(active_sukshma_lord, active_sukshma_lord)
+        av_quality = "मज़बूत" if moon_bav_pts >= 5 else ("सामान्य" if moon_bav_pts == 4 else "कमज़ोर")
+        mood_word = "अच्छा" if final_day_score >= 70 else ("सामान्य" if final_day_score >= 45 else "संभलकर चलने वाला")
+        voice = render_voice(voice_no, {
+            "name": name, "masa": masa, "paksha": panchang_line["paksha"], "tithi": tithi_plain,
+            "nakshatra": panchang_line["nakshatra"], "moon_rashi": panchang_line["moon_rashi"],
+            "vaar": (daily_panchang.get("vaar", {}) or {}).get("vedic", ""),
+            "maha": PLANET_NAMES_HI.get(active_maha_lord), "antar": PLANET_NAMES_HI.get(active_antar_lord),
+            "pratyantar": PLANET_NAMES_HI.get(active_pratyantar_lord), "sukshma": sukshma_hi,
+            "yogini": yogini_res.get("major_hi", ""),
+            "chandra": MOON_HOUSE_GUIDE[moon_house][0], "tara": TARA_GUIDE[tara_bala["tara_index"]]["head"],
+            "gochar": slow_transits(transit_planet_map, natal_planet_map["Moon"]["sign"]),
+            "av": f"आज चन्द्रमा जिस राशि में हैं, वहाँ आपके अष्टकवर्ग में {moon_bav_pts}/8 बिन्दु हैं — {av_quality}",
+            "mood": mood_word, "score": int(round(final_day_score)),
+            "headline": reading["head"],
+        })
         explain = {
-            "line": (f"आज {masa} मास, {panchang_line['paksha']} की {tithi_plain} तिथि है। आज {panchang_line['nakshatra']} नक्षत्र है "
-                     f"और चन्द्रमा {panchang_line['moon_rashi']} राशि में है।"),
-            "lead": "देखते हैं, आज की ग्रह दशा आपकी कुण्डली के अनुसार कैसा फल देगी।",
-            "dasha_phal": (f"आपकी {PLANET_NAMES_HI.get(active_maha_lord)} महादशा और {PLANET_NAMES_HI.get(active_antar_lord)} अन्तर्दशा में "
-                           f"अभी {PLANET_NAMES_HI.get(active_pratyantar_lord)} की प्रत्यन्तर्दशा और {sukshma_hi} की सूक्ष्म दशा चल रही है। "
-                           f"चन्द्र बल: {MOON_HOUSE_GUIDE[moon_house][0]}। तारा बल: {TARA_GUIDE[tara_bala['tara_index']]['head']}। "
-                           f"कुल मिलाकर आज का दिन {('अच्छा' if final_day_score >= 70 else 'सामान्य' if final_day_score >= 45 else 'संभलकर चलने का')} "
-                           f"रहेगा ({int(round(final_day_score))}/100)।"),
+            "voice": voice["voice"], "greet": voice["greet"], "line": voice["line"], "lead": voice["lead"],
+            "dasha_phal": voice["dasha"], "close": voice["close"], "short": voice["short"],
+            "h_savdhani": voice["h_savdhani"], "h_aage": voice["h_aage"],
+            "h_dhyan": voice["h_dhyan"], "h_upay": voice["h_upay"],
             "savdhani": list(donts),
             "aage_badhen": list(dos),
             "dhyan": hints,

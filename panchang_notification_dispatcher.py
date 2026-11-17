@@ -311,7 +311,8 @@ def build_message(name: str, forecast: Dict[str, Any], ai: Optional[Dict[str, st
     title = f"🌅 {name} — आज का पंचांग: {score}/100 ({mood})"
     golden = (forecast["personalized_windows"].get("golden_hours") or [""])[0].split(" (")[0]
     rahu = (forecast.get("day_timings") or {}).get("rahu_kaal", "")
-    theme = (ai or {}).get("short") or forecast.get("headline") or forecast["core_theme"].split("। ")[0]
+    theme = ((ai or {}).get("short") or (forecast.get("explain") or {}).get("short")
+             or forecast.get("headline") or forecast["core_theme"].split("। ")[0])
     lines = [theme]
     if golden:
         lines.append(f"✨ शुभ समय: {golden}")
@@ -530,7 +531,10 @@ def _gemini_reading(name: str, forecast: Dict[str, Any]) -> Optional[Dict[str, s
 
 
 def _ai_for(sub: Dict[str, Any], ref, forecast: Dict[str, Any]) -> Optional[Dict[str, str]]:
-    """Today's conversational reading for this subscriber, made once a day and kept."""
+    """Today's conversational reading for this subscriber, made once a day and kept.
+    Off unless PANCHANG_AI_ON=1: the 30 rule-based voices (panchang_voices.py) are used."""
+    if _setting("PANCHANG_AI_ON") != "1":
+        return None
     day = forecast["execution_date"]
     cached = sub.get("ai") or {}
     if cached.get("day") == day and cached.get("short") and "dasha_phal" in cached:
