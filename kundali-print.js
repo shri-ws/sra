@@ -753,6 +753,14 @@
     document.body.classList.add('kp-open');
     const close = () => { sheet.remove(); document.body.classList.remove('kp-open'); setTimeout(() => URL.revokeObjectURL(url), 60000); };
     sheet.addEventListener('click', async e => {
+      // our Android app before 2.6.2 cannot save a PDF made in the page: ask it to update
+      const B = window.SRAAndroid;
+      if (e.target.closest('a[download]') && B && typeof B.fileBegin !== 'function') {
+        e.preventDefault();
+        alert(L('PDF सेव करने के लिए ऐप का नया संस्करण चाहिए। अभी अपडेट करें।', 'Please update the app to save the PDF.'));
+        if (typeof B.checkUpdate === 'function') B.checkUpdate();
+        return;
+      }
       const act = e.target.closest('[data-act]');
       if (e.target === sheet || (act && act.dataset.act === 'close')) return close();
       if (act && act.dataset.act === 'share') {

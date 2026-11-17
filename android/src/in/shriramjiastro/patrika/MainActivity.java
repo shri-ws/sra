@@ -205,6 +205,27 @@ public class MainActivity extends Activity {
             if (ours()) DailyPanchang.disable(MainActivity.this);
         }
 
+        // files the page makes itself (kundali PDF): streamed here in base64 chunks
+        @JavascriptInterface
+        public String fileBegin(String name, String mime) {
+            return ours() ? FileSaver.begin(MainActivity.this, name, mime) : "";
+        }
+
+        @JavascriptInterface
+        public void fileChunk(String token, String b64) {
+            if (ours()) FileSaver.chunk(MainActivity.this, token, b64);
+        }
+
+        @JavascriptInterface
+        public void fileEnd(String token) {
+            if (ours()) FileSaver.end(MainActivity.this, token);
+        }
+
+        @JavascriptInterface
+        public void fileFail(String why) {
+            FileSaver.fail(MainActivity.this, why);
+        }
+
         @JavascriptInterface
         public void testNow() {
             if (!ours()) return;
@@ -237,6 +258,12 @@ public class MainActivity extends Activity {
         webView.setDownloadListener(new android.webkit.DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long length) {
+                if (url != null && (url.startsWith("blob:") || url.startsWith("data:"))) {
+                    // made inside the page (e.g. kundali PDF): no browser can open it, save it here
+                    // the link's download="" name is read in the page; this is only the fallback
+                    webView.evaluateJavascript(FileSaver.pageScript(url, "shriramji-astro"), null);
+                    return;
+                }
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 } catch (Exception e) {
