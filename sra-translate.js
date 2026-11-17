@@ -84,9 +84,14 @@
 
   // The widget's hidden <select> drives the translation
   async function choose(lang) {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 50; i++) {
       const combo = document.querySelector('.goog-te-combo');
-      if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); return; }
+      // wait until the widget has filled its language list, or the choice is lost
+      if (combo && [...combo.options].some(o => o.value === lang)) {
+        combo.value = lang;
+        combo.dispatchEvent(new Event('change'));
+        return;
+      }
       await new Promise(r => setTimeout(r, 200));
     }
   }
@@ -103,12 +108,12 @@
       return;
     }
     ensureEnglishBase();
-    writeCookie(lang);
     await new Promise(r => setTimeout(r, 300));   // English base drawn first
     markActive(true);
     try {
-      await loadGoogle();
+      await loadGoogle();           // started without the cookie (see resume)
       await choose(lang);
+      setTimeout(() => writeCookie(lang), 2500);   // remembered for the next page
     } catch (e) {
       writeCookie(null);
       markActive(false);
@@ -123,13 +128,22 @@
   function resume() {
     const g = readCookie();
     if (!g || OWN.includes(g)) return;
-    writeCookie(g);              // the cookie may name another page's source language: use this page's
+    // Google's widget, when it starts with the cookie already set, marks the page translated
+    // but sends nothing. So start it without the cookie and choose the language the way a
+    // click does; the cookie is written again (with this page's source language) at once.
+    writeCookie(null);
     ensureEnglishBase();
-    // Let sra-i18n draw the English base first, then hand the page to Google
-    setTimeout(() => {
-      markActive(true);
-      loadGoogle().then(() => choose(g)).catch(() => { writeCookie(null); markActive(false); });
-    }, 800);
+    markActive(true);
+    // Start Google only once the page has fully loaded and drawn its text (patrika takes a
+    // few seconds; started earlier, the widget stays idle), plus a moment for sra-i18n
+    const start = () => setTimeout(() => {
+      loadGoogle()
+        .then(() => choose(g))
+        .then(() => setTimeout(() => writeCookie(g), 2500))   // after Google has written its own
+        .catch(() => { writeCookie(g); markActive(false); });
+    }, 1200);
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
   }
 
   window.SRATranslate = { LANGS, OWN, SRC, current, set };
