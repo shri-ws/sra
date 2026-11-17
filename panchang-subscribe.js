@@ -102,12 +102,43 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     } catch (e) { return null; }
   }
 
-  async function getConfig() {
+  // The free calculation server sleeps and takes up to a minute to wake: ask early (page
+  // load) and keep asking, so the box does not wrongly say notifications are unavailable.
+  let cfgPromise = null;
+  function getConfig() {
+    if (!cfgPromise) {
+      cfgPromise = (async () => {
+        for (let i = 0; i < 6; i++) {
+          try {
+            const ctl = new AbortController();
+            const t = setTimeout(() => ctl.abort(), 25000);
+            const r = await fetch(API() + '/config', { signal: ctl.signal, cache: 'no-store' });
+            clearTimeout(t);
+            if (r.ok) return await r.json();
+          } catch (e) { /* asleep or offline */ }
+          await new Promise(res => setTimeout(res, 4000));
+        }
+        return null;
+      })().then(c => { if (!c) cfgPromise = null; return c; });
+    }
+    return cfgPromise;
+  }
+
+  async function testPush(btn) {
+    const s = saved();
+    if (!s) return;
+    btn.disabled = true; btn.textContent = L('⏳ भेज रहे हैं…', '⏳ Sending…');
+    let msg;
     try {
-      const r = await fetch(API() + '/config');
-      if (r.ok) return await r.json();
-    } catch (e) { /* offline or server asleep */ }
-    return null;
+      const r = await fetch(API() + '/test-push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, secret: s.secret }) });
+      const d = await r.json().catch(() => ({}));
+      msg = !r.ok ? (d.detail || ('HTTP ' + r.status))
+        : d.result === 'sent' ? L('✅ भेज दी — कुछ सेकंड में फ़ोन पर सूचना दिखनी चाहिए। न दिखे तो फ़ोन की Settings → Apps → Chrome → Notifications चालू करें।', '✅ Sent — the notification should appear in a few seconds. If not, turn on Settings → Apps → Chrome → Notifications.')
+        : d.result === 'gone' ? L('इस फ़ोन की सदस्यता ब्राउज़र ने रद्द कर दी है — कृपया दोबारा सब्सक्राइब करें।', 'The browser cancelled this subscription — please subscribe again.')
+        : L('नहीं भेज सके: ', 'Could not send: ') + (d.error || '');
+    } catch (e) { msg = L('सर्वर से नहीं जुड़ सके, थोड़ी देर बाद प्रयास करें।', 'Could not reach the server, try again shortly.'); }
+    btn.disabled = false; btn.textContent = '🔔 ' + L('अभी एक टेस्ट सूचना भेजें', 'Send a test notification now');
+    toast(msg);
   }
 
   async function pushSubscription(vapidKey) {
@@ -132,7 +163,10 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     if (!profile) { toast(L('कृपया पहले अपनी कुण्डली बनाएँ (जन्म तिथि, समय व स्थान)।', 'Please make your kundali first (birth date, time and place).')); return; }
     injectCss();
     const s = saved();
+    const slow = setTimeout(() => toast(L('⏳ सर्वर से जुड़ रहे हैं… (पहली बार में एक मिनट तक लग सकता है)', '⏳ Connecting to the server… (the first time can take up to a minute)')), 1500);
     const [cfg, waUser] = await Promise.all([getConfig(), otpUser()]);
+    clearTimeout(slow);
+    const waOn = !!(cfg && cfg.whatsapp_ready);
     const waPhone = waUser ? waUser.phoneNumber : '';
     const serverReady = !!(cfg && cfg.storage_ready);
     const deviceCanPush = pushSupported() && !(isIOS() && !standalone());
@@ -147,10 +181,10 @@ body.ps-open #sra-wa-float-container{display:none !important;}
       <label class="ps-opt"><input type="checkbox" id="psPush" ${canPush ? 'checked' : 'disabled'}>
         <span><b>📱 ${esc(L('फ़ोन / ब्राउज़र नोटिफ़िकेशन', 'Phone / browser notification'))}</b>
         <small>${esc(canPush ? L('इसी फ़ोन या कंप्यूटर पर सूचना आएगी।', 'Arrives on this phone or computer.')
-          : deviceCanPush ? L('नोटिफ़िकेशन सेवा जल्द चालू होगी — अभी WhatsApp चुनें।', 'Notifications are coming soon — choose WhatsApp for now.')
+          : deviceCanPush ? L('सर्वर से नहीं जुड़ सके — इंटरनेट जाँचकर पेज दोबारा खोलें।', 'Could not reach the server — check the internet and reopen the page.')
           : isIOS() ? L('iPhone पर: Safari में Share → "Add to Home Screen" करें, फिर वहीं से साइट खोलकर सब्सक्राइब करें।', 'On iPhone: Safari Share → "Add to Home Screen", then open the site from there and subscribe.')
-          : L('यह ब्राउज़र नोटिफ़िकेशन नहीं दिखा सकता — WhatsApp चुनें।', 'This browser cannot show notifications — choose WhatsApp.'))}</small></span></label>
-      <label class="ps-opt"><input type="checkbox" id="psWa" ${waPhone ? ((s && s.channels && s.channels.whatsapp) || !canPush ? 'checked' : '') : 'disabled'}>
+          : L('यह ब्राउज़र नोटिफ़िकेशन नहीं दिखा सकता — साइट को Chrome में खोलें (WhatsApp/Instagram के अंदर वाले ब्राउज़र में नहीं)।', 'This browser cannot show notifications — open the site in Chrome (not inside WhatsApp/Instagram).'))}</small></span></label>
+      <label class="ps-opt"${waOn ? '' : ' style="display:none"'}><input type="checkbox" id="psWa" ${waOn && waPhone ? ((s && s.channels && s.channels.whatsapp) || !canPush ? 'checked' : '') : 'disabled'}>
         <span style="flex:1"><b>💬 WhatsApp</b>
         ${waPhone ? `<small>${esc(L('आपके लॉगिन नंबर पर: ', 'To your login number: '))}<b style="display:inline">${esc(waPhone)}</b></small>` : ''}
         <small>${esc(!waPhone ? L('WhatsApp केवल उसी नंबर पर जाता है जिससे आपने OTP द्वारा लॉगिन किया है।', 'WhatsApp goes only to the number you logged in with by OTP.')
@@ -158,10 +192,11 @@ body.ps-open #sra-wa-float-container{display:none !important;}
           : L('WhatsApp संदेश जल्द शुरू होंगे — शुरू होते ही अपने-आप आने लगेंगे। तब तक नोटिफ़िकेशन भी चुनें।', 'WhatsApp messages start soon and will then begin by themselves. Choose notifications too meanwhile.'))}</small>
         ${waPhone ? '' : `<button type="button" class="ps-x" id="psLogin" style="margin-top:8px;padding:8px 12px">📲 ${esc(L('मोबाइल OTP से लॉगिन करें', 'Log in with mobile OTP'))}</button>`}</span></label>
       ${serverReady ? '' : `<div class="ps-note" style="background:rgba(185,28,28,.08)">${esc(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कुछ समय बाद सब्सक्राइब कर सकेंगे।', 'The daily panchang service is being switched on — you can subscribe a little later.'))}</div>`}
-      <div class="ps-note">${esc(L('WhatsApp चुनने पर आप प्रतिदिन सुबह संदेश पाने की सहमति देते हैं। कभी भी यहीं से बंद कर सकते हैं।', 'By choosing WhatsApp you agree to get a message every morning. You can stop it here any time.'))}</div>
+      <div class="ps-note"${waOn ? '' : ' style="display:none"'}>${esc(L('WhatsApp चुनने पर आप प्रतिदिन सुबह संदेश पाने की सहमति देते हैं। कभी भी यहीं से बंद कर सकते हैं।', 'By choosing WhatsApp you agree to get a message every morning. You can stop it here any time.'))}</div>
       <div class="ps-err" id="psErr" role="alert"></div>
       <div class="ps-row"><button type="button" class="ps-x" id="psClose">${esc(L('रद्द करें', 'Cancel'))}</button>
         <button type="button" class="ps-go" id="psGo">🔔 ${esc(s ? L('अपडेट करें', 'Update') : L('सब्सक्राइब करें', 'Subscribe'))}</button></div>
+      ${s && s.channels && s.channels.push ? `<button type="button" class="ps-x" id="psTest" style="width:100%;margin-top:10px">🔔 ${esc(L('अभी एक टेस्ट सूचना भेजें', 'Send a test notification now'))}</button>` : ''}
       ${s ? `<button type="button" class="ps-stop" id="psStop">${esc(L('दैनिक पंचांग बंद करें', 'Stop daily panchang'))}</button>` : ''}
     </div>`;
     document.body.appendChild(back);
@@ -177,6 +212,7 @@ body.ps-open #sra-wa-float-container{display:none !important;}
       if (logged) toast(L('आप Google से लॉगिन हैं। WhatsApp के लिए लॉग-आउट करके मोबाइल नंबर (OTP) से लॉगिन करें, फिर यहीं सब्सक्राइब करें।', 'You are logged in with Google. For WhatsApp, log out and log in with your mobile number (OTP), then subscribe here.'));
       else if (window.SRAAuth) window.SRAAuth.open();
     };
+    if ($('psTest')) $('psTest').onclick = () => testPush($('psTest'));
     if ($('psStop')) $('psStop').onclick = async () => { await stop(); close(); };
 
     $('psGo').onclick = async () => {
@@ -193,8 +229,8 @@ body.ps-open #sra-wa-float-container{display:none !important;}
           try { push = await pushSubscription(cfg.vapid_public_key); }
           catch (e) {
             throw new Error(e.message === 'denied'
-              ? L('नोटिफ़िकेशन की अनुमति नहीं मिली। ब्राउज़र सेटिंग में इस साइट के लिए Notifications चालू करें, या WhatsApp चुनें।', 'Notification permission was not given. Allow notifications for this site in browser settings, or choose WhatsApp.')
-              : L('इस ब्राउज़र में नोटिफ़िकेशन चालू नहीं हो सका — WhatsApp चुनें।', 'Could not turn on notifications in this browser — choose WhatsApp.'));
+              ? L('नोटिफ़िकेशन की अनुमति नहीं मिली। Chrome में पता-पट्टी के 🔒 पर टैप करके Notifications → Allow करें, फिर दोबारा सब्सक्राइब करें।', 'Notification permission was not given. Tap the 🔒 in the Chrome address bar → Notifications → Allow, then subscribe again.')
+              : L('इस ब्राउज़र में नोटिफ़िकेशन चालू नहीं हो सका', 'Could not turn on notifications in this browser') + ' (' + (e.name || '') + ': ' + (e.message || e) + ')');
           }
         }
         const idToken = wantWa && waUser ? await waUser.getIdToken() : null;
@@ -244,5 +280,6 @@ body.ps-open #sra-wa-float-container{display:none !important;}
   // the old flow only set this flag without really subscribing
   try { localStorage.removeItem('sra_panchang_subscribed'); } catch (e) {}
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintButtons); else paintButtons();
+  setTimeout(() => { getConfig(); }, 2500);   // wakes the server before anyone opens the box
   new MutationObserver(paintButtons).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 })();

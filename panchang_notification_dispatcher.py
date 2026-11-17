@@ -342,7 +342,9 @@ def _push_ready() -> bool:
 
 
 def _whatsapp_ready() -> bool:
-    return bool(_setting("WHATSAPP_TOKEN") and _setting("WHATSAPP_PHONE_NUMBER_ID"))
+    # paused (Meta charges per message): set PANCHANG_WHATSAPP_ON=1 on Render to switch it on
+    return (_setting("PANCHANG_WHATSAPP_ON") == "1"
+            and bool(_setting("WHATSAPP_TOKEN") and _setting("WHATSAPP_PHONE_NUMBER_ID")))
 
 
 def _clean_phone(raw: Optional[str]) -> Optional[str]:
@@ -415,8 +417,9 @@ def _forecast_for(sub: Dict[str, Any]) -> Dict[str, Any]:
     )
 
 
-def _send_push(sub: Dict[str, Any], title: str, body: str) -> str:
-    """Returns 'sent', 'gone' (browser unsubscribed) or 'error'."""
+def _send_push(sub: Dict[str, Any], title: str, body: str, info: Optional[Dict[str, Any]] = None) -> str:
+    """Returns 'sent', 'gone' (browser unsubscribed) or 'error'; info gets the reason."""
+    info = info if info is not None else {}
     from pywebpush import webpush, WebPushException
     payload = json.dumps({"title": title, "body": body,
                           "data": {"url": "/aaj-panchang.html", "type": "DAILY_PERSONALIZED_PANCHANG"}},
@@ -425,15 +428,17 @@ def _send_push(sub: Dict[str, Any], title: str, body: str) -> str:
         webpush(subscription_info=sub["push"], data=payload,
                 vapid_private_key=_setting("VAPID_PRIVATE_KEY"),
                 vapid_claims={"sub": _setting("VAPID_SUBJECT", "mailto:support@shriramjiastro.in")},
-                ttl=6 * 3600)
+                ttl=6 * 3600, headers={"Urgency": "high"})
         return "sent"
     except WebPushException as e:
         code = getattr(getattr(e, "response", None), "status_code", None)
+        info["error"] = f"{code}: {str(e)[:200]}"
         if code in (404, 410):
             return "gone"
         logger.warning(f"[PanchangSubs] push failed ({code}): {e}")
         return "error"
     except Exception as e:
+        info["error"] = f"{type(e).__name__}: {str(e)[:200]}"
         logger.warning(f"[PanchangSubs] push failed: {e}")
         return "error"
 
@@ -585,6 +590,30 @@ def unsubscribe(req: UnsubscribeRequest):
     return {"status": "success"}
 
 
+@router.post("/test-push")
+def test_push(req: UnsubscribeRequest, request: Request):
+    """Sends this device's notification now, so a subscriber can see that it arrives."""
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+    if not _rate_ok(ip):
+        raise HTTPException(status_code=429, detail="बहुत अधिक प्रयास — कृपया एक घंटे बाद पुनः प्रयास करें।")
+    db = _db()
+    if db is None or not _push_ready():
+        raise HTTPException(status_code=503, detail="नोटिफ़िकेशन सेवा अभी उपलब्ध नहीं")
+    ref = db.collection(SUB_COLLECTION).document(req.id)
+    snap = ref.get()
+    sub = snap.to_dict() if snap.exists else None
+    if not sub or not secrets.compare_digest(sub.get("secret", ""), req.secret):
+        raise HTTPException(status_code=404, detail="सदस्यता नहीं मिली — कृपया दोबारा सब्सक्राइब करें।")
+    if not sub.get("push"):
+        raise HTTPException(status_code=400, detail="इस सदस्यता में नोटिफ़िकेशन चालू नहीं है।")
+    title, body = build_message(sub.get("name") or "जातक", _forecast_for(sub))
+    info: Dict[str, Any] = {}
+    res = _send_push(sub, "🔔 " + title, body, info)
+    if res == "gone":
+        ref.update({"push": None})
+    return {"result": res, "error": info.get("error")}
+
+
 _dispatch_lock = threading.Lock()
 _last_run: Dict[str, Any] = {}
 
@@ -654,6 +683,38 @@ def run_daily_dispatch() -> Dict[str, Any]:
     stats["finished"] = datetime.now(IST).isoformat()
     PanchangNotificationDispatcher.log_dispatch({"timestamp": stats["finished"], "type": "daily_run", **stats})
     return stats
+
+
+_auto_ran_on: Optional[str] = None
+
+
+def _auto_dispatch_loop():
+    """Sends the day's run from inside the server at 07:00 IST (or as soon as it is awake
+    after that, until 21:00). GitHub's schedule proved unreliable; an outside ping of
+    /health at 07:00 only has to wake the free server. Each subscriber gets one per day."""
+    global _auto_ran_on, _last_run
+    import time
+    time.sleep(20)
+    while True:
+        try:
+            now = datetime.now(IST)
+            today = now.strftime("%Y-%m-%d")
+            if _auto_ran_on != today and 7 <= now.hour < 21 and _dispatch_lock.acquire(blocking=False):
+                try:
+                    _auto_ran_on = today
+                    _last_run = run_daily_dispatch()
+                    logger.info(f"[PanchangSubs] auto run: {_last_run}")
+                    if _last_run.get("error"):    # storage not reachable: try again next round
+                        _auto_ran_on = None
+                finally:
+                    _dispatch_lock.release()
+        except Exception as e:
+            logger.warning(f"[PanchangSubs] auto run failed: {e}")
+        time.sleep(120)
+
+
+if os.environ.get("RENDER") or os.environ.get("PANCHANG_AUTO_DISPATCH") == "1":
+    threading.Thread(target=_auto_dispatch_loop, daemon=True, name="panchang-auto").start()
 
 
 def _check_cron(request: Request):
