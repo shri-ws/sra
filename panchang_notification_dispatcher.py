@@ -369,6 +369,9 @@ class SubscribeRequest(NativeBirthProfile):
     # Firebase ID token of the logged-in user; the WhatsApp number is read from it, so a
     # message can only go to the number that the subscriber proved with an OTP
     id_token: Optional[str] = Field(None, max_length=4096)
+    # the Android app shows its own 7 AM notification (a WebView has no web push): it only
+    # needs an entry whose /today it can read, keyed by the app's install id
+    app_device: Optional[str] = Field(None, pattern=r"^[0-9a-fA-F-]{16,64}$")
 
 
 def _verified_phone(id_token: Optional[str]) -> Optional[str]:
@@ -518,13 +521,13 @@ def subscribe(req: SubscribeRequest, request: Request):
         phone = _verified_phone(req.id_token)
         if not phone:
             raise HTTPException(status_code=401, detail="WhatsApp के लिए पहले अपने मोबाइल नंबर से OTP द्वारा लॉगिन करें — संदेश केवल उसी नंबर पर जाएगा।")
-    if not req.push and not phone:
+    if not req.push and not phone and not req.app_device:
         raise HTTPException(status_code=400, detail="नोटिफ़िकेशन या WhatsApp — कम से कम एक चुनें।")
     if not (1800 <= req.year <= 2100 and 1 <= req.month <= 12 and 1 <= req.day <= 31 and 0 <= req.hour <= 23 and 0 <= req.minute <= 59
             and -90 <= req.lat <= 90 and -180 <= req.lon <= 180):
         raise HTTPException(status_code=400, detail="जन्म विवरण सही नहीं है।")
 
-    key = ("push:" + req.push.endpoint) if req.push else ("wa:" + phone)
+    key = ("push:" + req.push.endpoint) if req.push else ("app:" + req.app_device.lower()) if req.app_device else ("wa:" + phone)
     doc_id = hashlib.sha256(key.encode()).hexdigest()[:28]
     col = db.collection(SUB_COLLECTION)
     ref = col.document(doc_id)
@@ -537,6 +540,7 @@ def subscribe(req: SubscribeRequest, request: Request):
         "current_lat": req.current_lat if req.current_lat is not None else req.lat,
         "current_lon": req.current_lon if req.current_lon is not None else req.lon,
         "push": req.push.model_dump() if req.push else None,
+        "app_device": req.app_device.lower() if req.app_device else None,
         "whatsapp": phone, "whatsapp_verified": bool(phone),
         "whatsapp_consent_at": datetime.now(timezone.utc).isoformat() if phone else None,
         "active": True, "secret": secret, "fails": 0,
@@ -556,7 +560,7 @@ def subscribe(req: SubscribeRequest, request: Request):
     forecast = _forecast_for(record)
     title, body = build_message(record["name"], forecast)
     return {"status": "success", "id": doc_id, "secret": secret,
-            "channels": {"push": bool(req.push), "whatsapp": bool(phone)},
+            "channels": {"push": bool(req.push), "whatsapp": bool(phone), "app": bool(req.app_device)},
             "notification": {"title": title, "body": body}}
 
 
@@ -572,9 +576,11 @@ def today_for_subscriber(req: TodayRequest):
     if not sub or not secrets.compare_digest(sub.get("secret", ""), req.secret):
         raise HTTPException(status_code=404, detail="सदस्यता नहीं मिली — कृपया दोबारा सब्सक्राइब करें।")
     forecast = _forecast_for(sub)
+    title, body = build_message(sub.get("name") or "जातक", forecast)
     birth = f"{sub['day']:02d}-{sub['month']:02d}-{sub['year']} {sub['hour']:02d}:{sub['minute']:02d}"
     return {"status": "success", "name": sub.get("name") or "जातक", "birth": birth,
-            "channels": {"push": bool(sub.get("push")), "whatsapp": bool(sub.get("whatsapp"))},
+            "channels": {"push": bool(sub.get("push")), "whatsapp": bool(sub.get("whatsapp")), "app": bool(sub.get("app_device"))},
+            "notification": {"title": title, "body": body},
             "forecast": forecast}
 
 
@@ -639,6 +645,10 @@ def run_daily_dispatch() -> Dict[str, Any]:
         if (push_done or not sub.get("push")) and (wa_done or not (sub.get("whatsapp") and sub.get("whatsapp_verified"))) \
                 and sub.get("last_sent") == today:
             stats["skipped_already_sent"] += 1
+            continue
+        if not (sub.get("push") and not push_done) and not (sub.get("whatsapp") and sub.get("whatsapp_verified") and wa_ok and not wa_done):
+            # app-only (the phone fetches its own message) or a channel that is switched off
+            stats["not_sent_by_server"] = stats.get("not_sent_by_server", 0) + 1
             continue
         try:
             forecast = _forecast_for(sub)

@@ -16,6 +16,23 @@
   const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
   const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  // Our Android app (a WebView: no web push) shows its own 7 AM notification through window.SRAAndroid
+  const appBridge = () => (window.SRAAndroid && typeof window.SRAAndroid.enableDaily === 'function') ? window.SRAAndroid : null;
+  const oldAndroidApp = () => !appBridge() && /Android/.test(navigator.userAgent) && /; wv\)/.test(navigator.userAgent);
+  // opens in the phone's browser (the old app keeps only our own hosts inside), which downloads it
+  const APK_URL = 'https://raw.githubusercontent.com/shri-ws/sra/main/downloads/patrika-astro.apk';
+  const apiAbs = () => window.SRA_API_BASE || location.origin;
+
+  function appPermission() {
+    const b = appBridge();
+    const st = b.notifyPermission();
+    if (st !== 'default') return Promise.resolve(st);
+    return new Promise(res => {
+      const t = setTimeout(() => { window.SRAAndroidPermission = null; res(b.notifyPermission()); }, 60000);
+      window.SRAAndroidPermission = v => { clearTimeout(t); window.SRAAndroidPermission = null; res(v); };
+      b.requestNotify();
+    });
+  }
 
   function toast(msg) {
     if (typeof window.showKundaliToast === 'function') window.showKundaliToast(msg); else alert(msg);
@@ -54,7 +71,7 @@
     });
     document.querySelectorAll(STATUS_SEL).forEach(el => {
       if (!s) { el.style.display = 'none'; return; }
-      const ch = [s.channels && s.channels.push ? L('नोटिफ़िकेशन', 'notification') : '', s.channels && s.channels.whatsapp ? 'WhatsApp' : ''].filter(Boolean).join(' + ');
+      const ch = [s.channels && (s.channels.push || s.channels.app) ? L('नोटिफ़िकेशन', 'notification') : '', s.channels && s.channels.whatsapp ? 'WhatsApp' : ''].filter(Boolean).join(' + ');
       el.style.display = 'block';
       el.textContent = L(`✨ ${s.name || ''} — हर सुबह 7 बजे (${ch})`, `✨ ${s.name || ''} — every morning at 7 AM (${ch})`);
     });
@@ -127,6 +144,14 @@ body.ps-open #sra-wa-float-container{display:none !important;}
   async function testPush(btn) {
     const s = saved();
     if (!s) return;
+    if (s.channels && s.channels.app && appBridge()) {
+      const b = appBridge();
+      if (b.notifyPermission() === 'denied') { b.openNotifySettings(); toast(L('इस ऐप की सूचनाएँ बंद हैं — खुली सेटिंग में चालू करें, फिर दोबारा टेस्ट करें।', 'Notifications are off for this app — turn them on in the settings that opened, then test again.')); return; }
+      if (!b.isDailyOn()) b.enableDaily(apiAbs(), s.id, s.secret);
+      b.testNow();
+      toast(L('✅ अनुरोध भेजा — 5–60 सेकंड में फ़ोन पर सूचना दिखनी चाहिए।', '✅ Requested — the notification should appear in 5–60 seconds.'));
+      return;
+    }
     btn.disabled = true; btn.textContent = L('⏳ भेज रहे हैं…', '⏳ Sending…');
     let msg;
     try {
@@ -169,8 +194,9 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     const waOn = !!(cfg && cfg.whatsapp_ready);
     const waPhone = waUser ? waUser.phoneNumber : '';
     const serverReady = !!(cfg && cfg.storage_ready);
-    const deviceCanPush = pushSupported() && !(isIOS() && !standalone());
-    const canPush = deviceCanPush && !!(cfg && cfg.push_ready && cfg.vapid_public_key);
+    const app = appBridge();
+    const deviceCanPush = !!app || (pushSupported() && !(isIOS() && !standalone()));
+    const canPush = app ? !!(cfg && cfg.storage_ready) : deviceCanPush && !!(cfg && cfg.push_ready && cfg.vapid_public_key);
 
     const back = document.createElement('div');
     back.className = 'ps-back';
@@ -179,11 +205,13 @@ body.ps-open #sra-wa-float-container{display:none !important;}
       <h4>🌅 ${esc(L('दैनिक पर्सनलाइज़्ड पंचांग', 'Daily personalised panchang'))}</h4>
       <p class="ps-sub">${esc(L(`${profile.name} की कुण्डली के अनुसार — हर सुबह 7 बजे: आज का अंक, शुभ समय, राहुकाल, दशा और उपाय।`, `For ${profile.name}'s kundali — every morning at 7 AM: today's score, good hours, Rahu kaal, dasha and remedy.`))}</p>
       <label class="ps-opt"><input type="checkbox" id="psPush" ${canPush ? 'checked' : 'disabled'}>
-        <span><b>📱 ${esc(L('फ़ोन / ब्राउज़र नोटिफ़िकेशन', 'Phone / browser notification'))}</b>
-        <small>${esc(canPush ? L('इसी फ़ोन या कंप्यूटर पर सूचना आएगी।', 'Arrives on this phone or computer.')
+        <span><b>📱 ${esc(app ? L('ऐप नोटिफ़िकेशन', 'App notification') : L('फ़ोन / ब्राउज़र नोटिफ़िकेशन', 'Phone / browser notification'))}</b>
+        <small>${esc(canPush ? (app ? L('हर सुबह 7 बजे इसी फ़ोन पर सूचना आएगी।', 'Arrives on this phone every morning at 7.') : L('इसी फ़ोन या कंप्यूटर पर सूचना आएगी।', 'Arrives on this phone or computer.'))
+          : oldAndroidApp() ? L('ऐप के इस संस्करण में सूचना नहीं आ सकती — नीचे से नया संस्करण (2.5) इंस्टॉल करें।', 'This version of the app cannot show notifications — install the new version (2.5) below.')
           : deviceCanPush ? L('सर्वर से नहीं जुड़ सके — इंटरनेट जाँचकर पेज दोबारा खोलें।', 'Could not reach the server — check the internet and reopen the page.')
           : isIOS() ? L('iPhone पर: Safari में Share → "Add to Home Screen" करें, फिर वहीं से साइट खोलकर सब्सक्राइब करें।', 'On iPhone: Safari Share → "Add to Home Screen", then open the site from there and subscribe.')
-          : L('यह ब्राउज़र नोटिफ़िकेशन नहीं दिखा सकता — साइट को Chrome में खोलें (WhatsApp/Instagram के अंदर वाले ब्राउज़र में नहीं)।', 'This browser cannot show notifications — open the site in Chrome (not inside WhatsApp/Instagram).'))}</small></span></label>
+          : L('यह ब्राउज़र नोटिफ़िकेशन नहीं दिखा सकता — साइट को Chrome में खोलें (WhatsApp/Instagram के अंदर वाले ब्राउज़र में नहीं)।', 'This browser cannot show notifications — open the site in Chrome (not inside WhatsApp/Instagram).'))}</small>
+        ${oldAndroidApp() ? `<a class="ps-x" href="${APK_URL}" style="display:inline-block;margin-top:8px;padding:8px 12px;text-decoration:none">⬇️ ${esc(L('नया ऐप डाउनलोड करें', 'Download the new app'))}</a><small>${esc(L('डाउनलोड के बाद फ़ाइल खोलकर "अपडेट/इंस्टॉल" दबाएँ — आपकी कुण्डलियाँ बनी रहेंगी।', 'After it downloads, open the file and tap Update/Install — your kundalis stay.'))}</small>` : ''}</span></label>
       <label class="ps-opt"${waOn ? '' : ' style="display:none"'}><input type="checkbox" id="psWa" ${waOn && waPhone ? ((s && s.channels && s.channels.whatsapp) || !canPush ? 'checked' : '') : 'disabled'}>
         <span style="flex:1"><b>💬 WhatsApp</b>
         ${waPhone ? `<small>${esc(L('आपके लॉगिन नंबर पर: ', 'To your login number: '))}<b style="display:inline">${esc(waPhone)}</b></small>` : ''}
@@ -196,7 +224,7 @@ body.ps-open #sra-wa-float-container{display:none !important;}
       <div class="ps-err" id="psErr" role="alert"></div>
       <div class="ps-row"><button type="button" class="ps-x" id="psClose">${esc(L('रद्द करें', 'Cancel'))}</button>
         <button type="button" class="ps-go" id="psGo">🔔 ${esc(s ? L('अपडेट करें', 'Update') : L('सब्सक्राइब करें', 'Subscribe'))}</button></div>
-      ${s && s.channels && s.channels.push ? `<button type="button" class="ps-x" id="psTest" style="width:100%;margin-top:10px">🔔 ${esc(L('अभी एक टेस्ट सूचना भेजें', 'Send a test notification now'))}</button>` : ''}
+      ${s && s.channels && (s.channels.push || (s.channels.app && app)) ? `<button type="button" class="ps-x" id="psTest" style="width:100%;margin-top:10px">🔔 ${esc(L('अभी एक टेस्ट सूचना भेजें', 'Send a test notification now'))}</button>` : ''}
       ${s ? `<button type="button" class="ps-stop" id="psStop">${esc(L('दैनिक पंचांग बंद करें', 'Stop daily panchang'))}</button>` : ''}
     </div>`;
     document.body.appendChild(back);
@@ -223,8 +251,15 @@ body.ps-open #sra-wa-float-container{display:none !important;}
       go.disabled = true; go.textContent = L('⏳ जुड़ रहा है…', '⏳ Connecting…');
       try {
         if (!serverReady) throw new Error(L('दैनिक पंचांग सेवा अभी सक्रिय की जा रही है — कृपया कुछ समय बाद प्रयास करें।', 'The daily panchang service is being switched on — please try again a little later.'));
-        let push = null;
-        if (wantPush) {
+        let push = null, appDevice = null;
+        if (wantPush && app) {
+          const st = await appPermission();
+          if (st !== 'granted') {
+            app.openNotifySettings();
+            throw new Error(L('इस ऐप की सूचनाएँ बंद हैं। खुली सेटिंग में "सूचनाएँ/Notifications" चालू करें, फिर दोबारा सब्सक्राइब करें।', 'Notifications are off for this app. Turn on Notifications in the settings that opened, then subscribe again.'));
+          }
+          appDevice = app.deviceId();
+        } else if (wantPush) {
           if (!cfg.push_ready || !cfg.vapid_public_key) throw new Error(L('नोटिफ़िकेशन सेवा अभी चालू नहीं है — अभी WhatsApp चुनें।', 'Notifications are not switched on yet — choose WhatsApp for now.'));
           try { push = await pushSubscription(cfg.vapid_public_key); }
           catch (e) {
@@ -236,7 +271,7 @@ body.ps-open #sra-wa-float-container{display:none !important;}
         const idToken = wantWa && waUser ? await waUser.getIdToken() : null;
         const r = await fetch(API() + '/subscribe', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(Object.assign({}, profile, { push, whatsapp_consent: wantWa, id_token: idToken }))
+          body: JSON.stringify(Object.assign({}, profile, { push, app_device: appDevice, whatsapp_consent: wantWa, id_token: idToken }))
         });
         const data = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(data.detail || L('सब्सक्राइब नहीं हो सका, कृपया पुनः प्रयास करें।', 'Could not subscribe, please try again.'));
@@ -245,6 +280,7 @@ body.ps-open #sra-wa-float-container{display:none !important;}
           fetch(API() + '/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: old.id, secret: old.secret }) }).catch(() => {});
         }
         localStorage.setItem(STORE, JSON.stringify({ id: data.id, secret: data.secret, channels: data.channels, name: profile.name }));
+        if (appDevice) { app.enableDaily(apiAbs(), data.id, data.secret); app.testNow(); }
         localStorage.removeItem('sra_panchang_subscribed');
         paintButtons();
         close();
@@ -264,6 +300,7 @@ body.ps-open #sra-wa-float-container{display:none !important;}
     if (!s) return;
     try {
       await fetch(API() + '/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, secret: s.secret }) });
+      if (s.channels && s.channels.app && appBridge()) appBridge().disableDaily();
       if (s.channels && s.channels.push && navigator.serviceWorker) {
         const reg = await navigator.serviceWorker.getRegistration('/');
         const sub = reg && await reg.pushManager.getSubscription();
@@ -280,6 +317,10 @@ body.ps-open #sra-wa-float-container{display:none !important;}
   // the old flow only set this flag without really subscribing
   try { localStorage.removeItem('sra_panchang_subscribed'); } catch (e) {}
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintButtons); else paintButtons();
-  setTimeout(() => { getConfig(); }, 2500);   // wakes the server before anyone opens the box
+  setTimeout(() => { getConfig(); }, 2500);
+  try {
+    const s0 = saved(), b0 = appBridge();
+    if (s0 && s0.channels && s0.channels.app && b0 && !b0.isDailyOn()) b0.enableDaily(apiAbs(), s0.id, s0.secret);
+  } catch (e) { /* not in the app */ }   // wakes the server before anyone opens the box
   new MutationObserver(paintButtons).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 })();

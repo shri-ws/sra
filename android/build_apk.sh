@@ -59,12 +59,12 @@ echo "==> Step 1: Generating R.java with AAPT..."
 "$AAPT" package -f -m -J gen -M AndroidManifest.xml -S res -I "$PLATFORM_JAR"
 
 echo "==> Step 2: Compiling Java source with javac..."
-"$JAVAC_BIN" -source 8 -target 8 \
+"$JAVAC_BIN" -encoding UTF-8 -source 8 -target 8 \
     -bootclasspath "$PLATFORM_JAR" \
     -cp "$PLATFORM_JAR" \
     -d bin/classes \
     gen/in/shriramjiastro/patrika/R.java \
-    src/in/shriramjiastro/patrika/MainActivity.java
+    src/in/shriramjiastro/patrika/*.java
 
 echo "==> Step 3: Translating bytecode to Dalvik classes.dex with d8..."
 CLASS_FILES=$(find bin/classes -name "*.class")
@@ -81,7 +81,18 @@ cd ..
 echo "==> Step 6: Aligning APK with zipalign (4-byte boundary)..."
 "$ZIPALIGN" -v -p 4 bin/unaligned.apk bin/aligned.apk
 
-echo "==> Step 7: Generating signing keystore if needed..."
+echo "==> Step 7: Finding the signing keystore..."
+# Phones only accept an update signed with the same key as the installed app, so never
+# make a new key silently: the published APK is signed with ../../android_app/release.keystore
+# (certificate SHA-256 38:D6:52:63:...:13:9B). It is kept out of git.
+if [ ! -f release.keystore ] && [ -f ../../android_app/release.keystore ]; then
+    cp ../../android_app/release.keystore release.keystore
+fi
+if [ ! -f release.keystore ] && [ "$NEW_KEY" != "1" ]; then
+    echo "ERROR: release.keystore not found. A new key would stop installed apps from updating."
+    echo "       Put the original keystore here, or run with NEW_KEY=1 to really make a new one."
+    exit 1
+fi
 if [ ! -f release.keystore ]; then
     "$KEYTOOL_BIN" -genkeypair -v \
         -keystore release.keystore \
