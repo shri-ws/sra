@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi" data-theme="day">
+<html lang="hi" data-theme="day" data-translate-from="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -73,8 +73,28 @@
 
   <script src="theme.js"></script>
   <script src="sra-config.js"></script>
+  <script src="sra-translate.js" defer></script>
   <script src="sra-nav.js" defer></script>
   <script src="sra-i18n.js" defer></script>
+  <script>
+    // The reading is written in Hindi by the server, so here English and every other language
+    // come from the translator (sra-translate.js, translating from Hindi). The हि/EN switch
+    // therefore asks for the translator, and a visitor who chose English elsewhere gets it here.
+    (function () {
+      function st() { return window.SRATranslate; }
+      function machine() { return !!(st() && st().current() !== 'hi'); }
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest || !e.target.closest('.sra-lt') || !st()) return;
+        e.preventDefault(); e.stopPropagation();
+        st().set(machine() ? 'hi' : 'en');
+      }, true);
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          if (st() && !machine() && document.documentElement.getAttribute('lang') === 'en') st().set('en');
+        }, 600);
+      });
+    })();
+  </script>
   <script>
   (function () {
     const main = document.getElementById('ap');

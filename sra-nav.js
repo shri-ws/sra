@@ -114,7 +114,7 @@
       <div class="sra-gn-inner" role="navigation" aria-label="Main">
         <a class="sra-gn-brand" href="index.html">
           <img src="logo.png" alt="" width="38" height="38">
-          <span class="sra-gn-brand-txt"><b class="sra-gn-brand-name"></b><small class="sra-gn-brand-sub"></small></span>
+          <span class="sra-gn-brand-txt notranslate" translate="no"><b class="sra-gn-brand-name"></b><small class="sra-gn-brand-sub"></small></span>
         </a>
         <div class="sra-gn-links"></div>
         <div class="sra-gn-actions">

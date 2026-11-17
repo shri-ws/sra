@@ -5,7 +5,10 @@
    sra-i18n stops rewriting text, and the choice is remembered on every page
    through Google's own "googtrans" cookie. Choosing हिन्दी or English again
    clears it. If Google's script cannot load, the page opens through the
-   translate.goog proxy instead. */
+   translate.goog proxy instead.
+   A page whose own text is Hindi only (e.g. aaj-panchang.html, written by the server) says
+   so with <html data-translate-from="hi">: there Hindi is the page's own language and every
+   other language, English too, is machine-translated from Hindi. */
 (function() {
   const LANGS = [
     ['hi', 'हिन्दी'], ['en', 'English'],
@@ -15,7 +18,8 @@
     ['es', 'Español'], ['fr', 'Français'], ['de', 'Deutsch'], ['ru', 'Русский'],
     ['ar', 'العربية'], ['zh-CN', '中文'], ['ja', '日本語']
   ];
-  const OWN = ['hi', 'en'];
+  const SRC = document.documentElement.getAttribute('data-translate-from') || 'en';
+  const OWN = SRC === 'en' ? ['hi', 'en'] : [SRC];
 
   function readCookie() {
     const m = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
@@ -29,7 +33,7 @@
     const domains = ['', host, '.' + host.replace(/^www\./, '')];
     domains.forEach(d => {
       const dom = d ? `;domain=${d}` : '';
-      if (lang) document.cookie = `googtrans=/en/${lang};path=/${dom}`;
+      if (lang) document.cookie = `googtrans=/${SRC}/${lang};path=/${dom}`;
       else document.cookie = `googtrans=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT${dom}`;
     });
   }
@@ -37,6 +41,7 @@
   function current() {
     const g = readCookie();
     if (g && !OWN.includes(g)) return g;
+    if (SRC !== 'en') return SRC;
     return document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'hi';
   }
 
@@ -52,7 +57,7 @@
       }
       window.sraGoogleTranslateInit = function() {
         try {
-          new window.google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'google_translate_element');
+          new window.google.translate.TranslateElement({ pageLanguage: SRC, autoDisplay: false }, 'google_translate_element');
           resolve();
         } catch (e) { reject(e); }
       };
@@ -70,9 +75,19 @@
   }
 
   function ensureEnglishBase() {
+    if (SRC !== 'en') return;                  // a Hindi-only page is translated from Hindi as it is
     try { localStorage.setItem('sra_lang', 'en'); } catch (e) {}
     if (document.documentElement.getAttribute('lang') !== 'en' && typeof window.toggleLanguage === 'function') {
       window.toggleLanguage();
+    }
+  }
+
+  // The widget's hidden <select> drives the translation
+  async function choose(lang) {
+    for (let i = 0; i < 30; i++) {
+      const combo = document.querySelector('.goog-te-combo');
+      if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); return; }
+      await new Promise(r => setTimeout(r, 200));
     }
   }
 
@@ -93,17 +108,12 @@
     markActive(true);
     try {
       await loadGoogle();
-      // The widget's hidden <select> drives the translation
-      for (let i = 0; i < 30; i++) {
-        const combo = document.querySelector('.goog-te-combo');
-        if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); break; }
-        await new Promise(r => setTimeout(r, 200));
-      }
+      await choose(lang);
     } catch (e) {
       writeCookie(null);
       markActive(false);
       const host = location.hostname.replace(/\./g, '-');
-      location.href = `https://${host}.translate.goog${location.pathname}?_x_tr_sl=en&_x_tr_tl=${encodeURIComponent(lang)}&_x_tr_hl=hi`;
+      location.href = `https://${host}.translate.goog${location.pathname}?_x_tr_sl=${SRC}&_x_tr_tl=${encodeURIComponent(lang)}&_x_tr_hl=hi`;
       return;
     }
     document.dispatchEvent(new CustomEvent('sra:translate', { detail: { lang } }));
@@ -113,15 +123,16 @@
   function resume() {
     const g = readCookie();
     if (!g || OWN.includes(g)) return;
+    writeCookie(g);              // the cookie may name another page's source language: use this page's
     ensureEnglishBase();
     // Let sra-i18n draw the English base first, then hand the page to Google
     setTimeout(() => {
       markActive(true);
-      loadGoogle().catch(() => { writeCookie(null); markActive(false); });
+      loadGoogle().then(() => choose(g)).catch(() => { writeCookie(null); markActive(false); });
     }, 800);
   }
 
-  window.SRATranslate = { LANGS, OWN, current, set };
+  window.SRATranslate = { LANGS, OWN, SRC, current, set };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', resume);
   else resume();
 })();
