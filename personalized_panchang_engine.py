@@ -507,6 +507,226 @@ def compute_day_windows(sunrise: float, sunset: float, weekday: int, day_good: b
 
 
 # =============================================================================
+# 4b. THE PERSONAL READING (what the person is told each morning)
+# =============================================================================
+# Each line comes from this person's own chart: the day's tara counted from their birth
+# star, the Moon's house from their birth Moon (chandra gochar) and from their lagna, and
+# the houses of their running antar/pratyantar lords. Day-wide factors that are the same
+# for everyone (Bhadra, Rikta tithi) are reported separately with their hours.
+
+TARA_GUIDE = {
+    1: {"head": "जन्म तारा — मन व शरीर पर ध्यान का दिन",
+        "do": "अपनी सेहत, दिनचर्या और अधूरे निजी कामों पर ध्यान दें।",
+        "dont": "जोखिम भरे या जल्दबाज़ी वाले निर्णय न लें।",
+        "remedy": "जन्म तारा का शास्त्रीय उपाय: हरी सब्ज़ी (शाक) का दान करें।"},
+    2: {"head": "सम्पत तारा — धन व लाभ के लिए अच्छा दिन",
+        "do": "पैसे से जुड़े काम, ख़रीद-बिक्री और नए सौदे आज आगे बढ़ाएँ।",
+        "dont": "अच्छे दिन को आलस्य या टालमटोल में न गँवाएँ।"},
+    3: {"head": "विपत तारा — अड़चनों वाला दिन, धीरे चलें",
+        "do": "पहले से तय काम ही करें; हर काग़ज़ दोबारा जाँचें।",
+        "dont": "नया अनुबंध, उधार या निवेश आज शुरू न करें।",
+        "remedy": "विपत तारा का शास्त्रीय उपाय: गुड़ का दान करें।"},
+    4: {"head": "क्षेम तारा — सुरक्षा व सुख का दिन",
+        "do": "परिवार, घर और लंबे समय की योजनाओं के काम निपटाएँ।",
+        "dont": "छोटी बातों पर घर में बहस न करें।"},
+    5: {"head": "प्रत्यक तारा — विरोध व मतभेद की आशंका",
+        "do": "बात-चीत में नरमी रखें; ज़रूरी बात लिखकर तय करें।",
+        "dont": "विवाद, कोर्ट-कचहरी या टकराव वाले मामले आज न छेड़ें।",
+        "remedy": "प्रत्यक तारा का शास्त्रीय उपाय: नमक का दान करें।"},
+    6: {"head": "साधक तारा — लक्ष्य सिद्धि का दिन",
+        "do": "इंटरव्यू, ज़रूरी मीटिंग या बड़ा लक्ष्य आज साधें।",
+        "dont": "मौक़ा आए तो संकोच में पीछे न हटें।"},
+    7: {"head": "वध (नैधन) तारा — सबसे संवेदनशील दिन",
+        "do": "केवल ज़रूरी काम करें, यात्रा व वाहन में पूरी सावधानी रखें।",
+        "dont": "बड़ा निवेश, ऑपरेशन की तारीख़ या नया काम आज न रखें।",
+        "remedy": "वध तारा का शास्त्रीय उपाय: तिल का दान करें।"},
+    8: {"head": "मित्र तारा — सहयोग व मेल-जोल का दिन",
+        "do": "मित्रों-सहयोगियों से मिलें, रुकी बात आगे बढ़ाएँ।",
+        "dont": "दूसरों के भरोसे अपना ज़रूरी काम न छोड़ें।"},
+    9: {"head": "परम मित्र तारा — बड़ों के आशीर्वाद का दिन",
+        "do": "गुरु, माता-पिता या वरिष्ठों से सलाह व सहयोग लें।",
+        "dont": "बड़ों की बात को हल्के में न लें।"},
+}
+
+# Chandra gochar: the Moon's house counted from the birth Moon (classical phala)
+MOON_HOUSE_GUIDE = {
+    1: ("चन्द्र आपकी जन्म राशि पर — मन प्रसन्न, शरीर में ऊर्जा", "good"),
+    2: ("चन्द्र जन्म राशि से दूसरे भाव में — धन व वाणी में संयम रखें", "mid"),
+    3: ("चन्द्र जन्म राशि से तीसरे भाव में — साहस व प्रयास से सफलता", "good"),
+    4: ("चन्द्र जन्म राशि से चौथे भाव में — मन अशांत, घर-परिवार की चिंता", "bad"),
+    5: ("चन्द्र जन्म राशि से पाँचवें भाव में — बुद्धि से काम लें, जल्दबाज़ी नहीं", "mid"),
+    6: ("चन्द्र जन्म राशि से छठे भाव में — शत्रु व प्रतिस्पर्धा पर विजय", "good"),
+    7: ("चन्द्र जन्म राशि से सातवें भाव में — साथी व साझेदारी से सुख", "good"),
+    8: ("चन्द्राष्टम — चन्द्र जन्म राशि से आठवें भाव में, मानसिक दबाव", "worst"),
+    9: ("चन्द्र जन्म राशि से नौवें भाव में — थकान, काम में देरी संभव", "mid"),
+    10: ("चन्द्र जन्म राशि से दसवें भाव में — कार्यक्षेत्र में सफलता व मान", "good"),
+    11: ("चन्द्र जन्म राशि से ग्यारहवें भाव में — लाभ व मित्रों का साथ", "good"),
+    12: ("चन्द्र जन्म राशि से बारहवें भाव में — ख़र्च व भागदौड़ अधिक", "bad"),
+}
+MOON_HOUSE_SCORE = {"good": 85.0, "mid": 52.0, "bad": 30.0, "worst": 10.0}
+
+HOUSE_AREA = {
+    1: "सेहत व व्यक्तित्व", 2: "धन, वाणी व परिवार", 3: "साहस, संवाद व भाई-बहन",
+    4: "घर, माता व वाहन", 5: "संतान, पढ़ाई व रचनात्मकता", 6: "स्वास्थ्य, ऋण व प्रतिस्पर्धा",
+    7: "जीवनसाथी व साझेदारी", 8: "अचानक बदलाव व गुप्त विषय", 9: "भाग्य, धर्म व गुरु",
+    10: "करियर व पद-प्रतिष्ठा", 11: "आय, लाभ व मित्र", 12: "ख़र्च, यात्रा व आध्यात्म",
+}
+HOUSE_DO = {
+    1: "अपनी सेहत व दिनचर्या को प्राथमिकता दें।", 2: "बचत व पारिवारिक ज़रूरतों का हिसाब देखें।",
+    3: "जो बात टल रही थी, उसके लिए ख़ुद पहल करें।", 4: "घर-परिवार के साथ समय बिताएँ।",
+    5: "पढ़ाई, योजना या रचनात्मक काम पर समय दें।", 6: "लंबित काम व सेहत की जाँच निपटाएँ।",
+    7: "साथी या साझेदार से खुलकर बात करें।", 8: "गोपनीय काम सँभालकर रखें, बीमा-काग़ज़ देखें।",
+    9: "बड़ों का आशीर्वाद लें, किसी धार्मिक काम में भाग लें।", 10: "कार्यक्षेत्र का सबसे ज़रूरी काम आज पूरा करें।",
+    11: "आमदनी व नेटवर्क बढ़ाने वाले संपर्क करें।", 12: "ख़र्च पर नज़र रखें; ध्यान व विश्राम को समय दें।",
+}
+
+DASHA_REMEDY = {
+    "Sun": "'ॐ घृणि सूर्याय नमः' 11 बार जपें और सूर्य को जल अर्पित करें।",
+    "Moon": "'ॐ सों सोमाय नमः' 11 बार जपें; माता का आशीर्वाद लें।",
+    "Mars": "'ॐ अं अंगारकाय नमः' 11 बार जपें; हनुमान जी को प्रणाम करें।",
+    "Mercury": "'ॐ बुं बुधाय नमः' 11 बार जपें; हरी मूँग का दान करें।",
+    "Jupiter": "'ॐ बृं बृहस्पतये नमः' 11 बार जपें; माथे पर हल्दी का तिलक लगाएँ।",
+    "Venus": "'ॐ शुं शुक्राय नमः' 11 बार जपें; साफ़-सुथरे सफ़ेद वस्त्र पहनें।",
+    "Saturn": "'ॐ शं शनैश्चराय नमः' 11 बार जपें; किसी श्रमिक की सहायता करें।",
+    "Rahu": "'ॐ रां राहवे नमः' 11 बार जपें; पक्षियों को दाना डालें।",
+    "Ketu": "'ॐ कें केतवे नमः' 11 बार जपें; कुत्ते को रोटी दें।",
+}
+
+# Hora: each daytime hour belongs to a planet, starting with the weekday's lord
+HOUSE_ORD_HI = ["", "पहले", "दूसरे", "तीसरे", "चौथे", "पाँचवें", "छठे", "सातवें", "आठवें", "नौवें", "दसवें", "ग्यारहवें", "बारहवें"]
+
+HORA_SEQUENCE = ["Sun", "Venus", "Mercury", "Moon", "Saturn", "Jupiter", "Mars"]
+WEEKDAY_LORD = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
+
+
+def _houses_of(planet: str, natal_planet_map: Dict[str, Any], lagna_sign: int) -> Tuple[Optional[int], List[int]]:
+    """House the planet sits in, and the houses it rules, counted from the lagna."""
+    p = natal_planet_map.get(planet)
+    placed = ((p["sign"] - lagna_sign) % 12) + 1 if p else None
+    ruled = [((i - lagna_sign) % 12) + 1 for i, lord in enumerate(RASHI_LORDS) if lord == planet]
+    return placed, sorted(ruled)
+
+
+def personal_horas(sunrise: float, sunset: float, weekday: int, planets: List[Tuple[str, str]],
+                   avoid: List[Tuple[float, float]], after: float) -> List[str]:
+    """Daytime horas of the person's own planets (dasha lords, lagna lord), outside Rahu kaal etc."""
+    length = (sunset - sunrise) / 12.0
+    start_idx = HORA_SEQUENCE.index(WEEKDAY_LORD[weekday])
+    out = []
+    for i in range(12):
+        lord = HORA_SEQUENCE[(start_idx + i) % 7]
+        a, b = sunrise + i * length, sunrise + (i + 1) * length
+        if b <= after:
+            continue
+        for pl, why in planets:
+            if pl != lord:
+                continue
+            free = [(max(a, after), b)]
+            for x, y in avoid:            # cut out Rahu kaal, Yamaganda, Gulika and Bhadra
+                nxt = []
+                for p_, q_ in free:
+                    if y <= p_ or x >= q_:
+                        nxt.append((p_, q_))
+                        continue
+                    if x > p_:
+                        nxt.append((p_, x))
+                    if y < q_:
+                        nxt.append((y, q_))
+                free = nxt
+            free = [(p_, q_) for p_, q_ in free if q_ - p_ >= 0.4]   # at least 24 minutes
+            for p_, q_ in free[:1]:
+                out.append(f"{_span_hi(p_, q_)} ({PLANET_NAMES_HI[lord]} की होरा — आपके {why} की)")
+            break
+    return out
+
+
+def day_wide_notes(sun: Dict[str, Any], moon: Dict[str, Any], at_hours: float,
+                   sunrise: float, until: float = 22.0) -> List[Dict[str, Any]]:
+    """Bhadra (Vishti karana) and Rikta tithi spans during the day, from the Sun-Moon
+    elongation and its rate; the same for everyone, so told with their hours."""
+    rate = (moon.get("speed", 13.2) - sun.get("speed", 1.0)) / 24.0      # degrees per hour
+    if rate <= 0:
+        return []
+    e0 = (moon["abs"] - sun["abs"]) % 360.0
+    elong = lambda h: e0 + rate * (h - at_hours)
+    notes = []
+
+    def spans(step: float, test):
+        res = []
+        h, end = sunrise, until
+        while h < end:
+            e = elong(h)
+            k = int(math.floor(e / step))
+            nxt = at_hours + ((k + 1) * step - e0) / rate
+            if test(k % int(360 / step)):
+                res.append((h, min(nxt, end), nxt))
+            h = nxt + 1e-6
+        return res
+
+    def vishti(k: int) -> bool:          # karana 1..60 = k+1; Vishti in the movable cycle
+        n = k + 1
+        return 2 <= n <= 57 and (n - 2) % 7 == 6
+
+    def rikta(k: int) -> bool:           # tithi 1..30 = k+1; 4th, 9th, 14th of each half
+        return ((k % 15) + 1) in (4, 9, 14)
+
+    def when(a: float, real_end: float) -> str:
+        return (f"सूर्योदय से {fmt_clock_hi(real_end)} तक" if a <= sunrise + 1e-3 else _span_hi(a, real_end))
+
+    for a, b, real_end in spans(6.0, vishti):
+        notes.append({"kind": "bhadra",
+                      "text": f"भद्रा (विष्टि करण): {when(a, real_end)} — इस समय शुभ कार्य आरम्भ न करें",
+                      "start": a, "end": b})
+    for a, b, real_end in spans(12.0, rikta):
+        notes.append({"kind": "rikta",
+                      "text": f"रिक्ता तिथि: {when(a, real_end)} — नए काम का आरम्भ टालें",
+                      "start": a, "end": b})
+    return notes
+
+
+def build_personal_reading(name: str, score: float, tara_bala: Dict[str, Any], moon_house: int,
+                           moon_house_from_lagna: int, natal_planet_map: Dict[str, Any], lagna_sign: int,
+                           antar: str, pratyantar: str) -> Dict[str, Any]:
+    tara = TARA_GUIDE[tara_bala["tara_index"]]
+    moon_text, moon_kind = MOON_HOUSE_GUIDE[moon_house]
+
+    # the area of life the running dasha points to (pratyantar first: it changes every few weeks)
+    p_placed, p_ruled = _houses_of(pratyantar, natal_planet_map, lagna_sign)
+    a_placed, a_ruled = _houses_of(antar, natal_planet_map, lagna_sign)
+    focus_house = p_placed or a_placed or 1
+    second = next((h for h in (p_ruled + a_ruled) if h != focus_house), None)
+    focus_areas = HOUSE_AREA[focus_house] + (f" और {HOUSE_AREA[second]}" if second else "")
+    focus = (f"{PLANET_NAMES_HI[antar]} अन्तर्दशा में {PLANET_NAMES_HI[pratyantar]} की प्रत्यन्तर्दशा चल रही है — "
+             f"आपकी कुण्डली में {PLANET_NAMES_HI[pratyantar]} {HOUSE_ORD_HI[focus_house]} भाव में है, इसलिए इन दिनों "
+             f"ध्यान {focus_areas} पर रहेगा।")
+    today_area = HOUSE_AREA[moon_house_from_lagna]
+
+    if moon_kind == "worst":
+        head = "चन्द्राष्टम — आज बड़े निर्णय टालें"
+    else:
+        head = tara["head"]
+    theme = f"{head}। {moon_text}। आज मन {today_area} की ओर रहेगा।"
+
+    dos = [tara["do"], HOUSE_DO[focus_house]]
+    if moon_kind == "good":
+        dos.append(HOUSE_DO[moon_house_from_lagna])
+    donts = [tara["dont"]]
+    if moon_kind in ("bad", "worst"):
+        donts.append("भावनाओं में आकर बड़ा निर्णय या वादा न करें।" if moon_kind == "bad"
+                     else "वाहन, यात्रा और वाद-विवाद में विशेष सावधानी रखें।")
+    dos = list(dict.fromkeys(dos))[:3]
+
+    if "remedy" in tara:
+        remedy = tara["remedy"]
+    elif moon_kind == "worst":
+        remedy = "चन्द्राष्टम शान्ति: शिवलिंग पर जल या कच्चा दूध चढ़ाएँ और 'ॐ नमः शिवाय' 108 बार जपें।"
+    else:
+        remedy = f"{PLANET_NAMES_HI[pratyantar]} प्रत्यन्तर्दशा के लिए: " + DASHA_REMEDY[pratyantar]
+    return {"head": head, "theme": theme, "focus": focus, "dos": dos, "donts": donts,
+            "remedy": remedy, "moon_kind": moon_kind}
+
+
+# =============================================================================
 # 5. JAIMINI CHARA DASHA & ATMAKARAKA ENGINE
 # =============================================================================
 
@@ -979,7 +1199,11 @@ class PersonalizedPanchangEngine:
             natal_planet_map,
             natal_chart["lagnaSign"]
         )
-        chara_score = 70.0
+        # (the Chara-dasha slot uses the Moon's house from the birth Moon: chandra gochar)
+        natal_moon_sign = natal_planet_map["Moon"]["sign"]
+        moon_house = ((transit_planet_map["Moon"]["sign"] - natal_moon_sign) % 12) + 1
+        moon_house_from_lagna = ((transit_planet_map["Moon"]["sign"] - natal_chart["lagnaSign"]) % 12) + 1
+        chara_score = MOON_HOUSE_SCORE[MOON_HOUSE_GUIDE[moon_house][1]]
 
         # 6. Sudarshan Chakra Gochar & Bhavat Bhavam
         sudarshan_res = calculate_sudarshan_gochar(
@@ -1032,27 +1256,44 @@ class PersonalizedPanchangEngine:
         )
         final_day_score = max(5.0, min(99.0, final_day_score))
 
-        # 10. Core Theme, Do's & Don'ts, Personalized Windows & Remedy
-        theme, dos, donts, remedy = PersonalizedPanchangEngine._synthesize_advisories(
-            day_score=final_day_score,
-            tara_bala=tara_bala,
-            is_chandrashtama=sudarshan_res["is_chandrashtama"],
-            deep_panchang=deep_panchang,
-            active_pran_lord=active_pran_lord,
-            active_yogini=yogini_res["major_hi"],
-            transit_moon_micro=transit_moon_micro
-        )
+        # 10. The personal reading, the person's own good hours, and the day-wide notes
+        reading = build_personal_reading(
+            name, final_day_score, tara_bala, moon_house, moon_house_from_lagna,
+            natal_planet_map, natal_chart["lagnaSign"], active_antar_lord, active_pratyantar_lord)
+        theme, dos, donts, remedy = reading["theme"], reading["dos"], reading["donts"], reading["remedy"]
 
         dbd = day_chart["birthDetails"]
+        sunrise, sunset, weekday = dbd["sunriseHrs"], dbd["sunsetHrs"], int(dbd["weekday"]) % 7
         day_windows = compute_day_windows(
-            dbd["sunriseHrs"], dbd["sunsetHrs"], int(dbd["weekday"]) % 7,
+            sunrise, sunset, weekday,
             day_good=final_day_score >= 55 and tara_bala["score"] >= 40
         )
-        golden_windows, caution_windows = day_windows["golden"], list(day_windows["caution"])
+        now_hours = target_date.hour + target_date.minute / 60.0
+        notes = day_wide_notes(transit_planet_map["Sun"], transit_planet_map["Moon"], now_hours, sunrise)
+
+        lagna_lord = RASHI_LORDS[natal_chart["lagnaSign"]]
+        node = {"Rahu": "Saturn", "Ketu": "Mars"}
+        mine = []
+        for pl, why in ((active_pratyantar_lord, "प्रत्यन्तर्दशा स्वामी"), (active_antar_lord, "अन्तर्दशा स्वामी"),
+                        (lagna_lord, "लग्नेश")):
+            if pl in node:                      # Rahu/Ketu have no hora: Saturn/Mars stand for them
+                why, pl = f"{why} {PLANET_NAMES_HI[pl]}", node[pl]
+            if pl not in [m[0] for m in mine]:
+                mine.append((pl, why))
+        dm8 = (sunset - sunrise) / 8.0
+        avoid = [(sunrise + RAHU_SLOTS[weekday] * dm8, sunrise + (RAHU_SLOTS[weekday] + 1) * dm8),
+                 (sunrise + YAMA_SLOTS[weekday] * dm8, sunrise + (YAMA_SLOTS[weekday] + 1) * dm8),
+                 (sunrise + GULIKA_SLOTS[weekday] * dm8, sunrise + (GULIKA_SLOTS[weekday] + 1) * dm8)]
+        horas = personal_horas(sunrise, sunset, weekday, mine, avoid, after=max(sunrise, min(now_hours, 7.0)))
+        golden_windows = (horas[:2] + day_windows["golden"])[:4]
+        caution_windows = list(day_windows["caution"])
         if sudarshan_res["is_chandrashtama"]:
             caution_windows.insert(0, "पूरा दिन — चन्द्राष्टम (चन्द्र जन्म राशि से 8वें भाव में): बड़े निर्णय टालें")
-        if deep_panchang["karana"]["is_bhadra"]:
-            caution_windows.append("भद्रा (विष्टि करण) — शुभ कार्य टालें")
+        caution_windows += [n["text"] for n in notes]
+        for n in notes:
+            if n["kind"] == "bhadra":
+                donts.append("भद्रा के समय (" + n["text"].split(": ", 1)[1].split(" — ")[0] + ") गृह-प्रवेश, यात्रा या नया काम शुरू न करें।")
+                break
 
         return {
             "execution_date": target_date.strftime("%Y-%m-%d"),
@@ -1060,6 +1301,11 @@ class PersonalizedPanchangEngine:
             "overall_day_score": final_day_score,
             "sentiment": "उत्कृष्ट (Favorable)" if final_day_score >= 70 else ("सामान्य (Moderate)" if final_day_score >= 45 else "सतर्कता (Cautionary)"),
             "core_theme": theme,
+            "headline": reading["head"],
+            "dasha_focus": reading["focus"],
+            "moon_house_from_moon": moon_house,
+            "moon_house_from_lagna": moon_house_from_lagna,
+            "day_notes": [n["text"] for n in notes],
             "micro_nakshatra": {
                 "transit_moon": transit_moon_micro,
                 "natal_moon": natal_moon_micro
@@ -1113,79 +1359,6 @@ class PersonalizedPanchangEngine:
             "timezone": cur_tz_name,
             "micro_remedy": remedy
         }
-
-    @staticmethod
-    def _synthesize_advisories(
-        day_score: float,
-        tara_bala: Dict[str, Any],
-        is_chandrashtama: bool,
-        deep_panchang: Dict[str, Any],
-        active_pran_lord: str,
-        active_yogini: str,
-        transit_moon_micro: Dict[str, Any]
-    ) -> Tuple[str, List[str], List[str], str]:
-        tara_name_hi = tara_bala["tara_name_hi"]
-        star_sub = transit_moon_micro["sub_lord_hi"]
-
-        tithi_info = deep_panchang["tithi"]
-        karana_info = deep_panchang["karana"]
-        yoga_info = deep_panchang["yoga"]
-
-        afflictions = []
-        if is_chandrashtama:
-            afflictions.append("चंद्राष्टम")
-        if tithi_info["is_rikta"]:
-            afflictions.append(f"रिक्ता तिथि ({tithi_info['name']})")
-        if karana_info["is_bhadra"]:
-            afflictions.append("विष्टि (भद्रा)")
-        if tithi_info["is_moon_in_shunya"]:
-            afflictions.append("तिथि-शून्य चंद्र")
-        if yoga_info["is_inauspicious"]:
-            afflictions.append(f"{yoga_info['name']} योग")
-
-        dos = [
-            "नियमित और पूर्व-निर्धारित दैनिक कार्य ही निपटाएं।",
-            "मानसिक शांति हेतु ध्यान, योग अथवा 10 मिनट मौन का अभ्यास करें।",
-            "बातचीत में सौम्यता रखें व अनावश्यक बहस से बचें।"
-        ]
-        donts = []
-
-        if afflictions:
-            affliction_str = " + ".join(afflictions)
-            theme = f"अत्यंत संवेदनशील दिन ({affliction_str} प्रभाव)। नए व मांगलिक कार्य स्थगित रखें, शांति से दिन व्यतीत करें।"
-            donts.append("नया अनुबंध, भारी पूंजी निवेश या बड़ा वित्तीय निर्णय न लें।")
-            if karana_info["is_bhadra"]:
-                donts.append("विष्टि (भद्रा) के प्रभाव में गृह-प्रवेश, यात्रा अथवा साझेदारी शुरू न करें।")
-            if tithi_info["is_rikta"]:
-                donts.append("रिक्ता तिथि में कोई भी शुभ कार्य आरंभ न करें (परिणाम शून्य रहने का भय रहता है)।")
-            if is_chandrashtama:
-                donts.append("वाहन चलाते समय सतर्क रहें, लंबी यात्रा व विवाद टालें।")
-            remedy = "शिवलिंग पर जल या कच्चा दूध अर्पित करें और 'ॐ नमः शिवाय' का 108 बार जप करें।"
-        elif day_score >= 70:
-            theme = f"अत्यंत अनुकूल दिन — {tara_name_hi}, शुभ तिथि ({tithi_info['name']}) व उपस्वामी ({star_sub}) का पूर्ण सहयोग। नए प्रयासों में सफलता।"
-            dos = [
-                "वित्तीय सौदों, अनुबंधों एवं नई परियोजनाओं पर आगे बढ़ें।",
-                "उच्चाधिकारियों या महत्वपूर्ण व्यक्तियों से वार्ता संपन्न करें।",
-                "रुके हुए कार्यों को प्राथमिकता देकर पूरा करें।"
-            ]
-            donts = [
-                "अति-उत्साह में बिना योजना के अनावश्यक जोखिम न लें।",
-                "दूसरों की बातों में आकर अपने मूल लक्ष्य से न भटकें।"
-            ]
-            remedy = f"प्रातः सूर्य को तांबे के पात्र से अर्घ्य दें और अपने ईष्ट देव का स्मरण करें।"
-        else:
-            theme = f"मध्यम व संतुलित दिन — {tara_name_hi} व {tithi_info['name']} का प्रभाव। कार्यक्षेत्र में धैर्य और सतर्कता से काम लें।"
-            dos = [
-                "कागजी कार्यवाही व वित्तीय गणनाओं को दोबारा जांचें।",
-                "सहयोगियों के साथ संवाद स्पष्ट रखें।"
-            ]
-            donts = [
-                "उत्तेजना में आकर किसी विवाद में मध्यस्थता न करें।",
-                "शेयर बाजार में बड़े स्पेक्युलेटिव दांव न लगाएं।"
-            ]
-            remedy = f"पक्षियों को दाना डालें अथवा किसी जरूरतमंद को फल दान करें।"
-
-        return theme, dos, donts, remedy
 
 
 if __name__ == "__main__":

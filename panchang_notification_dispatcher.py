@@ -311,7 +311,7 @@ def build_message(name: str, forecast: Dict[str, Any]) -> tuple:
     title = f"🌅 {name} — आज का पंचांग: {score}/100 ({mood})"
     golden = (forecast["personalized_windows"].get("golden_hours") or [""])[0].split(" (")[0]
     rahu = (forecast.get("day_timings") or {}).get("rahu_kaal", "")
-    theme = forecast["core_theme"].split(" — ")[0]
+    theme = forecast.get("headline") or forecast["core_theme"].split("। ")[0]
     lines = [theme]
     if golden:
         lines.append(f"✨ शुभ समय: {golden}")
