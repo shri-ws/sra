@@ -47,12 +47,23 @@
       <p class="text-sm text-slate-500">श्री राम जी एस्ट्रो</p>
     </div>
     <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <p class="text-xs text-slate-500 leading-relaxed">सूत्रधार बनने (या लॉगिन) के लिए अपना नाम और मोबाइल नंबर दर्ज करें। नंबर OTP से सत्यापित होगा, उसके बाद ही आगे बढ़ सकेंगे।</p>
       <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-1.5">मोबाइल नंबर</label>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">पूरा नाम <span class="text-red-500">*</span></label>
+        <input type="text" id="startName" placeholder="जैसे: रमेश कुमार" autocomplete="name"
+          class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">मोबाइल नंबर <span class="text-red-500">*</span></label>
         <input type="tel" id="phoneInput" maxlength="10" placeholder="10 अंकों का नंबर"
           class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500"
           oninput="this.value=this.value.replace(/\D/g,'')"
           onkeydown="if(event.key==='Enter')sendOtp()">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">ईमेल आईडी <span class="text-slate-400 font-normal">(वैकल्पिक)</span></label>
+        <input type="email" id="startEmail" placeholder="आपकी ईमेल" autocomplete="email"
+          class="w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-blue-500">
       </div>
       <button onclick="sendOtp()" id="btnSendOtp"
         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">
@@ -62,7 +73,7 @@
       <!-- Invisible reCAPTCHA anchor for Firebase Phone Auth -->
       <div id="sutradhar-recaptcha"></div>
     </div>
-    <p class="text-center text-xs text-slate-400">केवल अधिकृत सूत्रधारों के लिए</p>
+    <p class="text-center text-xs text-slate-400">पहले से सूत्रधार हैं? वही नाम और नंबर डालकर लॉगिन करें।</p>
     <p class="text-center text-xs text-slate-400">सहायता / Support: <a href="mailto:support@shriramjiastro.in" class="text-blue-600 underline">support@shriramjiastro.in</a></p>
   </div>
 </div>
@@ -164,7 +175,7 @@
         <div class="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
           <div class="font-bold text-green-900">आपको मिलेगा:</div>
           <ul class="space-y-1.5 text-green-900">
-            <li>✅ हर रिपोर्ट पर <strong>66% कमीशन</strong> (GST घटाकर; ₹140 से ₹1,174 प्रति रिपोर्ट)</li>
+            <li>✅ हर रिपोर्ट पर <strong>66% दक्षिणा</strong> (GST घटाकर; ₹140 से ₹1,174 प्रति रिपोर्ट)</li>
             <li>✅ ज्योतिषी SaaS पहले वर्ष <strong>66%</strong>, नवीनीकरण पर <strong>30%</strong></li>
             <li>✅ गुरुकुल कोर्स पर <strong>30%</strong> (₹6,101)</li>
             <li>✅ अपना और परिवार का नंबर भी डाल सकते हैं</li>
@@ -198,7 +209,7 @@
           </div>
           <div class="flex gap-3 bg-white border border-slate-200 rounded-xl p-3">
             <div class="w-7 h-7 rounded-full bg-green-600 text-white font-bold text-xs flex items-center justify-center shrink-0">₹</div>
-            <div><strong>खरीद → आपके UPI में पैसे</strong><br><span class="text-slate-500">इस दौरान ग्राहक जो भी खरीदे, कमीशन अपने आप आपके खाते में। भुगतान के 2 कार्य-दिवस बाद (रविवार, दूसरा/चौथा शनिवार, बैंक अवकाश छोड़कर) शाम 7 बजे तक UPI में। कोई coupon code नहीं। परामर्श पर कमीशन नहीं।</span></div>
+            <div><strong>खरीद → आपके UPI में पैसे</strong><br><span class="text-slate-500">इस दौरान ग्राहक जो भी खरीदे, उसकी दक्षिणा अपने आप आपके खाते में। भुगतान के 2 कार्य-दिवस बाद (रविवार, दूसरा/चौथा शनिवार, बैंक अवकाश छोड़कर) शाम 7 बजे तक UPI में। परामर्श पर दक्षिणा नहीं।</span></div>
           </div>
         </div>
       </div>
@@ -308,7 +319,7 @@
           ग्राहक उसी नंबर से लॉगिन करे जो आपने डाला है।
         </p>
         <p class="text-xs text-slate-500 leading-relaxed">
-          ग्राहक का नंबर दर्ज करें — 72 घंटे के लिए यह नंबर आपके नाम पर lock। इस दौरान हर खरीद पर <strong>66% कमीशन</strong> (GST घटाकर; कोर्स 30%, परामर्श पर नहीं), 2 कार्य-दिवस बाद UPI में।
+          ग्राहक का नंबर दर्ज करें — 72 घंटे के लिए यह नंबर आपके नाम पर lock। इस दौरान हर खरीद पर <strong>66% दक्षिणा</strong> (GST घटाकर; कोर्स 30%, परामर्श पर नहीं), 2 कार्य-दिवस बाद UPI में।
         </p>
         <div class="space-y-3">
           <input type="text" id="newCustName" placeholder="ग्राहक का नाम *"
@@ -347,14 +358,14 @@
     <!-- ========== INCENTIVE TABLE TAB ========== -->
     <div id="tab-incentive" class="tab-content p-4 space-y-4">
       <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 leading-relaxed">
-        <strong>कमीशन नियम:</strong> दाम GST सहित हैं; कमीशन GST घटाकर बचे दाम पर। हर रिपोर्ट और SaaS के पहले वर्ष पर <strong>66%</strong>, गुरुकुल कोर्स और SaaS नवीनीकरण पर <strong>30%</strong>, दैवज्ञ परामर्श पर <strong>कमीशन नहीं</strong> (एक दिन, एक परामर्श)।<br><strong>पेआउट:</strong> भुगतान के 2 कार्य-दिवस बाद शाम 7 बजे तक UPI में (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)।
+        <strong>दक्षिणा (Dakshina / Payout) नियम:</strong> दाम GST सहित हैं; दक्षिणा GST घटाकर बचे दाम पर। हर रिपोर्ट और SaaS के पहले वर्ष पर <strong>66%</strong>, गुरुकुल कोर्स और SaaS नवीनीकरण पर <strong>30%</strong>, दैवज्ञ परामर्श पर <strong>दक्षिणा नहीं</strong> (एक दिन, एक परामर्श)।<br><strong>पेआउट:</strong> भुगतान के 2 कार्य-दिवस बाद शाम 7 बजे तक UPI में (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)।
       </div>
 
       <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
         <div class="bg-slate-50 border-b border-slate-200 grid grid-cols-3 px-4 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
           <span>सेवा</span>
           <span class="text-center">मूल्य</span>
-          <span class="text-right">आपका कमीशन</span>
+          <span class="text-right">आपकी दक्षिणा</span>
         </div>
         <div id="incentiveTable" class="divide-y divide-slate-100"></div>
       </div>
@@ -574,7 +585,7 @@ const QUIZ = [
     correct: 1
   },
   {
-    q: '₹251 (GST सहित) की मंगल दोष रिपोर्ट पर सूत्रधार को कितना कमीशन मिलेगा?',
+    q: '₹251 (GST सहित) की मंगल दोष रिपोर्ट पर सूत्रधार को कितनी दक्षिणा मिलेगी?',
     opts: ['₹25', '₹140', '₹166', '₹251'],
     correct: 1,
     hint: '₹251 में से GST घटाकर ₹212.71; उसका 66% = ₹140'
@@ -583,7 +594,7 @@ const QUIZ = [
     q: 'सूत्रधार का मुख्य काम क्या है?',
     opts: [
       'रिपोर्ट खुद लिखना',
-      'ग्राहक का नंबर 72 घंटे के लिए lock करना ताकि उनकी खरीद पर कमीशन मिले',
+      'ग्राहक का नंबर 72 घंटे के लिए lock करना ताकि उनकी खरीद पर दक्षिणा मिले',
       'पेमेंट सीधे लेना',
       'ग्राहक को कूपन कोड देना'
     ],
@@ -596,12 +607,12 @@ const QUIZ = [
     hint: '₹2,100 में से GST घटाकर ₹1,779.66; उसका 66% = ₹1,174'
   },
   {
-    q: 'दैवज्ञ 1-on-1 परामर्श (₹5,100) पर सूत्रधार को कितना कमीशन मिलता है?',
-    opts: ['₹3,366', '₹1,530', 'कोई कमीशन नहीं — एक दिन, एक परामर्श का नियम', '₹500'],
+    q: 'दैवज्ञ 1-on-1 परामर्श (₹5,100) पर सूत्रधार को कितनी दक्षिणा मिलती है?',
+    opts: ['₹3,366', '₹1,530', 'कोई दक्षिणा नहीं — एक दिन, एक परामर्श का नियम', '₹500'],
     correct: 2
   },
   {
-    q: 'आज (कार्य-दिवस) ग्राहक ने भुगतान किया। कमीशन कब मिलेगा?',
+    q: 'आज (कार्य-दिवस) ग्राहक ने भुगतान किया। दक्षिणा कब मिलेगी?',
     opts: [
       'उसी समय',
       '2 कार्य-दिवस बाद शाम 7 बजे तक UPI में',
@@ -714,8 +725,8 @@ function prefillFromInvite() {
     const p = new URLSearchParams(location.search);
     const phone = (p.get('user') || '').replace(/\D/g, '').slice(-10);
     if (phone.length === 10) document.getElementById('phoneInput').value = phone;
-    if (p.get('name')) document.getElementById('regName').value = p.get('name');
-    if (p.get('email')) document.getElementById('regEmail').value = p.get('email');
+    if (p.get('name')) { document.getElementById('regName').value = p.get('name'); document.getElementById('startName').value = p.get('name'); }
+    if (p.get('email')) { document.getElementById('regEmail').value = p.get('email'); document.getElementById('startEmail').value = p.get('email'); }
   } catch (e) {}
 }
 
@@ -732,10 +743,22 @@ function goTo(screenId) {
 // -----------------------------------------------------------------------
 async function sendOtp() {
   const phone = document.getElementById('phoneInput').value.trim().replace(/\D/g,'').slice(-10);
+  const name = document.getElementById('startName').value.trim();
+  const email = document.getElementById('startEmail').value.trim();
   const errEl = document.getElementById('phoneErr');
   const btn = document.getElementById('btnSendOtp');
   errEl.classList.add('hidden');
 
+  if (name.length < 2) {
+    errEl.textContent = 'कृपया अपना पूरा नाम दर्ज करें।';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'ईमेल सही नहीं लग रही। ठीक करें या खाली छोड़ दें।';
+    errEl.classList.remove('hidden');
+    return;
+  }
   if (phone.length !== 10) {
     errEl.textContent = 'कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।';
     errEl.classList.remove('hidden');
@@ -743,6 +766,7 @@ async function sendOtp() {
   }
 
   pendingPhone = phone;
+  window._startDetails = { name, email };
   btn.disabled = true;
   btn.innerHTML = '<span class="spin"></span> OTP भेजा जा रहा है...';
 
@@ -813,7 +837,18 @@ async function afterSignIn() {
       goToApp();
       return;
     }
-    if (res.status === 404) { goTo('screen-register'); return; }
+    if (res.status === 404) {
+      const st = window._startDetails;
+      if (st && st.name) {
+        window._pendingReg = { name: st.name, email: st.email || '', phone: pendingPhone };
+        currentSlide = 1;
+        showSlide(1);
+        goTo('screen-onboarding');
+      } else {
+        goTo('screen-register');   // signed in earlier without the first screen: ask the name here
+      }
+      return;
+    }
     const d = await res.json().catch(() => ({}));
     throw new Error(d.detail || 'प्रोफ़ाइल नहीं मिल सकी।');
   } catch (e) {
@@ -1137,7 +1172,7 @@ async function loadLeads() {
         : (l.status === 'expired' ? 'text-slate-500 bg-slate-100' : 'text-blue-700 bg-blue-50');
       const statusText = l.status === 'converted' ? '✓ खरीद' : (l.status === 'expired' ? 'समाप्त' : '⏱ सक्रिय');
       const rem = l.countdown_text || '';
-      const earned = l.commission_amount ? ` • कमीशन ${inr(l.commission_amount)}` : '';
+      const earned = l.commission_amount ? ` • दक्षिणा ${inr(l.commission_amount)}` : '';
       return `
         <div class="border-b border-slate-100 last:border-0 py-3 flex items-start justify-between gap-2">
           <div class="min-w-0">

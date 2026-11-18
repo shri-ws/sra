@@ -844,7 +844,7 @@ async def add_lead(req: AddLeadRequest, authorization: Optional[str] = Header(No
     return {
         "status": "success",
         "lead_id": lead_id,
-        "message": "लीड 72 घंटे के लिए आपकी है। इस दौरान इस नंबर से हर खरीद का कमीशन (GST घटाकर 66%; कोर्स 30%; परामर्श पर नहीं) अपने आप आपके खाते में जुड़ेगा।",
+        "message": "लीड 72 घंटे के लिए आपकी है। इस दौरान इस नंबर से हर खरीद की दक्षिणा (GST घटाकर 66%; कोर्स 30%; परामर्श पर नहीं) अपने आप आपके खाते में जुड़ेगी।",
         "customer_phone": clean_customer_phone,
         "expires_at": expires_at.isoformat(),
         "lock_hours": 72
@@ -999,7 +999,7 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
                 "final_price": MASTER_TEST_PRICE,
                 "net_price_paise": MASTER_TEST_PRICE * 100,
                 "code_status": "master_test",
-                "message": "टेस्ट भुगतान ₹1 (कोई कमीशन नहीं)।"
+                "message": "टेस्ट भुगतान ₹1 (कोई दक्षिणा नहीं)।"
             })
             return base
         code_message = "कोड अमान्य है।"  # same reply as any other code: nobody learns it is special
