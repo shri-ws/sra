@@ -1627,9 +1627,7 @@
                     name: "Shri Ramji Astro",
                     description: "20-Min VIP Engine Access — Yajnopavita Muhurta Engine" + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
                     prefill: {
-                        name: "VIP Client",
-                        email: "user@shriramjiastro.in",
-                        contact: "9517117775"
+                        name: "VIP Client"
                     },
                     theme: { color: "#7c1305" },
                     notes: {
@@ -1648,7 +1646,7 @@
                                 body: JSON.stringify({
                                     razorpay_payment_id: payId,
                                     student_name: 'VIP Client',
-                                    student_phone: '9517117775',
+                                    student_phone: (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : ''),
                                     plan_name: 'यज्ञोपवीत (उपनयन) संस्कार मुहूर्त (VIP Access)',
                                     report_type: 'yajnopavita_muhurta',
                                     amount: finalAmt,

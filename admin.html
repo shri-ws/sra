@@ -306,6 +306,30 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
   .tbl td::before{top:7px;width:auto;right:12px}
   .tbl td[data-label=""], .tbl td:not([data-label]){padding-top:8px !important}
 }
+/* ── Larger, easier-to-read text (owner asked: everything was too small) ── */
+body{font-size:16px !important;line-height:1.55}
+.topbar h1{font-size:23px !important}
+.nav-item{font-size:15px !important;padding:11px 13px}
+.table-title{font-size:14px !important;letter-spacing:1px !important}
+.tbl th{font-size:12.5px !important;letter-spacing:.6px !important;padding:12px 14px !important}
+.tbl td{font-size:15px !important;padding:12px 14px !important}
+.export-btn{font-size:12.5px !important;letter-spacing:.6px !important;padding:8px 14px !important}
+.search-box{font-size:15px !important}
+.stat-label{font-size:13px !important;letter-spacing:.8px !important}
+.stat-val{font-size:30px !important}
+.stat-sub{font-size:13px !important}
+.empty-row{font-size:15px !important}
+input,select,textarea,button{font-size:15px}
+[style*="font-size:9px"],[style*="font-size: 9px"],[style*="font-size:9.5px"]{font-size:12px !important}
+[style*="font-size:10px"],[style*="font-size: 10px"]{font-size:12.5px !important}
+[style*="font-size:11px"],[style*="font-size: 11px"]{font-size:13.5px !important}
+[style*="font-size:12px"],[style*="font-size: 12px"],[style*="font-size:12.5px"]{font-size:14.5px !important}
+[style*="font-size:13px"],[style*="font-size: 13px"]{font-size:15px !important}
+@media(max-width:900px){
+  .nav-item{font-size:14px !important;padding:8px 11px}
+  .topbar h1{font-size:19px !important}
+  .tbl td{font-size:14.5px !important}
+}
 </style>
 <script src="admin-accounts.js?v=20261105_05" defer></script>
 </head>
@@ -1238,16 +1262,16 @@ async function fetchUserQueries(){
     login_method: u.login_method || u.action || 'OTP_VERIFIED'
   }));
 
-  let local = [];
+  // Only records saved on the server count. The admin browser's own visits (localStorage
+  // sra_user_db) used to be mixed in, which put the owner's own logins in this list.
+  const local = [];
   const deletedUserIds = new Set(JSON.parse(localStorage.getItem('sra_deleted_user_ids') || '[]'));
-  try {
-    local = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
-  } catch(e) {}
 
-  // Merge server + firestore + local
+  // Merge server + firestore
   const combined = [];
   const seen = new Set();
   [...serverData, ...firestoreData].forEach(u => {
+    if (/@shriramjiastro\.in$/i.test(u.phone || '')) u.phone = u.phone.split('@')[0];
     const k = (u.phone || '').trim() + '_' + (u.created_at || '').slice(0,16);
     const uid = u.id || u.phone;
     if (!seen.has(k) && !deletedUserIds.has(uid) && !deletedUserIds.has(u.phone)) {

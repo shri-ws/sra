@@ -1793,9 +1793,7 @@ function triggerRazorpayCheckout() {
       name: "Shri Ramji Astro",
       description: "20-Min VIP Engine Access — Vastu & Griha Muhurta Engine" + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
       prefill: {
-        name: ownerName || "VIP Client",
-        email: "user@shriramjiastro.in",
-        contact: "9517117775"
+        name: ownerName || "VIP Client"
       },
       theme: {
         color: "#7c1305"
@@ -1816,7 +1814,7 @@ function triggerRazorpayCheckout() {
             body: JSON.stringify({
               razorpay_payment_id: payId,
               student_name: ownerName || 'VIP Client',
-              student_phone: '9517117775',
+              student_phone: (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : ''),
               plan_name: 'वास्तु व गृह प्रवेश संस्कार मुहूर्त (VIP Access)',
               report_type: 'vastu_muhurta',
               amount: finalAmt,

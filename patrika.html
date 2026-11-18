@@ -7659,7 +7659,7 @@ async function triggerParasharaRazorpayCheckout() {
   const clientName = (document.getElementById('inName') && document.getElementById('inName').value.trim()) 
     ? document.getElementById('inName').value.trim() 
     : "पाराशर VIP जातक";
-  const clientMobile = (localStorage.getItem('sra_verified_mobile') || "9517117775").replace(/\D/g, '').slice(-10);
+  const clientMobile = (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : '');
 
   const appliedDisc = 0;
   const finalAmt = 251;
@@ -7675,7 +7675,7 @@ async function triggerParasharaRazorpayCheckout() {
     description: `${reportTitle} (₹${finalAmt} आजीवन एक्सेस)` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
     prefill: {
       name: clientName,
-      contact: clientMobile || "9517117775"
+      contact: clientMobile || ''
     },
     theme: {
       color: "#b45309"
@@ -10319,7 +10319,8 @@ function performLoginSuccess(userData) {
   try {
     const userIdentifier = userData.email || userData.phone || userData.name || "verified_user";
     localStorage.setItem("sra_verified_google_user", JSON.stringify(userData));
-    localStorage.setItem("sra_verified_mobile", userIdentifier);
+    // the real number when there is one (phone logins carry only a placeholder email)
+    localStorage.setItem("sra_verified_mobile", userData.phone || userIdentifier);
     if (userData.email) localStorage.setItem("sra_verified_email", userData.email);
     if (userData.name) localStorage.setItem("sra_user_name", userData.name);
 
@@ -10674,7 +10675,9 @@ async function logPaymentToServer(paymentData) {
 
 async function logUserToDatabase(payload) {
   try {
-    const phone = localStorage.getItem("sra_verified_mobile") || payload.phone || "ANONYMOUS";
+    let phone = localStorage.getItem("sra_verified_mobile") || payload.phone || "ANONYMOUS";
+    // an older OTP login saved "<number>@shriramjiastro.in" here; log the number itself
+    if (/@shriramjiastro\.in$/i.test(phone)) phone = phone.split('@')[0];
     const data = {
       phone: phone,
       email: payload.email || (phone.includes('@') ? phone : (localStorage.getItem("sra_verified_email") || "")),

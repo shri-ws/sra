@@ -1545,10 +1545,7 @@
                     name: "Shri Ramji Astro",
                     description: "20-Min VIP Engine Access — Mundan Muhurta Engine" + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
                     prefill: {
-                        name: "VIP Client",
-                        email: "user@shriramjiastro.in",
-                        contact: "9517117775"
-                    },
+                        name: "VIP Client" },
                     theme: { color: "#7c1305" },
                     notes: {
                         report_type: 'mundan_muhurta',
@@ -1566,7 +1563,7 @@
                                 body: JSON.stringify({
                                     razorpay_payment_id: payId,
                                     student_name: 'VIP Client',
-                                    student_phone: '9517117775',
+                                    student_phone: (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : ''),
                                     plan_name: 'चूडाकर्म (मुंडन) संस्कार मुहूर्त (VIP Access)',
                                     report_type: 'mundan_muhurta',
                                     amount: finalAmt,

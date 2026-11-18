@@ -107,9 +107,14 @@
 
     guessPhone: function() {
       try {
+        // 1) the number signed in by OTP, 2) a phone box on the page, 3) what an older login saved
+        var fu = window.firebase && firebase.auth && firebase.auth().currentUser;
+        var fp = String((fu && fu.phoneNumber) || '').replace(/\D/g, '').slice(-10);
+        if (fp.length === 10) return fp;
         var el = document.getElementById('mangalPhone') || document.getElementById('inMangalPhone');
         var phone = (el ? el.value : '') || localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_user_phone') || '';
-        return String(phone).replace(/\D/g, '').slice(-10);
+        phone = String(phone).split('@')[0].replace(/\D/g, '').slice(-10);
+        return phone.length === 10 ? phone : '';
       } catch (e) { return ''; }
     },
 

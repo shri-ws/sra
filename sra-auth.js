@@ -80,7 +80,8 @@
       : { name: u.displayName || (u.email || '').split('@')[0], email: u.email || '', photo: u.photoURL || '',
           phone, uid: u.uid, action: 'FIREBASE_GOOGLE' };
     localStorage.setItem('sra_verified_google_user', JSON.stringify(data));
-    localStorage.setItem('sra_verified_mobile', data.email || data.phone || u.uid);
+    // The real 10-digit number (logs and payment forms read this key); the placeholder email stays only in sra_verified_google_user
+    localStorage.setItem('sra_verified_mobile', data.phone || data.email || u.uid);
     if (data.email) localStorage.setItem('sra_verified_email', data.email);
     if (data.name) localStorage.setItem('sra_user_name', data.name);
     return data;

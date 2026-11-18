@@ -3104,7 +3104,9 @@
 
     async function logUserToDatabase(payload) {
       try {
-        const phone = payload.phone || localStorage.getItem("sra_verified_mobile") || "ANONYMOUS";
+        let phone = payload.phone || localStorage.getItem("sra_verified_mobile") || "ANONYMOUS";
+        // an older OTP login saved "<number>@shriramjiastro.in" here; log the number itself
+        if (/@shriramjiastro\.in$/i.test(phone)) phone = phone.split('@')[0];
         const data = {
           phone: phone,
           email: payload.email || (phone.includes('@') ? phone : (localStorage.getItem("sra_verified_email") || "")),
