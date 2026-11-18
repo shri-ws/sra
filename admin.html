@@ -325,6 +325,14 @@ input,select,textarea,button{font-size:15px}
 [style*="font-size:11px"],[style*="font-size: 11px"]{font-size:13.5px !important}
 [style*="font-size:12px"],[style*="font-size: 12px"],[style*="font-size:12.5px"]{font-size:14.5px !important}
 [style*="font-size:13px"],[style*="font-size: 13px"]{font-size:15px !important}
+/* Left menu: fixed to the screen, so its list must scroll on its own (it had no overflow, items past the bottom were cut off) */
+@media(min-width:901px){
+  .sidebar{width:250px}
+  .main{margin-left:250px}
+  .sidebar-nav{overflow-y:auto;min-height:0;overscroll-behavior:contain;scrollbar-width:thin}
+  .sidebar-nav::-webkit-scrollbar{width:6px}
+  .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.35);border-radius:3px}
+}
 @media(max-width:900px){
   .nav-item{font-size:14px !important;padding:8px 11px}
   .topbar h1{font-size:19px !important}
