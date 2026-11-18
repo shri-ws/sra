@@ -1387,12 +1387,24 @@ const wa      = p => {
   const clean = p.replace(/\D/g,'').slice(-10);
   return clean ? `<a class="wa-link" href="https://wa.me/91${clean}" target="_blank">📱 ${p}</a>` : p;
 };
+const isGuestPhone = p => !String(p || '').trim() || /^anonymous$/i.test(String(p).trim());
+const userCell = p => isGuestPhone(p) ? '<span style="color:var(--muted)">अतिथि (बिना लॉगिन)</span>' : wa(p);
 const badge   = s => `<span class="badge ${s||'completed'}">${s||'completed'}</span>`;
 const pid     = id=> id ? `<span style="font-size:10px;font-family:monospace;color:var(--muted)">${id.slice(0,18)}...</span>` : '—';
 const safe    = s => (s||'—');
 
-function getAuthMethodBadge(m) {
+function getAuthMethodBadge(m, phone) {
   const method = String(m || '').toUpperCase();
+  // a kundali made without logging in (older records said phone "ANONYMOUS" + a default "OTP_VERIFIED")
+  if (method.includes('GUEST') || isGuestPhone(phone)) {
+    return `<span class="badge" style="background:rgba(107,114,128,0.15);color:var(--muted);border:1px solid rgba(107,114,128,0.3)">👤 अतिथि — कुण्डली बनाई, लॉगिन नहीं</span>`;
+  }
+  if (method.includes('KUNDALI_LOGGED_IN')) {
+    return `<span class="badge completed">🪐 कुण्डली बनाई (लॉगिन)</span>`;
+  }
+  if (method.includes('KUNDALI_GOOGLE')) {
+    return `<span class="badge" style="background:rgba(59,130,246,0.15);color:#2563eb;border:1px solid rgba(59,130,246,0.3)">🪐 कुण्डली बनाई (Google लॉगिन)</span>`;
+  }
   if (method.includes('PAID') || method.includes('PURCHASE')) {
     return `<span class="badge" style="background:rgba(180,130,32,0.15);color:var(--gold);border:1px solid rgba(180,130,32,0.3)">💎 Paid Report</span>`;
   }
@@ -1458,9 +1470,9 @@ function renderRecentUserRows(tbodyId, rows){
   if(!el) return;
   if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="5" class="empty-row">No mobile logins or queries recorded yet</td></tr>`; return; }
   el.innerHTML=rows.map(u=>{
-    const methodBadge = getAuthMethodBadge(u.login_method || u.action);
+    const methodBadge = getAuthMethodBadge(u.login_method || u.action, u.phone);
     return `<tr>
-      <td>${wa(u.phone)}</td>
+      <td>${userCell(u.phone)}</td>
       <td><div class="name-cell">${safe(u.candidate_name || u.name || 'जातक')}</div></td>
       <td>${methodBadge}</td>
       <td style="font-size:12px">${safe(u.location)}</td>
@@ -1546,7 +1558,7 @@ function renderUserQueryRows(tbodyId, rows){
   const el=document.getElementById(tbodyId);
   if(!rows || !rows.length){ el.innerHTML=`<tr><td colspan="9" class="empty-row">No registered user queries or OTP logins recorded yet</td></tr>`; return; }
   el.innerHTML=rows.map(u=>{
-    const methodBadge = getAuthMethodBadge(u.login_method || u.action);
+    const methodBadge = getAuthMethodBadge(u.login_method || u.action, u.phone);
     const dobTob = [safe(u.dob), safe(u.tob)].filter(x=>x&&x!=='—').join(' • ') || '—';
     const coords = (u.latitude || u.lat) ? `${safe(u.latitude || u.lat)}, ${safe(u.longitude || u.lon)}` : '—';
     const cleanPhone = (u.phone || '').replace(/\D/g,'').slice(-10);
@@ -1554,7 +1566,7 @@ function renderUserQueryRows(tbodyId, rows){
     const uId = u.id || '';
 
     return `<tr>
-      <td>${wa(u.phone)}</td>
+      <td>${userCell(u.phone)}</td>
       <td><div class="name-cell">${safe(u.candidate_name || u.name || 'जातक')}</div></td>
       <td>${methodBadge}</td>
       <td style="font-size:12px">${dobTob}</td>

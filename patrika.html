@@ -10675,21 +10675,26 @@ async function logPaymentToServer(paymentData) {
 
 async function logUserToDatabase(payload) {
   try {
-    let phone = localStorage.getItem("sra_verified_mobile") || payload.phone || "ANONYMOUS";
-    // an older OTP login saved "<number>@shriramjiastro.in" here; log the number itself
-    if (/@shriramjiastro\.in$/i.test(phone)) phone = phone.split('@')[0];
+    // Who made this kundali: the signed-in number, else a Google login's email, else a guest (no login)
+    let phone = (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : '') || String(payload.phone || '').replace(/\D/g, '').slice(-10);
+    if (!/^\d{10}$/.test(phone)) phone = '';
+    const legacyId = (localStorage.getItem("sra_verified_mobile") || '').trim();
+    if (!phone && legacyId.includes('@') && !/@shriramjiastro\.in$/i.test(legacyId)) phone = legacyId;
+    if (!phone && /@shriramjiastro\.in$/i.test(legacyId)) phone = legacyId.split('@')[0];
+    const loginKind = /^\d{10}$/.test(phone) ? "KUNDALI_LOGGED_IN" : (phone ? "KUNDALI_GOOGLE_LOGIN" : "KUNDALI_GUEST");
     const data = {
       phone: phone,
       email: payload.email || (phone.includes('@') ? phone : (localStorage.getItem("sra_verified_email") || "")),
-      name: payload.name || (document.getElementById("inName") ? document.getElementById("inName").value : "वेरिफाइड जातक"),
+      name: payload.name || (document.getElementById("inName") ? document.getElementById("inName").value : "जातक"),
       dob: payload.dob || (document.getElementById("inDate") ? document.getElementById("inDate").value : ""),
       tob: payload.tob || (document.getElementById("inTime") ? document.getElementById("inTime").value : ""),
       location: payload.location || (document.getElementById("inCitySearch") ? document.getElementById("inCitySearch").value : ""),
       lat: payload.lat || (document.getElementById("inLat") ? document.getElementById("inLat").value : ""),
       lon: payload.lon || (document.getElementById("inLon") ? document.getElementById("inLon").value : ""),
       tz: payload.tz || (document.getElementById("inTz") ? document.getElementById("inTz").value : ""),
-      action: payload.action || "OTP_VERIFIED",
-      login_method: payload.action || "OTP_VERIFIED"
+      action: payload.action || loginKind,
+      login_method: payload.action || loginKind,
+      guest: !phone
     };
 
     let localDb = JSON.parse(localStorage.getItem("sra_user_db") || "[]");
