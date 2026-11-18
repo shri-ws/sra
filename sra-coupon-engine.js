@@ -211,7 +211,7 @@
       }
       var notes = Object.assign({ service_id: order.service_id, customer_phone: phone }, o.notes || {});
       var options = {
-        key: order.key_id || 'rzp_live_SP6lQYYrNI0CYD',
+        key: order.key_id || 'rzp_live_U1a0a504puKK5e',
         amount: order.amount,
         currency: 'INR',
         order_id: order.order_id,
