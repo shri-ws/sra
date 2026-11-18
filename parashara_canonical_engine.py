@@ -1387,6 +1387,14 @@ try:
 except Exception as e:
     print(f"[FastAPI] Sutradhar router mount notice: {e}")
 
+# Website visitor & download analytics (sra-analytics.js beacons → admin.html "वेबसाइट विज़िटर्स")
+try:
+    from site_analytics import router as site_analytics_router
+    app.include_router(site_analytics_router)
+    print("[FastAPI] Site analytics router mounted at /api/analytics")
+except Exception as e:
+    print(f"[FastAPI] Site analytics router mount notice: {e}")
+
 
 class ChartRequest(BaseModel):
     year: Optional[int] = None

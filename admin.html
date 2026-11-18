@@ -362,6 +362,7 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">🤝 &nbsp;सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-visitors" onclick="showPanel('visitors', this)" style="color:#7c3aed; font-weight:bold; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:8px; margin-top:6px;">📈 &nbsp;वेबसाइट विज़िटर्स व डाउनलोड</div>
       <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">💻 &nbsp;SaaS ग्राहक (ज्योतिषी) &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-payouts" onclick="showPanel('sutra-payouts', this)" style="color:#16a34a; font-weight:bold; background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.25); border-radius:8px; margin-top:6px;">💸 &nbsp;सूत्रधार पेआउट डेस्क &nbsp;<span id="badge-sutra-payouts" style="display:none; font-size:9px; background:#16a34a; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">⚠️ &nbsp;सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
@@ -849,6 +850,45 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     </div>
 
     <!-- PANEL: SUTRADHAR REQUIRES REVIEW QUEUE -->
+    <div class="panel" id="panel-visitors">
+      <div class="card">
+        <div class="tbl-header">
+          <span class="table-title">📈 वेबसाइट पर कौन आया</span>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="export-btn an-range" data-days="1" onclick="loadVisitors(1)">आज</button>
+            <button class="export-btn an-range" data-days="7" onclick="loadVisitors(7)">7 दिन</button>
+            <button class="export-btn an-range" data-days="30" onclick="loadVisitors(30)">30 दिन</button>
+            <button class="export-btn an-range" data-days="90" onclick="loadVisitors(90)">90 दिन</button>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">
+          हर पेज पर एक छोटा counter लगा है। गिनती 18 नवंबर 2026 से शुरू हुई। नंबर केवल उन्हीं लोगों के दिखते हैं जिन्होंने OTP से लॉगिन किया (नंबर server पर जाँचा जाता है)। Google पर लोगों ने <b>कौन-से शब्द खोजे</b>, यह Google किसी वेबसाइट को नहीं बताता — वह <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="color:var(--gold);">Google Search Console</a> में दिखता है।
+          <br><span id="an-range-label" style="font-weight:700;"></span>
+        </p>
+        <div class="stats-grid" id="an-stats" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));"></div>
+        <div id="an-chart" style="display:flex; align-items:flex-end; gap:3px; height:110px; padding:8px 4px; border:1px solid var(--border); border-radius:10px; margin-bottom:18px; overflow-x:auto;"></div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-bottom:18px;">
+          <div><div class="table-title" style="margin-bottom:6px;">🔎 लोग कहाँ से आए</div><table class="tbl"><tbody id="an-sources"></tbody></table></div>
+          <div><div class="table-title" style="margin-bottom:6px;">📄 सबसे ज़्यादा देखे गए पेज</div><table class="tbl"><tbody id="an-pages"></tbody></table></div>
+          <div><div class="table-title" style="margin-bottom:6px;">📥 कौन-सी रिपोर्ट डाउनलोड हुई</div><table class="tbl"><tbody id="an-dltypes"></tbody></table></div>
+          <div><div class="table-title" style="margin-bottom:6px;">📱 डिवाइस</div><table class="tbl"><tbody id="an-devices"></tbody></table>
+            <div class="table-title" style="margin:12px 0 6px;">🔤 खोज शब्द (जहाँ search engine ने बताए)</div><table class="tbl"><tbody id="an-searches"></tbody></table></div>
+        </div>
+        <div class="table-title" style="margin-bottom:6px;">📥 डाउनलोड — किसने, कब</div>
+        <div style="overflow-x:auto; margin-bottom:18px;"><table class="tbl">
+          <thead><tr><th>तारीख़ / समय</th><th>क्या</th><th>पेज</th><th>मोबाइल नंबर</th></tr></thead>
+          <tbody id="an-downloads"></tbody></table></div>
+        <div class="table-title" style="margin-bottom:6px;">👤 लॉगिन किए हुए लोग</div>
+        <div style="overflow-x:auto; margin-bottom:18px;"><table class="tbl">
+          <thead><tr><th>नाम / नंबर</th><th>पहली बार</th><th>आख़िरी बार</th><th>दिन आए</th><th>पेज देखे</th><th>डाउनलोड</th><th>कहाँ से आए</th><th>आख़िरी डाउनलोड</th></tr></thead>
+          <tbody id="an-people"></tbody></table></div>
+        <div class="table-title" style="margin-bottom:6px;">🕒 ताज़ा गतिविधि</div>
+        <div style="overflow-x:auto;"><table class="tbl">
+          <thead><tr><th>समय</th><th>क्या हुआ</th><th>पेज</th><th>स्रोत / विवरण</th><th>नंबर</th></tr></thead>
+          <tbody id="an-recent"></tbody></table></div>
+      </div>
+    </div>
+
     <div class="panel" id="panel-saas">
       <div class="card">
         <div class="tbl-header">
@@ -1819,7 +1859,8 @@ function showPanel(name, targetEl){
       careers: currentAdminLang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)',
       'sutra-reviews': currentAdminLang === 'en' ? '⚠️ Sutradhar Requires Review Queue' : '⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
       'sutra-payouts': currentAdminLang === 'en' ? '💸 Sutradhar Payout Desk' : '💸 सूत्रधार पेआउट डेस्क',
-      saas: currentAdminLang === 'en' ? '💻 Astrologer SaaS Subscribers' : '💻 ज्योतिषी SaaS ग्राहक'
+      saas: currentAdminLang === 'en' ? '💻 Astrologer SaaS Subscribers' : '💻 ज्योतिषी SaaS ग्राहक',
+      visitors: currentAdminLang === 'en' ? '📈 Website Visitors & Downloads' : '📈 वेबसाइट विज़िटर्स व डाउनलोड'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
@@ -1841,6 +1882,8 @@ function showPanel(name, targetEl){
       loadSutradharPayoutDesk();
     } else if (name === 'saas') {
       loadSaasSubscribers();
+    } else if (name === 'visitors') {
+      loadVisitors(window._anDays || 7);
     }
   } catch(e) {
     console.error("showPanel error:", e);
@@ -2705,6 +2748,96 @@ async function sutraAdminFetch(path, opts) {
   if (res.status === 401) throw new Error('यह खाता सूत्रधार पेआउट के लिए अधिकृत नहीं है (server पर SRA_ADMIN_EMAILS देखें)।');
   return res;
 }
+
+/* ══ WEBSITE VISITORS & DOWNLOADS (sra-analytics.js → /api/analytics) ══ */
+const anEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const anNum = n => (Number(n) || 0).toLocaleString('en-IN');
+const anDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('hi-IN', { day: 'numeric', month: 'short' }); } catch (e) { return d; } };
+const anDT = iso => { try { return new Date(iso).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso || '—'; } };
+
+function anRows(list, empty) {
+  if (!list || !list.length) return `<tr><td class="empty-row">${empty || 'अभी कोई डेटा नहीं'}</td></tr>`;
+  const max = Math.max(...list.map(x => x.count)) || 1;
+  return list.map(x => `<tr><td style="width:100%;"><div style="font-size:12.5px;">${anEsc(x.name)}</div>
+    <div style="height:5px; background:rgba(124,58,237,.12); border-radius:3px; margin-top:3px;"><div style="height:5px; width:${Math.max(3, Math.round(x.count / max * 100))}%; background:#7c3aed; border-radius:3px;"></div></div></td>
+    <td style="text-align:right; font-weight:700; white-space:nowrap;">${anNum(x.count)}</td></tr>`).join('');
+}
+
+async function loadVisitors(days) {
+  window._anDays = days;
+  document.querySelectorAll('.an-range').forEach(b => {
+    const on = Number(b.dataset.days) === days;
+    b.style.background = on ? '#7c3aed' : ''; b.style.color = on ? '#fff' : ''; b.style.borderColor = on ? '#6d28d9' : '';
+  });
+  const stats = document.getElementById('an-stats');
+  stats.innerHTML = '<div class="stat-card"><span class="spin"></span> लोड हो रहा है...</div>';
+  try {
+    const res = await sutraAdminFetch('/api/analytics/admin/summary?days=' + days);
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'डेटा नहीं मिला');
+    const t = d.totals || {};
+    document.getElementById('an-range-label').textContent = `${anDate(d.from)} से ${anDate(d.to)} तक`;
+    stats.innerHTML = [
+      ['विज़िटर', t.visitors, 'अलग-अलग लोग (हर दिन का जोड़)', 'gold'],
+      ['विज़िट', t.visits, 'वेबसाइट पर आना', ''],
+      ['पेज देखे', t.pageviews, '', ''],
+      ['लॉगिन वाले लोग', t.signed_in, 'जिनका नंबर पता है', 'green'],
+      ['रिपोर्ट डाउनलोड', t.downloads, 'PDF / प्रिंट', 'gold'],
+      ['ऐप डाउनलोड', t.app_downloads, 'Android APK', 'green'],
+    ].map(([l, v, sub, cls]) => `<div class="stat-card ${cls}"><div class="stat-label">${l}</div><div class="stat-val">${anNum(v)}</div><div class="stat-sub">${sub}</div></div>`).join('');
+
+    const pd = d.per_day || [];
+    const mx = Math.max(1, ...pd.map(x => x.visitors));
+    document.getElementById('an-chart').innerHTML = pd.map(x => `
+      <div title="${anDate(x.date)}: ${x.visitors} विज़िटर, ${x.pageviews} पेज, ${x.downloads} डाउनलोड" style="flex:1; min-width:${pd.length > 40 ? 6 : 18}px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;">
+        <div style="font-size:9px; color:var(--text-muted);">${x.visitors || ''}</div>
+        <div style="width:100%; height:${Math.round(x.visitors / mx * 70)}px; min-height:${x.visitors ? 2 : 0}px; background:linear-gradient(#a78bfa,#7c3aed); border-radius:3px 3px 0 0;"></div>
+        <div style="font-size:9px; color:var(--text-muted); white-space:nowrap;">${pd.length <= 31 ? anDate(x.date).split(' ')[0] : ''}</div>
+      </div>`).join('');
+
+    document.getElementById('an-sources').innerHTML = anRows(d.sources, 'अभी कोई विज़िट नहीं');
+    document.getElementById('an-pages').innerHTML = anRows(d.pages);
+    document.getElementById('an-dltypes').innerHTML = anRows(d.downloads, 'अभी कोई डाउनलोड नहीं');
+    document.getElementById('an-devices').innerHTML = anRows(d.devices);
+    document.getElementById('an-searches').innerHTML = anRows(d.searches, 'Google खोज शब्द नहीं बताता — Search Console देखें');
+
+    const dl = d.download_events || [];
+    document.getElementById('an-downloads').innerHTML = dl.length ? dl.map(e => `<tr>
+      <td style="white-space:nowrap;">${anDate(e.date)} ${anEsc((e.t || '').slice(0, 5))}</td>
+      <td>${e.k === 'app' ? '📱 ' : '📄 '}${anEsc(e.l || '—')}</td>
+      <td style="font-size:11px;">${anEsc(e.p)}</td>
+      <td style="font-family:monospace;">${e.ph ? `<a href="https://wa.me/91${anEsc(e.ph)}" target="_blank" rel="noopener" style="color:var(--gold);">${anEsc(e.ph)}</a>` : '<span style="color:var(--text-muted);">लॉगिन नहीं</span>'}</td>
+    </tr>`).join('') : '<tr><td colspan="4" class="empty-row">इस अवधि में कोई डाउनलोड नहीं</td></tr>';
+
+    const people = d.people || [];
+    document.getElementById('an-people').innerHTML = people.length ? people.map(p => {
+      const last = (p.downloads || []).slice(-1)[0];
+      return `<tr>
+        <td><div style="font-weight:700;">${anEsc(p.name || '—')}</div><a href="https://wa.me/91${anEsc(p.phone)}" target="_blank" rel="noopener" style="font-family:monospace; font-size:12px; color:var(--gold);">${anEsc(p.phone)}</a></td>
+        <td style="font-size:11px;">${anDT(p.first_seen)}</td>
+        <td style="font-size:11px;">${anDT(p.last_seen)}</td>
+        <td>${(p.days || []).length}</td>
+        <td>${anNum(p.pageviews)}</td>
+        <td><b>${anNum(p.download_count)}</b>${p.app_downloads ? ` <span style="font-size:10px;">+ऐप</span>` : ''}</td>
+        <td style="font-size:11px;">${anEsc(p.source || '—')}</td>
+        <td style="font-size:11px;">${last ? anEsc(last.l) + '<br><span style="color:var(--text-muted);">' + anDT(last.at) + '</span>' : '—'}</td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="8" class="empty-row">इस अवधि में किसी लॉगिन वाले व्यक्ति की गतिविधि नहीं</td></tr>';
+
+    const kinds = { pv: '👀 आया', dl: '📄 डाउनलोड', app: '📱 ऐप डाउनलोड', login: '🔑 लॉगिन' };
+    const rc = d.recent || [];
+    document.getElementById('an-recent').innerHTML = rc.length ? rc.map(e => `<tr>
+      <td style="white-space:nowrap; font-size:11px;">${anDate(e.date)} ${anEsc((e.t || '').slice(0, 5))}</td>
+      <td>${kinds[e.k] || anEsc(e.k)}</td>
+      <td style="font-size:11px;">${anEsc(e.p)}</td>
+      <td style="font-size:11px;">${anEsc(e.src || e.l || '')}</td>
+      <td style="font-family:monospace; font-size:11px;">${anEsc(e.ph || '')}</td>
+    </tr>`).join('') : '<tr><td colspan="5" class="empty-row">अभी कोई गतिविधि नहीं</td></tr>';
+  } catch (err) {
+    stats.innerHTML = `<div class="stat-card" style="grid-column:1/-1; color:#ef4444;">त्रुटि: ${anEsc(err.message)}</div>`;
+  }
+}
+window.loadVisitors = loadVisitors;
 
 const spInr = n => '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN');
 const spDate = iso => iso ? new Date(iso + 'T12:00:00+05:30').toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', weekday: 'short' }) : '—';
