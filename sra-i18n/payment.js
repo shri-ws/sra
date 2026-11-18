@@ -18,7 +18,7 @@ SRA_I18N.add([
   ["लोकप्रिय", "Popular"],
   ["🔮 व्यक्तिगत परामर्श", "🔮 Personal Consultation"],
   ["1 वर्ष तक श्री रामजी एस्ट्रो के साथ एक-से-एक कुण्डली पठन", "1-on-1 chart readings with Shri Ramji Astro for 1 year"],
-  ["EMI ₹175/माह से", "EMI starting from ₹175/month"],
+  ["EMI उपलब्ध · लगभग ₹425/माह (12 महीने)", "EMI available · approx ₹425/month (12 months)"],
   ["कम लागत EMI उपलब्ध", "Low Cost EMI Available"],
   ["HDFC, ICICI, SBI, Axis, Kotak आदि पर आसान किस्तों में भुगतान करें। कोई छिपा शुल्क नहीं — आप ठीक कोर्स मूल्य ही देते हैं, कुछ अतिरिक्त नहीं।", "Pay in easy instalments on HDFC, ICICI, SBI, Axis, Kotak & more. No hidden charges — you pay exactly the course price, nothing extra."],
   ["② आपका विवरण", "② Your Details"],
