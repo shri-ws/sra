@@ -280,7 +280,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
 <div class="page">
   <div class="page-title">
     <h1>Complete Your Enrolment</h1>
-    <p>Secure payment · UPI · Cards · Low Cost EMI · Net Banking</p>
+    <p>Secure payment · UPI · Cards · EMI · Net Banking</p>
   </div>
 
   <div class="section">
@@ -291,7 +291,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
         <div class="plan-text">
           <div class="plan-name">📚 1-Year Astrology Program</div>
           <div class="plan-sub">48 Live Classes · Recordings · Certificate · Forum Access</div>
-          <div class="plan-emi">Low Cost EMI from ₹1,175/month</div>
+          <div class="plan-emi">EMI 3–24 months · approx ₹1,000/month + bank interest</div>
         </div>
         <div class="plan-price"><span class="plan-amt">₹24,000</span><span class="plan-orig">₹32,000</span></div>
         <div class="badge">Popular</div>
@@ -309,8 +309,8 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
       <div class="emi-highlight">
         <div class="emi-highlight-icon">✨</div>
         <div class="emi-highlight-text">
-          <strong>Low Cost EMI Available</strong>
-          Pay in easy instalments on HDFC, ICICI, SBI, Axis, Kotak &amp; more. No hidden charges — you pay exactly the course price, nothing extra.
+          <strong>EMI Available (3–24 months)</strong>
+          Pay in instalments on HDFC, ICICI, SBI, Axis, Kotak &amp; more. Tenure (3 to 24 months) and interest are set by your bank and shown before you pay.
         </div>
       </div>
     </div>
@@ -358,7 +358,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
   </div>
 
   <div class="section">
-    <div class="section-label">⑤ Low EMI</div>
+    <div class="section-label">⑤ EMI</div>
     <div class="section-body">
       <div style="display:flex;align-items:center;gap:18px;background:var(--box-bg);border:1px solid var(--border);border-radius:10px;padding:18px 20px">
         <div style="text-align:center;flex-shrink:0">
@@ -367,8 +367,8 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
           <div style="font-size:11px;color:var(--muted);margin-top:2px">per month</div>
         </div>
         <div style="border-left:1px solid var(--border);padding-left:18px">
-          <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--heading-color);margin-bottom:4px">Pay in 12 easy instalments</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.6">No hidden charges<br/>Available on HDFC, ICICI, SBI, Axis, Kotak &amp; more</div>
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--heading-color);margin-bottom:4px">Up to 24 monthly instalments</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6">Bank interest extra, shown at checkout<br/>Available on HDFC, ICICI, SBI, Axis, Kotak &amp; more</div>
         </div>
       </div>
     </div>
@@ -408,7 +408,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
         <span class="pay-icon">📱 UPI</span>
         <span class="pay-icon">💳 Credit Card</span>
         <span class="pay-icon">💳 Debit Card</span>
-        <span class="pay-icon">✨ Low Cost EMI</span>
+        <span class="pay-icon">✨ EMI</span>
         <span class="pay-icon">🏦 Net Banking</span>
         <span class="pay-icon">👛 Wallets</span>
       </div>
@@ -416,7 +416,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
       <div class="trust-strip">
         <span class="trust-item">🔒 SSL Encrypted</span>
         <span class="trust-item">✦ Razorpay Secured</span>
-        <span class="trust-item">✨ Low Cost EMI Available</span>
+        <span class="trust-item">✨ EMI Available</span>
       </div>
     </div>
   </div>
@@ -500,7 +500,7 @@ function updateSummary(){
   const sb=document.getElementById('savingsBox');
   sb.style.display=saved>0?'block':'none';
   if(saved>0)document.getElementById('savingsAmt').textContent=fmt(saved);
-  document.getElementById('emi12').textContent=fmt(after/12)+'/mo';
+  document.getElementById('emi12').textContent='≈ '+fmt(after/24)+'/mo';
 }
 
 // Support / Donation logic
@@ -594,7 +594,7 @@ async function pay(){
       name:'Shri Ramji Astro', description:S.name,
       prefill:{name:fname+' '+lname,email,contact:phone.replace(/\D/g,'').slice(-10)},
       theme:{color:'#c9a84c'},
-      config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'No Cost EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
+      config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
       async handler(r){
         // Only a paid 1-year course enrolment makes someone a student (admin → Students)
         const usedCoupon = S.code || '';
