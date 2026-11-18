@@ -648,6 +648,8 @@ async function pay(){
 
 // Auto-fill and apply Sutradhar referral code if present in URL/Storage
 document.addEventListener('DOMContentLoaded', function() {
+  // course.html links here with ?plan=course (default); ?plan=consult opens the consultation plan
+  if (new URLSearchParams(location.search).get('plan') === 'consult') { pick('consult',4999,0,'Personal Consultation (1 Year)'); return; }
   updateSummary();
   // A Sutradhar's lead is attached by the server from the customer's mobile; no code to fill
 });

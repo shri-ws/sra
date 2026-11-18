@@ -1012,6 +1012,17 @@
       align-items: flex-start;
     }
   }
+
+  /* Pay buttons + fixed bottom bar (screen only) */
+  .course-pay-btn { display:inline-block; margin-top:14px; padding:12px 26px; border-radius:999px; background:linear-gradient(135deg,#b91c1c,#7f1d1d); color:#fff !important; font-weight:800; font-size:15px; text-decoration:none; box-shadow:0 6px 18px rgba(127,29,29,.35); }
+  .course-pay-bar { position:fixed; left:0; right:0; bottom:0; z-index:9999; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); background:rgba(26,10,0,.96); border-top:2px solid #D4AF37; box-shadow:0 -6px 20px rgba(0,0,0,.25); }
+  .course-pay-bar .cpb-text { color:#fde68a; font-size:14px; font-weight:700; }
+  .course-pay-bar .cpb-text small { display:block; color:#d6c7a1; font-weight:500; font-size:11px; }
+  .course-pay-bar a { padding:11px 22px; border-radius:999px; background:linear-gradient(135deg,#D4AF37,#b8860b); color:#1a0a00; font-weight:800; font-size:15px; text-decoration:none; white-space:nowrap; }
+  body { padding-bottom:80px; }
+  #sra-wa-float-container { bottom:96px !important; }
+  @media (max-width:600px) { .course-pay-bar .cpb-text small { display:none; } .course-pay-bar { gap:8px; } }
+  @media print { .course-pay-bar, .course-pay-btn { display:none !important; } body { padding-bottom:0; } }
 </style>
 <link rel="stylesheet" href="ui-overrides.css" />
 <link rel="stylesheet" href="sra-elegance.css" />
@@ -1117,6 +1128,7 @@
           <div class="price-label">1-Year Vedic Astrology Certification Program</div>
           <div class="price-amount">₹24,000</div>
           <div class="price-note">✦ 48 Live Classes · 4 Quarters · Academic Doubt Support</div>
+          <a href="payment.html?plan=course" class="course-pay-btn">💳 कोर्स जॉइन करें — भुगतान ➔</a>
         </div>
       </div>
 
@@ -1820,7 +1832,8 @@
           <div class="price-feature"><span class="pf-check">✦</span>All sessions recorded — flexible lifetime access</div>
           <div class="price-feature"><span class="pf-check">✦</span>Official Certificate of Vedic Astrology</div>
         </div>
-        <div class="price-cta">Enrol Now · WhatsApp: +91 9517117775</div>
+        <a class="price-cta course-pay-link" href="payment.html?plan=course" style="display:block; text-decoration:none;">💳 अभी भुगतान करें · ₹24,000 ➔</a>
+        <div style="text-align:center; font-size:12px; padding:8px; color:#6b7280;">UPI · Card · EMI · Net Banking — या WhatsApp: +91 9517117775</div>
       </div>
     </div>
 
@@ -1850,6 +1863,11 @@
     <div class="footer-text">Shri Ramji Astro · @astro_raamji · +91 9517117775</div>
     <div class="footer-page">Page 7</div>
   </div>
+</div>
+
+<div class="course-pay-bar" role="region" aria-label="कोर्स भुगतान">
+  <div class="cpb-text">1-Year Vedic Astrology Course · ₹24,000<small>48 लाइव क्लास · रिकॉर्डिंग · सर्टिफ़िकेट · EMI उपलब्ध</small></div>
+  <a href="payment.html?plan=course">💳 अभी जॉइन करें ➔</a>
 </div>
 
 </body>
