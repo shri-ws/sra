@@ -2092,9 +2092,9 @@ async def take_admin_review_action(req: ReviewActionRequest, authorization: Opti
     admin = require_admin(authorization)
     comm = SutradharStore.get_doc("commissions", req.commission_id)
     if not comm:
-        raise HTTPException(status_code=404, detail="कमीशन रिकॉर्ड नहीं मिला।")
+        raise HTTPException(status_code=404, detail="दक्षिणा रिकॉर्ड नहीं मिला।")
     if comm.get("status") == "paid":
-        raise HTTPException(status_code=400, detail="यह कमीशन पहले ही चुकाया जा चुका है।")
+        raise HTTPException(status_code=400, detail="यह दक्षिणा पहले ही चुकाई जा चुकी है।")
 
     if req.action == "retry":
         comm["status"] = "created"
@@ -2110,14 +2110,14 @@ async def take_admin_review_action(req: ReviewActionRequest, authorization: Opti
         SutradharStore.set_doc("commissions", req.commission_id, comm)
         log_audit_event("ADMIN_RETRY_PAYOUT", admin, {"commission_id": req.commission_id, "upi": req.upi_id})
         await process_pending_payouts()
-        return {"status": "success", "message": "कमीशन फिर से पेआउट सूची में डाल दिया गया है।"}
+        return {"status": "success", "message": "दक्षिणा फिर से पेआउट सूची में डाल दी गई है।"}
 
     elif req.action == "cancel":
         comm["status"] = "cancelled"
         comm["failure_reason"] = req.reason or "व्यवस्थापक द्वारा रद्द"
         SutradharStore.set_doc("commissions", req.commission_id, comm)
         log_audit_event("ADMIN_CANCEL_PAYOUT", admin, {"commission_id": req.commission_id, "reason": req.reason})
-        return {"status": "success", "message": "कमीशन रद्द कर दिया गया है।"}
+        return {"status": "success", "message": "दक्षिणा रद्द कर दी गई है।"}
 
     raise HTTPException(status_code=400, detail="अमान्य एक्शन। केवल 'retry' या 'cancel' मान्य हैं।")
 
@@ -2244,14 +2244,14 @@ async def admin_mark_payout_paid(req: MarkPaidRequest, authorization: Optional[s
     if len(utr) < 6:
         raise HTTPException(status_code=400, detail="बैंक/UPI का सही UTR (कम से कम 6 अक्षर) दर्ज करें।")
     if not req.commission_ids:
-        raise HTTPException(status_code=400, detail="कोई कमीशन नहीं चुना गया।")
+        raise HTTPException(status_code=400, detail="कोई दक्षिणा नहीं चुनी गई।")
 
     now = datetime.now(timezone.utc)
     closed, skipped, total = [], [], 0.0
     for cid in req.commission_ids:
         c = SutradharStore.get_doc("commissions", cid)
         if not c or c.get("sutradhar_id") != req.sutradhar_id:
-            skipped.append({"commission_id": cid, "reason": "इस सूत्रधार का कमीशन नहीं मिला"})
+            skipped.append({"commission_id": cid, "reason": "इस सूत्रधार की दक्षिणा नहीं मिली"})
             continue
         ok = SutradharStore.compare_and_set_status(
             "commissions", cid, list(UNPAID_COMMISSION_STATUSES),

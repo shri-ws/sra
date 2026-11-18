@@ -999,11 +999,11 @@ input,select,textarea,button{font-size:15px}
           <table class="tbl">
             <thead>
               <tr>
-                <th>कमीशन ID</th>
+                <th>दक्षिणा ID</th>
                 <th>भुगतान / Order ID</th>
                 <th>सूत्रधार ID व UPI</th>
                 <th>ग्राहक मोबाइल</th>
-                <th>कमीशन राशि</th>
+                <th>दक्षिणा राशि</th>
                 <th>असफलता का कारण</th>
                 <th>तारीख</th>
                 <th>कार्यवाही (Action)</th>
@@ -1052,7 +1052,7 @@ input,select,textarea,button{font-size:15px}
           </div>
           <div>
             <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">संदर्भ / रिमार्क</label>
-            <input type="text" id="mUpiRemarkInput" value="SRA_Commission" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:13px;" oninput="updateUpiPayLinks()">
+            <input type="text" id="mUpiRemarkInput" value="SRA_Dakshina" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:13px;" oninput="updateUpiPayLinks()">
           </div>
         </div>
 
@@ -2546,7 +2546,7 @@ function updateUpiPayLinks() {
   const upiId = (document.getElementById('mUpiIdInput')?.value || '').trim();
   const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
   const name = currentUpiPayout?.name || 'SRA Sutradhar';
-  const remark = (document.getElementById('mUpiRemarkInput')?.value || 'SRA_Commission').trim();
+  const remark = (document.getElementById('mUpiRemarkInput')?.value || 'SRA_Dakshina').trim();
 
   if (currentUpiPayout) {
     currentUpiPayout.upiId = upiId;
@@ -2593,7 +2593,7 @@ async function confirmManualPayoutSaved() {
     razorpay_payment_id: currentUpiPayout.payId,
     customer_name: currentUpiPayout.custName || 'ग्राहक जातक',
     customer_phone: currentUpiPayout.phone,
-    product: 'मेगा पाराशर कुण्डली कमीशन',
+    product: 'मेगा पाराशर कुण्डली दक्षिणा',
     amount: amt,
     upi_id: upi,
     utr: 'MANUAL_UPI_' + Math.floor(100000000000 + Math.random() * 900000000000),
@@ -2630,10 +2630,10 @@ function sendSutradharWhatsAppReceipt() {
   const amt = parseFloat(document.getElementById('mUpiAmtInput')?.value || '250') || 250;
 
   const msg = `सादर प्रणाम ${currentUpiPayout.name || 'सूत्रधार जी'}!\n\n`
-    + `शुभ सूचना! श्री राम जी एस्ट्रो द्वारा आपकी लीड का देय सूत्रधार कमीशन ₹${amt} आपके UPI (${upi || 'पंजीकृत UPI'}) पर प्रेषित कर दिया गया है।\n\n`
+    + `शुभ सूचना! श्री राम जी एस्ट्रो द्वारा आपकी लीड की देय सूत्रधार दक्षिणा ₹${amt} आपके UPI (${upi || 'पंजीकृत UPI'}) पर प्रेषित कर दिया गया है।\n\n`
     + `📌 भुगतान विवरण:\n`
     + `• सूत्रधार ID: ${currentUpiPayout.sutraId}\n`
-    + `• कमीशन राशि: ₹${amt}\n`
+    + `• दक्षिणा राशि: ₹${amt}\n`
     + `• स्थिति: सफल (Paid)\n`
     + `• तारीख: ${new Date().toLocaleDateString('hi-IN')}\n\n`
     + `आप अपने सूत्रधार डैशबोर्ड (https://shriramjiastro.in/sutradhar.html) में जाकर कुल अर्जित राशि देख सकते हैं।\n\n`
@@ -2740,14 +2740,14 @@ async function loadSutradharReviewQueue() {
 async function reviewActionSutradhar(commissionId, action) {
   let reason = '';
   if (action === 'cancel') {
-    reason = prompt('कमीशन रद्द करने का कारण दर्ज करें (यह ऑडिट लॉग में स्थायी रूप से दर्ज होगा):');
+    reason = prompt('दक्षिणा रद्द करने का कारण दर्ज करें (यह ऑडिट लॉग में स्थायी रूप से दर्ज होगा):');
     if (reason === null) return;
     if (!reason.trim()) {
       alert('कृपया रद्द करने का कारण दर्ज करें।');
       return;
     }
   } else {
-    if (!confirm(`क्या आप कमीशन ID ${commissionId} को फिर से प्रोसेस करना चाहते हैं?`)) return;
+    if (!confirm(`क्या आप दक्षिणा ID ${commissionId} को फिर से प्रोसेस करना चाहते हैं?`)) return;
   }
 
   try {
@@ -2949,7 +2949,7 @@ function renderSutradharPayoutDesk(d) {
           </div>
         </div>
         <div style="overflow-x:auto; margin-top:10px;">
-          <table class="tbl"><thead><tr><th>सेवा</th><th>ग्राहक</th><th>भुगतान</th><th>भुगतान दिन</th><th>देय दिन</th><th>कमीशन</th><th></th></tr></thead><tbody>${items}</tbody></table>
+          <table class="tbl"><thead><tr><th>सेवा</th><th>ग्राहक</th><th>भुगतान</th><th>भुगतान दिन</th><th>देय दिन</th><th>दक्षिणा</th><th></th></tr></thead><tbody>${items}</tbody></table>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px;">
           ${upiLink ? `<a href="${upiLink}" class="export-btn" style="text-decoration:none;">📲 UPI ऐप में खोलें</a>` : ''}
@@ -2962,7 +2962,7 @@ function renderSutradharPayoutDesk(d) {
 
   const up = d.upcoming || [];
   document.getElementById('sp-upcoming').innerHTML = up.length
-    ? up.map(u => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border);"><span>${spDate(u.date)} — ${u.count} कमीशन</span><b>${spInr(u.total)}</b></div>`).join('')
+    ? up.map(u => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border);"><span>${spDate(u.date)} — ${u.count} दक्षिणा</span><b>${spInr(u.total)}</b></div>`).join('')
     : '<div class="empty-row">कोई आने वाला पेआउट नहीं।</div>';
 
   const paid = d.paid_today || [];
@@ -2984,7 +2984,7 @@ async function spMarkPaid(gi) {
   const ids = Array.from(document.querySelectorAll('.sp-item-' + gi)).filter(cb => cb.checked).map(cb => cb.value);
   const total = Array.from(document.querySelectorAll('.sp-item-' + gi)).filter(cb => cb.checked).reduce((a, cb) => a + (Number(cb.dataset.amt) || 0), 0);
   const utr = (document.getElementById('sp-utr-' + gi).value || '').trim();
-  if (!ids.length) { alert('कम से कम एक कमीशन चुनें।'); return; }
+  if (!ids.length) { alert('कम से कम एक दक्षिणा चुनें।'); return; }
   if (utr.replace(/\s/g, '').length < 6) { alert('पहले UPI/बैंक से भुगतान करें, फिर उसका सही UTR डालें।'); return; }
   if (!confirm(`${g.name || g.sutradhar_id} को ${spInr(total)} भेजे जा चुके हैं (UTR ${utr})?\nयह कार्यवाही वापस नहीं होगी।`)) return;
   try {
@@ -2995,7 +2995,7 @@ async function spMarkPaid(gi) {
     const r = await res.json();
     if (!res.ok) throw new Error(r.detail || 'दर्ज नहीं हो सका');
     if (g.phone && r.total_paid > 0) {
-      const msg = `🙏 नमस्ते ${g.name || ''} जी,\n\nश्री राम जी एस्ट्रो से आपका सूत्रधार कमीशन ${spInr(r.total_paid)} आपके UPI (${g.upi_id}) में भेज दिया गया है।\nUTR: ${r.utr}\n\nविवरण आपके सूत्रधार डैशबोर्ड (https://shriramjiastro.in/sutradhar.html) पर देखें। धन्यवाद!`;
+      const msg = `🙏 नमस्ते ${g.name || ''} जी,\n\nश्री राम जी एस्ट्रो से आपकी सूत्रधार दक्षिणा ${spInr(r.total_paid)} आपके UPI (${g.upi_id}) में भेज दिया गया है।\nUTR: ${r.utr}\n\nविवरण आपके सूत्रधार डैशबोर्ड (https://shriramjiastro.in/sutradhar.html) पर देखें। धन्यवाद!`;
       if (confirm(`✓ ${spInr(r.total_paid)} चुकाया दर्ज हुआ।\nसूत्रधार को WhatsApp पर पुष्टि भेजें?`)) {
         window.open(`https://wa.me/91${g.phone}?text=${encodeURIComponent(msg)}`, '_blank');
       }
