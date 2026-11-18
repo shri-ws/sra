@@ -1,13 +1,13 @@
 /**
  * ============================================================================
- * श्री राम जी एस्ट्रो (shriramjiastro.in) - आधिकारिक सूत्रधार व कूपन इंजन
- * SRA UNIFIED SUTRADHAR REFERRAL & 10% UNIVERSAL COUPON SYSTEM
+ * श्री राम जी एस्ट्रो (shriramjiastro.in) - चेकआउट व सूत्रधार इंजन
  * ============================================================================
- * मुख्य नियम:
- * 1. प्रत्येक सूत्रधार की यूनिक आईडी (उदा. SD-105) ही उसका आधिकारिक कूपन कोड है।
- * 2. किसी भी प्रोडक्ट (कोर्स, परामर्श, मुहूर्त, कुण्डली) पर यह कूपन कोड 10% फ्लैट डिस्काउंट देता है।
- * 3. डेटाबेस (MySQL & payments_log.json) और Razorpay notes में यह आईडी दर्ज होती है।
- * 4. पेमेंट रसीद/स्क्रीनशॉट और बैंक स्टेटमेंट से 100% डबल-रेक्टिफिकेशन सुनिश्चित होता है।
+ * नियम (18 नवंबर 2026):
+ * 1. दाम केवल सर्वर तय करता है (GST सहित)। पेज सिर्फ़ दिखाते हैं।
+ * 2. ग्राहक के लिए कोई कूपन छूट नहीं। हर कोड पर एक ही जवाब: "कोड अमान्य है"।
+ *    डेवलपर का टेस्ट कोड केवल सर्वर पहचानता है, केवल डेवलपर के नंबर पर (₹1, कोई कमीशन नहीं)।
+ * 3. सूत्रधार का कमीशन 72 घंटे की लीड (ग्राहक का मोबाइल) से अपने आप जुड़ता है।
+ * 4. हर भुगतान सर्वर पर बने Razorpay order से होता है, ताकि राशि और लीड सुरक्षित रहें।
  */
 
 (function(window) {
@@ -56,16 +56,12 @@
     },
 
     /**
-     * कोड की वैधता जांचना (केवल सूत्रधार कोड अथवा जय हनुमान मास्टर की मान्य)
+     * रेफ़रल लिंक कोड का प्रारूप जांचना (केवल जानकारी हेतु; कोई छूट नहीं)
      */
     isValidCode: function(rawCode) {
       if (!rawCode) return false;
       var code = String(rawCode).trim().toUpperCase();
       var cleanCode = code.replace(/[-_\s]/g, '');
-
-      // १. जय हनुमान मास्टर की
-      if (cleanCode === 'JAIHANUMAN' || cleanCode === 'जयहनुमान' || code === 'JAI HANUMAN' || code === 'जय हनुमान' || code === 'JAI_HANUMAN' || code === 'MASTER') return true;
-      if (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode)) return true;
 
       // २. सूत्रधार यूनिक कोड प्रारूप (बिना हाइफ़न या हाइफ़न सहित: SRA..., SUTRA..., SD...)
       if (/^SRA[A-Z0-9]{4,10}$/i.test(cleanCode) || /^SRA-[A-Z0-9]{4,10}$/i.test(code) || /^SD-?\d{2,6}$/i.test(code) || /^SUTRA/i.test(code)) return true;
@@ -92,161 +88,274 @@
      * सर्वर से रीयल-टाइम मूल्य और स्वचालित डिस्काउंट प्राप्त करना (10% Auto-Attribution)
      * यदि ग्राहक का नंबर किसी सूत्रधार की सक्रिय लीड में है, तो 10% छूट अपने-आप लागू होगी।
      */
-    fetchServerQuote: async function(arg1, arg2, arg3) {
-      var phone = '';
-      var serviceId = 'manglik_dosha';
-      var couponCode = '';
+    apiBase: function() {
+      return (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    },
 
-      if (typeof arg1 === 'string' && /^\d{10}$/.test(arg1.replace(/\D/g, ''))) {
-        phone = arg1.replace(/\D/g, '').slice(-10);
-        serviceId = arg2 || 'manglik_dosha';
-        couponCode = arg3 || '';
-      } else if (typeof arg2 === 'string' && /^\d{10}$/.test(arg2.replace(/\D/g, ''))) {
-        serviceId = arg1 || 'manglik_dosha';
-        phone = arg2.replace(/\D/g, '').slice(-10);
-        couponCode = arg3 || '';
-      } else {
-        phone = String(arg1 || '').replace(/\D/g, '').slice(-10);
-        serviceId = arg2 || 'manglik_dosha';
-        couponCode = arg3 || '';
-      }
-
-      if (!phone) {
-        try {
-          var el = document.getElementById('mangalPhone') || document.getElementById('inMangalPhone');
-          phone = (el ? el.value : '') || localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_user_phone') || '';
-          phone = String(phone).replace(/\D/g, '').slice(-10);
-        } catch(e){}
-      }
-
-      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase().replace(/-/g, '');
-      var apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    authHeaders: async function() {
+      var headers = { 'Content-Type': 'application/json' };
       try {
-        var res = await fetch(apiBase + '/api/sutradhar/quote', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            customer_phone: phone,
-            service_id: serviceId || 'manglik_dosha',
-            coupon_code: code || null
-          })
-        });
-        if (res.ok) {
-          var quote = await res.json();
-          return quote;
+        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+          var token = await firebase.auth().currentUser.getIdToken();
+          if (token) headers['Authorization'] = 'Bearer ' + token;
         }
+      } catch (authErr) {
+        console.warn('[SraCouponEngine] Firebase token notice:', authErr);
+      }
+      return headers;
+    },
+
+    guessPhone: function() {
+      try {
+        var el = document.getElementById('mangalPhone') || document.getElementById('inMangalPhone');
+        var phone = (el ? el.value : '') || localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_user_phone') || '';
+        return String(phone).replace(/\D/g, '').slice(-10);
+      } catch (e) { return ''; }
+    },
+
+    /**
+     * सर्वर की दाम-सूची (GST सहित) — एक बार लाकर रख लेते हैं
+     */
+    _catalog: null,
+    loadCatalog: async function() {
+      if (this._catalog) return this._catalog;
+      try {
+        var res = await fetch(this.apiBase() + '/api/sutradhar/catalog');
+        if (res.ok) {
+          var data = await res.json();
+          var map = {};
+          (data.items || []).forEach(function(it) { map[it.service_id] = it; });
+          this._catalog = map;
+        }
+      } catch (e) {
+        console.warn('[SraCouponEngine] catalog notice:', e);
+      }
+      return this._catalog || {};
+    },
+
+    /**
+     * पेज पर [data-sra-price="service_id"] वाले हर तत्व में सर्वर का दाम लिखना
+     */
+    applyPrices: async function() {
+      var cat = await this.loadCatalog();
+      document.querySelectorAll('[data-sra-price]').forEach(function(el) {
+        var it = cat[el.getAttribute('data-sra-price')];
+        if (it) el.textContent = Number(it.price).toLocaleString('en-IN');
+      });
+    },
+
+    /**
+     * सर्वर से दाम पूछना (केवल दिखाने के लिए; असली राशि order बनते समय तय होती है)
+     */
+    fetchServerQuote: async function(arg1, arg2, inputCode) {
+      // Pages call it as (phone, serviceId, code) or (serviceId, phone, code)
+      var a1 = String(arg1 || ''), a2 = String(arg2 || '');
+      var phone, serviceId;
+      if (/^\d{10}$/.test(a2.replace(/\D/g, '').slice(-10)) && !/^\d{10}$/.test(a1.replace(/\D/g, '').slice(-10))) {
+        serviceId = a1; phone = a2;
+      } else {
+        phone = a1; serviceId = a2;
+      }
+      phone = String(phone || this.guessPhone()).replace(/\D/g, '').slice(-10);
+      try {
+        var res = await fetch(this.apiBase() + '/api/sutradhar/quote', {
+          method: 'POST',
+          headers: await this.authHeaders(),
+          body: JSON.stringify({ customer_phone: phone, service_id: serviceId, input_code: inputCode || null })
+        });
+        if (res.ok) return await res.json();
       } catch (err) {
-        console.warn('[SraCouponEngine] Server quote fallback:', err);
+        console.warn('[SraCouponEngine] Server quote notice:', err);
       }
       return null;
     },
 
     /**
-     * सर्वर पर सुरक्षित एवं छेड़छाड़-मुक्त Razorpay Order ID तैयार करना
+     * सर्वर पर सुरक्षित Razorpay order बनाना (राशि, लीड, टेस्ट-कोड सब सर्वर तय करता है)
      */
-    createServerOrder: async function(customerPhone, customerEmail, serviceId, couponCode) {
-      var phone = String(customerPhone || '').replace(/\D/g, '').slice(-10);
-      var code = (couponCode || this.getActiveSutradharId() || '').trim().toUpperCase().replace(/-/g, '');
-      var apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
-      var headers = { 'Content-Type': 'application/json' };
-      try {
-        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-          var token = await firebase.auth().currentUser.getIdToken();
-          if (token) {
-            headers['Authorization'] = 'Bearer ' + token;
-          }
-        }
-      } catch (authErr) {
-        console.warn('[SraCouponEngine] Error obtaining Firebase token:', authErr);
+    createServerOrder: async function(customerPhone, customerEmail, serviceId, inputCode, customerName) {
+      var phone = String(customerPhone || this.guessPhone()).replace(/\D/g, '').slice(-10);
+      var res = await fetch(this.apiBase() + '/api/sutradhar/orders/create', {
+        method: 'POST',
+        headers: await this.authHeaders(),
+        body: JSON.stringify({
+          customer_phone: phone,
+          customer_name: customerName || 'जातक',
+          customer_email: customerEmail || '',
+          service_id: serviceId,
+          input_code: inputCode || null
+        })
+      });
+      if (res.ok) return await res.json();
+      var errData = await res.json().catch(function() { return {}; });
+      throw new Error(errData.detail || 'ऑर्डर तैयार करने में त्रुटि');
+    },
+
+    /**
+     * पूरा चेकआउट: सर्वर order बनाओ → Razorpay खोलो → सफल होने पर onSuccess(response, order)
+     * o = { serviceId, phone, name, email, code, description, notes, color, onSuccess, onDismiss, onError }
+     */
+    openServerCheckout: async function(o) {
+      o = o || {};
+      if (typeof Razorpay === 'undefined') {
+        alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट कनेक्शन जांचें व पुनः प्रयास करें।');
+        return null;
       }
+      var phone = String(o.phone || this.guessPhone()).replace(/\D/g, '').slice(-10);
+      var order;
       try {
-        var res = await fetch(apiBase + '/api/sutradhar/orders/create', {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({
-            customer_phone: phone,
-            customer_email: customerEmail || '',
-            service_id: serviceId || 'manglik_dosha',
-            coupon_code: code || null
-          })
-        });
-        if (res.ok) {
-          return await res.json();
-        } else {
-          var errData = await res.json().catch(function() { return {}; });
-          throw new Error(errData.detail || 'ऑर्डर तैयार करने में त्रुटि');
-        }
+        order = await this.createServerOrder(phone, o.email, o.serviceId, o.code, o.name);
       } catch (err) {
-        console.error('[SraCouponEngine] createServerOrder failed:', err);
-        throw err;
+        if (o.onError) o.onError(err); else alert(err.message || 'भुगतान शुरू नहीं हो सका।');
+        return null;
+      }
+      var notes = Object.assign({ service_id: order.service_id, customer_phone: phone }, o.notes || {});
+      var options = {
+        key: order.key_id || 'rzp_live_SP6lQYYrNI0CYD',
+        amount: order.amount,
+        currency: 'INR',
+        order_id: order.order_id,
+        name: 'Shri Ramji Astro',
+        description: (o.description || order.service_name || '') + (order.is_test ? ' [टेस्ट]' : ''),
+        prefill: { name: o.name || '', contact: phone, email: o.email || '' },
+        notes: notes,
+        theme: { color: o.color || '#7c1305' },
+        handler: function(response) { window._sraLastOrder = order; if (o.onSuccess) o.onSuccess(response, order); },
+        modal: { ondismiss: function() { if (o.onDismiss) o.onDismiss(order); } }
+      };
+      var rzp = new Razorpay(options);
+      rzp.on('payment.failed', function(resp) {
+        var msg = (resp && resp.error && resp.error.description) || 'भुगतान असफल रहा।';
+        if (o.onError) o.onError(new Error(msg)); else alert(msg);
+      });
+      rzp.open();
+      return order;
+    },
+
+    /**
+     * पुराने पेजों के लिए: पेज के अपने Razorpay options (handler आदि) रखते हुए
+     * राशि, order_id और key सर्वर order से भरकर चेकआउट खोलना।
+     * o = { serviceId, options, code, phone, email, name }
+     */
+    checkoutWithOptions: async function(o) {
+      o = o || {};
+      var options = o.options || {};
+      if (typeof Razorpay === 'undefined') {
+        alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट कनेक्शन जांचें व पुनः प्रयास करें।');
+        return null;
+      }
+      var prefill = options.prefill || {};
+      var phone = String(o.phone || this.guessPhone() || '').replace(/\D/g, '').slice(-10);
+      var order;
+      try {
+        order = await this.createServerOrder(phone, o.email || prefill.email || '', o.serviceId, o.code, o.name || prefill.name);
+      } catch (err) {
+        alert(err.message || 'भुगतान शुरू नहीं हो सका। कृपया पुनः प्रयास करें।');
+        return null;
+      }
+      options.key = order.key_id || options.key;
+      options.amount = order.amount;
+      options.currency = 'INR';
+      options.order_id = order.order_id;
+      options.notes = Object.assign({}, options.notes || {}, {
+        service_id: order.service_id, customer_phone: phone, amount: String(order.net_price)
+      });
+      if (phone) options.prefill = Object.assign({}, prefill, { contact: phone });
+      if (order.is_test) options.description = (options.description || '') + ' [टेस्ट]';
+      var userHandler = options.handler;
+      options.handler = function(response) {
+        window._sraLastOrder = order;
+        if (userHandler) userHandler(response, order);
+      };
+      var rzp = new Razorpay(options);
+      rzp.on('payment.failed', function(resp) {
+        alert('भुगतान असफल रहा: ' + ((resp && resp.error && resp.error.description) || 'कृपया पुनः प्रयास करें।'));
+      });
+      rzp.open();
+      return order;
+    },
+
+    /**
+     * इस browser/फ़ोन की स्थायी पहचान (SaaS की 2-फ़ोन सीमा के लिए)
+     */
+    deviceId: function() {
+      try {
+        var k = 'sra_device_id';
+        var v = localStorage.getItem(k);
+        if (!v || v.length < 8) {
+          v = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2));
+          v = v.replace(/[^A-Za-z0-9_-]/g, '');
+          localStorage.setItem(k, v);
+        }
+        return v;
+      } catch (e) { return ''; }
+    },
+
+    isPhoneCode: function(code) {
+      var d = String(code || '').replace(/\D/g, '');
+      return d.length === 10 || (d.length === 12 && d.slice(0, 2) === '91');
+    },
+
+    /**
+     * ज्योतिषी SaaS: अपना ही लॉगिन नंबर कोड में डालने पर रिपोर्ट खोलना (सर्वर जाँचता है)
+     */
+    redeemSaas: async function(serviceId, code, reportRef) {
+      try {
+        var res = await fetch(this.apiBase() + '/api/sutradhar/saas/redeem', {
+          method: 'POST',
+          headers: await this.authHeaders(),
+          body: JSON.stringify({ service_id: serviceId, code: code, device_id: this.deviceId(), report_ref: reportRef || '' })
+        });
+        var data = await res.json().catch(function() { return {}; });
+        if (res.ok && data && typeof data.ok === 'boolean') return data;
+        return { ok: false, message: 'कोड अमान्य है।' };
+      } catch (e) {
+        return { ok: false, message: 'नेटवर्क समस्या। कृपया पुनः प्रयास करें।' };
       }
     },
 
     /**
-     * कूपन सत्यापन व 10% डिस्काउंट की सटीक गणना
-     * केवल अधिकृत सूत्रधार कूपन अथवा जय हनुमान मास्टर की मान्य
+     * रिपोर्ट पेजों का कोड-बॉक्स:
+     * - 10 अंकों का नंबर → SaaS जाँच (लॉगिन नंबर = कोड + चालू सदस्यता + 2 फ़ोन) → onUnlock
+     * - बाकी हर कोड → "कोड अमान्य है।" (कोड फिर भी भुगतान के समय सर्वर को जाता है)
+     * o = { serviceId, code, reportRef, onUnlock(result), show(ok, message), remember(code) }
      */
-    validateAndCalculate: function(rawCode, basePrice, customerPhone) {
-      var code = (rawCode || '').trim().toUpperCase();
-      var cleanCode = code.replace(/[-_\s]/g, '');
-      basePrice = Number(basePrice) || 0;
-
-      if (!code) {
-        return {
-          valid: false,
-          code: '',
-          message: 'कृपया कूपन कोड दर्ज करें।'
-        };
+    handleCodeBox: async function(o) {
+      var code = String((o && o.code) || '').trim();
+      var show = (o && o.show) || function(ok, m) { alert(m); };
+      if (!code) { show(false, 'कृपया कोड दर्ज करें।'); return false; }
+      if (this.isPhoneCode(code)) {
+        show(null, 'जाँच हो रही है...');
+        var r = await this.redeemSaas(o.serviceId, code, o.reportRef);
+        if (r.ok) { show(true, r.message); if (o.onUnlock) o.onUnlock(r); return true; }
+        show(false, r.message || 'कोड अमान्य है।');
+        return false;
       }
+      if (o.remember) o.remember(code);
+      show(false, 'कोड अमान्य है।');
+      return false;
+    },
 
-      // १. जय हनुमान मास्टर की बायपास (100% निःशुल्क अधिकृत)
-      var isMaster = (cleanCode === 'JAIHANUMAN' || cleanCode === 'जयहनुमान' || code === 'JAI HANUMAN' || code === 'जय हनुमान' || code === 'JAI_HANUMAN' || code === 'MASTER' || (typeof window !== 'undefined' && window.sraIsMasterKey && window.sraIsMasterKey(rawCode)));
-      if (isMaster) {
-        return {
-          valid: true,
-          code: code,
-          sutradhar_id: 'MASTER_ADMIN',
-          type: 'master',
-          basePrice: basePrice,
-          discountPercent: 100,
-          discountAmount: basePrice,
-          finalAmount: 0,
-          finalAmountPaise: 0,
-          commission_eligible: false,
-          lead_verified: true,
-          message: '✨ जय हनुमान मास्टर की स्वीकृत! 100% अधिकृत।'
-        };
-      }
-
-      // २. सूत्रधार प्रणाली: कूपन कोड की आवश्यकता नहीं (72 घंटे का फ़ोन-लॉक एट्रिब्यूशन)
-      // ग्राहक पूरा दक्षिणा मूल्य देता है, और सूत्रधार को उनका ₹20 कमीशन स्वतः मिलता है।
-      return {
-        valid: false,
-        code: code,
-        message: 'कूपन कोड की आवश्यकता नहीं है। सूत्रधार इंसेंटिव 72 घंटे के फ़ोन-लॉक द्वारा स्वतः संबद्ध रहता है।'
-      };
+    /**
+     * कूपन बॉक्स: हर कोड पर एक ही जवाब ("कोड अमान्य है")। निर्णय केवल सर्वर पर।
+     */
+    validateAndCalculate: function(rawCode, basePrice) {
+      // Every code gets the same reply. The typed code is still sent with the order;
+      // only the server knows if it is the developer's test code for the developer's own number.
+      var code = (rawCode || '').trim();
+      if (!code) return { valid: false, code: '', message: 'कृपया कोड दर्ज करें।' };
+      return { valid: false, code: code, message: 'कोड अमान्य है।' };
     },
 
     /**
      * Razorpay ऑप्शंस में सूत्रधार मेटाडेटा और संशोधित राशि इंजेक्ट करना
      */
-    patchRazorpayOptions: function(options, couponResult) {
+    patchRazorpayOptions: function(options) {
+      // राशि अब केवल सर्वर order से आती है; यहाँ सिर्फ़ जानकारी (notes) जुड़ती है
       if (!options) return options;
       if (!options.notes) options.notes = {};
-
-      if (couponResult && couponResult.valid) {
-        options.amount = couponResult.finalAmountPaise;
-        options.notes.coupon_code = couponResult.code;
-        options.notes.sutradhar_id = couponResult.sutradhar_id;
-        options.notes.discount_applied = '₹' + couponResult.discountAmount;
-        options.notes.sutradhar_verified = 'true';
-      } else {
-        var activeRef = this.getActiveSutradharId();
-        if (activeRef) {
-          options.notes.sutradhar_id = activeRef;
-          options.notes.sutradhar_verified = 'via_url_ref';
-        }
-      }
+      var activeRef = this.getActiveSutradharId();
+      if (activeRef) options.notes.ref_link = activeRef;
       return options;
     },
 

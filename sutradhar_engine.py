@@ -47,7 +47,7 @@ _last_admin_alert_time: Dict[str, float] = {}
 # 1. CONFIGURATION & CREDENTIALS
 # =============================================================================
 BASE_DIR = Path(__file__).resolve().parent
-FALLBACK_DATA_DIR = BASE_DIR / "data" / "sutradhar_store"
+FALLBACK_DATA_DIR = Path(os.environ.get("SUTRADHAR_DATA_DIR") or (BASE_DIR / "data" / "sutradhar_store"))
 FALLBACK_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Razorpay Keys (Defaults to Test Mode credentials; overrides via Environment)
@@ -58,20 +58,165 @@ RAZORPAYX_KEY_ID = os.environ.get("RAZORPAYX_KEY_ID", "rzp_test_TxKlwS0fIp5ncW")
 RAZORPAYX_KEY_SECRET = os.environ.get("RAZORPAYX_KEY_SECRET", "qGH6KvI971tvR6iMqOLq1ojb")
 RAZORPAYX_ACCOUNT_NUMBER = os.environ.get("RAZORPAYX_ACCOUNT_NUMBER", "2323230035609938")
 
-# Standard Catalog Base Prices (Rupees)
-CATALOG_PRICES: Dict[str, int] = {
-    "mangal_dosha": 199,
-    "manglik_report": 199,
-    "dhana_yoga": 299,
-    "gun_milan_manglik": 499,
-    "parashara_report": 1111,
-    "mega_parashara": 1111,
-    "muhurta_vivah": 1111,
-    "muhurta_vastu": 1111,
-    "muhurta_yajno": 1111,
-    "consultation_acharya": 5100,
-    "consultation_gurukul": 24000
+# -----------------------------------------------------------------------------
+# PRICES AND COMMISSION RULES (decided by the owner, 18 Nov 2026)
+# - "price" is what the customer pays, GST (18%) included.
+# - "rate" is the Sutradhar's commission in percent of the price WITHOUT GST.
+#   66% on every report and on the first year of the astrologer SaaS,
+#   30% on the 1-year Gurukul course and on SaaS renewals,
+#   0 on the 1-on-1 consultation (one consultation a day, per the Daivagya rule).
+# The server is the only place a price is decided; pages only display it.
+# -----------------------------------------------------------------------------
+GST_RATE_PERCENT = 18
+
+SERVICE_CATALOG: Dict[str, Dict[str, Any]] = {
+    "mangal_dosha":            {"price": 251,   "rate": 66, "name": "मंगल दोष रिपोर्ट"},
+    "kaalsarp_dosha":          {"price": 251,   "rate": 66, "name": "कालसर्प दोष रिपोर्ट"},
+    "ratna_report":            {"price": 301,   "rate": 66, "name": "रत्न एवं उपाय रिपोर्ट"},
+    "dhana_yoga":              {"price": 301,   "rate": 66, "name": "धन योग रिपोर्ट"},
+    "gun_milan_manglik":       {"price": 551,   "rate": 66, "name": "गुण मिलान + मांगलिक"},
+    "parashara_report":        {"price": 1111,  "rate": 66, "name": "मेगा पाराशर रिपोर्ट (९७ अध्याय)"},
+    "mega_parashara":          {"price": 2100,  "rate": 66, "name": "BPHS पाराशर रिपोर्ट (संपूर्ण, भविष्य का विकल्प)"},
+    "muhurta_vivah":           {"price": 2100,  "rate": 66, "name": "विवाह मुहूर्त"},
+    "muhurta_vastu":           {"price": 1551,  "rate": 66, "name": "वास्तु मुहूर्त"},
+    "muhurta_yajno":           {"price": 1551,  "rate": 66, "name": "यज्ञोपवीत मुहूर्त"},
+    "muhurta_mundan":          {"price": 1551,  "rate": 66, "name": "मुंडन (चूडाकर्म) मुहूर्त"},
+    "patrika_rajyoga":         {"price": 251,   "rate": 66, "name": "राजयोग / रश्मि बल रिपोर्ट"},
+    "patrika_vahan":           {"price": 251,   "rate": 66, "name": "वाहन एवं जनबल रिपोर्ट"},
+    "consultation_acharya":    {"price": 5100,  "rate": 0,  "name": "दैवज्ञ 1-on-1 परामर्श"},
+    "consultation_yearly":     {"price": 4999,  "rate": 0,  "name": "व्यक्तिगत परामर्श (1 वर्ष)"},
+    "consultation_gurukul":    {"price": 24000, "rate": 30, "name": "1-वर्षीय गुरुकुल कोर्स"},
+    "astrologer_saas":         {"price": 5100,  "rate": 66, "name": "ज्योतिषी SaaS (पहला वर्ष)"},
+    "astrologer_saas_renewal": {"price": 5100,  "rate": 30, "name": "ज्योतिषी SaaS (नवीनीकरण)"},
 }
+
+# Older ids still sent by some pages
+SERVICE_ALIASES: Dict[str, str] = {
+    "manglik_report": "mangal_dosha",
+    "manglik_dosha": "mangal_dosha",
+    "mangal_dosha_report": "mangal_dosha",
+    "kaalsarp": "kaalsarp_dosha",
+    "dhan_yoga": "dhana_yoga",
+    "gun_milan": "gun_milan_manglik",
+    "saas_annual": "astrologer_saas",
+    "gurukul_course": "consultation_gurukul",
+}
+
+CATALOG_PRICES: Dict[str, int] = {k: v["price"] for k, v in SERVICE_CATALOG.items()}
+
+
+def resolve_service_id(service_id: str) -> str:
+    sid = (service_id or "").strip().lower()
+    return SERVICE_ALIASES.get(sid, sid)
+
+
+def commission_for_payment(service_id: str, paid_paise: int) -> Dict[str, Any]:
+    """Commission in whole rupees: rate% of the paid amount after removing GST (rounded down)."""
+    sid = resolve_service_id(service_id)
+    rate = int(SERVICE_CATALOG.get(sid, {}).get("rate", 0))
+    paid_paise = max(0, int(paid_paise))
+    net_paise = paid_paise * 100 // (100 + GST_RATE_PERCENT)
+    amount = (net_paise * rate // 100) // 100
+    return {
+        "service_id": sid,
+        "rate_percent": rate,
+        "paid_amount": paid_paise / 100,
+        "amount_excl_gst": round(net_paise / 100, 2),
+        "gst_amount": round((paid_paise - net_paise) / 100, 2),
+        "commission": float(amount),
+    }
+
+
+# -----------------------------------------------------------------------------
+# MASTER TEST CODE: "JAI HANUMAN" turns any payment into Rs 1 so the owner can
+# test the live payment flow. It works only for signed-in phones in the list
+# below (the word itself is visible in page source, so the phone is the lock).
+# Master-code orders never earn a commission.
+# -----------------------------------------------------------------------------
+MASTER_TEST_PRICE = 1
+MASTER_CODES = {"JAIHANUMAN", "जयहनुमान"}
+
+
+def master_test_phones() -> set:
+    raw = os.environ.get("SRA_MASTER_TEST_PHONES", "9517117775")
+    return {normalize_phone(p) for p in raw.split(",") if normalize_phone(p)}
+
+
+def is_master_code(code: Optional[str]) -> bool:
+    c = re.sub(r"[\s_\-]", "", (code or "")).upper()
+    return c in MASTER_CODES
+
+
+# -----------------------------------------------------------------------------
+# PAYOUT SCHEDULE: like Razorpay settlements, T+2 working days.
+# A payment made on day T (IST) is paid to the Sutradhar on the 2nd working day
+# after T, in the evening (by 7 PM IST). Sundays, 2nd/4th Saturdays and the
+# holidays in data/sutradhar_holidays.json (or SRA_PAYOUT_HOLIDAYS) are skipped.
+# Payouts are manual (PAYOUT_MODE=manual) until a payout API is connected.
+# -----------------------------------------------------------------------------
+IST = timezone(timedelta(hours=5, minutes=30))
+PAYOUT_SETTLEMENT_WORKING_DAYS = 2
+PAYOUT_DEADLINE_TEXT = "शाम 7 बजे तक"
+HOLIDAYS_FILE = Path(os.environ.get("SUTRADHAR_HOLIDAYS_FILE") or (BASE_DIR / "data" / "sutradhar_holidays.json"))
+
+
+def payout_mode() -> str:
+    return (os.environ.get("PAYOUT_MODE") or "manual").strip().lower()
+
+
+def load_payout_holidays() -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    try:
+        if HOLIDAYS_FILE.exists():
+            data = json.loads(HOLIDAYS_FILE.read_text(encoding="utf-8"))
+            for h in data.get("holidays", []):
+                if h.get("date"):
+                    out[h["date"]] = h.get("name", "अवकाश")
+    except Exception as e:
+        logger.warning(f"[Payout] holidays file note: {e}")
+    try:
+        doc = SutradharStore.get_doc("settings", "payout_holidays") or {}
+        for h in doc.get("holidays", []):
+            if h.get("date"):
+                out[h["date"]] = h.get("name", "अवकाश")
+        for d in doc.get("removed", []):
+            out.pop(d, None)
+    except Exception as e:
+        logger.warning(f"[Payout] holidays store note: {e}")
+    for d in (os.environ.get("SRA_PAYOUT_HOLIDAYS") or "").split(","):
+        d = d.strip()
+        if d:
+            out.setdefault(d, "अवकाश")
+    return out
+
+
+def is_payout_working_day(d, holidays: Optional[Dict[str, str]] = None) -> bool:
+    if holidays is None:
+        holidays = load_payout_holidays()
+    if d.weekday() == 6:  # Sunday
+        return False
+    if d.weekday() == 5 and ((d.day - 1) // 7 + 1) in (2, 4):  # 2nd / 4th Saturday
+        return False
+    return d.isoformat() not in holidays
+
+
+def payout_due_date_for(paid_at_utc: datetime) -> str:
+    """IST date (YYYY-MM-DD) on which this payment's commission is paid out."""
+    holidays = load_payout_holidays()
+    d = paid_at_utc.astimezone(IST).date()
+    counted = 0
+    while counted < PAYOUT_SETTLEMENT_WORKING_DAYS:
+        d = d + timedelta(days=1)
+        if is_payout_working_day(d, holidays):
+            counted += 1
+    return d.isoformat()
+
+
+def today_ist() -> str:
+    return datetime.now(timezone.utc).astimezone(IST).date().isoformat()
+
+
+UNPAID_COMMISSION_STATUSES = ("created", "approved", "failed_retry", "requires_review", "processing")
 
 # =============================================================================
 # 2. FIRESTORE / PERSISTENT STORAGE ADAPTER
@@ -244,6 +389,75 @@ def normalize_phone(raw_phone: str) -> str:
     return cleaned[-10:] if len(cleaned) >= 10 else cleaned
 
 
+_token_verify_app = None
+
+
+def _get_token_verify_app():
+    """Firebase app used only to verify ID tokens; needs the project id, not a service account."""
+    global _token_verify_app
+    if _token_verify_app is not None:
+        return _token_verify_app
+    import firebase_admin
+    from firebase_admin import credentials as fb_credentials
+    if firebase_admin._apps and _firebase_initialized:
+        _token_verify_app = firebase_admin.get_app()
+        return _token_verify_app
+    import google.auth.credentials as g_credentials
+
+    class _AnonymousCredential(fb_credentials.Base):
+        def get_credential(self):
+            return g_credentials.AnonymousCredentials()
+
+    try:
+        _token_verify_app = firebase_admin.get_app("sra-token-verify")
+    except ValueError:
+        _token_verify_app = firebase_admin.initialize_app(
+            _AnonymousCredential(), {"projectId": "shriramjiastro-cee67"}, name="sra-token-verify"
+        )
+    return _token_verify_app
+
+
+def _is_test_env() -> bool:
+    return os.environ.get("SUTRADHAR_TEST_MODE") == "1" or os.environ.get("TESTING") == "1"
+
+
+def verify_firebase_token(authorization: Optional[str]) -> Optional[Dict[str, Any]]:
+    """Returns the verified Firebase ID token claims, or None."""
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token_str = authorization.split(" ", 1)[1].strip()
+    if not token_str:
+        return None
+
+    # Test mode hooks for unit/integration tests without live network calls
+    if _is_test_env():
+        if token_str.startswith("mock_token_"):
+            return {"uid": token_str, "phone_number": "+91" + normalize_phone(token_str.replace("mock_token_", "")),
+                    "auth_time": int(time.time())}
+        if token_str.startswith("mock_old_token_"):
+            return {"uid": token_str, "phone_number": "+91" + normalize_phone(token_str.replace("mock_old_token_", "")),
+                    "auth_time": int(time.time()) - 86400}
+        if token_str.startswith("mock_admin_"):
+            return {"uid": token_str, "email": token_str.replace("mock_admin_", ""), "email_verified": True,
+                    "auth_time": int(time.time())}
+
+    try:
+        from firebase_admin import auth as fb_auth
+        return fb_auth.verify_id_token(token_str, app=_get_token_verify_app())
+    except Exception as e:
+        logger.warning(f"[Auth] Firebase ID token verification notice: {e}")
+    return None
+
+
+def token_phone(decoded: Optional[Dict[str, Any]]) -> Optional[str]:
+    """Phone proven by Firebase Phone Auth (the token's own phone_number claim)."""
+    if decoded and decoded.get("phone_number"):
+        phone = normalize_phone(decoded["phone_number"])
+        if len(phone) == 10:
+            return phone
+    return None
+
+
 def get_authenticated_customer_phone(authorization: Optional[str]) -> Optional[str]:
     """
     R2: Extracts customer phone from verified Firebase ID token on the server.
@@ -251,36 +465,55 @@ def get_authenticated_customer_phone(authorization: Optional[str]) -> Optional[s
       1. token["phone_number"] (normalized to last 10 digits)
       2. User profile record in Firestore at users/{uid} (saved by sra-auth.js)
     """
-    if not authorization or not authorization.startswith("Bearer "):
+    decoded = verify_firebase_token(authorization)
+    if not decoded:
         return None
-    token_str = authorization.split(" ", 1)[1].strip()
-    if not token_str:
-        return None
-
-    # Test mode hook for unit/integration tests without live network calls
-    if (os.environ.get("SUTRADHAR_TEST_MODE") == "1" or os.environ.get("TESTING") == "1") and token_str.startswith("mock_token_"):
-        return normalize_phone(token_str.replace("mock_token_", ""))
-
-    try:
-        import firebase_admin
-        from firebase_admin import auth as fb_auth
-        decoded = fb_auth.verify_id_token(token_str)
-        # 1. token["phone_number"]
-        if decoded.get("phone_number"):
-            phone = normalize_phone(decoded["phone_number"])
+    phone = token_phone(decoded)
+    if phone:
+        return phone
+    uid = decoded.get("uid")
+    if uid:
+        user_doc = SutradharStore.get_doc("users", uid)
+        if user_doc and user_doc.get("phone"):
+            phone = normalize_phone(user_doc["phone"])
             if len(phone) == 10:
                 return phone
-        # 2. Look up in users/{uid}
-        uid = decoded.get("uid")
-        if uid:
-            user_doc = SutradharStore.get_doc("users", uid)
-            if user_doc and user_doc.get("phone"):
-                phone = normalize_phone(user_doc["phone"])
-                if len(phone) == 10:
-                    return phone
-    except Exception as e:
-        logger.warning(f"[Auth] Firebase ID token verification notice: {e}")
     return None
+
+
+def admin_emails() -> set:
+    raw = os.environ.get("SRA_ADMIN_EMAILS", "shriramjiastro7@gmail.com")
+    return {e.strip().lower() for e in raw.split(",") if e.strip()}
+
+
+def require_admin(authorization: Optional[str]) -> str:
+    """Only the site owner's Google account (signed in on admin.html) may use admin routes."""
+    decoded = verify_firebase_token(authorization)
+    email = (decoded or {}).get("email", "").strip().lower()
+    if not decoded or not decoded.get("email_verified") or email not in admin_emails():
+        raise HTTPException(status_code=401, detail="केवल व्यवस्थापक (admin) के लिए। कृपया admin खाते से साइन इन करें।")
+    return email
+
+
+def find_sutradhar_by_phone(phone: str) -> Optional[Dict[str, Any]]:
+    return next((s for s in SutradharStore.query_all("sutradhars") if s.get("phone") == phone), None)
+
+
+def require_sutradhar_phone(authorization: Optional[str]) -> str:
+    phone = token_phone(verify_firebase_token(authorization))
+    if not phone:
+        raise HTTPException(status_code=401, detail="सत्र समाप्त। कृपया OTP से फिर लॉगिन करें।")
+    return phone
+
+
+def require_sutradhar(authorization: Optional[str]) -> Dict[str, Any]:
+    phone = require_sutradhar_phone(authorization)
+    sutradhar = find_sutradhar_by_phone(phone)
+    if not sutradhar:
+        raise HTTPException(status_code=404, detail="यह नंबर सूत्रधार के रूप में पंजीकृत नहीं है।")
+    if sutradhar.get("status") == "paused":
+        raise HTTPException(status_code=403, detail="आपका सूत्रधार खाता अभी रुका हुआ है। सहायता से संपर्क करें।")
+    return sutradhar
 
 
 def get_sutradhar_alias_ids(sutradhar_id: str) -> set:
@@ -325,7 +558,7 @@ def get_sutradhar_alias_ids(sutradhar_id: str) -> set:
 # 3. PYDANTIC SCHEMAS
 # =============================================================================
 class AddLeadRequest(BaseModel):
-    sutradhar_id: str = Field(..., description="Sutradhar Unique ID e.g. SUTRA-7775-01 or SRA-7K3M9Q")
+    sutradhar_id: Optional[str] = Field(None, description="Sutradhar Unique ID e.g. SUTRA-7775-01 or SRA-7K3M9Q")
     customer_phone: str = Field(..., description="10-digit customer mobile number")
     customer_email: Optional[str] = Field(None, description="Customer email address")
     customer_name: Optional[str] = Field("जातक", description="Customer full name")
@@ -469,14 +702,18 @@ async def verify_otp(req: OtpVerifyRequest):
 # ENDPOINT 0: SUTRADHAR ONBOARDING & PROFILE SYNC (Q2: UPI format & OTP on change)
 # -----------------------------------------------------------------------------
 @router.post("/register")
-async def register_or_sync_sutradhar(req: RegisterSutradharRequest):
+async def register_or_sync_sutradhar(req: RegisterSutradharRequest, authorization: Optional[str] = Header(None)):
     """
-    Registers or updates a Sutradhar profile with verified UPI & Unique Code.
-    Q2: Validates UPI ID format and requires fresh OTP if changing existing UPI.
+    Registers or updates the signed-in Sutradhar's own profile.
+    - The phone comes from the Firebase Phone Auth token; nobody can register or edit another number.
+    - Changing an existing UPI ID needs a fresh OTP sign-in (within the last 15 minutes).
     """
-    clean_phone = normalize_phone(req.phone)
-    if len(clean_phone) != 10:
-        raise HTTPException(status_code=400, detail="कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें।")
+    decoded = verify_firebase_token(authorization)
+    clean_phone = token_phone(decoded)
+    if not clean_phone:
+        raise HTTPException(status_code=401, detail="सत्र समाप्त। कृपया OTP से फिर लॉगिन करें।")
+    if req.phone and normalize_phone(req.phone) != clean_phone:
+        raise HTTPException(status_code=403, detail="आप केवल अपने ही नंबर की प्रोफ़ाइल बदल सकते हैं।")
 
     # Clean & validate UPI format
     clean_upi = (req.upi_id or "").strip().lower()
@@ -484,47 +721,47 @@ async def register_or_sync_sutradhar(req: RegisterSutradharRequest):
         if not re.match(r"^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$", clean_upi):
             raise HTTPException(status_code=400, detail="कृपया मान्य UPI आईडी दर्ज करें (जैसे: name@okhdfcbank या 9876543210@paytm)।")
 
-    # Find existing
-    existing_all = SutradharStore.query_all("sutradhars")
-    existing = next((s for s in existing_all if s.get("phone") == clean_phone), None)
+    existing = find_sutradhar_by_phone(clean_phone)
 
-    # Q2: Changing UPI ID requires fresh OTP verification
+    # Changing an existing UPI ID needs a recent OTP sign-in
     if existing and existing.get("upi_id") and clean_upi and clean_upi != existing.get("upi_id"):
-        if not req.otp:
-            raise HTTPException(status_code=400, detail="सुरक्षा नियम: UPI आईडी बदलने हेतु OTP सत्यापन अनिवार्य है।")
-        otp_rec = SutradharStore.get_doc("otps", clean_phone)
-        if not otp_rec or otp_rec.get("otp") != req.otp.strip():
-            raise HTTPException(status_code=400, detail="अमान्य अथवा समाप्त OTP। कृपया पुनः OTP मंगाएं।")
-        # Clear used OTP
-        SutradharStore.set_doc("otps", clean_phone, {})
+        auth_time = int((decoded or {}).get("auth_time", 0) or 0)
+        if time.time() - auth_time > 15 * 60:
+            raise HTTPException(status_code=409, detail="recent_login_required: सुरक्षा के लिए UPI बदलने से पहले फिर से OTP से लॉगिन करें।")
 
     if existing:
         s_id = existing["id"]
-        code = (req.code or existing.get("code") or existing.get("sutradhar_id") or f"SUTRA{clean_phone[-4:]}01").replace("-", "")
+        code = (existing.get("code") or existing.get("sutradhar_id") or f"SUTRA{clean_phone[-4:]}01").replace("-", "")
     else:
         s_id = f"SUTRA-{clean_phone[-4:]}-01"
-        code = (req.code or f"SRA{os.urandom(3).hex().upper()}").replace("-", "")
+        if SutradharStore.get_doc("sutradhars", s_id):
+            s_id = f"SUTRA-{clean_phone[-4:]}-{os.urandom(2).hex().upper()}"
+        code = f"SRA{os.urandom(3).hex().upper()}"
 
-    sutradhar_doc = {
+    sutradhar_doc = dict(existing or {})
+    sutradhar_doc.update({
         "id": s_id,
         "sutradhar_id": s_id,
-        "name": req.name.strip(),
+        "name": (req.name or (existing or {}).get("name") or "सूत्रधार").strip(),
         "phone": clean_phone,
-        "email": (req.email or "").strip().lower(),
+        "email": (req.email if req.email is not None else (existing or {}).get("email", "")).strip().lower(),
         "code": code,
-        "upi_id": clean_upi,
-        "pan": (req.pan or "").strip().upper(),
-        "status": "active",
-        "fund_account_id": f"fa_upi_{clean_phone[-4:]}_{os.urandom(2).hex()}",
-        "created_at": existing.get("created_at") if existing else datetime.now(timezone.utc).isoformat()
-    }
+        "upi_id": clean_upi or (existing or {}).get("upi_id", ""),
+        "pan": (req.pan or (existing or {}).get("pan", "")).strip().upper(),
+        "status": (existing or {}).get("status", "active"),
+        "created_at": (existing or {}).get("created_at") or datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    })
+    if existing and clean_upi and clean_upi != existing.get("upi_id"):
+        sutradhar_doc["upi_verified"] = False  # admin re-checks the name with a Rs 1 test payment
 
     SutradharStore.set_doc("sutradhars", s_id, sutradhar_doc)
-    log_audit_event("SUTRADHAR_REGISTERED", s_id, {"phone": clean_phone, "code": code, "upi": clean_upi})
+    log_audit_event("SUTRADHAR_REGISTERED" if not existing else "SUTRADHAR_PROFILE_UPDATED", s_id,
+                    {"phone": clean_phone, "code": code, "upi": sutradhar_doc["upi_id"]})
 
     return {
         "status": "success",
-        "message": f"सूत्रधार '{req.name}' सफलतापूर्वक सक्रिय है।",
+        "message": f"सूत्रधार '{sutradhar_doc['name']}' सक्रिय है।",
         "sutradhar": sutradhar_doc
     }
 
@@ -533,40 +770,21 @@ async def register_or_sync_sutradhar(req: RegisterSutradharRequest):
 # ENDPOINT 1: LEAD REGISTRATION WITH 72H LOCK & 1-DAY GAP RULE
 # -----------------------------------------------------------------------------
 @router.post("/leads/add")
-async def add_lead(req: AddLeadRequest):
+async def add_lead(req: AddLeadRequest, authorization: Optional[str] = Header(None)):
     """
     लीड दर्ज करना:
-    1. सूत्रधार की पहचान पुष्टि।
+    1. सूत्रधार की पहचान केवल OTP-लॉगिन (Firebase token) से; body का sutradhar_id अनदेखा।
     2. नंबर मानकीकरण।
-    3. R5: सूत्रधार स्वयं का या किसी का भी नंबर दर्ज कर सकता है।
+    3. R5: सूत्रधार स्वयं का, परिवार का या किसी का भी नंबर दर्ज कर सकता है।
     4. R3 & P3: एटॉमिक 72-घंटे का ताला (एक समय में ठीक एक सक्रिय)।
-    5. R4: ताला समाप्त होने पर कोई भी सूत्रधार (वही या दूसरा) तुरंत पुनः दर्ज कर सकता है (24h कूलडाउन हटा दिया गया)।
+    5. R4: ताला समाप्त होने पर कोई भी सूत्रधार तुरंत पुनः दर्ज कर सकता है।
     """
+    sutradhar = require_sutradhar(authorization)
     clean_customer_phone = normalize_phone(req.customer_phone)
     if len(clean_customer_phone) != 10:
         raise HTTPException(status_code=400, detail="कृपया ग्राहक का 10-अंकों का मान्य मोबाइल नंबर दर्ज करें।")
 
-    sutradhar_id = req.sutradhar_id.strip().upper()
-    sutradhar = SutradharStore.get_doc("sutradhars", sutradhar_id)
-
-    # Allow fallback matching by phone or code if sutradhar doc not found directly
-    if not sutradhar:
-        all_sutras = SutradharStore.query_all("sutradhars")
-        sutradhar = next((s for s in all_sutras if s.get("code") == sutradhar_id or s.get("sutradhar_id") == sutradhar_id or s.get("phone") == normalize_phone(sutradhar_id)), None)
-
-    if not sutradhar:
-        # Auto-create active level-1 profile for verified phone
-        sutradhar = {
-            "id": sutradhar_id,
-            "sutradhar_id": sutradhar_id,
-            "name": "सूत्रधार",
-            "phone": normalize_phone(sutradhar_id) or "9517117775",
-            "code": sutradhar_id,
-            "status": "active",
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        SutradharStore.set_doc("sutradhars", sutradhar_id, sutradhar)
-
+    sutradhar_id = sutradhar.get("sutradhar_id") or sutradhar["id"]
     sutra_phone = sutradhar.get("phone", "")
 
     # P3: Concurrency protection — exactly one simultaneous lead creation succeeds
@@ -626,7 +844,7 @@ async def add_lead(req: AddLeadRequest):
     return {
         "status": "success",
         "lead_id": lead_id,
-        "message": "लीड 72 घंटे के लिए आपकी है। 72 घंटे के भीतर इस नंबर से किसी भी खरीद पर 30% कमीशन स्वतः आपके UPI खाते में आएगा।",
+        "message": "लीड 72 घंटे के लिए आपकी है। इस दौरान इस नंबर से हर खरीद का कमीशन (GST घटाकर 66%; कोर्स 30%; परामर्श पर नहीं) अपने आप आपके खाते में जुड़ेगा।",
         "customer_phone": clean_customer_phone,
         "expires_at": expires_at.isoformat(),
         "lock_hours": 72
@@ -637,10 +855,16 @@ async def add_lead(req: AddLeadRequest):
 # ENDPOINT 2: LEAD LISTING WITH LIVE COUNTDOWN FOR SUTRADHAR DASHBOARD
 # -----------------------------------------------------------------------------
 @router.get("/leads/list")
-async def list_sutradhar_leads(sutradhar_id: str = Query(..., description="Sutradhar ID")):
-    """Returns all leads for a given sutradhar with accurate countdown strings and statuses."""
-    s_id = sutradhar_id.strip().upper()
-    matching_ids = get_sutradhar_alias_ids(sutradhar_id)
+async def list_sutradhar_leads(sutradhar_id: Optional[str] = Query(None, description="Ignored; the signed-in Sutradhar is used"),
+                               authorization: Optional[str] = Header(None)):
+    """Returns the signed-in Sutradhar's leads with countdowns, commission and payout date."""
+    me = require_sutradhar(authorization)
+    s_id = (me.get("sutradhar_id") or me["id"]).upper()
+    matching_ids = get_sutradhar_alias_ids(s_id)
+    comms_by_lead: Dict[str, List[Dict[str, Any]]] = {}
+    for c in SutradharStore.query_all("commissions"):
+        if c.get("lead_id"):
+            comms_by_lead.setdefault(c["lead_id"], []).append(c)
     all_leads = SutradharStore.query_all("leads")
     now = datetime.now(timezone.utc)
 
@@ -687,8 +911,20 @@ async def list_sutradhar_leads(sutradhar_id: str = Query(..., description="Sutra
 
         item = dict(l)
         item["lead_id"] = l.get("id", "")
-        item["commission_amount"] = l.get("commission_amount", 0)
-        item["utr"] = l.get("utr", "")
+        lead_comms = [c for c in comms_by_lead.get(l.get("id", ""), []) if c.get("status") != "cancelled"]
+        item["commission_amount"] = sum(float(c.get("amount", 0) or 0) for c in lead_comms)
+        item["commissions"] = [{
+            "commission_id": c.get("id"),
+            "product": c.get("product"),
+            "product_name": SERVICE_CATALOG.get(resolve_service_id(c.get("product", "")), {}).get("name", c.get("product")),
+            "order_amount": c.get("order_amount"),
+            "amount": c.get("amount"),
+            "status": c.get("status"),
+            "payout_due_date": c.get("payout_due_date"),
+            "utr": c.get("utr"),
+            "paid_at": c.get("paid_at"),
+        } for c in lead_comms]
+        item["utr"] = next((c.get("utr") for c in lead_comms if c.get("utr")), "")
         item["remaining_seconds"] = remaining_sec
         item["countdown_text"] = countdown_text
         item["remaining_text"] = countdown_text
@@ -709,91 +945,109 @@ async def list_sutradhar_leads(sutradhar_id: str = Query(..., description="Sutra
 # -----------------------------------------------------------------------------
 # ENDPOINT 3: SERVER QUOTATION (CHECKOUT PRICING & 72H PHONE ATTRIBUTION)
 # -----------------------------------------------------------------------------
-@router.post("/quote")
-async def get_checkout_quote(req: QuoteRequest):
-    """
-    दाम बताना (checkout से पहले):
-    1. Login किए ग्राहक के मोबाइल पर चालू 72-घंटे की लीड ढूँढता है (active अथवा converted)।
-    2. मिल जाए, तो सूत्रधार एट्रिब्यूशन जोड़ता है।
-    3. जय हनुमान मास्टर की 100% बायपास देती है।
-    """
-    clean_phone = normalize_phone(req.customer_phone)
-    service_id = req.service_id.strip().lower()
-    base_price = CATALOG_PRICES.get(service_id, 199)
-
-    now = datetime.now(timezone.utc)
-    all_leads = SutradharStore.query_all("leads")
-
-    # R6 & R8: Find unexpired lead (active OR converted) for this customer phone
-    active_lead = None
-    for l in all_leads:
-        if l.get("customer_phone") == clean_phone and l.get("status") in ("active", "converted"):
+def find_active_lead_for_phone(phone: str, now: Optional[datetime] = None) -> Optional[Dict[str, Any]]:
+    """Unexpired 72h lead (active or converted) for this customer phone."""
+    now = now or datetime.now(timezone.utc)
+    for l in SutradharStore.query_all("leads"):
+        if l.get("customer_phone") == phone and l.get("status") in ("active", "converted"):
             try:
-                exp_dt = datetime.fromisoformat(l["expires_at"])
-                if exp_dt > now:
-                    active_lead = l
-                    break
+                if datetime.fromisoformat(l["expires_at"]) > now:
+                    return l
             except Exception:
                 continue
+    return None
 
-    input_code = (req.input_code or "").strip().upper()
-    clean_input_code = input_code.replace("-", "").replace(" ", "").replace("_", "")
-    is_master_code = clean_input_code in ("JAIHANUMAN", "जयहनुमान", "MASTER") or input_code in ("JAI HANUMAN", "जय हनुमान", "JAI_HANUMAN", "MASTER")
 
-    # Master Key Check: 100% bypass
-    if is_master_code:
-        return {
-            "status": "success",
-            "valid": True,
-            "has_active_lead": False,
-            "service_id": service_id,
-            "base_price": base_price,
-            "discount_percent": 100,
-            "discount_amount": base_price,
-            "net_price": 0,
-            "final_price": 0,
-            "net_price_paise": 0,
-            "message": "✨ जय हनुमान मास्टर की स्वीकृत! 100% अधिकृत।"
-        }
-
-    # Case A: Active Lead exists for this customer (Full price, Sutradhar gets 30% commission)
-    if active_lead:
-        sutra_code = (active_lead.get("sutradhar_code") or active_lead.get("sutradhar_id") or "").replace("-", "")
-        return {
-            "status": "success",
-            "valid": True,
-            "has_active_lead": True,
-            "auto_applied": False,
-            "lead_id": active_lead["id"],
-            "sutradhar_id": active_lead["sutradhar_id"],
-            "sutradhar_code": sutra_code,
-            "service_id": service_id,
-            "base_price": base_price,
-            "original_price": base_price,
-            "discount_percent": 0,
-            "discount_amount": 0,
-            "net_price": base_price,
-            "final_price": base_price,
-            "net_price_paise": base_price * 100,
-            "message": "पूर्ण दक्षिणा मूल्य (सूत्रधार 72h लीड सुरक्षित)"
-        }
-
-    # Case B: Standard full price (no active lead)
-    return {
+def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
+                verified_phone: Optional[str]) -> Dict[str, Any]:
+    """
+    दाम बताना (checkout से पहले):
+    1. दाम केवल SERVICE_CATALOG से (GST सहित)। अनजान सेवा पर 400।
+    2. ग्राहक को कोई कूपन छूट नहीं। केवल "JAI HANUMAN" मास्टर कोड, और वह भी केवल
+       सूची वाले लॉगिन फ़ोन पर, दाम ₹1 करता है (टेस्ट; कोई कमीशन नहीं)।
+    3. चालू 72-घंटे की लीड मिले तो सूत्रधार एट्रिब्यूशन जानकारी जोड़ता है।
+    """
+    sid = resolve_service_id(service_id)
+    item = SERVICE_CATALOG.get(sid)
+    if not item:
+        raise HTTPException(status_code=400, detail=f"अज्ञात सेवा: {service_id}")
+    base_price = int(item["price"])
+    gst_inclusive = commission_for_payment(sid, base_price * 100)
+    base = {
         "status": "success",
         "valid": True,
-        "has_active_lead": False,
-        "auto_applied": False,
-        "service_id": service_id,
+        "service_id": sid,
+        "service_name": item["name"],
         "base_price": base_price,
         "original_price": base_price,
-        "discount_percent": 0,
+        "gst_percent": GST_RATE_PERCENT,
+        "price_excl_gst": gst_inclusive["amount_excl_gst"],
+        "gst_amount": gst_inclusive["gst_amount"],
+        "auto_applied": False,
+        "is_test": False,
+    }
+
+    code_given = bool((input_code or "").strip())
+    if code_given and is_master_code(input_code):
+        if verified_phone and verified_phone in master_test_phones():
+            base.update({
+                "has_active_lead": False,
+                "is_test": True,
+                "discount_amount": base_price - MASTER_TEST_PRICE,
+                "discount_percent": round((base_price - MASTER_TEST_PRICE) * 100 / base_price, 2),
+                "net_price": MASTER_TEST_PRICE,
+                "final_price": MASTER_TEST_PRICE,
+                "net_price_paise": MASTER_TEST_PRICE * 100,
+                "code_status": "master_test",
+                "message": "टेस्ट भुगतान ₹1 (कोई कमीशन नहीं)।"
+            })
+            return base
+        code_message = "कोड अमान्य है।"  # same reply as any other code: nobody learns it is special
+    elif code_given:
+        code_message = "कोड अमान्य है।"
+    else:
+        code_message = ""
+
+    base.update({
         "discount_amount": 0,
+        "discount_percent": 0,
         "net_price": base_price,
         "final_price": base_price,
         "net_price_paise": base_price * 100,
-        "message": "पूर्ण दक्षिणा मूल्य"
-    }
+        "code_status": "invalid" if code_given else "none",
+    })
+
+    active_lead = find_active_lead_for_phone(normalize_phone(customer_phone))
+    if active_lead:
+        base.update({
+            "has_active_lead": True,
+            "lead_id": active_lead["id"],
+            "sutradhar_id": active_lead.get("sutradhar_id"),
+            "sutradhar_code": (active_lead.get("sutradhar_code") or active_lead.get("sutradhar_id") or "").replace("-", ""),
+            "message": code_message or "पूर्ण दक्षिणा मूल्य (GST सहित)",
+        })
+    else:
+        base.update({"has_active_lead": False, "message": code_message or "पूर्ण दक्षिणा मूल्य (GST सहित)"})
+    return base
+
+
+@router.post("/quote")
+async def get_checkout_quote(req: QuoteRequest, authorization: Optional[str] = Header(None)):
+    verified_phone = token_phone(verify_firebase_token(authorization))
+    return build_quote(req.customer_phone, req.service_id, req.input_code, verified_phone)
+
+
+@router.get("/catalog")
+async def get_service_catalog():
+    """Public price list (GST included) and the Sutradhar commission on each, for pages to display."""
+    items = []
+    for sid, it in SERVICE_CATALOG.items():
+        c = commission_for_payment(sid, it["price"] * 100)
+        items.append({"service_id": sid, "name": it["name"], "price": it["price"],
+                      "price_excl_gst": c["amount_excl_gst"], "gst_amount": c["gst_amount"],
+                      "commission_rate_percent": it["rate"], "sutradhar_commission": c["commission"]})
+    return {"status": "success", "gst_percent": GST_RATE_PERCENT, "items": items,
+            "payout_rule": f"भुगतान के {PAYOUT_SETTLEMENT_WORKING_DAYS} कार्य-दिवस बाद {PAYOUT_DEADLINE_TEXT} (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)"}
 
 
 # -----------------------------------------------------------------------------
@@ -855,15 +1109,19 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
             "service_id": req.service_id
         })
 
-    # Quote determination
-    quote_req = QuoteRequest(
-        customer_phone=effective_phone,
-        service_id=req.service_id,
-        input_code=req.input_code
-    )
-    quote = await get_checkout_quote(quote_req)
+    # Quote determination (server catalog only; master test code needs a Phone-Auth token)
+    strict_phone = token_phone(verify_firebase_token(authorization))
+    quote = build_quote(effective_phone, req.service_id, req.input_code, strict_phone)
+    service_id = quote["service_id"]
     net_price = quote["net_price"]
     net_paise = net_price * 100
+    is_test_order = bool(quote.get("is_test"))
+    if is_test_order:
+        # Master-code test payments never earn a commission
+        attributed_sutradhar_id = ""
+        attributed_sutradhar_code = ""
+        attributed_lead_id = ""
+        attributed_at = None
 
     # Try creating real order with Razorpay Client if sdk installed
     try:
@@ -874,8 +1132,9 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
             "currency": "INR",
             "receipt": order_id,
             "notes": {
-                "service_id": req.service_id,
+                "service_id": service_id,
                 "customer_phone": effective_phone,
+                "is_test": "1" if is_test_order else "0",
                 "sutradhar_id": attributed_sutradhar_id,
                 "sutradhar_code": attributed_sutradhar_code,
                 "lead_id": attributed_lead_id,
@@ -884,6 +1143,9 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         })
         order_id = rzp_order.get("id", order_id)
     except Exception as e:
+        if not _is_test_env():
+            logger.error(f"[Razorpay] order create failed: {e}")
+            raise HTTPException(status_code=502, detail="भुगतान शुरू नहीं हो सका। कृपया थोड़ी देर बाद पुनः प्रयास करें।")
         logger.warning(f"[Razorpay Client note: using simulated test order {order_id}]: {e}")
 
     # Save to Firestore orders collection
@@ -893,7 +1155,9 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "customer_phone": effective_phone,
         "customer_name": req.customer_name or "जातक",
         "customer_email": req.customer_email or "",
-        "service_id": req.service_id,
+        "service_id": service_id,
+        "service_name": quote.get("service_name"),
+        "is_test": is_test_order,
         "gross_amount": quote["base_price"],
         "discount_amount": quote["discount_amount"],
         "net_amount": net_price,
@@ -921,6 +1185,10 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "currency": "INR",
         "key_id": RAZORPAY_KEY_ID,
         "sutradhar_code": attributed_sutradhar_code,
+        "service_id": service_id,
+        "service_name": quote.get("service_name"),
+        "is_test": is_test_order,
+        "message": quote.get("message", ""),
         "discount_applied": quote["discount_amount"] > 0
     }
 
@@ -928,8 +1196,6 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
 # -----------------------------------------------------------------------------
 # ENDPOINT 5: WEBHOOK VERIFICATION & SINGLE-COMMISSION IDEMPOTENT CREATION
 # -----------------------------------------------------------------------------
-# Flat commission lookup for special services (e.g. SaaS)
-# SaaS is not sold through this checkout yet. When added, configure here e.g. {"astrologer_saas": 2500.0}
 FLAT_COMMISSION_BY_SERVICE: Dict[str, float] = {
     "astrologer_saas": 2500.0,
     "saas_annual": 2500.0
@@ -1034,6 +1300,20 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     if captured_paise <= 0:
         return {"status": "no_commission_zero_amount", "payment_id": payment_id, "commission_created": False}
 
+    # A paid SaaS order makes / extends the buyer's subscription (even without a Sutradhar lead)
+    if (resolve_service_id(order.get("service_id", "")) in SAAS_SERVICE_IDS and captured_paise > 0
+            and not order.get("is_test") and not order.get("saas_extended")
+            and len(customer_phone) == 10 and customer_phone != "9999999999"):
+        extend_saas_subscription(customer_phone, order.get("customer_name", ""), source=f"payment:{payment_id}",
+                                 sutradhar_id=sutradhar_id or "")
+        order["saas_extended"] = True
+        SutradharStore.set_doc("orders", order_id, order)
+
+    # Master-code test payments never earn a commission
+    if order.get("is_test"):
+        log_audit_event("WEBHOOK_TEST_ORDER_NO_COMMISSION", "system", {"order_id": order_id, "payment_id": payment_id})
+        return {"status": "test_order_no_commission", "order_id": order_id, "commission_created": False}
+
     # If order has no attribution saved at creation time => NO commission
     if not sutradhar_id or not lead_id:
         log_audit_event("WEBHOOK_ORDER_NO_ATTRIBUTION", "system", {
@@ -1051,14 +1331,16 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         lead["payment_id"] = payment_id
         SutradharStore.set_doc("leads", lead["id"], lead)
 
-    # R9 & Answer 2: Commission calculation
-    service_id = order.get("service_id", "")
-    if service_id in FLAT_COMMISSION_BY_SERVICE:
-        comm_amount = float(FLAT_COMMISSION_BY_SERVICE[service_id])
-    else:
-        # 30% of the amount actually paid, computed in integer paise
-        comm_paise = (captured_paise * 30) // 100
-        comm_amount = round(comm_paise / 100, 2)
+    # Commission: rate% of the paid amount after removing GST (66% reports/SaaS year 1,
+    # 30% course/SaaS renewal, 0 consultation), whole rupees
+    calc = commission_for_payment(order.get("service_id", ""), captured_paise)
+    service_id = calc["service_id"]
+    comm_amount = calc["commission"]
+    if comm_amount <= 0:
+        log_audit_event("WEBHOOK_ZERO_RATE_SERVICE", sutradhar_id, {
+            "order_id": order_id, "payment_id": payment_id, "service_id": service_id})
+        return {"status": "no_commission_for_service", "service_id": service_id, "commission_created": False}
+    payout_due = payout_due_date_for(now)
 
     # P2: Atomic commission creation with create_doc_if_not_exists
     comm_record = {
@@ -1070,9 +1352,15 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         "sutradhar_id": sutradhar_id,
         "customer_phone": customer_phone,
         "product": service_id or "mangal_dosha",
+        "product_name": SERVICE_CATALOG.get(service_id, {}).get("name", service_id),
         "order_amount": captured_paise / 100,
+        "amount_excl_gst": calc["amount_excl_gst"],
+        "gst_amount": calc["gst_amount"],
+        "rate_percent": calc["rate_percent"],
         "amount": comm_amount,
         "status": "created",
+        "paid_on": now.astimezone(IST).date().isoformat(),
+        "payout_due_date": payout_due,
         "retry_count": 0,
         "failure_reason": None,
         "utr": None,
@@ -1090,11 +1378,12 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
         "service_id": service_id
     })
 
-    # P4: Non-blocking payout trigger in background so webhook returns 200 immediately
-    try:
-        asyncio.create_task(process_pending_payouts())
-    except Exception:
-        pass
+    # P4: Automatic payout only when a payout API is switched on (PAYOUT_MODE); default is manual
+    if payout_mode() != "manual":
+        try:
+            asyncio.create_task(process_pending_payouts())
+        except Exception:
+            pass
 
     return {
         "status": "success",
@@ -1108,8 +1397,9 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
 # ENDPOINT 6: AUTOMATED PAYOUT WORKER (CASHFREE / RAZORPAYX IDEMPOTENT PAYOUTS)
 # -----------------------------------------------------------------------------
 @router.post("/payouts/process")
-async def trigger_payout_worker():
-    """Manual or cron-triggered automated payout runner for pending commissions."""
+async def trigger_payout_worker(authorization: Optional[str] = Header(None)):
+    """Admin-only trigger for the automatic payout runner (does nothing in manual mode)."""
+    require_admin(authorization)
     res = await process_pending_payouts()
     return res
 
@@ -1368,6 +1658,10 @@ async def process_pending_payouts(target_commission_id: Optional[str] = None) ->
     P6: If bank call fails or times out, re-uses exact same transfer_id.
     P9: If low balance or failure, sets 'failed_retry', writes audit log, notifies admin max 1/hour.
     """
+    if payout_mode() == "manual":
+        # Payouts are paid by hand from admin.html (T+2 working days) and closed with the bank UTR
+        return {"status": "manual_mode", "message": "स्वचालित पेआउट बंद है (PAYOUT_MODE=manual)।", "results": []}
+
     all_comms = SutradharStore.query_all("commissions")
     
     if target_commission_id:
@@ -1591,7 +1885,7 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
                 continue
             sutradhar_id = order.get("sutradhar_id")
             lead_id = order.get("lead_id")
-            if not sutradhar_id or not lead_id:
+            if not sutradhar_id or not lead_id or order.get("is_test"):
                 continue
 
             captured_paise = int(p.get("amount", 0))
@@ -1599,12 +1893,15 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
             if captured_paise != order_paise or captured_paise <= 0:
                 continue
 
-            service_id = order.get("service_id", "")
-            if service_id in FLAT_COMMISSION_BY_SERVICE:
-                comm_amount = float(FLAT_COMMISSION_BY_SERVICE[service_id])
-            else:
-                comm_paise = (captured_paise * 30) // 100
-                comm_amount = round(comm_paise / 100, 2)
+            calc = commission_for_payment(order.get("service_id", ""), captured_paise)
+            service_id = calc["service_id"]
+            comm_amount = calc["commission"]
+            if comm_amount <= 0:
+                continue
+            try:
+                paid_dt = datetime.fromtimestamp(int(p.get("created_at")), tz=timezone.utc)
+            except Exception:
+                paid_dt = datetime.now(timezone.utc)
 
             now_iso = datetime.now(timezone.utc).isoformat()
             comm_record = {
@@ -1616,9 +1913,15 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
                 "sutradhar_id": sutradhar_id,
                 "customer_phone": order.get("customer_phone", ""),
                 "product": service_id,
+                "product_name": SERVICE_CATALOG.get(service_id, {}).get("name", service_id),
                 "order_amount": captured_paise / 100,
+                "amount_excl_gst": calc["amount_excl_gst"],
+                "gst_amount": calc["gst_amount"],
+                "rate_percent": calc["rate_percent"],
                 "amount": comm_amount,
                 "status": "created",
+                "paid_on": paid_dt.astimezone(IST).date().isoformat(),
+                "payout_due_date": payout_due_date_for(paid_dt),
                 "retry_count": 0,
                 "failure_reason": None,
                 "utr": None,
@@ -1633,7 +1936,7 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
                 })
                 recovered.append(comm_id)
 
-        if recovered:
+        if recovered and payout_mode() != "manual":
             await process_pending_payouts()
     except Exception as e:
         logger.warning(f"[Reconciliation] Error: {e}")
@@ -1643,11 +1946,132 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
 
 
 # -----------------------------------------------------------------------------
+# ENDPOINT 6b: ASTROLOGER SaaS — a subscriber types his OWN login number in the
+# code box and every report opens. Rules:
+# - the code must equal the phone of the OTP sign-in (Firebase Phone Auth token)
+# - that phone must have an active SaaS subscription
+# - at most SAAS_MAX_DEVICES browsers/phones per subscriber (owner phone exempt)
+# Anything else gets the same "कोड अमान्य है।" as any wrong code.
+# -----------------------------------------------------------------------------
+SAAS_MAX_DEVICES = 2
+SAAS_SUBSCRIPTION_DAYS = 365
+SAAS_SERVICE_IDS = ("astrologer_saas", "astrologer_saas_renewal")
+SAAS_NOT_UNLOCKABLE = ("consultation_acharya", "consultation_yearly", "consultation_gurukul") + SAAS_SERVICE_IDS
+INVALID_CODE_MESSAGE = "कोड अमान्य है।"
+
+
+def saas_exempt_phones() -> set:
+    return master_test_phones()
+
+
+def saas_unlockable(service_id: str) -> bool:
+    sid = resolve_service_id(service_id)
+    return sid in SERVICE_CATALOG and sid not in SAAS_NOT_UNLOCKABLE
+
+
+def get_saas_subscriber(phone: str) -> Optional[Dict[str, Any]]:
+    return SutradharStore.get_doc("saas_subscribers", phone) if phone else None
+
+
+def saas_is_active(sub: Optional[Dict[str, Any]], now: Optional[datetime] = None) -> bool:
+    if not sub or sub.get("status") != "active":
+        return False
+    try:
+        return datetime.fromisoformat(sub["expires_at"]) > (now or datetime.now(timezone.utc))
+    except Exception:
+        return False
+
+
+def extend_saas_subscription(phone: str, name: str = "", days: int = SAAS_SUBSCRIPTION_DAYS,
+                             source: str = "", sutradhar_id: str = "") -> Dict[str, Any]:
+    """Create or extend a subscriber by `days` from today or from the current expiry, whichever is later."""
+    now = datetime.now(timezone.utc)
+    with _store_lock:
+        sub = get_saas_subscriber(phone) or {
+            "phone": phone, "name": name or "", "devices": [], "created_at": now.isoformat(), "history": []}
+        try:
+            current = datetime.fromisoformat(sub.get("expires_at")) if sub.get("expires_at") else now
+        except Exception:
+            current = now
+        base = current if current > now else now
+        sub["expires_at"] = (base + timedelta(days=days)).isoformat()
+        sub["status"] = "active"
+        if name and not sub.get("name"):
+            sub["name"] = name
+        if sutradhar_id and not sub.get("sold_by_sutradhar"):
+            sub["sold_by_sutradhar"] = sutradhar_id
+        sub.setdefault("history", []).append({"at": now.isoformat(), "days": days, "source": source})
+        sub["updated_at"] = now.isoformat()
+        SutradharStore.set_doc("saas_subscribers", phone, sub)
+    log_audit_event("SAAS_SUBSCRIPTION_EXTENDED", phone, {"days": days, "source": source, "expires_at": sub["expires_at"]})
+    return sub
+
+
+class SaasRedeemRequest(BaseModel):
+    service_id: str
+    code: str
+    device_id: str = Field(..., description="Random id kept in the browser's storage")
+    report_ref: Optional[str] = None
+
+
+@router.post("/saas/redeem")
+async def saas_redeem(req: SaasRedeemRequest, authorization: Optional[str] = Header(None)):
+    """Unlock one report for a SaaS subscriber who typed his own login number."""
+    login_phone = token_phone(verify_firebase_token(authorization))
+    code_phone = normalize_phone(req.code)
+    if not login_phone or len(code_phone) != 10 or code_phone != login_phone:
+        return {"ok": False, "message": INVALID_CODE_MESSAGE}
+
+    exempt = login_phone in saas_exempt_phones()
+    sub = get_saas_subscriber(login_phone)
+    if not exempt and not sub:
+        return {"ok": False, "message": INVALID_CODE_MESSAGE}
+    if not exempt and sub.get("status") == "paused":
+        return {"ok": False, "message": "आपका SaaS खाता अभी रुका हुआ है। सहायता से संपर्क करें।"}
+    if not exempt and not saas_is_active(sub):
+        return {"ok": False, "message": "आपकी SaaS सदस्यता समाप्त हो गई है। रिपोर्ट खोलने के लिए नवीनीकरण करें।"}
+
+    sid = resolve_service_id(req.service_id)
+    if not saas_unlockable(sid):
+        return {"ok": False, "message": "यह सेवा SaaS में शामिल नहीं है।"}
+
+    device_id = re.sub(r"[^A-Za-z0-9_-]", "", req.device_id or "")[:64]
+    if len(device_id) < 8:
+        return {"ok": False, "message": "डिवाइस पहचान नहीं हो सकी। पेज रीफ़्रेश करके पुनः प्रयास करें।"}
+
+    now = datetime.now(timezone.utc)
+    with _store_lock:
+        if not exempt:
+            sub = get_saas_subscriber(login_phone)
+            devices = sub.get("devices", [])
+            known = next((d for d in devices if d.get("device_id") == device_id), None)
+            if known:
+                known["last_seen"] = now.isoformat()
+            elif len(devices) >= SAAS_MAX_DEVICES:
+                log_audit_event("SAAS_DEVICE_LIMIT", login_phone, {"device_id": device_id})
+                return {"ok": False, "message": f"यह SaaS खाता पहले से {SAAS_MAX_DEVICES} फ़ोन पर चल रहा है। नया फ़ोन जोड़ने के लिए सहायता से संपर्क करें।"}
+            else:
+                devices.append({"device_id": device_id, "first_seen": now.isoformat(), "last_seen": now.isoformat()})
+            sub["devices"] = devices
+            sub["last_used_at"] = now.isoformat()
+            SutradharStore.set_doc("saas_subscribers", login_phone, sub)
+        use_id = f"use_{login_phone}_{int(now.timestamp() * 1000)}_{os.urandom(2).hex()}"
+        SutradharStore.set_doc("saas_usage", use_id, {
+            "id": use_id, "phone": login_phone, "service_id": sid, "device_id": device_id,
+            "report_ref": (req.report_ref or "")[:120], "at": now.isoformat(), "exempt": exempt})
+
+    return {"ok": True, "service_id": sid, "unlock_id": use_id,
+            "expires_at": (sub or {}).get("expires_at") if not exempt else None,
+            "message": "SaaS सदस्यता से रिपोर्ट खुल गई।"}
+
+
+# -----------------------------------------------------------------------------
 # ENDPOINT 7: ADMIN 'REQUIRES REVIEW' QUEUE (जाँच ज़रूरी)
 # -----------------------------------------------------------------------------
 @router.get("/admin/reviews")
-async def get_admin_review_queue():
+async def get_admin_review_queue(authorization: Optional[str] = Header(None)):
     """Returns all commissions in 'requires_review' state."""
+    require_admin(authorization)
     all_comms = SutradharStore.query_all("commissions")
     flagged = [c for c in all_comms if c.get("status") == "requires_review"]
     return {
@@ -1659,15 +2083,18 @@ async def get_admin_review_queue():
 
 @router.post("/admin/review-action")
 @router.post("/admin/reviews/action")
-async def take_admin_review_action(req: ReviewActionRequest):
+async def take_admin_review_action(req: ReviewActionRequest, authorization: Optional[str] = Header(None)):
     """
     हर मामले पर दो बटन:
-    1. 'retry': फिर से भेजें
+    1. 'retry': फिर से पेआउट सूची में डालें
     2. 'cancel': रद्द करें, कारण सहित
     """
+    admin = require_admin(authorization)
     comm = SutradharStore.get_doc("commissions", req.commission_id)
     if not comm:
         raise HTTPException(status_code=404, detail="कमीशन रिकॉर्ड नहीं मिला।")
+    if comm.get("status") == "paid":
+        raise HTTPException(status_code=400, detail="यह कमीशन पहले ही चुकाया जा चुका है।")
 
     if req.action == "retry":
         comm["status"] = "created"
@@ -1681,114 +2108,369 @@ async def take_admin_review_action(req: ReviewActionRequest):
                     s_obj["upi_id"] = req.upi_id.strip().lower()
                     SutradharStore.set_doc("sutradhars", s_id, s_obj)
         SutradharStore.set_doc("commissions", req.commission_id, comm)
-        log_audit_event("ADMIN_RETRY_PAYOUT", "admin", {"commission_id": req.commission_id, "upi": req.upi_id})
-        # Try payout again immediately
+        log_audit_event("ADMIN_RETRY_PAYOUT", admin, {"commission_id": req.commission_id, "upi": req.upi_id})
         await process_pending_payouts()
-        return {"status": "success", "message": "पेआउट पुनः प्रोसेस करने हेतु कतार में डाल दिया गया है।"}
+        return {"status": "success", "message": "कमीशन फिर से पेआउट सूची में डाल दिया गया है।"}
 
     elif req.action == "cancel":
         comm["status"] = "cancelled"
         comm["failure_reason"] = req.reason or "व्यवस्थापक द्वारा रद्द"
         SutradharStore.set_doc("commissions", req.commission_id, comm)
-        log_audit_event("ADMIN_CANCEL_PAYOUT", "admin", {"commission_id": req.commission_id, "reason": req.reason})
+        log_audit_event("ADMIN_CANCEL_PAYOUT", admin, {"commission_id": req.commission_id, "reason": req.reason})
         return {"status": "success", "message": "कमीशन रद्द कर दिया गया है।"}
 
     raise HTTPException(status_code=400, detail="अमान्य एक्शन। केवल 'retry' या 'cancel' मान्य हैं।")
 
 
 # -----------------------------------------------------------------------------
-# ENDPOINT 8: SUTRADHAR SUMMARY FOR DASHBOARD STATS
+# ENDPOINT 7b: MANUAL PAYOUT DESK (T+2 working days, paid by hand, closed with UTR)
+# -----------------------------------------------------------------------------
+class MarkPaidRequest(BaseModel):
+    sutradhar_id: str
+    commission_ids: List[str]
+    utr: str = Field(..., description="Bank / UPI reference of the transfer")
+    note: Optional[str] = None
+
+
+class HolidayRequest(BaseModel):
+    date: str = Field(..., description="YYYY-MM-DD")
+    name: Optional[str] = "बैंक अवकाश"
+    remove: bool = False
+
+
+def _commission_due_date(c: Dict[str, Any]) -> str:
+    """Due date stored on the commission; older records get one from their creation time."""
+    if c.get("payout_due_date"):
+        return c["payout_due_date"]
+    try:
+        return payout_due_date_for(datetime.fromisoformat(c.get("created_at")))
+    except Exception:
+        return today_ist()
+
+
+@router.get("/admin/payouts")
+async def get_admin_payout_desk(date: Optional[str] = Query(None, description="IST date YYYY-MM-DD; default today"),
+                                authorization: Optional[str] = Header(None)):
+    """
+    Everything the owner needs for the evening payout:
+    - due: unpaid commissions due on or before `date`, grouped per Sutradhar with UPI and total
+    - upcoming: unpaid commissions due after `date`, totals per date
+    - paid_today: what was closed on `date`
+    """
+    require_admin(authorization)
+    day = date or today_ist()
+    try:
+        day_d = datetime.fromisoformat(day).date()
+    except Exception:
+        raise HTTPException(status_code=400, detail="तारीख़ YYYY-MM-DD रूप में दें।")
+
+    sutradhars = {s.get("id"): s for s in SutradharStore.query_all("sutradhars")}
+    for s in list(sutradhars.values()):
+        if s.get("sutradhar_id"):
+            sutradhars.setdefault(s["sutradhar_id"], s)
+
+    due_groups: Dict[str, Dict[str, Any]] = {}
+    upcoming: Dict[str, Dict[str, Any]] = {}
+    paid_today: List[Dict[str, Any]] = []
+
+    for c in SutradharStore.query_all("commissions"):
+        st = c.get("status")
+        if st == "paid":
+            if (c.get("paid_at") or "")[:10] and datetime.fromisoformat(c["paid_at"]).astimezone(IST).date() == day_d:
+                paid_today.append(c)
+            continue
+        if st not in UNPAID_COMMISSION_STATUSES:
+            continue
+        due = _commission_due_date(c)
+        row = {
+            "commission_id": c.get("id"),
+            "payment_id": c.get("payment_id"),
+            "product": c.get("product"),
+            "product_name": c.get("product_name") or SERVICE_CATALOG.get(resolve_service_id(c.get("product", "")), {}).get("name", c.get("product")),
+            "customer_phone_last4": (c.get("customer_phone") or "")[-4:],
+            "order_amount": c.get("order_amount"),
+            "amount": c.get("amount"),
+            "paid_on": c.get("paid_on") or (c.get("created_at") or "")[:10],
+            "payout_due_date": due,
+            "status": st,
+            "failure_reason": c.get("failure_reason"),
+        }
+        if due <= day:
+            sid = c.get("sutradhar_id", "")
+            s = sutradhars.get(sid) or {}
+            g = due_groups.setdefault(sid, {
+                "sutradhar_id": sid,
+                "name": s.get("name", ""),
+                "phone": s.get("phone", ""),
+                "upi_id": c.get("upi_id") or s.get("upi_id", ""),
+                "upi_verified": bool(s.get("upi_verified")),
+                "pan": s.get("pan", ""),
+                "total": 0.0,
+                "overdue": False,
+                "items": [],
+            })
+            g["items"].append(row)
+            g["total"] += float(c.get("amount", 0) or 0)
+            if due < day:
+                g["overdue"] = True
+        else:
+            u = upcoming.setdefault(due, {"date": due, "total": 0.0, "count": 0})
+            u["total"] += float(c.get("amount", 0) or 0)
+            u["count"] += 1
+
+    groups = sorted(due_groups.values(), key=lambda g: (-g["total"], g["name"]))
+    holidays = load_payout_holidays()
+    return {
+        "status": "success",
+        "date": day,
+        "is_working_day": is_payout_working_day(day_d, holidays),
+        "holiday_name": holidays.get(day, ""),
+        "payout_mode": payout_mode(),
+        "rule": f"भुगतान के {PAYOUT_SETTLEMENT_WORKING_DAYS} कार्य-दिवस बाद {PAYOUT_DEADLINE_TEXT}",
+        "due_total": round(sum(g["total"] for g in groups), 2),
+        "due_sutradhar_count": len(groups),
+        "due": groups,
+        "upcoming": [upcoming[k] for k in sorted(upcoming)],
+        "paid_today_total": round(sum(float(c.get("amount", 0) or 0) for c in paid_today), 2),
+        "paid_today": paid_today,
+    }
+
+
+@router.post("/admin/payouts/mark-paid")
+async def admin_mark_payout_paid(req: MarkPaidRequest, authorization: Optional[str] = Header(None)):
+    """Close the listed commissions of one Sutradhar after paying them by hand. Needs the real UTR."""
+    admin = require_admin(authorization)
+    utr = re.sub(r"\s", "", req.utr or "")
+    if len(utr) < 6:
+        raise HTTPException(status_code=400, detail="बैंक/UPI का सही UTR (कम से कम 6 अक्षर) दर्ज करें।")
+    if not req.commission_ids:
+        raise HTTPException(status_code=400, detail="कोई कमीशन नहीं चुना गया।")
+
+    now = datetime.now(timezone.utc)
+    closed, skipped, total = [], [], 0.0
+    for cid in req.commission_ids:
+        c = SutradharStore.get_doc("commissions", cid)
+        if not c or c.get("sutradhar_id") != req.sutradhar_id:
+            skipped.append({"commission_id": cid, "reason": "इस सूत्रधार का कमीशन नहीं मिला"})
+            continue
+        ok = SutradharStore.compare_and_set_status(
+            "commissions", cid, list(UNPAID_COMMISSION_STATUSES),
+            {"status": "paid", "utr": utr, "paid_at": now.isoformat(), "paid_by": admin,
+             "payout_method": "manual_upi", "payout_note": req.note or "", "failure_reason": None})
+        if ok:
+            closed.append(cid)
+            total += float(c.get("amount", 0) or 0)
+            lead = SutradharStore.get_doc("leads", c.get("lead_id", "")) if c.get("lead_id") else None
+            if lead:
+                lead["utr"] = utr
+                lead["payout_status"] = "transferred"
+                SutradharStore.set_doc("leads", lead["id"], lead)
+        else:
+            skipped.append({"commission_id": cid, "reason": "पहले ही चुकाया या रद्द"})
+
+    log_audit_event("ADMIN_MANUAL_PAYOUT", admin, {
+        "sutradhar_id": req.sutradhar_id, "utr": utr, "total": total, "closed": closed, "skipped": skipped})
+    return {"status": "success", "utr": utr, "total_paid": round(total, 2), "closed": closed, "skipped": skipped}
+
+
+@router.get("/admin/holidays")
+async def list_payout_holidays(authorization: Optional[str] = Header(None)):
+    require_admin(authorization)
+    h = load_payout_holidays()
+    return {"status": "success", "holidays": [{"date": d, "name": n} for d, n in sorted(h.items())]}
+
+
+@router.post("/admin/holidays")
+async def edit_payout_holidays(req: HolidayRequest, authorization: Optional[str] = Header(None)):
+    """Add or remove a bank holiday (payouts skip it). Saved in the settings store on top of data/sutradhar_holidays.json."""
+    admin = require_admin(authorization)
+    try:
+        datetime.fromisoformat(req.date)
+    except Exception:
+        raise HTTPException(status_code=400, detail="तारीख़ YYYY-MM-DD रूप में दें।")
+    with _store_lock:
+        doc = SutradharStore.get_doc("settings", "payout_holidays") or {}
+        items = [h for h in doc.get("holidays", []) if h.get("date") != req.date]
+        removed = [d for d in doc.get("removed", []) if d != req.date]
+        if req.remove:
+            removed.append(req.date)
+        else:
+            items.append({"date": req.date, "name": req.name or "बैंक अवकाश"})
+        SutradharStore.set_doc("settings", "payout_holidays", {
+            "holidays": sorted(items, key=lambda h: h["date"]), "removed": sorted(removed)})
+    log_audit_event("ADMIN_HOLIDAY_EDIT", admin, {"date": req.date, "remove": req.remove})
+    return await list_payout_holidays(authorization)
+
+
+# -----------------------------------------------------------------------------
+# ENDPOINT 7c: ADMIN — SaaS subscribers (list, add / extend, pause, reset phones)
+# -----------------------------------------------------------------------------
+class SaasAdminRequest(BaseModel):
+    phone: str
+    name: Optional[str] = None
+    add_days: Optional[int] = Field(None, description="Extend by this many days (365 = one year)")
+    expires_at: Optional[str] = Field(None, description="Set an exact expiry date YYYY-MM-DD")
+    status: Optional[str] = Field(None, description="'active' or 'paused'")
+    reset_devices: bool = False
+    remove_device_id: Optional[str] = None
+    note: Optional[str] = None
+
+
+def _saas_view(sub: Dict[str, Any], usage: List[Dict[str, Any]]) -> Dict[str, Any]:
+    now = datetime.now(timezone.utc)
+    month = now.astimezone(IST).strftime("%Y-%m")
+    mine = [u for u in usage if u.get("phone") == sub.get("phone")]
+    month_uses = [u for u in mine if datetime.fromisoformat(u["at"]).astimezone(IST).strftime("%Y-%m") == month]
+    by_service: Dict[str, int] = {}
+    for u in month_uses:
+        by_service[u.get("service_id", "")] = by_service.get(u.get("service_id", ""), 0) + 1
+    days_left = None
+    try:
+        days_left = (datetime.fromisoformat(sub["expires_at"]) - now).days
+    except Exception:
+        pass
+    return {
+        "phone": sub.get("phone"), "name": sub.get("name", ""), "status": sub.get("status"),
+        "active": saas_is_active(sub, now), "expires_at": sub.get("expires_at"), "days_left": days_left,
+        "devices": sub.get("devices", []), "device_limit": SAAS_MAX_DEVICES,
+        "sold_by_sutradhar": sub.get("sold_by_sutradhar", ""), "last_used_at": sub.get("last_used_at"),
+        "uses_this_month": len(month_uses), "uses_total": len(mine), "uses_by_service_this_month": by_service,
+        "history": sub.get("history", [])[-10:], "note": sub.get("note", ""),
+    }
+
+
+@router.get("/admin/saas")
+async def admin_list_saas(authorization: Optional[str] = Header(None)):
+    require_admin(authorization)
+    usage = SutradharStore.query_all("saas_usage")
+    subs = [_saas_view(s, usage) for s in SutradharStore.query_all("saas_subscribers") if s.get("phone")]
+    subs.sort(key=lambda v: (not v["active"], v.get("days_left") if v.get("days_left") is not None else 99999))
+    return {"status": "success", "count": len(subs), "active_count": sum(1 for v in subs if v["active"]),
+            "device_limit": SAAS_MAX_DEVICES, "subscribers": subs}
+
+
+@router.post("/admin/saas")
+async def admin_upsert_saas(req: SaasAdminRequest, authorization: Optional[str] = Header(None)):
+    admin = require_admin(authorization)
+    phone = normalize_phone(req.phone)
+    if len(phone) != 10:
+        raise HTTPException(status_code=400, detail="10 अंकों का मोबाइल नंबर दें।")
+    if req.status and req.status not in ("active", "paused"):
+        raise HTTPException(status_code=400, detail="status केवल 'active' या 'paused' हो सकता है।")
+    if req.add_days:
+        if not (1 <= req.add_days <= 3660):
+            raise HTTPException(status_code=400, detail="दिन 1 से 3660 के बीच दें।")
+        extend_saas_subscription(phone, req.name or "", days=req.add_days, source=f"admin:{admin}")
+    now = datetime.now(timezone.utc)
+    with _store_lock:
+        sub = get_saas_subscriber(phone)
+        if not sub:
+            if not req.expires_at:
+                raise HTTPException(status_code=404, detail="यह नंबर SaaS सूची में नहीं है। जोड़ने के लिए दिन (जैसे 365) दें।")
+            sub = {"phone": phone, "name": req.name or "", "devices": [], "status": "active",
+                   "created_at": now.isoformat(), "history": []}
+        if req.expires_at:
+            try:
+                exp = datetime.fromisoformat(req.expires_at).replace(hour=23, minute=59, tzinfo=IST)
+            except Exception:
+                raise HTTPException(status_code=400, detail="तारीख़ YYYY-MM-DD रूप में दें।")
+            sub["expires_at"] = exp.astimezone(timezone.utc).isoformat()
+            sub.setdefault("history", []).append({"at": now.isoformat(), "set_expiry": req.expires_at, "source": f"admin:{admin}"})
+        if req.name:
+            sub["name"] = req.name
+        if req.status:
+            sub["status"] = req.status
+        if req.reset_devices:
+            sub["devices"] = []
+        if req.remove_device_id:
+            sub["devices"] = [d for d in sub.get("devices", []) if d.get("device_id") != req.remove_device_id]
+        if req.note is not None:
+            sub["note"] = req.note
+        sub["updated_at"] = now.isoformat()
+        SutradharStore.set_doc("saas_subscribers", phone, sub)
+    log_audit_event("ADMIN_SAAS_UPDATE", admin, {"phone": phone, "add_days": req.add_days, "expires_at": req.expires_at,
+                                                 "status": req.status, "reset_devices": req.reset_devices})
+    return {"status": "success", "subscriber": _saas_view(sub, SutradharStore.query_all("saas_usage"))}
+
+
+# -----------------------------------------------------------------------------
+# ENDPOINT 8: SUTRADHAR LOGIN AND DASHBOARD SUMMARY (signed-in Sutradhar only)
 # -----------------------------------------------------------------------------
 @router.get("/login")
-async def login_sutradhar(phone: str = Query(..., description="Registered Sutradhar phone")):
-    """Returns sutradhar profile if phone is found, 404 otherwise. No OTP for MVP."""
-    clean_phone = normalize_phone(phone)
-    all_sutras = SutradharStore.query_all("sutradhars")
-    sutradhar = next((s for s in all_sutras if s.get("phone") == clean_phone), None)
-    if not sutradhar:
-        raise HTTPException(status_code=404, detail="यह नंबर सूत्रधार के रूप में पंजीकृत नहीं है।")
+async def login_sutradhar(phone: Optional[str] = Query(None, description="Ignored; the phone comes from the OTP token"),
+                          authorization: Optional[str] = Header(None)):
+    """Returns the signed-in Sutradhar's profile, 404 if the OTP-verified number is not registered."""
+    sutradhar = require_sutradhar(authorization)
     return {"status": "success", "sutradhar": sutradhar}
 
 
 @router.get("/summary")
-async def get_sutradhar_summary(sutradhar_id: str = Query(..., description="Sutradhar ID")):
-    """Calculates live today, this month, and lifetime commissions for the Sutradhar."""
-    matching_ids = get_sutradhar_alias_ids(sutradhar_id)
-    all_comms = SutradharStore.query_all("commissions")
-    sutra_comms = [
-        c for c in all_comms 
-        if (c.get("sutradhar_id", "").upper() in matching_ids or 
-            c.get("sutradhar_code", "").upper() in matching_ids) and 
-           c.get("status") in ("paid", "approved")
+async def get_sutradhar_summary(sutradhar_id: Optional[str] = Query(None, description="Ignored; the signed-in Sutradhar is used"),
+                                authorization: Optional[str] = Header(None)):
+    """Today / month / lifetime commission, what is paid, and what will be paid on which date."""
+    me = require_sutradhar(authorization)
+    primary_id = me.get("sutradhar_id") or me["id"]
+    matching_ids = get_sutradhar_alias_ids(primary_id)
+    my_comms = [
+        c for c in SutradharStore.query_all("commissions")
+        if (str(c.get("sutradhar_id", "")).upper() in matching_ids or
+            str(c.get("sutradhar_code", "")).upper() in matching_ids) and c.get("status") != "cancelled"
     ]
 
-    now = datetime.now(timezone.utc)
-    today_str = now.strftime("%Y-%m-%d")
-    month_str = now.strftime("%Y-%m")
-
-    today_total = 0
-    month_total = 0
-    lifetime_total = 0
-    paid_total = 0
-    pending_payout_total = 0
-
-    for c in sutra_comms:
-        amt = c.get("amount", 0)
+    today = today_ist()
+    month = today[:7]
+    today_total = month_total = lifetime_total = paid_total = pending_total = 0.0
+    schedule: Dict[str, float] = {}
+    for c in my_comms:
+        amt = float(c.get("amount", 0) or 0)
+        earned_on = c.get("paid_on") or (c.get("created_at") or "")[:10]
         lifetime_total += amt
-        p_at = c.get("paid_at") or c.get("created_at") or ""
-        if p_at.startswith(today_str):
+        if earned_on == today:
             today_total += amt
-        if p_at.startswith(month_str):
+        if earned_on.startswith(month):
             month_total += amt
         if c.get("status") == "paid":
             paid_total += amt
-        elif c.get("status") == "approved":
-            pending_payout_total += amt
+        else:
+            pending_total += amt
+            due = _commission_due_date(c)
+            schedule[due] = schedule.get(due, 0.0) + amt
 
-    all_leads = SutradharStore.query_all("leads")
     my_leads = [
-        l for l in all_leads 
-        if (l.get("sutradhar_id", "").upper() in matching_ids or 
-            l.get("sutradhar_code", "").upper() in matching_ids or 
-            l.get("sutradhar_phone", "") in matching_ids)
+        l for l in SutradharStore.query_all("leads")
+        if (str(l.get("sutradhar_id", "")).upper() in matching_ids or
+            str(l.get("sutradhar_code", "")).upper() in matching_ids)
     ]
-    active_leads = sum(1 for l in my_leads if l.get("status") == "active")
+    now = datetime.now(timezone.utc)
+    active_leads = 0
+    for l in my_leads:
+        try:
+            if l.get("status") in ("active", "converted") and datetime.fromisoformat(l["expires_at"]) > now:
+                active_leads += 1
+        except Exception:
+            pass
     converted_leads = sum(1 for l in my_leads if l.get("status") == "converted")
-
-    # Look up profile by any matching ID
-    sutradhar = None
-    for mid in matching_ids:
-        sutradhar = SutradharStore.get_doc("sutradhars", mid)
-        if sutradhar:
-            break
-
-    profile_code = sutradhar.get("code", "") if sutradhar else ""
-    profile_upi = sutradhar.get("upi_id", "") if sutradhar else ""
-    primary_id = sutradhar.get("sutradhar_id") or sutradhar.get("id") or sutradhar_id
-
-    return {
-        "status": "success",
-        "sutradhar_id": primary_id,
-        "code": profile_code or primary_id,
-        "upi_id": profile_upi,
-        "today_commission": today_total,
-        "month_commission": month_total,
-        "lifetime_commission": lifetime_total,
-        "total_commission": lifetime_total,
-        "paid_commission": paid_total,
-        "pending_payout": pending_payout_total,
+    next_payouts = [{"date": d, "amount": round(a, 2), "deadline": PAYOUT_DEADLINE_TEXT} for d, a in sorted(schedule.items())]
+    stats = {
+        "today_commission": round(today_total, 2),
+        "month_commission": round(month_total, 2),
+        "lifetime_commission": round(lifetime_total, 2),
+        "total_commission": round(lifetime_total, 2),
+        "paid_commission": round(paid_total, 2),
+        "pending_payout": round(pending_total, 2),
         "active_leads": active_leads,
         "converted_leads": converted_leads,
         "total_leads": len(my_leads),
-        "stats": {
-            "today_commission": today_total,
-            "month_commission": month_total,
-            "total_commission": lifetime_total,
-            "lifetime_commission": lifetime_total,
-            "paid_commission": paid_total,
-            "pending_payout": pending_payout_total,
-            "active_leads": active_leads,
-            "converted_leads": converted_leads,
-            "total_leads": len(my_leads)
-        }
+    }
+    return {
+        "status": "success",
+        "sutradhar_id": primary_id,
+        "code": me.get("code") or primary_id,
+        "name": me.get("name", ""),
+        "upi_id": me.get("upi_id", ""),
+        "upi_verified": bool(me.get("upi_verified")),
+        **stats,
+        "next_payouts": next_payouts,
+        "payout_rule": f"भुगतान के {PAYOUT_SETTLEMENT_WORKING_DAYS} कार्य-दिवस बाद {PAYOUT_DEADLINE_TEXT} (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)",
+        "stats": stats,
     }

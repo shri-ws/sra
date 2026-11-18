@@ -1072,7 +1072,7 @@
         </div>
 
         <button type="submit" id="btnCalculate">
-          <span>✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹299 के पेमेंट पर)</span>
+          <span>✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹301 के पेमेंट पर)</span>
         </button>
         <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin-top:8px;">
           🔒 100% सुरक्षित 256-bit Razorpay • 25 प्रामाणिक धन योग • 16 षोडशवर्ग (D1-D60) • सर्वाष्टकवर्ग • विंशोत्तरी दशा
@@ -1085,7 +1085,7 @@
 
       <!-- SUCCESS UNLOCK BANNER (Shown after payment) -->
       <div id="resDhanUnlockBanner" class="dhan-unlock-success-banner" style="display:none;">
-        <span>✅</span> <span>₹299 भुगतान सफल! आपकी संपूर्ण धन योग, षोडशवर्ग, सर्वाष्टकवर्ग एवं दशा रिपोर्ट अनलॉक हो चुकी है।</span>
+        <span>✅</span> <span>₹301 भुगतान सफल! आपकी संपूर्ण धन योग, षोडशवर्ग, सर्वाष्टकवर्ग एवं दशा रिपोर्ट अनलॉक हो चुकी है।</span>
       </div>
 
       <!-- HERO WEALTH SCORE BANNER -->
@@ -1371,7 +1371,7 @@
 
   </main>
 
-  <!-- DHANA YOGA PAYMENT MODAL (₹299 Pure Razorpay) -->
+  <!-- DHANA YOGA PAYMENT MODAL (₹301 Pure Razorpay) -->
   <div id="modalDhanPayment299" class="dhan-modal-overlay" onclick="if(event.target===this)closeDhanPaymentModal()">
     <div class="dhan-modal-content">
       <button type="button" class="dhan-modal-close" onclick="closeDhanPaymentModal()" aria-label="Close">&times;</button>
@@ -1401,13 +1401,13 @@
         </div>
         <div class="dhan-pricing-row total" style="border-top:1.5px solid var(--border); padding-top:8px; font-weight:800; font-size:16px;">
           <span>देय कुल राशि (Net Payable):</span>
-          <span style="font-size:22px; color:var(--primary); font-family:var(--font-hindi);">₹299</span>
+          <span style="font-size:22px; color:var(--primary); font-family:var(--font-hindi);">₹301</span>
         </div>
       </div>
 
       <!-- Primary Razorpay Checkout Button -->
       <button type="button" id="btnRzpDhanSubmit" class="btn-dhan-pay-primary" onclick="triggerDhanRazorpayCheckout()">
-        💳 ₹299 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
+        💳 ₹301 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
       </button>
       <div style="font-size:11.5px; text-align:center; color:var(--text-muted); margin:8px 0 6px;">
         🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक
@@ -1570,32 +1570,8 @@
       const err = document.getElementById('dhanOwnerCodeErr');
       if (err) err.style.display = 'none';
 
-      // Reset discount state
-      window._dhanDiscount = 0;
+      // No discount; the server attaches any 72h Sutradhar lead when the order is created
       window._dhanCoupon = '';
-      window._dhanSutradhar = '';
-      window._dhanLeadId = '';
-
-      // Check for active Sutradhar lead & auto-apply 10% discount
-      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
-      if (clientMobile && clientMobile.length === 10 && window.SraCouponEngine) {
-        window.SraCouponEngine.fetchServerQuote('dhana_yoga', clientMobile).then(q => {
-          if (q && (q.has_active_lead || q.auto_applied)) {
-            window._dhanDiscount = q.discount_amount || 30;
-            window._dhanCoupon = q.sutradhar_code || '';
-            window._dhanSutradhar = q.sutradhar_id || '';
-            window._dhanLeadId = q.lead_id || '';
-            const finalAmt = Math.max(0, 299 - window._dhanDiscount);
-            const payBtn = document.querySelector('#modalDhanPayment299 button.btn-pay-now');
-            if (payBtn) payBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (10% विशेष छूट लागू)`;
-            if (err) {
-              err.style.color = '#15803d';
-              err.innerHTML = '✨ आपको 10% विशेष छूट मिली है।';
-              err.style.display = 'block';
-            }
-          }
-        }).catch(() => {});
-      }
     }
 
     function closeDhanPaymentModal() {
@@ -1615,7 +1591,7 @@
       if (isDhanReportUnlocked(target)) {
         btn.innerHTML = '<span>✨ धन योग व लक्ष्मी योग रिपोर्ट देखें (अनलॉक)</span>';
       } else {
-        btn.innerHTML = '<span>✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹299 के पेमेंट पर)</span>';
+        btn.innerHTML = '<span>✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹301 के पेमेंट पर)</span>';
       }
     }
 
@@ -1643,7 +1619,7 @@
 
       pendingDhanInput = input;
 
-      // Mandatory Payment Check: Ask for ₹299 payment
+      // Mandatory Payment Check: Ask for ₹301 payment
       if (!isDhanReportUnlocked(input)) {
         const titleEl = document.getElementById('modalPayKundaliName');
         if (titleEl) {
@@ -1656,60 +1632,28 @@
       executeDhanCalculation(input);
     }
 
-    // Razorpay Checkout for Dhana Yoga (₹299)
+    // Razorpay Checkout for Dhana Yoga (₹301)
     function triggerDhanRazorpayCheckout() {
-      if (typeof Razorpay === 'undefined') {
-        alert('Razorpay पेमेंट गेटवे लोड नहीं हो सका। कृपया इंटरनेट कनेक्शन जांचें व पुनः प्रयास करें।');
-        return;
-      }
-
       if (!pendingDhanInput) {
         alert('कृपया पहले जन्म विवरण दर्ज करें।');
         closeDhanPaymentModal();
         return;
       }
-
       const clientName = pendingDhanInput.name || "जातक";
-      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || "9517117775").replace(/\D/g, '').slice(-10);
-      const basePrice = 299;
-      const appliedDisc = window._dhanDiscount || 0;
-      const finalAmt = Math.max(0, basePrice - appliedDisc);
-      const finalPaise = finalAmt * 100;
-      const sutradharRef = window._dhanSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-      const couponUsed = window._dhanCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-
-      const options = {
-        key: "rzp_live_SP6lQYYrNI0CYD",
-        amount: finalPaise,
-        currency: "INR",
-        name: "Shri Ramji Astro",
-        description: `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName}` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
-        prefill: {
-          name: clientName,
-          contact: clientMobile || "9517117775"
-        },
-        theme: { color: "#7c1305" },
-        notes: {
-          customer_phone: clientMobile,
-          service_id: 'dhana_yoga',
-          report_type: 'dhana_yoga_report',
-          amount: String(finalAmt),
-          discount: String(appliedDisc),
-          coupon_code: couponUsed,
-          sutradhar_code: couponUsed,
-          sutradhar_id: sutradharRef,
-          lead_id: window._dhanLeadId || ''
-        },
-        handler: function(response) {
+      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
+      // Amount and lead come from the server order
+      window.SraCouponEngine.openServerCheckout({
+        serviceId: 'dhana_yoga',
+        phone: clientMobile,
+        name: clientName,
+        code: window._dhanCoupon || '',
+        description: `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName}`,
+        notes: { report_type: 'dhana_yoga_report' },
+        onSuccess: function(response, order) {
+          window._dhanPaidAmount = order ? order.net_price : null;
           unlockDhanReport(response.razorpay_payment_id || 'RZP_SUCCESS');
         }
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.on('payment.failed', function(response) {
-        alert("भुगतान असफल रहा: " + (response.error.description || "कृपया पुनः प्रयास करें।"));
       });
-      rzp.open();
     }
 
     // Unlock & Render Full Dhana Yoga Report
@@ -1734,40 +1678,16 @@
         return;
       }
 
-      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
-      if (window.SraCouponEngine) {
-        try {
-          const q = await window.SraCouponEngine.fetchServerQuote('dhana_yoga', clientMobile, val);
-          if (q && q.valid) {
-            window._dhanDiscount = q.discount_amount || 30;
-            window._dhanCoupon = q.sutradhar_code || val;
-            window._dhanSutradhar = q.sutradhar_id || '';
-            window._dhanLeadId = q.lead_id || '';
-            const finalAmt = Math.max(0, 299 - window._dhanDiscount);
-            const payBtn = document.querySelector('#modalDhanPayment299 button.btn-pay-now');
-            if (payBtn) payBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (10% कूपन ${q.sutradhar_code || val} लागू)`;
-            if (err) {
-              err.style.color = '#15803d';
-              err.innerHTML = `✨ <b>सूत्रधार कूपन (${q.sutradhar_code || val}) स्वीकृत!</b> 10% छूट लागू (देय राशि: ₹${finalAmt})`;
-              err.style.display = 'block';
-            }
-            return;
-          } else {
-            if (err) {
-              err.style.color = '#b91c1c';
-              err.innerText = (q && q.message) ? q.message : '❌ यह कूपन आपके लिए मान्य नहीं है।';
-              err.style.display = 'block';
-            }
-            return;
-          }
-        } catch(e) {}
-      }
-
-      if (err) {
-        err.style.color = '#b91c1c';
-        err.innerText = '❌ यह कूपन आपके लिए मान्य नहीं है।';
-        err.style.display = 'block';
-      }
+      // Code box: every code gets the same reply; the server decides at payment
+      // SaaS astrologer: own login number opens the report; other codes get the same "invalid" reply
+      await window.SraCouponEngine.handleCodeBox({
+        serviceId: 'dhana_yoga',
+        code: val,
+        reportRef: pendingDhanInput ? getDhanPaymentKey(pendingDhanInput) : '',
+        remember: c => { window._dhanCoupon = c; },
+        onUnlock: r => unlockDhanReport('SAAS_' + r.unlock_id),
+        show: (ok, m) => { if (err) { err.style.color = ok ? '#15803d' : (ok === null ? '#92400e' : '#b91c1c'); err.textContent = (ok ? '✓ ' : (ok === null ? '' : '❌ ')) + m; err.style.display = 'block'; } }
+      });
     }
 
     function unlockDhanReport(paymentId) {
@@ -1781,10 +1701,9 @@
         }
       }
 
-      const appliedDisc = window._dhanDiscount || 0;
-      const finalAmt = Math.max(0, 299 - appliedDisc);
-      const sutradharRef = window._dhanSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-      const couponUsed = window._dhanCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const finalAmt = window._dhanPaidAmount || 301;
+      const sutradharRef = window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '';
+      const couponUsed = window._dhanCoupon || '';
       const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
 
       // Log payment to central API
@@ -1793,32 +1712,19 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            razorpay_payment_id: paymentId || ('VIP_DHAN_' + Date.now()),
+            razorpay_payment_id: paymentId || ('RZP_DHAN_' + Date.now()),
             student_name: (pendingDhanInput && pendingDhanInput.name) || 'धन योग जातक',
             student_phone: clientMobile,
             student_email: localStorage.getItem('sra_verified_email') || '',
             plan_name: `धन एवं लक्ष्मी योग रिपोर्ट (₹${finalAmt})`,
-            report_type: 'dhana_yoga',
-            amount: finalAmt,
-            coupon_code: couponUsed,
-            sutradhar_id: sutradharRef
-          })
-        }).catch(() => {});
-      } catch (e) {}
-          body: JSON.stringify({
-            razorpay_payment_id: paymentId || ('RZP_DHAN_' + Date.now()),
-            student_name: (pendingDhanInput && pendingDhanInput.name) ? pendingDhanInput.name : 'धन योग जातक',
-            student_phone: localStorage.getItem('sra_verified_mobile') || '',
-            plan_name: 'Dhana Yoga & Sampatti Analysis (₹299)',
             report_type: 'dhana_yoga_report',
             amount: finalAmt,
-            discount: appliedDisc,
             coupon_code: couponUsed,
             sutradhar_id: sutradharRef,
             status: 'completed'
           })
-        }).catch(err => console.warn('Payment log note:', err));
-      } catch(e) {}
+        }).catch(() => {});
+      } catch (e) {}
 
       closeDhanPaymentModal();
       updateCalculateButtonLabel(pendingDhanInput);

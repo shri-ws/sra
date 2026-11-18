@@ -362,6 +362,8 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
       <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">🤝 &nbsp;सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">💻 &nbsp;SaaS ग्राहक (ज्योतिषी) &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-sutra-payouts" onclick="showPanel('sutra-payouts', this)" style="color:#16a34a; font-weight:bold; background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.25); border-radius:8px; margin-top:6px;">💸 &nbsp;सूत्रधार पेआउट डेस्क &nbsp;<span id="badge-sutra-payouts" style="display:none; font-size:9px; background:#16a34a; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">⚠️ &nbsp;सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
     </div>
     <div class="sidebar-footer">
@@ -847,6 +849,65 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
     </div>
 
     <!-- PANEL: SUTRADHAR REQUIRES REVIEW QUEUE -->
+    <div class="panel" id="panel-saas">
+      <div class="card">
+        <div class="tbl-header">
+          <span class="table-title">💻 ज्योतिषी SaaS ग्राहक</span>
+          <button class="export-btn" onclick="loadSaasSubscribers()">↻ रिफ्रेश</button>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">
+          SaaS ग्राहक वेबसाइट पर अपने नंबर से OTP लॉगिन करके किसी भी रिपोर्ट के कोड-बॉक्स में <b>अपना ही नंबर</b> डाले, तो रिपोर्ट खुल जाती है (परामर्श व कोर्स छोड़कर)। किसी और के लॉगिन से वही नंबर डालने पर "कोड अमान्य है" आता है। एक खाता अधिकतम 2 फ़ोन/browser पर चलता है; browser का data साफ़ करने पर फ़ोन नया गिना जाता है, तब "फ़ोन रीसेट" करें। SaaS का भुगतान होने पर ग्राहक अपने आप 1 वर्ष के लिए जुड़ जाता है।
+          <br><span id="saas-summary" style="font-weight:700;"></span>
+        </p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+          <input type="tel" id="saas-new-phone" placeholder="मोबाइल (10 अंक)" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
+          <input type="text" id="saas-new-name" placeholder="नाम (जैसे पं. शर्मा)" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
+          <input type="number" id="saas-new-days" value="365" min="1" style="width:90px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" title="दिन" />
+          <button class="export-btn" style="background:#2563eb; border-color:#1d4ed8; color:#fff;" onclick="addSaasSubscriber()">+ जोड़ें / बढ़ाएँ</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>ग्राहक</th><th>स्थिति</th><th>कब तक</th><th>फ़ोन</th><th>इस माह रिपोर्ट</th><th>सूत्रधार</th><th>आख़िरी उपयोग</th><th>कार्यवाही</th></tr></thead>
+            <tbody id="saas-tbody"><tr><td colspan="8" class="empty-row">लोड हो रहा है...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-sutra-payouts">
+      <div class="card">
+        <div class="tbl-header">
+          <span class="table-title">💸 सूत्रधार पेआउट डेस्क (भुगतान के 2 कार्य-दिवस बाद, शाम 7 बजे तक)</span>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <input type="date" id="sp-date" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" onchange="loadSutradharPayoutDesk()" />
+            <button class="export-btn" onclick="loadSutradharPayoutDesk()">↻ रिफ्रेश</button>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">
+          हर सूत्रधार की आज (और पिछली बाकी) देय राशि। UPI से भेजें, बैंक का UTR डालें और "चुकाया" दबाएँ — तभी सूत्रधार के डैशबोर्ड में "UPI में भेजा" दिखेगा। रविवार, दूसरा/चौथा शनिवार और नीचे दिए बैंक अवकाश पर पेआउट नहीं होता।
+        </p>
+        <div id="sp-summary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px;"></div>
+        <div id="sp-due"><div class="empty-row">लोड हो रहा है...</div></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="tbl-header"><span class="table-title">📅 आने वाले पेआउट</span></div>
+        <div id="sp-upcoming" style="font-size:13px;"></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="tbl-header"><span class="table-title">✅ इस दिन चुकाए गए</span></div>
+        <div id="sp-paid" style="font-size:13px;"></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="tbl-header"><span class="table-title">🏦 बैंक अवकाश (इन दिनों पेआउट नहीं)</span></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px;">
+          <input type="date" id="sp-hol-date" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
+          <input type="text" id="sp-hol-name" placeholder="जैसे: होली" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
+          <button class="export-btn" onclick="addPayoutHoliday()">+ अवकाश जोड़ें</button>
+        </div>
+        <div id="sp-holidays" style="font-size:13px;"></div>
+      </div>
+    </div>
+
     <div class="panel" id="panel-sutra-reviews">
       <div class="card">
         <div class="tbl-header">
@@ -1756,7 +1817,9 @@ function showPanel(name, targetEl){
       reviews: currentAdminLang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
       social: currentAdminLang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
       careers: currentAdminLang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)',
-      'sutra-reviews': currentAdminLang === 'en' ? '⚠️ Sutradhar Requires Review Queue' : '⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार'
+      'sutra-reviews': currentAdminLang === 'en' ? '⚠️ Sutradhar Requires Review Queue' : '⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
+      'sutra-payouts': currentAdminLang === 'en' ? '💸 Sutradhar Payout Desk' : '💸 सूत्रधार पेआउट डेस्क',
+      saas: currentAdminLang === 'en' ? '💻 Astrologer SaaS Subscribers' : '💻 ज्योतिषी SaaS ग्राहक'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
@@ -1774,6 +1837,10 @@ function showPanel(name, targetEl){
       fetchCareerApplications();
     } else if (name === 'sutra-reviews') {
       loadSutradharReviewQueue();
+    } else if (name === 'sutra-payouts') {
+      loadSutradharPayoutDesk();
+    } else if (name === 'saas') {
+      loadSaasSubscribers();
     }
   } catch(e) {
     console.error("showPanel error:", e);
@@ -2187,7 +2254,7 @@ async function approveCareerApplication(id, phone, name) {
   if (!confirm(`${name} जी (फोन: ${phone}) को अधिकृत सूत्रधार के रूप में स्वीकृत करें?`)) return;
 
   try {
-    const adminKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || 'JAIHANUMAN';
+    const adminKey = sessionStorage.getItem('sra_admin_token') || localStorage.getItem('sra_admin_token') || '';
     
     // 1. Update in Firestore via SRAAdminData
     if (window.SRAAdminData && SRAAdminData.update) {
@@ -2530,7 +2597,7 @@ async function loadSutradharReviewQueue() {
 
   try {
     const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
-    const res = await fetch(apiBase + '/api/sutradhar/admin/reviews');
+    const res = await sutraAdminFetch('/api/sutradhar/admin/reviews');
     if (!res.ok) throw new Error('सर्वर से समीक्षा कतार लोड नहीं हो सकी');
     const data = await res.json();
     const queue = data.queue || [];
@@ -2597,9 +2664,8 @@ async function reviewActionSutradhar(commissionId, action) {
 
   try {
     const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
-    const res = await fetch(apiBase + '/api/sutradhar/admin/review-action', {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/review-action', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ commission_id: commissionId, action: action, reason: reason })
     });
     const result = await res.json();
@@ -2615,19 +2681,295 @@ async function triggerSutradharBatchPayouts() {
   if (!confirm('क्या आप सभी पेंडिंग सूत्रधार पेआउट तुरंत प्रोसेस करना चाहते हैं?')) return;
   try {
     const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
-    const res = await fetch(apiBase + '/api/sutradhar/payouts/process', {
+    const res = await sutraAdminFetch('/api/sutradhar/payouts/process', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.detail || 'पेआउट प्रोसेसिंग विफल');
-    alert(`✓ पेआउट चक्र पूरा हुआ!\nसफल: ${result.processed_count || 0}\nविफल/समीक्षा: ${result.failed_count || 0}`);
+    alert(result.status === 'manual_mode' ? ('ℹ️ ' + result.message + ' पेआउट डेस्क से हाथ से भुगतान करें।') : `✓ पेआउट चक्र पूरा हुआ!\nसफल: ${result.processed_count || 0}\nविफल/समीक्षा: ${result.failed_count || 0}`);
     loadSutradharReviewQueue();
   } catch (err) {
     alert('त्रुटि: ' + err.message);
   }
 }
+/* ══ SUTRADHAR PAYOUT DESK (T+2 working days, manual UPI, closed with UTR) ══ */
+async function sutraAdminFetch(path, opts) {
+  opts = opts || {};
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const user = window.SRAAdminAccounts && SRAAdminAccounts.getAdminUser && SRAAdminAccounts.getAdminUser();
+  if (!user || !user.getIdToken) throw new Error('पहले admin Google खाते से साइन इन करें।');
+  const token = await user.getIdToken();
+  opts.headers = Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, opts.headers || {});
+  const res = await fetch(apiBase + path, opts);
+  if (res.status === 401) throw new Error('यह खाता सूत्रधार पेआउट के लिए अधिकृत नहीं है (server पर SRA_ADMIN_EMAILS देखें)।');
+  return res;
+}
+
+const spInr = n => '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN');
+const spDate = iso => iso ? new Date(iso + 'T12:00:00+05:30').toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', weekday: 'short' }) : '—';
+let spDesk = null;
+
+function spToday() {
+  return new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+}
+
+async function loadSutradharPayoutDesk() {
+  const dateEl = document.getElementById('sp-date');
+  if (dateEl && !dateEl.value) dateEl.value = spToday();
+  const day = (dateEl && dateEl.value) || spToday();
+  const dueEl = document.getElementById('sp-due');
+  if (dueEl) dueEl.innerHTML = '<div class="empty-row"><span class="spin"></span> लोड हो रहा है...</div>';
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/payouts?date=' + encodeURIComponent(day));
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'पेआउट सूची लोड नहीं हो सकी');
+    spDesk = d;
+    renderSutradharPayoutDesk(d);
+    loadPayoutHolidays();
+  } catch (err) {
+    if (dueEl) dueEl.innerHTML = `<div class="empty-row" style="color:#ef4444;">त्रुटि: ${safe(err.message)}</div>`;
+  }
+}
+
+function renderSutradharPayoutDesk(d) {
+  const badge = document.getElementById('badge-sutra-payouts');
+  if (badge) { badge.textContent = d.due_sutradhar_count; badge.style.display = d.due_sutradhar_count ? 'inline-block' : 'none'; }
+
+  const dayNote = d.is_working_day ? 'कार्य-दिवस' : ('पेआउट नहीं' + (d.holiday_name ? ' — ' + d.holiday_name : ' (रविवार/दूसरा-चौथा शनिवार)'));
+  const tile = (label, value, color) => `<div style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; min-width:150px;"><div style="font-size:11px; color:var(--text-muted);">${label}</div><div style="font-size:20px; font-weight:800; color:${color || 'var(--text)'};">${value}</div></div>`;
+  document.getElementById('sp-summary').innerHTML =
+    tile(spDate(d.date), dayNote, d.is_working_day ? '#16a34a' : '#b45309') +
+    tile('आज देय (कुल)', spInr(d.due_total), '#16a34a') +
+    tile('सूत्रधार', d.due_sutradhar_count) +
+    tile('इस दिन चुकाया', spInr(d.paid_today_total)) +
+    tile('मोड', d.payout_mode === 'manual' ? 'हाथ से (UPI)' : d.payout_mode);
+
+  const groups = d.due || [];
+  document.getElementById('sp-due').innerHTML = groups.length ? groups.map((g, gi) => {
+    const upiLink = g.upi_id ? `upi://pay?pa=${encodeURIComponent(g.upi_id)}&pn=${encodeURIComponent(g.name || 'Sutradhar')}&am=${Math.round(g.total)}&cu=INR&tn=${encodeURIComponent('SRA Sutradhar payout ' + d.date)}` : '';
+    const items = g.items.map(it => `
+      <tr>
+        <td><label style="display:flex; gap:6px; align-items:center;"><input type="checkbox" class="sp-item-${gi}" value="${safe(it.commission_id)}" data-amt="${Number(it.amount) || 0}" checked onchange="spUpdateTotal(${gi})"> ${safe(it.product_name || it.product)}</label></td>
+        <td style="font-family:monospace;">***${safe(it.customer_phone_last4)}</td>
+        <td>${spInr(it.order_amount)}</td>
+        <td>${spDate(it.paid_on)}</td>
+        <td>${spDate(it.payout_due_date)}${it.payout_due_date < d.date ? ' <span style="color:#dc2626; font-weight:700;">(बकाया)</span>' : ''}</td>
+        <td style="font-weight:700; color:#16a34a;">${spInr(it.amount)}</td>
+        <td style="font-size:11px; color:#b91c1c;">${it.failure_reason ? safe(it.failure_reason) : ''}</td>
+      </tr>`).join('');
+    return `
+      <div style="border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:14px; ${g.overdue ? 'border-color:#f87171;' : ''}">
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-start;">
+          <div>
+            <div style="font-weight:800; font-size:15px;">${safe(g.name || g.sutradhar_id)} <span style="font-size:11px; color:var(--text-muted); font-family:monospace;">${safe(g.sutradhar_id)}</span></div>
+            <div style="font-size:12px; color:var(--text-muted);">📱 ${safe(g.phone)} · UPI: <span style="font-family:monospace; color:#2563eb;">${safe(g.upi_id || '— UPI नहीं —')}</span> ${g.upi_verified ? '<span style="color:#16a34a;">✓ सत्यापित</span>' : '<span style="color:#b45309;">⚠ नाम की जाँच (₹1) बाकी</span>'}${g.pan ? ' · PAN ' + safe(g.pan) : ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; color:var(--text-muted);">चुने गए का कुल</div>
+            <div id="sp-total-${gi}" style="font-size:22px; font-weight:900; color:#16a34a;">${spInr(g.total)}</div>
+          </div>
+        </div>
+        <div style="overflow-x:auto; margin-top:10px;">
+          <table class="tbl"><thead><tr><th>सेवा</th><th>ग्राहक</th><th>भुगतान</th><th>भुगतान दिन</th><th>देय दिन</th><th>कमीशन</th><th></th></tr></thead><tbody>${items}</tbody></table>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px;">
+          ${upiLink ? `<a href="${upiLink}" class="export-btn" style="text-decoration:none;">📲 UPI ऐप में खोलें</a>` : ''}
+          ${g.upi_id ? `<button class="export-btn" onclick="navigator.clipboard.writeText('${safe(g.upi_id)}'); this.textContent='✓ कॉपी';">📋 UPI कॉपी</button>` : ''}
+          <input type="text" id="sp-utr-${gi}" placeholder="बैंक/UPI UTR (12 अंक)" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; min-width:200px; background:var(--card); color:var(--text);" />
+          <button class="export-btn" style="background:#16a34a; border-color:#15803d; color:#fff;" onclick="spMarkPaid(${gi})">✓ चुकाया (UTR सहित)</button>
+        </div>
+      </div>`;
+  }).join('') : '<div class="empty-row" style="color:#16a34a; font-weight:600; padding:20px;">✓ इस दिन कोई पेआउट देय नहीं है।</div>';
+
+  const up = d.upcoming || [];
+  document.getElementById('sp-upcoming').innerHTML = up.length
+    ? up.map(u => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border);"><span>${spDate(u.date)} — ${u.count} कमीशन</span><b>${spInr(u.total)}</b></div>`).join('')
+    : '<div class="empty-row">कोई आने वाला पेआउट नहीं।</div>';
+
+  const paid = d.paid_today || [];
+  document.getElementById('sp-paid').innerHTML = paid.length
+    ? paid.map(c => `<div style="display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--border);"><span>${safe(c.sutradhar_id)} · ${safe(c.product_name || c.product)} · UTR <span style="font-family:monospace;">${safe(c.utr)}</span></span><b>${spInr(c.amount)}</b></div>`).join('')
+    : '<div class="empty-row">इस दिन अभी कुछ नहीं चुकाया।</div>';
+}
+
+function spUpdateTotal(gi) {
+  let t = 0;
+  document.querySelectorAll('.sp-item-' + gi).forEach(cb => { if (cb.checked) t += Number(cb.dataset.amt) || 0; });
+  const el = document.getElementById('sp-total-' + gi);
+  if (el) el.textContent = spInr(t);
+}
+
+async function spMarkPaid(gi) {
+  const g = spDesk && spDesk.due && spDesk.due[gi];
+  if (!g) return;
+  const ids = Array.from(document.querySelectorAll('.sp-item-' + gi)).filter(cb => cb.checked).map(cb => cb.value);
+  const total = Array.from(document.querySelectorAll('.sp-item-' + gi)).filter(cb => cb.checked).reduce((a, cb) => a + (Number(cb.dataset.amt) || 0), 0);
+  const utr = (document.getElementById('sp-utr-' + gi).value || '').trim();
+  if (!ids.length) { alert('कम से कम एक कमीशन चुनें।'); return; }
+  if (utr.replace(/\s/g, '').length < 6) { alert('पहले UPI/बैंक से भुगतान करें, फिर उसका सही UTR डालें।'); return; }
+  if (!confirm(`${g.name || g.sutradhar_id} को ${spInr(total)} भेजे जा चुके हैं (UTR ${utr})?\nयह कार्यवाही वापस नहीं होगी।`)) return;
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/payouts/mark-paid', {
+      method: 'POST',
+      body: JSON.stringify({ sutradhar_id: g.sutradhar_id, commission_ids: ids, utr: utr })
+    });
+    const r = await res.json();
+    if (!res.ok) throw new Error(r.detail || 'दर्ज नहीं हो सका');
+    if (g.phone && r.total_paid > 0) {
+      const msg = `🙏 नमस्ते ${g.name || ''} जी,\n\nश्री राम जी एस्ट्रो से आपका सूत्रधार कमीशन ${spInr(r.total_paid)} आपके UPI (${g.upi_id}) में भेज दिया गया है।\nUTR: ${r.utr}\n\nविवरण आपके सूत्रधार डैशबोर्ड (https://shriramjiastro.in/sutradhar.html) पर देखें। धन्यवाद!`;
+      if (confirm(`✓ ${spInr(r.total_paid)} चुकाया दर्ज हुआ।\nसूत्रधार को WhatsApp पर पुष्टि भेजें?`)) {
+        window.open(`https://wa.me/91${g.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
+    } else {
+      alert('ℹ️ कुछ भी नया दर्ज नहीं हुआ (शायद पहले ही चुकाया गया था)।');
+    }
+    loadSutradharPayoutDesk();
+  } catch (err) {
+    alert('त्रुटि: ' + err.message);
+  }
+}
+
+async function loadPayoutHolidays() {
+  const el = document.getElementById('sp-holidays');
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/holidays');
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || '');
+    const list = d.holidays || [];
+    el.innerHTML = list.length ? list.map(h => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border);"><span>${spDate(h.date)} — ${safe(h.name)}</span><button class="export-btn" style="padding:2px 8px; font-size:11px;" onclick="removePayoutHoliday('${safe(h.date)}')">हटाएँ</button></div>`).join('') : '<div class="empty-row">कोई अवकाश दर्ज नहीं।</div>';
+  } catch (err) {
+    el.innerHTML = `<div class="empty-row" style="color:#ef4444;">त्रुटि: ${safe(err.message)}</div>`;
+  }
+}
+
+async function addPayoutHoliday() {
+  const date = document.getElementById('sp-hol-date').value;
+  const name = document.getElementById('sp-hol-name').value.trim() || 'बैंक अवकाश';
+  if (!date) { alert('तारीख़ चुनें।'); return; }
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/holidays', { method: 'POST', body: JSON.stringify({ date, name }) });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.detail || 'सेव नहीं हुआ'); }
+    document.getElementById('sp-hol-name').value = '';
+    loadSutradharPayoutDesk();
+  } catch (err) { alert('त्रुटि: ' + err.message); }
+}
+
+async function removePayoutHoliday(date) {
+  if (!confirm(spDate(date) + ' को अवकाश सूची से हटाएँ?')) return;
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/holidays', { method: 'POST', body: JSON.stringify({ date, remove: true }) });
+    if (!res.ok) throw new Error('हटाया नहीं जा सका');
+    loadSutradharPayoutDesk();
+  } catch (err) { alert('त्रुटि: ' + err.message); }
+}
+window.loadSutradharPayoutDesk = loadSutradharPayoutDesk;
+window.spMarkPaid = spMarkPaid;
+window.spUpdateTotal = spUpdateTotal;
+window.addPayoutHoliday = addPayoutHoliday;
+window.removePayoutHoliday = removePayoutHoliday;
+
+/* ══ ASTROLOGER SaaS SUBSCRIBERS (own login number unlocks reports, 2 phones max) ══ */
+let saasList = [];
+
+async function loadSaasSubscribers() {
+  const tbody = document.getElementById('saas-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="empty-row"><span class="spin"></span> लोड हो रहा है...</td></tr>';
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/saas');
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सूची लोड नहीं हो सकी');
+    saasList = d.subscribers || [];
+    const badge = document.getElementById('badge-saas');
+    if (badge) { badge.textContent = d.active_count; badge.style.display = d.active_count ? 'inline-block' : 'none'; }
+    document.getElementById('saas-summary').textContent = `कुल ${d.count} · चालू ${d.active_count} · हर खाता अधिकतम ${d.device_limit} फ़ोन`;
+    if (!tbody) return;
+    if (!saasList.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-row">अभी कोई SaaS ग्राहक नहीं। ऊपर से जोड़ें।</td></tr>';
+      return;
+    }
+    tbody.innerHTML = saasList.map((s, i) => {
+      const exp = s.expires_at ? new Date(s.expires_at).toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      const state = s.status === 'paused'
+        ? '<span class="badge" style="background:#fef3c7; color:#92400e;">रुका</span>'
+        : (s.active ? '<span class="badge" style="background:#d1fae5; color:#065f46;">चालू</span>' : '<span class="badge" style="background:#fee2e2; color:#b91c1c;">समाप्त</span>');
+      const soon = s.active && s.days_left !== null && s.days_left <= 15 ? ` <span style="color:#b45309; font-weight:700;">(${s.days_left} दिन बचे)</span>` : '';
+      const devs = (s.devices || []).map(dv => `<div style="font-size:10px; color:var(--text-muted); font-family:monospace;">${safe(dv.device_id.slice(0, 8))}… · ${dv.last_seen ? new Date(dv.last_seen).toLocaleDateString('hi-IN') : ''}</div>`).join('');
+      const usage = Object.entries(s.uses_by_service_this_month || {}).map(([k, v]) => `${safe(k)}: ${v}`).join(', ');
+      return `
+        <tr>
+          <td><div style="font-weight:700;">${safe(s.name || '—')}</div><div style="font-family:monospace; font-size:12px;">${safe(s.phone)}</div></td>
+          <td>${state}</td>
+          <td>${exp}${soon}</td>
+          <td><b>${(s.devices || []).length}/${s.device_limit}</b>${devs}</td>
+          <td><b>${s.uses_this_month}</b> <span style="font-size:11px; color:var(--text-muted);">(कुल ${s.uses_total})</span><div style="font-size:10px; color:var(--text-muted);">${usage}</div></td>
+          <td style="font-size:11px;">${safe(s.sold_by_sutradhar || '—')}</td>
+          <td style="font-size:11px; color:var(--text-muted);">${s.last_used_at ? new Date(s.last_used_at).toLocaleString('hi-IN') : '—'}</td>
+          <td>
+            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+              <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, 'renew')">+1 वर्ष</button>
+              <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, 'expiry')">तारीख़</button>
+              <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, 'reset')">फ़ोन रीसेट</button>
+              <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, '${s.status === 'paused' ? 'activate' : 'pause'}')">${s.status === 'paused' ? 'चालू करें' : 'रोकें'}</button>
+              ${s.active && s.days_left !== null && s.days_left <= 15 ? `<button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, 'remind')">📲 याद दिलाएँ</button>` : ''}
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="empty-row" style="color:#ef4444;">त्रुटि: ${safe(err.message)}</td></tr>`;
+  }
+}
+
+async function saasSave(body) {
+  const res = await sutraAdminFetch('/api/sutradhar/admin/saas', { method: 'POST', body: JSON.stringify(body) });
+  const d = await res.json();
+  if (!res.ok) throw new Error(d.detail || 'सेव नहीं हुआ');
+  return d;
+}
+
+async function addSaasSubscriber() {
+  const phone = (document.getElementById('saas-new-phone').value || '').replace(/\D/g, '').slice(-10);
+  const name = document.getElementById('saas-new-name').value.trim();
+  const days = parseInt(document.getElementById('saas-new-days').value, 10) || 365;
+  if (phone.length !== 10) { alert('10 अंकों का मोबाइल नंबर दें।'); return; }
+  try {
+    await saasSave({ phone, name, add_days: days });
+    document.getElementById('saas-new-phone').value = '';
+    document.getElementById('saas-new-name').value = '';
+    loadSaasSubscribers();
+  } catch (err) { alert('त्रुटि: ' + err.message); }
+}
+
+async function saasAction(i, action) {
+  const s = saasList[i];
+  if (!s) return;
+  try {
+    if (action === 'renew') {
+      if (!confirm(`${s.name || s.phone} की सदस्यता 1 वर्ष बढ़ाएँ?`)) return;
+      await saasSave({ phone: s.phone, add_days: 365 });
+    } else if (action === 'expiry') {
+      const d = prompt('नई समाप्ति तारीख़ (YYYY-MM-DD):', (s.expires_at || '').slice(0, 10));
+      if (!d) return;
+      await saasSave({ phone: s.phone, expires_at: d });
+    } else if (action === 'reset') {
+      if (!confirm(`${s.name || s.phone} के जुड़े सभी फ़ोन हटाएँ? अगली बार जिन 2 फ़ोन से नंबर डाला जाएगा, वही जुड़ेंगे।`)) return;
+      await saasSave({ phone: s.phone, reset_devices: true });
+    } else if (action === 'pause' || action === 'activate') {
+      await saasSave({ phone: s.phone, status: action === 'pause' ? 'paused' : 'active' });
+    } else if (action === 'remind') {
+      const exp = new Date(s.expires_at).toLocaleDateString('hi-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+      const msg = `🙏 नमस्ते ${s.name || ''} जी,\n\nश्री राम जी एस्ट्रो ज्योतिषी SaaS की आपकी सदस्यता ${exp} को समाप्त हो रही है। सभी रिपोर्ट्स बिना रुकावट चलती रहें, इसके लिए कृपया नवीनीकरण कर लें।\n\nधन्यवाद!`;
+      window.open(`https://wa.me/91${s.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      return;
+    }
+    loadSaasSubscribers();
+  } catch (err) { alert('त्रुटि: ' + err.message); }
+}
+window.loadSaasSubscribers = loadSaasSubscribers;
+window.addSaasSubscriber = addSaasSubscriber;
+window.saasAction = saasAction;
+
 window.loadSutradharReviewQueue = loadSutradharReviewQueue;
 window.reviewActionSutradhar = reviewActionSutradhar;
 window.triggerSutradharBatchPayouts = triggerSutradharBatchPayouts;

@@ -2010,53 +2010,30 @@
 
             if (!code) {
                 msg.style.color = "var(--fail-red, #b91c1c)";
-                msg.textContent = "कृपया सूत्रधार आईडी अथवा प्रोमोकोड दर्ज करें।";
+                msg.textContent = "कृपया कोड दर्ज करें।";
                 consultationAmountPaise = 510000;
                 appliedPromoCode = "";
                 if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
                 return;
             }
 
-            if (window.SraCouponEngine) {
-                const res = window.SraCouponEngine.validateAndCalculate(code, 5100);
-                if (res.valid) {
-                    if (res.type === 'master') {
-                        consultationAmountPaise = 0;
-                        appliedPromoCode = "MASTER";
-                        msg.style.color = "var(--pass-green, #15803D)";
-                        msg.innerHTML = "✨ <b>मास्टर कोड लागू!</b> यह स्लॉट बिना भुगतान के बुक होगा।";
-                        if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT (MASTER KEY)</span>";
-                    } else {
-                        consultationAmountPaise = res.finalAmountPaise;
-                        appliedPromoCode = res.code;
-                        msg.style.color = "var(--pass-green, #15803D)";
-                        msg.innerHTML = `✨ <b>सूत्रधार कूपन (${res.code}) लागू!</b> 10% विशेष छूट: <b>₹${res.finalAmount.toLocaleString('en-IN')}</b> (बचत: ₹${res.discountAmount})`;
-                        if (btn) btn.innerHTML = `<span>CONFIRM SACRED SLOT & PAY ₹${res.finalAmount.toLocaleString('en-IN')}</span>`;
-                    }
-                    return;
-                }
-            }
-
-            // Fallback checking
-            if (code === "MASTER" || (window.sraIsMasterKey && window.sraIsMasterKey(code))) {
+            // Owner's private key books without payment
+            if (window.sraIsMasterKey && window.sraIsMasterKey(code)) {
                 consultationAmountPaise = 0;
                 appliedPromoCode = "MASTER";
                 msg.style.color = "var(--pass-green, #15803D)";
                 msg.innerHTML = "✨ <b>मास्टर कोड लागू!</b> यह स्लॉट बिना भुगतान के बुक होगा।";
                 if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT (MASTER KEY)</span>";
-            } else if (/^(SD-\d+|SUTRA-[\w-]+)$/i.test(code) || code === "RAM10") {
-                consultationAmountPaise = 459000; // ₹4,590 in paise (10% off ₹5,100)
-                appliedPromoCode = code;
-                msg.style.color = "var(--pass-green, #15803d)";
-                msg.innerHTML = `✨ <b>सूत्रधार कोड (${code}) लागू!</b> 10% छूट शुल्क: <b>₹4,590</b>`;
-                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PAY ₹4,590</span>";
-            } else {
-                consultationAmountPaise = 510000;
-                appliedPromoCode = "";
-                msg.style.color = "var(--fail-red, #b91c1c)";
-                msg.textContent = "❌ अमान्य सूत्रधार कूपन कोड। कृपया सही आईडी (उदा. SD-105) दर्ज करें।";
-                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
+                return;
             }
+
+            // Code box: every code gets the same reply; the server decides at payment
+            const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, 5100) : { valid: false, message: 'कोई कूपन कोड मान्य नहीं है।' };
+            consultationAmountPaise = 510000;
+            appliedPromoCode = code;
+            msg.style.color = res.valid ? "var(--pass-green, #15803D)" : "var(--fail-red, #b91c1c)";
+            msg.textContent = (res.valid ? "✓ " : "❌ ") + res.message;
+            if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
         }
 
         function handleRazorpayBooking(e) {
@@ -2097,7 +2074,8 @@
                 "name": "Shri Ramji Astro",
                 "description": `1-on-1 Sanctuary Consultation Session (${resDate})` + (appliedPromoCode ? ` [Code: ${appliedPromoCode}]` : ''),
                 "image": "https://shriramjiastro.in/logo.jpg",
-                "handler": function (response) {
+                "handler": function (response, order) {
+                    const actualAmt = (order && order.net_price) || 5100;
                     saveConsultationBooking({
                         razorpay_payment_id: response.razorpay_payment_id,
                         client_name: clientName,
@@ -2124,18 +2102,12 @@
                     "customer_phone": clientPhone ? clientPhone.replace(/\D/g, '').slice(-10) : "",
                     "service_id": "consultation_acharya",
                     "coupon_code": appliedPromoCode || "",
-                    "sutradhar_code": appliedPromoCode || "",
-                    "sutradhar_id": appliedPromoCode || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : ""),
-                    "discount_applied": (5100 - actualAmt) > 0 ? `₹${5100 - actualAmt}` : "0",
                     "report_type": "consultation"
                 }
             };
 
-            const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function (response){
-                alert("Payment cancelled or failed. Please try again.");
-            });
-            rzp.open();
+            // Amount and order come from the server (no commission on consultation)
+            window.SraCouponEngine.checkoutWithOptions({ serviceId: 'consultation_acharya', options: options, code: appliedPromoCode || '', phone: clientPhone, email: clientEmail, name: clientName });
         }
 
         async function saveConsultationBooking(data) {

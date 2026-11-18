@@ -472,34 +472,17 @@ function applyCoupon(){
   if(!code){
     S.disc = 0;
     el.className='coupon-status err';
-    el.textContent='कृपया सूत्रधार आईडी / कूपन कोड दर्ज करें।';
+    el.textContent='कृपया कोड दर्ज करें।';
     updateSummary();
     return;
   }
   
-  if (window.SraCouponEngine) {
-    const res = window.SraCouponEngine.validateAndCalculate(code, S.base);
-    if (res.valid) {
-      S.disc = res.discountAmount;
-      el.className = 'coupon-status ok';
-      el.textContent = res.message;
-    } else {
-      S.disc = 0;
-      el.className = 'coupon-status err';
-      el.textContent = res.message;
-    }
-  } else {
-    // Fallback if script load fails
-    if (/^(SD-\d+|SUTRA-[\w-]+)$/i.test(code) || code === 'RAM10') {
-      S.disc = Math.round(S.base * 0.10);
-      el.className = 'coupon-status ok';
-      el.textContent = `✓ सूत्रधार कोड (${code}) लागू! 10% छूट: ₹${S.disc}`;
-    } else {
-      S.disc = 0;
-      el.className = 'coupon-status err';
-      el.textContent = 'अमान्य सूत्रधार कूपन कोड।';
-    }
-  }
+  // Code box: every code gets the same reply; the server decides at payment
+  const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, S.base) : { valid: false, message: 'कोई कूपन कोड मान्य नहीं है।' };
+  S.disc = 0;
+  S.code = code;
+  el.className = 'coupon-status ' + (res.valid ? 'ok' : 'err');
+  el.textContent = res.message;
   updateSummary();
 }
 
@@ -606,7 +589,7 @@ async function pay(){
 
 
   try {
-    const rzp=new Razorpay({
+    const options={
       key:RZP_KEY, amount:S.total*100, currency:'INR',
       name:'Shri Ramji Astro', description:S.name,
       prefill:{name:fname+' '+lname,email,contact:phone.replace(/\D/g,'').slice(-10)},
@@ -614,8 +597,8 @@ async function pay(){
       config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'No Cost EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
       async handler(r){
         // Only a paid 1-year course enrolment makes someone a student (admin → Students)
-        const usedCoupon = (document.getElementById('coupon')||{}).value ? document.getElementById('coupon').value.trim().toUpperCase() : '';
-        const activeSutradhar = usedCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+        const usedCoupon = S.code || '';
+        const activeSutradhar = window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '';
 
         if (S.id === 'course') {
           await dbInsert('students',{first_name:fname,last_name:lname,email,phone,city,course_interest:S.name,
@@ -648,23 +631,14 @@ async function pay(){
         setTimeout(()=>window.open('https://wa.me/919517117775?text='+msg,'_blank'),1200);
       },
       modal:{ondismiss(){btn.disabled=false;btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';}}
-    });
+    };
 
-    // Attach Sutradhar tracking into Razorpay notes
-    const activeRef = (document.getElementById('coupon')||{}).value || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-    if (activeRef) {
-      if (!rzp.options.notes) rzp.options.notes = {};
-      rzp.options.notes.sutradhar_id = activeRef;
-      rzp.options.notes.coupon_code = activeRef;
-      rzp.options.notes.discount = S.disc;
-    }
-
-    rzp.on('payment.failed',async r=>{
-      alert('Payment failed: '+r.error.description+'\n\nWhatsApp: +91 9517117775');
-      btn.disabled=false;
-      btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';
+    // Amount, order and lead come from the server order (course: 30% Sutradhar commission; consultation: none)
+    const order = await window.SraCouponEngine.checkoutWithOptions({
+      serviceId: S.id === 'course' ? 'consultation_gurukul' : 'consultation_yearly',
+      options: options, code: S.code || '', phone: phone, email: email, name: fname + ' ' + lname
     });
-    rzp.open();
+    if (!order) { btn.disabled=false; btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>'; }
   } catch(e){
     alert('Something went wrong. Please try again or contact us on WhatsApp.');
     btn.disabled=false;
@@ -675,16 +649,7 @@ async function pay(){
 // Auto-fill and apply Sutradhar referral code if present in URL/Storage
 document.addEventListener('DOMContentLoaded', function() {
   updateSummary();
-  if (window.SraCouponEngine) {
-    const activeRef = window.SraCouponEngine.getActiveSutradharId();
-    if (activeRef) {
-      const couponInput = document.getElementById('coupon');
-      if (couponInput && !couponInput.value) {
-        couponInput.value = activeRef;
-        applyCoupon();
-      }
-    }
-  }
+  // A Sutradhar's lead is attached by the server from the customer's mobile; no code to fill
 });
 </script>
 </body>

@@ -463,7 +463,7 @@
   }
 
   // ======================= TAB 3 : MANGLIK (संयुक्त मांगलिक मिलान) =======================
-  var MANGLIK_PRICE = 299;
+  var MANGLIK_PRICE = 551;
 
   function coupleKey() {
     var b = window.__gmBoy, g = window.__gmGirl;
@@ -473,8 +473,6 @@
   }
   function isManglikUnlocked() {
     try {
-      var u = new URLSearchParams(location.search);
-      if (u.get('unlock_all') === '1' || u.get('unlock_milan') === '1') return true;
       return localStorage.getItem('sra_unlocked_milan_' + coupleKey()) === 'true';
     } catch (e) { return false; }
   }
@@ -506,7 +504,7 @@
           '<li>लागू शास्त्रीय परिहार व शुद्ध (नेट) दोष प्रतिशत</li>' +
           '<li>अंतिम स्पष्ट निर्णय — <b>“मिलेगी / नहीं मिलेगी”</b> व उपाय</li>' +
         '</ul>' +
-        '<div class="gm-price"><span class="amt">₹' + MANGLIK_PRICE + '</span><span class="was">₹499</span></div>' +
+        '<div class="gm-price"><span class="amt">₹' + MANGLIK_PRICE + '</span><span class="was">₹799</span></div>' +
         '<button class="btn-main" type="button" onclick="gmPayManglik()">🔓 रिपोर्ट अनलॉक करें (₹' + MANGLIK_PRICE + ')</button>' +
         '<div class="gm-secure">🔒 सुरक्षित 256-bit Razorpay · तत्काल ऑटो-अनलॉक · UPI / कार्ड / नेट बैंकिंग</div>' +
         '<div class="gm-code-row"><input id="milanOwnerCode" type="text" placeholder="प्रोमो / एक्सेस कोड" autocomplete="off" />' +
@@ -528,85 +526,45 @@
       return;
     }
 
-    if (val === 'MASTER' || val === 'SRAGODMODE' || (window.sraIsMasterKey && window.sraIsMasterKey(val))) {
+    // Owner's private key opens the report directly
+    if (window.sraIsMasterKey && window.sraIsMasterKey(val)) {
       if (err) err.style.display = 'none';
       gmUnlockManglik('MASTER_KEY');
       return;
     }
 
-    var couponRes = null;
-    if (window.SraCouponEngine) {
-      couponRes = window.SraCouponEngine.validateAndCalculate(val, MANGLIK_PRICE);
-    }
-    if (!couponRes || !couponRes.valid) {
-      if (/^SD-?\d+/i.test(val) || /^SUTRA/i.test(val) || val === 'VIDYA10') {
-        couponRes = { valid: true, code: val, sutradhar_id: val, discountAmount: Math.round(MANGLIK_PRICE * 0.10), finalAmount: Math.round(MANGLIK_PRICE * 0.90) };
-      }
-    }
-
-    if (couponRes && couponRes.valid) {
-      if (couponRes.type === 'master') {
-        if (err) err.style.display = 'none';
-        gmUnlockManglik('MASTER_KEY');
-        return;
-      }
-      window._gmMilanDiscount = couponRes.discountAmount || Math.round(MANGLIK_PRICE * 0.10);
-      window._gmMilanCoupon = couponRes.code;
-      window._gmMilanSutradhar = couponRes.sutradhar_id || couponRes.code;
-      var finalPay = couponRes.finalAmount || (MANGLIK_PRICE - window._gmMilanDiscount);
-      var payBtn = document.querySelector('.gm-gate-btn');
-      if (payBtn) payBtn.innerHTML = '💳 ₹' + finalPay + ' ऑनलाइन भुगतान करें (10% कूपन ' + couponRes.code + ' लागू)';
-      if (err) {
-        err.style.color = '#15803d';
-        err.innerHTML = '✨ <b>सूत्रधार कूपन (' + couponRes.code + ') स्वीकृत!</b> 10% छूट लागू (देय: ₹' + finalPay + ')';
-        err.style.display = 'block';
-      }
-      return;
-    }
-
-    if (err) {
-      err.style.color = '#b91c1c';
-      err.innerText = 'कोड मान्य नहीं है। कृपया सही सूत्रधार आईडी दर्ज करें।';
-      err.style.display = 'block';
-    }
+    // Code box: every code gets the same reply; the server decides at payment
+    // SaaS astrologer: own login number opens the report; other codes get the same "invalid" reply
+    window.SraCouponEngine.handleCodeBox({
+      serviceId: 'gun_milan_manglik',
+      code: val,
+      reportRef: coupleKey(),
+      remember: function (c) { window._gmMilanCoupon = c; },
+      onUnlock: function (r) { gmUnlockManglik('SAAS_' + r.unlock_id); },
+      show: function (ok, m) { if (err) { err.style.color = ok ? '#15803d' : (ok === null ? '#92400e' : '#b91c1c'); err.innerText = (ok ? '✓ ' : (ok === null ? '' : '❌ ')) + m; err.style.display = 'block'; } }
+    });
   };
 
   window.gmPayManglik = function () {
-    if (typeof Razorpay === 'undefined') {
-      alert('पेमेंट गेटवे लोड नहीं हो सका — कृपया पुनः प्रयास करें।'); return;
-    }
     var bn = (window.__gmBoy && window.__gmBoy.name) || 'वर';
     var gn = (window.__gmGirl && window.__gmGirl.name) || 'वधू';
-    var disc = window._gmMilanDiscount || 0;
-    var finalPrice = Math.max(0, MANGLIK_PRICE - disc);
-    var sutraRef = window._gmMilanSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-    var couponCode = window._gmMilanCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-
-    var rzp = new Razorpay({
-      key: 'rzp_live_SP6lQYYrNI0CYD',
-      amount: finalPrice * 100, currency: 'INR',
-      name: 'Shri Ramji Astro',
-      description: 'संयुक्त मांगलिक मिलान — ' + bn + ' × ' + gn + ' (₹' + finalPrice + ')' + (couponCode ? ' [कूपन: ' + couponCode + ']' : ''),
-      theme: { color: '#7c1305' },
-      notes: {
-        report_type: 'gun_milan_manglik',
-        amount: String(finalPrice),
-        discount: String(disc),
-        coupon_code: couponCode,
-        sutradhar_id: sutraRef
-      },
-      handler: function (resp) { gmUnlockManglik(resp.razorpay_payment_id || 'RZP_SUCCESS'); }
+    // Amount, order and lead come from the server order
+    window.SraCouponEngine.openServerCheckout({
+      serviceId: 'gun_milan_manglik',
+      name: bn + ' × ' + gn,
+      code: window._gmMilanCoupon || '',
+      description: 'संयुक्त मांगलिक मिलान — ' + bn + ' × ' + gn,
+      notes: { report_type: 'gun_milan_manglik' },
+      onSuccess: function (resp) { gmUnlockManglik(resp.razorpay_payment_id || 'RZP_SUCCESS'); }
     });
-    rzp.on('payment.failed', function (r) { alert('भुगतान असफल: ' + ((r.error && r.error.description) || 'पुनः प्रयास करें।')); });
-    rzp.open();
   };
 
   function gmUnlockManglik(paymentId) {
     try { localStorage.setItem('sra_unlocked_milan_' + coupleKey(), 'true'); } catch (e) {}
-    var disc = window._gmMilanDiscount || 0;
-    var finalPrice = Math.max(0, MANGLIK_PRICE - disc);
-    var sutraRef = window._gmMilanSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-    var couponCode = window._gmMilanCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+    var disc = 0;
+    var finalPrice = (window._sraLastOrder && window._sraLastOrder.net_price) || MANGLIK_PRICE;
+    var sutraRef = window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '';
+    var couponCode = window._gmMilanCoupon || '';
 
     try {
       fetch('api/save_payment.php', {

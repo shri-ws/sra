@@ -1071,7 +1071,7 @@
                 <div class="price-details">
                     <div class="price-label" id="p_priceLabel">शास्त्रीय मुहूर्त शोध सत्र</div>
                     <div class="price-row-flex">
-                        <span class="price-amount">₹1,111</span>
+                        <span class="price-amount">₹2,100</span>
                         <span class="price-old">₹3,500</span>
                     </div>
                 </div>
@@ -1080,7 +1080,7 @@
 
             <!-- Main Pay Button (Razorpay Gateway) -->
             <button type="button" class="pay-btn-main" onclick="triggerRazorpayCheckout()">
-                ⚡ ₹1,111 का भुगतान करें (सुरक्षित माध्यम)
+                ⚡ ₹2,100 का भुगतान करें (सुरक्षित माध्यम)
             </button>
 
             <!-- VIP Passcode Unlock Option -->
@@ -1114,7 +1114,7 @@
                 मुहूर्तचिन्तामणि के प्रामाणिक शास्त्रीय सिद्धांतों पर आधारित ४-इन-१ संस्कार विश्लेषक
             </p>
             <div class="vip-status-badge" id="vipStatusBadge" style="display:none;">
-                👑 VIP Access Unlocked (₹1111 Verified Pass)
+                👑 VIP Access Unlocked (₹2,100 Verified Pass)
             </div>
         </div>
 
@@ -1733,8 +1733,8 @@
                 return;
             }
             try {
-                const basePrice = 1111;
-                const appliedDisc = window._muhuratDiscount || 0;
+                const basePrice = 2100;
+                const appliedDisc = 0;
                 const finalAmt = Math.max(0, basePrice - appliedDisc);
                 const finalPaise = finalAmt * 100;
                 const sutradharRef = window._muhuratSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
@@ -1787,8 +1787,8 @@
                         }
                     }
                 };
-                const rzp = new Razorpay(options);
-                rzp.open();
+                // Amount, order and lead come from the server order
+                window.SraCouponEngine.checkoutWithOptions({ serviceId: 'muhurta_vivah', options: options, code: window._muhuratCoupon || '' });
             } catch(e) {
                 console.error("Razorpay Checkout Error:", e);
                 alert('Razorpay gateway error. Please use UPI QR Code or VIP Code below.');
@@ -1812,25 +1812,17 @@
 
         function verifyVipCode() {
             const code = document.getElementById('vipCodeInput').value.trim().toUpperCase();
+            // SaaS astrologer: own login number opens a session; other codes get the same "invalid" reply
+            if (window.SraCouponEngine && window.SraCouponEngine.isPhoneCode(code)) {
+                window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_vivah', code: code, onUnlock: r => startVipSession(20, 'SAAS_' + r.unlock_id), show: (ok, m) => { if (ok === false) alert(m); } });
+                return;
+            }
             if (window.SraCouponEngine) {
-                const res = window.SraCouponEngine.validateAndCalculate(code, 1111);
-                if (res.valid) {
-                    if (res.type === 'master') {
-                        startVipSession(720, 'MASTER_KEY');
-                        return;
-                    } else {
-                        window._muhuratDiscount = res.discountAmount;
-                        window._muhuratCoupon = res.code;
-                        window._muhuratSutradhar = res.sutradhar_id;
-                        const payBtn = document.querySelector('.pay-btn-main');
-                        if (payBtn) payBtn.innerHTML = `⚡ ₹${res.finalAmount} का भुगतान करें (10% कूपन ${res.code} लागू)`;
-                        alert(`✨ सूत्रधार कूपन (${res.code}) स्वीकृत!\n\n10% छूट लागू: अब ₹${res.finalAmount} का भुगतान करें। (बचत ₹${res.discountAmount})`);
-                        return;
-                    }
-                }
+                const res = window.SraCouponEngine.validateAndCalculate(code, 2100);
+                window._muhuratCoupon = res.code;  // Code box: every code gets the same reply; the server decides at payment
             }
             if (window.sraIsMasterKey && window.sraIsMasterKey(code)) { startVipSession(720, 'MASTER_KEY'); return; }
-            alert("अवैध VIP कोड। कृपया ₹1111 का भुगतान करें या मान्य सूत्रधार आईडी दर्ज करें।");
+            alert("अवैध VIP कोड। कृपया ₹2,100 का भुगतान करें।");
         }
 
         const I18N = {

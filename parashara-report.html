@@ -3152,11 +3152,11 @@
       localStorage.setItem('sra_verified_mobile', clientMobile);
 
       const baseAmt = 1111;
-      const appliedDisc = window._parasharaDiscount || 0;
-      const finalAmt = Math.max(0, baseAmt - appliedDisc);
+      const appliedDisc = 0;
+      const finalAmt = baseAmt;
       const finalPaise = finalAmt * 100;
       const sutradharRef = window._parasharaSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
-      const couponUsed = window._parasharaCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
+      const couponUsed = window._parasharaCoupon || '';
 
       const options = {
         key: PARASHARA_RZP_KEY,
@@ -3233,8 +3233,8 @@
       };
 
       try {
-        const rzp = new Razorpay(options);
-        rzp.open();
+        // Amount, order and lead come from the server order
+        window.SraCouponEngine.checkoutWithOptions({ serviceId: 'parashara_report', options: options, code: window._parasharaCoupon || '', phone: clientMobile });
       } catch(e) {
         console.error("Razorpay Checkout Error:", e);
         alert('Razorpay पेमेंट गेटवे त्रुटि। कृपया पुनः प्रयास करें अथवा व्हाट्सएप सहायता पर संपर्क करें।');
@@ -3311,31 +3311,33 @@
         return;
       }
 
-      // 1. SraCouponEngine Validation (Sutradhar ID = 10% coupon, MASTER = 100% bypass)
-      if (window.SraCouponEngine) {
-        const res = window.SraCouponEngine.validateAndCalculate(input, 1111);
-        if (res.valid) {
-          if (res.type === 'master') {
-            sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+      // SaaS astrologer: own login number opens the report; other codes get the same "invalid" reply
+      if (window.SraCouponEngine && window.SraCouponEngine.isPhoneCode(input)) {
+        await window.SraCouponEngine.handleCodeBox({
+          serviceId: 'parashara_report',
+          code: input,
+          reportRef: currentSelectedKundali ? getKundaliPaymentKey(currentSelectedKundali) : '',
+          onUnlock: r => {
+            const k = currentSelectedKundali;
+            const kKey = k ? getKundaliPaymentKey(k) : 'default';
+            if (k) {
+              localStorage.setItem('sra_mega_paid_' + kKey, 'true');
+              localStorage.setItem('sra_mega_payid_' + kKey, 'SAAS_' + r.unlock_id);
+            }
             closeGateModal();
             updateAuthBadge();
             updateGenerateButtonState(currentSelectedKundali);
             generateMegaParasharaReport(true);
-            return;
-          } else {
-            window._parasharaDiscount = res.discountAmount;
-            window._parasharaCoupon = res.code;
-            window._parasharaSutradhar = res.sutradhar_id;
-            const payBtn = document.querySelector('#gateOverlay button.btn-hero-primary span');
-            if (payBtn) payBtn.innerHTML = `🔒 Razorpay द्वारा ₹${res.finalAmount} भुगतान करें (10% कूपन ${res.code} लागू)`;
-            if (err) {
-              err.style.color = '#15803d';
-              err.innerHTML = `✨ <b>सूत्रधार कूपन (${res.code}) स्वीकृत!</b> 10% छूट लागू (देय राशि: ₹${res.finalAmount})`;
-              err.style.display = 'block';
-            }
-            return;
-          }
-        }
+          },
+          show: (ok, m) => { if (err) { err.style.color = ok ? '#15803d' : (ok === null ? '#92400e' : '#b91c1c'); err.innerText = (ok ? '✓ ' : (ok === null ? '' : '❌ ')) + m; err.style.display = 'block'; } }
+        });
+        return;
+      }
+
+      // 1. Code box: every code gets the same reply; the server decides at payment
+      if (window.SraCouponEngine) {
+        const res = window.SraCouponEngine.validateAndCalculate(input, 1111);
+        window._parasharaCoupon = res.code;  // Code box: every code gets the same reply; the server decides at payment
       }
 
       if (window.sraIsMasterKey && window.sraIsMasterKey(input)) {
