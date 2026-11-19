@@ -34,8 +34,7 @@
     { label: L('रिपोर्ट्स', 'Reports'), icon: '📑', items: [
       { href: 'parashara-report.html', label: L('पराशरी रिपोर्ट', 'Parashari Report'), icon: '📖', badge: '₹1111' },
       { href: 'manglik-dosh-calculator.html', label: L('मंगल दोष कैलकुलेटर', 'Manglik Dosha Calculator'), icon: '🔥' },
-      { href: 'dhan-yoga-calculator.html', label: L('धन योग कैलकुलेटर', 'Dhan Yoga Calculator'), icon: '💰' },
-      { href: 'bphs-encyclopedia.html', label: L('BPHS विश्वकोश', 'BPHS Encyclopedia'), icon: '🕉️' }
+      { href: 'dhan-yoga-calculator.html', label: L('धन योग कैलकुलेटर', 'Dhan Yoga Calculator'), icon: '💰' }
     ] },
     { label: L('ज्ञान', 'Learn'), icon: '📚', items: [
       { href: 'blogs.html', label: L('शोध ब्लॉग', 'Research Blog'), icon: '📝' },

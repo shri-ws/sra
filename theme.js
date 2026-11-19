@@ -2057,16 +2057,6 @@
                   <span class="drawer-sub-hint">२३ प्रामाणिक धन योग, इन्दु लग्न व लक्ष्मी योग</span>
                 </div>
               </a>
-              <a href="bphs-encyclopedia.html" onclick="closeNavDrawer()" class="drawer-sub-item">
-                <span class="drawer-sub-icon">📖</span>
-                <div class="drawer-sub-text">
-                  <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="drawer-sub-title">BPHS 97 अध्याय विश्वकोश</span>
-                    <span class="drop-badge">ज्ञानकोश</span>
-                  </div>
-                  <span class="drawer-sub-hint">सम्पूर्ण ९७ अध्याय व खगोलीय गणित</span>
-                </div>
-              </a>
               <a href="/parashara-report.html" onclick="closeNavDrawer()" class="drawer-sub-item">
                 <span class="drawer-sub-icon">📜</span>
                 <div class="drawer-sub-text">
