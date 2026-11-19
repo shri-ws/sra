@@ -192,11 +192,85 @@
     a.click();
   }
 
+  // ── Excel (.xlsx) download: one row per kundali, mobile number first ──
+  // A tiny writer (stored zip + inline strings), so numbers like mobiles and dates stay as typed.
+  function excelRows() {
+    const head = ['Mobile / Email', 'Account name', 'Kundali name', 'Date of birth', 'Birth time', 'Birth place',
+      'Latitude', 'Longitude', 'Time zone', 'Kundali saved on', 'Login method', 'Joined', 'Last login', 'UID'];
+    const out = [head];
+    const all = [];
+    rows.forEach(r => {
+      const p = r.profile;
+      const acc = [contact(p), p.name || '', method(p), fmt(toDate(p.createdAt)), fmt(toDate(p.lastLoginAt)), r.uid];
+      if (!r.kundalis.length) all.push({ t: 0, row: [acc[0], acc[1], '', '', '', '', '', '', '', '', acc[2], acc[3], acc[4], acc[5]] });
+      r.kundalis.forEach(k => all.push({ t: k.savedTimestamp || 0, row: [acc[0], acc[1], k.name, k.date, k.time, k.city, k.lat, k.lon, k.tz,
+        k.savedTimestamp ? fmt(new Date(k.savedTimestamp)) : (k.savedAt || ''), acc[2], acc[3], acc[4], acc[5]] }));
+    });
+    all.sort((a, b) => b.t - a.t).forEach(x => out.push(x.row));
+    return out;
+  }
+
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+
+  function zip(files) {
+    const enc = new TextEncoder(), parts = [], central = [];
+    let off = 0;
+    files.forEach(([name, text]) => {
+      const n = enc.encode(name), d = enc.encode(text), c = crc32(d);
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true);
+      h.setUint32(14, c, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, n.length, true);
+      parts.push(new Uint8Array(h.buffer), n, d);
+      const e = new DataView(new ArrayBuffer(46));
+      e.setUint32(0, 0x02014b50, true); e.setUint16(4, 20, true); e.setUint16(6, 20, true); e.setUint16(8, 0x0800, true);
+      e.setUint32(16, c, true); e.setUint32(20, d.length, true); e.setUint32(24, d.length, true); e.setUint16(28, n.length, true);
+      e.setUint32(42, off, true);
+      central.push(new Uint8Array(e.buffer), n);
+      off += 30 + n.length + d.length;
+    });
+    const size = central.reduce((s, x) => s + x.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, size, true); end.setUint32(16, off, true);
+    return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+
+  function exportXlsx() {
+    const x = v => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const col = i => { let s = ''; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = (i - m - 1) / 26; } return s; };
+    const data = excelRows();
+    const widths = [18, 20, 22, 13, 11, 34, 10, 10, 9, 20, 13, 20, 20, 30];
+    const sheetRows = data.map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) =>
+      `<c r="${col(ci)}${ri + 1}" t="inlineStr"${ri === 0 ? ' s="1"' : ''}><is><t xml:space="preserve">${x(v)}</t></is></c>`).join('') + '</row>').join('');
+    const sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+      + '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      + '<cols>' + widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('') + '</cols>'
+      + `<sheetData>${sheetRows}</sheetData>`
+      + `<autoFilter ref="A1:${col(data[0].length - 1)}${data.length}"/></worksheet>`;
+    const files = [
+      ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
+      ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+      ['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Kundalis" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">Kundalis!$A$1:$' + col(data[0].length - 1) + '$' + data.length + '</definedName></definedNames></workbook>'],
+      ['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+      ['xl/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF8A5A00"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'],
+      ['xl/worksheets/sheet1.xml', sheet]
+    ];
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(zip(files));
+    a.download = `sra-kundalis-${new Date().toISOString().slice(0, 10)}.xlsx`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+  }
+
   async function start() {
     if ($('acc-signin')) $('acc-signin').addEventListener('click', () => signIn(PRIMARY_ADMIN));
     if ($('acc-signout')) $('acc-signout').addEventListener('click', signOut);
     if ($('acc-refresh')) $('acc-refresh').addEventListener('click', load);
     if ($('acc-csv')) $('acc-csv').addEventListener('click', exportCsv);
+    if ($('acc-xlsx')) $('acc-xlsx').addEventListener('click', exportXlsx);
     if ($('acc-search')) $('acc-search').addEventListener('input', render);
     if ($('acc-tbody')) {
       $('acc-tbody').addEventListener('click', (e) => {
