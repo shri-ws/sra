@@ -405,6 +405,7 @@ input,select,textarea,button{font-size:15px}
       <div class="nav-item" onclick="showPanel('forum', this)">💬 &nbsp;Forum Posts</div>
       <div class="nav-item" onclick="showPanel('reviews', this)">⭐ &nbsp;Client Reviews</div>
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
+      <div class="nav-item nav-item-marketing" onclick="showPanel('marketing', this)" style="color:#d97706; font-weight:bold; background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.3); border-radius:8px; margin-top:6px;">🎯 &nbsp;दैनिक मार्केटिंग ट्रैकर &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0/6</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">🤝 &nbsp;सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-visitors" onclick="showPanel('visitors', this)" style="color:#7c3aed; font-weight:bold; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:8px; margin-top:6px;">📈 &nbsp;वेबसाइट विज़िटर्स व डाउनलोड</div>
       <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">💻 &nbsp;SaaS ग्राहक (ज्योतिषी) &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
@@ -832,6 +833,154 @@ input,select,textarea,button{font-size:15px}
         <div style="margin-top:16px;display:flex;gap:12px;align-items:center">
           <button class="social-btn social-btn-primary" onclick="saveSocialSettings()">💾 सेटिंग्स सुरक्षित करें</button>
           <span id="socialSaveNotice" style="font-size:12px;color:var(--green);font-weight:bold"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🎯 DAILY MARKETING & EXECUTION TRACKER -->
+    <div class="panel" id="panel-marketing">
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:14px;">
+          <div>
+            <h2 style="font-size:16px; font-weight:700; color:var(--gold);">🎯 दैनिक मार्केटिंग ट्रैकर (Daily Execution Hub)</h2>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;" id="mkt-welcome-msg">
+              Astro Raamji (+91 95171-17775 / shriramjiastro7@gmail.com) — रोज़ाना 15-20 मिनट का यह अनुशासन आपके सूत्रधार नेटवर्क को तेज़ी से बढ़ाएगा।
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="export-btn" onclick="requestAdminPushNotification()" style="font-size:11px; background:rgba(217,119,6,0.12); border-color:#d97706; color:#d97706;">🔔 पुश रिमाइंडर ऑन करें</button>
+            <button class="export-btn" onclick="resetMarketingTasksToday()" style="font-size:11px;">↻ आज का रीसेट</button>
+          </div>
+        </div>
+
+        <!-- Today Progress Bar -->
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; margin-bottom:6px;">
+            <span>आज का लक्ष्य प्रगति (Today's Progress)</span>
+            <span id="mkt-progress-text" style="color:var(--gold);">0 / 6 पूर्ण</span>
+          </div>
+          <div style="height:10px; background:rgba(124,19,5,0.1); border-radius:5px; overflow:hidden;">
+            <div id="mkt-progress-fill" style="height:100%; width:0%; background:var(--green); transition:width 0.3s ease;"></div>
+          </div>
+        </div>
+
+        <!-- 6 Channel Grid -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:14px;">
+
+          <!-- 1. LinkedIn -->
+          <div style="background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:14px; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:14px; color:#0a66c2;">💼 1. LinkedIn (कंपनी पेज + प्रोफाइल)</span>
+              <span class="badge" style="background:#dbeafe; color:#1e40af; font-size:10px;">कंपनी पेज लाइव</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:10px;">
+              दैनिक 1 पोस्ट पब्लिश करना, इनबॉक्स में आए संदेशों/DM का उत्तर देना।
+            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <a href="https://www.linkedin.com/company/shriramjiastro/" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none;">🏢 कंपनी पेज ↗</a>
+              <a href="https://www.linkedin.com/feed/" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none; background:#0a66c2; color:#fff;">📢 फ़ीड ↗</a>
+              <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="copyMktSnippet('linkedin')">📋 पोस्ट कॉपी करें</button>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px;">
+              <input type="checkbox" id="mkt-chk-linkedin" onchange="toggleMktTask('linkedin')"/>
+              <span>आज का LinkedIn कार्य पूर्ण हुआ</span>
+            </label>
+          </div>
+
+          <!-- 2. Indeed India -->
+          <div style="background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:14px; color:#2563eb;">💼 2. Indeed India (Employer)</span>
+              <span class="badge" style="background:#d1fae5; color:#065f46; font-size:10px;">10 पद लाइव</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:10px;">
+              नए उम्मीदवारों के रिज्यूमे चेक करना, योग्य आवेदकों को 'Invite to Apply' व मैसेज भेजना।
+            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <a href="https://employers.indeed.com/candidates" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none; background:#2563eb; color:#fff;">👥 उम्मीदवार इनबॉक्स ↗</a>
+              <a href="https://employers.indeed.com/jobs" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none;">📋 जॉब स्टेटस ↗</a>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px;">
+              <input type="checkbox" id="mkt-chk-indeed" onchange="toggleMktTask('indeed')"/>
+              <span>आज के Indeed आवेदक चेक कर लिए</span>
+            </label>
+          </div>
+
+          <!-- 3. OLX India -->
+          <div style="background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:14px; color:#002f34;">🏷️ 3. OLX India (Classified Ads)</span>
+              <span class="badge" style="background:#fef3c7; color:#92400e; font-size:10px;">Ad #1862209608</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:10px;">
+              OLX पर आए चैट्स और कॉल्स का उत्तर देना, इच्छुक लोगों को सीधे careers.html लिंक देना।
+            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <a href="https://www.olx.in/myads" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none; background:#002f34; color:#fff;">💬 OLX चैट व माय ऐड्स ↗</a>
+              <a href="https://www.olx.in/item/1862209608" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none;">👁 लाइव विज्ञापन ↗</a>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px;">
+              <input type="checkbox" id="mkt-chk-olx" onchange="toggleMktTask('olx')"/>
+              <span>आज के OLX चैट्स व कॉल्स चेक कर लिए</span>
+            </label>
+          </div>
+
+          <!-- 4. Facebook / Meesho Groups -->
+          <div style="background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:14px; color:#1877f2;">🌸 4. Facebook / Meesho रीसेलर्स</span>
+              <span class="badge" style="background:#fce7f3; color:#9d174d; font-size:10px;">दैनिक 5-10 ग्रुप्स</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:10px;">
+              मीशो/रीसेलर/वर्क-फ्रॉम-होम ग्रुप्स में टेम्पलेट पेस्ट करना। (कोई रिटर्न नहीं, सीधा UPI कमीशन)।
+            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <a href="https://www.facebook.com/groups/joins/" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none; background:#1877f2; color:#fff;">👥 अपने FB ग्रुप्स खोलें ↗</a>
+              <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="copyMktSnippet('meesho')">📋 मीशो टेम्पलेट कॉपी</button>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px;">
+              <input type="checkbox" id="mkt-chk-facebook" onchange="toggleMktTask('facebook')"/>
+              <span>आज ग्रुप्स में पोस्ट कर दिया</span>
+            </label>
+          </div>
+
+          <!-- 5. Google for Jobs & SRA Careers Hub -->
+          <div style="background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:14px; color:#16a34a;">🌐 5. Google for Jobs & Careers Hub</span>
+              <span class="badge" style="background:#d1fae5; color:#065f46; font-size:10px;">Schema.org एक्टिव</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:10px;">
+              वेबसाइट पर सीधे आए सूत्रधार आवेदनों की समीक्षा करना और उन्हें WhatsApp अप्रूवल भेजना।
+            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <button class="export-btn" style="padding:4px 8px; font-size:11px; background:#16a34a; color:#fff;" onclick="showPanel('careers')">📂 Careers Hub आवेदन देखें ↗</button>
+              <a href="careers.html" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none;">👁 लाइव फॉर्म ↗</a>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px;">
+              <input type="checkbox" id="mkt-chk-website" onchange="toggleMktTask('website')"/>
+              <span>आज के नए वेबसाइट आवेदन चेक कर लिए</span>
+            </label>
+          </div>
+
+          <!-- 6. Naukri.com -->
+          <div style="background:var(--card); border:1.5px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:14px; color:#ff7555;">📱 6. Naukri.com</span>
+              <span class="badge" style="background:#ffedd5; color:#c2410c; font-size:10px;">Founder एक्टिव</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:10px;">
+              अपनी प्रोफाइल पर 'Touch / Update' ताकि रिक्रूटर्स और जॉब सीकर्स को आपकी प्रोफाइल 'Active Today' दिखे।
+            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+              <a href="https://www.naukri.com/mnjuser/profile" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none; background:#ff7555; color:#fff;">👤 नौकारी प्रोफाइल ↗</a>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; margin-top:8px;">
+              <input type="checkbox" id="mkt-chk-naukri" onchange="toggleMktTask('naukri')"/>
+              <span>आज नौकारी प्रोफाइल रिफ्रेश कर ली</span>
+            </label>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1450,6 +1599,8 @@ async function loadAll(){
 
   if (window.SRAAdminData) { try { await SRAAdminData.ready(); } catch(e) {} }
   renderAll();
+  loadMarketingTracker();
+  checkAndTriggerAdminNotification();
   loadSutradharReviewQueue().catch(() => {});
 
   const t = new Date();
@@ -1977,6 +2128,7 @@ function showPanel(name, targetEl){
       forum: currentAdminLang === 'en' ? 'Forum Posts' : 'मंच चर्चा (Forum)',
       reviews: currentAdminLang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
       social: currentAdminLang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
+      marketing: currentAdminLang === 'en' ? '🎯 Daily Marketing Action Tracker' : '🎯 दैनिक मार्केटिंग एक्शन ट्रैकर',
       careers: currentAdminLang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)',
       'sutra-reviews': currentAdminLang === 'en' ? '⚠️ Sutradhar Requires Review Queue' : '⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
       'sutra-payouts': currentAdminLang === 'en' ? '💸 Sutradhar Payout Desk' : '💸 सूत्रधार पेआउट डेस्क',
@@ -1996,6 +2148,8 @@ function showPanel(name, targetEl){
 
     if (name === 'social') {
       loadSocialStatus();
+    } else if (name === 'marketing') {
+      loadMarketingTracker();
     } else if (name === 'careers') {
       fetchCareerApplications();
     } else if (name === 'sutra-reviews') {
@@ -3294,6 +3448,7 @@ const ADMIN_I18N = {
     forum: '💬 &nbsp;Forum Posts',
     reviews: '⭐ &nbsp;Client Reviews',
     social: '🤖 &nbsp;Social Media AI Agent',
+    marketing: '🎯 &nbsp;दैनिक मार्केटिंग ट्रैकर',
     careers: '🤝 &nbsp;सूत्रधार आवेदन (Careers)',
     refresh: '↻ रिफ्रेश',
     logout: '⎋ लॉगआउट',
@@ -3330,6 +3485,7 @@ const ADMIN_I18N = {
     forum: '💬 &nbsp;Forum Posts',
     reviews: '⭐ &nbsp;Client Reviews',
     social: '🤖 &nbsp;Social Media AI Agent',
+    marketing: '🎯 &nbsp;Daily Marketing Tracker',
     careers: '🤝 &nbsp;Sutradhar Careers Hub',
     refresh: '↻ Refresh',
     logout: '⎋ Logout',
@@ -3379,8 +3535,16 @@ function applyAdminLanguage(lang) {
     navItems[7].innerHTML = dict.forum;
     navItems[8].innerHTML = dict.reviews;
     navItems[9].innerHTML = dict.social + ' &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span>';
-    const pendingCount = (D.careers || []).filter(c => (c.status || 'pending') === 'pending').length;
-    navItems[10].innerHTML = dict.careers + ` &nbsp;<span id="badge-careers" style="${pendingCount > 0 ? '' : 'display:none;'} font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">${pendingCount > 0 ? pendingCount + ' NEW' : '0'}</span>`;
+    const mktItem = document.querySelector('.nav-item-marketing');
+    if (mktItem) {
+      const doneCount = (typeof getMktCompletedTasks === 'function') ? getMktCompletedTasks().length : 0;
+      mktItem.innerHTML = (dict.marketing || '🎯 &nbsp;दैनिक मार्केटिंग ट्रैकर') + ` &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">${doneCount}/6</span>`;
+    }
+    const carItem = document.querySelector('.nav-item-careers');
+    if (carItem) {
+      const pendingCount = (D.careers || []).filter(c => (c.status || 'pending') === 'pending').length;
+      carItem.innerHTML = dict.careers + ` &nbsp;<span id="badge-careers" style="${pendingCount > 0 ? '' : 'display:none;'} font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">${pendingCount > 0 ? pendingCount + ' NEW' : '0'}</span>`;
+    }
   }
 
   // Refresh and logout buttons
@@ -3445,6 +3609,7 @@ function applyAdminLanguage(lang) {
       forum: lang === 'en' ? 'Forum Posts' : 'मंच चर्चा (Forum)',
       reviews: lang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
       social: lang === 'en' ? '🤖 Autonomous Social Media AI Agent (Autopilot)' : '🤖 स्वायत्त सोशल मीडिया एआई एजेंट',
+      marketing: lang === 'en' ? '🎯 Daily Marketing Action Tracker' : '🎯 दैनिक मार्केटिंग एक्शन ट्रैकर',
       careers: lang === 'en' ? '🤝 Sutradhar Applications & Careers Hub' : '🤝 सूत्रधार आवेदन प्रबंधन (Careers Hub)'
     };
     const tEl = document.getElementById('panelTitle');
@@ -3459,6 +3624,193 @@ function applyAdminLanguage(lang) {
     ovLabels[2].textContent = lang === 'en' ? 'Registered / Logins' : 'पंजीकृत खाते (Registered)';
     ovLabels[3].textContent = lang === 'en' ? 'Kundli Queries' : 'कुण्डली गणना (Calculations)';
   }
+}
+
+/* ══ 🎯 DAILY MARKETING TRACKER & ADMIN NOTIFICATION LOGIC ══ */
+const MKT_TASK_KEYS = ['linkedin', 'indeed', 'olx', 'facebook', 'website', 'naukri'];
+
+function getMktStorageKey() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `sra_mkt_${year}-${month}-${day}`;
+}
+
+function getMktCompletedTasks() {
+  try {
+    const raw = localStorage.getItem(getMktStorageKey());
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function loadMarketingTracker() {
+  const done = getMktCompletedTasks();
+  MKT_TASK_KEYS.forEach(k => {
+    const chk = document.getElementById(`mkt-chk-${k}`);
+    if (chk) chk.checked = done.includes(k);
+  });
+  updateMktProgressUI(done.length);
+}
+
+function toggleMktTask(taskKey) {
+  let done = getMktCompletedTasks();
+  const chk = document.getElementById(`mkt-chk-${taskKey}`);
+  if (chk && chk.checked) {
+    if (!done.includes(taskKey)) done.push(taskKey);
+  } else {
+    done = done.filter(k => k !== taskKey);
+  }
+  try {
+    localStorage.setItem(getMktStorageKey(), JSON.stringify(done));
+  } catch(e) {}
+  updateMktProgressUI(done.length);
+}
+
+function updateMktProgressUI(count) {
+  const total = MKT_TASK_KEYS.length;
+  const pct = Math.round((count / total) * 100);
+  
+  const textEl = document.getElementById('mkt-progress-text');
+  if (textEl) textEl.textContent = `${count} / ${total} पूर्ण (${pct}%)`;
+
+  const fillEl = document.getElementById('mkt-progress-fill');
+  if (fillEl) fillEl.style.width = `${pct}%`;
+
+  const badge = document.getElementById('badge-marketing');
+  if (badge) {
+    badge.textContent = `${count}/${total}`;
+    if (count === total) {
+      badge.style.background = 'var(--green)';
+      badge.textContent = '✓ 6/6 पूर्ण';
+    } else {
+      badge.style.background = '#d97706';
+    }
+  }
+}
+
+function resetMarketingTasksToday() {
+  if (confirm('क्या आप आज के सभी मार्केटिंग कार्यों को रीसेट करना चाहते हैं?')) {
+    localStorage.removeItem(getMktStorageKey());
+    loadMarketingTracker();
+  }
+}
+
+function copyMktSnippet(type) {
+  let text = '';
+  if (type === 'meesho') {
+    text = `🙏 नमस्ते साथियों! अगर आप Meesho, GlowRoad या घर बैठे रीसेलिंग/ऑनलाइन काम करते हैं, तो श्री रामजी एस्ट्रो (Shri Ramji Astro) के साथ 'सूत्रधार' बनकर बिना किसी इन्वेस्टमेंट के महीने के ₹20,000 से ₹50,000+ कमाएं।\n\n✅ काम क्या है? अपने संपर्कों व ग्राहकों को प्रामाणिक वैदिक जन्मकुण्डली, वर्षफल व ज्योतिष मार्गदर्शन से जोड़ना।\n✅ कोई सामान पैक या शिप नहीं करना, कोई रिटर्न का झंझट नहीं!\n✅ प्रत्येक सफल परामर्श पर सीधा 20% कमीशन तुरंत UPI में!\n\n👉 सीधे आधिकारिक वेबसाइट पर आवेदन करें:\nhttps://shriramjiastro.in/careers.html\n\n(सीमित पद - तुरंत फॉर्म भरें व टीम से जुड़ें!)`;
+  } else if (type === 'linkedin') {
+    text = `🚀 We are inviting Community Partners & Sutradhars across India to join Shri Ramji Astro!\n\nEarn ₹20,000 - ₹50,000+ monthly with pure performance-based incentives by connecting people to authentic Vedic Astro guidance and AI Panchang technology.\n\nApply directly: https://shriramjiastro.in/careers.html`;
+  }
+  if (!text) return;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✓ कॉपी हो गया! अब आप इसे सीधे पेस्ट कर सकते हैं।');
+    }).catch(() => fallbackMktCopy(text));
+  } else {
+    fallbackMktCopy(text);
+  }
+}
+
+function fallbackMktCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    alert('✓ कॉपी हो गया! अब आप इसे सीधे पेस्ट कर सकते हैं।');
+  } catch(e) {
+    prompt('कृपया इसे कॉपी करें:', text);
+  }
+  document.body.removeChild(ta);
+}
+
+/* ══ 🔔 ADMIN NOTIFICATION ON LOGIN ══ */
+function requestAdminPushNotification() {
+  if (!("Notification" in window)) {
+    alert("इस ब्राउज़र में वेब पुश नोटिफिकेशन समर्थित नहीं है।");
+    return;
+  }
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      new Notification("श्री रामजी एस्ट्रो एडमिन", {
+        body: "🔔 पुश रिमाइंडर सक्रिय! प्रतिदिन एडमिन लॉगिन पर आपको मार्केटिंग लक्ष्य याद दिलाया जाएगा।",
+        icon: "logo.png"
+      });
+    } else {
+      alert("पुश नोटिफिकेशन अनुमति अस्वीकृत या ब्लॉक की गई है।");
+    }
+  });
+}
+
+function checkAndTriggerAdminNotification() {
+  const currentEmail = (sessionStorage.getItem('sra_admin_email') || '').toLowerCase();
+  const isAdminUser = currentEmail.includes('shriramjiastro') || currentEmail.includes('eshriee') || currentEmail.includes('eshrico') || !!sessionStorage.getItem('sra_admin_auth');
+  
+  if (!isAdminUser) return;
+
+  const todayKey = 'sra_notif_shown_' + new Date().toISOString().slice(0, 10);
+  if (sessionStorage.getItem(todayKey)) return;
+
+  sessionStorage.setItem(todayKey, 'true');
+
+  // 1. Browser Native Push Notification (if permission granted)
+  if ("Notification" in window && Notification.permission === "granted") {
+    try {
+      new Notification("🙏 जय श्री राम! स्वागत है Astro Raamji", {
+        body: "🎯 दैनिक मार्केटिंग ट्रैकर: आज के प्लेटफॉर्म टास्क चेक करें (LinkedIn, OLX, Indeed, FB Groups).",
+        icon: "logo.png"
+      });
+    } catch(e) {}
+  }
+
+  // 2. In-App Floating Notification Banner
+  showInAppAdminToast("🙏 जय श्री राम! स्वागत है Astro Raamji (+91 95171-17775)<br>🎯 <strong>दैनिक मार्केटिंग ट्रैकर:</strong> आज के 6 प्लेटफॉर्म टास्क चेक करें।", 7000);
+}
+
+function showInAppAdminToast(html, duration = 6000) {
+  let toast = document.getElementById('sra-admin-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'sra-admin-toast';
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999999;
+      background: linear-gradient(135deg, #7c1305, #a31c0b);
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+      border: 1px solid rgba(201,168,76,0.6);
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 380px;
+      cursor: pointer;
+    `;
+    toast.onclick = () => {
+      showPanel('marketing');
+      toast.remove();
+    };
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+      <div>${html}</div>
+      <span style="font-size:16px; font-weight:bold; opacity:0.8; cursor:pointer;" onclick="event.stopPropagation(); this.parentElement.parentElement.remove();">&times;</span>
+    </div>
+  `;
+  setTimeout(() => {
+    if (toast && toast.parentElement) toast.remove();
+  }, duration);
 }
 
 function toggleAdminLanguage() {
