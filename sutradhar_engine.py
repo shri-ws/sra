@@ -574,6 +574,7 @@ class CreateOrderRequest(BaseModel):
     customer_email: Optional[str] = Field(None, description="Customer email")
     service_id: str = Field(..., description="Service identifier")
     input_code: Optional[str] = Field(None, description="Optional manual coupon")
+    batch_id: Optional[str] = Field(None, description="1-year course only: batch_morning / batch_evening")
 
 class ReviewActionRequest(BaseModel):
     commission_id: str
@@ -1050,6 +1051,127 @@ async def get_service_catalog():
             "payout_rule": f"भुगतान के {PAYOUT_SETTLEMENT_WORKING_DAYS} कार्य-दिवस बाद {PAYOUT_DEADLINE_TEXT} (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)"}
 
 
+# =============================================================================
+# 1-YEAR COURSE BATCHES: 11 seats each, registration from 26 Dec 2026, classes from 11 Mar 2027
+# A seat is held for COURSE_HOLD_MINUTES when checkout starts; a batch takes no new order once
+# paid + held seats reach the limit. A payment that still lands on a full batch is refunded.
+# =============================================================================
+COURSE_SERVICE_ID = "consultation_gurukul"
+COURSE_START_DATE = "2027-03-11"
+COURSE_HOLD_MINUTES = 20
+COURSE_BATCHES = {
+    "batch_morning": {"name": "सुबह का बैच", "name_en": "Morning batch", "seats": 11},
+    "batch_evening": {"name": "शाम का बैच", "name_en": "Evening batch", "seats": 11},
+}
+_course_lock = threading.Lock()
+
+
+def course_registration_opens() -> str:
+    return (os.environ.get("COURSE_REGISTRATION_OPENS") or "2026-12-26").strip()
+
+
+def course_registration_open() -> bool:
+    return today_ist() >= course_registration_opens()
+
+
+def _seat_active(seat: Dict[str, Any], now: datetime) -> bool:
+    if seat.get("status") == "paid":
+        return True
+    if seat.get("status") != "held":
+        return False
+    try:
+        return datetime.fromisoformat(seat.get("held_until")) > now
+    except Exception:
+        return False
+
+
+def course_seat_counts() -> Dict[str, Dict[str, int]]:
+    now = datetime.now(timezone.utc)
+    out = {b: {"paid": 0, "held": 0} for b in COURSE_BATCHES}
+    for seat in SutradharStore.query_all("course_seats"):
+        b = seat.get("batch_id")
+        if b in out and _seat_active(seat, now):
+            out[b]["paid" if seat.get("status") == "paid" else "held"] += 1
+    return out
+
+
+def hold_course_seat(batch_id: str, phone: str, name: str) -> str:
+    """Reserves one seat for this phone (replacing its earlier hold) or refuses when the batch is full."""
+    if batch_id not in COURSE_BATCHES:
+        raise HTTPException(status_code=400, detail="कृपया बैच चुनें (सुबह या शाम)।")
+    if not course_registration_open():
+        raise HTTPException(status_code=403, detail="कोर्स का पंजीकरण 26 दिसंबर 2026 से खुलेगा।")
+    if len(phone) != 10 or phone == "9999999999":
+        raise HTTPException(status_code=400, detail="सीट पक्की करने के लिए अपना 10 अंकों का मोबाइल नंबर दें।")
+    now = datetime.now(timezone.utc)
+    with _course_lock:
+        seats = SutradharStore.query_all("course_seats")
+        if any(x.get("phone") == phone and x.get("status") == "paid" for x in seats):
+            raise HTTPException(status_code=409, detail="इस नंबर से कोर्स का भुगतान पहले ही हो चुका है।")
+        taken = 0
+        for x in seats:
+            if x.get("phone") == phone and x.get("status") == "held":
+                x["status"] = "released"          # a fresh attempt replaces the old hold
+                SutradharStore.set_doc("course_seats", x["id"], x)
+                continue
+            if x.get("batch_id") == batch_id and _seat_active(x, now):
+                taken += 1
+        b = COURSE_BATCHES[batch_id]
+        if taken >= b["seats"]:
+            raise HTTPException(status_code=409, detail=f"{b['name']} की सभी {b['seats']} सीटें भर चुकी हैं।")
+        seat_id = f"seat_{int(now.timestamp())}_{os.urandom(3).hex()}"
+        SutradharStore.set_doc("course_seats", seat_id, {
+            "id": seat_id, "batch_id": batch_id, "phone": phone, "name": name or "",
+            "status": "held", "held_until": (now + timedelta(minutes=COURSE_HOLD_MINUTES)).isoformat(),
+            "created_at": now.isoformat(),
+        })
+    return seat_id
+
+
+def release_course_seat(seat_id: str):
+    seat = SutradharStore.get_doc("course_seats", seat_id)
+    if seat and seat.get("status") == "held":
+        seat["status"] = "released"
+        SutradharStore.set_doc("course_seats", seat_id, seat)
+
+
+def confirm_course_seat(order: Dict[str, Any], payment_id: str, captured_paise: int) -> Dict[str, Any]:
+    """On payment: the held seat becomes paid; if the batch filled up meanwhile, the payment is refunded."""
+    seat_id = order.get("seat_id")
+    with _course_lock:
+        seat = SutradharStore.get_doc("course_seats", seat_id) if seat_id else None
+        if seat and seat.get("status") == "paid":
+            return {"ok": True, "seat": seat}
+        batch_id = (seat or {}).get("batch_id") or order.get("course_batch")
+        limit = COURSE_BATCHES.get(batch_id, {}).get("seats", 0)
+        now = datetime.now(timezone.utc)
+        paid_others = sum(1 for x in SutradharStore.query_all("course_seats")
+                          if x.get("batch_id") == batch_id and x.get("status") == "paid" and x.get("id") != seat_id)
+        if not seat:
+            seat = {"id": seat_id or f"seat_{payment_id}", "batch_id": batch_id, "phone": order.get("customer_phone", ""),
+                    "name": order.get("customer_name", ""), "created_at": now.isoformat()}
+        seat.update({"order_id": order.get("order_id"), "payment_id": payment_id,
+                     "name": order.get("customer_name") or seat.get("name", "")})
+        if batch_id in COURSE_BATCHES and paid_others < limit:
+            seat.update({"status": "paid", "paid_at": now.isoformat()})
+            SutradharStore.set_doc("course_seats", seat["id"], seat)
+            return {"ok": True, "seat": seat}
+        # full (the hold had run out and others paid): give the money back
+        refund_status = "refunded"
+        if not _is_test_env():
+            try:
+                import razorpay
+                client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+                client.payment.refund(payment_id, {"amount": captured_paise, "notes": {"reason": "course batch full"}})
+            except Exception as e:
+                logger.error(f"[Course] refund failed for {payment_id}: {e}")
+                refund_status = "refund_failed"
+        seat.update({"status": refund_status, "refund_reason": "batch_full", "refunded_at": now.isoformat()})
+        SutradharStore.set_doc("course_seats", seat["id"], seat)
+        log_audit_event("COURSE_BATCH_FULL_REFUND", "system", {"payment_id": payment_id, "batch_id": batch_id, "status": refund_status})
+        return {"ok": False, "seat": seat}
+
+
 # -----------------------------------------------------------------------------
 # ENDPOINT 4: SERVER-SIDE RAZORPAY ORDER CREATION (TAMPER-PROOF PRICING & R2 AUTH)
 # -----------------------------------------------------------------------------
@@ -1116,6 +1238,11 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
     net_price = quote["net_price"]
     net_paise = net_price * 100
     is_test_order = bool(quote.get("is_test"))
+    seat_id = ""
+    if service_id == COURSE_SERVICE_ID:
+        seat_phone = effective_phone if effective_phone != "9999999999" else (body_phone or "")
+        seat_id = hold_course_seat((req.batch_id or "").strip(), seat_phone, req.customer_name or "")
+        effective_phone = seat_phone
     if is_test_order:
         # Master-code test payments never earn a commission
         attributed_sutradhar_id = ""
@@ -1145,6 +1272,8 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
     except Exception as e:
         if not _is_test_env():
             logger.error(f"[Razorpay] order create failed: {e}")
+            if seat_id:
+                release_course_seat(seat_id)
             raise HTTPException(status_code=502, detail="भुगतान शुरू नहीं हो सका। कृपया थोड़ी देर बाद पुनः प्रयास करें।")
         logger.warning(f"[Razorpay Client note: using simulated test order {order_id}]: {e}")
 
@@ -1169,6 +1298,12 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "status": "created",
         "created_at": now.isoformat()
     }
+    if seat_id:
+        order_doc["seat_id"] = seat_id
+        order_doc["course_batch"] = req.batch_id
+        seat = SutradharStore.get_doc("course_seats", seat_id) or {}
+        seat["order_id"] = order_id
+        SutradharStore.set_doc("course_seats", seat_id, seat)
     SutradharStore.set_doc("orders", order_id, order_doc)
     log_audit_event("ORDER_CREATED", effective_phone, {
         "order_id": order_id,
@@ -1189,6 +1324,7 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "service_name": quote.get("service_name"),
         "is_test": is_test_order,
         "message": quote.get("message", ""),
+        "seat_hold_minutes": COURSE_HOLD_MINUTES if seat_id else None,
         "discount_applied": quote["discount_amount"] > 0
     }
 
@@ -1295,6 +1431,14 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     order["razorpay_payment_id"] = payment_id
     order["paid_at"] = now_iso
     SutradharStore.set_doc("orders", order_id, order)
+
+    # Course: the held seat becomes paid, or the payment is refunded if the batch is already full
+    if order.get("seat_id") or resolve_service_id(order.get("service_id", "")) == COURSE_SERVICE_ID:
+        res = confirm_course_seat(order, payment_id, captured_paise)
+        if not res["ok"]:
+            order["status"] = "refunded_batch_full"
+            SutradharStore.set_doc("orders", order_id, order)
+            return {"status": "refunded_batch_full", "order_id": order_id, "commission_created": False}
 
     # A5 & R11: Zero amount paid => NO commission record, NO payout
     if captured_paise <= 0:
@@ -2427,6 +2571,60 @@ def _saas_view(sub: Dict[str, Any], usage: List[Dict[str, Any]]) -> Dict[str, An
         "uses_this_month": len(month_uses), "uses_total": len(mine), "uses_by_service_this_month": by_service,
         "history": sub.get("history", [])[-10:], "note": sub.get("note", ""),
     }
+
+
+# =============================================================================
+# COURSE BATCHES: public seat count, interest list, admin view
+# =============================================================================
+class CourseInterestRequest(BaseModel):
+    name: str
+    phone: str
+    batch_id: Optional[str] = None
+
+
+@router.get("/course/batches")
+async def course_batches():
+    counts = course_seat_counts()
+    batches = []
+    for bid, b in COURSE_BATCHES.items():
+        taken = counts[bid]["paid"] + counts[bid]["held"]
+        batches.append({"id": bid, "name": b["name"], "name_en": b["name_en"], "seats": b["seats"],
+                        "taken": taken, "left": max(0, b["seats"] - taken), "full": taken >= b["seats"]})
+    return {"start_date": COURSE_START_DATE, "registration_opens": course_registration_opens(),
+            "registration_open": course_registration_open(), "price": SERVICE_CATALOG[COURSE_SERVICE_ID]["price"],
+            "hold_minutes": COURSE_HOLD_MINUTES, "batches": batches}
+
+
+@router.post("/course/interest")
+async def course_interest(req: CourseInterestRequest):
+    phone = normalize_phone(req.phone)
+    name = (req.name or "").strip()[:80]
+    if len(phone) != 10 or len(name) < 2:
+        raise HTTPException(status_code=400, detail="कृपया नाम और 10 अंकों का मोबाइल नंबर दें।")
+    batch = req.batch_id if req.batch_id in COURSE_BATCHES else ""
+    now = datetime.now(timezone.utc).isoformat()
+    doc = SutradharStore.get_doc("course_interest", phone) or {"phone": phone, "created_at": now}
+    doc.update({"name": name, "batch_id": batch, "updated_at": now})
+    SutradharStore.set_doc("course_interest", phone, doc)
+    return {"status": "success", "message": "धन्यवाद! पंजीकरण खुलते ही (26 दिसंबर) हम आपको WhatsApp पर बताएँगे।"}
+
+
+@router.get("/admin/course")
+async def admin_course(authorization: Optional[str] = Header(None)):
+    require_admin(authorization)
+    now = datetime.now(timezone.utc)
+    seats = SutradharStore.query_all("course_seats")
+    batches = []
+    for bid, b in COURSE_BATCHES.items():
+        mine = [x for x in seats if x.get("batch_id") == bid]
+        paid = sorted([x for x in mine if x.get("status") == "paid"], key=lambda x: x.get("paid_at") or "")
+        held = [x for x in mine if x.get("status") == "held" and _seat_active(x, now)]
+        refunds = [x for x in mine if (x.get("status") or "").startswith("refund")]
+        batches.append({"id": bid, "name": b["name"], "seats": b["seats"], "paid": paid, "held": held,
+                        "refunds": refunds, "left": max(0, b["seats"] - len(paid) - len(held))})
+    interest = sorted(SutradharStore.query_all("course_interest"), key=lambda x: x.get("updated_at") or "", reverse=True)
+    return {"start_date": COURSE_START_DATE, "registration_opens": course_registration_opens(),
+            "registration_open": course_registration_open(), "batches": batches, "interest": interest}
 
 
 # =============================================================================

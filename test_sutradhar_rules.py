@@ -338,3 +338,43 @@ def test_admin_sutradhar_list_and_pause():
     assert client.get("/api/sutradhar/login", headers=hdr).status_code == 200
     d = client.get("/api/sutradhar/admin/sutradhars", headers=ADMIN).json()
     assert next(u for u in d["sutradhars"] if u["phone"] == new_phone)["upi_verified"] is True
+
+
+def test_course_batch_eleven_seats():
+    os.environ["COURSE_REGISTRATION_OPENS"] = "2099-01-01"
+    r = client.post("/api/sutradhar/orders/create", json={"customer_phone": "9700000000", "service_id": "consultation_gurukul", "batch_id": "batch_morning"})
+    assert r.status_code == 403                                   # before 26 Dec: closed
+    os.environ["COURSE_REGISTRATION_OPENS"] = "2020-01-01"
+    assert client.post("/api/sutradhar/orders/create", json={"customer_phone": "9700000000", "service_id": "consultation_gurukul"}).status_code == 400
+    orders = []
+    for i in range(11):
+        r = client.post("/api/sutradhar/orders/create", json={"customer_phone": f"97000000{i:02d}", "customer_name": f"छात्र {i}",
+                                                              "service_id": "consultation_gurukul", "batch_id": "batch_morning"})
+        assert r.status_code == 200, r.text
+        orders.append(r.json())
+    # the 12th person cannot even start paying for the morning batch
+    r12 = client.post("/api/sutradhar/orders/create", json={"customer_phone": "9700000099", "service_id": "consultation_gurukul", "batch_id": "batch_morning"})
+    assert r12.status_code == 409
+    b = {x["id"]: x for x in client.get("/api/sutradhar/course/batches").json()["batches"]}
+    assert b["batch_morning"]["full"] and b["batch_morning"]["left"] == 0 and b["batch_evening"]["left"] == 11
+    # retrying with the same number replaces its own hold instead of taking a 2nd seat
+    again = client.post("/api/sutradhar/orders/create", json={"customer_phone": "9700000000", "service_id": "consultation_gurukul", "batch_id": "batch_morning"})
+    assert again.status_code == 200
+    orders[0] = again.json()
+    for i, o in enumerate(orders):
+        assert _capture(o["order_id"], o["amount"], f"pay_course_{i}").status_code == 200
+    # a 12th payment that slips through (expired hold) is refunded, never seated
+    late = se.SutradharStore.get_doc("orders", orders[1]["order_id"])
+    late = dict(late, order_id="order_late", id="order_late", seat_id="seat_late", customer_phone="9700000098")
+    se.SutradharStore.set_doc("orders", "order_late", late)
+    se.SutradharStore.set_doc("course_seats", "seat_late", {"id": "seat_late", "batch_id": "batch_morning", "phone": "9700000098",
+                                                             "status": "held", "held_until": "2000-01-01T00:00:00+00:00"})
+    r = _capture("order_late", late["net_amount_paise"], "pay_late")
+    assert r.json()["status"] == "refunded_batch_full"
+    admin = client.get("/api/sutradhar/admin/course", headers=ADMIN).json()
+    morning = next(x for x in admin["batches"] if x["id"] == "batch_morning")
+    assert len(morning["paid"]) == 11 and len(morning["refunds"]) == 1
+    # interest list before opening
+    assert client.post("/api/sutradhar/course/interest", json={"name": "सीमा", "phone": "9711111111", "batch_id": "batch_evening"}).status_code == 200
+    assert any(x["phone"] == "9711111111" for x in client.get("/api/sutradhar/admin/course", headers=ADMIN).json()["interest"])
+    os.environ.pop("COURSE_REGISTRATION_OPENS", None)

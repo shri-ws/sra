@@ -178,7 +178,7 @@
     /**
      * सर्वर पर सुरक्षित Razorpay order बनाना (राशि, लीड, टेस्ट-कोड सब सर्वर तय करता है)
      */
-    createServerOrder: async function(customerPhone, customerEmail, serviceId, inputCode, customerName) {
+    createServerOrder: async function(customerPhone, customerEmail, serviceId, inputCode, customerName, extra) {
       var phone = String(customerPhone || this.guessPhone()).replace(/\D/g, '').slice(-10);
       var res = await fetch(this.apiBase() + '/api/sutradhar/orders/create', {
         method: 'POST',
@@ -188,7 +188,8 @@
           customer_name: customerName || 'जातक',
           customer_email: customerEmail || '',
           service_id: serviceId,
-          input_code: inputCode || null
+          input_code: inputCode || null,
+          batch_id: (extra && extra.batch_id) || null
         })
       });
       if (res.ok) return await res.json();
@@ -253,7 +254,7 @@
       var phone = String(o.phone || this.guessPhone() || '').replace(/\D/g, '').slice(-10);
       var order;
       try {
-        order = await this.createServerOrder(phone, o.email || prefill.email || '', o.serviceId, o.code, o.name || prefill.name);
+        order = await this.createServerOrder(phone, o.email || prefill.email || '', o.serviceId, o.code, o.name || prefill.name, o.extra);
       } catch (err) {
         alert(err.message || 'भुगतान शुरू नहीं हो सका। कृपया पुनः प्रयास करें।');
         return null;
@@ -267,6 +268,8 @@
       });
       if (phone) options.prefill = Object.assign({}, prefill, { contact: phone });
       if (order.is_test) options.description = (options.description || '') + ' [टेस्ट]';
+      // course seat is held on the server for a few minutes; checkout closes a little before that
+      if (order.seat_hold_minutes) options.timeout = Math.max(300, (order.seat_hold_minutes - 3) * 60);
       var userHandler = options.handler;
       options.handler = function(response) {
         window._sraLastOrder = order;

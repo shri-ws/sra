@@ -297,6 +297,11 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
         <div class="plan-price"><span class="plan-amt">₹24,000</span><span class="plan-orig">₹32,000</span></div>
         <div class="badge">Popular</div>
       </div>
+      <div id="batchBox" style="margin:4px 0 14px; padding:14px 16px; border:1px solid var(--border); border-radius:10px;">
+        <div style="font-weight:700; margin-bottom:4px;">बैच चुनें (हर बैच में केवल 11 सीटें)</div>
+        <div id="batchInfo" style="font-size:13px; color:var(--muted); margin-bottom:10px;">कक्षाएँ 11 मार्च 2027 से। सीटों की जानकारी लोड हो रही है…</div>
+        <div id="batchList" style="display:grid; gap:8px;"></div>
+      </div>
       <div class="plan" id="p-consult" onclick="pick('consult',5100,0,'Personal Consultation (1 Year)')">
         <div class="plan-dot"></div>
         <div class="plan-text">
@@ -464,6 +469,7 @@ function pick(id,base,orig,name){
   document.getElementById('coupon').value='';
   document.getElementById('couponStatus').textContent='';
   ['course','consult'].forEach(p=>{ const el=document.getElementById('p-'+p); if(el) el.classList.toggle('active',p===id); });
+  const bb=document.getElementById('batchBox'); if(bb) bb.style.display = id==='course' ? '' : 'none';
   updateSummary();
 }
 
@@ -583,6 +589,10 @@ async function pay(){
   if(!lname){alert('Please enter your last name.');return;}
   if(!email||!/\S+@\S+\.\S+/.test(email)){alert('Please enter a valid email.');return;}
   if(!phone){alert('Please enter your WhatsApp number.');return;}
+  if (S.id === 'course') {
+    if (window._courseInfo && !window._courseInfo.registration_open) { alert('कोर्स का पंजीकरण 26 दिसंबर 2026 से खुलेगा।'); return; }
+    if (!window._courseBatch) { alert('कृपया बैच चुनें: सुबह या शाम।'); document.getElementById('batchBox').scrollIntoView({behavior:'smooth', block:'center'}); return; }
+  }
 
   const btn=document.getElementById('payBtn');
   btn.disabled=true;
@@ -637,8 +647,10 @@ async function pay(){
     // Amount, order and lead come from the server order (course: 30% Sutradhar commission; consultation: none)
     const order = await window.SraCouponEngine.checkoutWithOptions({
       serviceId: S.id === 'course' ? 'consultation_gurukul' : 'consultation_yearly',
-      options: options, code: S.code || '', phone: phone, email: email, name: fname + ' ' + lname
+      options: options, code: S.code || '', phone: phone, email: email, name: fname + ' ' + lname,
+      extra: S.id === 'course' ? { batch_id: window._courseBatch } : null
     });
+    if (S.id === 'course') loadCourseBatches();
     if (!order) { btn.disabled=false; btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>'; }
   } catch(e){
     alert('Something went wrong. Please try again or contact us on WhatsApp.');
@@ -647,8 +659,36 @@ async function pay(){
   }
 }
 
+
+// ── 1-year course batches: 11 seats each; the server refuses the 12th ──
+async function loadCourseBatches() {
+  const info = document.getElementById('batchInfo'), list = document.getElementById('batchList');
+  try {
+    const base = (window.SraCouponEngine && SraCouponEngine.apiBase()) || 'https://sra-canonical-engine.onrender.com';
+    const d = await (await fetch(base + '/api/sutradhar/course/batches')).json();
+    window._courseInfo = d;
+    const want = new URLSearchParams(location.search).get('batch');
+    if (!window._courseBatch && want && d.batches.some(b => b.id === want && !b.full)) window._courseBatch = want;
+    if (window._courseBatch && d.batches.some(b => b.id === window._courseBatch && b.full)) window._courseBatch = '';
+    info.textContent = d.registration_open
+      ? 'कक्षाएँ 11 मार्च 2027 से। भुगतान शुरू करते ही आपकी सीट ' + d.hold_minutes + ' मिनट के लिए रोक ली जाती है।'
+      : 'पंजीकरण 26 दिसंबर 2026 से खुलेगा। कक्षाएँ 11 मार्च 2027 से।';
+    list.innerHTML = d.batches.map(b => {
+      const on = window._courseBatch === b.id;
+      const dis = b.full || !d.registration_open;
+      return `<label style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px; border:1px solid ${on ? 'var(--gold)' : 'var(--border)'}; border-radius:8px; cursor:${dis ? 'not-allowed' : 'pointer'}; opacity:${b.full ? .55 : 1};">
+        <span><input type="radio" name="courseBatch" value="${b.id}" ${on ? 'checked' : ''} ${dis ? 'disabled' : ''} onchange="window._courseBatch=this.value; loadCourseBatches();" style="margin-right:8px;">${b.name}</span>
+        <span style="font-weight:700; color:${b.full ? 'var(--muted)' : 'var(--gold)'};">${b.full ? 'सीटें भर गईं' : b.left + ' / ' + b.seats + ' सीटें बचीं'}</span>
+      </label>`;
+    }).join('');
+  } catch (e) {
+    info.textContent = 'सीटों की जानकारी नहीं मिल सकी। थोड़ी देर बाद पृष्ठ ताज़ा करें।';
+  }
+}
+
 // Auto-fill and apply Sutradhar referral code if present in URL/Storage
 document.addEventListener('DOMContentLoaded', function() {
+  loadCourseBatches();
   // course.html links here with ?plan=course (default); ?plan=consult opens the consultation plan
   if (new URLSearchParams(location.search).get('plan') === 'consult') { pick('consult',5100,0,'Personal Consultation (1 Year)'); return; }
   updateSummary();

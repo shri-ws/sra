@@ -490,6 +490,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item" onclick="showPanel('emails', this)">Verified Email Logins</div>
       <div class="nav-item" onclick="showPanel('users', this)">Registered Users & Queries</div>
       <div class="nav-item" onclick="showPanel('students', this)">Students</div>
+      <div class="nav-item nav-item-course-batches" onclick="showPanel('course-batches', this)">कोर्स बैच (11 सीटें)</div>
       <div class="nav-item" onclick="showPanel('payments', this)">Payments</div>
       <div class="nav-item" onclick="showPanel('consultations', this)">Consultations</div>
       <div class="nav-item" onclick="showPanel('forum', this)">Forum Posts</div>
@@ -1209,6 +1210,22 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           <thead><tr><th>मोबाइल</th><th>पहली बार</th><th>आख़िरी बार</th><th>कितनी बार आया</th><th></th></tr></thead>
           <tbody id="sl-unfinished"></tbody>
         </table></div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-course-batches">
+      <div class="card">
+        <div class="tbl-header"><span class="table-title">1-वर्षीय कोर्स — बैच और सीटें</span>
+          <button class="export-btn" onclick="loadCourseBatchesAdmin()">रिफ्रेश</button></div>
+        <p style="font-size:13px; color:var(--text-muted); margin:4px 0 0;">हर बैच में 11 सीटें। भुगतान शुरू करते ही सीट 20 मिनट के लिए रुक जाती है; सीटें भरने पर वेबसाइट उस बैच का भुगतान खोलती ही नहीं। अगर फिर भी कोई भुगतान भरे बैच पर आ जाए तो वह अपने आप लौटा दिया जाता है।
+          <br><span id="cb-summary" style="font-weight:600;"></span></p>
+      </div>
+      <div id="cb-batches"></div>
+      <div class="card">
+        <div class="table-title" style="margin-bottom:6px;">पंजीकरण खुलने पर बताने के लिए नाम छोड़ने वाले</div>
+        <div style="overflow-x:auto;"><table class="tbl">
+          <thead><tr><th>नाम</th><th>मोबाइल (WhatsApp संदेश)</th><th>पसंद का बैच</th><th>कब</th></tr></thead>
+          <tbody id="cb-interest"></tbody></table></div>
       </div>
     </div>
 
@@ -2249,6 +2266,7 @@ function showPanel(name, targetEl){
       saas: currentAdminLang === 'en' ? 'Astrologer SaaS Subscribers' : 'ज्योतिषी SaaS ग्राहक',
       visitors: currentAdminLang === 'en' ? 'Website Visitors & Downloads' : 'वेबसाइट विज़िटर्स व डाउनलोड',
       'sutra-list': currentAdminLang === 'en' ? 'Sutradhar List — who is active' : 'सूत्रधार सूची — कौन सक्रिय',
+      'course-batches': currentAdminLang === 'en' ? 'Course batches (11 seats)' : 'कोर्स बैच (11 सीटें)',
       'sutra-invite': currentAdminLang === 'en' ? 'Sutradhar Invite' : 'सूत्रधार आमंत्रण'
     };
     const titleEl = document.getElementById('panelTitle');
@@ -2270,6 +2288,8 @@ function showPanel(name, targetEl){
       loadSutradharList(true);
     } else if (name === 'sutra-list') {
       loadSutradharList();
+    } else if (name === 'course-batches') {
+      loadCourseBatchesAdmin();
     } else if (name === 'sutra-reviews') {
       loadSutradharReviewQueue();
     } else if (name === 'sutra-payouts') {
@@ -3361,6 +3381,45 @@ window.loadSutradharList = loadSutradharList;
 window.sutraAction = sutraAction;
 window.sutraNudgeUnfinished = sutraNudgeUnfinished;
 window.sutraJoinBadge = sutraJoinBadge;
+
+/* ══ COURSE BATCHES: 11 seats each — who paid, who is paying now, who asked to be told ══ */
+async function loadCourseBatchesAdmin() {
+  const box = document.getElementById('cb-batches');
+  box.innerHTML = '<div class="card"><span class="spin"></span> लोड हो रहा है...</div>';
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/course');
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'जानकारी नहीं मिली');
+    const fmt = iso => iso ? new Date(iso).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+    const e = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    document.getElementById('cb-summary').textContent =
+      `कक्षाएँ ${d.start_date} से · पंजीकरण ${d.registration_opens} से (${d.registration_open ? 'अभी खुला है' : 'अभी बंद'})`;
+    box.innerHTML = d.batches.map(b => `
+      <div class="card">
+        <div class="tbl-header"><span class="table-title">${e(b.name)}</span>
+          <span><b>${b.paid.length}</b> भुगतान · <b>${b.held.length}</b> अभी भुगतान कर रहे · <b>${b.left}</b> / ${b.seats} सीटें बचीं</span></div>
+        <div style="overflow-x:auto;"><table class="tbl">
+          <thead><tr><th>#</th><th>नाम</th><th>मोबाइल</th><th>भुगतान</th><th>Payment ID</th></tr></thead>
+          <tbody>${b.paid.length ? b.paid.map((x, i) => `<tr><td>${i + 1}</td><td>${e(x.name || '—')}</td>
+            <td><a href="https://wa.me/91${e(x.phone)}" target="_blank" rel="noopener" style="color:var(--gold);">${e(x.phone)}</a></td>
+            <td>${fmt(x.paid_at)}</td><td style="font-family:monospace; font-size:12px;">${e(x.payment_id || '')}</td></tr>`).join('')
+            : '<tr><td colspan="5" class="empty-row">अभी कोई भुगतान नहीं</td></tr>'}</tbody>
+        </table></div>
+        ${b.held.length ? `<p style="font-size:13px; color:var(--text-muted); margin-top:8px;">अभी भुगतान कर रहे (सीट 20 मिनट तक रुकी): ${b.held.map(x => e(x.phone) + ' (' + fmt(x.held_until) + ' तक)').join(', ')}</p>` : ''}
+        ${b.refunds.length ? `<p style="font-size:13px; color:#b91c1c; margin-top:8px;">बैच भरने पर लौटाए गए भुगतान: ${b.refunds.map(x => e(x.name || x.phone) + ' · ' + e(x.payment_id) + ' · ' + (x.status === 'refund_failed' ? 'refund नहीं हो सका — Razorpay में हाथ से करें' : 'refund हो गया')).join('; ')}</p>` : ''}
+      </div>`).join('');
+    const it = d.interest || [];
+    const bname = id => (d.batches.find(b => b.id === id) || {}).name || '—';
+    document.getElementById('cb-interest').innerHTML = it.length ? it.map(x => `<tr>
+      <td>${e(x.name)}</td>
+      <td><a href="https://wa.me/91${e(x.phone)}?text=${encodeURIComponent('नमस्ते ' + (x.name || '') + ' जी, श्री राम जी एस्ट्रो के 1-वर्षीय ज्योतिष कोर्स का पंजीकरण खुल गया है। हर बैच में केवल 11 सीटें हैं — यहाँ से सीट पक्की करें: https://shriramjiastro.in/payment.html?plan=course' + (x.batch_id ? '&batch=' + x.batch_id : ''))}" target="_blank" rel="noopener" style="color:var(--gold);">${e(x.phone)}</a></td>
+      <td>${e(bname(x.batch_id))}</td><td>${fmt(x.updated_at)}</td></tr>`).join('')
+      : '<tr><td colspan="4" class="empty-row">अभी किसी ने नाम नहीं छोड़ा</td></tr>';
+  } catch (err) {
+    box.innerHTML = `<div class="card" style="color:#ef4444;">त्रुटि: ${err.message}</div>`;
+  }
+}
+window.loadCourseBatchesAdmin = loadCourseBatchesAdmin;
 
 const spInr = n => '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN');
 const spDate = iso => iso ? new Date(iso + 'T12:00:00+05:30').toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', weekday: 'short' }) : '—';
