@@ -39,4 +39,28 @@ for (const x of r.rules.concat(r.remedies)) {
 assert(r.rules.find(x => x.id === 'kalasarpa').sources[0].status === 'tradition');
 // navamsa sanity: 0° Mesh -> Mesh navamsa; 29° Mesh -> Dhanu
 assert.strictEqual(K.navamsa(1), 0); assert.strictEqual(K.navamsa(29), 8);
+
+// 9. new BPHS rules
+// Rahu in 8th (Vrishchik from Mesh lagna), no benefic contact
+r = K.evaluate(mk(0, { Rahu: [7], Sun: [2], Moon: [3], Mars: [9], Mercury: [2], Jupiter: [4], Venus: [4], Saturn: [10] }));
+assert(get(r, 'rahu-dasha-dusthana').applies, 'Rahu 8th, no benefic');
+// ...but Jupiter aspecting Rahu (Jupiter in 4th: 5th aspect lands on 8th) cancels it
+r = K.evaluate(mk(0, { Rahu: [7], Sun: [2], Moon: [10], Mars: [9], Mercury: [2], Jupiter: [3], Venus: [10], Saturn: [10] }));
+assert(!get(r, 'rahu-dasha-dusthana').applies, 'Jupiter aspect');
+assert(get(r, 'rahu-kendra-trikona').applies === false);
+r = K.evaluate(mk(0, { Rahu: [9], Sun: [2], Moon: [3], Mars: [9], Mercury: [2], Jupiter: [4], Venus: [4], Saturn: [10] }));
+assert(get(r, 'rahu-kendra-trikona').applies, 'Rahu in 10th');
+// 8th lord (Mars for Mesh lagna is lord of 1 and 8) in 6th
+r = K.evaluate(mk(0, { Rahu: [9], Sun: [2], Moon: [3], Mars: [5], Mercury: [2], Jupiter: [4], Venus: [4], Saturn: [10] }));
+assert(get(r, 'l8-in-6').applies, '8th lord in 6th');
+// 10. eclipse births through the real engine (Nagpur-ish coordinates)
+const B = require('../patrikaEngineBridge.js');
+const at = (date, time, lat, lon) => K.evaluate(B.calculatePatrikaPlanets({ name: 'T', date, time, lat, lon, tz: 5.5 }));
+let g = get(at('2009-07-22', '06:30', 25.3176, 82.9739), 'grahan-janma');
+assert(g.applies && g.eclipse === 'सूर्य', 'solar eclipse 22 Jul 2009: ' + g.why);
+g = get(at('2018-07-28', '01:50', 28.6139, 77.209), 'grahan-janma');
+assert(g.applies && g.eclipse === 'चन्द्र', 'lunar eclipse 28 Jul 2018: ' + g.why);
+g = get(at('2018-07-20', '12:00', 28.6139, 77.209), 'grahan-janma');
+assert(!g.applies, 'ordinary day: ' + g.why);
+assert(at('2009-07-22', '06:30', 25.3176, 82.9739).remedies.some(m => m.id === 'grahan-shanti'), 'eclipse shanti offered');
 console.log('all Kaal Sarp rule tests passed (' + r.rules.length + ' rules, ' + Object.keys(K.SOURCES).length + ' sources)');

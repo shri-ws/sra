@@ -215,6 +215,52 @@
         const b = four.length === 4 && c.weak('Jupiter') && c.weak('L5');
         return { applies: allWeak || b, why: allWeak ? 'गुरु, लग्नेश, सप्तमेश और पंचमेश चारों निर्बल हैं।' : b ? 'पंचम में बलवान सूर्य, मंगल, राहु, शनि और पुत्रकारक निर्बल।' : 'चारों कारक एक साथ निर्बल नहीं; पंचम में यह चतुष्टय भी नहीं।' };
       } }
+    ,
+    { id: 'grahan-janma', title: 'ग्रहण-काल में जन्म (BPHS 92)', src: ['bphs-92-1'], group: 'ग्रहण-जन्म',
+      test: c => {
+        const { P } = c;
+        if (!P.Sun || !P.Moon || !P.Rahu) return { applies: false, why: 'सूर्य/चन्द्र/राहु की स्थिति उपलब्ध नहीं।' };
+        const sep = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
+        const elong = sep(P.Moon.abs, P.Sun.abs);            // 0 = amavasya, 180 = purnima
+        const nodeSun = Math.min(sep(P.Sun.abs, P.Rahu.abs), sep(P.Sun.abs, P.Ketu.abs));
+        const nodeMoon = Math.min(sep(P.Moon.abs, P.Rahu.abs), sep(P.Moon.abs, P.Ketu.abs));
+        // the eclipse itself lasts a few hours around the exact new/full moon: Moon within ~1.5°
+        // of conjunction/opposition, and the luminary close enough to a node for an eclipse
+        const solar = elong <= 1.5 && nodeSun <= 17;
+        const lunar = (180 - elong) <= 1.5 && nodeMoon <= 11;
+        return { applies: solar || lunar, eclipse: solar ? 'सूर्य' : lunar ? 'चन्द्र' : null,
+          why: solar ? `जन्म अमावस्या के ठीक पास (सूर्य-चन्द्र ${elong.toFixed(1)}° दूर) और सूर्य राहु-केतु से ${nodeSun.toFixed(1)}° पर — सूर्य-ग्रहण के समय जन्म की प्रबल संभावना; पंचांग से पुष्टि करें।`
+            : lunar ? `जन्म पूर्णिमा के ठीक पास (सूर्य-चन्द्र ${elong.toFixed(1)}° दूर) और चन्द्र राहु-केतु से ${nodeMoon.toFixed(1)}° पर — चन्द्र-ग्रहण के समय जन्म की प्रबल संभावना; पंचांग से पुष्टि करें।`
+              : `सूर्य-चन्द्र की दूरी ${elong.toFixed(1)}° — जन्म ग्रहण-काल में नहीं।` };
+      },
+      note: 'ग्रहण की स्थिति ग्रह-अंशों से अनुमानित है (अमावस्या/पूर्णिमा से लगभग 1.5° के भीतर और ग्रहण-सीमा में); स्थानीय दृश्यता पंचांग से देखें।' },
+    { id: 'rahu-dasha-dusthana', title: 'राहु 6/8/12 में, शुभ सम्बन्ध नहीं — अपनी दशा में कष्ट', src: ['bphs-45-23'], group: 'राहु-केतु के अन्य शास्त्रीय योग',
+      test: c => {
+        const h = c.house('Rahu'), dus = [6, 8, 12].includes(h);
+        const ben = ['Jupiter', 'Venus', 'Mercury', 'Moon'].filter(id => c.conj(id, 'Rahu') || c.aspects(id, 'Rahu'));
+        return { applies: dus && ben.length === 0, why: dus ? `राहु ${h}वें भाव में; शुभ ग्रहों की युति/दृष्टि: ${ben.length ? ben.map(id => P_HI[id]).join(', ') : 'नहीं'}।` : `राहु ${h}वें भाव में (6/8/12 नहीं)।` };
+      },
+      note: 'शुभ ग्रह = गुरु, शुक्र, बुध, चन्द्र; दृष्टि पराशरी (सबकी सप्तम, गुरु 5-9)।' },
+    { id: 'rahu-kendra-trikona', title: 'राहु केन्द्र या त्रिकोण में — यज्ञकर्ता (शुभ योग)', src: ['bphs-22-3'], group: 'राहु-केतु के अन्य शास्त्रीय योग',
+      test: c => { const h = c.house('Rahu'), ok = [1, 4, 5, 7, 9, 10].includes(h); return { applies: ok, why: `राहु ${h}वें भाव में${ok ? ' — केन्द्र/त्रिकोण।' : ' — केन्द्र/त्रिकोण में नहीं।'}` }; } },
+    { id: 'l10-8-rahu', title: 'दशमेश अष्टम में राहु के साथ', src: ['bphs-22-6'], group: 'राहु-केतु के अन्य शास्त्रीय योग',
+      test: c => { const h = c.house(c.resolve('L10')), a = h === 8 && c.conj('L10', 'Rahu'); return { applies: a, why: `दशमेश (${c.name('L10')}) ${h}वें भाव में; राहु के साथ: ${c.conj('L10', 'Rahu') ? 'हाँ' : 'नहीं'}।` }; } },
+    { id: 'rahu-12-mars-sun', title: 'द्वादश में राहु-मंगल-सूर्य, द्वादशेश सूर्य के साथ', src: ['bphs-24-9'], group: 'राहु-केतु के अन्य शास्त्रीय योग',
+      test: c => {
+        const x = ['Rahu', 'Mars', 'Sun'].filter(id => c.house(id) === 12), l = c.resolve('L12') === 'Sun' || c.conj('L12', 'Sun');
+        return { applies: x.length === 3 && l, why: `द्वादश में: ${x.length ? x.map(id => P_HI[id]).join(', ') : 'इनमें से कोई नहीं'}; द्वादशेश सूर्य के साथ: ${l ? 'हाँ' : 'नहीं'}।` };
+      } },
+    { id: 'l8-in-6', title: 'अष्टमेश षष्ठ में — जल व सर्प से भय', src: ['bphs-25-90'], group: 'सर्प-भय',
+      test: c => { const h = c.house(c.resolve('L8')); return { applies: h === 6, why: `अष्टमेश (${c.name('L8')}) ${h}वें भाव में।` }; } },
+    { id: 'ketu-lagna-moon', title: 'लग्न व चन्द्र केतु के साथ, लग्नेश अष्टम में — दारिद्र्य', src: ['bphs-43-4'], group: 'राहु-केतु के अन्य शास्त्रीय योग',
+      test: c => {
+        const a = c.house('Ketu') === 1 && c.conj('Moon', 'Ketu'), l8 = c.house(c.resolve('L1')) === 8;
+        const mar = ['L2', 'L7'].some(m => c.resolve(m) !== c.resolve('L1') && (c.conj('L1', m) || c.aspects(m, 'L1')));
+        return { applies: a && l8 && mar, why: `केतु लग्न में चन्द्र के साथ: ${a ? 'हाँ' : 'नहीं'}; लग्नेश अष्टम में: ${l8 ? 'हाँ' : 'नहीं'}; मारकेश (2/7 के स्वामी) से युति/दृष्टि: ${mar ? 'हाँ' : 'नहीं'}।` };
+      } },
+    { id: 'mars6-rahu7-sat8', title: 'षष्ठ में मंगल, सप्तम में राहु, अष्टम में शनि', src: ['bphs-19-40'], group: 'राहु-केतु के अन्य शास्त्रीय योग',
+      test: c => { const a = c.house('Mars') === 6, b = c.house('Rahu') === 7, s = c.house('Saturn') === 8; return { applies: a && b && s, why: `मंगल षष्ठ में: ${a ? 'हाँ' : 'नहीं'}; राहु सप्तम में: ${b ? 'हाँ' : 'नहीं'}; शनि अष्टम में: ${s ? 'हाँ' : 'नहीं'}।` }; },
+      note: 'यह शास्त्र-वचन है, निश्चित भविष्यवाणी नहीं; विवाह-विचार पूरी कुंडली और मिलान देखकर ही करें।' }
   ];
 
   function navamsa(abs) {
@@ -225,6 +271,7 @@
 
   const REMEDIES = [
     { id: 'nagapuja', title: 'सर्प-शाप की शान्ति: नागपूजा', src: ['bphs-83-18-20', 'pd-12-24'], when: r => r.some(x => x.applies && x.group === 'सर्प-शाप (संतान)') },
+    { id: 'grahan-shanti', title: 'ग्रहण-जन्म दोष की शान्ति', src: ['bphs-92-2-3', 'bphs-92-4-10', 'bphs-92-11-12'], when: r => r.some(x => x.applies && x.id === 'grahan-janma') },
     { id: 'rahu-ketu-shanti', title: 'राहु-केतु की शान्ति: स्वरूप, धातु, जप, समिधा, दक्षिणा', src: ['bphs-85-12', 'bphs-85-13', 'bphs-85-4-5', 'bphs-85-17-20', 'bphs-85-21-23', 'bphs-85-26', 'bphs-85-27-28'], when: () => true }
   ];
 
