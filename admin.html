@@ -407,6 +407,7 @@ input,select,textarea,button{font-size:15px}
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">🤖 &nbsp;Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
       <div class="nav-item nav-item-marketing" onclick="showPanel('marketing', this)" style="color:#d97706; font-weight:bold; background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.3); border-radius:8px; margin-top:6px;">🎯 &nbsp;दैनिक मार्केटिंग ट्रैकर &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0/6</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">🤝 &nbsp;सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-sutra-list" onclick="showPanel('sutra-list', this)" style="color:#0f766e; font-weight:bold; background:rgba(15,118,110,0.06); border:1px solid rgba(15,118,110,0.25); border-radius:8px; margin-top:6px;">👥 &nbsp;सूत्रधार सूची (कौन सक्रिय)</div>
       <div class="nav-item nav-item-visitors" onclick="showPanel('visitors', this)" style="color:#7c3aed; font-weight:bold; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:8px; margin-top:6px;">📈 &nbsp;वेबसाइट विज़िटर्स व डाउनलोड</div>
       <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">💻 &nbsp;SaaS ग्राहक (ज्योतिषी) &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-payouts" onclick="showPanel('sutra-payouts', this)" style="color:#16a34a; font-weight:bold; background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.25); border-radius:8px; margin-top:6px;">💸 &nbsp;सूत्रधार पेआउट डेस्क &nbsp;<span id="badge-sutra-payouts" style="display:none; font-size:9px; background:#16a34a; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
@@ -1095,6 +1096,29 @@ input,select,textarea,button{font-size:15px}
         <div style="overflow-x:auto;"><table class="tbl">
           <thead><tr><th>समय</th><th>क्या हुआ</th><th>पेज</th><th>स्रोत / विवरण</th><th>नंबर</th></tr></thead>
           <tbody id="an-recent"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-sutra-list">
+      <div class="card">
+        <div class="tbl-header">
+          <span class="table-title">👥 सूत्रधार — कौन जुड़ा, कौन सक्रिय</span>
+          <button class="export-btn" onclick="loadSutradharList()">↻ रिफ्रेश</button>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">
+          निमंत्रण भेजने के बाद व्यक्ति पोर्टल पर नाम + नंबर + OTP देता है, परिचय देखकर परीक्षण पास करता है — तभी वह यहाँ "सूत्रधार" के रूप में आता है।
+          OTP करके बीच में छोड़ने वाले नीचे "अधूरा पंजीकरण" में दिखते हैं। "आख़िरी लॉगिन" से पता चलता है कि वह पोर्टल खोल रहा है या नहीं।
+        </p>
+        <div class="stats-grid" id="sl-stats" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));"></div>
+        <div style="overflow-x:auto; margin-bottom:20px;"><table class="tbl">
+          <thead><tr><th>सूत्रधार</th><th>स्थिति</th><th>जुड़ा</th><th>आख़िरी लॉगिन</th><th>लीड</th><th>बिक्री</th><th>दक्षिणा</th><th>UPI</th><th>कार्यवाही</th></tr></thead>
+          <tbody id="sl-tbody"><tr><td colspan="9" class="empty-row">लोड हो रहा है...</td></tr></tbody>
+        </table></div>
+        <div class="table-title" style="margin-bottom:6px;">🟠 अधूरा पंजीकरण — OTP किया, पर परीक्षण/पंजीकरण पूरा नहीं</div>
+        <div style="overflow-x:auto;"><table class="tbl">
+          <thead><tr><th>मोबाइल</th><th>पहली बार</th><th>आख़िरी बार</th><th>कितनी बार आया</th><th></th></tr></thead>
+          <tbody id="sl-unfinished"></tbody>
+        </table></div>
       </div>
     </div>
 
@@ -2134,6 +2158,7 @@ function showPanel(name, targetEl){
       'sutra-payouts': currentAdminLang === 'en' ? '💸 Sutradhar Payout Desk' : '💸 सूत्रधार पेआउट डेस्क',
       saas: currentAdminLang === 'en' ? '💻 Astrologer SaaS Subscribers' : '💻 ज्योतिषी SaaS ग्राहक',
       visitors: currentAdminLang === 'en' ? '📈 Website Visitors & Downloads' : '📈 वेबसाइट विज़िटर्स व डाउनलोड',
+      'sutra-list': currentAdminLang === 'en' ? '👥 Sutradhar List — who is active' : '👥 सूत्रधार सूची — कौन सक्रिय',
       'sutra-invite': currentAdminLang === 'en' ? '💌 Sutradhar Invite' : '💌 सूत्रधार आमंत्रण'
     };
     const titleEl = document.getElementById('panelTitle');
@@ -2152,6 +2177,9 @@ function showPanel(name, targetEl){
       loadMarketingTracker();
     } else if (name === 'careers') {
       fetchCareerApplications();
+      loadSutradharList(true);
+    } else if (name === 'sutra-list') {
+      loadSutradharList();
     } else if (name === 'sutra-reviews') {
       loadSutradharReviewQueue();
     } else if (name === 'sutra-payouts') {
@@ -2531,7 +2559,7 @@ function renderCareerRows(tbodyId, rows) {
           ? `<span class="badge" style="background:rgba(201,168,76,0.15); color:var(--gold); cursor:pointer;" onclick="viewResumeModal('${safe(app.id)}')">📄 ${safe(app.resume_name.slice(0,18))}</span>`
           : `<span style="font-size:11px; color:var(--muted);">${currentAdminLang === 'en' ? 'None' : 'उपलब्ध नहीं'}</span>`}
       </td>
-      <td>${statusBadge}</td>
+      <td>${statusBadge}${typeof sutraJoinBadge === 'function' ? sutraJoinBadge(app.phone) : ''}</td>
       <td>
         <div style="font-size:11px; display:flex; flex-direction:column; gap:4px;">
           <div><span style="color:var(--muted);">ID:</span> <code style="background:rgba(59,130,246,0.15); color:#2563eb; padding:2px 5px; border-radius:4px; font-weight:700;">${app.sutradhar_id || ('SUTRA-' + (app.phone ? app.phone.slice(-4) : '0000') + '-01')}</code></div>
@@ -3104,6 +3132,126 @@ async function loadVisitors(days) {
   }
 }
 window.loadVisitors = loadVisitors;
+
+/* ══ SUTRADHAR LIST: who joined, who is active, what they earned ══ */
+let sutraList = [];
+window._sutraByPhone = window._sutraByPhone || null;
+const slEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const slDT = iso => { if (!iso) return '—'; try { return new Date(iso).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso; } };
+const slAgo = iso => {
+  if (!iso) return '';
+  const d = (Date.now() - new Date(iso).getTime()) / 86400000;
+  if (d < 1) return 'आज';
+  if (d < 2) return 'कल';
+  return Math.floor(d) + ' दिन पहले';
+};
+const SL_STATE = {
+  earning: ['🟢 कमा रहा है', '#065f46', '#d1fae5'],
+  leads_only: ['🟡 लीड डाल रहा है, बिक्री अभी नहीं', '#92400e', '#fef3c7'],
+  joined: ['🔵 जुड़ गया, अभी कोई लीड नहीं', '#1e40af', '#dbeafe'],
+  paused: ['⏸️ रुका हुआ', '#991b1b', '#fee2e2'],
+};
+
+async function loadSutradharList(silent) {
+  const tbody = document.getElementById('sl-tbody');
+  if (!silent && tbody) tbody.innerHTML = '<tr><td colspan="9" class="empty-row"><span class="spin"></span> लोड हो रहा है...</td></tr>';
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhars');
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सूची लोड नहीं हो सकी');
+    sutraList = d.sutradhars || [];
+    window._sutraByPhone = {};
+    sutraList.forEach(s => { window._sutraByPhone[s.phone] = s; });
+    (d.unfinished || []).forEach(u => { if (!window._sutraByPhone[u.phone]) window._sutraByPhone[u.phone] = { state: 'unfinished', last_login_at: u.last_at }; });
+    if (typeof D !== 'undefined' && D.careers && document.getElementById('careers-tbody')) renderCareerRows('careers-tbody', D.careers);
+    if (!tbody) return;
+
+    const earning = sutraList.filter(s => s.state === 'earning').length;
+    const pendingTotal = sutraList.reduce((a, s) => a + (s.pending || 0), 0);
+    document.getElementById('sl-stats').innerHTML = [
+      ['कुल सूत्रधार', d.count, 'जिन्होंने पूरा पंजीकरण किया', 'gold'],
+      ['कमा रहे हैं', earning, 'कम से कम एक बिक्री', 'green'],
+      ['OTP किया, अधूरा छोड़ा', (d.unfinished || []).length, 'परीक्षण/पंजीकरण पूरा नहीं', ''],
+      ['बकाया दक्षिणा', '₹' + pendingTotal.toLocaleString('en-IN'), 'अभी चुकानी है', ''],
+    ].map(([l, v, sub, cls]) => `<div class="stat-card ${cls}"><div class="stat-label">${l}</div><div class="stat-val">${v}</div><div class="stat-sub">${sub}</div></div>`).join('');
+
+    tbody.innerHTML = sutraList.length ? sutraList.map((s, i) => {
+      const st = SL_STATE[s.state] || SL_STATE.joined;
+      const upi = s.upi_id
+        ? `<code style="font-size:12px;">${slEsc(s.upi_id)}</code><br>${s.upi_verified ? '<span style="color:#16a34a; font-weight:700;">✓ जाँची हुई</span>' : `<button class="export-btn" style="padding:3px 8px; margin-top:4px;" onclick="sutraAction(${i}, 'upi')">✓ जाँच हो गई</button>`}`
+        : '<span style="color:#b45309;">UPI नहीं दी</span>';
+      return `<tr>
+        <td><div style="font-weight:700;">${slEsc(s.name || '—')}</div>
+          <a href="https://wa.me/91${slEsc(s.phone)}" target="_blank" rel="noopener" style="font-family:monospace; color:var(--gold);">${slEsc(s.phone)}</a>
+          <div style="font-size:11px; color:var(--muted);">${slEsc(s.sutradhar_id)}</div></td>
+        <td><span class="badge" style="background:${st[2]}; color:${st[1]}; font-weight:700; white-space:normal;">${st[0]}</span></td>
+        <td style="font-size:12px;">${slDT(s.joined_at)}</td>
+        <td style="font-size:12px;">${s.last_login_at ? slDT(s.last_login_at) + '<br><span style="color:var(--muted);">' + slAgo(s.last_login_at) + '</span>' : '—'}</td>
+        <td><b>${s.leads_total}</b> <span style="font-size:11px; color:var(--muted);">(चालू ${s.leads_active})</span>${s.last_lead_at ? '<div style="font-size:11px; color:var(--muted);">आख़िरी ' + slAgo(s.last_lead_at) + '</div>' : ''}</td>
+        <td><b>${s.sales}</b></td>
+        <td><b>₹${(s.earned || 0).toLocaleString('en-IN')}</b><div style="font-size:11px; color:var(--muted);">चुकाई ₹${(s.paid || 0).toLocaleString('en-IN')} · बकाया ₹${(s.pending || 0).toLocaleString('en-IN')}</div></td>
+        <td style="font-size:12px;">${upi}</td>
+        <td><div style="display:flex; gap:5px; flex-wrap:wrap;">
+          <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, '${s.status === 'paused' ? 'activate' : 'pause'}')">${s.status === 'paused' ? '▶️ चालू करें' : '⏸️ रोकें'}</button>
+          <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, 'nudge')">📲 याद दिलाएँ</button>
+        </div></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="9" class="empty-row">अभी कोई सूत्रधार पंजीकृत नहीं है।</td></tr>';
+
+    const un = d.unfinished || [];
+    document.getElementById('sl-unfinished').innerHTML = un.length ? un.map(u => `<tr>
+      <td><a href="https://wa.me/91${slEsc(u.phone)}" target="_blank" rel="noopener" style="font-family:monospace; color:var(--gold);">${slEsc(u.phone)}</a></td>
+      <td style="font-size:12px;">${slDT(u.first_at)}</td>
+      <td style="font-size:12px;">${slDT(u.last_at)} <span style="color:var(--muted);">(${slAgo(u.last_at)})</span></td>
+      <td>${u.count || 1}</td>
+      <td><button class="export-btn" style="padding:4px 9px;" onclick="sutraNudgeUnfinished('${slEsc(u.phone)}')">📲 मदद का संदेश</button></td>
+    </tr>`).join('') : '<tr><td colspan="5" class="empty-row">कोई अधूरा पंजीकरण नहीं।</td></tr>';
+  } catch (err) {
+    if (tbody && !silent) tbody.innerHTML = `<tr><td colspan="9" class="empty-row" style="color:#ef4444;">त्रुटि: ${slEsc(err.message)}</td></tr>`;
+  }
+}
+
+async function sutraAction(i, action) {
+  const s = sutraList[i];
+  if (!s) return;
+  if (action === 'nudge') {
+    const msg = s.state === 'joined'
+      ? `🙏 नमस्ते ${s.name || ''} जी,\n\nश्री राम जी एस्ट्रो सूत्रधार पोर्टल में आपका स्वागत है। अपने पहले ग्राहक का नंबर "नई लीड जोड़ें" में डालिए — 72 घंटे में उनकी हर खरीद पर आपकी दक्षिणा बनेगी।\n\nपोर्टल: https://shriramjiastro.in/sutradhar.html`
+      : `🙏 नमस्ते ${s.name || ''} जी,\n\nश्री राम जी एस्ट्रो सूत्रधार पोर्टल पर आपकी लीड और दक्षिणा का ब्योरा देखें: https://shriramjiastro.in/sutradhar.html`;
+    window.open(`https://wa.me/91${s.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    return;
+  }
+  const body = { sutradhar_id: s.sutradhar_id };
+  if (action === 'pause') { if (!confirm(`${s.name || s.phone} का खाता रोकें? रुकने पर वे पोर्टल नहीं खोल सकेंगे और नई लीड नहीं डाल सकेंगे।`)) return; body.status = 'paused'; }
+  if (action === 'activate') body.status = 'active';
+  if (action === 'upi') { if (!confirm(`${s.upi_id} पर ₹1 भेजकर नाम मिलान हो गया?`)) return; body.upi_verified = true; }
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhars', { method: 'POST', body: JSON.stringify(body) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सेव नहीं हुआ');
+    loadSutradharList();
+  } catch (err) { alert('त्रुटि: ' + err.message); }
+}
+
+function sutraNudgeUnfinished(phone) {
+  const msg = `🙏 नमस्ते जी,\n\nआपने श्री राम जी एस्ट्रो सूत्रधार पोर्टल पर OTP से शुरुआत की थी। पंजीकरण पूरा करने के लिए परिचय देखकर छोटा-सा परीक्षण पूरा कर लें — फिर आप ग्राहकों के नंबर डालकर दक्षिणा कमा सकेंगे।\n\nपोर्टल: https://shriramjiastro.in/sutradhar.html\n\nकोई दिक्कत हो तो इसी नंबर पर बताइए।`;
+  window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// small status line for an application row in the Careers panel
+function sutraJoinBadge(phone) {
+  const m = window._sutraByPhone;
+  if (!m) return '';
+  const s = m[String(phone || '').replace(/\D/g, '').slice(-10)];
+  if (!s) return '<div style="margin-top:6px; font-size:12px; color:var(--muted);">⏳ पोर्टल पर अभी नहीं आया</div>';
+  if (s.state === 'unfinished') return `<div style="margin-top:6px; font-size:12px; color:#b45309; font-weight:700;">🟠 OTP किया, पंजीकरण अधूरा (${slAgo(s.last_login_at)})</div>`;
+  const st = SL_STATE[s.state] || SL_STATE.joined;
+  return `<div style="margin-top:6px; font-size:12px; color:${st[1]}; font-weight:700;">✅ सूत्रधार बन गया · ${st[0]}</div>`;
+}
+window.loadSutradharList = loadSutradharList;
+window.sutraAction = sutraAction;
+window.sutraNudgeUnfinished = sutraNudgeUnfinished;
+window.sutraJoinBadge = sutraJoinBadge;
 
 const spInr = n => '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN');
 const spDate = iso => iso ? new Date(iso + 'T12:00:00+05:30').toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', weekday: 'short' }) : '—';

@@ -2429,6 +2429,95 @@ def _saas_view(sub: Dict[str, Any], usage: List[Dict[str, Any]]) -> Dict[str, An
     }
 
 
+# =============================================================================
+# ADMIN: SUTRADHAR LIST — who joined, who is active, what they earned
+# =============================================================================
+class SutradharAdminRequest(BaseModel):
+    sutradhar_id: str
+    status: Optional[str] = None          # "active" | "paused"
+    upi_verified: Optional[bool] = None   # after the Rs 1 name check
+
+
+@router.get("/admin/sutradhars")
+async def admin_list_sutradhars(authorization: Optional[str] = Header(None)):
+    """Every registered Sutradhar with leads, sales, दक्षिणा and last login; plus numbers that did the OTP but did not finish."""
+    require_admin(authorization)
+    now = datetime.now(timezone.utc)
+    leads = SutradharStore.query_all("leads")
+    comms = SutradharStore.query_all("commissions")
+    seen, out = set(), []
+    for s in SutradharStore.query_all("sutradhars"):
+        sid = s.get("sutradhar_id") or s.get("id")
+        if not sid or sid in seen:
+            continue
+        seen.add(sid)
+        ids = get_sutradhar_alias_ids(sid) | {sid, s.get("id") or sid}
+        my_leads = [l for l in leads if l.get("sutradhar_id") in ids]
+        active = 0
+        for l in my_leads:
+            try:
+                exp = datetime.fromisoformat(l.get("expires_at"))
+                if exp.tzinfo is None:
+                    exp = exp.replace(tzinfo=timezone.utc)
+                if exp > now:
+                    active += 1
+            except Exception:
+                pass
+        my_comms = [c for c in comms if c.get("sutradhar_id") in ids and c.get("status") not in ("cancelled", "rejected")]
+        earned = sum(int(c.get("amount") or 0) for c in my_comms)
+        paid = sum(int(c.get("amount") or 0) for c in my_comms if c.get("status") == "paid")
+        last_sale = max((c.get("created_at") or "" for c in my_comms), default="")
+        last_lead = max((l.get("created_at") or "" for l in my_leads), default="")
+        if s.get("status") == "paused":
+            state = "paused"
+        elif my_comms:
+            state = "earning"
+        elif my_leads:
+            state = "leads_only"
+        else:
+            state = "joined"
+        out.append({
+            "sutradhar_id": sid, "name": s.get("name", ""), "phone": s.get("phone", ""), "email": s.get("email", ""),
+            "status": s.get("status", "active"), "state": state,
+            "upi_id": s.get("upi_id", ""), "upi_verified": bool(s.get("upi_verified")),
+            "joined_at": s.get("created_at", ""), "last_login_at": s.get("last_login_at", ""),
+            "login_count": int(s.get("login_count") or 0),
+            "leads_total": len(my_leads), "leads_active": active, "last_lead_at": last_lead,
+            "sales": len(my_comms), "earned": earned, "paid": paid, "pending": earned - paid, "last_sale_at": last_sale,
+        })
+    out.sort(key=lambda x: x.get("joined_at") or "", reverse=True)
+    phones = {x["phone"] for x in out}
+    unfinished = [d for d in SutradharStore.query_all("sutradhar_signups") if d.get("phone") and d["phone"] not in phones]
+    unfinished.sort(key=lambda d: d.get("last_at") or "", reverse=True)
+    return {
+        "count": len(out),
+        "active_count": sum(1 for x in out if x["status"] != "paused"),
+        "earning_count": sum(1 for x in out if x["state"] == "earning"),
+        "sutradhars": out,
+        "unfinished": unfinished[:300],
+    }
+
+
+@router.post("/admin/sutradhars")
+async def admin_update_sutradhar(req: SutradharAdminRequest, authorization: Optional[str] = Header(None)):
+    """Pause / re-activate a Sutradhar, or mark the UPI as checked."""
+    admin = require_admin(authorization)
+    target = next((s for s in SutradharStore.query_all("sutradhars")
+                   if req.sutradhar_id in (s.get("sutradhar_id"), s.get("id"))), None)
+    if not target:
+        raise HTTPException(status_code=404, detail="सूत्रधार नहीं मिला।")
+    doc = dict(target)
+    if req.status is not None:
+        if req.status not in ("active", "paused"):
+            raise HTTPException(status_code=400, detail="status active या paused होना चाहिए।")
+        doc["status"] = req.status
+    if req.upi_verified is not None:
+        doc["upi_verified"] = bool(req.upi_verified)
+    SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
+    log_audit_event("ADMIN_SUTRADHAR_UPDATE", admin, {"sutradhar_id": req.sutradhar_id, "status": req.status, "upi_verified": req.upi_verified})
+    return {"status": "success", "sutradhar": doc}
+
+
 @router.get("/admin/saas")
 async def admin_list_saas(authorization: Optional[str] = Header(None)):
     require_admin(authorization)
@@ -2483,6 +2572,36 @@ async def admin_upsert_saas(req: SaasAdminRequest, authorization: Optional[str] 
     return {"status": "success", "subscriber": _saas_view(sub, SutradharStore.query_all("saas_usage"))}
 
 
+# ── Who joined: last login of each Sutradhar, and numbers that did the OTP but never finished ──
+def note_sutradhar_login(sutradhar: Dict[str, Any]):
+    """Keeps last_login_at (written at most once an hour)."""
+    try:
+        now = datetime.now(timezone.utc)
+        last = sutradhar.get("last_login_at") or ""
+        if last and (now - datetime.fromisoformat(last)).total_seconds() < 3600:
+            return
+        doc = dict(sutradhar)
+        doc["last_login_at"] = now.isoformat()
+        doc["login_count"] = int(doc.get("login_count") or 0) + 1
+        SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
+    except Exception as e:
+        logger.warning(f"[Sutradhar] last-login note failed: {e}")
+
+
+def note_signup_attempt(phone: Optional[str]):
+    """A number verified by OTP on sutradhar.html that is not a Sutradhar yet (slides/test not finished)."""
+    if not phone:
+        return
+    try:
+        now = datetime.now(timezone.utc).isoformat()
+        doc = SutradharStore.get_doc("sutradhar_signups", phone) or {"phone": phone, "first_at": now, "count": 0}
+        doc["last_at"] = now
+        doc["count"] = int(doc.get("count") or 0) + 1
+        SutradharStore.set_doc("sutradhar_signups", phone, doc)
+    except Exception as e:
+        logger.warning(f"[Sutradhar] signup note failed: {e}")
+
+
 # -----------------------------------------------------------------------------
 # ENDPOINT 8: SUTRADHAR LOGIN AND DASHBOARD SUMMARY (signed-in Sutradhar only)
 # -----------------------------------------------------------------------------
@@ -2490,7 +2609,13 @@ async def admin_upsert_saas(req: SaasAdminRequest, authorization: Optional[str] 
 async def login_sutradhar(phone: Optional[str] = Query(None, description="Ignored; the phone comes from the OTP token"),
                           authorization: Optional[str] = Header(None)):
     """Returns the signed-in Sutradhar's profile, 404 if the OTP-verified number is not registered."""
-    sutradhar = require_sutradhar(authorization)
+    try:
+        sutradhar = require_sutradhar(authorization)
+    except HTTPException as e:
+        if e.status_code == 404:
+            note_signup_attempt(token_phone(verify_firebase_token(authorization)))
+        raise
+    note_sutradhar_login(sutradhar)
     return {"status": "success", "sutradhar": sutradhar}
 
 

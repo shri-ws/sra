@@ -309,3 +309,32 @@ def test_report_unlock_by_saas_code():
     # that SaaS unlock was for kundali_S only
     assert not client.post("/api/sutradhar/unlock/verify", json={"service_id": "kaalsarp_dosha", "report_ref": "kundali_T", "unlock_id": r["unlock_id"]}).json()["ok"]
     assert not client.post("/api/sutradhar/unlock/verify", json={"service_id": "kaalsarp_dosha", "report_ref": "kundali_S", "unlock_id": "use_made_up"}).json()["ok"]
+
+
+def test_admin_sutradhar_list_and_pause():
+    new_phone = "9833300003"
+    hdr = {"Authorization": f"Bearer mock_token_{new_phone}"}
+    # OTP done but not registered yet -> shows as unfinished
+    assert client.get("/api/sutradhar/login", headers=hdr).status_code == 404
+    assert client.get("/api/sutradhar/admin/sutradhars").status_code == 401
+    d = client.get("/api/sutradhar/admin/sutradhars", headers=ADMIN).json()
+    assert new_phone in [u["phone"] for u in d["unfinished"]]
+    # registers -> listed as joined, gone from unfinished
+    assert client.post("/api/sutradhar/register", headers=hdr, json={"name": "नया सूत्रधार", "phone": new_phone}).status_code == 200
+    assert client.get("/api/sutradhar/login", headers=hdr).status_code == 200
+    d = client.get("/api/sutradhar/admin/sutradhars", headers=ADMIN).json()
+    me = next(u for u in d["sutradhars"] if u["phone"] == new_phone)
+    assert me["state"] == "joined" and me["last_login_at"] and me["login_count"] == 1
+    assert new_phone not in [u["phone"] for u in d["unfinished"]]
+    # the earlier full-flow Sutradhar has a sale
+    if any(u["phone"] == SUTRA_PHONE for u in d["sutradhars"]):
+        s1 = next(u for u in d["sutradhars"] if u["phone"] == SUTRA_PHONE)
+        assert s1["leads_total"] >= 1
+    # pause blocks the portal, activate restores it
+    r = client.post("/api/sutradhar/admin/sutradhars", headers=ADMIN, json={"sutradhar_id": me["sutradhar_id"], "status": "paused"})
+    assert r.status_code == 200
+    assert client.get("/api/sutradhar/login", headers=hdr).status_code == 403
+    client.post("/api/sutradhar/admin/sutradhars", headers=ADMIN, json={"sutradhar_id": me["sutradhar_id"], "status": "active", "upi_verified": True})
+    assert client.get("/api/sutradhar/login", headers=hdr).status_code == 200
+    d = client.get("/api/sutradhar/admin/sutradhars", headers=ADMIN).json()
+    assert next(u for u in d["sutradhars"] if u["phone"] == new_phone)["upi_verified"] is True
