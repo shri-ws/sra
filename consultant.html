@@ -744,9 +744,37 @@
 
     // Initialize Page
     document.addEventListener('DOMContentLoaded', () => {
+      if (!checkAccess()) return;
       document.getElementById('consultant-phone').value = consultantPhone;
       loadClientsForConsultant();
     });
+
+    function checkAccess() {
+      const adminEmails = ['shriramjiastro7@gmail.com', 'eshriee@gmail.com', 'eshrico@gmail.com'];
+      const email = (localStorage.getItem('sra_verified_google_user') || '').toLowerCase();
+      const isAdmin = adminEmails.includes(email) || sessionStorage.getItem('sra_admin_auth') === 'true';
+      if (isAdmin) return true;
+
+      const mobile = (localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_consultant_phone') || '').replace(/\D/g, '').slice(-10);
+      let approved = [];
+      try { approved = JSON.parse(localStorage.getItem('sra_approved_consultants') || '[]'); } catch(e) {}
+      
+      const isApproved = approved.some(item => (typeof item === 'object' ? item.phone : item) === mobile);
+      if (isApproved) return true;
+
+      // Lock the page if not authorized
+      document.body.innerHTML = `
+        <div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; background:var(--bg); color:var(--text); font-family:sans-serif;">
+          <div style="font-size:3rem; margin-bottom:12px;">🔒</div>
+          <h2 style="color:var(--accent); margin-bottom:8px;">पहुँच अस्वीकृत (Access Denied)</h2>
+          <p style="max-width:440px; font-size:0.9rem; color:var(--muted); line-height:1.5; margin-bottom:20px;">
+            यह परामर्श डेस्क केवल एडमिन द्वारा अधिकृत दैवज्ञ / कंसल्टेंट के लिए आरक्षित है। आपका लॉगिन खाता (+91 ${mobile || 'अज्ञात'}) कंसल्टेंट के रूप में स्वीकृत नहीं है।
+          </p>
+          <a href="index.html" style="padding:8px 18px; border-radius:6px; background:var(--accent); color:#fff; text-decoration:none; font-weight:700; font-size:0.85rem;">होमपेज पर वापस जाएं</a>
+        </div>
+      `;
+      return false;
+    }
 
     function showToast(msg) {
       const t = document.getElementById('toast');

@@ -958,6 +958,19 @@ input,select,textarea,button{font-size:15px}
             <tbody id="saas-tbody"><tr><td colspan="8" class="empty-row">लोड हो रहा है...</td></tr></tbody>
           </table>
         </div>
+
+        <div style="margin-top:20px; border-top:1.5px dashed var(--border); padding-top:16px;">
+          <div class="table-title" style="margin-bottom:6px;">🩺 दैवज्ञ कंसल्टेंट डेस्क स्वीकृति (Consultant Access)</div>
+          <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">
+            जिन ज्योतिषियों/कंसल्टेंट्स का मोबाइल नंबर यहाँ स्वीकृत होगा, केवल वे ही नेविगेशन मेन्यू से <b>consultant.html</b> खोल पाएँगे। सामान्य ग्राहकों को "अस्वीकृत" का अलर्ट दिखेगा।
+          </p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+            <input type="tel" id="cons-new-phone" maxlength="10" placeholder="कंसल्टेंट मोबाइल (10 अंक)" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
+            <input type="text" id="cons-new-name" placeholder="नाम / उपाधि (उदा. पं. राधेश्याम)" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
+            <button class="export-btn" style="background:#16a34a; border-color:#15803d; color:#fff;" onclick="approveConsultantPhone()">+ कंसल्टेंट स्वीकृत करें</button>
+          </div>
+          <div id="approved-consultants-list" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+        </div>
       </div>
     </div>
 
@@ -1978,6 +1991,7 @@ function showPanel(name, targetEl){
       loadSutradharPayoutDesk();
     } else if (name === 'saas') {
       loadSaasSubscribers();
+      loadApprovedConsultants();
     } else if (name === 'visitors') {
       loadVisitors(window._anDays || 7);
     }
@@ -3175,6 +3189,68 @@ async function saasAction(i, action) {
   } catch (err) { alert('त्रुटि: ' + err.message); }
 }
 window.loadSaasSubscribers = loadSaasSubscribers;
+
+function loadApprovedConsultants() {
+  const el = document.getElementById('approved-consultants-list');
+  if (!el) return;
+  let list = [];
+  try {
+    list = JSON.parse(localStorage.getItem('sra_approved_consultants') || '[]');
+  } catch(e) {}
+  
+  if (!list.length) {
+    el.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">अभी कोई स्वीकृत कंसल्टेंट नंबर नहीं है। ऊपर से जोड़ें।</span>';
+    return;
+  }
+  
+  el.innerHTML = list.map((item, idx) => {
+    const p = typeof item === 'object' ? item.phone : item;
+    const n = typeof item === 'object' ? item.name : '';
+    return `<div style="background:var(--card); border:1px solid var(--border); padding:6px 10px; border-radius:6px; font-size:12px; display:inline-flex; align-items:center; gap:8px;">
+      <span><b>${safe(n || 'कंसल्टेंट')}</b> (+91 ${safe(p)})</span>
+      <button onclick="removeConsultantPhone('${safe(p)}')" style="background:none; border:none; color:#ef4444; font-weight:700; cursor:pointer;" title="अनुमति हटाएं">&times;</button>
+    </div>`;
+  }).join('');
+}
+
+function approveConsultantPhone() {
+  const phone = (document.getElementById('cons-new-phone').value || '').replace(/\D/g, '').slice(-10);
+  const name = document.getElementById('cons-new-name').value.trim() || 'कंसल्टेंट';
+  if (phone.length !== 10) { alert('कृपया 10 अंकों का मोबाइल नंबर दें।'); return; }
+  
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem('sra_approved_consultants') || '[]'); } catch(e) {}
+  
+  const exists = list.some(item => (typeof item === 'object' ? item.phone : item) === phone);
+  if (exists) { alert('यह नंबर पहले से स्वीकृत है।'); return; }
+  
+  list.push({ phone, name, approved_at: new Date().toISOString() });
+  localStorage.setItem('sra_approved_consultants', JSON.stringify(list));
+  
+  if (window.SRARecords && window.SRARecords.add) {
+    window.SRARecords.add('consultations', {
+      type: 'approved_consultant_entry',
+      phone: phone,
+      name: name,
+      created_at: new Date().toISOString()
+    }).catch(() => {});
+  }
+  
+  document.getElementById('cons-new-phone').value = '';
+  document.getElementById('cons-new-name').value = '';
+  loadApprovedConsultants();
+  alert(`+91 ${phone} को कंसल्टेंट डेस्क हेतु स्वीकृत किया गया।`);
+}
+
+function removeConsultantPhone(phone) {
+  if (!confirm(`क्या +91 ${phone} की कंसल्टेंट स्वीकृति हटाना चाहते हैं?`)) return;
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem('sra_approved_consultants') || '[]'); } catch(e) {}
+  list = list.filter(item => (typeof item === 'object' ? item.phone : item) !== phone);
+  localStorage.setItem('sra_approved_consultants', JSON.stringify(list));
+  loadApprovedConsultants();
+}
+window.loadApprovedConsultants = loadApprovedConsultants;
 window.addSaasSubscriber = addSaasSubscriber;
 window.saasAction = saasAction;
 

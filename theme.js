@@ -1664,6 +1664,48 @@
   window.toggleMobileMenu = window.toggleNavDrawer;
   window.closeMobileMenu = window.closeNavDrawer;
 
+  window.openConsultantDeskWithAuthCheck = function() {
+    if (typeof window.closeNavDrawer === 'function') window.closeNavDrawer();
+
+    let mobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '');
+    let email = (localStorage.getItem('sra_verified_google_user') || '').toLowerCase();
+    if (!mobile && window.firebase && window.firebase.auth) {
+      try {
+        const u = window.firebase.auth().currentUser;
+        if (u) {
+          if (u.phoneNumber) mobile = u.phoneNumber.replace(/\D/g, '');
+          if (u.email) email = (u.email || '').toLowerCase();
+        }
+      } catch(e) {}
+    }
+
+    const adminEmails = ['shriramjiastro7@gmail.com', 'eshriee@gmail.com', 'eshrico@gmail.com'];
+    const isAdmin = adminEmails.includes(email) || sessionStorage.getItem('sra_admin_auth') === 'true';
+
+    if (!mobile && !email && !isAdmin) {
+      alert('कृपया पहले वेबसाइट पर अपने मोबाइल नंबर या Google खाते से लॉगिन करें।');
+      return;
+    }
+
+    if (isAdmin) {
+      window.location.href = 'consultant.html';
+      return;
+    }
+
+    let approved = [];
+    try {
+      approved = JSON.parse(localStorage.getItem('sra_approved_consultants') || '[]');
+    } catch(e) {}
+
+    const cleanMobile = mobile.slice(-10);
+    if (cleanMobile && (approved.includes(cleanMobile) || approved.includes(mobile))) {
+      window.location.href = 'consultant.html';
+      return;
+    }
+
+    alert('अस्वीकृत: आपका मोबाइल नंबर (+91 ' + (cleanMobile || mobile) + ') एक सामान्य ग्राहक खाता है।\n\nयह डेस्क केवल एडमिन द्वारा स्वीकृत अधिकृत दैवज्ञ / कंसल्टेंट के लिए है।');
+  };
+
   // GLOBAL CAPTURE-PHASE EVENT LISTENER FOR GUARANTEED HAMBURGER AND DRAWER CLICKS
   if (!window._sraNavDelegated) {
     window._sraNavDelegated = true;
@@ -2081,6 +2123,12 @@
           </div>
 
           <!-- DIRECT LINKS -->
+          <a href="sankalp.html" onclick="closeNavDrawer()" class="drawer-item" style="color:var(--gold-dark); font-weight:700;">
+            <span>🕉️</span> <span data-i18n-hi="दैनिक संकल्प पूर्ति" data-i18n-en="Daily Sankalp Tracker">दैनिक संकल्प पूर्ति</span>
+          </a>
+          <a href="javascript:void(0)" onclick="openConsultantDeskWithAuthCheck()" class="drawer-item" style="color:var(--gold-dark); font-weight:700;">
+            <span>🩺</span> <span data-i18n-hi="दैवज्ञ परामर्श डेस्क" data-i18n-en="Consultant Workspace">दैवज्ञ परामर्श डेस्क</span>
+          </a>
           <a href="javascript:void(0)" onclick="closeNavDrawer(); window.openAppDownloadModal();" class="drawer-item drawer-app-download">
             <svg class="nav-app-ico" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 19.5h14"/></svg> <span data-i18n-hi="पत्रिका ऐप डाउनलोड करें" data-i18n-en="Download Patrika App">पत्रिका ऐप डाउनलोड करें</span>
           </a>
