@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="day">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>दैनिक संकल्प पूर्ति — Shri Ramji Astro</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="theme.js"></script>
+  <script src="sra-auth.js" defer></script>
+
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root, [data-theme="day"] {
+      --gold: #b48220;
+      --bg: #fdfbf7;
+      --bg-panel: #f7f3ea;
+      --card: #ffffff;
+      --border: rgba(124,19,5,0.18);
+      --text: #2c0a06;
+      --muted: #6e594d;
+      --green: #15803d;
+      --green-bg: #ecfdf5;
+      --red: #b91c1c;
+      --accent: #7c1305;
+      --accent-soft: rgba(124,19,5,0.06);
+    }
+    [data-theme="night"] {
+      --gold: #c9a84c;
+      --bg: #0b0714;
+      --bg-panel: #140d24;
+      --card: #1c1333;
+      --border: rgba(201,168,76,0.25);
+      --text: #f5f0ff;
+      --muted: #a497bd;
+      --green: #4ade80;
+      --green-bg: rgba(74,222,128,0.1);
+      --red: #f87171;
+      --accent: #c9a84c;
+      --accent-soft: rgba(201,168,76,0.1);
+    }
+
+    body {
+      font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top Nav */
+    header {
+      width: 100%;
+      background: var(--card);
+      border-bottom: 1.5px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%;
+      max-width: 620px;
+      padding: 16px;
+      flex: 1;
+    }
+
+    /* Auth Box */
+    .auth-banner {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .auth-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-input-group input {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      width: 130px;
+      outline: none;
+      font-weight: 600;
+    }
+    .btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
+    .btn-sm { padding: 4px 8px; font-size: 0.74rem; }
+
+    /* Sankalp Summary Card */
+    .summary-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .summary-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .summary-subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .progress-bar {
+      height: 10px;
+      background: var(--border);
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 12px 0 6px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .progress-stats {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+
+    /* Sankalp Checklist */
+    .sankalp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .sankalp-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .sankalp-card.completed {
+      background: var(--green-bg);
+      border-color: var(--green);
+    }
+    .sankalp-chk {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: var(--green);
+      margin-top: 2px;
+    }
+    .sankalp-content {
+      flex: 1;
+    }
+    .sankalp-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .sankalp-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .sankalp-card.completed .sankalp-title {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .sankalp-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .sankalp-details {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .sankalp-instructions {
+      font-size: 0.78rem;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+      color: var(--text);
+    }
+
+    /* Notification Bell Prompt */
+    .reminder-optin {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.8rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      background: var(--card);
+      border: 1.5px solid var(--accent);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand-title">🕉️ श्री रामजी ज्योतिष — संकल्प पूर्ति</div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-outline btn-sm" onclick="toggleTheme()">थीम</button>
+      <a href="index.html" class="btn btn-outline btn-sm">होम</a>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Client Login / Phone Banner -->
+    <div class="auth-banner">
+      <div>
+        <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700;">जातक लॉगिन ID (फोन नंबर)</div>
+        <div id="client-display-phone" style="font-weight:700; font-size:0.95rem;">+91 9876500001</div>
+      </div>
+      <div class="auth-input-group">
+        <input type="tel" id="client-input-phone" maxlength="10" placeholder="फोन नंबर बदलें"/>
+        <button class="btn btn-primary btn-sm" onclick="onSwitchClientPhone()">लोड करें</button>
+      </div>
+    </div>
+
+    <!-- Reminder Banner -->
+    <div class="reminder-optin">
+      <span>🔔 दैनिक संकल्प पूर्ति का रिमाइंडर प्राप्त करें</span>
+      <button class="btn btn-outline btn-sm" onclick="requestNotificationPermission()">अनुमति दें</button>
+    </div>
+
+    <!-- Summary & Progress Card -->
+    <div class="summary-card">
+      <div class="summary-title">आज का संकल्प पूर्ति</div>
+      <div class="summary-subtitle" id="today-date-str">दैनिक साधना व अनुष्ठान प्रगति</div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
+      <div class="progress-stats">
+        <span id="stat-completed">पूर्ण: 0</span>
+        <span id="stat-pending">शेष: 0</span>
+        <span id="stat-percent" style="color:var(--accent);">0%</span>
+      </div>
+    </div>
+
+    <!-- Sankalp Checklist -->
+    <div class="sankalp-list" id="sankalp-list">
+      <!-- Injected dynamically -->
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let clientPhone = localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_client_phone') || '9876500001';
+    let remedies = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('today-date-str').textContent = new Date().toLocaleDateString('hi-IN', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      document.getElementById('client-input-phone').value = clientPhone;
+      document.getElementById('client-display-phone').textContent = '+91 ' + clientPhone;
+      loadClientPrescriptions();
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    function onSwitchClientPhone() {
+      const p = document.getElementById('client-input-phone').value.trim().replace(/\D/g, '');
+      if (p.length === 10) {
+        clientPhone = p;
+        localStorage.setItem('sra_client_phone', clientPhone);
+        document.getElementById('client-display-phone').textContent = '+91 ' + clientPhone;
+        loadClientPrescriptions();
+        showToast('खाता लोड किया गया: +91 ' + clientPhone);
+      } else {
+        alert('कृपया 10 अंकों का फोन नंबर भरें।');
+      }
+    }
+
+    function getStorageKey() {
+      return 'sra_prescriptions_' + clientPhone;
+    }
+
+    function loadClientPrescriptions() {
+      try {
+        const raw = localStorage.getItem(getStorageKey());
+        remedies = raw ? JSON.parse(raw) : [];
+      } catch(e) {
+        remedies = [];
+      }
+
+      // Default sample for demo client if empty
+      if (remedies.length === 0 && clientPhone === '9876500001') {
+        remedies = [
+          {
+            id: 'rx_1',
+            category: 'पाठ / स्तोत्र',
+            title: 'श्री हनुमान चालीसा',
+            count: '11 बार प्रतिदिन',
+            days: '40 दिन',
+            timing: 'सायंकाल (गोधूलि वेला)',
+            instructions: 'लाल आसन पर पूर्व मुख बैठकर चमेली के तेल का दीपक जलाकर पाठ करें।',
+            doneToday: false
+          }
+        ];
+        saveRemedies();
+      }
+
+      renderList();
+    }
+
+    function saveRemedies() {
+      localStorage.setItem(getStorageKey(), JSON.stringify(remedies));
+    }
+
+    function toggleRemedy(id) {
+      const r = remedies.find(x => x.id === id);
+      if (r) {
+        r.doneToday = !r.doneToday;
+        saveRemedies();
+        renderList();
+        if (r.doneToday) {
+          showToast(`जय श्री राम! संकल्प '${r.title}' पूर्ण हुआ।`);
+        }
+      }
+    }
+
+    function renderList() {
+      const el = document.getElementById('sankalp-list');
+      const fill = document.getElementById('progress-fill');
+      const statCompleted = document.getElementById('stat-completed');
+      const statPending = document.getElementById('stat-pending');
+      const statPercent = document.getElementById('stat-percent');
+
+      el.innerHTML = '';
+      if (remedies.length === 0) {
+        el.innerHTML = `
+          <div style="text-align:center; padding:30px; background:var(--card); border:1px solid var(--border); border-radius:10px;">
+            <div style="font-size:1.5rem; margin-bottom:8px;">📜</div>
+            <div style="font-weight:700; margin-bottom:4px;">कोई सक्रिय उपचार पर्ची नहीं मिली</div>
+            <div style="font-size:0.8rem; color:var(--muted);">दैवज्ञ द्वारा आपके फोन नंबर (+91 ${clientPhone}) पर निर्धारित किए गए उपाय यहाँ दिखेंगे।</div>
+          </div>
+        `;
+        fill.style.width = '0%';
+        statCompleted.textContent = 'पूर्ण: 0';
+        statPending.textContent = 'शेष: 0';
+        statPercent.textContent = '0%';
+        return;
+      }
+
+      const completed = remedies.filter(r => r.doneToday).length;
+      const total = remedies.length;
+      const pending = total - completed;
+      const pct = Math.round((completed / total) * 100);
+
+      fill.style.width = pct + '%';
+      statCompleted.textContent = `पूर्ण: ${completed}`;
+      statPending.textContent = `शेष: ${pending}`;
+      statPercent.textContent = `${pct}%`;
+
+      remedies.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'sankalp-card' + (r.doneToday ? ' completed' : '');
+        card.innerHTML = `
+          <input type="checkbox" class="sankalp-chk" id="item_${r.id}" ${r.doneToday ? 'checked' : ''} onchange="toggleRemedy('${r.id}')"/>
+          <div class="sankalp-content">
+            <div class="sankalp-header-line">
+              <span class="sankalp-title">${r.title}</span>
+              <span class="sankalp-tag">${r.category}</span>
+            </div>
+            <div class="sankalp-details">
+              <span>आवृत्ति: <strong>${r.count}</strong></span>
+              <span>अवधि: <strong>${r.days}</strong></span>
+              <span>समय: <strong>${r.timing}</strong></span>
+            </div>
+            ${r.instructions ? `<div class="sankalp-instructions"><strong>नियम / विधि:</strong> ${r.instructions}</div>` : ''}
+          </div>
+        `;
+        el.appendChild(card);
+      });
+    }
+
+    function requestNotificationPermission() {
+      if (!('Notification' in window)) {
+        alert('यह ब्राउज़र नोटिफिकेशन का समर्थन नहीं करता।');
+        return;
+      }
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          showToast('दैनिक संकल्प रिमाइंडर सक्रिय हो गया है!');
+          new Notification('श्री रामजी ज्योतिष', {
+            body: 'दैनिक संकल्प पूर्ति रिमाइंडर सक्रिय है।',
+            icon: '/favicon.svg'
+          });
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

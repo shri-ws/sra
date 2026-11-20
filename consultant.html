@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="day">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>दैवज्ञ कंसल्टेशन डेस्क — Shri Ramji Astro</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="theme.js"></script>
+  <script src="sra-auth.js" defer></script>
+  <script src="sra-records.js" defer></script>
+
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root, [data-theme="day"] {
+      --gold: #b48220;
+      --gold-dark: #8c6010;
+      --bg: #fdfbf7;
+      --bg-panel: #f7f3ea;
+      --card: #ffffff;
+      --border: rgba(124,19,5,0.18);
+      --text: #2c0a06;
+      --muted: #6e594d;
+      --green: #15803d;
+      --green-bg: #ecfdf5;
+      --red: #b91c1c;
+      --red-bg: #fef2f2;
+      --accent: #7c1305;
+      --accent-soft: rgba(124,19,5,0.06);
+    }
+    [data-theme="night"] {
+      --gold: #c9a84c;
+      --gold-dark: #e0bc5a;
+      --bg: #0b0714;
+      --bg-panel: #140d24;
+      --card: #1c1333;
+      --border: rgba(201,168,76,0.25);
+      --text: #f5f0ff;
+      --muted: #a497bd;
+      --green: #4ade80;
+      --green-bg: rgba(74,222,128,0.1);
+      --red: #f87171;
+      --red-bg: rgba(248,113,113,0.1);
+      --accent: #c9a84c;
+      --accent-soft: rgba(201,168,76,0.1);
+    }
+
+    body {
+      font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Nav */
+    header {
+      background: var(--card);
+      border-bottom: 1.5px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+    .brand .badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .consultant-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      background: var(--bg-panel);
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .consultant-badge input {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.85rem;
+      width: 105px;
+      outline: none;
+    }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { background: var(--accent-soft); }
+    .btn-sm { padding: 4px 10px; font-size: 0.76rem; }
+    .btn-whatsapp {
+      background: #25D366;
+      color: #fff;
+    }
+    .btn-whatsapp:hover { background: #20bd5a; }
+
+    /* Main Workspace Layout */
+    .workspace {
+      display: grid;
+      grid-template-columns: 310px 1fr 390px;
+      gap: 16px;
+      padding: 16px;
+      flex: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    @media (max-width: 1200px) {
+      .workspace { grid-template-columns: 280px 1fr; }
+      .workspace .right-panel { grid-column: span 2; }
+    }
+    @media (max-width: 820px) {
+      .workspace { grid-template-columns: 1fr; }
+      .workspace .right-panel { grid-column: span 1; }
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-header {
+      background: var(--bg-panel);
+      padding: 10px 14px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .panel-body {
+      padding: 14px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Client Queue */
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .search-box input {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+    }
+    .client-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .client-item {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .client-item:hover, .client-item.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .client-item-top {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+    .client-item-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Dossier & Chart Center Panel */
+    .dossier-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+    }
+    .dossier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px 14px;
+      font-size: 0.82rem;
+      margin-top: 8px;
+    }
+    .dossier-grid .field-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+    .dossier-grid .field-val {
+      font-weight: 600;
+    }
+    .notes-box {
+      margin-top: 14px;
+    }
+    .notes-box textarea {
+      width: 100%;
+      height: 110px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      resize: vertical;
+      font-family: inherit;
+      outline: none;
+    }
+
+    /* Prescription Pad (Right Panel) */
+    .rx-header-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .rx-form {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .form-group {
+      margin-bottom: 8px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+    .form-row .form-group { flex: 1; }
+    .rx-form select, .rx-form input, .rx-form textarea {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+    }
+
+    /* Rx Items List */
+    .rx-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .rx-item-card {
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: var(--bg);
+      position: relative;
+    }
+    .rx-item-title {
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rx-item-tag {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .rx-item-rules {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .rx-item-rule-badge {
+      background: var(--bg-panel);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .rx-item-desc {
+      font-size: 0.78rem;
+      margin-top: 4px;
+      color: var(--text);
+    }
+    .rx-item-del {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: var(--red);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 2px 6px;
+    }
+
+    /* Client Sankalp Preview Card */
+    .client-preview-box {
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--bg-panel);
+      margin-top: 14px;
+    }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .sankalp-progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .sankalp-progress-fill {
+      height: 100%;
+      background: var(--green);
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .sankalp-sim-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      padding: 6px 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+    .sankalp-sim-item input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: var(--green);
+    }
+
+    /* Modal for New Client */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      background: var(--bg-panel);
+      padding: 12px 16px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+    }
+    .modal-body {
+      padding: 16px;
+    }
+    .modal-body .form-group { margin-bottom: 10px; }
+    .modal-footer {
+      padding: 12px 16px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Notification Banner */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--card);
+      border: 1.5px solid var(--accent);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      z-index: 200;
+      display: none;
+    }
+
+    /* Print View */
+    @media print {
+      header, .workspace > .panel:not(.right-panel), .rx-form, .btn, .client-preview-box, .search-box {
+        display: none !important;
+      }
+      .workspace { display: block; padding: 0; }
+      .right-panel { border: none !important; }
+      body { background: #fff !important; color: #000 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <h1>श्री रामजी दैवज्ञ डेस्क</h1>
+      <span class="badge">कंसल्टेशन व डिजिटल उपचार</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="consultant-badge" title="कंसल्टेंट मोबाइल नंबर (आपकी यूनिक आईडी)">
+        <span style="font-size:0.75rem; color:var(--muted);">कंसल्टेंट ID:</span>
+        +91 <input type="tel" id="consultant-phone" maxlength="10" placeholder="फोन नंबर दर्ज करें" value="9876543210" onchange="onConsultantPhoneChange()"/>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="toggleTheme()" title="दिन/रात्रि मोड">थीम</button>
+      <a href="index.html" class="btn btn-outline btn-sm">वेबसाइट</a>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Workspace -->
+  <main class="workspace">
+
+    <!-- Column 1: Client Queue & Khata List -->
+    <section class="panel left-panel">
+      <div class="panel-header">
+        <span class="panel-title">क्लाइंट खाता व कतार</span>
+        <button class="btn btn-primary btn-sm" onclick="openNewClientModal()">+ नया खाता</button>
+      </div>
+      <div class="panel-body">
+        <div class="search-box">
+          <input type="tel" id="search-phone" maxlength="10" placeholder="क्लाइंट फोन नं. खोजें..."/>
+          <button class="btn btn-outline btn-sm" onclick="searchClient()">खोजें</button>
+        </div>
+
+        <div style="font-size: 0.74rem; font-weight:700; color:var(--muted); margin: 6px 0;">हाल के परामर्श खाते:</div>
+        <div class="client-list" id="client-list">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Column 2: Client Dossier & Chart View -->
+    <section class="panel center-panel">
+      <div class="panel-header">
+        <span class="panel-title">जातक विवरण व कुंडली</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-outline btn-sm" id="btn-open-patrika" onclick="openClientChart()" disabled>चार्ट खोलें (Patrika)</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        
+        <div class="dossier-card" id="dossier-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="dossier-name" style="font-size:1.05rem; font-weight:700; color:var(--accent);">कोई क्लाइंट चयनित नहीं है</h3>
+            <span id="dossier-phone" class="badge" style="font-size:0.8rem;">—</span>
+          </div>
+          <div class="dossier-grid">
+            <div>
+              <div class="field-label">जन्म तिथि</div>
+              <div class="field-val" id="dossier-dob">—</div>
+            </div>
+            <div>
+              <div class="field-label">जन्म समय</div>
+              <div class="field-val" id="dossier-tob">—</div>
+            </div>
+            <div>
+              <div class="field-label">जन्म स्थान</div>
+              <div class="field-val" id="dossier-pob">—</div>
+            </div>
+            <div>
+              <div class="field-label">परामर्श स्थिति</div>
+              <div class="field-val" id="dossier-status">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Astrologer Confidential Notes -->
+        <div class="notes-box">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">
+            दैवज्ञ गोपनीय निदान एवं विश्लेषण (Private Notes - केवल आपके रिकॉर्ड के लिए):
+          </label>
+          <textarea id="astrologer-notes" placeholder="लग्न, वर्तमान महादशा-अंतर्दशा, प्रमुख ग्रह दोष (जैसे मांगलिक, कालसर्प, पितृ दोष) व परामर्श निष्कर्ष लिखें..." oninput="autoSaveClientNotes()"></textarea>
+        </div>
+
+        <!-- Consultation History -->
+        <div style="margin-top:16px;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); display:block; margin-bottom:6px;">परामर्श इतिहास एवं प्रगति:</label>
+          <div id="consultation-history" style="font-size:0.82rem; color:var(--muted); line-height:1.5;">
+            इस क्लाइंट का कोई पूर्व परामर्श रिकॉर्ड नहीं मिला।
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Column 3: E-Prescription Pad & Sankalp Builder -->
+    <section class="panel right-panel">
+      <div class="panel-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="rx-header-badge">℞</span>
+          <span class="panel-title">डिजिटल उपचार पर्ची (Prescription)</span>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="window.print()" title="पर्ची प्रिंट करें">🖨️ प्रिंट</button>
+          <button class="btn btn-whatsapp btn-sm" onclick="shareOnWhatsApp()" title="क्लाइंट को WhatsApp पर भेजें">WhatsApp</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        
+        <!-- Add Remedy Form -->
+        <div class="rx-form">
+          <div class="form-row">
+            <div class="form-group" style="flex:1.2;">
+              <label>उपाय श्रेणी</label>
+              <select id="rx-category">
+                <option value="पाठ / स्तोत्र">पाठ / स्तोत्र</option>
+                <option value="मंत्र जप">मंत्र जप</option>
+                <option value="व्रत / उपवास">व्रत / उपवास</option>
+                <option value="दान / सेवा">दान / सेवा</option>
+                <option value="आचरण व नियम">आचरण व नियम</option>
+                <option value="रत्न / रुद्राक्ष">रत्न / रुद्राक्ष</option>
+                <option value="अन्य">अन्य</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:2;">
+              <label>उपाय का नाम</label>
+              <input type="text" id="rx-title" placeholder="उदा. श्री हनुमान चालीसा"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>आवृत्ति / संख्या</label>
+              <input type="text" id="rx-count" placeholder="उदा. 11 बार प्रतिदिन"/>
+            </div>
+            <div class="form-group">
+              <label>अवधि</label>
+              <input type="text" id="rx-days" placeholder="उदा. 40 दिन"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>समय</label>
+              <select id="rx-timing">
+                <option value="प्रातःकाल (ब्रह्म मुहूर्त / सूर्योदय)">प्रातःकाल</option>
+                <option value="सायंकाल (गोधूलि वेला)">सायंकाल</option>
+                <option value="दोपहर">दोपहर</option>
+                <option value="रात्रि (शयन पूर्व)">रात्रि</option>
+                <option value="दिनभर में कभी भी">कभी भी</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>विशेष शास्त्रीय निर्देश</label>
+              <input type="text" id="rx-instructions" placeholder="उदा. लाल आसन, पूर्व मुख बैठें"/>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-sm" style="width:100%; justify-content:center; margin-top:4px;" onclick="addRemedyItem()">
+            + पर्ची में जोड़ें
+          </button>
+        </div>
+
+        <!-- Prescribed Items List -->
+        <div style="font-size:0.75rem; font-weight:700; color:var(--muted); margin-bottom:6px;">निर्धारित उपचार सूची:</div>
+        <div class="rx-items" id="rx-items-list">
+          <div style="text-align:center; padding:16px; font-size:0.8rem; color:var(--muted);">
+            अभी कोई उपचार नहीं जोड़ा गया है।
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <button class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:12px;" onclick="saveAndLockPrescription()">
+          💾 पर्ची सुरक्षित करें एवं सिंक करें
+        </button>
+
+        <!-- Live Client View Simulation -->
+        <div class="client-preview-box">
+          <div class="preview-header">
+            <span>क्लाइंट का 'आज का संकल्प पूर्ति' प्रीव्यू</span>
+            <span id="preview-sankalp-count">0/0 पूर्ण</span>
+          </div>
+          <div class="sankalp-progress-bar">
+            <div class="sankalp-progress-fill" id="preview-progress-fill"></div>
+          </div>
+          <div id="preview-sankalp-items">
+            <!-- Simulated client checklist -->
+          </div>
+          <div style="font-size:0.68rem; color:var(--muted); text-align:center; margin-top:6px;">
+            क्लाइंट जब अपने इसी फोन नंबर से लॉगिन करेगा, उसे सीधे ये संकल्प दिखेंगे।
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Add New Client -->
+  <div class="modal-overlay" id="new-client-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span>+ नया क्लाइंट खाता जोड़ें</span>
+        <button onclick="closeNewClientModal()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted);">क्लाइंट का नाम *</label>
+          <input type="text" id="nc-name" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);" placeholder="उदा. राहुल शर्मा"/>
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted);">मोबाइल नंबर (क्लाइंट लॉगिन ID) *</label>
+          <input type="tel" id="nc-phone" maxlength="10" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);" placeholder="10 अंकों का फोन नंबर"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label style="font-size:0.75rem; font-weight:700; color:var(--muted);">जन्म तिथि</label>
+            <input type="date" id="nc-dob" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);"/>
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label style="font-size:0.75rem; font-weight:700; color:var(--muted);">जन्म समय</label>
+            <input type="time" id="nc-tob" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted);">जन्म स्थान (शहर, राज्य)</label>
+          <input type="text" id="nc-pob" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);" placeholder="उदा. लखनऊ, उत्तर प्रदेश"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="closeNewClientModal()">रद्द करें</button>
+        <button class="btn btn-primary btn-sm" onclick="saveNewClient()">खाता बनाएं</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Core JavaScript Logic -->
+  <script>
+    // ══════════════════════════════════════════════════════════════════════════
+    // STATE & DATA MANAGEMENT
+    // ══════════════════════════════════════════════════════════════════════════
+    let consultantPhone = localStorage.getItem('sra_consultant_phone') || localStorage.getItem('sra_verified_mobile') || '9876543210';
+    let currentClient = null;
+    let currentRemedies = [];
+    let clientsCache = [];
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('consultant-phone').value = consultantPhone;
+      loadClientsForConsultant();
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    function onConsultantPhoneChange() {
+      const p = document.getElementById('consultant-phone').value.trim().replace(/\D/g, '');
+      if (p.length === 10) {
+        consultantPhone = p;
+        localStorage.setItem('sra_consultant_phone', consultantPhone);
+        loadClientsForConsultant();
+        showToast('कंसल्टेंट ID अपडेट की गई: +91 ' + consultantPhone);
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // CLIENT QUEUE & LEDGER
+    // ══════════════════════════════════════════════════════════════════════════
+    function getLedgerStorageKey() {
+      return 'sra_consultant_ledger_' + consultantPhone;
+    }
+
+    function loadClientsForConsultant() {
+      try {
+        const raw = localStorage.getItem(getLedgerStorageKey());
+        clientsCache = raw ? JSON.parse(raw) : [];
+      } catch(e) {
+        clientsCache = [];
+      }
+
+      // Default demo client if empty
+      if (clientsCache.length === 0) {
+        clientsCache = [
+          {
+            phone: '9876500001',
+            name: 'राहुल शर्मा',
+            dob: '1992-05-14',
+            tob: '08:30',
+            pob: 'लखनऊ, उत्तर प्रदेश',
+            notes: 'कर्क लग्न, वर्तमान शनि ढैया। मानसिक तनाव व कार्य में विलंब।',
+            created_at: new Date().toISOString()
+          }
+        ];
+        saveLedgerLocally();
+      }
+
+      renderClientList();
+      if (clientsCache.length > 0 && !currentClient) {
+        selectClient(clientsCache[0].phone);
+      }
+    }
+
+    function saveLedgerLocally() {
+      localStorage.setItem(getLedgerStorageKey(), JSON.stringify(clientsCache));
+    }
+
+    function renderClientList() {
+      const el = document.getElementById('client-list');
+      el.innerHTML = '';
+      if (clientsCache.length === 0) {
+        el.innerHTML = '<div style="font-size:0.8rem; color:var(--muted); text-align:center; padding:10px;">कोई खाता नहीं मिला।</div>';
+        return;
+      }
+
+      clientsCache.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'client-item' + (currentClient && currentClient.phone === c.phone ? ' active' : '');
+        item.onclick = () => selectClient(c.phone);
+        item.innerHTML = `
+          <div class="client-item-top">
+            <span>${c.name}</span>
+            <span style="font-size:0.75rem; color:var(--accent);">+91 ${c.phone}</span>
+          </div>
+          <div class="client-item-meta">
+            ${c.dob || '—'} · ${c.pob || '—'}
+          </div>
+        `;
+        el.appendChild(item);
+      });
+    }
+
+    function selectClient(phone) {
+      const c = clientsCache.find(x => x.phone === phone);
+      if (!c) return;
+      currentClient = c;
+
+      // Update Center Panel
+      document.getElementById('dossier-name').textContent = c.name;
+      document.getElementById('dossier-phone').textContent = '+91 ' + c.phone;
+      document.getElementById('dossier-dob').textContent = c.dob || 'अज्ञात';
+      document.getElementById('dossier-tob').textContent = c.tob || 'अज्ञात';
+      document.getElementById('dossier-pob').textContent = c.pob || 'अज्ञात';
+      document.getElementById('dossier-status').textContent = 'सक्रिय परामर्श';
+      document.getElementById('astrologer-notes').value = c.notes || '';
+      document.getElementById('btn-open-patrika').disabled = false;
+
+      // Update History
+      const hist = document.getElementById('consultation-history');
+      hist.innerHTML = `खाता सृजन: ${new Date(c.created_at || Date.now()).toLocaleDateString('hi-IN')}<br/>परामर्शदाता: +91 ${consultantPhone}`;
+
+      // Load client's prescription
+      loadPrescriptionForClient(c.phone);
+      renderClientList();
+    }
+
+    function autoSaveClientNotes() {
+      if (!currentClient) return;
+      currentClient.notes = document.getElementById('astrologer-notes').value;
+      saveLedgerLocally();
+    }
+
+    function searchClient() {
+      const q = document.getElementById('search-phone').value.trim().replace(/\D/g, '');
+      if (!q) {
+        renderClientList();
+        return;
+      }
+      const match = clientsCache.find(c => c.phone.includes(q) || c.name.toLowerCase().includes(q.toLowerCase()));
+      if (match) {
+        selectClient(match.phone);
+      } else {
+        if (confirm('इस नंबर (+91 ' + q + ') का कोई क्लाइंट नहीं मिला। क्या नया खाता खोलना चाहते हैं?')) {
+          openNewClientModal(q);
+        }
+      }
+    }
+
+    // Modal Handlers
+    function openNewClientModal(prefilledPhone = '') {
+      document.getElementById('nc-phone').value = prefilledPhone;
+      document.getElementById('nc-name').value = '';
+      document.getElementById('nc-dob').value = '';
+      document.getElementById('nc-tob').value = '';
+      document.getElementById('nc-pob').value = '';
+      document.getElementById('new-client-modal').style.display = 'flex';
+    }
+    function closeNewClientModal() {
+      document.getElementById('new-client-modal').style.display = 'none';
+    }
+
+    function saveNewClient() {
+      const name = document.getElementById('nc-name').value.trim();
+      const phone = document.getElementById('nc-phone').value.trim().replace(/\D/g, '');
+      if (!name || phone.length !== 10) {
+        alert('कृपया वैध नाम और 10 अंकों का फोन नंबर भरें।');
+        return;
+      }
+
+      const existing = clientsCache.find(c => c.phone === phone);
+      if (existing) {
+        alert('इस फोन नंबर का खाता पहले से मौजूद है।');
+        closeNewClientModal();
+        selectClient(phone);
+        return;
+      }
+
+      const newC = {
+        name: name,
+        phone: phone,
+        dob: document.getElementById('nc-dob').value,
+        tob: document.getElementById('nc-tob').value,
+        pob: document.getElementById('nc-pob').value,
+        notes: '',
+        created_at: new Date().toISOString()
+      };
+
+      clientsCache.unshift(newC);
+      saveLedgerLocally();
+      closeNewClientModal();
+      selectClient(phone);
+      showToast('नया क्लाइंट खाता बनाया गया!');
+    }
+
+    function openClientChart() {
+      if (!currentClient) return;
+      const url = `patrika.html?name=${encodeURIComponent(currentClient.name)}&dob=${encodeURIComponent(currentClient.dob || '')}&tob=${encodeURIComponent(currentClient.tob || '')}&pob=${encodeURIComponent(currentClient.pob || '')}`;
+      window.open(url, '_blank');
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // PRESCRIPTION & REMEDY PAD
+    // ══════════════════════════════════════════════════════════════════════════
+    function getPrescriptionKey(clientPhone) {
+      return 'sra_prescriptions_' + clientPhone;
+    }
+
+    function loadPrescriptionForClient(clientPhone) {
+      try {
+        const raw = localStorage.getItem(getPrescriptionKey(clientPhone));
+        currentRemedies = raw ? JSON.parse(raw) : [];
+      } catch(e) {
+        currentRemedies = [];
+      }
+
+      // Default sample if empty for Rahul Sharma
+      if (currentRemedies.length === 0 && clientPhone === '9876500001') {
+        currentRemedies = [
+          {
+            id: 'rx_1',
+            category: 'पाठ / स्तोत्र',
+            title: 'श्री हनुमान चालीसा',
+            count: '11 बार प्रतिदिन',
+            days: '40 दिन',
+            timing: 'सायंकाल (गोधूलि वेला)',
+            instructions: 'लाल आसन पर पूर्व मुख बैठकर चमेली के तेल का दीपक जलाकर पाठ करें।',
+            doneToday: false
+          }
+        ];
+      }
+
+      renderRxItems();
+      renderClientPreview();
+    }
+
+    function addRemedyItem() {
+      if (!currentClient) {
+        alert('पहले किसी क्लाइंट का खाता चुनें।');
+        return;
+      }
+      const title = document.getElementById('rx-title').value.trim();
+      if (!title) {
+        alert('कृपया उपाय का नाम दर्ज करें।');
+        return;
+      }
+
+      const item = {
+        id: 'rx_' + Date.now(),
+        category: document.getElementById('rx-category').value,
+        title: title,
+        count: document.getElementById('rx-count').value.trim() || '1 बार',
+        days: document.getElementById('rx-days').value.trim() || '40 दिन',
+        timing: document.getElementById('rx-timing').value,
+        instructions: document.getElementById('rx-instructions').value.trim() || '',
+        doneToday: false
+      };
+
+      currentRemedies.push(item);
+      renderRxItems();
+      renderClientPreview();
+
+      // Clear input fields
+      document.getElementById('rx-title').value = '';
+      document.getElementById('rx-count').value = '';
+      document.getElementById('rx-instructions').value = '';
+      showToast('उपाय जोड़ा गया!');
+    }
+
+    function removeRemedyItem(id) {
+      currentRemedies = currentRemedies.filter(r => r.id !== id);
+      renderRxItems();
+      renderClientPreview();
+    }
+
+    function renderRxItems() {
+      const el = document.getElementById('rx-items-list');
+      el.innerHTML = '';
+      if (currentRemedies.length === 0) {
+        el.innerHTML = '<div style="text-align:center; padding:16px; font-size:0.8rem; color:var(--muted);">अभी कोई उपचार नहीं जोड़ा गया है।</div>';
+        return;
+      }
+
+      currentRemedies.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'rx-item-card';
+        card.innerHTML = `
+          <button class="rx-item-del" onclick="removeRemedyItem('${r.id}')" title="हटाएं">&times;</button>
+          <div class="rx-item-title">
+            <span>${r.title}</span>
+            <span class="rx-item-tag">${r.category}</span>
+          </div>
+          <div class="rx-item-rules">
+            <span class="rx-item-rule-badge">आवृत्ति: ${r.count}</span>
+            <span class="rx-item-rule-badge">अवधि: ${r.days}</span>
+            <span class="rx-item-rule-badge">समय: ${r.timing}</span>
+          </div>
+          ${r.instructions ? `<div class="rx-item-desc"><strong>विधि:</strong> ${r.instructions}</div>` : ''}
+        `;
+        el.appendChild(card);
+      });
+    }
+
+    function saveAndLockPrescription() {
+      if (!currentClient) return;
+      const key = getPrescriptionKey(currentClient.phone);
+      localStorage.setItem(key, JSON.stringify(currentRemedies));
+
+      // Also mirror to global SRA consultations/prescriptions if SRARecords is loaded
+      if (window.SRARecords && window.SRARecords.add) {
+        window.SRARecords.add('consultations', {
+          consultant_phone: consultantPhone,
+          client_phone: currentClient.phone,
+          client_name: currentClient.name,
+          remedies_count: currentRemedies.length,
+          remedies: JSON.stringify(currentRemedies),
+          notes: currentClient.notes || '',
+          updated_at: new Date().toISOString()
+        }).catch(err => console.warn('Cloud sync error:', err));
+      }
+
+      showToast('उपचार पर्ची सुरक्षित एवं क्लाइंट ID से सिंक हो गई!');
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // LIVE CLIENT 'SANKALP PURTI' PREVIEW
+    // ══════════════════════════════════════════════════════════════════════════
+    function renderClientPreview() {
+      const el = document.getElementById('preview-sankalp-items');
+      const counter = document.getElementById('preview-sankalp-count');
+      const fill = document.getElementById('preview-progress-fill');
+      el.innerHTML = '';
+
+      if (currentRemedies.length === 0) {
+        counter.textContent = '0/0 पूर्ण';
+        fill.style.width = '0%';
+        el.innerHTML = '<div style="font-size:0.75rem; color:var(--muted); text-align:center;">कोई सक्रिय संकल्प नहीं है।</div>';
+        return;
+      }
+
+      const completed = currentRemedies.filter(r => r.doneToday).length;
+      const total = currentRemedies.length;
+      counter.textContent = `${completed}/${total} पूर्ण (${total - completed} शेष)`;
+      fill.style.width = `${Math.round((completed / total) * 100)}%`;
+
+      currentRemedies.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'sankalp-sim-item';
+        item.innerHTML = `
+          <input type="checkbox" id="chk_${r.id}" ${r.doneToday ? 'checked' : ''} onchange="togglePreviewSankalp('${r.id}')"/>
+          <label for="chk_${r.id}" style="cursor:pointer; flex:1; ${r.doneToday ? 'text-decoration:line-through; opacity:0.6;' : ''}">
+            <strong>${r.title}</strong> — ${r.count} (${r.timing})
+          </label>
+        `;
+        el.appendChild(item);
+      });
+    }
+
+    function togglePreviewSankalp(id) {
+      const r = currentRemedies.find(x => x.id === id);
+      if (r) {
+        r.doneToday = !r.doneToday;
+        saveAndLockPrescription();
+        renderClientPreview();
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // WHATSAPP SHARE
+    // ══════════════════════════════════════════════════════════════════════════
+    function shareOnWhatsApp() {
+      if (!currentClient) {
+        alert('कृपया पहले क्लाइंट चुनें।');
+        return;
+      }
+      if (currentRemedies.length === 0) {
+        alert('पर्ची में कोई उपाय नहीं है।');
+        return;
+      }
+
+      let msg = `🕉️ *श्री रामजी दैवज्ञ परामर्श एवं उपचार पर्ची*\n`;
+      msg += `जातक: *${currentClient.name}*\n`;
+      msg += `परामर्शदाता: +91 ${consultantPhone}\n`;
+      msg += `तारीख: ${new Date().toLocaleDateString('hi-IN')}\n\n`;
+      msg += `*निर्धारित शास्त्रीय संकल्प व उपचार:*\n`;
+
+      currentRemedies.forEach((r, idx) => {
+        msg += `\n${idx + 1}. *${r.title}* [${r.category}]\n`;
+        msg += `   • आवृत्ति: ${r.count}\n`;
+        msg += `   • अवधि: ${r.days}\n`;
+        msg += `   • समय: ${r.timing}\n`;
+        if (r.instructions) msg += `   • विधि: ${r.instructions}\n`;
+      });
+
+      msg += `\n🔔 *दैनिक संकल्प पूर्ति:* कृपया नियमित रूप से अपने उपाय पूर्ण करें और वेबसाइट/ऐप में अपने फोन नंबर से लॉगिन करके दैनिक प्रगति मार्क करें।\n`;
+      msg += `🌐 shriramjiastro.in`;
+
+      const url = `https://wa.me/91${currentClient.phone}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+  </script>
+
+</body>
+</html>
