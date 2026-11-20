@@ -720,6 +720,7 @@ input,select,textarea,button{font-size:15px}
             <button class="social-tab-btn" onclick="switchSocialTab('instagram', this)">📸 Instagram कैप्शन</button>
             <button class="social-tab-btn" onclick="switchSocialTab('whatsapp', this)">🟢 WhatsApp चैनल</button>
             <button class="social-tab-btn" onclick="switchSocialTab('facebook', this)">🔵 Facebook पोस्ट</button>
+            <button class="social-tab-btn" onclick="switchSocialTab('linkedin', this)">💼 LinkedIn / Career</button>
             <button class="social-tab-btn" onclick="switchSocialTab('quora', this)">🔴 Quora Q&A</button>
             <button class="social-tab-btn" onclick="switchSocialTab('reddit', this)">🔴 Reddit</button>
           </div>
@@ -758,6 +759,18 @@ input,select,textarea,button{font-size:15px}
               <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialFbText')">📋 कॉपी करें</button>
             </div>
             <div class="social-copy-box" id="socialFbText">लोड हो रहा है...</div>
+          </div>
+
+          <!-- LinkedIn & Career Tab -->
+          <div id="social-tab-linkedin" class="social-tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <strong id="socialLinkedinTitle" style="font-size:13px;color:var(--text)">💼 LinkedIn दैनिक करियर व प्रेरणा पोस्ट</strong>
+              <div style="display:flex; gap:6px;">
+                <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="copySocialBox('socialLinkedinBody')">📋 पोस्ट कॉपी करें</button>
+                <a href="https://www.linkedin.com/feed/" target="_blank" rel="noopener" class="social-btn" style="padding:4px 10px;font-size:11px;background:#0a66c2;color:#fff;text-decoration:none;">🔗 LinkedIn पर खोलें</a>
+              </div>
+            </div>
+            <div class="social-copy-box" id="socialLinkedinBody">लोड हो रहा है...</div>
           </div>
 
           <!-- Quora Tab -->
@@ -2039,6 +2052,16 @@ async function loadSocialStatus() {
       if (ytT && pkg.youtube) ytT.innerText = pkg.youtube.title || '';
       const ytD = document.getElementById('socialYtDesc');
       if (ytD && pkg.youtube) ytD.innerText = pkg.youtube.description || '';
+
+      // LinkedIn & Career
+      const liBody = document.getElementById('socialLinkedinBody');
+      const liTitle = document.getElementById('socialLinkedinTitle');
+      if (pkg.linkedin) {
+        if (liBody) liBody.innerText = pkg.linkedin.post_text || pkg.linkedin.text || '';
+        if (liTitle) liTitle.innerText = `💼 LinkedIn: ${pkg.linkedin.title || 'दैनिक करियर व प्रेरणा पोस्ट'}`;
+      } else if (liBody) {
+        liBody.innerText = "🕉️ घर की चारदीवारी से निकलकर आत्मनिर्भर बनने की शक्ति: महिलाओं, विद्यार्थियों और हर जिज्ञासु साधक के लिए एक नया द्वार\\n\\n🌟 अपने खाली समय को सम्मानजनक आय में बदलें — बनिए 'सूत्रधार'\\n\\n• प्रतिदिन 1-2 घंटे समर्पित करके ₹20,000 से ₹50,000+ प्रति माह की आय सीधे आपके UPI या बैंक खाते में।\\n\\n🎯 आवेदन करें: shriramjiastro.in/careers.html";
+      }
       
       // WhatsApp
       const waTxt = document.getElementById('socialWhatsappText');

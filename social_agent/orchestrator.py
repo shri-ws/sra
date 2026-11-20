@@ -20,6 +20,7 @@ from .publishers.quora_publisher import publish_to_quora
 from .publishers.facebook_publisher import publish_to_facebook
 from .publishers.instagram_publisher import publish_to_instagram_reels
 from .publishers.youtube_publisher import publish_to_youtube_shorts
+from .publishers.linkedin_automation import generate_daily_linkedin_package
 
 HISTORY_FILE = OUTPUT_DIR / "history.json"
 LATEST_STATUS_FILE = OUTPUT_DIR / "latest_status.json"
@@ -138,6 +139,13 @@ def run_daily_pipeline(
         
         print(f"\n[Pipeline] Publishing Instagram Reel...")
         publish_results["instagram"] = publish_to_instagram_reels(package["instagram"], video_path, config, dry_run=dry_run)
+        
+        print(f"\n[Pipeline] Generating LinkedIn daily visual campaign & package...")
+        try:
+            publish_results["linkedin"] = generate_daily_linkedin_package(target_date)
+        except Exception as e:
+            print(f"[Pipeline] LinkedIn generation error: {e}")
+            publish_results["linkedin"] = {"error": str(e)}
     
     # 5. YouTube Shorts (Per-channel routing)
     yt_multi = {}
