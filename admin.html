@@ -215,6 +215,17 @@ body{background:var(--bg);color:var(--text);font-family:'Lato',sans-serif;font-s
 
 /* PANELS */
 .panel{display:none}
+.inv-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+@media(max-width:900px){.inv-grid{grid-template-columns:1fr}}
+.inv-form label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}
+.inv-form input,.inv-form textarea{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:14px}
+.inv-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.inv-btns a.export-btn{text-decoration:none;display:inline-flex;align-items:center}
+.inv-wa{background:#16a34a;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:14px}
+.inv-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.inv-cards a{position:relative;display:block;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.inv-cards img{width:100%;display:block}
+.inv-cards span{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:2px 7px;border-radius:10px}
 .panel.active{display:block}
 
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -339,6 +350,7 @@ input,select,textarea,button{font-size:15px}
   .tbl td{font-size:14.5px !important}
 }
 </style>
+<script src="admin-invite.js?v=20261120_01" defer></script>
 <script src="admin-accounts.js?v=20261120_01" defer></script>
 </head>
 <body>
@@ -398,6 +410,7 @@ input,select,textarea,button{font-size:15px}
       <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">💻 &nbsp;SaaS ग्राहक (ज्योतिषी) &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-payouts" onclick="showPanel('sutra-payouts', this)" style="color:#16a34a; font-weight:bold; background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.25); border-radius:8px; margin-top:6px;">💸 &nbsp;सूत्रधार पेआउट डेस्क &nbsp;<span id="badge-sutra-payouts" style="display:none; font-size:9px; background:#16a34a; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">⚠️ &nbsp;सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-sutra-invite" onclick="showPanel('sutra-invite', this)" style="color:#c2410c; font-weight:bold; background:rgba(234,88,12,0.07); border:1px solid rgba(234,88,12,0.3); border-radius:8px; margin-top:6px;">💌 &nbsp;सूत्रधार आमंत्रण</div>
       <a class="nav-item" href="sutradhar.html" target="_blank" rel="noopener" style="text-decoration:none; color:#b45309; font-weight:bold; background:rgba(180,83,9,0.06); border:1px solid rgba(180,83,9,0.25); border-radius:8px; margin-top:6px;">🧵 &nbsp;सूत्रधार पोर्टल खोलें ↗</a>
     </div>
     <div class="sidebar-footer">
@@ -979,6 +992,42 @@ input,select,textarea,button{font-size:15px}
           <button class="export-btn" onclick="addPayoutHoliday()">+ अवकाश जोड़ें</button>
         </div>
         <div id="sp-holidays" style="font-size:13px;"></div>
+      </div>
+    </div>
+
+    <!-- SUTRADHAR INVITE: send the private invite page + image cards on WhatsApp (admin-invite.js) -->
+    <div class="panel" id="panel-sutra-invite">
+      <div class="card">
+        <div class="tbl-header"><span class="table-title">💌 सूत्रधार आमंत्रण — WhatsApp पर भेजें</span></div>
+        <p style="font-size:13px; color:var(--text-muted); margin:4px 0 14px;">
+          पहले 5 तस्वीरें भेजें (ध्यान खींचती हैं), फिर संदेश — उसमें आमंत्रण पेज का लिंक है, जो क़दम-दर-क़दम समझाकर सूत्रधार पोर्टल तक ले जाता है।
+          यह पेज वेबसाइट पर कहीं लिंक नहीं है और Google पर नहीं आता।
+        </p>
+        <div class="inv-grid">
+          <div class="inv-form">
+            <label>किसे भेजना है? (नाम — पेज पर इसी नाम से स्वागत होगा)</label>
+            <input id="inv-name" placeholder="जैसे: रमेश" maxlength="40">
+            <label>उनका WhatsApp नंबर <span style="opacity:.7">(वैकल्पिक — न डालें तो WhatsApp में ख़ुद चुनें)</span></label>
+            <input id="inv-phone" inputmode="numeric" placeholder="10 अंकों का मोबाइल" maxlength="14">
+            <label>संदेश <span style="opacity:.7">(बदल सकते हैं)</span></label>
+            <textarea id="inv-msg" rows="9"></textarea>
+            <div class="inv-btns">
+              <button class="inv-wa" id="inv-send" type="button">🟢 WhatsApp पर भेजें</button>
+              <button class="export-btn" id="inv-copy" type="button">📋 संदेश कॉपी</button>
+              <a class="export-btn" id="inv-open" href="sutradhar-invite.html" target="_blank" rel="noopener">👁 पेज देखें ↗</a>
+            </div>
+            <div id="inv-status" style="font-size:12px; color:var(--text-muted); min-height:18px; margin-top:6px"></div>
+          </div>
+          <div>
+            <label style="display:block; font-weight:700; margin-bottom:8px">तस्वीरें (क्रम से भेजें)</label>
+            <div class="inv-cards" id="inv-cards"></div>
+            <div class="inv-btns" style="margin-top:10px">
+              <button class="inv-wa" id="inv-share-imgs" type="button">📤 सभी तस्वीरें शेयर करें (फ़ोन से)</button>
+              <button class="export-btn" id="inv-dl-imgs" type="button">⬇ सभी डाउनलोड</button>
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:6px">फ़ोन पर "शेयर करें" से पाँचों तस्वीरें एक साथ WhatsApp में जाती हैं। कंप्यूटर पर डाउनलोड करके WhatsApp Web में डालें।</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1906,7 +1955,8 @@ function showPanel(name, targetEl){
       'sutra-reviews': currentAdminLang === 'en' ? '⚠️ Sutradhar Requires Review Queue' : '⚠️ सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
       'sutra-payouts': currentAdminLang === 'en' ? '💸 Sutradhar Payout Desk' : '💸 सूत्रधार पेआउट डेस्क',
       saas: currentAdminLang === 'en' ? '💻 Astrologer SaaS Subscribers' : '💻 ज्योतिषी SaaS ग्राहक',
-      visitors: currentAdminLang === 'en' ? '📈 Website Visitors & Downloads' : '📈 वेबसाइट विज़िटर्स व डाउनलोड'
+      visitors: currentAdminLang === 'en' ? '📈 Website Visitors & Downloads' : '📈 वेबसाइट विज़िटर्स व डाउनलोड',
+      'sutra-invite': currentAdminLang === 'en' ? '💌 Sutradhar Invite' : '💌 सूत्रधार आमंत्रण'
     };
     const titleEl = document.getElementById('panelTitle');
     if (titleEl) titleEl.textContent = titles[name] || name;
