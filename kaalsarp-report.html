@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Draft: not linked anywhere and no payment yet. Rules: kaalsarpRules.js (built from data/sarpa_rahu_ketu). -->
-<meta name="robots" content="noindex, nofollow">
+<!-- Paid report (₹251, server-confirmed unlock). Rules: kaalsarpRules.js (built from data/sarpa_rahu_ketu). -->
+
 <title>कालसर्प व सर्प-योग रिपोर्ट (शास्त्र-प्रमाण सहित) | श्री राम जी एस्ट्रो</title>
 <link rel="icon" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -100,12 +100,15 @@
 <script src="sra-config.js"></script>
 <script src="sra-auth.js"></script>
 <script src="sra-records.js"></script>
-<script src="sra-master.js"></script>
 <script src="sra-coupon-engine.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="patrikaEngineBridge.js?v=13"></script>
 <script src="kaalsarpRules.js?v=2"></script>
 <script src="html2pdf.bundle.min.js?v=13"></script>
+<script src="sra-ui.js?v=32"></script>
+<script src="sra-translate.js"></script>
+<script src="sra-nav.js"></script>
+<script src="sra-analytics.js" defer></script>
 <script>
 (function () {
   const $ = id => document.getElementById(id);
@@ -200,6 +203,7 @@
   async function make() {
     const k = list[+$('kundaliSel').value];
     if (!k) { $('status').textContent = 'पहले पत्रिका पर कुंडली बनाएँ।'; return; }
+    if (allowedRef !== keyOf(k)) return start();
     $('status').textContent = '⏳ ग्रह-गणना हो रही है…';
     try {
       const calc = await PatrikaEngineBridge.calculatePatrikaPlanets({ name: k.name, gender: k.gender || 'male', date: k.date, time: k.time, city: k.city, lat: k.lat, lon: k.lon, tz: k.tz || 5.5 });
@@ -247,7 +251,23 @@
   // ---------- ₹251 payment (same flow as the Manglik report: price and Sutradhar lead come from the server) ----------
   const SERVICE = 'kaalsarp_dosha';
   const keyOf = k => (k.id || ((k.name || 'jatak').trim().toLowerCase() + '_' + (k.date || '') + '_' + (k.time || ''))).replace(/[^a-zA-Z0-9_-]/g, '_');
-  const unlocked = k => { try { return localStorage.getItem('sra_unlocked_kaalsarp_' + keyOf(k)) === 'true'; } catch (e) { return false; } };
+  // The report opens only with a pass the server issued after checking the Razorpay receipt (or SaaS
+  // unlock), and the server re-checks that pass every time the report opens.
+  const passKey = k => 'sra_kaalsarp_pass_' + keyOf(k);
+  const getPass = k => { try { return JSON.parse(localStorage.getItem(passKey(k)) || 'null'); } catch (e) { return null; } };
+  const api = path => (window.SraCouponEngine && SraCouponEngine.apiBase ? SraCouponEngine.apiBase() : 'https://sra-canonical-engine.onrender.com') + '/api/sutradhar/unlock/' + path;
+  async function post(path, body) {
+    const r = await fetch(api(path), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error('server ' + r.status);
+    return r.json();
+  }
+  async function serverSaysPaid(k) {
+    const p = getPass(k);
+    if (!p || !p.proof || !p.token) return false;
+    const r = await post('check', { service_id: SERVICE, report_ref: keyOf(k), proof: p.proof, token: p.token });
+    return !!r.ok;
+  }
+  let allowedRef = null;   // make() renders only for the kundali the server just confirmed
   const phoneVal = () => ($('phoneIn').value || '').replace(/\D/g, '').slice(-10);
   let lead = null, coupon = '', paidAmount = null;
   try { $('phoneIn').value = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10); } catch (e) {}
@@ -260,7 +280,11 @@
     const ph = phoneVal();
     if (ph.length !== 10) { $('status').textContent = 'कृपया 10 अंकों का मोबाइल नंबर डालें।'; $('phoneIn').focus(); return; }
     try { localStorage.setItem('sra_verified_mobile', ph); localStorage.setItem('sra_user_phone', ph); } catch (e) {}
-    if (unlocked(k)) { $('paywall').hidden = true; return make(); }
+    $('status').textContent = '⏳ भुगतान की स्थिति जाँची जा रही है…';
+    let paid = false;
+    try { paid = await serverSaysPaid(k); }
+    catch (e) { $('status').textContent = 'भुगतान की जाँच नहीं हो सकी — इंटरनेट देखकर दोबारा प्रयास करें।'; return; }
+    if (paid) { allowedRef = keyOf(k); $('paywall').hidden = true; return make(); }
     showPaywall(k, ph);
   }
 
@@ -302,11 +326,10 @@
 
   function applyCode(k) {
     const raw = $('pwCode').value || '', msg = $('pwCodeMsg');
-    if (window.sraIsMasterKey && window.sraIsMasterKey(raw)) return unlock(k, 'MASTER_KEY');
     SraCouponEngine.handleCodeBox({
       serviceId: SERVICE, code: raw, reportRef: keyOf(k),
       remember: c => { coupon = c; },
-      onUnlock: r => unlock(k, 'SAAS_' + r.unlock_id),
+      onUnlock: r => unlock(k, { unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id),
       show: (ok, m) => { msg.style.color = ok ? '#166a43' : (ok === null ? '#7a5a00' : '#b3261e'); msg.textContent = (ok ? '✓ ' : ok === null ? '' : '❌ ') + m; }
     });
   }
@@ -316,16 +339,30 @@
       serviceId: SERVICE, phone: phoneVal(), name: k.name || 'जातक', code: coupon,
       description: `कालसर्प व सर्प-योग रिपोर्ट - ${k.name || 'जातक'}`,
       notes: { report_type: 'kaalsarp_dosha_report' },
-      onSuccess: (resp, order) => { paidAmount = order ? order.net_price : null; unlock(k, resp.razorpay_payment_id || 'RZP_SUCCESS'); }
+      onSuccess: (resp, order) => {
+        paidAmount = order ? order.net_price : null;
+        unlock(k, { order_id: resp.razorpay_order_id, payment_id: resp.razorpay_payment_id, signature: resp.razorpay_signature }, resp.razorpay_payment_id);
+      }
     });
   }
 
-  function unlock(k, paymentId) {
+  async function unlock(k, receipt, paymentId) {
     const key = keyOf(k);
-    try { localStorage.setItem('sra_unlocked_kaalsarp_' + key, 'true'); localStorage.setItem('sra_kaalsarp_pay_id_' + key, paymentId); } catch (e) {}
+    $('status').textContent = '⏳ भुगतान की पुष्टि हो रही है…';
+    let v = null;
+    for (let i = 0; i < 3 && !v; i++) {
+      try { v = await post('verify', Object.assign({ service_id: SERVICE, report_ref: key }, receipt)); }
+      catch (e) { await new Promise(r => setTimeout(r, 2500)); }
+    }
+    if (!v || !v.ok) {
+      $('status').textContent = (v && v.message) || 'भुगतान की पुष्टि नहीं हो सकी। पैसा कटा हो तो support@shriramjiastro.in पर भुगतान ID भेजें: ' + (paymentId || '');
+      return;
+    }
+    try { localStorage.setItem(passKey(k), JSON.stringify({ proof: v.proof, token: v.token })); } catch (e) {}
+    allowedRef = key;
     const sid = (lead && lead.sutradhar) || (window.SraCouponEngine ? SraCouponEngine.getActiveSutradharId() : '');
     // payment record for the admin dashboard (sra-records.js stores it in Firestore); the server order is the real record
-    if (!/^(MASTER_KEY|SAAS_)/.test(paymentId)) {
+    if (!/^SAAS_/.test(paymentId || '')) {
       fetch('api/save_payment.php', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ razorpay_payment_id: paymentId, student_name: k.name || '', student_phone: phoneVal(),

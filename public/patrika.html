@@ -3200,6 +3200,7 @@
   <script src="sra-config.js"></script>
   <script src="sra-coupon-engine.js" defer></script>
   <script src="patrikaEngineBridge.js?v=17"></script>
+<script src="sra-analytics.js" defer></script>
 </head>
 <body>
 
@@ -4252,7 +4253,10 @@
             <span class="sra-rh-ico">📖</span><b>पराशरी मेगा रिपोर्ट</b><small>सम्पूर्ण ९७ अध्याय फलित</small><em>₹1111</em>
           </a>
           <a class="sra-rh-card" href="manglik-dosh-calculator.html">
-            <span class="sra-rh-ico">🔥</span><b>मंगल दोष एवं २१ परिहार</b><small>त्रि-लग्न व नवांश परीक्षण</small><em>₹199</em>
+            <span class="sra-rh-ico">🔥</span><b>मंगल दोष एवं २१ परिहार</b><small>त्रि-लग्न व नवांश परीक्षण</small><em>₹251</em>
+          </a>
+          <a class="sra-rh-card" href="kaalsarp-report.html">
+            <span class="sra-rh-ico">🐍</span><b>कालसर्प व सर्प-योग</b><small>25 शास्त्रीय नियम, श्लोक व पृष्ठ सहित</small><em>₹251</em>
           </a>
           <a class="sra-rh-card" href="dhan-yoga-calculator.html">
             <span class="sra-rh-ico">💰</span><b>धन योग विश्लेषण</b><small>धन योग एवं इन्दु लग्न</small>
@@ -7496,27 +7500,20 @@ function extractKundaliContract(calc) {
 }
 
 const PARASHARA_RZP_KEY = 'rzp_live_U1a0a504puKK5e';
-const PARASHARA_PRICE_INR = 199;
-const PARASHARA_PRICE_PAISE = 19900;
+const PARASHARA_PRICE_INR = 251;
+const PARASHARA_PRICE_PAISE = 25100;
 
 let currentPayingReport = 'rajyoga';
 
 function isParasharaReportUnlocked(reportKey) {
   try {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('unlock_all') === '1' || urlParams.get('vip') === 'admin199') {
-      return true;
-    }
     if (reportKey === 'rajyoga') {
-      if (urlParams.get('unlock_rajyoga') === '1' || urlParams.get('vip') === 'rajyoga199' || urlParams.get('vip') === 'parashar199') return true;
       return localStorage.getItem('sra_unlocked_report_rajyoga_199') === 'true' || localStorage.getItem('sra_unlocked_parashara_reports_199') === 'true';
     }
     if (reportKey === 'vahan') {
-      if (urlParams.get('unlock_vahan') === '1' || urlParams.get('vip') === 'vahan199' || urlParams.get('vip') === 'gomutrika199') return true;
       return localStorage.getItem('sra_unlocked_report_vahan_199') === 'true';
     }
     if (reportKey === 'mangal') {
-      if (urlParams.get('unlock_mangal') === '1' || urlParams.get('vip') === 'mangal199' || urlParams.get('vip') === 'bhauma199' || urlParams.get('vip') === 'manglik199') return true;
       return localStorage.getItem('sra_unlocked_report_mangal_199') === 'true';
     }
     return false;
@@ -7567,39 +7564,15 @@ function openParasharaPaymentModal(reportType, focusField) {
   }
   if (rzpBtn) {
     const repName = isRaj ? 'राजयोग रिपोर्ट' : (isVah ? 'वाहन रिपोर्ट' : 'मंगल दोष रिपोर्ट');
-    rzpBtn.innerHTML = `💳 ₹199 ऑनलाइन भुगतान करें (${repName})`;
+    rzpBtn.innerHTML = `💳 ₹251 ऑनलाइन भुगतान करें (${repName})`;
   }
 
   modal.classList.add('active');
   const errBox = document.getElementById('parasharaVipErrMsg');
   if (errBox) errBox.style.display = 'none';
 
-  // Check for active Sutradhar lead & auto-apply 10% discount
-  window._parasharaDiscount = 0;
+  // No discount; the server attaches any 72h Sutradhar lead when the order is created
   window._parasharaCoupon = '';
-  window._parasharaSutradhar = '';
-  window._parasharaLeadId = '';
-  const clientMobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
-  if (clientMobile && clientMobile.length === 10 && window.SraCouponEngine) {
-    window.SraCouponEngine.fetchServerQuote('parashara_report', clientMobile).then(q => {
-      if (q && (q.has_active_lead || q.auto_applied)) {
-        window._parasharaDiscount = q.discount_amount || 20;
-        window._parasharaCoupon = q.sutradhar_code || '';
-        window._parasharaSutradhar = q.sutradhar_id || '';
-        window._parasharaLeadId = q.lead_id || '';
-        const finalAmt = Math.max(0, 199 - window._parasharaDiscount);
-        if (rzpBtn) {
-          const repName = isRaj ? 'राजयोग रिपोर्ट' : (isVah ? 'वाहन रिपोर्ट' : 'मंगल दोष रिपोर्ट');
-          rzpBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (${repName} - 10% छूट लागू)`;
-        }
-        if (errBox) {
-          errBox.style.color = '#15803d';
-          errBox.textContent = '✨ आपको 10% विशेष छूट मिली है।';
-          errBox.style.display = 'block';
-        }
-      }
-    }).catch(() => {});
-  }
 
   if (focusField === 'passcode') {
     const input = document.getElementById('parasharaVipCodeInput');
@@ -7631,8 +7604,7 @@ function unlockParasharaReport(reportType, paymentId) {
     // Log payment transaction to central database
     const clientMobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
     const clientName = (document.getElementById('inName') ? document.getElementById('inName').value : '') || 'पाराशर जातक';
-    const appliedDisc = window._parasharaDiscount || 0;
-    const finalAmt = Math.max(0, 199 - appliedDisc);
+    const finalAmt = (window._sraLastOrder && window._sraLastOrder.net_price) || 251;
     const couponUsed = window._parasharaCoupon || '';
     const sutradharRef = window._parasharaSutradhar || '';
 
@@ -7686,10 +7658,10 @@ async function triggerParasharaRazorpayCheckout() {
   const clientName = (document.getElementById('inName') && document.getElementById('inName').value.trim()) 
     ? document.getElementById('inName').value.trim() 
     : "पाराशर VIP जातक";
-  const clientMobile = (localStorage.getItem('sra_verified_mobile') || "9517117775").replace(/\D/g, '').slice(-10);
+  const clientMobile = (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : '');
 
-  const appliedDisc = window._parasharaDiscount || 0;
-  const finalAmt = Math.max(0, 199 - appliedDisc);
+  const appliedDisc = 0;
+  const finalAmt = 251;
   const finalPaise = finalAmt * 100;
   const couponUsed = window._parasharaCoupon || '';
   const sutradharRef = window._parasharaSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
@@ -7702,7 +7674,7 @@ async function triggerParasharaRazorpayCheckout() {
     description: `${reportTitle} (₹${finalAmt} आजीवन एक्सेस)` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
     prefill: {
       name: clientName,
-      contact: clientMobile || "9517117775"
+      contact: clientMobile || ''
     },
     theme: {
       color: "#b45309"
@@ -7734,11 +7706,12 @@ async function triggerParasharaRazorpayCheckout() {
     if (typeof Razorpay === 'undefined') {
       await loadScript('https://checkout.razorpay.com/v1/checkout.js');
     }
-    const rzp = new Razorpay(options);
-    rzp.open();
+    // Amount, order and lead come from the server order
+    const serviceId = isRaj ? 'patrika_rajyoga' : (isVah ? 'patrika_vahan' : 'mangal_dosha');
+    window.SraCouponEngine.checkoutWithOptions({ serviceId: serviceId, options: options, code: window._parasharaCoupon || '', phone: clientMobile });
   } catch(e) {
     console.error("Razorpay Checkout Error:", e);
-    alert('Razorpay पेमेंट गेटवे त्रुटि। कृपया पुनः प्रयास करें अथवा VIP कोड का प्रयोग करें।');
+    alert('Razorpay पेमेंट गेटवे त्रुटि। कृपया पुनः प्रयास करें।');
   }
 }
 
@@ -7761,45 +7734,18 @@ async function verifyParasharaPasscode() {
     return;
   }
 
-  const clientMobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
-  if (window.SraCouponEngine) {
-    try {
-      const q = await window.SraCouponEngine.fetchServerQuote('parashara_report', clientMobile, val);
-      if (q && q.valid) {
-        window._parasharaDiscount = q.discount_amount || 20;
-        window._parasharaCoupon = q.sutradhar_code || val;
-        window._parasharaSutradhar = q.sutradhar_id || '';
-        window._parasharaLeadId = q.lead_id || '';
-        const finalAmt = Math.max(0, 199 - window._parasharaDiscount);
-        const rzpBtn = document.getElementById('btnRzpSubmit');
-        const isRaj = (currentPayingReport === 'rajyoga');
-        const isVah = (currentPayingReport === 'vahan');
-        const repName = isRaj ? 'राजयोग रिपोर्ट' : (isVah ? 'वाहन रिपोर्ट' : 'मंगल दोष रिपोर्ट');
-        if (rzpBtn) rzpBtn.innerHTML = `💳 ₹${finalAmt} ऑनलाइन भुगतान करें (${repName} - 10% कूपन लागू)`;
-        if (errBox) {
-          errBox.style.color = '#15803d';
-          errBox.textContent = `✨ कूपन (${val}) सफल! 10% विशेष छूट लागू।`;
-          errBox.style.display = 'block';
-        }
-        return;
-      } else {
-        if (errBox) {
-          errBox.style.color = '#ef4444';
-          errBox.textContent = (q && q.message) ? q.message : '❌ यह कूपन आपके लिए मान्य नहीं है।';
-          errBox.style.display = 'block';
-        }
-        return;
-      }
-    } catch(e) {}
-  }
-
-  if (errBox) {
-    errBox.style.color = '#ef4444';
-    errBox.textContent = '❌ यह कूपन आपके लिए मान्य नहीं है।';
-    errBox.style.display = 'block';
-  } else {
-    alert('❌ यह कूपन आपके लिए मान्य नहीं है।');
-  }
+  // Code box: every code gets the same reply; the server decides at payment
+  // SaaS astrologer: own login number opens the report; other codes get the same "invalid" reply
+  const reportType = currentPayingReport;
+  const serviceId = reportType === 'rajyoga' ? 'patrika_rajyoga' : (reportType === 'vahan' ? 'patrika_vahan' : 'mangal_dosha');
+  await window.SraCouponEngine.handleCodeBox({
+    serviceId: serviceId,
+    code: val,
+    reportRef: reportType,
+    remember: c => { window._parasharaCoupon = c; },
+    onUnlock: r => unlockParasharaReport(reportType, 'SAAS_' + r.unlock_id),
+    show: (ok, m) => { if (errBox) { errBox.style.color = ok ? '#15803d' : (ok === null ? '#92400e' : '#ef4444'); errBox.textContent = (ok ? '✓ ' : (ok === null ? '' : '❌ ')) + m; errBox.style.display = 'block'; } else if (ok !== null) { alert(m); } }
+  });
 }
 
 function showParasharaToast(msg) {
@@ -7919,11 +7865,11 @@ function checkAndApplyFocusedReportMode() {
       const calcBtn = document.getElementById('btnGenerateKundali');
       if (calcBtn) {
         if (focus === 'mangal') {
-          calcBtn.innerHTML = '🔥 मंगल दोष रिपोर्ट देखें (मात्र ₹199) ➔';
+          calcBtn.innerHTML = '🔥 मंगल दोष रिपोर्ट देखें (मात्र ₹251) ➔';
         } else if (focus === 'rajyoga') {
-          calcBtn.innerHTML = '👑 राजयोग रिपोर्ट देखें (मात्र ₹199) ➔';
+          calcBtn.innerHTML = '👑 राजयोग रिपोर्ट देखें (मात्र ₹251) ➔';
         } else if (focus === 'vahan') {
-          calcBtn.innerHTML = '🚗 वाहन एवं जनबल रिपोर्ट देखें (मात्र ₹199) ➔';
+          calcBtn.innerHTML = '🚗 वाहन एवं जनबल रिपोर्ट देखें (मात्र ₹251) ➔';
         }
       }
     }
@@ -7947,20 +7893,20 @@ function renderFocusedFormBanner(focus) {
   const isHi = (currentLang === 'hi');
 
   let icon = '🔥';
-  let title = isHi ? 'प्रामाणिक मंगल दोष एवं २१ परिहार परीक्षण (मात्र ₹199)' : 'Authentic Mangal Dosha & 21 Parihara Test (Only ₹199)';
+  let title = isHi ? 'प्रामाणिक मंगल दोष एवं २१ परिहार परीक्षण (मात्र ₹251)' : 'Authentic Mangal Dosha & 21 Parihara Test (Only ₹251)';
   let desc = isHi 
     ? 'त्रि-लग्न (लग्न, चन्द्र, शुक्र) सूक्ष्म गणित, २१ शास्त्रीय परिहार नियम एवं वैवाहिक परामर्श प्राप्त करने हेतु कृपया जन्म विवरण भरें।'
     : 'Tri-Lagna computational verification, 21 classical cancellation rules and matrimonial guidance. Please enter birth details below.';
 
   if (focus === 'rajyoga') {
     icon = '👑';
-    title = isHi ? 'Raajyoga Strength / Rashmi Bal रिपोर्ट (मात्र ₹199)' : 'Raajyoga Strength / Rashmi Bal Report (Only ₹199)';
+    title = isHi ? 'Raajyoga Strength / Rashmi Bal रिपोर्ट (मात्र ₹251)' : 'Raajyoga Strength / Rashmi Bal Report (Only ₹251)';
     desc = isHi
       ? 'सप्तग्रह रश्मि-बल, श्लोक १८ युति शोधन एवं श्लोक २३–३९ स्लैब फलादेश हेतु कृपया अपना जन्म विवरण भरें।'
       : 'Seven planet planetary rays, shloka 18 conjunction rectification and slab predictions. Please enter birth details.';
   } else if (focus === 'vahan') {
     icon = '🚗';
-    title = isHi ? 'पाराशर गोमूत्रिका वाहन एवं जनबल रिपोर्ट (मात्र ₹199)' : 'Parashara Gomutrika Vahan & Janbal Report (Only ₹199)';
+    title = isHi ? 'पाराशर गोमूत्रिका वाहन एवं जनबल रिपोर्ट (मात्र ₹251)' : 'Parashara Gomutrika Vahan & Janbal Report (Only ₹251)';
     desc = isHi
       ? 'बृहत्पाराशर होराशास्त्र श्लोक ३४–४० अनुसार भौतिक सुख, वाहन एवं आश्रित जनबल सामर्थ्य हेतु कृपया जन्म विवरण भरें।'
       : 'Brihat Parashara Hora Shastra vehicular & prosperity strength analysis. Please enter birth details.';
@@ -8673,7 +8619,7 @@ async function renderParasharaReports() {
               </button>
             ` : `
               <button type="button" class="btn-switch-report-pill" onclick="openParasharaPaymentModal('vahan')" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; font-weight:700;">
-                ${isHi ? 'वाहन रिपोर्ट अनलॉक (₹199) ➔' : 'Unlock Vehicle Report (₹199) ➔'}
+                ${isHi ? 'वाहन रिपोर्ट अनलॉक (₹251) ➔' : 'Unlock Vehicle Report (₹251) ➔'}
               </button>
             `}
           </div>
@@ -8764,7 +8710,7 @@ async function renderParasharaReports() {
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
             <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('vahan')" style="background:#059669;">
-              ${isHi ? 'मात्र ₹199 में वाहन रिपोर्ट अनलॉक करें ➔' : 'Unlock Vehicle Report for ₹199 ➔'}
+              ${isHi ? 'मात्र ₹251 में वाहन रिपोर्ट अनलॉक करें ➔' : 'Unlock Vehicle Report for ₹251 ➔'}
             </button>
             <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('vahan')">
               ${isHi ? 'पूर्वावलोकन देखें' : 'View Preview'}
@@ -8790,7 +8736,7 @@ async function renderParasharaReports() {
           </div>
           <div>
             <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('rajyoga')" style="background:var(--primary);">
-              ${isHi ? '₹199 में अनलॉक करें ➔' : 'Unlock for ₹199 ➔'}
+              ${isHi ? '₹251 में अनलॉक करें ➔' : 'Unlock for ₹251 ➔'}
             </button>
           </div>
         </div>
@@ -8816,7 +8762,7 @@ async function renderParasharaReports() {
               ${isHi ? 'बृहत्पाराशरहोराशास्त्र (अध्याय ८) अनुसार अपने ७ ग्रहों का व्यक्तिगत रश्मि-बल, श्लोक १८ युति शोधन, एवं श्लोक २३–३९ का प्रामाणिक स्लैब फलादेश तुरंत प्राप्त करें।' : 'Access full 7-planet mathematical rashmi audit, Shloka 18 conjunction rectification, and authoritative BPHS Shlokas 23-39 predictive slab analysis.'}
             </p>
             <div class="paywall-banner-highlights" style="display:flex; gap:12px; font-size:12px; font-weight:700; color:var(--gold); flex-wrap:wrap;">
-              <span>${isHi ? 'मात्र ₹199 एकमुश्त' : 'Only ₹199 One-time'}</span>
+              <span>${isHi ? 'मात्र ₹251 एकमुश्त' : 'Only ₹251 One-time'}</span>
               <span>${isHi ? '100% प्रामाणिक पाराशर विधान' : '100% Classical BPHS'}</span>
               <span>${isHi ? 'आजीवन PDF / प्रिंट एक्सेस' : 'Lifetime Print / PDF'}</span>
             </div>
@@ -8829,11 +8775,11 @@ async function renderParasharaReports() {
           <div style="text-align:center; min-width:180px;">
             <div class="paywall-price-wrap" style="margin-bottom:8px;">
               <span class="paywall-old-price">₹1,999</span>
-              <span class="paywall-current-price">₹199</span>
+              <span class="paywall-current-price">₹251</span>
               <span class="paywall-discount-tag">${isHi ? '90% छूट' : '90% OFF'}</span>
             </div>
             <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal('rajyoga')">
-              ${isHi ? '₹199 में राजयोग रिपोर्ट अनलॉक करें ➔' : 'Unlock Rajyoga Report (₹199) ➔'}
+              ${isHi ? '₹251 में राजयोग रिपोर्ट अनलॉक करें ➔' : 'Unlock Rajyoga Report (₹251) ➔'}
             </button>
             <div class="paywall-sublink" style="margin-top:6px;">
               <a href="javascript:void(0)" onclick="openParasharaPaymentModal('rajyoga', 'passcode')">${isHi ? 'VIP प्रोमो कोड दर्ज करें' : 'Enter VIP Promo Code'}</a>
@@ -8877,7 +8823,7 @@ async function renderParasharaReports() {
               </button>
             ` : `
               <button type="button" class="btn-switch-report-pill" onclick="openParasharaPaymentModal('rajyoga')" style="background:linear-gradient(135deg, #b45309, #d97706); color:#fff; border:none; font-weight:700;">
-                ${isHi ? 'राजयोग रिपोर्ट अनलॉक (₹199) ➔' : 'Unlock Rajyoga Report (₹199) ➔'}
+                ${isHi ? 'राजयोग रिपोर्ट अनलॉक (₹251) ➔' : 'Unlock Rajyoga Report (₹251) ➔'}
               </button>
             `}
           </div>
@@ -8957,7 +8903,7 @@ async function renderParasharaReports() {
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
             <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('rajyoga')" style="background:var(--primary);">
-              ${isHi ? 'मात्र ₹199 में राजयोग रिपोर्ट अनलॉक करें ➔' : 'Unlock Rajyoga Report for ₹199 ➔'}
+              ${isHi ? 'मात्र ₹251 में राजयोग रिपोर्ट अनलॉक करें ➔' : 'Unlock Rajyoga Report for ₹251 ➔'}
             </button>
             <button type="button" class="btn-switch-report-pill" onclick="switchParasharaReport('rajyoga')">
               ${isHi ? 'पूर्वावलोकन देखें' : 'View Preview'}
@@ -8983,7 +8929,7 @@ async function renderParasharaReports() {
           </div>
           <div>
             <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('vahan')" style="background:#059669;">
-              ${isHi ? '₹199 में अनलॉक करें ➔' : 'Unlock for ₹199 ➔'}
+              ${isHi ? '₹251 में अनलॉक करें ➔' : 'Unlock for ₹251 ➔'}
             </button>
           </div>
         </div>
@@ -9009,7 +8955,7 @@ async function renderParasharaReports() {
               ${isHi ? 'श्लोक ३४–४० के गोमूत्रिका न्याय द्वारा भौतिक सुख-सुविधाओं, निजी वाहन, सेवकों व जातक की पोषक व संगठन संचालन क्षमता का स्वतंत्र मापन तुरंत प्राप्त करें।' : 'Evaluate your material amenities, personal vehicles, attendants, and organizational sustenance index via BPHS Shlokas 34-40.'}
             </p>
             <div class="paywall-banner-highlights" style="display:flex; gap:12px; font-size:12px; font-weight:700; color:#059669; flex-wrap:wrap;">
-              <span>${isHi ? 'मात्र ₹199 एकमुश्त' : 'Only ₹199 One-time'}</span>
+              <span>${isHi ? 'मात्र ₹251 एकमुश्त' : 'Only ₹251 One-time'}</span>
               <span>${isHi ? 'गोमूत्रिका वाहन-सेवक सूचकांक' : 'Gomutrika Vehicle Index'}</span>
               <span>${isHi ? 'आजीवन PDF / प्रिंट एक्सेस' : 'Lifetime Print / PDF'}</span>
             </div>
@@ -9022,11 +8968,11 @@ async function renderParasharaReports() {
           <div style="text-align:center; min-width:180px;">
             <div class="paywall-price-wrap" style="margin-bottom:8px;">
               <span class="paywall-old-price">₹1,999</span>
-              <span class="paywall-current-price">₹199</span>
+              <span class="paywall-current-price">₹251</span>
               <span class="paywall-discount-tag">${isHi ? '90% छूट' : '90% OFF'}</span>
             </div>
             <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal('vahan')" style="background:linear-gradient(135deg, #10b981, #059669);">
-              ${isHi ? '₹199 में वाहन रिपोर्ट अनलॉक करें ➔' : 'Unlock Vehicle Report (₹199) ➔'}
+              ${isHi ? '₹251 में वाहन रिपोर्ट अनलॉक करें ➔' : 'Unlock Vehicle Report (₹251) ➔'}
             </button>
             <div class="paywall-sublink" style="margin-top:6px;">
               <a href="javascript:void(0)" onclick="openParasharaPaymentModal('vahan', 'passcode')">${isHi ? 'VIP प्रोमो कोड दर्ज करें' : 'Enter VIP Promo Code'}</a>
@@ -9377,7 +9323,7 @@ async function renderParasharaReports() {
               ✏️ ${isHi ? 'जन्म विवरण बदलें' : 'Edit Details'}
             </button>
             <button type="button" class="btn-cross-sell" onclick="openParasharaPaymentModal('mangal')" style="background:#dc2626;">
-              ${isHi ? '₹199 में अनलॉक करें ➔' : 'Unlock for ₹199 ➔'}
+              ${isHi ? '₹251 में अनलॉक करें ➔' : 'Unlock for ₹251 ➔'}
             </button>
           </div>
         </div>
@@ -9403,7 +9349,7 @@ async function renderParasharaReports() {
               ${isHi ? 'लग्न, चंद्र व शुक्र तीनों आधारों से सूक्ष्म परीक्षण, २१ शास्त्रोक्त परिहार नियम, मूल संस्कृत श्लोक एवं सटीक वैवाहिक जीवनसाथी परामर्श तुरंत प्राप्त करें।' : 'Access tri-lagna analysis, 21 authentic classical parihara rules with Sanskrit shlokas and spouse compatibility counsel.'}
             </p>
             <div class="paywall-banner-highlights" style="display:flex; gap:12px; font-size:12px; font-weight:700; color:#dc2626; flex-wrap:wrap;">
-              <span>${isHi ? 'मात्र ₹199 एकमुश्त' : 'Only ₹199 One-time'}</span>
+              <span>${isHi ? 'मात्र ₹251 एकमुश्त' : 'Only ₹251 One-time'}</span>
               <span>${isHi ? '२१ शास्त्रीय परिहार नियम' : '21 Classical Rules'}</span>
               <span>${isHi ? 'आजीवन PDF / प्रिंट एक्सेस' : 'Lifetime Print / PDF'}</span>
             </div>
@@ -9411,11 +9357,11 @@ async function renderParasharaReports() {
           <div style="text-align:center; min-width:180px;">
             <div class="paywall-price-wrap" style="margin-bottom:8px;">
               <span class="paywall-old-price">₹999</span>
-              <span class="paywall-current-price" style="color:#dc2626;">₹199</span>
+              <span class="paywall-current-price" style="color:#dc2626;">₹251</span>
               <span class="paywall-discount-tag">${isHi ? '80% छूट' : '80% OFF'}</span>
             </div>
             <button type="button" class="btn-paywall-primary" onclick="openParasharaPaymentModal('mangal')" style="background:linear-gradient(135deg, #ef4444, #dc2626);">
-              ${isHi ? '₹199 में रिपोर्ट अनलॉक करें ➔' : 'Unlock Report (₹199) ➔'}
+              ${isHi ? '₹251 में रिपोर्ट अनलॉक करें ➔' : 'Unlock Report (₹251) ➔'}
             </button>
             <div class="paywall-sublink" style="margin-top:6px;">
               <a href="javascript:void(0)" onclick="openParasharaPaymentModal('mangal', 'passcode')">${isHi ? 'VIP प्रोमो कोड दर्ज करें' : 'Enter VIP Promo Code'}</a>
@@ -10372,7 +10318,8 @@ function performLoginSuccess(userData) {
   try {
     const userIdentifier = userData.email || userData.phone || userData.name || "verified_user";
     localStorage.setItem("sra_verified_google_user", JSON.stringify(userData));
-    localStorage.setItem("sra_verified_mobile", userIdentifier);
+    // the real number when there is one (phone logins carry only a placeholder email)
+    localStorage.setItem("sra_verified_mobile", userData.phone || userIdentifier);
     if (userData.email) localStorage.setItem("sra_verified_email", userData.email);
     if (userData.name) localStorage.setItem("sra_user_name", userData.name);
 
@@ -10727,19 +10674,26 @@ async function logPaymentToServer(paymentData) {
 
 async function logUserToDatabase(payload) {
   try {
-    const phone = localStorage.getItem("sra_verified_mobile") || payload.phone || "ANONYMOUS";
+    // Who made this kundali: the signed-in number, else a Google login's email, else a guest (no login)
+    let phone = (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : '') || String(payload.phone || '').replace(/\D/g, '').slice(-10);
+    if (!/^\d{10}$/.test(phone)) phone = '';
+    const legacyId = (localStorage.getItem("sra_verified_mobile") || '').trim();
+    if (!phone && legacyId.includes('@') && !/@shriramjiastro\.in$/i.test(legacyId)) phone = legacyId;
+    if (!phone && /@shriramjiastro\.in$/i.test(legacyId)) phone = legacyId.split('@')[0];
+    const loginKind = /^\d{10}$/.test(phone) ? "KUNDALI_LOGGED_IN" : (phone ? "KUNDALI_GOOGLE_LOGIN" : "KUNDALI_GUEST");
     const data = {
       phone: phone,
       email: payload.email || (phone.includes('@') ? phone : (localStorage.getItem("sra_verified_email") || "")),
-      name: payload.name || (document.getElementById("inName") ? document.getElementById("inName").value : "वेरिफाइड जातक"),
+      name: payload.name || (document.getElementById("inName") ? document.getElementById("inName").value : "जातक"),
       dob: payload.dob || (document.getElementById("inDate") ? document.getElementById("inDate").value : ""),
       tob: payload.tob || (document.getElementById("inTime") ? document.getElementById("inTime").value : ""),
       location: payload.location || (document.getElementById("inCitySearch") ? document.getElementById("inCitySearch").value : ""),
       lat: payload.lat || (document.getElementById("inLat") ? document.getElementById("inLat").value : ""),
       lon: payload.lon || (document.getElementById("inLon") ? document.getElementById("inLon").value : ""),
       tz: payload.tz || (document.getElementById("inTz") ? document.getElementById("inTz").value : ""),
-      action: payload.action || "OTP_VERIFIED",
-      login_method: payload.action || "OTP_VERIFIED"
+      action: payload.action || loginKind,
+      login_method: payload.action || loginKind,
+      guest: !phone
     };
 
     let localDb = JSON.parse(localStorage.getItem("sra_user_db") || "[]");
@@ -11530,13 +11484,13 @@ window.setLanguage = function(lang) {
       </div>
       <div class="deal-row total">
         <span>देय कुल राशि (Net Payable):</span>
-        <span style="font-size:20px; color:var(--primary); font-family:'Cinzel',serif;">₹199</span>
+        <span style="font-size:20px; color:var(--primary); font-family:'Cinzel',serif;">₹251</span>
       </div>
     </div>
 
     <!-- Primary Razorpay Checkout Button -->
     <button type="button" id="btnRzpSubmit" class="btn-rzp-submit" onclick="triggerParasharaRazorpayCheckout()">
-      💳 ₹199 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
+      💳 ₹251 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)
     </button>
     <div style="font-size:11.5px; text-align:center; color:var(--muted); margin-bottom:14px;">
       🔒 सुरक्षित 256-bit Razorpay गेटवे (Google Pay / PhonePe / Paytm / कार्ड) • तत्काल ऑटो-अनलॉक

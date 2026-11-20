@@ -267,3 +267,45 @@ def test_saas_payment_creates_subscription_once():
     days = (datetime.fromisoformat(sub["expires_at"]) - datetime.now(timezone.utc)).days
     assert sub["status"] == "active" and 363 <= days <= 365
     assert _redeem(hdr, buyer, "buyerdev0001")["ok"] is True
+
+
+# ---- report unlock: a paid report opens only with a server-confirmed pass ----
+def _sig(order_id, payment_id):
+    import hashlib, hmac
+    return hmac.new(se.RAZORPAY_KEY_SECRET.encode(), f"{order_id}|{payment_id}".encode(), hashlib.sha256).hexdigest()
+
+
+def test_report_unlock_needs_real_payment():
+    o = client.post("/api/sutradhar/orders/create", headers=CUST,
+                    json={"customer_phone": CUST_PHONE, "service_id": "kaalsarp_dosha"}).json()
+    oid, ref = o["order_id"], "kundali_A"
+    base = {"service_id": "kaalsarp_dosha", "report_ref": ref}
+    # no receipt, forged signature, or a receipt for another service: no pass
+    assert not client.post("/api/sutradhar/unlock/verify", json=base).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/verify", json={**base, "order_id": oid, "payment_id": "pay_1", "signature": "0" * 64}).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/verify", json={**base, "service_id": "mangal_dosha", "order_id": oid, "payment_id": "pay_1", "signature": _sig(oid, "pay_1")}).json()["ok"]
+    # genuine Razorpay receipt: pass for this kundali
+    r = client.post("/api/sutradhar/unlock/verify", json={**base, "order_id": oid, "payment_id": "pay_1", "signature": _sig(oid, "pay_1")}).json()
+    assert r["ok"] and r["proof"] == f"pay:{oid}"
+    chk = {"service_id": "kaalsarp_dosha", "report_ref": ref, "proof": r["proof"], "token": r["token"]}
+    assert client.post("/api/sutradhar/unlock/check", json=chk).json()["ok"]
+    # the same payment cannot open another kundali, and a made-up pass is refused
+    assert not client.post("/api/sutradhar/unlock/verify", json={**base, "report_ref": "kundali_B", "order_id": oid, "payment_id": "pay_1", "signature": _sig(oid, "pay_1")}).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/check", json={**chk, "report_ref": "kundali_B"}).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/check", json={**chk, "token": "f" * 64}).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/check", json={**chk, "proof": "pay:order_made_up"}).json()["ok"]
+    # a refunded order stops opening the report
+    order = se.SutradharStore.get_doc("orders", oid); order["status"] = "refunded"; se.SutradharStore.set_doc("orders", oid, order)
+    assert not client.post("/api/sutradhar/unlock/check", json=chk).json()["ok"]
+
+
+def test_report_unlock_by_saas_code():
+    r = client.post("/api/sutradhar/saas/redeem", headers={"Authorization": "Bearer mock_token_9000000001"},
+                    json={"service_id": "kaalsarp_dosha", "code": "9000000001", "device_id": "dev_test_0001", "report_ref": "kundali_S"}).json()
+    assert r["ok"], r
+    v = client.post("/api/sutradhar/unlock/verify", json={"service_id": "kaalsarp_dosha", "report_ref": "kundali_S", "unlock_id": r["unlock_id"]}).json()
+    assert v["ok"]
+    assert client.post("/api/sutradhar/unlock/check", json={"service_id": "kaalsarp_dosha", "report_ref": "kundali_S", "proof": v["proof"], "token": v["token"]}).json()["ok"]
+    # that SaaS unlock was for kundali_S only
+    assert not client.post("/api/sutradhar/unlock/verify", json={"service_id": "kaalsarp_dosha", "report_ref": "kundali_T", "unlock_id": r["unlock_id"]}).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/verify", json={"service_id": "kaalsarp_dosha", "report_ref": "kundali_S", "unlock_id": "use_made_up"}).json()["ok"]

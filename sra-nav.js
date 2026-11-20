@@ -34,6 +34,7 @@
     { label: L('रिपोर्ट्स', 'Reports'), icon: '📑', items: [
       { href: 'parashara-report.html', label: L('पराशरी रिपोर्ट', 'Parashari Report'), icon: '📖', badge: '₹1111' },
       { href: 'manglik-dosh-calculator.html', label: L('मंगल दोष कैलकुलेटर', 'Manglik Dosha Calculator'), icon: '🔥' },
+      { href: 'kaalsarp-report.html', label: L('कालसर्प व सर्प-योग रिपोर्ट', 'Kaal Sarp & Sarpa Yoga Report'), icon: '🐍', badge: '₹251' },
       { href: 'dhan-yoga-calculator.html', label: L('धन योग कैलकुलेटर', 'Dhan Yoga Calculator'), icon: '💰' }
     ] },
     { label: L('ज्ञान', 'Learn'), icon: '📚', items: [

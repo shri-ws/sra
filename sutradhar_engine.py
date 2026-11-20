@@ -2066,6 +2066,96 @@ async def saas_redeem(req: SaasRedeemRequest, authorization: Optional[str] = Hea
 
 
 # -----------------------------------------------------------------------------
+# REPORT UNLOCK PROOF: a report page opens only when the server confirms payment
+# -----------------------------------------------------------------------------
+# After checkout the page sends Razorpay's signed receipt (order_id|payment_id signed with our
+# key secret) or a SaaS unlock_id. The server checks it, binds it to that one kundali
+# (report_ref) and returns a pass; every later opening of the report is checked again.
+UNLOCK_SECRET = os.environ.get("SRA_UNLOCK_SECRET") or RAZORPAY_KEY_SECRET
+
+
+class UnlockVerifyRequest(BaseModel):
+    service_id: str
+    report_ref: str
+    order_id: Optional[str] = None
+    payment_id: Optional[str] = None
+    signature: Optional[str] = None
+    unlock_id: Optional[str] = None
+
+
+class UnlockCheckRequest(BaseModel):
+    service_id: str
+    report_ref: str
+    proof: str
+    token: str
+
+
+def _unlock_token(sid: str, ref: str, proof: str) -> str:
+    return hmac.new(UNLOCK_SECRET.encode(), f"{sid}|{ref}|{proof}".encode(), hashlib.sha256).hexdigest()
+
+
+def _clean_ref(ref: Optional[str]) -> str:
+    return re.sub(r"[^A-Za-z0-9_-]", "", ref or "")[:120]
+
+
+def _proof_still_valid(sid: str, ref: str, proof: str) -> bool:
+    kind, _, pid = proof.partition(":")
+    if kind == "pay":
+        order = SutradharStore.get_doc("orders", pid)
+        return bool(order) and resolve_service_id(order.get("service_id", "")) == sid \
+            and order.get("report_ref") == ref and order.get("status") not in ("refunded", "cancelled")
+    if kind == "saas":
+        use = SutradharStore.get_doc("saas_usage", pid)
+        return bool(use) and use.get("service_id") == sid and _clean_ref(use.get("report_ref")) == ref
+    return False
+
+
+@router.post("/unlock/verify")
+async def unlock_verify(req: UnlockVerifyRequest):
+    """Turn a Razorpay receipt or a SaaS unlock into a pass for one report of one kundali."""
+    sid = resolve_service_id(req.service_id)
+    ref = _clean_ref(req.report_ref)
+    if sid not in SERVICE_CATALOG or not ref:
+        return {"ok": False, "message": "रिपोर्ट की पहचान नहीं हो सकी।"}
+    if req.order_id and req.payment_id and req.signature:
+        expected = hmac.new(RAZORPAY_KEY_SECRET.encode(), f"{req.order_id}|{req.payment_id}".encode(), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, req.signature):
+            log_audit_event("UNLOCK_BAD_SIGNATURE", "system", {"order_id": req.order_id, "service_id": sid})
+            return {"ok": False, "message": "भुगतान की पुष्टि नहीं हो सकी।"}
+        with _store_lock:
+            order = SutradharStore.get_doc("orders", req.order_id)
+            if not order or resolve_service_id(order.get("service_id", "")) != sid:
+                return {"ok": False, "message": "भुगतान इस रिपोर्ट का नहीं है।"}
+            bound = order.get("report_ref")
+            if bound and bound != ref:
+                return {"ok": False, "message": "यह भुगतान किसी दूसरी कुंडली की रिपोर्ट के लिए हो चुका है।"}
+            if not bound:
+                order["report_ref"] = ref
+                order["checkout_payment_id"] = req.payment_id
+                order["report_bound_at"] = datetime.now(timezone.utc).isoformat()
+                SutradharStore.set_doc("orders", req.order_id, order)
+        proof = f"pay:{req.order_id}"
+    elif req.unlock_id:
+        if not _proof_still_valid(sid, ref, f"saas:{req.unlock_id}"):
+            return {"ok": False, "message": "कोड से रिपोर्ट खोलने की पुष्टि नहीं हो सकी।"}
+        proof = f"saas:{req.unlock_id}"
+    else:
+        return {"ok": False, "message": "भुगतान की जानकारी नहीं मिली।"}
+    log_audit_event("REPORT_UNLOCKED", "system", {"service_id": sid, "report_ref": ref, "proof": proof})
+    return {"ok": True, "proof": proof, "token": _unlock_token(sid, ref, proof)}
+
+
+@router.post("/unlock/check")
+async def unlock_check(req: UnlockCheckRequest):
+    """Called every time a paid report opens: is this pass genuine and still backed by a payment?"""
+    sid = resolve_service_id(req.service_id)
+    ref = _clean_ref(req.report_ref)
+    if not ref or not hmac.compare_digest(_unlock_token(sid, ref, req.proof), req.token or ""):
+        return {"ok": False}
+    return {"ok": _proof_still_valid(sid, ref, req.proof)}
+
+
+# -----------------------------------------------------------------------------
 # ENDPOINT 7: ADMIN 'REQUIRES REVIEW' QUEUE (जाँच ज़रूरी)
 # -----------------------------------------------------------------------------
 @router.get("/admin/reviews")
