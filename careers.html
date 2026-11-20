@@ -671,27 +671,18 @@
   <!-- CONFIRMATION MODAL -->
   <div class="modal-overlay" id="confirmModal">
     <div class="modal-box">
-      <div class="modal-icon">✓</div>
-      <div class="status-badge-underprocess">⏳ चयन स्थिति: अंडर प्रोसेस (Under Process)</div>
-      <h3 class="modal-title">आवेदन सफलतापूर्वक प्राप्त हुआ!</h3>
+      <div class="modal-icon">🙏</div>
+      <h3 class="modal-title">धन्यवाद!</h3>
       <p class="modal-msg" id="modalMessageText">
-        आपका आवेदन सफलतापूर्वक प्राप्त हो गया है। आपका चयन <strong>'अंडर प्रोसेस'</strong> है। हमारी आचार्य समिति आपके विवरण का परीक्षण कर २४ से ४८ घंटों के भीतर आपके पंजीकृत व्हाट्सएप / ईमेल पर संपर्क करेगी।
+        <span id="resCandName">—</span> जी, आपका आवेदन हमें मिल गया है।<br>
+        हमारी टीम इसे देखकर, स्वीकार होने पर आपके WhatsApp नंबर <strong id="resCandPhone">—</strong> पर आगे की पूरी जानकारी भेजेगी।
       </p>
-
       <div class="modal-meta-box">
-        <div><strong>आवेदन संदर्भ संख्या (ID):</strong> <span id="resAppId" style="color:var(--gold-dark); font-family:monospace; font-weight:700;">—</span></div>
-        <div style="margin-top:4px;"><strong>आवेदक का नाम:</strong> <span id="resCandName">—</span></div>
-        <div style="margin-top:4px;"><strong>पंजीकृत मोबाइल:</strong> <span id="resCandPhone">—</span></div>
-        <div style="margin-top:6px; font-size:11.5px; color:var(--muted);">* चयन की सूचना व आपकी गुप्त ऑनबोर्डिंग लिंक सीधे आपके व्हाट्सएप पर प्रेषित की जाएगी।</div>
+        <div><strong>आवेदन संख्या:</strong> <span id="resAppId" style="color:var(--gold-dark); font-family:monospace; font-weight:700;">—</span></div>
+        <div style="margin-top:6px; font-size:12px; color:var(--muted);">कृपया इस नंबर पर WhatsApp संदेश देखते रहें। आपको अभी कुछ और करने की ज़रूरत नहीं है।</div>
       </div>
-
       <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
-        <button type="button" class="btn-submit" onclick="proceedToTermsPage()" style="padding:14px 24px; font-weight:700;">
-          📜 जॉब डिस्क्रिप्शन, इंसेंटिव व नियम देखें (अगला चरण) ➔
-        </button>
-        <button type="button" onclick="closeModalAndRedirect()" style="background:transparent; border:none; color:var(--muted); font-size:13px; cursor:pointer; text-decoration:underline;">
-          मुख्य पृष्ठ पर लौटें
-        </button>
+        <button type="button" class="btn-submit" onclick="closeModalAndRedirect()" style="padding:14px 24px; font-weight:700;">ठीक है</button>
       </div>
     </div>
   </div>
@@ -855,14 +846,6 @@
         document.getElementById('resCandPhone').innerText = payload.phone;
         document.getElementById('confirmModal').classList.add('active');
 
-        // Auto-redirect to the intermediate Job Description & Terms page after short delay
-        window._pendingTermsUrl = `sutradhar-terms.html?phone=${encodeURIComponent(payload.phone)}&name=${encodeURIComponent(payload.name)}&email=${encodeURIComponent(payload.email || '')}&upi=${encodeURIComponent(upiVal || '')}`;
-        setTimeout(() => {
-          if (document.getElementById('confirmModal').classList.contains('active')) {
-            proceedToTermsPage();
-          }
-        }, 2200);
-
       } catch (err) {
         console.error("Submission error:", err);
         // Resilient fallback: Still confirm to user and save locally
@@ -880,15 +863,6 @@
         btn.disabled = false;
         btn.innerText = "🏛️ सूत्रधार पद हेतु आवेदन समर्पित करें";
       }
-    }
-
-    function proceedToTermsPage() {
-      const phone = document.getElementById('cand_phone')?.value.replace(/[^0-9]/g, '').slice(-10) || '';
-      const name = document.getElementById('cand_name')?.value.trim() || '';
-      const email = document.getElementById('cand_email')?.value.trim() || '';
-      const upi = (document.getElementById('cand_upi')?.value || '').trim();
-      const targetUrl = window._pendingTermsUrl || `sutradhar-terms.html?phone=${encodeURIComponent(phone)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&upi=${encodeURIComponent(upi)}`;
-      window.location.href = targetUrl;
     }
 
     function closeModalAndRedirect() {
