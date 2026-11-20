@@ -226,12 +226,17 @@ def record(ev: Dict[str, Any], user_agent: str):
         v["last"] = now.strftime("%H:%M")
 
         event = {"t": now.strftime("%H:%M:%S"), "k": kind, "p": path, "vid": vid[:10], "ph": phone}
+        new_dl = False
         if kind == "pv":
             day["pageviews"] += 1
             v["pv"] = v.get("pv", 0) + 1
             _bump(day["pages"], path)
+            pages = v.setdefault("pages", [])
+            if path not in pages and len(pages) < 15:
+                pages.append(path)
             if ev.get("land"):
                 day["visits"] += 1
+                v["visits"] = v.get("visits", 0) + 1
                 src = classify_source(_clip(ev.get("r"), 400), _clip(ev.get("u"), 40))
                 source = src["source"] or "सीधे (लिंक/WhatsApp/बुकमार्क)"
                 v["source"] = v.get("source") or source
@@ -244,15 +249,24 @@ def record(ev: Dict[str, Any], user_agent: str):
             else:
                 event = None  # inner page views are counted, not listed
         elif kind in ("dl", "app"):
-            if kind == "dl":
-                day["downloads_total"] += 1
-                v["dl"] = v.get("dl", 0) + 1
-                _bump(day["downloads"], label or path)
+            # one person, one report, one day = one download (repeat clicks are not counted again)
+            key = (label or path) if kind == "dl" else "app"
+            dls = v.setdefault("dls", [])
+            if key in dls:
+                event = None
             else:
-                day["app_downloads"] += 1
-            event["l"] = label
+                new_dl = True
+                if len(dls) < 30:
+                    dls.append(key)
+                if kind == "dl":
+                    day["downloads_total"] += 1
+                    v["dl"] = v.get("dl", 0) + 1
+                    _bump(day["downloads"], key)
+                else:
+                    day["app_downloads"] += 1
+                event["l"] = label
         elif kind == "identify":
-            event = {"t": now.strftime("%H:%M:%S"), "k": "login", "p": path, "vid": vid[:10], "ph": phone} if verified_phone else None
+            event = None  # a sign-in is shown on the person's row, not as its own line
 
         if event:
             day["events"].append(event)
@@ -273,10 +287,10 @@ def record(ev: Dict[str, Any], user_agent: str):
                 p["last_page"] = path
                 if v.get("source") and not p.get("source"):
                     p["source"] = v["source"]
-            elif kind == "dl":
+            elif kind == "dl" and new_dl:
                 p["download_count"] = p.get("download_count", 0) + 1
                 p["downloads"] = (p.get("downloads", []) + [{"at": now.isoformat(), "l": label, "p": path}])[-30:]
-            elif kind == "app":
+            elif kind == "app" and new_dl:
                 p["app_downloads"] = p.get("app_downloads", 0) + 1
             _dirty_people.add(phone)
 
@@ -305,6 +319,34 @@ async def collect(request: Request, user_agent: Optional[str] = Header(None)):
 
 
 # ── admin ───────────────────────────────────────────────────────────
+def _people_of_day(vis: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """Visitor ids of one day folded into people: a signed-in number is one person on every device."""
+    out: Dict[str, Dict[str, Any]] = {}
+    for vid, v in vis.items():
+        key = v.get("phone") or ("v:" + vid)
+        r = out.get(key)
+        if r is None:
+            r = out[key] = {"phone": v.get("phone", ""), "first": v.get("first", ""), "last": v.get("last", ""),
+                            "visits": 0, "pv": 0, "pages": [], "downloads": [], "source": v.get("source", ""),
+                            "device": v.get("device", ""), "devices": 0}
+        r["devices"] += 1
+        r["visits"] += int(v.get("visits") or (1 if v.get("pv") else 0))
+        r["pv"] += int(v.get("pv") or 0)
+        if v.get("first") and (not r["first"] or v["first"] < r["first"]):
+            r["first"] = v["first"]
+        if v.get("last") and v["last"] > r["last"]:
+            r["last"] = v["last"]
+        for pg in v.get("pages") or [v.get("landing")]:
+            if pg and pg not in r["pages"]:
+                r["pages"].append(pg)
+        for dl in v.get("dls") or []:
+            if dl not in r["downloads"]:
+                r["downloads"].append(dl)
+        if not r["source"] and v.get("source"):
+            r["source"] = v["source"]
+    return out
+
+
 @router.get("/admin/summary")
 async def admin_summary(days: int = 7, authorization: Optional[str] = Header(None)):
     require_admin(authorization)
@@ -313,9 +355,10 @@ async def admin_summary(days: int = 7, authorization: Optional[str] = Header(Non
     today = _now().date()
     dates = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(days)]
 
-    totals = {"pageviews": 0, "visits": 0, "visitors": 0, "downloads": 0, "app_downloads": 0, "signed_in": 0}
+    totals = {"people": 0, "people_days": 0, "returning": 0, "visits": 0, "pageviews": 0,
+              "downloads": 0, "app_downloads": 0, "signed_in": 0}
     merged = {"sources": {}, "pages": {}, "devices": {}, "downloads": {}, "searches": {}, "landing": {}}
-    per_day, events, phones = [], [], set()
+    per_day, events, rows, seen_people, phones = [], [], [], {}, set()
     for date in dates:
         with _lock:
             d = _days.get(date)
@@ -323,39 +366,51 @@ async def admin_summary(days: int = 7, authorization: Optional[str] = Header(Non
         if d is None:
             d = SutradharStore.get_doc(DAY_COL, date)
         if not d:
-            per_day.append({"date": date, "visitors": 0, "pageviews": 0, "downloads": 0, "app_downloads": 0})
+            per_day.append({"date": date, "people": 0, "visits": 0, "pageviews": 0, "downloads": 0, "app_downloads": 0})
             continue
-        vis = d.get("visitors") or {}
-        signed = {v.get("phone") for v in vis.values() if v.get("phone")}
-        phones |= signed
-        per_day.append({"date": date, "visitors": len(vis), "pageviews": d.get("pageviews", 0),
+        ppl = _people_of_day(d.get("visitors") or {})
+        for key, r in ppl.items():
+            seen_people[key] = seen_people.get(key, 0) + 1
+            if r["phone"]:
+                phones.add(r["phone"])
+            rows.append(dict(r, date=date, key=key))
+        per_day.append({"date": date, "people": len(ppl), "visits": d.get("visits", 0), "pageviews": d.get("pageviews", 0),
                         "downloads": d.get("downloads_total", 0), "app_downloads": d.get("app_downloads", 0),
-                        "signed_in": len(signed)})
+                        "signed_in": sum(1 for r in ppl.values() if r["phone"])})
+        totals["people_days"] += len(ppl)
         totals["pageviews"] += d.get("pageviews", 0)
         totals["visits"] += d.get("visits", 0)
-        totals["visitors"] += len(vis)
         totals["downloads"] += d.get("downloads_total", 0)
         totals["app_downloads"] += d.get("app_downloads", 0)
         for key in merged:
             for k, n in (d.get(key) or {}).items():
                 merged[key][k] = merged[key].get(k, 0) + n
         for e in d.get("events") or []:
-            events.append(dict(e, date=date))
+            if e.get("k") in ("dl", "app"):
+                events.append(dict(e, date=date))
+    totals["people"] = len(seen_people)
+    totals["returning"] = sum(1 for n in seen_people.values() if n > 1)
     totals["signed_in"] = len(phones)
 
     def top(m: Dict[str, int], n: int = 25):
         return [{"name": k, "count": c} for k, c in sorted(m.items(), key=lambda x: -x[1])[:n]]
 
-    events.sort(key=lambda e: (e.get("date", ""), e.get("t", "")), reverse=True)
     people = [p for p in SutradharStore.query_all(PEOPLE_COL) if (p.get("last_seen") or "")[:10] >= dates[-1]]
     people.sort(key=lambda p: p.get("last_seen", ""), reverse=True)
+    names = {p.get("phone"): p.get("name", "") for p in people}
+    for r in rows:
+        r["name"] = names.get(r["phone"], "")
+        r["days_seen"] = seen_people.get(r["key"], 1)
+    # signed-in people and those who downloaded first, then the latest
+    rows.sort(key=lambda r: (r["date"], bool(r["phone"]) or bool(r["downloads"]), r["last"]), reverse=True)
+    events.sort(key=lambda e: (e.get("date", ""), e.get("t", "")), reverse=True)
     return {
         "days": days, "from": dates[-1], "to": dates[0], "totals": totals,
         "per_day": list(reversed(per_day)),
         "sources": top(merged["sources"]), "pages": top(merged["pages"]), "landing": top(merged["landing"]),
         "devices": top(merged["devices"], 10), "downloads": top(merged["downloads"]),
         "searches": top(merged["searches"]),
-        "download_events": [e for e in events if e.get("k") in ("dl", "app")][:400],
-        "recent": events[:300],
+        "download_events": events[:400],
+        "daily_people": rows[:600],
         "people": people[:500],
     }

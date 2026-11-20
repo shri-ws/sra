@@ -48,6 +48,12 @@ def test_flow_and_admin():
     beacon({"k": "dl", "vid": "v1", "p": "/patrika", "l": "पत्रिका · PDF"})
     beacon({"k": "identify", "vid": "v1", "tok": "mock_token_9876500001", "nm": "राम"})
     beacon({"k": "dl", "vid": "v1", "p": "/manglik-dosh-calculator", "l": "मंगल दोष · PDF डाउनलोड"})
+    # same report clicked again the same day: not counted again
+    beacon({"k": "dl", "vid": "v1", "p": "/manglik-dosh-calculator", "l": "मंगल दोष · PDF डाउनलोड"})
+    # the same signed-in person on a second device is still one person
+    beacon({"k": "pv", "vid": "v1b", "p": "/", "land": 1})
+    beacon({"k": "identify", "vid": "v1b", "tok": "mock_token_9876500001"})
+    beacon({"k": "pv", "vid": "v1b", "p": "/gun-milan"})
     beacon({"k": "app", "vid": "v2", "p": "/", "l": "Android ऐप (APK)", "land": 1})
     beacon({"k": "pv", "vid": "v3", "p": "/", "land": 1}, ua={"User-Agent": "Googlebot/2.1"})
     beacon({"k": "nonsense", "vid": "v4"})
@@ -57,8 +63,11 @@ def test_flow_and_admin():
     assert r.status_code == 200, r.text
     d = r.json()
     t = d["totals"]
-    assert t["pageviews"] == 2 and t["visits"] == 1 and t["downloads"] == 2 and t["app_downloads"] == 1
-    assert t["visitors"] == 2 and t["signed_in"] == 1
+    assert t["pageviews"] == 4 and t["visits"] == 2 and t["downloads"] == 2 and t["app_downloads"] == 1
+    assert t["people"] == 2 and t["signed_in"] == 1
+    me = next(r for r in d["daily_people"] if r["phone"] == "9876500001")
+    assert me["devices"] == 2 and me["pv"] == 4 and "/gun-milan" in me["pages"]
+    assert len([x for x in me["downloads"] if "मंगल" in x]) == 1
     assert d["sources"][0]["name"] == "Google खोज"
     phones = [e.get("ph") for e in d["download_events"]]
     assert "9876500001" in phones and "9999999999" not in phones

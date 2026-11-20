@@ -323,7 +323,15 @@ body{font-size:16px !important;line-height:1.55}
 .nav-item{font-size:15px !important;padding:11px 13px}
 .table-title{font-size:14px !important;letter-spacing:1px !important}
 .tbl th{font-size:12.5px !important;letter-spacing:.6px !important;padding:12px 14px !important}
-.tbl td{font-size:15px !important;padding:12px 14px !important}
+.tbl td{font-size:15px !important}
+@media(min-width:701px){ .tbl td{padding:12px 14px !important} }
+/* phone: each row is a card, the column name sits above its value */
+@media(max-width:700px){
+  .tbl td{padding:24px 12px 8px 12px !important}
+  .tbl td::before{top:6px !important;left:12px !important;right:12px;width:auto !important;font-family:inherit !important;
+    font-size:11.5px !important;letter-spacing:0 !important;text-transform:none !important;font-weight:600}
+  .tbl td[data-label=""], .tbl td:not([data-label]){padding-top:8px !important}
+}
 .export-btn{font-size:12.5px !important;letter-spacing:.6px !important;padding:8px 14px !important}
 .search-box{font-size:15px !important}
 .stat-label{font-size:13px !important;letter-spacing:.8px !important}
@@ -1165,6 +1173,11 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           <div><div class="table-title" style="margin-bottom:6px;">डिवाइस</div><table class="tbl"><tbody id="an-devices"></tbody></table>
             <div class="table-title" style="margin:12px 0 6px;">खोज शब्द (जहाँ search engine ने बताए)</div><table class="tbl"><tbody id="an-searches"></tbody></table></div>
         </div>
+        <div class="table-title" style="margin-bottom:6px;">कौन आया — हर व्यक्ति की दिन में एक पंक्ति</div>
+        <p style="font-size:12px; color:var(--text-muted); margin:0 0 8px;">लॉगिन वाले व्यक्ति उनके नंबर से गिने जाते हैं (फ़ोन और कंप्यूटर दोनों से आएँ तो भी एक); बिना लॉगिन वाले उनके फ़ोन/browser से। "दिन आए" बताता है कि इस अवधि में वह कितने दिन लौटकर आया।</p>
+        <div style="overflow-x:auto; margin-bottom:18px;"><table class="tbl">
+          <thead><tr><th>तारीख़</th><th>व्यक्ति</th><th>समय</th><th>कितनी बार</th><th>क्या देखा</th><th>डाउनलोड</th><th>कहाँ से आया</th><th>दिन आए</th></tr></thead>
+          <tbody id="an-recent"></tbody></table></div>
         <div class="table-title" style="margin-bottom:6px;">डाउनलोड — किसने, कब</div>
         <div style="overflow-x:auto; margin-bottom:18px;"><table class="tbl">
           <thead><tr><th>तारीख़ / समय</th><th>क्या</th><th>पेज</th><th>मोबाइल नंबर</th></tr></thead>
@@ -1173,10 +1186,6 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
         <div style="overflow-x:auto; margin-bottom:18px;"><table class="tbl">
           <thead><tr><th>नाम / नंबर</th><th>पहली बार</th><th>आख़िरी बार</th><th>दिन आए</th><th>पेज देखे</th><th>डाउनलोड</th><th>कहाँ से आए</th><th>आख़िरी डाउनलोड</th></tr></thead>
           <tbody id="an-people"></tbody></table></div>
-        <div class="table-title" style="margin-bottom:6px;">ताज़ा गतिविधि</div>
-        <div style="overflow-x:auto;"><table class="tbl">
-          <thead><tr><th>समय</th><th>क्या हुआ</th><th>पेज</th><th>स्रोत / विवरण</th><th>नंबर</th></tr></thead>
-          <tbody id="an-recent"></tbody></table></div>
       </div>
     </div>
 
@@ -3158,18 +3167,19 @@ async function loadVisitors(days) {
     const t = d.totals || {};
     document.getElementById('an-range-label').textContent = `${anDate(d.from)} से ${anDate(d.to)} तक`;
     stats.innerHTML = [
-      ['विज़िटर', t.visitors, 'अलग-अलग लोग (हर दिन का जोड़)', 'gold'],
-      ['विज़िट', t.visits, 'वेबसाइट पर आना', ''],
-      ['पेज देखे', t.pageviews, '', ''],
+      ['लोग', t.people, 'अलग-अलग व्यक्ति (हर व्यक्ति एक बार)', 'gold'],
+      ['लौटकर आए', t.returning, 'एक से ज़्यादा दिन आए', ''],
+      ['कुल बार आए', t.visits, `${anNum(t.pageviews)} पेज देखे`, ''],
       ['लॉगिन वाले लोग', t.signed_in, 'जिनका नंबर पता है', 'green'],
       ['रिपोर्ट डाउनलोड', t.downloads, 'PDF / प्रिंट', 'gold'],
       ['ऐप डाउनलोड', t.app_downloads, 'Android APK', 'green'],
     ].map(([l, v, sub, cls]) => `<div class="stat-card ${cls}"><div class="stat-label">${l}</div><div class="stat-val">${anNum(v)}</div><div class="stat-sub">${sub}</div></div>`).join('');
 
     const pd = d.per_day || [];
+    pd.forEach(x => { x.visitors = x.people != null ? x.people : (x.visitors || 0); });
     const mx = Math.max(1, ...pd.map(x => x.visitors));
     document.getElementById('an-chart').innerHTML = pd.map(x => `
-      <div title="${anDate(x.date)}: ${x.visitors} विज़िटर, ${x.pageviews} पेज, ${x.downloads} डाउनलोड" style="flex:1; min-width:${pd.length > 40 ? 6 : 18}px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;">
+      <div title="${anDate(x.date)}: ${x.visitors} लोग, ${x.pageviews} पेज, ${x.downloads} डाउनलोड" style="flex:1; min-width:${pd.length > 40 ? 6 : 18}px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;">
         <div style="font-size:9px; color:var(--text-muted);">${x.visitors || ''}</div>
         <div style="width:100%; height:${Math.round(x.visitors / mx * 70)}px; min-height:${x.visitors ? 2 : 0}px; background:linear-gradient(#a78bfa,#7c3aed); border-radius:3px 3px 0 0;"></div>
         <div style="font-size:9px; color:var(--text-muted); white-space:nowrap;">${pd.length <= 31 ? anDate(x.date).split(' ')[0] : ''}</div>
@@ -3204,15 +3214,28 @@ async function loadVisitors(days) {
       </tr>`;
     }).join('') : '<tr><td colspan="8" class="empty-row">इस अवधि में किसी लॉगिन वाले व्यक्ति की गतिविधि नहीं</td></tr>';
 
-    const kinds = { pv: 'आया', dl: 'डाउनलोड', app: 'ऐप डाउनलोड', login: 'लॉगिन' };
-    const rc = d.recent || [];
-    document.getElementById('an-recent').innerHTML = rc.length ? rc.map(e => `<tr>
-      <td style="white-space:nowrap; font-size:11px;">${anDate(e.date)} ${anEsc((e.t || '').slice(0, 5))}</td>
-      <td>${kinds[e.k] || anEsc(e.k)}</td>
-      <td style="font-size:11px;">${anEsc(e.p)}</td>
-      <td style="font-size:11px;">${anEsc(e.src || e.l || '')}</td>
-      <td style="font-family:monospace; font-size:11px;">${anEsc(e.ph || '')}</td>
-    </tr>`).join('') : '<tr><td colspan="5" class="empty-row">अभी कोई गतिविधि नहीं</td></tr>';
+    const PAGE_NAMES = { '/': 'मुख्य पेज', '/index': 'मुख्य पेज', '/patrika': 'पत्रिका', '/gun-milan': 'गुण मिलान', '/manglik-dosh-calculator': 'मंगल दोष',
+      '/parashara-report': 'पाराशर रिपोर्ट', '/vmm': 'विवाह मुहूर्त', '/mmm': 'मुंडन मुहूर्त', '/vastu-muhurta': 'वास्तु मुहूर्त', '/yajnopavita': 'यज्ञोपवीत मुहूर्त',
+      '/course': 'कोर्स', '/payment': 'भुगतान', '/consultation': 'परामर्श', '/aaj-panchang': 'आज का पंचांग', '/sutradhar': 'सूत्रधार पोर्टल',
+      '/sutradhar-invite': 'सूत्रधार निमंत्रण', '/dhana-yoga-calculator': 'धन योग', '/blogs': 'लेख', '/about': 'हमारे बारे में' };
+    const pname = p => PAGE_NAMES[p] || p;
+    const rc = d.daily_people || [];
+    document.getElementById('an-recent').innerHTML = rc.length ? rc.map(r => {
+      const who = r.phone
+        ? `<div style="font-weight:700;">${anEsc(r.name || 'लॉगिन व्यक्ति')}</div><a href="https://wa.me/91${anEsc(r.phone)}" target="_blank" rel="noopener" style="font-family:monospace; color:var(--gold);">${anEsc(r.phone)}</a>`
+        : `<span style="color:var(--text-muted);">अतिथि (बिना लॉगिन)</span><div style="font-size:11px; color:var(--text-muted);">${anEsc(r.device || '')}</div>`;
+      const pages = (r.pages || []).slice(0, 6).map(pname).join(', ') + ((r.pages || []).length > 6 ? ` +${r.pages.length - 6}` : '');
+      return `<tr>
+        <td style="white-space:nowrap;">${anDate(r.date)}</td>
+        <td>${who}${r.devices > 1 ? `<div style="font-size:11px; color:var(--text-muted);">${r.devices} डिवाइस</div>` : ''}</td>
+        <td style="white-space:nowrap; font-size:12px;">${anEsc(r.first)}${r.last && r.last !== r.first ? ' – ' + anEsc(r.last) : ''}</td>
+        <td>${anNum(r.visits || 1)} बार <div style="font-size:11px; color:var(--text-muted);">${anNum(r.pv)} पेज</div></td>
+        <td style="font-size:12px;">${anEsc(pages || '—')}</td>
+        <td style="font-size:12px;">${(r.downloads || []).length ? (r.downloads || []).map(x => anEsc(x === 'app' ? 'Android ऐप' : x)).join('<br>') : '—'}</td>
+        <td style="font-size:12px;">${anEsc(r.source || '—')}</td>
+        <td>${r.days_seen > 1 ? `<b>${r.days_seen} दिन</b>` : '1 दिन'}</td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="8" class="empty-row">इस अवधि में कोई नहीं आया</td></tr>';
   } catch (err) {
     stats.innerHTML = `<div class="stat-card" style="grid-column:1/-1; color:#ef4444;">त्रुटि: ${anEsc(err.message)}</div>`;
   }
