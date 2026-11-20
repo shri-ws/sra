@@ -64,6 +64,15 @@
   .arth { font-size: 13.5px; margin-top: 4px; }
   .note { font-size: 12.8px; color: #7a3b0a; margin-top: 6px; }
   .biblio li { font-size: 13px; margin-bottom: 5px; }
+  .pw-badge { display:inline-block; background:#fdecea; color:#b3261e; font-size:12px; font-weight:700; padding:3px 10px; border-radius:20px; }
+  .pw-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px; margin:12px 0; }
+  .pw-list div { background:var(--cream); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13.5px; }
+  .pw-list b { display:block; color:var(--maroon); font-size:14px; }
+  .pw-price { display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--line); padding-top:10px; margin-top:6px; font-weight:700; }
+  .pw-price span:last-child { font-size:26px; color:var(--maroon); }
+  .pw-pay { width:100%; margin-top:12px; background:var(--green); color:#fff; border:0; border-radius:12px; padding:14px; font-size:17px; font-weight:800; cursor:pointer; }
+  .pw-code { display:flex; gap:8px; margin-top:8px; }
+  .pw-code input { flex:1; padding:9px 10px; border:1px solid var(--line); border-radius:8px; text-transform:uppercase; font-weight:700; }
   .disc { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 18px; padding-top: 10px; }
 </style>
 </head>
@@ -75,6 +84,8 @@
     <h2>कुंडली चुनें</h2>
     <select id="kundaliSel"></select>
     <div class="muted" style="margin-top:6px">सूची में वही कुंडलियाँ हैं जो इस फ़ोन/कंप्यूटर पर पत्रिका में बनाई गई हैं। नई कुंडली: <a href="patrika.html">पत्रिका पर बनाएँ ↗</a></div>
+    <label class="muted" for="phoneIn" style="display:block;margin-top:12px">आपका मोबाइल नंबर (भुगतान व रसीद के लिए)</label>
+    <input id="phoneIn" inputmode="numeric" maxlength="10" placeholder="10 अंकों का मोबाइल" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--cream);font-size:15px;margin-top:4px">
     <div class="btns">
       <button class="btn go" id="makeBtn" type="button">रिपोर्ट बनाएँ</button>
       <button class="btn pdf" id="pdfBtn" type="button" hidden>⬇ PDF डाउनलोड</button>
@@ -82,10 +93,16 @@
     <div id="status"></div>
   </div>
 
+  <div class="panel" id="paywall" hidden></div>
   <div id="report" hidden></div>
 </div>
 
 <script src="sra-config.js"></script>
+<script src="sra-auth.js"></script>
+<script src="sra-records.js"></script>
+<script src="sra-master.js"></script>
+<script src="sra-coupon-engine.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="patrikaEngineBridge.js?v=13"></script>
 <script src="kaalsarpRules.js?v=2"></script>
 <script src="html2pdf.bundle.min.js?v=13"></script>
@@ -227,7 +244,100 @@
     } finally { btn.disabled = false; btn.textContent = '⬇ PDF डाउनलोड'; }
   }
 
-  $('makeBtn').addEventListener('click', make);
+  // ---------- ₹251 payment (same flow as the Manglik report: price and Sutradhar lead come from the server) ----------
+  const SERVICE = 'kaalsarp_dosha';
+  const keyOf = k => (k.id || ((k.name || 'jatak').trim().toLowerCase() + '_' + (k.date || '') + '_' + (k.time || ''))).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const unlocked = k => { try { return localStorage.getItem('sra_unlocked_kaalsarp_' + keyOf(k)) === 'true'; } catch (e) { return false; } };
+  const phoneVal = () => ($('phoneIn').value || '').replace(/\D/g, '').slice(-10);
+  let lead = null, coupon = '', paidAmount = null;
+  try { $('phoneIn').value = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10); } catch (e) {}
+
+  function selected() { return list[+$('kundaliSel').value]; }
+
+  async function start() {
+    const k = selected();
+    if (!k) { $('status').textContent = 'पहले पत्रिका पर कुंडली बनाएँ।'; return; }
+    const ph = phoneVal();
+    if (ph.length !== 10) { $('status').textContent = 'कृपया 10 अंकों का मोबाइल नंबर डालें।'; $('phoneIn').focus(); return; }
+    try { localStorage.setItem('sra_verified_mobile', ph); localStorage.setItem('sra_user_phone', ph); } catch (e) {}
+    if (unlocked(k)) { $('paywall').hidden = true; return make(); }
+    showPaywall(k, ph);
+  }
+
+  function showPaywall(k, ph) {
+    $('report').hidden = true; $('pdfBtn').hidden = true;
+    const n = SRAKaalsarp.RULES.length, srcs = Object.keys(SRAKaalsarp.SOURCES).length;
+    $('paywall').innerHTML = `
+      <span class="pw-badge">🔒 रिपोर्ट भुगतान के बाद खुलेगी</span>
+      <h2 style="margin-top:10px">कालसर्प व सर्प-योग रिपोर्ट — ${esc(k.name)}</h2>
+      <div class="muted">${esc(k.date)} • ${esc(k.time)} • ${esc(k.city || '')}</div>
+      <div class="pw-list">
+        <div><b>कालसर्प योग</b>पूर्ण / आंशिक, और 12 में से कौन-सा प्रकार</div>
+        <div><b>${n} शास्त्रीय नियमों की जाँच</b>सर्प-योग, सर्प-शाप, सर्प-भय, ग्रहण-जन्म, सर्प-द्रेष्काण</div>
+        <div><b>${srcs} श्लोक-प्रमाण</b>हर नियम के साथ ग्रंथ, अध्याय, श्लोक और पृष्ठ</div>
+        <div><b>शास्त्रोक्त उपाय</b>नागपूजा, राहु-केतु जप, समिधा, दक्षिणा • A4 PDF</div>
+      </div>
+      <div class="pw-price"><span>देय दक्षिणा (GST सहित)</span><span id="pwPrice">₹251</span></div>
+      <button class="pw-pay" id="pwPay" type="button">💳 ₹251 भुगतान करें (UPI / कार्ड)</button>
+      <div class="muted" style="margin-top:6px;text-align:center">Razorpay से सुरक्षित भुगतान • भुगतान होते ही रिपोर्ट खुल जाएगी</div>
+      <details style="margin-top:10px"><summary class="muted" style="cursor:pointer">कोड है?</summary>
+        <div class="pw-code"><input id="pwCode" placeholder="कोड" autocomplete="off"><button class="btn ghost" id="pwCodeBtn" type="button">लागू करें</button></div>
+        <div id="pwCodeMsg" class="muted" style="margin-top:6px"></div>
+      </details>`;
+    $('paywall').hidden = false;
+    $('paywall').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('status').textContent = '';
+    $('pwPay').addEventListener('click', () => pay(k));
+    $('pwCodeBtn').addEventListener('click', () => applyCode(k));
+    $('pwCode').addEventListener('keydown', e => { if (e.key === 'Enter') applyCode(k); });
+    lead = null;
+    if (window.SraCouponEngine && SraCouponEngine.fetchServerQuote) {
+      SraCouponEngine.fetchServerQuote(ph, SERVICE).then(q => {
+        if (!q) return;
+        if (q.net_price) { $('pwPrice').textContent = '₹' + q.net_price; $('pwPay').textContent = `💳 ₹${q.net_price} भुगतान करें (UPI / कार्ड)`; }
+        if (q.has_active_lead) lead = { id: q.lead_id || '', sutradhar: (q.sutradhar_code || q.sutradhar_id || '').replace(/-/g, '') };
+      }).catch(() => {});
+    }
+  }
+
+  function applyCode(k) {
+    const raw = $('pwCode').value || '', msg = $('pwCodeMsg');
+    if (window.sraIsMasterKey && window.sraIsMasterKey(raw)) return unlock(k, 'MASTER_KEY');
+    SraCouponEngine.handleCodeBox({
+      serviceId: SERVICE, code: raw, reportRef: keyOf(k),
+      remember: c => { coupon = c; },
+      onUnlock: r => unlock(k, 'SAAS_' + r.unlock_id),
+      show: (ok, m) => { msg.style.color = ok ? '#166a43' : (ok === null ? '#7a5a00' : '#b3261e'); msg.textContent = (ok ? '✓ ' : ok === null ? '' : '❌ ') + m; }
+    });
+  }
+
+  function pay(k) {
+    SraCouponEngine.openServerCheckout({
+      serviceId: SERVICE, phone: phoneVal(), name: k.name || 'जातक', code: coupon,
+      description: `कालसर्प व सर्प-योग रिपोर्ट - ${k.name || 'जातक'}`,
+      notes: { report_type: 'kaalsarp_dosha_report' },
+      onSuccess: (resp, order) => { paidAmount = order ? order.net_price : null; unlock(k, resp.razorpay_payment_id || 'RZP_SUCCESS'); }
+    });
+  }
+
+  function unlock(k, paymentId) {
+    const key = keyOf(k);
+    try { localStorage.setItem('sra_unlocked_kaalsarp_' + key, 'true'); localStorage.setItem('sra_kaalsarp_pay_id_' + key, paymentId); } catch (e) {}
+    const sid = (lead && lead.sutradhar) || (window.SraCouponEngine ? SraCouponEngine.getActiveSutradharId() : '');
+    // payment record for the admin dashboard (sra-records.js stores it in Firestore); the server order is the real record
+    if (!/^(MASTER_KEY|SAAS_)/.test(paymentId)) {
+      fetch('api/save_payment.php', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ razorpay_payment_id: paymentId, student_name: k.name || '', student_phone: phoneVal(),
+          plan_name: 'Kaalsarp & Sarpa Yoga Report (₹' + (paidAmount || 251) + ')', report_type: 'kaalsarp_dosha_report',
+          amount: paidAmount || 251, discount: 0, coupon_code: coupon || sid || '', sutradhar_id: sid || '', status: 'completed', kundali_key: key })
+      }).catch(() => {});
+    }
+    $('paywall').hidden = true;
+    make();
+  }
+
+  $('makeBtn').addEventListener('click', start);
   $('pdfBtn').addEventListener('click', pdf);
   loadList();
 })();
