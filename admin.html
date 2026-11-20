@@ -2605,7 +2605,12 @@ function renderCareerRows(tbodyId, rows) {
 
   el.innerHTML = rows.map(app => {
     const isApproved = app.status === 'approved';
-    const statusBadge = isApproved 
+    // Finished the portal (name + OTP + test) → "सक्रिय सूत्रधार" replaces pending/approved
+    const joined = window._sutraByPhone && window._sutraByPhone[String(app.phone || '').replace(/\D/g, '').slice(-10)];
+    const isActive = joined && joined.state && joined.state !== 'unfinished' && joined.state !== 'paused';
+    const statusBadge = isActive
+      ? `<span class="badge completed">${currentAdminLang === 'en' ? 'Active Sutradhar' : 'सक्रिय सूत्रधार'}</span>`
+      : isApproved
       ? `<span class="badge" style="background:#d1fae5; color:#065f46; border:1px solid #10b981; font-weight:700;">${dict.statusApproved}</span>`
       : `<span class="badge" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; font-weight:700;">${dict.statusPending}</span>`;
     
