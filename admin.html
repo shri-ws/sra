@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="robots" content="noindex, nofollow"/>
 <title>Admin — Shri Ramji Astro</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="theme.js"></script>
 <script src="sra-config.js"></script>
 <style>
@@ -349,6 +349,89 @@ input,select,textarea,button{font-size:15px}
   .topbar h1{font-size:19px !important}
   .tbl td{font-size:14.5px !important}
 }
+/* ══ CLEAN THEME (Razorpay-like): white cards, light grey page, one blue accent, no gold/serif ══ */
+:root, [data-theme="day"] {
+  --gold: #2563eb;            /* old accent name, now the single blue accent */
+  --bg: #f4f6fa;
+  --card: #ffffff;
+  --border: #e3e8ef;
+  --text: #111827;
+  --muted: #6b7280;
+  --green: #15803d;
+  --red: #dc2626;
+  --yellow: #b45309;
+  --toggle-bg: #e5e7eb;
+  --toggle-slider-bg: #2563eb;
+}
+[data-theme="night"] {
+  --gold: #60a5fa;
+  --bg: #0b1220;
+  --card: #111a2e;
+  --border: #22304a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --green: #4ade80;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --toggle-bg: #1e293b;
+  --toggle-slider-bg: #3b82f6;
+}
+body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari',system-ui,-apple-system,'Segoe UI',sans-serif !important}
+.topbar h1,.sidebar-logo-text,.login-box h2,.table-title,.tbl th,.stat-val,.amount-cell,.export-btn,.refresh-btn,.login-btn{font-family:'Inter','Noto Sans Devanagari',system-ui,sans-serif !important}
+.topbar h1{font-weight:700;letter-spacing:-.01em}
+.sidebar{background:var(--card);border-right:1px solid var(--border);box-shadow:none}
+.sidebar-logo-text{color:var(--text) !important;font-size:16px;letter-spacing:0}
+.sidebar-logo-sub{letter-spacing:.5px}
+
+/* left menu: plain rows, blue only for the open page */
+.nav-item{background:transparent !important;border:0 !important;border-left:3px solid transparent !important;border-radius:6px !important;
+  color:var(--text) !important;font-weight:500 !important;margin-top:1px !important}
+.nav-item:hover{background:rgba(37,99,235,.06) !important}
+.nav-item.active{background:rgba(37,99,235,.10) !important;border-left-color:#2563eb !important;color:#1d4ed8 !important;font-weight:600 !important}
+[data-theme="night"] .nav-item.active{color:#93c5fd !important}
+.nav-item span[id^="badge-"],.nav-item span[style*="background"]{background:#e5e7eb !important;color:#374151 !important}
+
+/* cards, tables */
+.card,.table-wrap,.stat-card,.social-status-card{background:var(--card) !important;border:1px solid var(--border) !important;border-radius:10px !important;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card{padding:18px 20px;margin-bottom:18px}
+.tbl-header,.table-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px;background:transparent !important}
+.table-header{padding:14px 18px;margin-bottom:0;border-bottom:1px solid var(--border)}
+.table-title{color:var(--text) !important;text-transform:none !important;font-weight:700}
+.tbl th{background:#f8fafc !important;color:#6b7280 !important;text-transform:none !important;font-weight:600;border-bottom:1px solid var(--border)}
+[data-theme="night"] .tbl th{background:#0f182b !important}
+.tbl td{border-bottom:1px solid var(--border) !important}
+.tbl tr:hover td{background:#f9fafb !important}
+[data-theme="night"] .tbl tr:hover td{background:#16213a !important}
+.stat-label{text-transform:none !important;color:var(--muted) !important;font-weight:500}
+.stat-val,.stat-card.gold .stat-val,.stat-card.green .stat-val,.amount-cell{color:var(--text) !important;font-weight:700}
+.wa-link{color:#2563eb !important}
+
+/* buttons: white with grey border; coloured ones become the one blue primary; red only for delete */
+.export-btn,.refresh-btn,.social-btn,.logout-btn{background:var(--card) !important;color:var(--text) !important;border:1px solid #d0d7e2 !important;
+  border-radius:6px !important;text-transform:none !important;font-weight:600 !important;box-shadow:0 1px 1px rgba(16,24,40,.04)}
+.export-btn:hover,.refresh-btn:hover,.social-btn:hover{background:#f3f6fb !important;border-color:#b6c2d4 !important}
+.export-btn[style*="background:#"],.export-btn[style*="background: #"],.export-btn[style*="background:var(--gold)"],.export-btn[style*="background:linear"],
+.export-btn[style*="background: rgb"],.social-btn-primary,.login-btn,.inv-wa{background:#2563eb !important;color:#fff !important;border-color:#2563eb !important}
+.export-btn[style*="239,68,68"],.export-btn[style*="239, 68, 68"]{background:var(--card) !important;color:#dc2626 !important;border-color:#f3c2c2 !important}
+.search-box,.lf input,.social-form-group input,.social-form-group select,.inv-form input,.inv-form textarea,.card input,.card select{
+  background:var(--card) !important;border:1px solid #d0d7e2 !important;border-radius:6px !important;color:var(--text) !important}
+.search-box:focus,.lf input:focus,.card input:focus{border-color:#2563eb !important;box-shadow:0 0 0 3px rgba(37,99,235,.15) !important}
+
+/* badges: soft, small, not shouting */
+.badge{text-transform:none !important;letter-spacing:0 !important;font-weight:600 !important;border-radius:999px !important}
+.badge.completed{background:#ecfdf3 !important;color:#067647 !important;border:1px solid #abefc6 !important}
+.badge.pending{background:#fffaeb !important;color:#b54708 !important;border:1px solid #fedf89 !important}
+.badge.failed{background:#fef3f2 !important;color:#b42318 !important;border:1px solid #fecdca !important}
+
+/* old gold tints written inline → plain light grey */
+[style*="rgba(201,168,76"],[style*="rgba(201, 168, 76"],[style*="rgba(180,130,32"],[style*="rgba(124,19,5"]{background-color:#f8fafc !important;border-color:var(--border) !important}
+[data-theme="night"] [style*="rgba(201,168,76"]{background-color:#16213a !important}
+.nav-item[style]{background-color:transparent !important}
+.nav-item.active[style]{background-color:rgba(37,99,235,.10) !important}
+.nav-item[style]:hover{background-color:rgba(37,99,235,.06) !important}
+.login-box{border-radius:12px !important;box-shadow:0 8px 30px rgba(16,24,40,.08)}
+.login-box h2{color:var(--text) !important}
+.spin{border-top-color:#2563eb !important}
 </style>
 <script src="admin-invite.js?v=20261120_02" defer></script>
 <script src="admin-accounts.js?v=20261120_01" defer></script>
