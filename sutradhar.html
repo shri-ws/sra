@@ -399,12 +399,12 @@
     <div id="tab-start" class="tab-content p-4 space-y-4">
       <div class="bg-white border border-slate-200 rounded-2xl p-5">
         <div class="text-xs font-semibold text-blue-700" id="startDayLabel">पहली कमाई का रास्ता</div>
-        <div class="font-bold text-slate-900 text-lg mt-0.5">पहले 21 दिन में ₹2,000</div>
-        <div class="text-sm text-slate-600 mt-1">रोज़ बस 2–3 छोटे काम। लगभग 7 छोटी रिपोर्टें (हर एक पर ₹280) = ₹2,000 के आसपास।</div>
+        <div class="font-bold text-slate-900 text-lg mt-0.5">पहले हफ़्ते में ₹2,000</div>
+        <div class="text-sm text-slate-600 mt-1">7 दिन, रोज़ लगभग 1 रिपोर्ट। 7 छोटी रिपोर्टें (हर एक पर ₹280) = ₹1,960 — यानी ₹2,000 के आसपास। उसके बाद हर हफ़्ते ₹2,000 और।</div>
         <div class="mt-4 h-3 bg-slate-100 rounded-full overflow-hidden"><div id="startBar" class="h-full bg-green-600 rounded-full" style="width:0%; transition: width .5s ease"></div></div>
         <div class="flex justify-between text-xs text-slate-600 mt-1.5">
           <span>अब तक की कमाई: <strong class="text-slate-900" id="startEarned">₹0</strong></span>
-          <span>लक्ष्य ₹2,000</span>
+          <span id="startGoalLabel">लक्ष्य ₹2,000</span>
         </div>
         <div class="grid grid-cols-3 gap-2 mt-4 text-center" id="startMilestones"></div>
       </div>
@@ -1748,31 +1748,36 @@ async function updateUpi() {
 // -----------------------------------------------------------------------
 // ---------- First income: 21-day path (tab-start) ----------
 // Each task: t = what to do, a = button label, go = action. Goal: ₹2,000 in the first 21 days.
-const START_GOAL = 2000;
+const START_GOAL = 2000;   // first week; then ₹2,000 more each week (₹4,000 by day 14, ₹6,000 by day 21)
+const startGoalFor = day => day <= 7 ? 2000 : day <= 14 ? 4000 : 6000;
 const START_PLAN = [
-  { tip: 'शुरुआत यहीं से: पहले ख़ुद समझिए कि आप क्या बेच रहे हैं।', tasks: [
+  { tip: 'पहला दिन: तैयारी और पहला link — आज ही शुरुआत।', tasks: [
     { t: 'प्रोफ़ाइल में अपना UPI जोड़ें, ताकि दक्षिणा सीधे आपके खाते में आए।', a: 'UPI जोड़ें', go: 'upi' },
-    { t: 'अपनी ख़ुद की कुंडली पत्रिका पर बनाकर देखें — ग्राहक को यही दिखाना है।', a: 'पत्रिका खोलें', go: 'patrika' },
-    { t: '10 करीबी लोगों की सूची बनाएँ: जिनके घर शादी की बात चल रही हो, नया घर, बच्चा, या जो ज्योतिष मानते हों।', a: '', go: '' } ] },
-  { tip: 'आज पहला कदम: link भेजना। बेचना नहीं, बस बताना है।', tasks: [
-    { t: 'सूची के 5 लोगों को कालसर्प रिपोर्ट का link WhatsApp पर भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
-    { t: '"विवाह मिलान" स्क्रिप्ट एक बार पढ़ें।', a: 'स्क्रिप्ट खोलें', go: 'script:vivah' } ] },
-  { tip: 'जिसने जवाब दिया, वही आपका पहला ग्राहक बन सकता है।', tasks: [
-    { t: 'कल जिन्होंने link देखा या जवाब दिया, उन्हें फ़ोन करें।', a: 'स्क्रिप्ट देखें', go: 'script:patrika' },
-    { t: 'जो रुचि दिखाए, उसका नंबर "नई लीड" में डालें — 72 घंटे वह आपका।', a: 'लीड जोड़ें', go: 'lead' } ] },
-  { tip: 'परिवार सबसे आसान शुरुआत है।', tasks: [
-    { t: 'परिवार के WhatsApp ग्रुप में मांगलिक रिपोर्ट का link डालें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
-    { t: 'जिसके घर शादी की बात चल रही हो, उसे गुण मिलान (दक्षिणा ₹615) के बारे में बताएँ।', a: '', go: '' } ] },
-  { tip: 'आज पहली बिक्री का दिन बनाइए।', tasks: [
-    { t: '3 पुराने परिचितों को फ़ोन करें — "पत्रिका" स्क्रिप्ट से बात शुरू करें।', a: 'स्क्रिप्ट खोलें', go: 'script:patrika' },
-    { t: 'बात करते समय ही उनका नंबर लीड में डाल दें।', a: 'लीड जोड़ें', go: 'lead' } ] },
-  { tip: 'जो देख रहा है, वही पूछेगा।', tasks: [
-    { t: 'अपने WhatsApp स्टेटस पर धन योग रिपोर्ट का link लगाएँ।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
-    { t: 'जिसने हाँ कहा पर भुगतान नहीं किया, उसे प्यार से याद दिलाएँ।', a: '', go: '' } ] },
-  { tip: 'पहला हफ़्ता पूरा — पहली कमाई हुई या नहीं, देखिए।', review: 280, tasks: [
-    { t: 'देखें: पहली बिक्री हुई? न हुई हो तो धन योग का link 10 और लोगों को भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
+    { t: '20 लोगों की सूची बनाएँ: परिवार, रिश्तेदार, दोस्त — जिनके घर शादी की बात हो, नया घर, बच्चा, या जो ज्योतिष मानते हों।', a: '', go: '' },
+    { t: 'इनमें से 10 लोगों को कालसर्प या मांगलिक रिपोर्ट का link WhatsApp पर भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'दूसरा दिन: बात कीजिए — आज पहली बिक्री हो सकती है।', tasks: [
+    { t: 'कल जिन्होंने link देखा या जवाब दिया, उन सबको फ़ोन करें।', a: 'स्क्रिप्ट देखें', go: 'script:patrika' },
+    { t: 'जो रुचि दिखाए, उसका नंबर उसी समय "नई लीड" में डालें — 72 घंटे वह आपका।', a: 'लीड जोड़ें', go: 'lead' },
+    { t: 'सूची के बाकी 10 लोगों को धन योग रिपोर्ट का link भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'तीसरा दिन: पहली बिक्री आज तक हो जानी चाहिए।', review: 280, tasks: [
+    { t: 'परिवार के WhatsApp ग्रुप और अपने स्टेटस पर मांगलिक रिपोर्ट का link डालें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
+    { t: 'जिसने हाँ कहा पर भुगतान नहीं किया, उसे फ़ोन करके साथ-साथ भुगतान करवाएँ।', a: '', go: '' },
     { t: '"सवाल-जवाब" स्क्रिप्ट पढ़ें — लोग जो पूछते हैं, उसका जवाब तैयार रहे।', a: 'स्क्रिप्ट खोलें', go: 'script:faq' } ] },
-  { tip: 'दूसरा हफ़्ता: दायरा बढ़ाइए।', tasks: [
+  { tip: 'चौथा दिन: शादी वाले घर — एक बिक्री में ₹615 तक।', tasks: [
+    { t: 'जिनके घर शादी की बात चल रही है, उन्हें गुण मिलान (दक्षिणा ₹615) का link भेजें और फ़ोन करें।', a: 'स्क्रिप्ट खोलें', go: 'script:vivah' },
+    { t: '5 नए लोगों (पड़ोस, दुकान, ऑफ़िस) से बात करें; अपनी पत्रिका दिखाएँ।', a: 'पत्रिका खोलें', go: 'patrika' },
+    { t: 'रुचि वालों को लीड में डालें।', a: 'लीड जोड़ें', go: 'lead' } ] },
+  { tip: 'पाँचवाँ दिन: ₹1,000 पार करने का दिन।', review: 1000, tasks: [
+    { t: 'पिछले 4 दिन के सारे "देखेंगे / बाद में" वाले लोगों को फ़ोन करें।', a: '', go: '' },
+    { t: '10 और लोगों को कोई भी रिपोर्ट link भेजें — जिसको जो सूट करे।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'छठा दिन: बड़ी दक्षिणा वाले काम।', tasks: [
+    { t: 'किसी पंडित या ज्योतिष जानने वाले को हमारा सॉफ़्टवेयर बताएँ (एक बार में ₹2,852)।', a: 'अपग्रेड स्क्रिप्ट', go: 'script:upgrade' },
+    { t: 'नया घर / गृह प्रवेश या बच्चे के मुंडन वाले को मुहूर्त का link भेजें (दक्षिणा ₹867)।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
+    { t: 'जिन्होंने रिपोर्ट ली, उनसे 2-2 ऐसे लोगों के नाम माँगें जिन्हें इसकी ज़रूरत हो।', a: 'लीड जोड़ें', go: 'lead' } ] },
+  { tip: 'सातवाँ दिन: पहला हफ़्ता — ₹2,000 पूरा कीजिए।', review: 2000, tasks: [
+    { t: 'अपनी कमाई देखें। ₹2,000 से कम हो तो आज 10 लोगों को link भेजें और 5 को फ़ोन करें।', a: 'पेआउट देखें', go: 'payout' },
+    { t: 'जिनकी लीड का 72 घंटे का ताला ख़त्म हो रहा है, उन्हें आज ही फ़ोन करें।', a: 'लीड्स देखें', go: 'lead' } ] },
+  { tip: 'दूसरा हफ़्ता: हर हफ़्ते ₹2,000 और — दायरा बढ़ाइए।', tasks: [
     { t: 'पड़ोस, दुकान या ऑफ़िस के 5 नए लोगों से बात करें; अपनी पत्रिका दिखाएँ।', a: 'पत्रिका खोलें', go: 'patrika' },
     { t: 'रुचि लेने वालों को लीड में डालें।', a: 'लीड जोड़ें', go: 'lead' } ] },
   { tip: 'एक ज्योतिषी = एक बार में ₹2,852।', tasks: [
@@ -1787,8 +1792,8 @@ const START_PLAN = [
   { tip: 'आपत्ति का जवाब जानना आधी बिक्री है।', tasks: [
     { t: '"सवाल-जवाब" स्क्रिप्ट दोबारा पढ़ें; एक दोस्त के साथ अभ्यास करें।', a: 'स्क्रिप्ट खोलें', go: 'script:faq' },
     { t: '5 नए लोगों को कोई भी रिपोर्ट link भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
-  { tip: 'दो हफ़्ते पूरे — ₹1,000 तक पहुँचे?', review: 1000, tasks: [
-    { t: 'अपनी कमाई देखें। ₹1,000 से कम हो तो आज 10 लोगों को link भेजें और 3 को फ़ोन करें।', a: 'पेआउट देखें', go: 'payout' } ] },
+  { tip: 'दो हफ़्ते पूरे — ₹4,000 तक पहुँचे?', review: 4000, tasks: [
+    { t: 'अपनी कमाई देखें। ₹4,000 से कम हो तो आज 10 लोगों को link भेजें और 3 को फ़ोन करें।', a: 'पेआउट देखें', go: 'payout' } ] },
   { tip: 'तीसरा हफ़्ता: अब तक जो सीखा, उसे दोहराइए।', tasks: [
     { t: '10 लोगों को अलग-अलग रिपोर्ट link भेजें — जिसको जो सूट करे।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
   { tip: 'खुश ग्राहक नए ग्राहक लाता है।', tasks: [
@@ -1803,8 +1808,8 @@ const START_PLAN = [
   { tip: 'आज सारे बाकी काम पूरे कीजिए।', tasks: [
     { t: 'जितने फ़ॉलो-अप बाकी हैं, सब पूरे करें।', a: '', go: '' },
     { t: 'पीछे के जो काम टिक नहीं हुए, उनमें से 2 आज करें।', a: '', go: '' } ] },
-  { tip: '21 दिन पूरे! अब अगला लक्ष्य बनाइए।', review: 2000, tasks: [
-    { t: 'अपनी कमाई देखें — ₹2,000 पूरा हुआ?', a: 'पेआउट देखें', go: 'payout' },
+  { tip: '21 दिन पूरे! अब अगला लक्ष्य बनाइए।', review: 6000, tasks: [
+    { t: 'अपनी कमाई देखें — ₹6,000 पूरा हुआ?', a: 'पेआउट देखें', go: 'payout' },
     { t: 'इंसेंटिव में जाकर अगले महीने का लक्ष्य बनाएँ।', a: 'लक्ष्य बनाएँ', go: 'incentive' } ] }
 ];
 let startEarned = 0;
@@ -1850,11 +1855,13 @@ function renderStart() {
   if (!document.getElementById('startPlan')) return;
   const day = startDayNumber(), idx = Math.min(day, 21) - 1, ticks = startTicks();
   const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
-  const pct = Math.min(100, Math.round(startEarned * 100 / START_GOAL));
+  const goal = startGoalFor(day);
+  const pct = Math.min(100, Math.round(startEarned * 100 / goal));
+  document.getElementById('startGoalLabel').textContent = 'लक्ष्य ' + fmt(goal) + (day <= 7 ? ' (हफ़्ता 1)' : day <= 14 ? ' (हफ़्ता 2 तक)' : ' (हफ़्ता 3 तक)');
   document.getElementById('startDayLabel').textContent = day <= 21 ? `दिन ${day} / 21` : '21 दिन पूरे — रास्ता यहीं है, दोहराते रहिए';
   document.getElementById('startEarned').textContent = fmt(startEarned);
   document.getElementById('startBar').style.width = pct + '%';
-  document.getElementById('startMilestones').innerHTML = [[280, 'पहली बिक्री', 'हफ़्ता 1'], [1000, '₹1,000', 'हफ़्ता 2'], [2000, '₹2,000', 'हफ़्ता 3']].map(([v, l, w]) => {
+  document.getElementById('startMilestones').innerHTML = (day <= 7 ? [[280, 'पहली बिक्री', 'दिन 3 तक'], [1000, '₹1,000', 'दिन 5 तक'], [2000, '₹2,000', 'दिन 7']] : [[2000, '₹2,000', 'हफ़्ता 1'], [4000, '₹4,000', 'हफ़्ता 2'], [6000, '₹6,000', 'हफ़्ता 3']]).map(([v, l, w]) => {
     const ok = startEarned >= v;
     return `<div class="rounded-xl border ${ok ? 'bg-green-50 border-green-200 text-green-800' : 'bg-slate-50 border-slate-200 text-slate-500'} p-2">
       <div class="text-sm font-bold">${ok ? '✓ ' : ''}${l}</div><div class="text-[11px]">${w}</div></div>`;
@@ -1883,7 +1890,7 @@ function renderStart() {
   const banner = document.getElementById('startBanner'), dot = document.getElementById('startDot');
   const open = today.tasks.length - doneToday;
   if (banner) {
-    banner.classList.toggle('hidden', day > 21 && startEarned >= START_GOAL);
+    banner.classList.toggle('hidden', day > 21 && startEarned >= 6000);
     document.getElementById('startBannerDay').textContent = day <= 21 ? `पहली कमाई — दिन ${day} / 21 · अब तक ${fmt(startEarned)}` : `पहली कमाई — अब तक ${fmt(startEarned)}`;
     document.getElementById('startBannerText').textContent = open ? (open === 1 ? 'आज का 1 छोटा काम बाकी है' : `आज के ${open} छोटे काम बाकी हैं`) : 'आज के सारे काम पूरे — शाबाश!';
   }
