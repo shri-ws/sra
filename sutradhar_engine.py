@@ -1060,8 +1060,8 @@ COURSE_SERVICE_ID = "consultation_gurukul"
 COURSE_START_DATE = "2027-03-11"
 COURSE_HOLD_MINUTES = 20
 COURSE_BATCHES = {
-    "batch_morning": {"name": "सुबह का बैच", "name_en": "Morning batch", "seats": 11},
-    "batch_evening": {"name": "शाम का बैच", "name_en": "Evening batch", "seats": 11},
+    "batch_morning": {"name": "फ़ाउंडेशन एस्ट्रोलॉजिकल बैच", "name_en": "Foundation Astrological Batch", "seats": 11},
+    "batch_evening": {"name": "मास्टर एस्ट्रोलॉजिकल बैच (रिसर्च — पहले से ज्योतिष का ज्ञान आवश्यक)", "name_en": "Master Astrological Batch (Research — previous astrology knowledge required)", "seats": 11},
 }
 _course_lock = threading.Lock()
 
@@ -1098,7 +1098,7 @@ def course_seat_counts() -> Dict[str, Dict[str, int]]:
 def hold_course_seat(batch_id: str, phone: str, name: str) -> str:
     """Reserves one seat for this phone (replacing its earlier hold) or refuses when the batch is full."""
     if batch_id not in COURSE_BATCHES:
-        raise HTTPException(status_code=400, detail="कृपया बैच चुनें (सुबह या शाम)।")
+        raise HTTPException(status_code=400, detail="कृपया बैच चुनें: फ़ाउंडेशन या मास्टर।")
     if not course_registration_open():
         raise HTTPException(status_code=403, detail="कोर्स का पंजीकरण 26 दिसंबर 2026 से खुलेगा।")
     if len(phone) != 10 or phone == "9999999999":

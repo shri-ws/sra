@@ -17,8 +17,8 @@
   var API = (LOCAL ? '' : (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com')) + '/api/sutradhar/course';
   var FALLBACK = {
     start_date: '2027-03-11', registration_opens: '2026-12-26', registration_open: false, price: 24000,
-    batches: [{ id: 'batch_morning', name: 'सुबह का बैच', seats: 11, left: 11, full: false },
-              { id: 'batch_evening', name: 'शाम का बैच', seats: 11, left: 11, full: false }]
+    batches: [{ id: 'batch_morning', name: 'फ़ाउंडेशन एस्ट्रोलॉजिकल बैच', seats: 11, left: 11, full: false },
+              { id: 'batch_evening', name: 'मास्टर एस्ट्रोलॉजिकल बैच (रिसर्च — पहले से ज्योतिष का ज्ञान आवश्यक)', seats: 11, left: 11, full: false }]
   };
 
   var css = '' +
@@ -72,7 +72,7 @@
     el.innerHTML = '<div class="sra-cbp-box">' +
       '<button class="sra-cbp-x" aria-label="बंद करें">✕</button>' +
       '<h3>1-वर्षीय वैदिक ज्योतिष कोर्स — नए बैच</h3>' +
-      '<p class="sra-cbp-sub">कक्षाएँ <b>11 मार्च 2027</b> से। दो बैच — सुबह और शाम, हर बैच में <b>केवल 11 सीटें</b>। शुल्क ₹' +
+      '<p class="sra-cbp-sub">कक्षाएँ <b>11 मार्च 2027</b> से। दो बैच — फ़ाउंडेशन (शुरुआत से) और मास्टर (रिसर्च, पहले से ज्योतिष का ज्ञान आवश्यक), हर बैच में <b>केवल 11 सीटें</b>। शुल्क ₹' +
       Number(d.price || 24000).toLocaleString('en-IN') + ' (GST सहित), EMI उपलब्ध।</p>' +
       batches + form +
       '<div class="sra-cbp-foot"><a href="course.html">कोर्स की पूरी जानकारी</a><button class="sra-cbp-later">बाद में</button></div>' +
