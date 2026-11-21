@@ -3205,7 +3205,7 @@ def note_signup_attempt(phone: Optional[str]):
 
 # ── Sutradhar activity: what each Sutradhar did on the portal, one document per Sutradhar per day ──
 ACTIVITY_COL = "sutradhar_activity"
-ACTIVITY_KINDS = {"open", "script_open", "script_copy", "tab", "lead_form", "offer_share", "offer_copy"}
+ACTIVITY_KINDS = {"open", "script_open", "script_copy", "tab", "lead_form", "offer_share", "offer_copy", "task"}
 ACTIVITY_MAX_EVENTS = 120          # per Sutradhar per day
 
 
@@ -3251,7 +3251,7 @@ async def sutra_activity(req: SutraActivityRequest, authorization: Optional[str]
 
 
 SCRIPT_NAMES = {"upgrade": "अपग्रेड स्क्रिप्ट", "vivah": "विवाह मिलान स्क्रिप्ट", "patrika": "पत्रिका स्क्रिप्ट", "faq": "सवाल-जवाब"}
-TAB_NAMES = {"home": "होम", "articles": "आर्टिकल्स", "scripts": "स्क्रिप्ट", "incentive": "इंसेंटिव", "payout": "पेआउट", "profile": "प्रोफ़ाइल"}
+TAB_NAMES = {"home": "होम", "start": "पहली कमाई", "articles": "आर्टिकल्स", "scripts": "स्क्रिप्ट", "incentive": "इंसेंटिव", "payout": "पेआउट", "profile": "प्रोफ़ाइल"}
 
 
 def _activity_days(ids: set) -> List[Dict[str, Any]]:
@@ -3359,6 +3359,10 @@ async def admin_sutradhar_activity(sutradhar_id: str = Query(...), days: int = Q
             parts.append("रिपोर्ट लिंक WhatsApp पर भेजे: " + ", ".join(f"{k} ×{v}" for k, v in oshare.items()))
         if ocopy:
             parts.append("रिपोर्ट लिंक कॉपी किए: " + ", ".join(f"{k} ×{v}" for k, v in ocopy.items()))
+        tasks = sorted({k.split(":", 1)[1] for k in counts if k.startswith("task:")},
+                       key=lambda x: [int(n) for n in re.findall(r"\d+", x)] or [0])
+        if tasks:   # ids like d3-1 = day 3, task 1 of the 21-day first-income path
+            parts.append("21-दिन के काम पूरे: " + ", ".join(t.replace("d", "दिन ").replace("-", " काम ") for t in tasks))
         day_rows.append({"day": a.get("day"), "first_at": a.get("first_at", ""), "last_at": a.get("last_at", ""),
                          "opens": opens, "script_opens": sum(sopen.values()), "script_copies": sum(scopy.values()),
                          "summary": " · ".join(parts)})

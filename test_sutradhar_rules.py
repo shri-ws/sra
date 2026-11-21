@@ -429,7 +429,8 @@ def test_sutradhar_activity_for_admin():
     hdr = {"Authorization": f"Bearer mock_token_{phone}"}
     assert client.post("/api/sutradhar/register", headers=hdr, json={"name": "कामकाजी", "phone": phone}).status_code == 200
     sid = client.get("/api/sutradhar/login", headers=hdr).json()["sutradhar"]["id"]
-    for kind, detail in [("tab", "scripts"), ("script_open", "vivah"), ("script_copy", "vivah"), ("script_copy", "vivah")]:
+    for kind, detail in [("tab", "scripts"), ("script_open", "vivah"), ("script_copy", "vivah"), ("script_copy", "vivah"),
+                         ("task", "d2-1"), ("task", "d1-1")]:
         assert client.post("/api/sutradhar/activity", headers=hdr, json={"kind": kind, "detail": detail}).status_code == 200
     assert client.post("/api/sutradhar/activity", headers=hdr, json={"kind": "open"}).status_code == 400
     assert client.post("/api/sutradhar/activity", json={"kind": "tab", "detail": "home"}).status_code == 401
@@ -449,6 +450,7 @@ def test_sutradhar_activity_for_admin():
     assert {"joined", "lead", "sale", "portal"} <= set(types_)
     portal = next(e for e in d["timeline"] if e["type"] == "portal")
     assert "विवाह मिलान स्क्रिप्ट ×2" in portal["text"]
+    assert "21-दिन के काम पूरे: दिन 1 काम 1, दिन 2 काम 1" in portal["text"]
 
 
 def test_consultant_desk_needs_saas_and_client_sees_remedies():

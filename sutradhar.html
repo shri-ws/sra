@@ -314,6 +314,13 @@
     <!-- ========== HOME TAB ========== -->
     <div id="tab-home" class="tab-content active p-4 space-y-4">
 
+      <!-- First 21 days: today's tasks in one tap -->
+      <button id="startBanner" onclick="showTab('start')" class="hidden w-full text-left bg-green-50 border border-green-200 rounded-2xl p-4">
+        <div class="text-xs font-semibold text-green-800" id="startBannerDay">पहली कमाई — दिन 1 / 21</div>
+        <div class="font-bold text-slate-900 mt-0.5" id="startBannerText">आज के 2 छोटे काम</div>
+        <div class="text-sm text-green-800 mt-1">खोलें →</div>
+      </button>
+
       <!-- Today's script: the first thing a Sutradhar should practise -->
       <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
         <div class="text-xs font-semibold text-blue-700 mb-1">आज की स्क्रिप्ट</div>
@@ -388,6 +395,38 @@
     </div>
 
     <!-- ========== ARTICLES TAB ========== -->
+    <!-- ========== FIRST INCOME: 21-DAY PATH ========== -->
+    <div id="tab-start" class="tab-content p-4 space-y-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="text-xs font-semibold text-blue-700" id="startDayLabel">पहली कमाई का रास्ता</div>
+        <div class="font-bold text-slate-900 text-lg mt-0.5">पहले 21 दिन में ₹2,000</div>
+        <div class="text-sm text-slate-600 mt-1">रोज़ बस 2–3 छोटे काम। लगभग 7 छोटी रिपोर्टें (हर एक पर ₹280) = ₹2,000 के आसपास।</div>
+        <div class="mt-4 h-3 bg-slate-100 rounded-full overflow-hidden"><div id="startBar" class="h-full bg-green-600 rounded-full" style="width:0%; transition: width .5s ease"></div></div>
+        <div class="flex justify-between text-xs text-slate-600 mt-1.5">
+          <span>अब तक की कमाई: <strong class="text-slate-900" id="startEarned">₹0</strong></span>
+          <span>लक्ष्य ₹2,000</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center" id="startMilestones"></div>
+      </div>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+        <div class="flex justify-between items-baseline">
+          <div class="font-bold text-slate-900" id="todayTasksTitle">आज के काम</div>
+          <div class="text-xs text-blue-800 font-semibold" id="todayTasksCount"></div>
+        </div>
+        <div class="text-sm text-blue-900 mt-1" id="todayTasksTip"></div>
+        <div id="todayTasks" class="mt-3 space-y-2"></div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100">
+          <div class="font-bold text-slate-900 text-sm">पूरा 21 दिन का रास्ता</div>
+          <div class="text-xs text-slate-500 mt-0.5">पीछे छूटा काम कभी भी कर सकते हैं — टिक करते चलिए।</div>
+        </div>
+        <div id="startPlan" class="divide-y divide-slate-100"></div>
+      </div>
+    </div>
+
     <div id="tab-articles" class="tab-content p-4 space-y-3">
       <p class="text-xs text-slate-500 leading-relaxed">
         इन आर्टिकल्स को अपने ग्राहकों से शेयर करें — ज्योतिष की रोचक जानकारी उन्हें रिपोर्ट खरीदने के लिए प्रेरित करेगी।
@@ -722,6 +761,10 @@
     <button onclick="showTab('home')" id="bnav-home" class="flex-1 flex flex-col items-center justify-center py-2 text-blue-600">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span class="text-[10px] font-semibold mt-0.5">होम</span>
+    </button>
+    <button onclick="showTab('start')" id="bnav-start" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      <span class="text-[10px] font-semibold mt-0.5 relative">पहली कमाई<span id="startDot" class="hidden absolute -top-1 -right-2 w-2 h-2 rounded-full bg-red-500"></span></span>
     </button>
     <button onclick="showTab('articles')" id="bnav-articles" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -1286,6 +1329,7 @@ function goToApp() {
   document.getElementById('headerName').textContent = profile.name || 'सूत्रधार';
   document.getElementById('headerCode').textContent = profile.code || profile.sutradhar_id || '';
   renderOffers();
+  renderStart();
 
   document.getElementById('profName').textContent = profile.name || '—';
   document.getElementById('profPhone').textContent = profile.phone || '—';
@@ -1577,6 +1621,7 @@ async function loadSummary() {
     document.getElementById('homePayoutToday').textContent = inr(d.today_commission);
     document.getElementById('homePayoutMonth').textContent = inr(d.month_commission);
     setTargetDone(d.month_commission);
+    setStartEarned(d.lifetime_commission);
     document.getElementById('homeActiveLeads').textContent = d.active_leads || 0;
 
     document.getElementById('payToday').textContent = inr(d.today_commission);
@@ -1701,6 +1746,151 @@ async function updateUpi() {
 // -----------------------------------------------------------------------
 // RENDER STATIC DATA
 // -----------------------------------------------------------------------
+// ---------- First income: 21-day path (tab-start) ----------
+// Each task: t = what to do, a = button label, go = action. Goal: ₹2,000 in the first 21 days.
+const START_GOAL = 2000;
+const START_PLAN = [
+  { tip: 'शुरुआत यहीं से: पहले ख़ुद समझिए कि आप क्या बेच रहे हैं।', tasks: [
+    { t: 'प्रोफ़ाइल में अपना UPI जोड़ें, ताकि दक्षिणा सीधे आपके खाते में आए।', a: 'UPI जोड़ें', go: 'upi' },
+    { t: 'अपनी ख़ुद की कुंडली पत्रिका पर बनाकर देखें — ग्राहक को यही दिखाना है।', a: 'पत्रिका खोलें', go: 'patrika' },
+    { t: '10 करीबी लोगों की सूची बनाएँ: जिनके घर शादी की बात चल रही हो, नया घर, बच्चा, या जो ज्योतिष मानते हों।', a: '', go: '' } ] },
+  { tip: 'आज पहला कदम: link भेजना। बेचना नहीं, बस बताना है।', tasks: [
+    { t: 'सूची के 5 लोगों को कालसर्प रिपोर्ट का link WhatsApp पर भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
+    { t: '"विवाह मिलान" स्क्रिप्ट एक बार पढ़ें।', a: 'स्क्रिप्ट खोलें', go: 'script:vivah' } ] },
+  { tip: 'जिसने जवाब दिया, वही आपका पहला ग्राहक बन सकता है।', tasks: [
+    { t: 'कल जिन्होंने link देखा या जवाब दिया, उन्हें फ़ोन करें।', a: 'स्क्रिप्ट देखें', go: 'script:patrika' },
+    { t: 'जो रुचि दिखाए, उसका नंबर "नई लीड" में डालें — 72 घंटे वह आपका।', a: 'लीड जोड़ें', go: 'lead' } ] },
+  { tip: 'परिवार सबसे आसान शुरुआत है।', tasks: [
+    { t: 'परिवार के WhatsApp ग्रुप में मांगलिक रिपोर्ट का link डालें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
+    { t: 'जिसके घर शादी की बात चल रही हो, उसे गुण मिलान (दक्षिणा ₹615) के बारे में बताएँ।', a: '', go: '' } ] },
+  { tip: 'आज पहली बिक्री का दिन बनाइए।', tasks: [
+    { t: '3 पुराने परिचितों को फ़ोन करें — "पत्रिका" स्क्रिप्ट से बात शुरू करें।', a: 'स्क्रिप्ट खोलें', go: 'script:patrika' },
+    { t: 'बात करते समय ही उनका नंबर लीड में डाल दें।', a: 'लीड जोड़ें', go: 'lead' } ] },
+  { tip: 'जो देख रहा है, वही पूछेगा।', tasks: [
+    { t: 'अपने WhatsApp स्टेटस पर धन योग रिपोर्ट का link लगाएँ।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
+    { t: 'जिसने हाँ कहा पर भुगतान नहीं किया, उसे प्यार से याद दिलाएँ।', a: '', go: '' } ] },
+  { tip: 'पहला हफ़्ता पूरा — पहली कमाई हुई या नहीं, देखिए।', review: 280, tasks: [
+    { t: 'देखें: पहली बिक्री हुई? न हुई हो तो धन योग का link 10 और लोगों को भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' },
+    { t: '"सवाल-जवाब" स्क्रिप्ट पढ़ें — लोग जो पूछते हैं, उसका जवाब तैयार रहे।', a: 'स्क्रिप्ट खोलें', go: 'script:faq' } ] },
+  { tip: 'दूसरा हफ़्ता: दायरा बढ़ाइए।', tasks: [
+    { t: 'पड़ोस, दुकान या ऑफ़िस के 5 नए लोगों से बात करें; अपनी पत्रिका दिखाएँ।', a: 'पत्रिका खोलें', go: 'patrika' },
+    { t: 'रुचि लेने वालों को लीड में डालें।', a: 'लीड जोड़ें', go: 'lead' } ] },
+  { tip: 'एक ज्योतिषी = एक बार में ₹2,852।', tasks: [
+    { t: 'किसी पंडित या ज्योतिष जानने वाले को हमारे सॉफ़्टवेयर (₹5,100/वर्ष) के बारे में बताएँ।', a: 'अपग्रेड स्क्रिप्ट', go: 'script:upgrade' } ] },
+  { tip: 'शादी वाले घर सबसे अच्छे ग्राहक हैं।', tasks: [
+    { t: 'जिनके घर शादी तय हो रही है, उन्हें विवाह मुहूर्त (दक्षिणा ₹1,174) का link भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'फ़ॉलो-अप से ही बिक्री होती है।', tasks: [
+    { t: 'पिछले हफ़्ते के 2 लोगों को फ़ॉलो-अप कॉल करें।', a: '', go: '' },
+    { t: 'हाल की लीड्स देखें — किसका ताला ख़त्म होने वाला है?', a: 'लीड्स देखें', go: 'lead' } ] },
+  { tip: 'हर घर में कोई न कोई शुभ काम होने वाला है।', tasks: [
+    { t: 'नया घर या गृह प्रवेश वाले को वास्तु मुहूर्त, बच्चे वाले को मुंडन मुहूर्त का link भेजें (दक्षिणा ₹867)।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'आपत्ति का जवाब जानना आधी बिक्री है।', tasks: [
+    { t: '"सवाल-जवाब" स्क्रिप्ट दोबारा पढ़ें; एक दोस्त के साथ अभ्यास करें।', a: 'स्क्रिप्ट खोलें', go: 'script:faq' },
+    { t: '5 नए लोगों को कोई भी रिपोर्ट link भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'दो हफ़्ते पूरे — ₹1,000 तक पहुँचे?', review: 1000, tasks: [
+    { t: 'अपनी कमाई देखें। ₹1,000 से कम हो तो आज 10 लोगों को link भेजें और 3 को फ़ोन करें।', a: 'पेआउट देखें', go: 'payout' } ] },
+  { tip: 'तीसरा हफ़्ता: अब तक जो सीखा, उसे दोहराइए।', tasks: [
+    { t: '10 लोगों को अलग-अलग रिपोर्ट link भेजें — जिसको जो सूट करे।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'खुश ग्राहक नए ग्राहक लाता है।', tasks: [
+    { t: 'जिन्होंने रिपोर्ट ली, उनसे पूछें कैसी लगी, और 2 ऐसे लोगों के नाम माँगें जिन्हें इसकी ज़रूरत हो।', a: '', go: '' },
+    { t: 'उन नामों को लीड में डालें।', a: 'लीड जोड़ें', go: 'lead' } ] },
+  { tip: 'ग्रुप में एक पोस्ट, कई लोग।', tasks: [
+    { t: 'अपने Facebook या Telegram ग्रुप में रिपोर्ट link डालें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'पुरानी लीड भी नई बिक्री है।', tasks: [
+    { t: 'जिन लीड्स का 72 घंटे का ताला ख़त्म हो गया, उनसे फिर बात करें और फिर से लीड डालें।', a: 'लीड जोड़ें', go: 'lead' } ] },
+  { tip: 'बड़ी रिपोर्ट, बड़ी दक्षिणा।', tasks: [
+    { t: 'जो पूरी कुंडली जानना चाहते हैं, उन्हें मेगा पाराशर रिपोर्ट (दक्षिणा ₹621) बताएँ।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
+  { tip: 'आज सारे बाकी काम पूरे कीजिए।', tasks: [
+    { t: 'जितने फ़ॉलो-अप बाकी हैं, सब पूरे करें।', a: '', go: '' },
+    { t: 'पीछे के जो काम टिक नहीं हुए, उनमें से 2 आज करें।', a: '', go: '' } ] },
+  { tip: '21 दिन पूरे! अब अगला लक्ष्य बनाइए।', review: 2000, tasks: [
+    { t: 'अपनी कमाई देखें — ₹2,000 पूरा हुआ?', a: 'पेआउट देखें', go: 'payout' },
+    { t: 'इंसेंटिव में जाकर अगले महीने का लक्ष्य बनाएँ।', a: 'लक्ष्य बनाएँ', go: 'incentive' } ] }
+];
+let startEarned = 0;
+const startKey = () => 'sra_sutra_start_' + String((profile && (profile.code || profile.id)) || 'me');
+function startTicks() { try { return JSON.parse(localStorage.getItem(startKey()) || '{}') || {}; } catch (e) { return {}; } }
+function startDayNumber() {
+  let from = profile && profile.created_at ? new Date(profile.created_at) : null;
+  if (!from || isNaN(from)) {
+    let first = null;
+    try { first = localStorage.getItem('sra_sutra_first_open'); if (!first) { first = new Date().toISOString(); localStorage.setItem('sra_sutra_first_open', first); } } catch (e) {}
+    from = new Date(first || Date.now());
+  }
+  const ist = d => new Date(d.getTime() + 5.5 * 3600000).toISOString().slice(0, 10);
+  const days = Math.round((new Date(ist(new Date())) - new Date(ist(from))) / 86400000);
+  return Math.max(1, days + 1);
+}
+function startGo(go) {
+  if (!go) return;
+  if (go === 'offers') { showTab('home'); setTimeout(() => document.getElementById('offerList').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); return; }
+  if (go === 'lead') { showTab('home'); setTimeout(() => { const el = document.getElementById('newCustName'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }, 60); return; }
+  if (go === 'upi') { showTab('profile'); setTimeout(() => { const el = document.getElementById('upiUpdateInput'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }, 60); return; }
+  if (go === 'patrika') { window.open('patrika.html', '_blank'); return; }
+  if (go.startsWith('script:')) { showTab('scripts'); switchCallingScript(go.slice(7)); return; }
+  showTab(go);
+}
+function startTaskHtml(dayIdx, ti, task, ticks) {
+  const id = `d${dayIdx + 1}-${ti + 1}`, done = !!ticks[id];
+  return `<div class="flex gap-3 items-start bg-white border ${done ? 'border-green-200' : 'border-slate-200'} rounded-xl p-3">
+    <input type="checkbox" ${done ? 'checked' : ''} onchange="startTick('${id}', this.checked)" class="mt-1 w-5 h-5 accent-green-600 flex-shrink-0" aria-label="काम पूरा">
+    <div class="flex-1">
+      <div class="text-sm ${done ? 'text-slate-400 line-through' : 'text-slate-800'}">${task.t}</div>
+      ${task.a ? `<button onclick="startGo('${task.go}')" class="mt-2 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">${task.a} →</button>` : ''}
+    </div></div>`;
+}
+function startTick(id, on) {
+  const t = startTicks();
+  if (on) t[id] = new Date().toISOString(); else delete t[id];
+  try { localStorage.setItem(startKey(), JSON.stringify(t)); } catch (e) {}
+  if (on) trackSutra('task', id);
+  renderStart();
+}
+function renderStart() {
+  if (!document.getElementById('startPlan')) return;
+  const day = startDayNumber(), idx = Math.min(day, 21) - 1, ticks = startTicks();
+  const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+  const pct = Math.min(100, Math.round(startEarned * 100 / START_GOAL));
+  document.getElementById('startDayLabel').textContent = day <= 21 ? `दिन ${day} / 21` : '21 दिन पूरे — रास्ता यहीं है, दोहराते रहिए';
+  document.getElementById('startEarned').textContent = fmt(startEarned);
+  document.getElementById('startBar').style.width = pct + '%';
+  document.getElementById('startMilestones').innerHTML = [[280, 'पहली बिक्री', 'हफ़्ता 1'], [1000, '₹1,000', 'हफ़्ता 2'], [2000, '₹2,000', 'हफ़्ता 3']].map(([v, l, w]) => {
+    const ok = startEarned >= v;
+    return `<div class="rounded-xl border ${ok ? 'bg-green-50 border-green-200 text-green-800' : 'bg-slate-50 border-slate-200 text-slate-500'} p-2">
+      <div class="text-sm font-bold">${ok ? '✓ ' : ''}${l}</div><div class="text-[11px]">${w}</div></div>`;
+  }).join('');
+  const today = START_PLAN[idx];
+  const doneToday = today.tasks.filter((_, i) => ticks[`d${idx + 1}-${i + 1}`]).length;
+  document.getElementById('todayTasksTitle').textContent = day <= 21 ? `आज के काम — दिन ${idx + 1}` : 'आज के काम (दिन 21 दोहराएँ)';
+  document.getElementById('todayTasksCount').textContent = `${doneToday} / ${today.tasks.length} पूरे`;
+  let tip = today.tip;
+  if (today.review) tip += startEarned >= today.review ? ` आप ${fmt(today.review)} पार कर चुके हैं — शाबाश!` : ` अभी ${fmt(today.review - startEarned)} और चाहिए — आज के काम से पूरा हो सकता है।`;
+  document.getElementById('todayTasksTip').textContent = tip;
+  document.getElementById('todayTasks').innerHTML = today.tasks.map((t, i) => startTaskHtml(idx, i, t, ticks)).join('');
+  document.getElementById('startPlan').innerHTML = START_PLAN.map((d, i) => {
+    const n = i + 1, done = d.tasks.filter((_, j) => ticks[`d${n}-${j + 1}`]).length, all = done === d.tasks.length;
+    const state = n === idx + 1 ? 'आज' : n < day ? (all ? 'पूरा' : `${done}/${d.tasks.length}`) : 'आगे';
+    const week = n === 1 || n === 8 || n === 15 ? `<div class="px-5 pt-4 pb-1 text-[11px] font-bold text-slate-500 uppercase">हफ़्ता ${Math.ceil(n / 7)}</div>` : '';
+    return week + `<details ${n === idx + 1 ? 'open' : ''} class="px-5 py-3">
+      <summary class="flex justify-between items-center cursor-pointer list-none">
+        <span class="text-sm ${n > day ? 'text-slate-400' : 'text-slate-800'} font-semibold">दिन ${n}: ${d.tip}</span>
+        <span class="text-[11px] font-bold ml-2 whitespace-nowrap ${all ? 'text-green-700' : n === idx + 1 ? 'text-blue-700' : 'text-slate-400'}">${state}</span>
+      </summary>
+      <div class="mt-2 space-y-2">${d.tasks.map((t, j) => startTaskHtml(i, j, t, ticks)).join('')}</div>
+    </details>`;
+  }).join('');
+  // home banner + red dot while today's tasks are open (first 21 days)
+  const banner = document.getElementById('startBanner'), dot = document.getElementById('startDot');
+  const open = today.tasks.length - doneToday;
+  if (banner) {
+    banner.classList.toggle('hidden', day > 21 && startEarned >= START_GOAL);
+    document.getElementById('startBannerDay').textContent = day <= 21 ? `पहली कमाई — दिन ${day} / 21 · अब तक ${fmt(startEarned)}` : `पहली कमाई — अब तक ${fmt(startEarned)}`;
+    document.getElementById('startBannerText').textContent = open ? (open === 1 ? 'आज का 1 छोटा काम बाकी है' : `आज के ${open} छोटे काम बाकी हैं`) : 'आज के सारे काम पूरे — शाबाश!';
+  }
+  if (dot) dot.classList.toggle('hidden', !open);
+}
+function setStartEarned(v) { startEarned = Number(v) || 0; renderStart(); }
+
 // ---------- Monthly target planner (incentive tab) ----------
 const TARGET_KEY = 'sra_sutra_target_v1';
 const TARGET_GROUPS = [
