@@ -95,8 +95,24 @@
     authHeaders: async function() {
       var headers = { 'Content-Type': 'application/json' };
       try {
-        if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-          var token = await firebase.auth().currentUser.getIdToken();
+        // The page shows "signed in" from localStorage, but the server needs Firebase's token.
+        // Firebase is loaded lazily (sra-auth.js) and restores the session a moment later
+        // (slowest on iPhone Safari), so load it and wait for that before reading currentUser.
+        if ((typeof firebase === 'undefined' || !firebase.auth || !firebase.apps || !firebase.apps.length) && window.SRAAuth && SRAAuth.ready) {
+          try { await SRAAuth.ready(); } catch (e) {}
+        }
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          var auth = firebase.auth();
+          var user = auth.currentUser;
+          if (!user) {
+            user = await new Promise(function(resolve) {
+              var done = false, off = null;
+              var finish = function(u) { if (done) return; done = true; if (off) off(); resolve(u || null); };
+              off = auth.onAuthStateChanged(finish);
+              setTimeout(function() { finish(auth.currentUser); }, 5000);
+            });
+          }
+          var token = user ? await user.getIdToken() : '';
           if (token) headers['Authorization'] = 'Bearer ' + token;
         }
       } catch (authErr) {
