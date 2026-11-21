@@ -497,6 +497,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item" onclick="showPanel('reviews', this)">Client Reviews</div>
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
       <div class="nav-item nav-item-marketing" onclick="showPanel('marketing', this)" style="color:#d97706; font-weight:bold; background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.3); border-radius:8px; margin-top:6px;">दैनिक मार्केटिंग ट्रैकर &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0/6</span></div>
+      <div class="nav-item nav-item-ig-outreach" onclick="showPanel('ig-outreach', this)" style="color:#e1306c; font-weight:bold; background:rgba(225,48,108,0.08); border:1px solid rgba(225,48,108,0.3); border-radius:8px; margin-top:6px;">📸 &nbsp;Instagram आउटरीच (11 मार्च) &nbsp;<span id="badge-ig-outreach" style="font-size:9px; background:#e1306c; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">कतार</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">सूत्रधार आवेदन (Careers) &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-list" onclick="showPanel('sutra-list', this)" style="color:#0f766e; font-weight:bold; background:rgba(15,118,110,0.06); border:1px solid rgba(15,118,110,0.25); border-radius:8px; margin-top:6px;">सूत्रधार सूची (कौन सक्रिय)</div>
       <div class="nav-item nav-item-visitors" onclick="showPanel('visitors', this)" style="color:#7c3aed; font-weight:bold; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:8px; margin-top:6px;">वेबसाइट विज़िटर्स व डाउनलोड</div>
@@ -1078,9 +1079,21 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           </div>
 
         </div>
-      </div>
 
-      <!-- 🚀 7. INSTAGRAM INFLUENCER OUTREACH QUEUE (11 मार्च 2027 बैच) -->
+        <!-- Quick Jump to Instagram Outreach -->
+        <div style="background:rgba(225,48,108,0.06); border:1.5px solid rgba(225,48,108,0.3); border-radius:10px; padding:14px 16px; margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <div style="font-weight:800; font-size:14px; color:#e1306c;">📸 11 मार्च 2027 बैच: Instagram इन्फ्लुएंसर आउटरीच कतार</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">करियर गाइडेंस व स्किल नैनो-क्रिएटर्स (500–5,000 फॉलोअर्स) को ₹3,500 प्रति सीट कमीशन पर DM भेजें।</div>
+          </div>
+          <button class="export-btn" style="background:#e1306c; color:#fff; font-weight:700; font-size:12px; padding:6px 14px;" onclick="showPanel('ig-outreach')">📸 कतार खोलें ➔</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 📸 INSTAGRAM INFLUENCER OUTREACH PANEL (11 मार्च 2027 बैच) -->
+    <div class="panel" id="panel-ig-outreach">
       <div class="card" style="margin-bottom:16px; border:1.5px solid var(--gold); border-radius:12px; background:var(--card); padding:16px;" id="card-ig-outreach">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:14px;">
           <div>
@@ -2322,6 +2335,7 @@ function showPanel(name, targetEl){
       reviews: currentAdminLang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
       social: currentAdminLang === 'en' ? 'Autonomous Social Media AI Agent (Autopilot)' : 'स्वायत्त सोशल मीडिया एआई एजेंट',
       marketing: currentAdminLang === 'en' ? 'Daily Marketing Action Tracker' : 'दैनिक मार्केटिंग एक्शन ट्रैकर',
+      'ig-outreach': currentAdminLang === 'en' ? '📸 Instagram Influencer Outreach (11 March Batch)' : '📸 Instagram इन्फ्लुएंसर आउटरीच (11 मार्च 2027 बैच)',
       careers: currentAdminLang === 'en' ? 'Sutradhar Applications & Careers Hub' : 'सूत्रधार आवेदन प्रबंधन (Careers Hub)',
       'sutra-reviews': currentAdminLang === 'en' ? 'Sutradhar Requires Review Queue' : 'सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
       'sutra-payouts': currentAdminLang === 'en' ? 'Sutradhar Payout Desk' : 'सूत्रधार पेआउट डेस्क',
@@ -2345,6 +2359,8 @@ function showPanel(name, targetEl){
       loadSocialStatus();
     } else if (name === 'marketing') {
       loadMarketingTracker();
+    } else if (name === 'ig-outreach') {
+      renderIgQueue();
     } else if (name === 'careers') {
       fetchCareerApplications();
       loadSutradharList(true);
@@ -3883,6 +3899,7 @@ const ADMIN_I18N = {
     reviews: 'Client Reviews',
     social: 'Social Media AI Agent',
     marketing: 'दैनिक मार्केटिंग ट्रैकर',
+    igOutreach: '📸 &nbsp;Instagram आउटरीच (11 मार्च)',
     careers: 'सूत्रधार आवेदन (Careers)',
     refresh: 'रिफ्रेश',
     logout: 'लॉगआउट',
@@ -3920,6 +3937,7 @@ const ADMIN_I18N = {
     reviews: 'Client Reviews',
     social: 'Social Media AI Agent',
     marketing: 'Daily Marketing Tracker',
+    igOutreach: '📸 &nbsp;Instagram Outreach (11 March)',
     careers: 'Sutradhar Careers Hub',
     refresh: 'Refresh',
     logout: 'Logout',
@@ -3973,6 +3991,12 @@ function applyAdminLanguage(lang) {
     if (mktItem) {
       const doneCount = (typeof getMktCompletedTasks === 'function') ? getMktCompletedTasks().length : 0;
       mktItem.innerHTML = (dict.marketing || 'दैनिक मार्केटिंग ट्रैकर') + ` &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">${doneCount}/6</span>`;
+    }
+    const igItem = document.querySelector('.nav-item-ig-outreach');
+    if (igItem) {
+      const creators = (typeof getIgCreators === 'function') ? getIgCreators() : [];
+      const sentCount = creators.filter(c => c.status === 'sent').length;
+      igItem.innerHTML = (dict.igOutreach || '📸 &nbsp;Instagram आउटरीच (11 मार्च)') + ` &nbsp;<span id="badge-ig-outreach" style="font-size:9px; background:#e1306c; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">${sentCount}/${creators.length}</span>`;
     }
     const carItem = document.querySelector('.nav-item-careers');
     if (carItem) {
@@ -4044,6 +4068,7 @@ function applyAdminLanguage(lang) {
       reviews: lang === 'en' ? 'Client Reviews' : 'समीक्षाएं (Reviews)',
       social: lang === 'en' ? 'Autonomous Social Media AI Agent (Autopilot)' : 'स्वायत्त सोशल मीडिया एआई एजेंट',
       marketing: lang === 'en' ? 'Daily Marketing Action Tracker' : 'दैनिक मार्केटिंग एक्शन ट्रैकर',
+      'ig-outreach': lang === 'en' ? '📸 Instagram Influencer Outreach (11 March Batch)' : '📸 Instagram इन्फ्लुएंसर आउटरीच (11 मार्च 2027 बैच)',
       careers: lang === 'en' ? 'Sutradhar Applications & Careers Hub' : 'सूत्रधार आवेदन प्रबंधन (Careers Hub)'
     };
     const tEl = document.getElementById('panelTitle');
@@ -4297,6 +4322,16 @@ function renderIgQueue() {
       <span class="badge" style="background:#fef3c7; color:#92400e; font-size:11px;">DM भेजे गए: ${sent}</span>
       <span class="badge" style="background:#d1fae5; color:#065f46; font-size:11px;">सक्रिय/सहमत: ${agreed}</span>
     `;
+  }
+
+  const badge = document.getElementById('badge-ig-outreach');
+  if (badge) {
+    badge.textContent = `${sent}/${total}`;
+    if (agreed > 0) {
+      badge.style.background = 'var(--green)';
+    } else {
+      badge.style.background = '#e1306c';
+    }
   }
 
   if (!creators.length) {
