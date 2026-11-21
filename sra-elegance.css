@@ -631,8 +631,46 @@ section.hero.sra-ekmev-hero {
 .ornament-line { animation: sra-ornament 9s ease-in-out infinite; }
 @keyframes sra-ornament { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
 
+/* Crisp, alive feel (Razorpay-like): quick lifts on hover, a press on tap, header lifts on scroll */
+:root body .sra-reveal { transform: translateY(18px); }
+:root body .sra-reveal.sra-in {
+  transition: opacity .5s cubic-bezier(.2, .8, .2, 1) var(--sra-delay, 0ms), transform .5s cubic-bezier(.2, .8, .2, 1) var(--sra-delay, 0ms) !important;
+}
+:root body :is(.app-service-card, .highlight-card, .pillar-card, .anatomy-card, .blog-card, .rule-card, .report-card,
+  .boxed-card, .panchang-card, .app-quick-tile, .card, .stat-card, .service-card, .feature-card, .pricing-card, .plan-card) {
+  transition: transform .22s cubic-bezier(.2, .8, .2, 1), box-shadow .22s ease, border-color .22s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  :root body :is(.app-service-card, .highlight-card, .pillar-card, .blog-card, .report-card, .boxed-card, .app-quick-tile,
+    .service-card, .feature-card, .pricing-card, .plan-card):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 2px 4px rgba(58, 13, 22, .05), 0 18px 40px -16px rgba(58, 13, 22, .28);
+  }
+  :root body :is(a[class*="btn"], button[class*="btn"], .sra-gn-accent, .sra-gn-app):hover { transform: translateY(-1px); }
+}
+:root body :is(a[class*="btn"], button[class*="btn"], .sra-gn-accent, .sra-gn-app, .sra-gd-item, .sra-gd-acc-btn) {
+  transition: transform .15s cubic-bezier(.2, .8, .2, 1), background-color .18s ease, box-shadow .18s ease, color .18s ease;
+}
+:root body :is(a[class*="btn"], button[class*="btn"], .sra-gn-accent, .sra-gn-app, .sra-gd-item, .sra-gd-acc-btn):active { transform: scale(.97); }
+:root body .sra-gnav { transition: box-shadow .25s ease, background-color .25s ease; }
+:root body .sra-gnav.sra-gn-scrolled { box-shadow: 0 1px 0 var(--sra-hair), 0 8px 24px -14px rgba(58, 13, 22, .35); }
+/* The consultation button in the bar gets the same slow sheen as the hero button */
+:root body .sra-gn-accent { position: relative; overflow: hidden; }
+:root body .sra-gn-accent::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 240, 200, .35) 50%, transparent 65%);
+  transform: translateX(-120%); animation: sra-sheen 6.5s ease-in-out infinite 1.5s;
+}
+/* Drawer groups open with a short slide */
+:root body .sra-gd-acc.is-open > .sra-gd-acc-panel { animation: sra-drop .22s cubic-bezier(.2, .8, .2, 1); }
+@keyframes sra-drop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+/* No icons on the site: the download arrow in the app buttons goes too */
+:root body .sra-gn-app svg, :root body .sra-gd-app svg, :root body .nav-app-ico { display: none !important; }
+
 @media (prefers-reduced-motion: reduce) {
   :root body .sra-reveal { opacity: 1 !important; transform: none !important; }
+  :root body .sra-gn-accent::after, :root body .sra-gd-acc.is-open > .sra-gd-acc-panel { animation: none !important; }
+  :root body * { transition-duration: 0s !important; }
   .sra-ekmev-hero .sra-seal, #viewHome .sra-m-seal, .sra-ekmev-hero .sra-pillars, #viewHome .sra-m-ekmev,
   .btn-hero.highlight::after, :root body .sra-tt .sra-tt-rays, .ornament-line { animation: none !important; }
 }

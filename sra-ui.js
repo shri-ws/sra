@@ -8,7 +8,7 @@
   const me = document.currentScript;
   if (!me || !me.src) return;
   // + "सेव्ड कुंडली से चुनें" on every muhurta / report birth form (sra-saved-pick.js)
-  [['sra-icons.js?v=2', '__sraIcons'], ['sra-saved-pick.js?v=2', '__sraSavedPick']].forEach(([file, flag]) => {
+  [['sra-icons.js?v=5', '__sraIcons'], ['sra-saved-pick.js?v=2', '__sraSavedPick']].forEach(([file, flag]) => {
     if (window[flag]) return;
     const s = document.createElement('script');
     s.src = new URL(file, me.src).href;
@@ -94,7 +94,8 @@
   const REVEAL_SELECTOR = [
     '.app-service-card', '.highlight-card', '.pillar-card', '.anatomy-card', '.blog-card',
     '.rule-card', '.report-card', '.boxed-card', '.sra-pillar', '.section-header',
-    '.section-heading', '.daivagya-header', '.panchang-card', '.app-quick-tile', '.matrix-box'
+    '.section-heading', '.daivagya-header', '.panchang-card', '.app-quick-tile', '.matrix-box',
+    '.card', '.stat-card', '.service-card', '.feature-card', '.pricing-card', '.plan-card', '.faq-item', '.testimonial-card'
   ].join(',');
 
   let revealObserver = null;
@@ -122,7 +123,7 @@
       // Already on screen at load: show immediately, no flash.
       if (rect.top < window.innerHeight && rect.bottom > 0) { el.classList.add('sra-in'); return; }
       el.classList.add('sra-reveal');
-      el.style.setProperty('--sra-delay', ((i % 3) * 50) + 'ms');
+      el.style.setProperty('--sra-delay', ((i % 4) * 60) + 'ms');
       revealObserver.observe(el);
     });
   }

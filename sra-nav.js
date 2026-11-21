@@ -11,6 +11,11 @@
 (function() {
   if (/admin\.html$/.test(location.pathname)) return;
 
+  // No emoji / icons anywhere (sra-icons.js), also on pages without sra-ui.js
+  if (!window.__sraIcons && !document.querySelector('script[src*="sra-ui.js"]')) {
+    try { const ic = document.createElement('script'); ic.src = 'sra-icons.js?v=5'; ic.defer = true; document.head.appendChild(ic); } catch (e) {}
+  }
+
   // Auto-load SraCouponEngine for site-wide URL referral tracking
   if (!window.SraCouponEngine) {
     try {
@@ -237,7 +242,7 @@
         </div>
         <div class="sra-gd-wa-community" style="margin-top:8px;text-align:center;">
           <a href="https://chat.whatsapp.com/CbJyZIEC5Lc02ytEVTGPIb" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.35);color:#25d366;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;text-decoration:none;">
-            💬 WhatsApp ज्योतिष समूह जॉइन करें ➔
+            WhatsApp ज्योतिष समूह जॉइन करें
           </a>
         </div>
         <div class="sra-gd-legal" style="margin-top:10px;text-align:center;font-size:11px;color:#64748b;display:flex;justify-content:center;gap:12px;">
@@ -426,9 +431,9 @@
     const u = auth.user();
     if (!u) {
       return `<div class="sra-gd-me sra-gd-me-guest">
-        <div class="sra-gd-me-row"><span class="sra-gd-me-av">👤</span>
+        <div class="sra-gd-me-row"><span class="sra-gd-me-av">${esc((t(T.guest) || 'G').charAt(0))}</span>
           <span class="sra-gd-me-meta"><b>${esc(t(T.guest))}</b><small>${esc(t(T.guestSub))}</small></span></div>
-        <button type="button" class="sra-gd-me-btn sra-gd-me-login" data-auth="login">🔑 ${esc(t(T.login))}</button>
+        <button type="button" class="sra-gd-me-btn sra-gd-me-login" data-auth="login">${esc(t(T.login))}</button>
       </div>`;
     }
     const initial = (u.name || 'U').replace(/[^A-Za-zऀ-ॿ]/g, '').charAt(0).toUpperCase() || 'U';
@@ -438,8 +443,8 @@
       <div class="sra-gd-me-row"><span class="sra-gd-me-av">${av}</span>
         <span class="sra-gd-me-meta"><b>${esc(u.name)}</b><small>${esc(sub)}</small></span></div>
       <div class="sra-gd-me-actions">
-        <button type="button" class="sra-gd-me-btn" data-auth="kundalis">📂 ${esc(t(T.myKundalis))}</button>
-        <button type="button" class="sra-gd-me-btn sra-gd-me-out" data-auth="logout">⎋ ${esc(t(T.logout))}</button>
+        <button type="button" class="sra-gd-me-btn" data-auth="kundalis">${esc(t(T.myKundalis))}</button>
+        <button type="button" class="sra-gd-me-btn sra-gd-me-out" data-auth="logout">${esc(t(T.logout))}</button>
       </div>
     </div>`;
   }
@@ -566,6 +571,9 @@
     claimDrawerApi();
     window.addEventListener('load', claimDrawerApi);
     window.SRANav = { open: () => toggleDrawer(true), close: () => toggleDrawer(false) };
+    const onScroll = () => header.classList.toggle('sra-gn-scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
     injectWhatsAppFloatingWidget();
     window.addEventListener('load', injectWhatsAppFloatingWidget);

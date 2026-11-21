@@ -1,7 +1,8 @@
-/* sra-icons.js — premium line icons in place of colour emoji, site-wide.
-   Every visible emoji (static markup or added later by reports/chat) becomes a
-   thin single-tone SVG in the theme's gold; astro/typographic signs stay text.
-   Loaded by sra-ui.js, so every page that has sra-ui.js gets it. */
+/* sra-icons.js — no emoji or icons on the site, site-wide (Razorpay-clean, plain text).
+   Every visible emoji (static markup or added later by reports/chat) is removed.
+   Pass/fail marks become plain ✓ / ✗, the small coloured status dots stay (they carry meaning),
+   astro/typographic signs stay text. Empty icon frames are hidden.
+   Loaded by sra-ui.js and sra-nav.js. */
 (function () {
   'use strict';
   if (window.__sraIcons) return;
@@ -129,7 +130,7 @@
   add('mountain', '⛰🏔'); add('bell', '🔔');
 
   // Astro and typographic signs that are text, not emoji: keep them, forced to text style
-  const KEEP = new Set([...'♈♉♊♋♌♍♎♏♐♑♒♓♂♀⚧☉☽☾☿♃♄♅♆♇☊☋⚶★☆✓✗✕✖✦✧➔❮❯☰⎋⌘⌂☐❖✱✳❇']);
+  const KEEP = new Set([...'♈♉♊♋♌♍♎♏♐♑♒♓♂♀⚧☉☽☾☿♃♄♅♆♇☊☋⚶★☆✓✗✕✖❮❯☰☐']);
 
   const RE = /[\u{1F1E6}-\u{1F1FF}]{2}|[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B05}-\u{2B55}][︎️]?[\u{1F3FB}-\u{1F3FF}]?(?:‍[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}][️]?)*/gu;
   const QUICK = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B05}-\u{2B55}]/u;
@@ -154,16 +155,13 @@
   }
 
   // What one matched emoji becomes: a node, a string, or '' (removed)
+  const TEXT_MARK = { '✅': '✓', '✔': '✓', '☑': '✓', '❌': '✗', '❎': '✗' };
   function convert(m) {
     const base = String.fromCodePoint(m.codePointAt(0));
-    if (/^[\u{1F1E6}-\u{1F1FF}]/u.test(base)) return '';              // flags
     if (KEEP.has(base)) return base + '︎';
-    if (base === '🕉') { const o = document.createElement('span'); o.className = 'sra-ic-om'; o.textContent = 'ॐ'; return o; }
+    if (TEXT_MARK[base]) return TEXT_MARK[base];
     if (DOT[base]) return dot(DOT[base]);
-    if (MAP[base]) return icon(MAP[base]);
-    const cp = base.codePointAt(0);
-    if (cp < 0x1F000) return base + '︎';                             // other text symbols
-    return icon('sparkle');
+    return '';                                                         // every other emoji / icon: removed
   }
 
   function skipEl(el) {
@@ -191,6 +189,7 @@
       frag.appendChild(document.createTextNode(s.slice(last, m.index)));
       if (r) frag.appendChild(typeof r === 'string' ? document.createTextNode(r) : r);
       last = m.index + m[0].length;
+      if (!r) { while (s[last] === ' ' || s[last] === '\u00a0') last++; }
       changed = true;
     }
     if (!changed) return;
@@ -210,7 +209,7 @@
 
   function scan(root) {
     if (!root) return;
-    if (root.nodeType === 3) { fixTextNode(root); return; }
+    if (root.nodeType === 3) { const par = root.parentElement; fixTextNode(root); if (par) hideEmptyFrames(par); return; }
     if (root.nodeType !== 1 || (root.nodeName !== 'BODY' && skipEl(root) && root.nodeName !== 'SELECT')) return;
     const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: n => QUICK.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
@@ -219,6 +218,18 @@
     while (w.nextNode()) nodes.push(w.currentNode);
     nodes.forEach(fixTextNode);
     fixAttrs(root);
+    hideEmptyFrames(root);
+  }
+
+  // Boxes that only held an icon (card glyphs, menu icon slots) are hidden once empty
+  const FRAMES = '.card-glyph, .app-quick-icon, .pillar-icon, .hl-icon, .drawer-sub-icon, .sra-gn-ico, .app-service-icon, .service-icon, .feature-icon, .card-icon, .tile-icon, .icon-wrap, .icon-circle';
+  function hideEmptyFrames(root) {
+    const list = root.querySelectorAll ? [...root.querySelectorAll(FRAMES)] : [];
+    if (root.matches && root.matches(FRAMES)) list.push(root);
+    for (let a = root.parentElement; a && a !== document.body; a = a.parentElement) { if (a.matches(FRAMES)) { list.push(a); break; } }
+    list.forEach(e => {
+      if (!e.textContent.replace(/[\s\uFE0E\uFE0F\u200D]/g, '') && !e.querySelector('img, svg:not(.sra-ic), canvas')) e.style.setProperty('display', 'none', 'important');
+    });
   }
 
   let pending = new Set(), queued = false;
