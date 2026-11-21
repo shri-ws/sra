@@ -340,6 +340,11 @@
         return false;
       }
       if (o.remember) o.remember(code);
+      // Ask the server: only the owner's OTP-signed-in phone gets "₹1 test" back for the master
+      // code (any spacing or case); everyone else gets the same "invalid" reply as before.
+      show(null, 'जाँच हो रही है...');
+      var q = await this.fetchServerQuote(this.guessPhone(), o.serviceId, code);
+      if (q && q.is_test) { show(true, (q.message || 'टेस्ट भुगतान ₹1।') + ' अब भुगतान बटन दबाएँ।'); return true; }
       show(false, 'कोड अमान्य है।');
       return false;
     },
