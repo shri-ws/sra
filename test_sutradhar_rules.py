@@ -68,6 +68,8 @@ def _capture(order_id, paise, payment_id):
 
 def test_commission_math():
     assert se.commission_for_payment("mangal_dosha", 251_00)["commission"] == 140
+    assert se.commission_for_payment("mangal_dosha", 501_00)["commission"] == 280
+    assert se.commission_for_payment("gun_milan_manglik", 1101_00)["commission"] == 615
     assert se.commission_for_payment("muhurta_vivah", 2100_00)["commission"] == 1174
     assert se.commission_for_payment("parashara_report", 1111_00)["commission"] == 621
     assert se.commission_for_payment("consultation_gurukul", 24000_00)["commission"] == 6101
@@ -108,10 +110,10 @@ def test_routes_need_sign_in():
 
 def test_quote_rules():
     q = client.post("/api/sutradhar/quote", json={"customer_phone": CUST_PHONE, "service_id": "mangal_dosha"}).json()
-    assert q["net_price"] == 251 and q["is_test"] is False
+    assert q["net_price"] == 501 and q["is_test"] is False
     q = client.post("/api/sutradhar/quote", json={"customer_phone": CUST_PHONE, "service_id": "mangal_dosha",
                                                    "input_code": "SRA123ABC"}).json()
-    assert q["net_price"] == 251 and q["code_status"] == "invalid" and q["message"] == "कोड अमान्य है।"
+    assert q["net_price"] == 501 and q["code_status"] == "invalid" and q["message"] == "कोड अमान्य है।"
     # master code without the listed signed-in phone: full price
     q = client.post("/api/sutradhar/quote", headers=CUST, json={"customer_phone": "9000000001",
                     "service_id": "muhurta_vivah", "input_code": "JAI HANUMAN"}).json()
@@ -496,10 +498,10 @@ def test_offer_link_makes_the_sutradhar_lead():
     # a customer with no lead pays through the shared link -> lead + commission for the link's Sutradhar
     o = client.post("/api/sutradhar/orders/create", headers={"Authorization": f"Bearer mock_token_{buyer}"},
                     json={"customer_phone": buyer, "service_id": "kaalsarp_dosha", "ref_code": code.lower()}).json()
-    assert o["amount"] == 251_00 and o["sutradhar_code"]
-    assert _capture(o["order_id"], 251_00, "pay_link_1").json()["commission_created"] is True
+    assert o["amount"] == 501_00 and o["sutradhar_code"]
+    assert _capture(o["order_id"], 501_00, "pay_link_1").json()["commission_created"] is True
     comm = se.SutradharStore.get_doc("commissions", "comm_pay_link_1")
-    assert comm["amount"] == 140 and comm["sutradhar_id"] == (me.get("sutradhar_id") or me["id"])
+    assert comm["amount"] == 280 and comm["sutradhar_id"] == (me.get("sutradhar_id") or me["id"])
     lead = next(l for l in se.SutradharStore.query_all("leads") if l["customer_phone"] == buyer)
     assert lead["source"] == "offer_link"
 

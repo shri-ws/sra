@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Paid report (₹251, server-confirmed unlock). Rules: kaalsarpRules.js (built from data/sarpa_rahu_ketu). -->
+<!-- Paid report (₹501, server-confirmed unlock). Rules: kaalsarpRules.js (built from data/sarpa_rahu_ketu). -->
 
 <title>कालसर्प व सर्प-योग रिपोर्ट (शास्त्र-प्रमाण सहित) | श्री राम जी एस्ट्रो</title>
 <link rel="icon" href="logo.jpg">
@@ -338,7 +338,7 @@
     } finally { btn.disabled = false; btn.textContent = '⬇ PDF डाउनलोड'; }
   }
 
-  // ---------- ₹251 payment (same flow as the Manglik report: price and Sutradhar lead come from the server) ----------
+  // ---------- ₹501 payment (same flow as the Manglik report: price and Sutradhar lead come from the server) ----------
   const SERVICE = 'kaalsarp_dosha';
   const keyOf = k => (k.id || ((k.name || 'jatak').trim().toLowerCase() + '_' + (k.date || '') + '_' + (k.time || ''))).replace(/[^a-zA-Z0-9_-]/g, '_');
   // The report opens only with a pass the server issued after checking the Razorpay receipt (or SaaS
@@ -391,8 +391,8 @@
         <div><b>${srcs} श्लोक-प्रमाण</b>हर नियम के साथ ग्रंथ, अध्याय, श्लोक और पृष्ठ</div>
         <div><b>शास्त्रोक्त उपाय</b>नागपूजा, राहु-केतु जप, समिधा, दक्षिणा • A4 PDF</div>
       </div>
-      <div class="pw-price"><span>देय दक्षिणा (GST सहित)</span><span id="pwPrice">₹251</span></div>
-      <button class="pw-pay" id="pwPay" type="button">💳 ₹251 भुगतान करें (UPI / कार्ड)</button>
+      <div class="pw-price"><span>देय दक्षिणा (GST सहित)</span><span id="pwPrice">₹501</span></div>
+      <button class="pw-pay" id="pwPay" type="button">💳 ₹501 भुगतान करें (UPI / कार्ड)</button>
       <div class="muted" style="margin-top:6px;text-align:center">Razorpay से सुरक्षित भुगतान • भुगतान होते ही रिपोर्ट खुल जाएगी</div>
       <details style="margin-top:10px"><summary class="muted" style="cursor:pointer">कोड है?</summary>
         <div class="pw-code"><input id="pwCode" placeholder="कोड" autocomplete="off"><button class="btn ghost" id="pwCodeBtn" type="button">लागू करें</button></div>
@@ -456,8 +456,8 @@
       fetch('api/save_payment.php', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ razorpay_payment_id: paymentId, student_name: k.name || '', student_phone: phoneVal(),
-          plan_name: 'Kaalsarp & Sarpa Yoga Report (₹' + (paidAmount || 251) + ')', report_type: 'kaalsarp_dosha_report',
-          amount: paidAmount || 251, discount: 0, coupon_code: coupon || sid || '', sutradhar_id: sid || '', status: 'completed', kundali_key: key })
+          plan_name: 'Kaalsarp & Sarpa Yoga Report (₹' + (paidAmount || 501) + ')', report_type: 'kaalsarp_dosha_report',
+          amount: paidAmount || 501, discount: 0, coupon_code: coupon || sid || '', sutradhar_id: sid || '', status: 'completed', kundali_key: key })
       }).catch(() => {});
     }
     $('paywall').hidden = true;
