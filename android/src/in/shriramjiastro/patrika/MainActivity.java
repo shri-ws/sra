@@ -304,18 +304,37 @@ public class MainActivity extends Activity {
             private boolean handleUrl(String url) {
                 if (url == null) return false;
 
-                // Handle external protocols (WhatsApp, UPI, Phone, Mail)
-                if (url.startsWith("upi:") || url.startsWith("whatsapp:") ||
-                    url.startsWith("tel:") || url.startsWith("mailto:") ||
-                    url.startsWith("intent:")) {
+                // intent:// links (Razorpay UPI apps): parse them as intents, else use their browser fallback
+                if (url.startsWith("intent:")) {
                     try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(intent);
-                        return true;
+                        Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                        intent.setComponent(null);
+                        intent.setSelector(null);
+                        try {
+                            startActivity(intent);
+                        } catch (Exception notInstalled) {
+                            String fallback = intent.getStringExtra("browser_fallback_url");
+                            if (fallback != null) webView.loadUrl(fallback);
+                            else Toast.makeText(MainActivity.this, "ऐप उपलब्ध नहीं है।", Toast.LENGTH_SHORT).show();
+                        }
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "ऐप उपलब्ध नहीं है।", Toast.LENGTH_SHORT).show();
-                        return true;
                     }
+                    return true;
+                }
+
+                // Any other non-web link (upi:, tez:, phonepe:, paytmmp:, whatsapp:, tel:, mailto:) opens its app
+                String scheme = Uri.parse(url).getScheme();
+                if (scheme != null && !scheme.equals("http") && !scheme.equals("https")
+                        && !scheme.equals("about") && !scheme.equals("data") && !scheme.equals("blob")
+                        && !scheme.equals("javascript")) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "ऐप उपलब्ध नहीं है।", Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
                 }
 
                 // If loading internal domain or subpaths, keep inside WebView
