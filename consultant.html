@@ -491,9 +491,15 @@
       .right-panel { border: none !important; }
       body { background: #fff !important; color: #000 !important; }
     }
+    .desk-lock { position:fixed; inset:0; z-index:500; background:var(--bg); display:flex; align-items:center; justify-content:center; padding:20px; }
+    .desk-lock-card { max-width:460px; text-align:center; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:26px 22px; color:var(--text); line-height:1.6; }
+    .desk-lock-card h2 { color:var(--accent); margin:0 0 8px; font-size:1.25rem; }
+    .desk-lock-card p { color:var(--muted); font-size:0.92rem; margin:0 0 16px; }
+    .desk-lock-card a:not(.btn) { color:var(--accent); }
   </style>
 </head>
 <body>
+  <div id="desk-lock" class="desk-lock"><div class="desk-lock-card"><p>डेस्क खुल रही है...</p></div></div>
 
   <!-- Top Header -->
   <header>
@@ -505,7 +511,7 @@
     <div class="nav-actions">
       <div class="consultant-badge" title="कंसल्टेंट मोबाइल नंबर (आपकी यूनिक आईडी)">
         <span style="font-size:0.75rem; color:var(--muted);">कंसल्टेंट ID:</span>
-        +91 <input type="tel" id="consultant-phone" maxlength="10" placeholder="फोन नंबर दर्ज करें" value="9876543210" onchange="onConsultantPhoneChange()"/>
+        <b id="consultant-phone">—</b> <span id="consultant-plan" style="font-size:0.72rem; color:var(--muted);"></span>
       </div>
       <button class="btn btn-outline btn-sm" onclick="toggleTheme()" title="दिन/रात्रि मोड">थीम</button>
       <a href="index.html" class="btn btn-outline btn-sm">वेबसाइट</a>
@@ -666,7 +672,7 @@
 
         <!-- Save Button -->
         <button class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:12px;" onclick="saveAndLockPrescription()">
-          💾 पर्ची सुरक्षित करें एवं सिंक करें
+          पर्ची सुरक्षित करें (क्लाइंट को दिखेगी)
         </button>
 
         <!-- Live Client View Simulation -->
@@ -735,45 +741,73 @@
   <!-- Core JavaScript Logic -->
   <script>
     // ══════════════════════════════════════════════════════════════════════════
-    // STATE & DATA MANAGEMENT
+    // CONSULTANT DESK — data lives on the server (/api/sutradhar/desk/*).
+    // Opens only for an astrologer with an active SaaS subscription (or the owner's number).
+    // Consultant ID = the OTP-verified phone; client ID = the client's phone.
     // ══════════════════════════════════════════════════════════════════════════
-    let consultantPhone = localStorage.getItem('sra_consultant_phone') || localStorage.getItem('sra_verified_mobile') || '9876543210';
+    const DESK_LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    const DESK_API = (DESK_LOCAL ? '' : (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com')) + '/api/sutradhar/desk';
+    let consultantPhone = '';
     let currentClient = null;
     let currentRemedies = [];
     let clientsCache = [];
+    let rxDirty = false;
 
-    // Initialize Page
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!checkAccess()) return;
-      document.getElementById('consultant-phone').value = consultantPhone;
+    function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+    async function deskUser() {
+      if (!window.SRAAuth) return null;
+      const fb = await SRAAuth.ready();
+      const auth = fb.auth();
+      if (auth.currentUser) return auth.currentUser;
+      return new Promise(res => { const off = auth.onAuthStateChanged(u => { off(); res(u); }); });
+    }
+
+    async function deskFetch(path, opts) {
+      const u = await deskUser();
+      if (!u) throw Object.assign(new Error('कृपया अपने मोबाइल नंबर से OTP लॉगिन करें।'), { status: 401 });
+      opts = opts || {};
+      opts.headers = Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await u.getIdToken() }, opts.headers || {});
+      const res = await fetch(DESK_API + path, opts);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(data.detail || 'सर्वर से जवाब नहीं मिला।'), { status: res.status });
+      return data;
+    }
+
+    document.addEventListener('DOMContentLoaded', startDesk);
+    document.addEventListener('sra:auth', () => { if (!consultantPhone) startDesk(); });
+
+    async function startDesk() {
+      let me;
+      try {
+        me = await deskFetch('/me');
+      } catch (e) {
+        lockDesk(e.status === 401 ? 'login' : 'error', null, e.message);
+        return;
+      }
+      if (!me.allowed) { lockDesk(me.reason === 'expired' ? 'expired' : 'nosub', me); return; }
+      consultantPhone = me.phone;
+      document.getElementById('desk-lock').style.display = 'none';
+      document.getElementById('consultant-phone').textContent = '+91 ' + me.phone;
+      document.getElementById('consultant-plan').textContent = me.plan === 'owner' ? 'मुख्य खाता'
+        : ('सदस्यता ' + (me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') + ' तक' : 'चालू'));
       loadClientsForConsultant();
-    });
+    }
 
-    function checkAccess() {
-      const adminEmails = ['shriramjiastro7@gmail.com', 'eshriee@gmail.com', 'eshrico@gmail.com'];
-      const email = (localStorage.getItem('sra_verified_google_user') || '').toLowerCase();
-      const isAdmin = adminEmails.includes(email) || sessionStorage.getItem('sra_admin_auth') === 'true';
-      if (isAdmin) return true;
-
-      const mobile = (localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_consultant_phone') || '').replace(/\D/g, '').slice(-10);
-      let approved = [];
-      try { approved = JSON.parse(localStorage.getItem('sra_approved_consultants') || '[]'); } catch(e) {}
-      
-      const isApproved = approved.some(item => (typeof item === 'object' ? item.phone : item) === mobile);
-      if (isApproved) return true;
-
-      // Lock the page if not authorized
-      document.body.innerHTML = `
-        <div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; background:var(--bg); color:var(--text); font-family:sans-serif;">
-          <div style="font-size:3rem; margin-bottom:12px;">🔒</div>
-          <h2 style="color:var(--accent); margin-bottom:8px;">पहुँच अस्वीकृत (Access Denied)</h2>
-          <p style="max-width:440px; font-size:0.9rem; color:var(--muted); line-height:1.5; margin-bottom:20px;">
-            यह परामर्श डेस्क केवल एडमिन द्वारा अधिकृत दैवज्ञ / कंसल्टेंट के लिए आरक्षित है। आपका लॉगिन खाता (+91 ${mobile || 'अज्ञात'}) कंसल्टेंट के रूप में स्वीकृत नहीं है।
-          </p>
-          <a href="index.html" style="padding:8px 18px; border-radius:6px; background:var(--accent); color:#fff; text-decoration:none; font-weight:700; font-size:0.85rem;">होमपेज पर वापस जाएं</a>
-        </div>
-      `;
-      return false;
+    function lockDesk(kind, me, msg) {
+      const box = document.getElementById('desk-lock');
+      const wa = 'https://wa.me/919517117775?text=' + encodeURIComponent('नमस्ते, मुझे ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्यता के बारे में जानना है।');
+      const body = {
+        login: `<h2>कंसल्टेंट डेस्क</h2><p>यह डेस्क ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्यों के लिए है। अपने उसी मोबाइल नंबर से OTP लॉगिन करें जिस पर सदस्यता ली है।</p>
+               <button class="btn btn-primary" onclick="window.SRAAuth && SRAAuth.open()">मोबाइल से लॉगिन करें</button>`,
+        nosub: `<h2>सदस्यता आवश्यक</h2><p>आपका नंबर +91 ${esc(me && me.phone)} अभी ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्य नहीं है। सदस्यता लेते ही यह डेस्क और सारी रिपोर्ट्स आपके नंबर पर खुल जाएँगी।</p>
+               <a class="btn btn-primary" href="${wa}" target="_blank" rel="noopener">सदस्यता के लिए संपर्क करें</a>`,
+        expired: `<h2>सदस्यता समाप्त</h2><p>+91 ${esc(me && me.phone)} की सदस्यता ${me && me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') + ' को' : ''} समाप्त हो गई है। आपके क्लाइंट और उपाय सुरक्षित हैं — नवीनीकरण होते ही डेस्क फिर खुल जाएगी।</p>
+               <a class="btn btn-primary" href="${wa}" target="_blank" rel="noopener">नवीनीकरण के लिए संपर्क करें</a>`,
+        error: `<h2>डेस्क नहीं खुल सकी</h2><p>${esc(msg)}</p><button class="btn btn-primary" onclick="startDesk()">फिर कोशिश करें</button>`,
+      }[kind];
+      box.innerHTML = `<div class="desk-lock-card">${body}<p style="margin-top:14px;"><a href="index.html">वेबसाइट पर वापस जाएँ</a></p></div>`;
+      box.style.display = 'flex';
     }
 
     function showToast(msg) {
@@ -783,172 +817,122 @@
       setTimeout(() => { t.style.display = 'none'; }, 3000);
     }
 
-    function onConsultantPhoneChange() {
-      const p = document.getElementById('consultant-phone').value.trim().replace(/\D/g, '');
-      if (p.length === 10) {
-        consultantPhone = p;
-        localStorage.setItem('sra_consultant_phone', consultantPhone);
-        loadClientsForConsultant();
-        showToast('कंसल्टेंट ID अपडेट की गई: +91 ' + consultantPhone);
-      }
-    }
-
     // ══════════════════════════════════════════════════════════════════════════
-    // CLIENT QUEUE & LEDGER
+    // CLIENT LIST
     // ══════════════════════════════════════════════════════════════════════════
-    function getLedgerStorageKey() {
-      return 'sra_consultant_ledger_' + consultantPhone;
-    }
-
-    function loadClientsForConsultant() {
+    async function loadClientsForConsultant(selectPhone) {
       try {
-        const raw = localStorage.getItem(getLedgerStorageKey());
-        clientsCache = raw ? JSON.parse(raw) : [];
-      } catch(e) {
-        clientsCache = [];
+        const d = await deskFetch('/clients');
+        clientsCache = (d.clients || []).map(c => Object.assign(c, { phone: c.client_phone }));
+      } catch (e) {
+        showToast(e.message);
+        return;
       }
-
-      // Default demo client if empty
-      if (clientsCache.length === 0) {
-        clientsCache = [
-          {
-            phone: '9876500001',
-            name: 'राहुल शर्मा',
-            dob: '1992-05-14',
-            tob: '08:30',
-            pob: 'लखनऊ, उत्तर प्रदेश',
-            notes: 'कर्क लग्न, वर्तमान शनि ढैया। मानसिक तनाव व कार्य में विलंब।',
-            created_at: new Date().toISOString()
-          }
-        ];
-        saveLedgerLocally();
-      }
-
       renderClientList();
-      if (clientsCache.length > 0 && !currentClient) {
-        selectClient(clientsCache[0].phone);
-      }
-    }
-
-    function saveLedgerLocally() {
-      localStorage.setItem(getLedgerStorageKey(), JSON.stringify(clientsCache));
+      const want = selectPhone || (currentClient && currentClient.phone) || (clientsCache[0] && clientsCache[0].phone);
+      if (want) selectClient(want, true);
     }
 
     function renderClientList() {
       const el = document.getElementById('client-list');
       el.innerHTML = '';
       if (clientsCache.length === 0) {
-        el.innerHTML = '<div style="font-size:0.8rem; color:var(--muted); text-align:center; padding:10px;">कोई खाता नहीं मिला।</div>';
+        el.innerHTML = '<div style="font-size:0.8rem; color:var(--muted); text-align:center; padding:10px;">अभी कोई क्लाइंट नहीं। "+ नया खाता" से पहला क्लाइंट जोड़ें।</div>';
         return;
       }
-
       clientsCache.forEach(c => {
         const item = document.createElement('div');
         item.className = 'client-item' + (currentClient && currentClient.phone === c.phone ? ' active' : '');
         item.onclick = () => selectClient(c.phone);
+        const n = (c.remedies || []).length;
         item.innerHTML = `
           <div class="client-item-top">
-            <span>${c.name}</span>
-            <span style="font-size:0.75rem; color:var(--accent);">+91 ${c.phone}</span>
+            <span>${esc(c.name)}</span>
+            <span style="font-size:0.75rem; color:var(--accent);">+91 ${esc(c.phone)}</span>
           </div>
-          <div class="client-item-meta">
-            ${c.dob || '—'} · ${c.pob || '—'}
-          </div>
-        `;
+          <div class="client-item-meta">${esc(c.dob || '—')} · ${esc(c.pob || '—')}${n ? ` · आज ${(c.done_today || []).length}/${n} उपाय` : ''}</div>`;
         el.appendChild(item);
       });
     }
 
-    function selectClient(phone) {
+    function selectClient(phone, keepRx) {
       const c = clientsCache.find(x => x.phone === phone);
       if (!c) return;
+      if (rxDirty && !keepRx && currentClient && currentClient.phone !== phone &&
+          !confirm('इस क्लाइंट की पर्ची में बदलाव सुरक्षित नहीं हुए हैं। छोड़कर आगे बढ़ें?')) return;
       currentClient = c;
-
-      // Update Center Panel
       document.getElementById('dossier-name').textContent = c.name;
       document.getElementById('dossier-phone').textContent = '+91 ' + c.phone;
       document.getElementById('dossier-dob').textContent = c.dob || 'अज्ञात';
       document.getElementById('dossier-tob').textContent = c.tob || 'अज्ञात';
       document.getElementById('dossier-pob').textContent = c.pob || 'अज्ञात';
-      document.getElementById('dossier-status').textContent = 'सक्रिय परामर्श';
+      document.getElementById('dossier-status').textContent = (c.remedies || []).length ? 'उपाय चल रहे हैं' : 'पर्ची अभी नहीं';
       document.getElementById('astrologer-notes').value = c.notes || '';
       document.getElementById('btn-open-patrika').disabled = false;
 
-      // Update History
-      const hist = document.getElementById('consultation-history');
-      hist.innerHTML = `खाता सृजन: ${new Date(c.created_at || Date.now()).toLocaleDateString('hi-IN')}<br/>परामर्शदाता: +91 ${consultantPhone}`;
+      const week = (c.week || []).map(w => `${new Date(w.day + 'T12:00:00').toLocaleDateString('hi-IN', { weekday: 'short' })} ${w.done}/${w.total}`).join(' · ');
+      document.getElementById('consultation-history').innerHTML =
+        `खाता बना: ${new Date(c.created_at || Date.now()).toLocaleDateString('hi-IN')}` +
+        (c.remedies_updated_at ? `<br/>पर्ची बदली: ${new Date(c.remedies_updated_at).toLocaleString('hi-IN')}` : '') +
+        (week && (c.remedies || []).length ? `<br/>पिछले 7 दिन क्लाइंट ने उपाय किए: ${esc(week)}` : '');
 
-      // Load client's prescription
-      loadPrescriptionForClient(c.phone);
+      currentRemedies = (c.remedies || []).map(r => Object.assign({}, r));
+      rxDirty = false;
+      renderRxItems();
+      renderClientPreview();
       renderClientList();
     }
 
+    let notesTimer = null;
     function autoSaveClientNotes() {
       if (!currentClient) return;
       currentClient.notes = document.getElementById('astrologer-notes').value;
-      saveLedgerLocally();
+      clearTimeout(notesTimer);
+      const c = currentClient;
+      notesTimer = setTimeout(() => {
+        deskFetch('/clients', { method: 'POST', body: JSON.stringify({ phone: c.phone, name: c.name, dob: c.dob, tob: c.tob, pob: c.pob, notes: c.notes }) })
+          .catch(e => showToast('नोट्स सेव नहीं हुए: ' + e.message));
+      }, 1200);
     }
 
     function searchClient() {
-      const q = document.getElementById('search-phone').value.trim().replace(/\D/g, '');
-      if (!q) {
-        renderClientList();
-        return;
-      }
-      const match = clientsCache.find(c => c.phone.includes(q) || c.name.toLowerCase().includes(q.toLowerCase()));
-      if (match) {
-        selectClient(match.phone);
-      } else {
-        if (confirm('इस नंबर (+91 ' + q + ') का कोई क्लाइंट नहीं मिला। क्या नया खाता खोलना चाहते हैं?')) {
-          openNewClientModal(q);
-        }
-      }
+      const raw = document.getElementById('search-phone').value.trim();
+      const q = raw.replace(/\D/g, '');
+      if (!raw) { renderClientList(); return; }
+      const match = clientsCache.find(c => (q && c.phone.includes(q)) || (c.name || '').toLowerCase().includes(raw.toLowerCase()));
+      if (match) selectClient(match.phone);
+      else if (q.length === 10 && confirm('इस नंबर (+91 ' + q + ') का कोई क्लाइंट नहीं मिला। क्या नया खाता खोलना चाहते हैं?')) openNewClientModal(q);
+      else showToast('कोई क्लाइंट नहीं मिला।');
     }
 
-    // Modal Handlers
     function openNewClientModal(prefilledPhone = '') {
       document.getElementById('nc-phone').value = prefilledPhone;
-      document.getElementById('nc-name').value = '';
-      document.getElementById('nc-dob').value = '';
-      document.getElementById('nc-tob').value = '';
-      document.getElementById('nc-pob').value = '';
+      ['nc-name', 'nc-dob', 'nc-tob', 'nc-pob'].forEach(id => { document.getElementById(id).value = ''; });
       document.getElementById('new-client-modal').style.display = 'flex';
     }
     function closeNewClientModal() {
       document.getElementById('new-client-modal').style.display = 'none';
     }
 
-    function saveNewClient() {
+    async function saveNewClient() {
       const name = document.getElementById('nc-name').value.trim();
-      const phone = document.getElementById('nc-phone').value.trim().replace(/\D/g, '');
-      if (!name || phone.length !== 10) {
-        alert('कृपया वैध नाम और 10 अंकों का फोन नंबर भरें।');
-        return;
-      }
-
-      const existing = clientsCache.find(c => c.phone === phone);
-      if (existing) {
+      const phone = document.getElementById('nc-phone').value.trim().replace(/\D/g, '').slice(-10);
+      if (!name || phone.length !== 10) { alert('कृपया नाम और 10 अंकों का फोन नंबर भरें।'); return; }
+      if (clientsCache.find(c => c.phone === phone)) {
         alert('इस फोन नंबर का खाता पहले से मौजूद है।');
         closeNewClientModal();
         selectClient(phone);
         return;
       }
-
-      const newC = {
-        name: name,
-        phone: phone,
-        dob: document.getElementById('nc-dob').value,
-        tob: document.getElementById('nc-tob').value,
-        pob: document.getElementById('nc-pob').value,
-        notes: '',
-        created_at: new Date().toISOString()
-      };
-
-      clientsCache.unshift(newC);
-      saveLedgerLocally();
+      try {
+        await deskFetch('/clients', { method: 'POST', body: JSON.stringify({
+          name, phone, dob: document.getElementById('nc-dob').value, tob: document.getElementById('nc-tob').value,
+          pob: document.getElementById('nc-pob').value }) });
+      } catch (e) { alert(e.message); return; }
       closeNewClientModal();
-      selectClient(phone);
-      showToast('नया क्लाइंट खाता बनाया गया!');
+      rxDirty = false;
+      await loadClientsForConsultant(phone);
+      showToast('नया क्लाइंट खाता बनाया गया।');
     }
 
     function openClientChart() {
@@ -960,73 +944,31 @@
     // ══════════════════════════════════════════════════════════════════════════
     // PRESCRIPTION & REMEDY PAD
     // ══════════════════════════════════════════════════════════════════════════
-    function getPrescriptionKey(clientPhone) {
-      return 'sra_prescriptions_' + clientPhone;
-    }
-
-    function loadPrescriptionForClient(clientPhone) {
-      try {
-        const raw = localStorage.getItem(getPrescriptionKey(clientPhone));
-        currentRemedies = raw ? JSON.parse(raw) : [];
-      } catch(e) {
-        currentRemedies = [];
-      }
-
-      // Default sample if empty for Rahul Sharma
-      if (currentRemedies.length === 0 && clientPhone === '9876500001') {
-        currentRemedies = [
-          {
-            id: 'rx_1',
-            category: 'पाठ / स्तोत्र',
-            title: 'श्री हनुमान चालीसा',
-            count: '11 बार प्रतिदिन',
-            days: '40 दिन',
-            timing: 'सायंकाल (गोधूलि वेला)',
-            instructions: 'लाल आसन पर पूर्व मुख बैठकर चमेली के तेल का दीपक जलाकर पाठ करें।',
-            doneToday: false
-          }
-        ];
-      }
-
-      renderRxItems();
-      renderClientPreview();
-    }
-
     function addRemedyItem() {
-      if (!currentClient) {
-        alert('पहले किसी क्लाइंट का खाता चुनें।');
-        return;
-      }
+      if (!currentClient) { alert('पहले किसी क्लाइंट का खाता चुनें।'); return; }
       const title = document.getElementById('rx-title').value.trim();
-      if (!title) {
-        alert('कृपया उपाय का नाम दर्ज करें।');
-        return;
-      }
-
-      const item = {
+      if (!title) { alert('कृपया उपाय का नाम दर्ज करें।'); return; }
+      currentRemedies.push({
         id: 'rx_' + Date.now(),
         category: document.getElementById('rx-category').value,
-        title: title,
+        title,
         count: document.getElementById('rx-count').value.trim() || '1 बार',
         days: document.getElementById('rx-days').value.trim() || '40 दिन',
         timing: document.getElementById('rx-timing').value,
-        instructions: document.getElementById('rx-instructions').value.trim() || '',
-        doneToday: false
-      };
-
-      currentRemedies.push(item);
+        instructions: document.getElementById('rx-instructions').value.trim() || ''
+      });
+      rxDirty = true;
       renderRxItems();
       renderClientPreview();
-
-      // Clear input fields
       document.getElementById('rx-title').value = '';
       document.getElementById('rx-count').value = '';
       document.getElementById('rx-instructions').value = '';
-      showToast('उपाय जोड़ा गया!');
+      showToast('उपाय जोड़ा गया। क्लाइंट तक पहुँचाने के लिए "पर्ची सुरक्षित करें" दबाएँ।');
     }
 
     function removeRemedyItem(id) {
       currentRemedies = currentRemedies.filter(r => r.id !== id);
+      rxDirty = true;
       renderRxItems();
       renderClientPreview();
     }
@@ -1035,127 +977,83 @@
       const el = document.getElementById('rx-items-list');
       el.innerHTML = '';
       if (currentRemedies.length === 0) {
-        el.innerHTML = '<div style="text-align:center; padding:16px; font-size:0.8rem; color:var(--muted);">अभी कोई उपचार नहीं जोड़ा गया है।</div>';
+        el.innerHTML = '<div style="text-align:center; padding:16px; font-size:0.8rem; color:var(--muted);">अभी कोई उपाय नहीं जोड़ा गया है।</div>';
         return;
       }
-
       currentRemedies.forEach(r => {
         const card = document.createElement('div');
         card.className = 'rx-item-card';
         card.innerHTML = `
-          <button class="rx-item-del" onclick="removeRemedyItem('${r.id}')" title="हटाएं">&times;</button>
-          <div class="rx-item-title">
-            <span>${r.title}</span>
-            <span class="rx-item-tag">${r.category}</span>
-          </div>
+          <button class="rx-item-del" onclick="removeRemedyItem('${esc(r.id)}')" title="हटाएं">&times;</button>
+          <div class="rx-item-title"><span>${esc(r.title)}</span><span class="rx-item-tag">${esc(r.category)}</span></div>
           <div class="rx-item-rules">
-            <span class="rx-item-rule-badge">आवृत्ति: ${r.count}</span>
-            <span class="rx-item-rule-badge">अवधि: ${r.days}</span>
-            <span class="rx-item-rule-badge">समय: ${r.timing}</span>
+            <span class="rx-item-rule-badge">आवृत्ति: ${esc(r.count)}</span>
+            <span class="rx-item-rule-badge">अवधि: ${esc(r.days)}</span>
+            <span class="rx-item-rule-badge">समय: ${esc(r.timing)}</span>
           </div>
-          ${r.instructions ? `<div class="rx-item-desc"><strong>विधि:</strong> ${r.instructions}</div>` : ''}
-        `;
+          ${r.instructions ? `<div class="rx-item-desc"><strong>विधि:</strong> ${esc(r.instructions)}</div>` : ''}`;
         el.appendChild(card);
       });
     }
 
-    function saveAndLockPrescription() {
-      if (!currentClient) return;
-      const key = getPrescriptionKey(currentClient.phone);
-      localStorage.setItem(key, JSON.stringify(currentRemedies));
-
-      // Also mirror to global SRA consultations/prescriptions if SRARecords is loaded
-      if (window.SRARecords && window.SRARecords.add) {
-        window.SRARecords.add('consultations', {
-          consultant_phone: consultantPhone,
-          client_phone: currentClient.phone,
-          client_name: currentClient.name,
-          remedies_count: currentRemedies.length,
-          remedies: JSON.stringify(currentRemedies),
-          notes: currentClient.notes || '',
-          updated_at: new Date().toISOString()
-        }).catch(err => console.warn('Cloud sync error:', err));
-      }
-
-      showToast('उपचार पर्ची सुरक्षित एवं क्लाइंट ID से सिंक हो गई!');
+    async function saveAndLockPrescription() {
+      if (!currentClient) { alert('पहले किसी क्लाइंट का खाता चुनें।'); return; }
+      try {
+        const d = await deskFetch('/remedies', { method: 'POST', body: JSON.stringify({ client_phone: currentClient.phone, remedies: currentRemedies }) });
+        currentClient.remedies = d.remedies;
+        currentClient.remedies_updated_at = new Date().toISOString();
+        rxDirty = false;
+        showToast('पर्ची सुरक्षित हो गई। क्लाइंट अपने नंबर से लॉगिन करके "दैनिक संकल्प" में इसे देख सकता है।');
+        selectClient(currentClient.phone, true);
+      } catch (e) { alert('पर्ची सेव नहीं हुई: ' + e.message); }
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // LIVE CLIENT 'SANKALP PURTI' PREVIEW
-    // ══════════════════════════════════════════════════════════════════════════
+    // What the client sees today (read-only here; the client ticks on sankalp.html)
     function renderClientPreview() {
       const el = document.getElementById('preview-sankalp-items');
       const counter = document.getElementById('preview-sankalp-count');
       const fill = document.getElementById('preview-progress-fill');
       el.innerHTML = '';
-
       if (currentRemedies.length === 0) {
         counter.textContent = '0/0 पूर्ण';
         fill.style.width = '0%';
         el.innerHTML = '<div style="font-size:0.75rem; color:var(--muted); text-align:center;">कोई सक्रिय संकल्प नहीं है।</div>';
         return;
       }
-
-      const completed = currentRemedies.filter(r => r.doneToday).length;
+      const done = new Set((currentClient && currentClient.done_today) || []);
+      const completed = currentRemedies.filter(r => done.has(r.id)).length;
       const total = currentRemedies.length;
-      counter.textContent = `${completed}/${total} पूर्ण (${total - completed} शेष)`;
+      counter.textContent = `आज ${completed}/${total} पूर्ण`;
       fill.style.width = `${Math.round((completed / total) * 100)}%`;
-
       currentRemedies.forEach(r => {
         const item = document.createElement('div');
         item.className = 'sankalp-sim-item';
         item.innerHTML = `
-          <input type="checkbox" id="chk_${r.id}" ${r.doneToday ? 'checked' : ''} onchange="togglePreviewSankalp('${r.id}')"/>
-          <label for="chk_${r.id}" style="cursor:pointer; flex:1; ${r.doneToday ? 'text-decoration:line-through; opacity:0.6;' : ''}">
-            <strong>${r.title}</strong> — ${r.count} (${r.timing})
-          </label>
-        `;
+          <input type="checkbox" disabled ${done.has(r.id) ? 'checked' : ''}/>
+          <span style="flex:1; ${done.has(r.id) ? 'text-decoration:line-through; opacity:0.6;' : ''}"><strong>${esc(r.title)}</strong> — ${esc(r.count)} (${esc(r.timing)})</span>`;
         el.appendChild(item);
       });
-    }
-
-    function togglePreviewSankalp(id) {
-      const r = currentRemedies.find(x => x.id === id);
-      if (r) {
-        r.doneToday = !r.doneToday;
-        saveAndLockPrescription();
-        renderClientPreview();
-      }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
     // WHATSAPP SHARE
     // ══════════════════════════════════════════════════════════════════════════
     function shareOnWhatsApp() {
-      if (!currentClient) {
-        alert('कृपया पहले क्लाइंट चुनें।');
-        return;
-      }
-      if (currentRemedies.length === 0) {
-        alert('पर्ची में कोई उपाय नहीं है।');
-        return;
-      }
-
-      let msg = `🕉️ *श्री रामजी दैवज्ञ परामर्श एवं उपचार पर्ची*\n`;
+      if (!currentClient) { alert('कृपया पहले क्लाइंट चुनें।'); return; }
+      if (currentRemedies.length === 0) { alert('पर्ची में कोई उपाय नहीं है।'); return; }
+      let msg = `*श्री रामजी दैवज्ञ परामर्श एवं उपचार पर्ची*\n`;
       msg += `जातक: *${currentClient.name}*\n`;
       msg += `परामर्शदाता: +91 ${consultantPhone}\n`;
-      msg += `तारीख: ${new Date().toLocaleDateString('hi-IN')}\n\n`;
-      msg += `*निर्धारित शास्त्रीय संकल्प व उपचार:*\n`;
-
+      msg += `तारीख: ${new Date().toLocaleDateString('hi-IN')}\n\n*निर्धारित उपाय:*\n`;
       currentRemedies.forEach((r, idx) => {
-        msg += `\n${idx + 1}. *${r.title}* [${r.category}]\n`;
-        msg += `   • आवृत्ति: ${r.count}\n`;
-        msg += `   • अवधि: ${r.days}\n`;
-        msg += `   • समय: ${r.timing}\n`;
+        msg += `\n${idx + 1}. *${r.title}* [${r.category}]\n   • आवृत्ति: ${r.count}\n   • अवधि: ${r.days}\n   • समय: ${r.timing}\n`;
         if (r.instructions) msg += `   • विधि: ${r.instructions}\n`;
       });
-
-      msg += `\n🔔 *दैनिक संकल्प पूर्ति:* कृपया नियमित रूप से अपने उपाय पूर्ण करें और वेबसाइट/ऐप में अपने फोन नंबर से लॉगिन करके दैनिक प्रगति मार्क करें।\n`;
-      msg += `🌐 shriramjiastro.in`;
-
-      const url = `https://wa.me/91${currentClient.phone}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
+      msg += `\n*दैनिक संकल्प पूर्ति:* अपने इसी मोबाइल नंबर (+91 ${currentClient.phone}) से लॉगिन करके रोज़ अपने उपाय पूरे होने पर टिक करें:\nhttps://shriramjiastro.in/sankalp.html`;
+      window.open(`https://wa.me/91${currentClient.phone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
+
+    window.addEventListener('beforeunload', e => { if (rxDirty) { e.preventDefault(); e.returnValue = ''; } });
   </script>
 
 </body>

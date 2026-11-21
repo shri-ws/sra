@@ -1666,44 +1666,8 @@
 
   window.openConsultantDeskWithAuthCheck = function() {
     if (typeof window.closeNavDrawer === 'function') window.closeNavDrawer();
-
-    let mobile = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '');
-    let email = (localStorage.getItem('sra_verified_google_user') || '').toLowerCase();
-    if (!mobile && window.firebase && window.firebase.auth) {
-      try {
-        const u = window.firebase.auth().currentUser;
-        if (u) {
-          if (u.phoneNumber) mobile = u.phoneNumber.replace(/\D/g, '');
-          if (u.email) email = (u.email || '').toLowerCase();
-        }
-      } catch(e) {}
-    }
-
-    const adminEmails = ['shriramjiastro7@gmail.com', 'eshriee@gmail.com', 'eshrico@gmail.com'];
-    const isAdmin = adminEmails.includes(email) || sessionStorage.getItem('sra_admin_auth') === 'true';
-
-    if (!mobile && !email && !isAdmin) {
-      alert('कृपया पहले वेबसाइट पर अपने मोबाइल नंबर या Google खाते से लॉगिन करें।');
-      return;
-    }
-
-    if (isAdmin) {
-      window.location.href = 'consultant.html';
-      return;
-    }
-
-    let approved = [];
-    try {
-      approved = JSON.parse(localStorage.getItem('sra_approved_consultants') || '[]');
-    } catch(e) {}
-
-    const cleanMobile = mobile.slice(-10);
-    if (cleanMobile && (approved.includes(cleanMobile) || approved.includes(mobile))) {
-      window.location.href = 'consultant.html';
-      return;
-    }
-
-    alert('अस्वीकृत: आपका मोबाइल नंबर (+91 ' + (cleanMobile || mobile) + ') एक सामान्य ग्राहक खाता है।\n\nयह डेस्क केवल एडमिन द्वारा स्वीकृत अधिकृत दैवज्ञ / कंसल्टेंट के लिए है।');
+    // consultant.html itself checks the SaaS subscription on the server
+    window.location.href = 'consultant.html';
   };
 
   // GLOBAL CAPTURE-PHASE EVENT LISTENER FOR GUARANTEED HAMBURGER AND DRAWER CLICKS

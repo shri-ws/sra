@@ -447,3 +447,39 @@ def test_sutradhar_activity_for_admin():
     assert {"joined", "lead", "sale", "portal"} <= set(types_)
     portal = next(e for e in d["timeline"] if e["type"] == "portal")
     assert "विवाह मिलान स्क्रिप्ट ×2" in portal["text"]
+
+
+def test_consultant_desk_needs_saas_and_client_sees_remedies():
+    astro, client_ph, other = "9866600006", "9877700007", "9888800008"
+    A = {"Authorization": f"Bearer mock_token_{astro}"}
+    C = {"Authorization": f"Bearer mock_token_{client_ph}"}
+    O = {"Authorization": f"Bearer mock_token_{other}"}
+    assert client.get("/api/sutradhar/desk/me").status_code == 401
+    assert client.get("/api/sutradhar/desk/me", headers=A).json()["allowed"] is False
+    assert client.get("/api/sutradhar/desk/clients", headers=A).status_code == 403
+    # admin adds the astrologer to SaaS -> desk opens
+    r = client.post("/api/sutradhar/admin/saas", headers=ADMIN, json={"phone": astro, "name": "पं. शर्मा", "add_days": 365})
+    assert r.status_code == 200, r.text
+    me = client.get("/api/sutradhar/desk/me", headers=A).json()
+    assert me["allowed"] is True and me["plan"] == "saas"
+    assert client.post("/api/sutradhar/desk/clients", headers=A, json={"phone": client_ph, "name": "सीता", "dob": "1990-01-01"}).status_code == 200
+    r = client.post("/api/sutradhar/desk/remedies", headers=A, json={"client_phone": client_ph, "remedies": [
+        {"id": "rx_1", "title": "हनुमान चालीसा", "category": "पाठ", "count": "11 बार", "days": "40 दिन", "timing": "सायं"},
+        {"title": ""}]})
+    assert r.status_code == 200 and len(r.json()["remedies"]) == 1
+    # the client sees it with their own number; another number does not
+    mine = client.get("/api/sutradhar/desk/my-remedies", headers=C).json()["sets"]
+    assert mine[0]["consultant_name"] == "पं. शर्मा" and mine[0]["remedies"][0]["title"] == "हनुमान चालीसा"
+    assert client.get("/api/sutradhar/desk/my-remedies", headers=O).json()["sets"] == []
+    assert client.post("/api/sutradhar/desk/sankalp", headers=O, json={"consultant_phone": astro, "remedy_id": "rx_1"}).status_code == 404
+    # the client ticks; the consultant sees today's tick
+    assert client.post("/api/sutradhar/desk/sankalp", headers=C, json={"consultant_phone": astro, "remedy_id": "rx_1"}).json()["done_today"] == ["rx_1"]
+    row = client.get("/api/sutradhar/desk/clients", headers=A).json()["clients"][0]
+    assert row["done_today"] == ["rx_1"] and row["week"][-1]["done"] == 1
+    # another astrologer without SaaS cannot see or write
+    assert client.post("/api/sutradhar/desk/remedies", headers=O, json={"client_phone": client_ph, "remedies": []}).status_code == 403
+    # subscription paused -> desk closed, data kept
+    client.post("/api/sutradhar/admin/saas", headers=ADMIN, json={"phone": astro, "status": "paused"})
+    assert client.get("/api/sutradhar/desk/clients", headers=A).status_code == 403
+    assert client.get("/api/sutradhar/desk/my-remedies", headers=C).json()["sets"]
+    assert client.get("/api/sutradhar/admin/desk", headers=ADMIN).json()["consultants"][0]["clients"] == 1

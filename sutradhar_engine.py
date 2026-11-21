@@ -2539,6 +2539,210 @@ async def edit_payout_holidays(req: HolidayRequest, authorization: Optional[str]
 # -----------------------------------------------------------------------------
 # ENDPOINT 7c: ADMIN — SaaS subscribers (list, add / extend, pause, reset phones)
 # -----------------------------------------------------------------------------
+# ═════════════════════════════════════════════════════════════════════════════
+# CONSULTANT DESK (consultant.html) and the client's daily sankalp (sankalp.html)
+# A consultant is an astrologer with an active SaaS subscription (or the owner's number).
+# The consultant's ID and the client's ID are their 10-digit phone numbers (from the OTP token).
+# desk_records/<consultant>_<client>: client details, notes and the remedies the consultant set.
+# desk_sankalp/<client>_<consultant>_<date>: which remedies the client marked done that day.
+# ═════════════════════════════════════════════════════════════════════════════
+DESK_COL = "desk_records"
+SANKALP_COL = "desk_sankalp"
+DESK_MAX_REMEDIES = 40
+
+
+def _desk_phone(authorization: Optional[str]) -> str:
+    phone = token_phone(verify_firebase_token(authorization))
+    if not phone:
+        raise HTTPException(status_code=401, detail="कृपया अपने मोबाइल नंबर से OTP लॉगिन करें।")
+    return phone
+
+
+def desk_access(phone: str) -> Dict[str, Any]:
+    if phone in saas_exempt_phones():
+        return {"allowed": True, "phone": phone, "plan": "owner", "name": "श्री राम जी एस्ट्रो", "expires_at": ""}
+    sub = get_saas_subscriber(phone)
+    if saas_is_active(sub):
+        return {"allowed": True, "phone": phone, "plan": "saas", "name": sub.get("name", ""), "expires_at": sub.get("expires_at", "")}
+    return {"allowed": False, "phone": phone, "plan": "", "name": (sub or {}).get("name", ""),
+            "expires_at": (sub or {}).get("expires_at", ""),
+            "reason": "expired" if sub else "no_subscription"}
+
+
+def require_consultant(authorization: Optional[str]) -> Dict[str, Any]:
+    acc = desk_access(_desk_phone(authorization))
+    if not acc["allowed"]:
+        msg = ("आपकी ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्यता समाप्त हो गई है। नवीनीकरण के बाद डेस्क फिर खुल जाएगी।"
+               if acc.get("reason") == "expired" else
+               "कंसल्टेंट डेस्क केवल ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्यों के लिए है।")
+        raise HTTPException(status_code=403, detail=msg)
+    return acc
+
+
+def _clip(v: Any, n: int) -> str:
+    return str(v or "").strip()[:n]
+
+
+class DeskClientRequest(BaseModel):
+    phone: str
+    name: str
+    dob: Optional[str] = ""
+    tob: Optional[str] = ""
+    pob: Optional[str] = ""
+    notes: Optional[str] = None
+
+
+class DeskRemediesRequest(BaseModel):
+    client_phone: str
+    remedies: List[Dict[str, Any]]
+
+
+class SankalpMarkRequest(BaseModel):
+    consultant_phone: str
+    remedy_id: str
+    done: bool = True
+
+
+def _sankalp_done(client: str, consultant: str, day: str) -> List[str]:
+    return list((SutradharStore.get_doc(SANKALP_COL, f"{client}_{consultant}_{day}") or {}).get("done") or [])
+
+
+def _sankalp_week(client: str, consultant: str, total: int) -> List[Dict[str, Any]]:
+    """Last 7 days: how many of the remedies the client marked done each day."""
+    out = []
+    today = datetime.fromisoformat(today_ist()).date()
+    for i in range(6, -1, -1):
+        day = (today - timedelta(days=i)).isoformat()
+        out.append({"day": day, "done": len(_sankalp_done(client, consultant, day)), "total": total})
+    return out
+
+
+@router.get("/desk/me")
+async def desk_me(authorization: Optional[str] = Header(None)):
+    """Who is signed in and whether the consultant desk is open for them."""
+    return desk_access(_desk_phone(authorization))
+
+
+@router.get("/desk/clients")
+async def desk_clients(authorization: Optional[str] = Header(None)):
+    me = require_consultant(authorization)
+    day = today_ist()
+    rows = []
+    for r in SutradharStore.query_all(DESK_COL):
+        if r.get("consultant_phone") != me["phone"]:
+            continue
+        rems = r.get("remedies") or []
+        rows.append(dict(r, done_today=_sankalp_done(r.get("client_phone", ""), me["phone"], day),
+                         week=_sankalp_week(r.get("client_phone", ""), me["phone"], len(rems))))
+    rows.sort(key=lambda x: x.get("updated_at") or x.get("created_at") or "", reverse=True)
+    return {"consultant": me, "clients": rows}
+
+
+@router.post("/desk/clients")
+async def desk_save_client(req: DeskClientRequest, authorization: Optional[str] = Header(None)):
+    """Add a client, or update the client's details / notes."""
+    me = require_consultant(authorization)
+    cp = normalize_phone(req.phone)
+    if len(cp) != 10:
+        raise HTTPException(status_code=400, detail="क्लाइंट का 10 अंकों का मोबाइल नंबर दें।")
+    if not _clip(req.name, 80):
+        raise HTTPException(status_code=400, detail="क्लाइंट का नाम दें।")
+    now = datetime.now(timezone.utc).isoformat()
+    doc_id = f"{me['phone']}_{cp}"
+    with _store_lock:
+        doc = SutradharStore.get_doc(DESK_COL, doc_id) or {
+            "consultant_phone": me["phone"], "client_phone": cp, "remedies": [], "notes": "", "created_at": now}
+        doc.update({"name": _clip(req.name, 80), "dob": _clip(req.dob, 10), "tob": _clip(req.tob, 5), "pob": _clip(req.pob, 120),
+                    "consultant_name": me.get("name", ""), "updated_at": now})
+        if req.notes is not None:
+            doc["notes"] = _clip(req.notes, 4000)
+        SutradharStore.set_doc(DESK_COL, doc_id, doc)
+    return {"status": "success", "client": doc}
+
+
+@router.post("/desk/remedies")
+async def desk_save_remedies(req: DeskRemediesRequest, authorization: Optional[str] = Header(None)):
+    """Saves the remedy list the consultant set for this client; the client sees it on sankalp.html."""
+    me = require_consultant(authorization)
+    cp = normalize_phone(req.client_phone)
+    doc_id = f"{me['phone']}_{cp}"
+    if len(req.remedies) > DESK_MAX_REMEDIES:
+        raise HTTPException(status_code=400, detail=f"एक पर्ची में अधिकतम {DESK_MAX_REMEDIES} उपाय।")
+    clean = []
+    for i, r in enumerate(req.remedies):
+        title = _clip(r.get("title"), 120)
+        if not title:
+            continue
+        rid = re.sub(r"[^\w\-]", "", str(r.get("id") or ""))[:40] or f"rx_{int(time.time()*1000)}_{i}"
+        clean.append({"id": rid, "title": title, "category": _clip(r.get("category"), 40), "count": _clip(r.get("count"), 60),
+                      "days": _clip(r.get("days"), 40), "timing": _clip(r.get("timing"), 60),
+                      "instructions": _clip(r.get("instructions"), 1000)})
+    with _store_lock:
+        doc = SutradharStore.get_doc(DESK_COL, doc_id)
+        if not doc:
+            raise HTTPException(status_code=404, detail="पहले यह क्लाइंट जोड़ें।")
+        doc = dict(doc)
+        doc["remedies"] = clean
+        doc["remedies_updated_at"] = doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+        doc["consultant_name"] = me.get("name", "") or doc.get("consultant_name", "")
+        SutradharStore.set_doc(DESK_COL, doc_id, doc)
+    return {"status": "success", "remedies": clean}
+
+
+@router.get("/desk/my-remedies")
+async def desk_my_remedies(authorization: Optional[str] = Header(None)):
+    """The signed-in client's remedies from every consultant, with today's ticks."""
+    phone = _desk_phone(authorization)
+    day = today_ist()
+    out = []
+    for r in SutradharStore.query_all(DESK_COL):
+        if r.get("client_phone") != phone or not r.get("remedies"):
+            continue
+        c = r.get("consultant_phone", "")
+        out.append({"consultant_phone": c, "consultant_name": r.get("consultant_name") or "दैवज्ञ",
+                    "client_name": r.get("name", ""), "remedies": r.get("remedies") or [],
+                    "updated_at": r.get("remedies_updated_at") or r.get("updated_at", ""),
+                    "done_today": _sankalp_done(phone, c, day),
+                    "week": _sankalp_week(phone, c, len(r.get("remedies") or []))})
+    out.sort(key=lambda x: x.get("updated_at") or "", reverse=True)
+    return {"phone": phone, "day": day, "sets": out}
+
+
+@router.post("/desk/sankalp")
+async def desk_mark_sankalp(req: SankalpMarkRequest, authorization: Optional[str] = Header(None)):
+    """The client ticks (or un-ticks) one remedy for today."""
+    phone = _desk_phone(authorization)
+    c = normalize_phone(req.consultant_phone)
+    rec = SutradharStore.get_doc(DESK_COL, f"{c}_{phone}")
+    if not rec or not any(r.get("id") == req.remedy_id for r in rec.get("remedies") or []):
+        raise HTTPException(status_code=404, detail="यह उपाय आपके खाते में नहीं मिला।")
+    day = today_ist()
+    doc_id = f"{phone}_{c}_{day}"
+    with _store_lock:
+        doc = SutradharStore.get_doc(SANKALP_COL, doc_id) or {"client_phone": phone, "consultant_phone": c, "day": day, "done": []}
+        done = [x for x in (doc.get("done") or []) if x != req.remedy_id]
+        if req.done:
+            done.append(req.remedy_id)
+        doc["done"] = done
+        doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+        SutradharStore.set_doc(SANKALP_COL, doc_id, doc)
+    return {"status": "success", "done_today": done, "total": len(rec.get("remedies") or [])}
+
+
+@router.get("/admin/desk")
+async def admin_desk(authorization: Optional[str] = Header(None)):
+    """How many clients each consultant keeps on the desk."""
+    require_admin(authorization)
+    per: Dict[str, Dict[str, Any]] = {}
+    for r in SutradharStore.query_all(DESK_COL):
+        c = r.get("consultant_phone", "")
+        p = per.setdefault(c, {"consultant_phone": c, "name": r.get("consultant_name", ""), "clients": 0, "with_remedies": 0, "last_at": ""})
+        p["clients"] += 1
+        p["with_remedies"] += 1 if r.get("remedies") else 0
+        p["last_at"] = max(p["last_at"], r.get("updated_at") or "")
+    return {"consultants": sorted(per.values(), key=lambda x: x["last_at"], reverse=True)}
+
+
 class SaasAdminRequest(BaseModel):
     phone: str
     name: Optional[str] = None

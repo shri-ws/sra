@@ -261,13 +261,17 @@
       display: none;
       z-index: 100;
     }
+    .empty-box { text-align:center; padding:26px 18px; background:var(--card); border:1px solid var(--border); border-radius:10px; line-height:1.6; }
+    .set-head { font-size:0.85rem; margin:14px 0 6px; color:var(--text); }
+    .set-head span { color:var(--muted); font-size:0.78rem; }
+    label.sankalp-card { cursor:pointer; }
   </style>
 </head>
 <body>
 
   <!-- Top Header -->
   <header>
-    <div class="brand-title">🕉️ श्री रामजी ज्योतिष — संकल्प पूर्ति</div>
+    <div class="brand-title">श्री रामजी ज्योतिष — संकल्प पूर्ति</div>
     <div style="display:flex; gap:8px;">
       <button class="btn btn-outline btn-sm" onclick="toggleTheme()">थीम</button>
       <a href="index.html" class="btn btn-outline btn-sm">होम</a>
@@ -280,18 +284,9 @@
     <div class="auth-banner">
       <div>
         <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700;">जातक लॉगिन ID (फोन नंबर)</div>
-        <div id="client-display-phone" style="font-weight:700; font-size:0.95rem;">+91 9876500001</div>
+        <div id="client-display-phone" style="font-weight:700; font-size:0.95rem;">लोड हो रहा है...</div>
       </div>
-      <div class="auth-input-group">
-        <input type="tel" id="client-input-phone" maxlength="10" placeholder="फोन नंबर बदलें"/>
-        <button class="btn btn-primary btn-sm" onclick="onSwitchClientPhone()">लोड करें</button>
-      </div>
-    </div>
-
-    <!-- Reminder Banner -->
-    <div class="reminder-optin">
-      <span>🔔 दैनिक संकल्प पूर्ति का रिमाइंडर प्राप्त करें</span>
-      <button class="btn btn-outline btn-sm" onclick="requestNotificationPermission()">अनुमति दें</button>
+      <button class="btn btn-primary btn-sm" id="client-login-btn" style="display:none;" onclick="window.SRAAuth && SRAAuth.open()">मोबाइल से लॉगिन करें</button>
     </div>
 
     <!-- Summary & Progress Card -->
@@ -320,17 +315,41 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    let clientPhone = localStorage.getItem('sra_verified_mobile') || localStorage.getItem('sra_client_phone') || '9876500001';
-    let remedies = [];
+    // The client's remedies come from the server: every consultant who saved a prescription for
+    // this OTP-verified phone. Ticks are saved per day on the server too.
+    const DESK_LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    const DESK_API = (DESK_LOCAL ? '' : (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com')) + '/api/sutradhar/desk';
+    let sets = [];
+    let loaded = false;
+
+    function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+    async function deskUser() {
+      if (!window.SRAAuth) return null;
+      const fb = await SRAAuth.ready();
+      const auth = fb.auth();
+      if (auth.currentUser) return auth.currentUser;
+      return new Promise(res => { const off = auth.onAuthStateChanged(u => { off(); res(u); }); });
+    }
+
+    async function deskFetch(path, opts) {
+      const u = await deskUser();
+      if (!u) throw Object.assign(new Error('login'), { status: 401 });
+      opts = opts || {};
+      opts.headers = Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await u.getIdToken() }, opts.headers || {});
+      const res = await fetch(DESK_API + path, opts);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(data.detail || 'सर्वर से जवाब नहीं मिला।'), { status: res.status });
+      return data;
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('today-date-str').textContent = new Date().toLocaleDateString('hi-IN', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
-      document.getElementById('client-input-phone').value = clientPhone;
-      document.getElementById('client-display-phone').textContent = '+91 ' + clientPhone;
       loadClientPrescriptions();
     });
+    document.addEventListener('sra:auth', () => { if (!loaded) loadClientPrescriptions(); });
 
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -339,136 +358,95 @@
       setTimeout(() => { t.style.display = 'none'; }, 3000);
     }
 
-    function onSwitchClientPhone() {
-      const p = document.getElementById('client-input-phone').value.trim().replace(/\D/g, '');
-      if (p.length === 10) {
-        clientPhone = p;
-        localStorage.setItem('sra_client_phone', clientPhone);
-        document.getElementById('client-display-phone').textContent = '+91 ' + clientPhone;
-        loadClientPrescriptions();
-        showToast('खाता लोड किया गया: +91 ' + clientPhone);
-      } else {
-        alert('कृपया 10 अंकों का फोन नंबर भरें।');
-      }
-    }
-
-    function getStorageKey() {
-      return 'sra_prescriptions_' + clientPhone;
-    }
-
-    function loadClientPrescriptions() {
+    async function loadClientPrescriptions() {
+      const phoneEl = document.getElementById('client-display-phone');
+      const loginBtn = document.getElementById('client-login-btn');
       try {
-        const raw = localStorage.getItem(getStorageKey());
-        remedies = raw ? JSON.parse(raw) : [];
-      } catch(e) {
-        remedies = [];
+        const d = await deskFetch('/my-remedies');
+        loaded = true;
+        sets = d.sets || [];
+        phoneEl.textContent = '+91 ' + d.phone;
+        loginBtn.style.display = 'none';
+        renderList(d.phone);
+      } catch (e) {
+        if (e.status === 401) {
+          phoneEl.textContent = 'लॉगिन नहीं';
+          loginBtn.style.display = '';
+          document.getElementById('sankalp-list').innerHTML = `
+            <div class="empty-box"><div style="font-weight:700; margin-bottom:4px;">अपने मोबाइल नंबर से लॉगिन करें</div>
+            <div style="font-size:0.85rem; color:var(--muted);">जिस नंबर पर आपके ज्योतिषी ने उपाय लिखे हैं, उसी नंबर से OTP लॉगिन करें — आपके उपाय यहाँ दिख जाएँगे।</div></div>`;
+          setStats(0, 0);
+        } else {
+          document.getElementById('sankalp-list').innerHTML = `<div class="empty-box">${esc(e.message)}</div>`;
+        }
       }
+    }
 
-      // Default sample for demo client if empty
-      if (remedies.length === 0 && clientPhone === '9876500001') {
-        remedies = [
-          {
-            id: 'rx_1',
-            category: 'पाठ / स्तोत्र',
-            title: 'श्री हनुमान चालीसा',
-            count: '11 बार प्रतिदिन',
-            days: '40 दिन',
-            timing: 'सायंकाल (गोधूलि वेला)',
-            instructions: 'लाल आसन पर पूर्व मुख बैठकर चमेली के तेल का दीपक जलाकर पाठ करें।',
-            doneToday: false
-          }
-        ];
-        saveRemedies();
+    function setStats(completed, total) {
+      const pct = total ? Math.round((completed / total) * 100) : 0;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('stat-completed').textContent = `पूर्ण: ${completed}`;
+      document.getElementById('stat-pending').textContent = `शेष: ${total - completed}`;
+      document.getElementById('stat-percent').textContent = `${pct}%`;
+    }
+
+    async function toggleRemedy(si, rid, chk) {
+      const s = sets[si];
+      if (!s) return;
+      chk.disabled = true;
+      try {
+        const d = await deskFetch('/sankalp', { method: 'POST', body: JSON.stringify({ consultant_phone: s.consultant_phone, remedy_id: rid, done: chk.checked }) });
+        s.done_today = d.done_today;
+        if (chk.checked) {
+          const r = s.remedies.find(x => x.id === rid);
+          showToast(`जय श्री राम! '${r ? r.title : 'संकल्प'}' पूर्ण हुआ।`);
+        }
+      } catch (e) {
+        chk.checked = !chk.checked;
+        showToast('सेव नहीं हुआ: ' + e.message);
       }
-
       renderList();
     }
 
-    function saveRemedies() {
-      localStorage.setItem(getStorageKey(), JSON.stringify(remedies));
-    }
-
-    function toggleRemedy(id) {
-      const r = remedies.find(x => x.id === id);
-      if (r) {
-        r.doneToday = !r.doneToday;
-        saveRemedies();
-        renderList();
-        if (r.doneToday) {
-          showToast(`जय श्री राम! संकल्प '${r.title}' पूर्ण हुआ।`);
-        }
-      }
-    }
-
-    function renderList() {
+    function renderList(phone) {
       const el = document.getElementById('sankalp-list');
-      const fill = document.getElementById('progress-fill');
-      const statCompleted = document.getElementById('stat-completed');
-      const statPending = document.getElementById('stat-pending');
-      const statPercent = document.getElementById('stat-percent');
-
       el.innerHTML = '';
-      if (remedies.length === 0) {
-        el.innerHTML = `
-          <div style="text-align:center; padding:30px; background:var(--card); border:1px solid var(--border); border-radius:10px;">
-            <div style="font-size:1.5rem; margin-bottom:8px;">📜</div>
-            <div style="font-weight:700; margin-bottom:4px;">कोई सक्रिय उपचार पर्ची नहीं मिली</div>
-            <div style="font-size:0.8rem; color:var(--muted);">दैवज्ञ द्वारा आपके फोन नंबर (+91 ${clientPhone}) पर निर्धारित किए गए उपाय यहाँ दिखेंगे।</div>
-          </div>
-        `;
-        fill.style.width = '0%';
-        statCompleted.textContent = 'पूर्ण: 0';
-        statPending.textContent = 'शेष: 0';
-        statPercent.textContent = '0%';
+      let total = 0, completed = 0;
+      if (!sets.length) {
+        el.innerHTML = `<div class="empty-box"><div style="font-weight:700; margin-bottom:4px;">अभी कोई उपाय नहीं मिला</div>
+          <div style="font-size:0.85rem; color:var(--muted);">आपके ज्योतिषी जब आपके नंबर${phone ? ' (+91 ' + esc(phone) + ')' : ''} पर उपाय सुरक्षित करेंगे, वे यहाँ दिखेंगे।</div></div>`;
+        setStats(0, 0);
         return;
       }
-
-      const completed = remedies.filter(r => r.doneToday).length;
-      const total = remedies.length;
-      const pending = total - completed;
-      const pct = Math.round((completed / total) * 100);
-
-      fill.style.width = pct + '%';
-      statCompleted.textContent = `पूर्ण: ${completed}`;
-      statPending.textContent = `शेष: ${pending}`;
-      statPercent.textContent = `${pct}%`;
-
-      remedies.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'sankalp-card' + (r.doneToday ? ' completed' : '');
-        card.innerHTML = `
-          <input type="checkbox" class="sankalp-chk" id="item_${r.id}" ${r.doneToday ? 'checked' : ''} onchange="toggleRemedy('${r.id}')"/>
-          <div class="sankalp-content">
-            <div class="sankalp-header-line">
-              <span class="sankalp-title">${r.title}</span>
-              <span class="sankalp-tag">${r.category}</span>
-            </div>
-            <div class="sankalp-details">
-              <span>आवृत्ति: <strong>${r.count}</strong></span>
-              <span>अवधि: <strong>${r.days}</strong></span>
-              <span>समय: <strong>${r.timing}</strong></span>
-            </div>
-            ${r.instructions ? `<div class="sankalp-instructions"><strong>नियम / विधि:</strong> ${r.instructions}</div>` : ''}
-          </div>
-        `;
-        el.appendChild(card);
+      sets.forEach((s, si) => {
+        const done = new Set(s.done_today || []);
+        total += s.remedies.length;
+        completed += s.remedies.filter(r => done.has(r.id)).length;
+        const head = document.createElement('div');
+        head.className = 'set-head';
+        head.innerHTML = `उपाय: <b>${esc(s.consultant_name)}</b> <span>(+91 ${esc(s.consultant_phone)}) · ${s.updated_at ? new Date(s.updated_at).toLocaleDateString('hi-IN') : ''}</span>`;
+        el.appendChild(head);
+        s.remedies.forEach(r => {
+          const isDone = done.has(r.id);
+          const card = document.createElement('label');
+          card.className = 'sankalp-card' + (isDone ? ' completed' : '');
+          card.innerHTML = `
+            <input type="checkbox" class="sankalp-chk" ${isDone ? 'checked' : ''}/>
+            <div class="sankalp-content">
+              <div class="sankalp-header-line"><span class="sankalp-title">${esc(r.title)}</span><span class="sankalp-tag">${esc(r.category)}</span></div>
+              <div class="sankalp-details">
+                <span>आवृत्ति: <strong>${esc(r.count)}</strong></span>
+                <span>अवधि: <strong>${esc(r.days)}</strong></span>
+                <span>समय: <strong>${esc(r.timing)}</strong></span>
+              </div>
+              ${r.instructions ? `<div class="sankalp-instructions"><strong>नियम / विधि:</strong> ${esc(r.instructions)}</div>` : ''}
+            </div>`;
+          const chk = card.querySelector('input');
+          chk.addEventListener('change', () => toggleRemedy(si, r.id, chk));
+          el.appendChild(card);
+        });
       });
-    }
-
-    function requestNotificationPermission() {
-      if (!('Notification' in window)) {
-        alert('यह ब्राउज़र नोटिफिकेशन का समर्थन नहीं करता।');
-        return;
-      }
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          showToast('दैनिक संकल्प रिमाइंडर सक्रिय हो गया है!');
-          new Notification('श्री रामजी ज्योतिष', {
-            body: 'दैनिक संकल्प पूर्ति रिमाइंडर सक्रिय है।',
-            icon: '/favicon.svg'
-          });
-        }
-      });
+      setStats(completed, total);
     }
   </script>
 
