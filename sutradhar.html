@@ -39,6 +39,8 @@
     .quiz-opt.wrong { background:#FEF2F2; border-color:#EF4444; }
   </style>
 <script src="sra-offers.js"></script>
+<script src="tutorial/lessons-hi.js"></script>
+<script src="tutorial/player.js"></script>
 <script src="sra-analytics.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-800" style="font-family:system-ui,sans-serif">
@@ -318,6 +320,13 @@
     <!-- ========== HOME TAB ========== -->
     <div id="tab-home" class="tab-content active p-4 space-y-4">
 
+      <!-- Video tutorials until all are watched -->
+      <button id="tutorBanner" onclick="tutorOpenNext()" class="hidden w-full text-left bg-blue-600 text-white rounded-2xl p-4">
+        <div class="text-xs font-semibold text-blue-100" id="tutorBannerSub">पहले यह देखें · 8 छोटे वीडियो</div>
+        <div class="font-bold mt-0.5" id="tutorBannerTitle">सूत्रधार कैसे काम करता है — वीडियो ट्यूटोरियल</div>
+        <div class="text-sm text-blue-100 mt-1" id="tutorBannerNext">चलाएँ →</div>
+      </button>
+
       <!-- First 21 days: today's tasks in one tap -->
       <button id="startBanner" onclick="showTab('start')" class="hidden w-full text-left bg-green-50 border border-green-200 rounded-2xl p-4">
         <div class="text-xs font-semibold text-green-800" id="startBannerDay">पहली कमाई — दिन 1 / 21</div>
@@ -432,6 +441,16 @@
     </div>
 
     <div id="tab-articles" class="tab-content p-4 space-y-3">
+      <!-- Video tutorials (tutorial/player.js + tutorial/lessons-hi.js) -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="flex justify-between items-baseline">
+          <div class="font-bold text-slate-900 text-base">वीडियो ट्यूटोरियल</div>
+          <div class="text-xs font-semibold text-blue-700" id="tutorCount"></div>
+        </div>
+        <div class="text-xs text-slate-500 mt-1">छोटे वीडियो, आवाज़ के साथ — पोर्टल और साइट कैसे काम करती है। दाईं ओर टैप = आगे, बाईं ओर = पीछे, बीच में = रोकें।</div>
+        <div id="tutorList" class="mt-3 space-y-2"></div>
+      </div>
+      <div class="font-bold text-slate-900 text-sm pt-2">ग्राहकों से शेयर करने के आर्टिकल्स</div>
       <p class="text-xs text-slate-500 leading-relaxed">
         इन आर्टिकल्स को अपने ग्राहकों से शेयर करें — ज्योतिष की रोचक जानकारी उन्हें रिपोर्ट खरीदने के लिए प्रेरित करेगी।
       </p>
@@ -777,7 +796,7 @@
     </button>
     <button onclick="showTab('articles')" id="bnav-articles" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-      <span class="text-[10px] font-semibold mt-0.5">आर्टिकल्स</span>
+      <span class="text-[10px] font-semibold mt-0.5">सीखें</span>
     </button>
     <button onclick="showTab('scripts')" id="bnav-scripts" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
@@ -1906,6 +1925,35 @@ function renderStart() {
   if (dot) dot.classList.toggle('hidden', !open);
 }
 function setStartEarned(v) { startEarned = Number(v) || 0; renderStart(); }
+
+// ---------- Video tutorials (tutorial/player.js) ----------
+function tutorNext() {
+  const ls = (window.SRATutor && SRATutor.lessons()) || [], d = (window.SRATutor && SRATutor.done()) || {};
+  return ls.find(l => !d[l.id]) || null;
+}
+function tutorOpenNext() { const n = tutorNext() || ((window.SRATutor && SRATutor.lessons()) || [])[0]; if (n) SRATutor.open(n.id); }
+function renderTutorials() {
+  if (!window.SRATutor) return;
+  const ls = SRATutor.lessons(), d = SRATutor.done(), seen = ls.filter(l => d[l.id]).length;
+  const list = document.getElementById('tutorList');
+  if (list) list.innerHTML = ls.map((l, i) => `
+    <button onclick="SRATutor.open('${l.id}')" class="w-full text-left flex items-center gap-3 border ${d[l.id] ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-white'} rounded-xl p-3">
+      <span class="flex-shrink-0 w-9 h-9 rounded-full ${d[l.id] ? 'bg-green-600' : 'bg-blue-600'} text-white font-bold text-sm flex items-center justify-center">${d[l.id] ? '✓' : i + 1}</span>
+      <span class="flex-1"><span class="block text-sm font-semibold text-slate-900">${l.title}</span>
+        <span class="block text-[11px] text-slate-500">${l.mins} · ${l.scenes.length} दृश्य · ${(l.quiz || []).length} सवाल${d[l.id] ? ' · देख लिया' : ''}</span></span>
+      <span class="text-xs font-bold text-blue-700">चलाएँ</span>
+    </button>`).join('');
+  const cnt = document.getElementById('tutorCount'); if (cnt) cnt.textContent = `${seen} / ${ls.length} देखे`;
+  const banner = document.getElementById('tutorBanner'), n = tutorNext();
+  if (banner) {
+    banner.classList.toggle('hidden', !n);
+    if (n) {
+      document.getElementById('tutorBannerSub').textContent = seen ? `वीडियो ट्यूटोरियल · ${seen} / ${ls.length} देखे` : `पहले यह देखें · ${ls.length} छोटे वीडियो, कुल लगभग 10 मिनट`;
+      document.getElementById('tutorBannerTitle').textContent = seen ? 'अगला पाठ: ' + n.title : 'सूत्रधार कैसे काम करता है — वीडियो ट्यूटोरियल';
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', () => { renderTutorials(); if (window.SRATutor) SRATutor.onChange(renderTutorials); });
 
 // ---------- Monthly target planner (incentive tab) ----------
 const TARGET_KEY = 'sra_sutra_target_v1';
