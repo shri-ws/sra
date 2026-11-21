@@ -38,6 +38,7 @@
     .quiz-opt.correct { background:#F0FDF4; border-color:#22C55E; }
     .quiz-opt.wrong { background:#FEF2F2; border-color:#EF4444; }
   </style>
+<script src="sra-offers.js"></script>
 <script src="sra-analytics.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-800" style="font-family:system-ui,sans-serif">
@@ -319,6 +320,13 @@
         <div class="font-bold text-slate-900" id="todayScriptTitle">कॉलिंग स्क्रिप्ट</div>
         <div class="text-sm text-slate-600 mt-1" id="todayScriptBody">एक स्क्रिप्ट पढ़िए और आज किसी एक व्यक्ति से बात कीजिए।</div>
         <button onclick="openTodayScript()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-xl">स्क्रिप्ट खोलें</button>
+      </div>
+
+      <!-- Report links: one tap sends the report's message and the Sutradhar's own link on WhatsApp -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="font-bold text-slate-900">रिपोर्ट लिंक भेजें</div>
+        <div class="text-sm text-slate-600 mt-1">किसी भी रिपोर्ट के आगे "WhatsApp पर भेजें" दबाएँ: संदेश और आपका अपना लिंक तैयार मिलेगा, बस संपर्क या ग्रुप चुनें। इस लिंक से कोई भुगतान करे तो वह नंबर 72 घंटे के लिए आपकी लीड बन जाता है और दक्षिणा आपको मिलती है (अगर वह नंबर पहले से किसी और सूत्रधार की लीड न हो)।</div>
+        <div id="offerList" class="mt-3 divide-y divide-slate-100"></div>
       </div>
 
       <!-- Daily reminder on the phone -->
@@ -1256,6 +1264,7 @@ async function completeOnboarding() {
 function goToApp() {
   document.getElementById('headerName').textContent = profile.name || 'सूत्रधार';
   document.getElementById('headerCode').textContent = profile.code || profile.sutradhar_id || '';
+  renderOffers();
 
   document.getElementById('profName').textContent = profile.name || '—';
   document.getElementById('profPhone').textContent = profile.phone || '—';
@@ -1283,6 +1292,45 @@ function goToApp() {
 // TAB SWITCHING
 // -----------------------------------------------------------------------
 // tells the server what the Sutradhar did, so the admin can see the work (fire and forget)
+// ---------- Report links (data: sra-offers.js, built by scripts/build_offer_pages.py) ----------
+function offerLink(o) {
+  const code = String((profile && (profile.code || profile.sutradhar_id)) || '').replace(/[^A-Za-z0-9]/g, '');
+  return 'https://shriramjiastro.in/offer/' + o.slug + '.html' + (code ? '?ref=' + code : '');
+}
+function offerText(o) { return o.wa + '\n\n' + offerLink(o); }
+function renderOffers() {
+  const box = document.getElementById('offerList');
+  if (!box || !window.SRA_OFFERS) return;
+  const esc = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  box.innerHTML = window.SRA_OFFERS.map((o, i) => `
+    <div class="py-3">
+      <div class="flex justify-between gap-3">
+        <div class="font-semibold text-slate-900 text-sm">${esc(o.name)}</div>
+        <div class="text-sm font-bold text-slate-900 whitespace-nowrap">₹${o.price.toLocaleString('en-IN')}</div>
+      </div>
+      <div class="text-xs text-slate-500 mt-0.5">आपकी दक्षिणा ₹${o.commission.toLocaleString('en-IN')} प्रति बिक्री</div>
+      <div class="flex gap-2 mt-2">
+        <a href="https://wa.me/?text=${encodeURIComponent(offerText(o))}" target="_blank" rel="noopener" onclick="trackSutra('offer_share', '${o.slug}')"
+          class="flex-1 text-center bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-3 py-2 rounded-xl">WhatsApp पर भेजें</a>
+        <button onclick="copyOffer(${i}, this)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold px-3 py-2 rounded-xl">लिंक कॉपी</button>
+        <a href="${offerLink(o)}" target="_blank" rel="noopener" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold px-3 py-2 rounded-xl">देखें</a>
+      </div>
+    </div>`).join('');
+}
+function copyOffer(i, btn) {
+  const o = window.SRA_OFFERS[i];
+  const done = () => { trackSutra('offer_copy', o.slug); const t = btn.textContent; btn.textContent = 'कॉपी हो गया'; setTimeout(() => { btn.textContent = t; }, 1500); };
+  const text = offerText(o);
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { alert(text); }
+  ta.remove();
+}
+
 function trackSutra(kind, detail) {
   try {
     if (!firebase.auth().currentUser) return;
@@ -1497,7 +1545,7 @@ async function loadSummary() {
     if (!res.ok) return;
     const d = await res.json();
 
-    if (d.code) { profile.code = d.code; document.getElementById('headerCode').textContent = d.code; }
+    if (d.code) { profile.code = d.code; document.getElementById('headerCode').textContent = d.code; renderOffers(); }
     if (d.upi_id) {
       profile.upi_id = d.upi_id;
       document.getElementById('profUpi').textContent = d.upi_id;

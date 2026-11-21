@@ -189,7 +189,8 @@
           customer_email: customerEmail || '',
           service_id: serviceId,
           input_code: inputCode || null,
-          batch_id: (extra && extra.batch_id) || null
+          batch_id: (extra && extra.batch_id) || null,
+          ref_code: this.getActiveSutradharId() || null   // Sutradhar's shared offer link (?ref=)
         })
       });
       if (res.ok) return await res.json();

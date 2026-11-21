@@ -483,3 +483,32 @@ def test_consultant_desk_needs_saas_and_client_sees_remedies():
     assert client.get("/api/sutradhar/desk/clients", headers=A).status_code == 403
     assert client.get("/api/sutradhar/desk/my-remedies", headers=C).json()["sets"]
     assert client.get("/api/sutradhar/admin/desk", headers=ADMIN).json()["consultants"][0]["clients"] == 1
+
+
+def test_offer_link_makes_the_sutradhar_lead():
+    s_phone, buyer, taken = "9811100011", "9822200022", "9833300033"
+    s_hdr = {"Authorization": f"Bearer mock_token_{s_phone}"}
+    r = client.post("/api/sutradhar/register", headers=s_hdr, json={"name": "लिंक सूत्रधार", "phone": s_phone, "upi_id": "link@okaxis"})
+    assert r.status_code == 200, r.text
+    me = r.json()["sutradhar"]
+    code = (me.get("code") or me["id"]).replace("-", "")
+
+    # a customer with no lead pays through the shared link -> lead + commission for the link's Sutradhar
+    o = client.post("/api/sutradhar/orders/create", headers={"Authorization": f"Bearer mock_token_{buyer}"},
+                    json={"customer_phone": buyer, "service_id": "kaalsarp_dosha", "ref_code": code.lower()}).json()
+    assert o["amount"] == 251_00 and o["sutradhar_code"]
+    assert _capture(o["order_id"], 251_00, "pay_link_1").json()["commission_created"] is True
+    comm = se.SutradharStore.get_doc("commissions", "comm_pay_link_1")
+    assert comm["amount"] == 140 and comm["sutradhar_id"] == (me.get("sutradhar_id") or me["id"])
+    lead = next(l for l in se.SutradharStore.query_all("leads") if l["customer_phone"] == buyer)
+    assert lead["source"] == "offer_link"
+
+    # a phone already locked by another Sutradhar stays with that Sutradhar
+    assert client.post("/api/sutradhar/leads/add", headers=SUTRA, json={"customer_phone": taken, "customer_name": "x"}).status_code == 200
+    o2 = client.post("/api/sutradhar/orders/create", headers={"Authorization": f"Bearer mock_token_{taken}"},
+                     json={"customer_phone": taken, "service_id": "kaalsarp_dosha", "ref_code": code}).json()
+    assert o2["sutradhar_code"] and o2["sutradhar_code"] != code
+
+    # an unknown code changes nothing
+    o3 = client.post("/api/sutradhar/orders/create", json={"customer_phone": "9844400044", "service_id": "kaalsarp_dosha", "ref_code": "SUTRA000000"}).json()
+    assert not o3.get("sutradhar_code")

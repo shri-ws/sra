@@ -499,6 +499,55 @@ def find_sutradhar_by_phone(phone: str) -> Optional[Dict[str, Any]]:
     return next((s for s in SutradharStore.query_all("sutradhars") if s.get("phone") == phone), None)
 
 
+def find_sutradhar_by_code(code: Optional[str]) -> Optional[Dict[str, Any]]:
+    """The Sutradhar whose code (or id) is in a shared link; paused accounts are ignored."""
+    c = re.sub(r"[\s\-_]", "", (code or "")).upper()
+    if not c:
+        return None
+    for s in SutradharStore.query_all("sutradhars"):
+        ids = {re.sub(r"[\s\-_]", "", str(s.get(k) or "")).upper() for k in ("code", "sutradhar_id", "id")}
+        if c in ids and s.get("status") != "paused":
+            return s
+    return None
+
+
+def lead_from_link(customer_phone: str, ref_code: Optional[str], now: datetime) -> Optional[Dict[str, Any]]:
+    """A customer who pays through a Sutradhar's shared offer link becomes that Sutradhar's
+    72-hour lead, unless another Sutradhar already holds an unexpired lead on the phone."""
+    if len(customer_phone or "") != 10 or customer_phone == "9999999999":
+        return None
+    sutradhar = find_sutradhar_by_code(ref_code)
+    if not sutradhar:
+        return None
+    sutradhar_id = sutradhar.get("sutradhar_id") or sutradhar["id"]
+    with _store_lock:
+        for lead in SutradharStore.query_all("leads"):
+            if lead.get("customer_phone") != customer_phone or lead.get("status") not in ("active", "converted"):
+                continue
+            try:
+                if datetime.fromisoformat(lead["expires_at"]) > now:
+                    return lead if lead.get("sutradhar_id") == sutradhar_id else None
+            except Exception:
+                continue
+        lead_id = f"lead_{customer_phone}_{int(now.timestamp())}_{os.urandom(2).hex()}"
+        lead = {
+            "id": lead_id,
+            "customer_phone": customer_phone,
+            "customer_email": "",
+            "customer_name": "जातक",
+            "sutradhar_id": sutradhar_id,
+            "sutradhar_code": sutradhar.get("code") or sutradhar_id,
+            "sutradhar_phone": sutradhar.get("phone", ""),
+            "created_at": now.isoformat(),
+            "expires_at": (now + timedelta(hours=72)).isoformat(),
+            "status": "active",
+            "source": "offer_link",
+        }
+        SutradharStore.set_doc("leads", lead_id, lead)
+    log_audit_event("LEAD_CREATED_FROM_LINK", sutradhar_id, {"lead_id": lead_id, "customer_phone": customer_phone})
+    return lead
+
+
 def require_sutradhar_phone(authorization: Optional[str]) -> str:
     phone = token_phone(verify_firebase_token(authorization))
     if not phone:
@@ -575,6 +624,7 @@ class CreateOrderRequest(BaseModel):
     service_id: str = Field(..., description="Service identifier")
     input_code: Optional[str] = Field(None, description="Optional manual coupon")
     batch_id: Optional[str] = Field(None, description="1-year course only: batch_morning / batch_evening")
+    ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
 
 class ReviewActionRequest(BaseModel):
     commission_id: str
@@ -1230,6 +1280,17 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
             "lead_exists_for_body_phone": lead_exists_for_body,
             "service_id": req.service_id
         })
+
+    # Shared offer link: no lead yet for this phone -> the link's Sutradhar gets it (72 hours)
+    link_phone = effective_phone if effective_phone != "9999999999" else ""
+    if not attributed_lead_id and req.ref_code and link_phone:
+        link_lead = lead_from_link(link_phone, req.ref_code, now)
+        if link_lead:
+            attributed_lead = link_lead
+            attributed_sutradhar_id = link_lead.get("sutradhar_id", "")
+            attributed_sutradhar_code = (link_lead.get("sutradhar_code") or attributed_sutradhar_id).replace("-", "")
+            attributed_lead_id = link_lead.get("id", "")
+            attributed_at = now.isoformat()
 
     # Quote determination (server catalog only; master test code needs a Phone-Auth token)
     strict_phone = token_phone(verify_firebase_token(authorization))
@@ -3144,7 +3205,7 @@ def note_signup_attempt(phone: Optional[str]):
 
 # ── Sutradhar activity: what each Sutradhar did on the portal, one document per Sutradhar per day ──
 ACTIVITY_COL = "sutradhar_activity"
-ACTIVITY_KINDS = {"open", "script_open", "script_copy", "tab", "lead_form"}
+ACTIVITY_KINDS = {"open", "script_open", "script_copy", "tab", "lead_form", "offer_share", "offer_copy"}
 ACTIVITY_MAX_EVENTS = 120          # per Sutradhar per day
 
 
@@ -3292,6 +3353,12 @@ async def admin_sutradhar_activity(sutradhar_id: str = Query(...), days: int = Q
             parts.append("खोले: " + ", ".join(f"{TAB_NAMES.get(k, k)} ×{v}" for k, v in tabs.items()))
         if int(counts.get("lead_form") or 0):
             parts.append(f"लीड फ़ॉर्म खोला ×{counts['lead_form']}")
+        oshare = {k.split(":", 1)[1]: v for k, v in counts.items() if k.startswith("offer_share:")}
+        ocopy = {k.split(":", 1)[1]: v for k, v in counts.items() if k.startswith("offer_copy:")}
+        if oshare:
+            parts.append("रिपोर्ट लिंक WhatsApp पर भेजे: " + ", ".join(f"{k} ×{v}" for k, v in oshare.items()))
+        if ocopy:
+            parts.append("रिपोर्ट लिंक कॉपी किए: " + ", ".join(f"{k} ×{v}" for k, v in ocopy.items()))
         day_rows.append({"day": a.get("day"), "first_at": a.get("first_at", ""), "last_at": a.get("last_at", ""),
                          "opens": opens, "script_opens": sum(sopen.values()), "script_copies": sum(scopy.values()),
                          "summary": " · ".join(parts)})
