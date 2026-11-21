@@ -378,3 +378,29 @@ def test_course_batch_eleven_seats():
     assert client.post("/api/sutradhar/course/interest", json={"name": "सीमा", "phone": "9711111111", "batch_id": "batch_evening"}).status_code == 200
     assert any(x["phone"] == "9711111111" for x in client.get("/api/sutradhar/admin/course", headers=ADMIN).json()["interest"])
     os.environ.pop("COURSE_REGISTRATION_OPENS", None)
+
+
+def test_sutradhar_script_reminders():
+    phone = "9844400004"
+    hdr = {"Authorization": f"Bearer mock_token_{phone}"}
+    client.post("/api/sutradhar/register", headers=hdr, json={"name": "स्मरण", "phone": phone})
+    assert client.post("/api/sutradhar/push/subscribe", headers=hdr, json={"subscription": {"endpoint": "http://x"}}).status_code == 400
+    sub = {"endpoint": "https://push.example/abc", "keys": {"p256dh": "k", "auth": "a"}}
+    r = client.post("/api/sutradhar/push/subscribe", headers=hdr, json={"subscription": sub})
+    assert r.status_code == 200 and r.json()["push_on"] is True
+    assert client.get("/api/sutradhar/push/config").json()["today"]["url"].startswith("/sutradhar.html?tab=scripts")
+    sent = []
+    old = se.send_sutra_push
+    se.send_sutra_push = lambda s, m: (sent.append((s["endpoint"], m["script"])), "sent")[1]
+    os.environ["VAPID_PUBLIC_KEY"], os.environ["VAPID_PRIVATE_KEY"] = "pub", "priv"
+    try:
+        res = se.run_sutra_reminders("2026-11-22")
+        assert res["sent"] >= 1 and ("https://push.example/abc", se.script_of_the_day("2026-11-22")["script"]) in sent
+        n = len(sent)
+        se.run_sutra_reminders("2026-11-22")          # once a day only
+        assert len(sent) == n
+        se.run_sutra_reminders("2026-11-23")          # next day: next script
+        assert sent[-1][1] != sent[n - 1][1]
+    finally:
+        se.send_sutra_push = old
+        os.environ.pop("VAPID_PUBLIC_KEY", None); os.environ.pop("VAPID_PRIVATE_KEY", None)

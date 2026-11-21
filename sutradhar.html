@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <title>श्री राम जी एस्ट्रो | सूत्रधार</title>
+  <link rel="manifest" href="sutradhar-manifest.json">
+  <meta name="theme-color" content="#1d4ed8">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="सूत्रधार">
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Firebase (same config as rest of site) -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
@@ -300,6 +306,28 @@
 
     <!-- ========== HOME TAB ========== -->
     <div id="tab-home" class="tab-content active p-4 space-y-4">
+
+      <!-- Today's script: the first thing a Sutradhar should practise -->
+      <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+        <div class="text-xs font-semibold text-blue-700 mb-1">आज की स्क्रिप्ट</div>
+        <div class="font-bold text-slate-900" id="todayScriptTitle">कॉलिंग स्क्रिप्ट</div>
+        <div class="text-sm text-slate-600 mt-1" id="todayScriptBody">एक स्क्रिप्ट पढ़िए और आज किसी एक व्यक्ति से बात कीजिए।</div>
+        <button onclick="openTodayScript()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-xl">स्क्रिप्ट खोलें</button>
+      </div>
+
+      <!-- Daily reminder on the phone -->
+      <div id="pushCard" class="hidden bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="font-bold text-slate-900">रोज़ फ़ोन पर याद दिलाएँ</div>
+        <div class="text-sm text-slate-600 mt-1" id="pushText">हर सुबह 10 बजे आज की स्क्रिप्ट फ़ोन की सूचना में आएगी; उस पर टैप करते ही वही स्क्रिप्ट खुलेगी।</div>
+        <button id="pushBtn" onclick="enableScriptReminders()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-xl">सूचनाएँ चालू करें</button>
+      </div>
+
+      <!-- Save to home screen -->
+      <div id="installCard" class="hidden bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="font-bold text-slate-900">होम स्क्रीन पर जोड़ें</div>
+        <div class="text-sm text-slate-600 mt-1" id="installText">एक टैप में अपना सूत्रधार पोर्टल खोलने के लिए इसे फ़ोन की होम स्क्रीन पर जोड़ लें।</div>
+        <button id="installBtn" onclick="installPortal()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-xl">होम स्क्रीन पर जोड़ें</button>
+      </div>
 
       <!-- Payout summary (the only metric shown here) -->
       <div class="bg-white border border-slate-200 rounded-2xl p-5">
@@ -666,7 +694,7 @@
     </button>
     <button onclick="showTab('scripts')" id="bnav-scripts" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-      <span class="text-[10px] font-semibold mt-0.5">स्क्रिप्ट्स</span>
+      <span class="text-[10px] font-semibold mt-0.5 relative">स्क्रिप्ट्स<span id="scriptsDot" class="hidden absolute -top-1 -right-2 w-2 h-2 rounded-full bg-red-500"></span></span>
     </button>
     <button onclick="showTab('incentive')" id="bnav-incentive" class="flex-1 flex flex-col items-center justify-center py-2 text-slate-400">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
@@ -1206,6 +1234,7 @@ async function completeOnboarding() {
     profile = data.sutradhar;
     localStorage.setItem('sra_sutradhar_session', JSON.stringify({ sutradhar_id: profile.sutradhar_id, phone: profile.phone }));
     window._pendingReg = null;
+    window._justJoined = true;
     goToApp();
   } catch (e) {
     document.getElementById('quizResultMsg').textContent = (e.message || 'नेटवर्क समस्या।') + ' कृपया पुनः प्रयास करें।';
@@ -1232,6 +1261,16 @@ function goToApp() {
   showTab('home');
   loadLeads();
   loadSummary();
+  setupHelpers();
+  // a new Sutradhar starts on the calling scripts; a notification tap opens its script
+  const q = new URLSearchParams(location.search);
+  let firstTime = false;
+  try { firstTime = window._justJoined || !localStorage.getItem('sra_sutra_onboarded'); localStorage.setItem('sra_sutra_onboarded', '1'); } catch (e) {}
+  if (q.get('tab') === 'scripts' || firstTime) {
+    showTab('scripts');
+    if (q.get('script')) switchCallingScript(q.get('script'));
+    if (firstTime) showToast('स्वागत है! सबसे पहले ये कॉलिंग स्क्रिप्ट पढ़िए — इन्हीं से बात शुरू करनी है।');
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -1249,6 +1288,110 @@ function showTab(tab) {
   if (active) { active.classList.remove('text-slate-400'); active.classList.add('text-blue-600'); }
 
   if (tab === 'payout') loadEarnings();
+  if (tab === 'scripts') { try { localStorage.setItem('sra_sutra_scripts_seen', todayIST()); } catch (e) {} refreshScriptsDot(); }
+}
+
+// ── today's script, daily reminder, home screen ──────────────────────
+const SCRIPT_ROTATION = [
+  ['upgrade', 'आज की स्क्रिप्ट: सॉफ्टवेयर अपग्रेड (मास्टर पिच)', 'किसी एक ज्योतिषी को यह पिच सुनाइए और उसका नंबर लीड में जोड़िए।'],
+  ['vivah', 'आज की स्क्रिप्ट: 10 विवाह महादोष स्कैनर', 'विवाह की बात चल रहे किसी परिवार को यह स्क्रिप्ट सुनाइए।'],
+  ['patrika', 'आज की स्क्रिप्ट: 50+ पेज की पत्रिका', 'किसी को उसकी पूरी पत्रिका के बारे में बताइए — नंबर लीड में डालना न भूलें।'],
+  ['faq', 'आज: ग्राहकों के आम सवाल', 'सवालों के जवाब एक बार पढ़ लीजिए, बात करना आसान हो जाएगा।'],
+];
+function todayIST() { return new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10); }
+function todayScript() {
+  const [y, m, d] = todayIST().split('-').map(Number);
+  const ordinal = Math.floor(Date.UTC(y, m - 1, d) / 86400000) + 719163;   // same as Python date.toordinal()
+  return SCRIPT_ROTATION[ordinal % SCRIPT_ROTATION.length];
+}
+function openTodayScript() { showTab('scripts'); switchCallingScript(todayScript()[0]); }
+function refreshScriptsDot() {
+  let seen = '';
+  try { seen = localStorage.getItem('sra_sutra_scripts_seen') || ''; } catch (e) {}
+  const dot = document.getElementById('scriptsDot');
+  if (dot) dot.classList.toggle('hidden', seen === todayIST());
+}
+
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const inAndroidApp = () => /; wv\)/.test(navigator.userAgent);
+let _installEvent = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); _installEvent = e; setupHelpers(); });
+window.addEventListener('appinstalled', () => { document.getElementById('installCard').classList.add('hidden'); showToast('होम स्क्रीन पर जुड़ गया।'); });
+
+function setupHelpers() {
+  const t = todayScript();
+  document.getElementById('todayScriptTitle').textContent = t[1].replace('आज की स्क्रिप्ट: ', '').replace('आज: ', '');
+  document.getElementById('todayScriptBody').textContent = t[2];
+  refreshScriptsDot();
+  // home screen
+  const ic = document.getElementById('installCard');
+  if (isStandalone() || inAndroidApp()) ic.classList.add('hidden');
+  else {
+    ic.classList.remove('hidden');
+    if (isIOS()) {
+      document.getElementById('installText').textContent = 'iPhone पर: नीचे Share बटन (चौकोर में ऊपर तीर) दबाएँ, फिर "Add to Home Screen" चुनें। उसके बाद होम स्क्रीन के "सूत्रधार" आइकन से एक टैप में पोर्टल खुलेगा।';
+      document.getElementById('installBtn').classList.add('hidden');
+    } else if (!_installEvent) {
+      document.getElementById('installText').textContent = 'Chrome के ऊपर दाएँ तीन बिंदु (⋮) दबाएँ, फिर "Add to Home screen" / "होम स्क्रीन पर जोड़ें" चुनें।';
+      document.getElementById('installBtn').classList.add('hidden');
+    } else {
+      document.getElementById('installText').textContent = 'एक टैप में अपना सूत्रधार पोर्टल खोलने के लिए इसे फ़ोन की होम स्क्रीन पर जोड़ लें।';
+      document.getElementById('installBtn').classList.remove('hidden');
+    }
+  }
+  // reminders
+  const pc = document.getElementById('pushCard');
+  const pushOk = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  if (inAndroidApp() || (profile && profile.push_on && pushOk && Notification.permission === 'granted')) { pc.classList.add('hidden'); return; }
+  pc.classList.remove('hidden');
+  if (isIOS() && !isStandalone()) {
+    document.getElementById('pushText').textContent = 'iPhone पर सूचनाएँ तभी आती हैं जब पोर्टल होम स्क्रीन से खुले। पहले नीचे बताए तरीके से होम स्क्रीन पर जोड़ें, फिर वहाँ से खोलकर यह बटन दबाएँ।';
+    document.getElementById('pushBtn').classList.add('hidden');
+  } else if (!pushOk) {
+    document.getElementById('pushText').textContent = 'यह ब्राउज़र सूचनाएँ नहीं दिखा सकता। Chrome में खोलें।';
+    document.getElementById('pushBtn').classList.add('hidden');
+  }
+}
+
+async function installPortal() {
+  if (!_installEvent) { setupHelpers(); return; }
+  _installEvent.prompt();
+  const r = await _installEvent.userChoice.catch(() => null);
+  _installEvent = null;
+  if (r && r.outcome === 'accepted') document.getElementById('installCard').classList.add('hidden');
+  else setupHelpers();
+}
+
+function b64ToBytes(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function enableScriptReminders() {
+  const btn = document.getElementById('pushBtn');
+  btn.disabled = true;
+  try {
+    const cfg = await (await fetch(API + '/api/sutradhar/push/config')).json();
+    if (!cfg.vapid_public_key) throw new Error('सूचना सेवा अभी चालू नहीं है।');
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') throw new Error('फ़ोन ने सूचना की अनुमति नहीं दी। ब्राउज़र की सेटिंग में इस साइट के लिए Notifications चालू करें।');
+    const reg = (await navigator.serviceWorker.getRegistration('/')) || await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(cfg.vapid_public_key) });
+    const res = await authFetch('/api/sutradhar/push/subscribe', { method: 'POST', body: JSON.stringify({ subscription: sub.toJSON(), enabled: true }) });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(d.detail || 'सूचना चालू नहीं हो सकी।');
+    profile.push_on = true;
+    document.getElementById('pushCard').classList.add('hidden');
+    showToast('सूचनाएँ चालू हो गईं। हर सुबह 10 बजे आज की स्क्रिप्ट आएगी।');
+  } catch (e) {
+    showToast(e.message || 'सूचना चालू नहीं हो सकी।');
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function switchCallingScript(id) {

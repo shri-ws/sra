@@ -2574,6 +2574,125 @@ def _saas_view(sub: Dict[str, Any], usage: List[Dict[str, Any]]) -> Dict[str, An
 
 
 # =============================================================================
+# SUTRADHAR SCRIPT REMINDERS: a daily phone notification with the day's calling script
+# (Web Push with the site's VAPID keys; the notification opens sutradhar.html on that script)
+# =============================================================================
+SUTRA_SCRIPTS = [
+    ("upgrade", "आज की स्क्रिप्ट: सॉफ्टवेयर अपग्रेड (मास्टर पिच)", "किसी एक ज्योतिषी को यह पिच सुनाइए और उसका नंबर लीड में जोड़िए।"),
+    ("vivah", "आज की स्क्रिप्ट: 10 विवाह महादोष स्कैनर", "विवाह की बात चल रहे किसी परिवार को यह स्क्रिप्ट सुनाइए।"),
+    ("patrika", "आज की स्क्रिप्ट: 50+ पेज की पत्रिका", "किसी को उसकी पूरी पत्रिका के बारे में बताइए — नंबर लीड में डालना न भूलें।"),
+    ("faq", "आज: ग्राहकों के आम सवाल", "सवालों के जवाब एक बार पढ़ लीजिए, बात करना आसान हो जाएगा।"),
+]
+SUTRA_REMINDER_HOUR = int(os.environ.get("SUTRADHAR_REMINDER_HOUR", "10") or 10)
+
+
+class SutraPushRequest(BaseModel):
+    subscription: Optional[Dict[str, Any]] = None
+    enabled: bool = True
+
+
+def _vapid(name: str) -> str:
+    return (os.environ.get(name) or "").strip()
+
+
+def script_of_the_day(day: Optional[str] = None) -> Dict[str, str]:
+    d = datetime.fromisoformat(day or today_ist()).date()
+    sid, title, body = SUTRA_SCRIPTS[d.toordinal() % len(SUTRA_SCRIPTS)]
+    return {"script": sid, "title": title, "body": body, "url": f"/sutradhar.html?tab=scripts&script={sid}"}
+
+
+@router.get("/push/config")
+async def sutra_push_config():
+    return {"vapid_public_key": _vapid("VAPID_PUBLIC_KEY"), "reminder_hour": SUTRA_REMINDER_HOUR,
+            "today": script_of_the_day()}
+
+
+@router.post("/push/subscribe")
+async def sutra_push_subscribe(req: SutraPushRequest, authorization: Optional[str] = Header(None)):
+    """The signed-in Sutradhar turns the daily script notification on (with a browser subscription) or off."""
+    me = require_sutradhar(authorization)
+    doc = dict(me)
+    if req.enabled:
+        sub = req.subscription or {}
+        if not str(sub.get("endpoint", "")).startswith("https://") or not (sub.get("keys") or {}).get("p256dh"):
+            raise HTTPException(status_code=400, detail="सूचना चालू नहीं हो सकी। ब्राउज़र ने अनुमति नहीं दी।")
+        doc["push"] = {"endpoint": sub["endpoint"], "keys": {"p256dh": sub["keys"]["p256dh"], "auth": sub["keys"].get("auth", "")}}
+        doc["push_on"] = True
+        doc["push_since"] = datetime.now(timezone.utc).isoformat()
+    else:
+        doc["push_on"] = False
+    SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
+    return {"status": "success", "push_on": doc["push_on"], "today": script_of_the_day()}
+
+
+def send_sutra_push(sub: Dict[str, Any], msg: Dict[str, str]) -> str:
+    try:
+        from pywebpush import webpush, WebPushException
+    except Exception:
+        return "no_pywebpush"
+    try:
+        webpush(subscription_info=sub, data=json.dumps({"title": msg["title"], "body": msg["body"],
+                                                        "data": {"url": msg["url"], "type": "SUTRADHAR_SCRIPT"}}, ensure_ascii=False),
+                vapid_private_key=_vapid("VAPID_PRIVATE_KEY"),
+                vapid_claims={"sub": _vapid("VAPID_SUBJECT") or "mailto:support@shriramjiastro.in"},
+                ttl=8 * 3600)
+        return "sent"
+    except WebPushException as e:
+        code = getattr(getattr(e, "response", None), "status_code", None)
+        return "gone" if code in (404, 410) else "error"
+    except Exception:
+        return "error"
+
+
+def run_sutra_reminders(day: Optional[str] = None) -> Dict[str, int]:
+    """One reminder per active Sutradhar per day."""
+    day = day or today_ist()
+    msg = script_of_the_day(day)
+    out = {"sent": 0, "gone": 0, "error": 0, "skipped": 0}
+    if not (_vapid("VAPID_PUBLIC_KEY") and _vapid("VAPID_PRIVATE_KEY")):
+        out["skipped"] = -1
+        return out
+    for s in SutradharStore.query_all("sutradhars"):
+        if not s.get("push_on") or not s.get("push") or s.get("status") == "paused" or s.get("reminded_on") == day:
+            out["skipped"] += 1
+            continue
+        r = send_sutra_push(s["push"], msg)
+        doc = dict(s)
+        if r == "sent":
+            doc["reminded_on"] = day
+            out["sent"] += 1
+        elif r == "gone":
+            doc["push_on"] = False          # the phone withdrew permission
+            out["gone"] += 1
+        else:
+            out["error"] += 1
+            continue
+        SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
+    logger.info(f"[Sutradhar] script reminders {day}: {out}")
+    return out
+
+
+def _sutra_reminder_loop():
+    time.sleep(40)
+    ran_on = None
+    while True:
+        try:
+            now = datetime.now(IST)
+            day = now.strftime("%Y-%m-%d")
+            if ran_on != day and SUTRA_REMINDER_HOUR <= now.hour < 21:
+                res = run_sutra_reminders(day)
+                if res.get("skipped") != -1:
+                    ran_on = day
+        except Exception as e:
+            logger.warning(f"[Sutradhar] reminder loop: {e}")
+        time.sleep(300)
+
+
+if os.environ.get("RENDER") or os.environ.get("SUTRADHAR_REMINDERS") == "1":
+    threading.Thread(target=_sutra_reminder_loop, daemon=True, name="sutradhar-reminders").start()
+
+
+# =============================================================================
 # COURSE BATCHES: public seat count, interest list, admin view
 # =============================================================================
 class CourseInterestRequest(BaseModel):
