@@ -33,9 +33,9 @@ SRA_I18N.add([
   ["प्रारंभिक / सीमित संचय", "Early / modest", "प्रारंभिक / सीमित संचय (Early / Modest)"],
   ["उच्च मध्यम वर्ग / स्थिर संपत्ति", "Stable property & base", "उच्च मध्यम वर्ग / स्थिर संपत्ति (Stable Property & Base)"],
   ["संपन्न / स्थापित व्यवसाय", "Affluent / capital base", "संपन्न / स्थापित व्यवसाय (Affluent / Capital Base)"],
-  ["✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹299 के भुगतान पर)", "✨ Unlock the Dhan Yoga & Lakshmi Yoga report (₹299)", "✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹299 के पेमेंट पर)"],
+  ["✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹501 के भुगतान पर)", "✨ Unlock the Dhan Yoga & Lakshmi Yoga report (₹501)", "✨ धन योग व लक्ष्मी योग रिपोर्ट अनलॉक करें (₹501 के पेमेंट पर)"],
   ["🔒 100% सुरक्षित 256-bit Razorpay • 25 प्रामाणिक धन योग • 16 षोडशवर्ग (D1-D60) • सर्वाष्टकवर्ग • विंशोत्तरी दशा", "🔒 100% secure 256-bit Razorpay • 25 authentic Dhan Yogas • 16 Shodashvarga (D1-D60) • Sarvashtakavarga • Vimshottari Dasha"],
-  ["₹299 भुगतान सफल! आपकी संपूर्ण धन योग, षोडशवर्ग, सर्वाष्टकवर्ग एवं दशा रिपोर्ट अनलॉक हो चुकी है।", "₹299 payment successful! Your complete Dhan Yoga, Shodashvarga, Sarvashtakavarga and Dasha report is unlocked."],
+  ["₹501 भुगतान सफल! आपकी संपूर्ण धन योग, षोडशवर्ग, सर्वाष्टकवर्ग एवं दशा रिपोर्ट अनलॉक हो चुकी है।", "₹501 payment successful! Your complete Dhan Yoga, Shodashvarga, Sarvashtakavarga and Dasha report is unlocked."],
   ["वैदिक धन क्षमता सूचकांक", "WEALTH CAPACITY INDEX", "वैदिक धन क्षमता सूचकांक (WEALTH CAPACITY INDEX)"],
   ["/ 1000 शास्त्रीय अंक", "/ 1000 classical points"],
   ["कोटि-पति", "Koti-Pati"],
@@ -114,6 +114,6 @@ SRA_I18N.add([
   ["सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट अनलॉक करें", "Unlock the most accurate Dhan Yoga & Lakshmi Yoga report"],
   ["२५ प्रामाणिक धन योग, इन्दु लग्न, आरूढ़ लग्न (AL/A11), सर्वाष्टकवर्ग (३३७ बिंदु), १६ षोडशवर्ग (D1 से D60) व १२०-वर्षीय विंशोत्तरी दशा (आजीवन पहुँच)", "25 authentic Dhan Yogas, Indu Lagna, Arudha Lagna (AL/A11), Sarvashtakavarga (337 points), 16 Shodashvarga charts (D1 to D60) and the 120-year Vimshottari Dasha (lifetime access)", "२५ प्रामाणिक धन योग, इन्दु लग्न, आरूढ़ लग्न (AL/A11), सर्वाष्टकवर्ग (३३७ बिंदु), १६ षोडशवर्ग (D1 से D60) व १२०-वर्षीय विंशोत्तरी दशा (आजीवन एक्सेस)"],
   ["१. संपूर्ण वैदिक धन योग एवं लक्ष्मी योग रिपोर्ट:", "1. Complete Vedic Dhan Yoga & Lakshmi Yoga report:"],
-  ["💳 ₹299 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)", "💳 Pay ₹299 online (UPI / Card / Netbanking)"],
+  ["💳 ₹501 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)", "💳 Pay ₹501 online (UPI / Card / Netbanking)"],
   ["© 2026 श्री रामजी एस्ट्रो। सर्वाधिकार सुरक्षित। वैदिक ज्योतिष एवं खगोलीय गणित का प्रामाणिक संगम।", "© 2026 Shri Ramji Astro (SRA). All rights reserved. The authentic union of Vedic astrology and astronomical mathematics.", "© 2026 Shri Ramji Astro (SRA). सर्वाधिकार सुरक्षित। वैदिक ज्योतिष एवं खगोलीय गणित का प्रामाणिक संगम।"]
 ]);
