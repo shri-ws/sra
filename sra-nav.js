@@ -47,7 +47,6 @@
     ] },
     { label: L('परामर्श व उपाय', 'Consultation & remedies'), items: [
       { href: 'consultation.html', label: L('1-on-1 परामर्श', '1-on-1 consultation'), sub: L('आचार्य से सीधी बात', 'Speak with the acharya'), badge: '₹5,100' },
-      { href: 'sankalp.html', label: L('दैनिक संकल्प पूर्ति', 'Daily sankalp'), sub: L('ज्योतिषी के बताए उपाय, रोज़ टिक करें', 'Tick the remedies your astrologer set') },
       { href: 'feedback.html', label: L('परामर्श का अनुभव लिखें', 'Consultation feedback') }
     ] },
     { label: L('सीखें व शोध', 'Learn & research'), desk: true, items: [
@@ -57,10 +56,8 @@
       { href: 'blogs.html', label: L('शोध पत्रिका व ब्लॉग', 'Research journal & blogs') }
     ] },
     { label: L('ज्योतिषियों के लिए', 'For astrologers'), items: [
-      { href: 'consultant.html', label: L('दैवज्ञ परामर्श डेस्क', 'Consultant desk'), sub: L('क्लाइंट व उपाय — SaaS सदस्यों के लिए', 'Clients & remedies — SaaS members') },
       { href: 'sutradhar.html', also: ['sutradhar-invite'], label: L('सूत्रधार पोर्टल', 'Sutradhar portal'), sub: L('लीड डालें, दक्षिणा कमाएँ', 'Add leads, earn dakshina') },
-      { href: 'sutradhar-terms.html', label: L('सूत्रधार बनें — कार्य विवरण', 'Become a Sutradhar') },
-      { href: 'careers.html', label: L('करियर (नौकरी)', 'Careers') }
+      { href: 'sutradhar-terms.html', label: L('सूत्रधार बनें — कार्य विवरण', 'Become a Sutradhar') }
     ] },
     { label: L('श्री राम जी एस्ट्रो', 'Shri Ram Ji Astro'), items: [
       { href: 'about.html', label: L('हमारे बारे में', 'About us') },
@@ -69,6 +66,16 @@
       { href: 'terms.html', label: L('नियम व शर्तें', 'Terms of service') }
     ] }
   ];
+  // Shown after the groups, at the very end of the drawer. The consultant desk only for an
+  // astrologer with an active SaaS subscription (checked on the server after sign-in).
+  const END_LINKS = [
+    { href: 'consultant.html', saas: true, label: L('दैवज्ञ परामर्श डेस्क', 'Consultant desk') },
+    { href: 'sankalp.html', label: L('दैनिक संकल्प पूर्ति', 'Daily sankalp') },
+    { href: 'careers.html', label: L('करियर', 'Careers') }
+  ];
+  let deskAllowed = false;
+  try { deskAllowed = sessionStorage.getItem('sra_desk_ok') === '1'; } catch (e) {}
+
   const T = {
     brand: L('श्री रामजी एस्ट्रो', 'Shri Ramji Astro'),
     patrika: L('पत्रिका', 'Patrika'),
@@ -131,7 +138,30 @@
         <div class="sra-gd-acc-panel" id="sraGdAcc${i}">${m.items.map(row).join('')}</div>
       </div>`;
     });
+    END_LINKS.forEach(it => {
+      if (it.saas && !deskAllowed) return;
+      html += `<a class="sra-gd-item sra-gd-end" href="${it.href}"${isHere(it.href) ? ' aria-current="page"' : ''}><span class="sra-gn-txt">${esc(t(it.label))}</span></a>`;
+    });
     return html;
+  }
+
+  // Does the signed-in number have the consultant desk (active SaaS)? Asked once per session.
+  let deskChecked = false;
+  async function checkDesk() {
+    if (deskChecked || !window.SRAAuth || !window.SRAAuth.user()) return;
+    deskChecked = true;
+    try {
+      const fb = await window.SRAAuth.ready();
+      const u = fb.auth().currentUser || await new Promise(r => { const off = fb.auth().onAuthStateChanged(x => { off(); r(x); }); });
+      if (!u || !u.phoneNumber) return;
+      const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+      const base = local ? '' : (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+      const res = await fetch(base + '/api/sutradhar/desk/me', { headers: { Authorization: 'Bearer ' + await u.getIdToken() } });
+      const d = res.ok ? await res.json() : {};
+      const ok = !!d.allowed;
+      try { sessionStorage.setItem('sra_desk_ok', ok ? '1' : '0'); } catch (e) {}
+      if (ok !== deskAllowed) { deskAllowed = ok; render(); }
+    } catch (e) { deskChecked = false; }
   }
 
   function menuAction(a) {
@@ -146,6 +176,8 @@
   }
 
   const MENU_CSS = `
+    :root body .sra-gd-end { margin-top: 6px; border-top: 1px solid var(--sra-hair, rgba(0,0,0,.08)); border-radius: 0; }
+    :root body .sra-gd-end + .sra-gd-end { margin-top: 0; }
     :root body .sra-gd-acc { margin-top: 6px; border: 1px solid var(--sra-hair, rgba(0,0,0,.1)); border-radius: 10px; overflow: hidden; }
     :root body .sra-gd-acc-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
       min-height: 48px; padding: 12px 14px; border: 0; background: transparent; cursor: pointer; text-align: left;
@@ -267,7 +299,12 @@
       window.SRATranslate.set(chip.dataset.lang);
     });
     document.addEventListener('sra:translate', () => render());
-    document.addEventListener('sra:auth', () => render());
+    document.addEventListener('sra:auth', () => {
+      if (!window.SRAAuth || !window.SRAAuth.user()) { deskAllowed = false; deskChecked = false; try { sessionStorage.removeItem('sra_desk_ok'); } catch (e) {} }
+      render();
+      checkDesk();
+    });
+    window.addEventListener('load', () => setTimeout(checkDesk, 1500));
     drawer.addEventListener('click', (e) => {
       const b = e.target.closest('[data-auth]');
       if (!b || !window.SRAAuth) return;
