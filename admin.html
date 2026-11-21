@@ -1126,6 +1126,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
             <button class="export-btn" style="background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.4); color:#ef4444;" onclick="purgeAllCareerApplications()">सारा पुराना डेटा साफ़ करें</button>
           </div>
         </div>
+        <p id="careers-joined-note" style="font-size:13px; color:var(--text-muted); margin:6px 0;"></p>
         <div style="overflow-x:auto">
           <table class="tbl">
             <thead>
@@ -1201,9 +1202,11 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           OTP करके बीच में छोड़ने वाले नीचे "अधूरा पंजीकरण" में दिखते हैं। "आख़िरी लॉगिन" से पता चलता है कि वह पोर्टल खोल रहा है या नहीं।
         </p>
         <div class="stats-grid" id="sl-stats" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));"></div>
+        <div id="sl-tabs" style="display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 10px;"></div>
+        <p id="sl-tab-note" style="font-size:13px; color:var(--text-muted); margin:0 0 8px;"></p>
         <div style="overflow-x:auto; margin-bottom:20px;"><table class="tbl">
-          <thead><tr><th>सूत्रधार</th><th>स्थिति</th><th>जुड़ा</th><th>आख़िरी लॉगिन</th><th>लीड</th><th>बिक्री</th><th>दक्षिणा</th><th>UPI</th><th>कार्यवाही</th></tr></thead>
-          <tbody id="sl-tbody"><tr><td colspan="9" class="empty-row">लोड हो रहा है...</td></tr></tbody>
+          <thead><tr><th>सूत्रधार</th><th>स्थिति</th><th>जुड़ा</th><th>आख़िरी गतिविधि</th><th>आख़िरी लॉगिन</th><th>लीड</th><th>बिक्री</th><th>दक्षिणा</th><th>UPI</th><th>कार्यवाही</th></tr></thead>
+          <tbody id="sl-tbody"><tr><td colspan="10" class="empty-row">लोड हो रहा है...</td></tr></tbody>
         </table></div>
         <div class="table-title" style="margin-bottom:6px;">अधूरा पंजीकरण — OTP किया, पर परीक्षण/पंजीकरण पूरा नहीं</div>
         <div style="overflow-x:auto;"><table class="tbl">
@@ -2632,6 +2635,18 @@ function renderCareerRows(tbodyId, rows) {
     return;
   }
 
+  // Applicants who finished the portal leave this list and live in "सूत्रधार सूची" (their record is kept)
+  const joinedMap = window._sutraByPhone || {};
+  const isJoined = app => { const j = joinedMap[String(app.phone || '').replace(/\D/g, '').slice(-10)]; return j && j.state && j.state !== 'unfinished'; };
+  const joinedCount = rows.filter(isJoined).length;
+  rows = rows.filter(app => !isJoined(app));
+  const note = document.getElementById('careers-joined-note');
+  if (note) note.innerHTML = joinedCount ? `${joinedCount} आवेदक सूत्रधार बन चुके हैं, इसलिए वे यहाँ से हट गए हैं — उन्हें <a href="#" onclick="showPanel('sutra-list', document.querySelector('.nav-item-sutra-list')); return false;" style="color:var(--gold);">सूत्रधार सूची</a> में देखें।` : '';
+  if (!rows.length) {
+    el.innerHTML = `<tr><td colspan="9" class="empty-row">कोई लंबित आवेदन नहीं — सभी आवेदक सूत्रधार बन चुके हैं।</td></tr>`;
+    return;
+  }
+
   el.innerHTML = rows.map(app => {
     const isApproved = app.status === 'approved';
     // Finished the portal (name + OTP + test) → "सक्रिय सूत्रधार" replaces pending/approved
@@ -3292,19 +3307,32 @@ async function loadSutradharList(silent) {
     window._sutraByPhone = {};
     sutraList.forEach(s => { window._sutraByPhone[s.phone] = s; });
     (d.unfinished || []).forEach(u => { if (!window._sutraByPhone[u.phone]) window._sutraByPhone[u.phone] = { state: 'unfinished', last_login_at: u.last_at }; });
-    if (typeof D !== 'undefined' && D.careers && document.getElementById('careers-tbody')) renderCareerRows('careers-tbody', D.careers);
+    try { if (typeof D !== 'undefined' && D.careers && document.getElementById('careers-tbody')) renderCareerRows('careers-tbody', D.careers); } catch (e) { console.warn('careers refresh:', e); }
     if (!tbody) return;
 
     const earning = sutraList.filter(s => s.state === 'earning').length;
     const pendingTotal = sutraList.reduce((a, s) => a + (s.pending || 0), 0);
+    window._slLast = d;
     document.getElementById('sl-stats').innerHTML = [
-      ['कुल सूत्रधार', d.count, 'जिन्होंने पूरा पंजीकरण किया', 'gold'],
+      ['सक्रिय सूत्रधार', d.active_count, `पिछले ${d.inactive_days} दिन में लीड या बिक्री`, 'gold'],
+      ['निष्क्रिय', d.inactive_count, `${d.inactive_days} दिन से कोई लीड/बिक्री नहीं`, ''],
       ['कमा रहे हैं', earning, 'कम से कम एक बिक्री', 'green'],
       ['OTP किया, अधूरा छोड़ा', (d.unfinished || []).length, 'परीक्षण/पंजीकरण पूरा नहीं', ''],
       ['बकाया दक्षिणा', '₹' + pendingTotal.toLocaleString('en-IN'), 'अभी चुकानी है', ''],
     ].map(([l, v, sub, cls]) => `<div class="stat-card ${cls}"><div class="stat-label">${l}</div><div class="stat-val">${v}</div><div class="stat-sub">${sub}</div></div>`).join('');
 
-    tbody.innerHTML = sutraList.length ? sutraList.map((s, i) => {
+    const group = window._slGroup || 'active';
+    const counts = { active: d.active_count, inactive: d.inactive_count, paused: d.paused_count };
+    const TABS = [['active', 'सक्रिय'], ['inactive', 'निष्क्रिय'], ['paused', 'रुके हुए']];
+    document.getElementById('sl-tabs').innerHTML = TABS.map(([g, l]) =>
+      `<button class="export-btn" style="${g === group ? 'background:#2563eb;' : ''}" onclick="window._slGroup='${g}'; loadSutradharList(true)">${l} (${counts[g] || 0})</button>`).join('');
+    document.getElementById('sl-tab-note').textContent = {
+      active: `जिन्होंने पिछले ${d.inactive_days} दिन में कोई लीड डाली या बिक्री करवाई (या ${d.inactive_days} दिन से कम पहले जुड़े)।`,
+      inactive: `${d.inactive_days} दिन से कोई लीड नहीं डाली और कोई बिक्री नहीं हुई। नई लीड डालते ही वे अपने आप फिर "सक्रिय" में आ जाएँगे। "याद दिलाएँ" से WhatsApp करें।`,
+      paused: 'आपने इनका खाता रोका है; ये पोर्टल नहीं खोल सकते।',
+    }[group];
+    const shown = sutraList.map((s, i) => [s, i]).filter(([s]) => (s.group || 'active') === group);
+    tbody.innerHTML = shown.length ? shown.map(([s, i]) => {
       const st = SL_STATE[s.state] || SL_STATE.joined;
       const upi = s.upi_id
         ? `<code style="font-size:12px;">${slEsc(s.upi_id)}</code><br>${s.upi_verified ? '<span style="color:#16a34a; font-weight:700;">जाँची हुई</span>' : `<button class="export-btn" style="padding:3px 8px; margin-top:4px;" onclick="sutraAction(${i}, 'upi')">जाँच हो गई</button>`}`
@@ -3315,17 +3343,18 @@ async function loadSutradharList(silent) {
           <div style="font-size:11px; color:var(--muted);">${slEsc(s.sutradhar_id)}</div></td>
         <td><span class="badge" style="background:${st[2]}; color:${st[1]}; font-weight:700; white-space:normal;">${st[0]}</span></td>
         <td style="font-size:12px;">${slDT(s.joined_at)}</td>
+        <td style="font-size:12px;">${s.days_idle != null ? `<b style="color:${s.group === 'inactive' ? '#b91c1c' : 'inherit'};">${s.days_idle} दिन पहले</b>` : '—'}<div style="color:var(--muted);">${s.last_sale_at && s.last_sale_at === s.last_activity_at ? 'बिक्री' : (s.last_lead_at && s.last_lead_at === s.last_activity_at ? 'लीड' : 'जुड़ा')}</div></td>
         <td style="font-size:12px;">${s.last_login_at ? slDT(s.last_login_at) + '<br><span style="color:var(--muted);">' + slAgo(s.last_login_at) + '</span>' : '—'}</td>
         <td><b>${s.leads_total}</b> <span style="font-size:11px; color:var(--muted);">(चालू ${s.leads_active})</span>${s.last_lead_at ? '<div style="font-size:11px; color:var(--muted);">आख़िरी ' + slAgo(s.last_lead_at) + '</div>' : ''}</td>
         <td><b>${s.sales}</b></td>
         <td><b>₹${(s.earned || 0).toLocaleString('en-IN')}</b><div style="font-size:11px; color:var(--muted);">चुकाई ₹${(s.paid || 0).toLocaleString('en-IN')} · बकाया ₹${(s.pending || 0).toLocaleString('en-IN')}</div></td>
         <td style="font-size:12px;">${upi}</td>
         <td><div style="display:flex; gap:5px; flex-wrap:wrap;">
-          <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, '${s.status === 'paused' ? 'activate' : 'pause'}')">${s.status === 'paused' ? '▶️ चालू करें' : 'रोकें'}</button>
+          <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, '${s.status === 'paused' ? 'activate' : 'pause'}')">${s.status === 'paused' ? 'चालू करें' : 'रोकें'}</button>
           <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, 'nudge')">याद दिलाएँ</button>
         </div></td>
       </tr>`;
-    }).join('') : '<tr><td colspan="9" class="empty-row">अभी कोई सूत्रधार पंजीकृत नहीं है।</td></tr>';
+    }).join('') : `<tr><td colspan="10" class="empty-row">${group === 'inactive' ? 'कोई निष्क्रिय सूत्रधार नहीं।' : group === 'paused' ? 'कोई रुका हुआ खाता नहीं।' : 'अभी कोई सक्रिय सूत्रधार नहीं।'}</td></tr>`;
 
     const un = d.unfinished || [];
     document.getElementById('sl-unfinished').innerHTML = un.length ? un.map(u => `<tr>

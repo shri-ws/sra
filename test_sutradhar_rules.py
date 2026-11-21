@@ -404,3 +404,19 @@ def test_sutradhar_script_reminders():
     finally:
         se.send_sutra_push = old
         os.environ.pop("VAPID_PUBLIC_KEY", None); os.environ.pop("VAPID_PRIVATE_KEY", None)
+
+
+def test_sutradhar_inactive_after_30_days():
+    phone = "9855500005"
+    hdr = {"Authorization": f"Bearer mock_token_{phone}"}
+    client.post("/api/sutradhar/register", headers=hdr, json={"name": "पुराना", "phone": phone})
+    me = next(s for s in se.SutradharStore.query_all("sutradhars") if s.get("phone") == phone)
+    me = dict(me, created_at="2026-01-01T00:00:00+00:00")
+    se.SutradharStore.set_doc("sutradhars", me["id"], me)
+    d = client.get("/api/sutradhar/admin/sutradhars", headers=ADMIN).json()
+    row = next(u for u in d["sutradhars"] if u["phone"] == phone)
+    assert row["group"] == "inactive" and row["days_idle"] >= 30 and d["inactive_count"] >= 1
+    # a fresh lead makes him active again
+    client.post("/api/sutradhar/leads/add", headers=hdr, json={"customer_phone": "9866600006", "customer_name": "ग्राहक"})
+    d = client.get("/api/sutradhar/admin/sutradhars", headers=ADMIN).json()
+    assert next(u for u in d["sutradhars"] if u["phone"] == phone)["group"] == "active"

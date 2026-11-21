@@ -2749,6 +2749,9 @@ async def admin_course(authorization: Optional[str] = Header(None)):
 # =============================================================================
 # ADMIN: SUTRADHAR LIST — who joined, who is active, what they earned
 # =============================================================================
+SUTRADHAR_INACTIVE_DAYS = int(os.environ.get("SUTRADHAR_INACTIVE_DAYS", "30") or 30)
+
+
 class SutradharAdminRequest(BaseModel):
     sutradhar_id: str
     status: Optional[str] = None          # "active" | "paused"
@@ -2785,6 +2788,17 @@ async def admin_list_sutradhars(authorization: Optional[str] = Header(None)):
         paid = sum(int(c.get("amount") or 0) for c in my_comms if c.get("status") == "paid")
         last_sale = max((c.get("created_at") or "" for c in my_comms), default="")
         last_lead = max((l.get("created_at") or "" for l in my_leads), default="")
+        # inactive: no lead and no sale for SUTRADHAR_INACTIVE_DAYS (counted from joining if never active)
+        last_activity = max(last_sale, last_lead, s.get("created_at") or "")
+        days_idle = None
+        try:
+            la = datetime.fromisoformat(last_activity)
+            if la.tzinfo is None:
+                la = la.replace(tzinfo=timezone.utc)
+            days_idle = (now - la).days
+        except Exception:
+            pass
+        inactive = s.get("status") != "paused" and days_idle is not None and days_idle >= SUTRADHAR_INACTIVE_DAYS
         if s.get("status") == "paused":
             state = "paused"
         elif my_comms:
@@ -2801,6 +2815,8 @@ async def admin_list_sutradhars(authorization: Optional[str] = Header(None)):
             "login_count": int(s.get("login_count") or 0),
             "leads_total": len(my_leads), "leads_active": active, "last_lead_at": last_lead,
             "sales": len(my_comms), "earned": earned, "paid": paid, "pending": earned - paid, "last_sale_at": last_sale,
+            "last_activity_at": last_activity, "days_idle": days_idle, "inactive": inactive,
+            "group": "paused" if state == "paused" else ("inactive" if inactive else "active"),
         })
     out.sort(key=lambda x: x.get("joined_at") or "", reverse=True)
     phones = {x["phone"] for x in out}
@@ -2808,8 +2824,11 @@ async def admin_list_sutradhars(authorization: Optional[str] = Header(None)):
     unfinished.sort(key=lambda d: d.get("last_at") or "", reverse=True)
     return {
         "count": len(out),
-        "active_count": sum(1 for x in out if x["status"] != "paused"),
+        "active_count": sum(1 for x in out if x["group"] == "active"),
         "earning_count": sum(1 for x in out if x["state"] == "earning"),
+        "inactive_count": sum(1 for x in out if x["group"] == "inactive"),
+        "paused_count": sum(1 for x in out if x["group"] == "paused"),
+        "inactive_days": SUTRADHAR_INACTIVE_DAYS,
         "sutradhars": out,
         "unfinished": unfinished[:300],
     }
