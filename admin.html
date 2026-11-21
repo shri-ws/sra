@@ -1212,6 +1212,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           <thead><tr><th>सूत्रधार</th><th>स्थिति</th><th>जुड़ा</th><th>आख़िरी गतिविधि</th><th>आख़िरी लॉगिन</th><th>लीड</th><th>बिक्री</th><th>दक्षिणा</th><th>UPI</th><th>कार्यवाही</th></tr></thead>
           <tbody id="sl-tbody"><tr><td colspan="10" class="empty-row">लोड हो रहा है...</td></tr></tbody>
         </table></div>
+        <div id="sl-activity" style="display:none; border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:20px;"></div>
         <div class="table-title" style="margin-bottom:6px;">अधूरा पंजीकरण — OTP किया, पर परीक्षण/पंजीकरण पूरा नहीं</div>
         <div style="overflow-x:auto;"><table class="tbl">
           <thead><tr><th>मोबाइल</th><th>पहली बार</th><th>आख़िरी बार</th><th>कितनी बार आया</th><th></th></tr></thead>
@@ -3358,7 +3359,7 @@ async function loadSutradharList(silent) {
         ? `<code style="font-size:12px;">${slEsc(s.upi_id)}</code><br>${s.upi_verified ? '<span style="color:#16a34a; font-weight:700;">जाँची हुई</span>' : `<button class="export-btn" style="padding:3px 8px; margin-top:4px;" onclick="sutraAction(${i}, 'upi')">जाँच हो गई</button>`}`
         : '<span style="color:#b45309;">UPI नहीं दी</span>';
       return `<tr>
-        <td><div style="font-weight:700;">${slEsc(s.name || '—')}</div>
+        <td><div style="font-weight:700;"><a href="#" onclick="sutraActivity(${i}); return false;" style="color:inherit;">${slEsc(s.name || '—')}</a></div>
           <a href="https://wa.me/91${slEsc(s.phone)}" target="_blank" rel="noopener" style="font-family:monospace; color:var(--gold);">${slEsc(s.phone)}</a>
           <div style="font-size:11px; color:var(--muted);">${slEsc(s.sutradhar_id)}</div></td>
         <td><span class="badge" style="background:${st[2]}; color:${st[1]}; font-weight:700; white-space:normal;">${st[0]}</span></td>
@@ -3371,6 +3372,7 @@ async function loadSutradharList(silent) {
         <td style="font-size:12px;">${upi}</td>
         <td><div style="display:flex; gap:5px; flex-wrap:wrap;">
           <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, '${s.status === 'paused' ? 'activate' : 'pause'}')">${s.status === 'paused' ? 'चालू करें' : 'रोकें'}</button>
+          <button class="export-btn" style="padding:4px 9px; background:#2563eb;" onclick="sutraActivity(${i})">काम देखें</button>
           <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, 'nudge')">याद दिलाएँ</button>
         </div></td>
       </tr>`;
@@ -3426,6 +3428,64 @@ function sutraJoinBadge(phone) {
   const st = SL_STATE[s.state] || SL_STATE.joined;
   return `<div style="margin-top:6px; font-size:12px; color:${st[1]}; font-weight:700;">सूत्रधार बन गया · ${st[0]}</div>`;
 }
+// ── one Sutradhar's work: leads and what became of them, sales, portal visits, scripts ──
+const SL_OUTCOME = { sale: ['बिक्री हुई', '#065f46', '#d1fae5'], active: ['72 घंटे चालू', '#1e40af', '#dbeafe'], expired: ['समय ख़त्म, बिक्री नहीं', '#6b7280', '#f3f4f6'] };
+const SL_EVENT = { joined: 'जुड़ा', lead: 'लीड', sale: 'बिक्री', payout: 'भुगतान', portal: 'पोर्टल', push: 'सूचना' };
+async function sutraActivity(i, days) {
+  const s = sutraList[i];
+  const box = document.getElementById('sl-activity');
+  if (!s || !box) return;
+  days = days || 90;
+  box.style.display = 'block';
+  box.innerHTML = '<span class="spin"></span> ' + slEsc(s.name || s.phone) + ' का काम लोड हो रहा है...';
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhar-activity?days=' + days + '&sutradhar_id=' + encodeURIComponent(s.sutradhar_id));
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'लोड नहीं हुआ');
+    const m = d.summary, p = d.sutradhar;
+    const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+    const stat = (l, v, sub) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val">${v}</div><div class="stat-sub">${sub || ''}</div></div>`;
+    const leadRows = d.leads.length ? d.leads.map(l => {
+      const o = SL_OUTCOME[l.outcome] || SL_OUTCOME.expired;
+      return `<tr><td>${slEsc(l.name || 'जातक')}</td>
+        <td><a href="https://wa.me/91${slEsc(l.phone)}" target="_blank" rel="noopener" style="font-family:monospace; color:var(--gold);">${slEsc(l.phone)}</a></td>
+        <td style="font-size:12px;">${slDT(l.created_at)}</td>
+        <td><span class="badge" style="background:${o[2]}; color:${o[1]}; font-weight:700;">${o[0]}</span>${l.outcome === 'sale' ? `<div style="font-size:12px;">${slEsc(l.product)} · दक्षिणा ${inr(l.amount)}</div>` : ''}</td></tr>`;
+    }).join('') : '<tr><td colspan="4" class="empty-row">अभी तक कोई लीड नहीं डाली।</td></tr>';
+    const tl = d.timeline.length ? d.timeline.map(e => `<tr>
+        <td style="font-size:12px; white-space:nowrap;">${e.type === 'portal' ? slEsc(e.day) : slDT(e.at)}</td>
+        <td style="font-weight:700; white-space:nowrap;">${SL_EVENT[e.type] || slEsc(e.type)}</td>
+        <td style="font-size:13px;">${slEsc(e.text)}</td></tr>`).join('') : '<tr><td colspan="3" class="empty-row">इस अवधि में कोई गतिविधि नहीं।</td></tr>';
+    box.innerHTML = `
+      <div class="tbl-header" style="margin-bottom:6px;">
+        <span class="table-title">${slEsc(p.name || '—')} (${slEsc(p.phone)}) — अब तक का काम</span>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          ${[30, 90, 365].map(n => `<button class="export-btn" style="${n === days ? 'background:#2563eb;' : ''}" onclick="sutraActivity(${i}, ${n})">${n} दिन</button>`).join('')}
+          <button class="export-btn" onclick="document.getElementById('sl-activity').style.display='none'">बंद करें</button>
+        </div>
+      </div>
+      <p style="font-size:12px; color:var(--text-muted); margin:0 0 10px;">जुड़ा: ${slDT(p.joined_at)} · आख़िरी लॉगिन: ${m.last_login_at ? slDT(m.last_login_at) + ' (' + slAgo(m.last_login_at) + ')' : '—'} · रोज़ की स्क्रिप्ट सूचना: ${m.push_on ? 'चालू' : 'बंद'}${m.reminded_on ? ' (आख़िरी ' + slEsc(m.reminded_on) + ')' : ''}</p>
+      <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); margin-bottom:14px;">
+        ${stat('कुल लीड', m.leads_total, `7 दिन में ${m.leads_7} · 30 दिन में ${m.leads_30}`)}
+        ${stat('लीड से बिक्री', m.leads_sold, `${m.conversion_pct}% लीड बिकीं · चालू ${m.leads_active}`)}
+        ${stat('कुल बिक्री', m.sales, `30 दिन में ${m.sales_30}`)}
+        ${stat('दक्षिणा', inr(m.earned), `चुकाई ${inr(m.paid)} · बकाया ${inr(m.pending)}`)}
+        ${stat('पोर्टल खोला', m.portal_days_30 + ' दिन', `पिछले 30 दिन में, कुल ${m.opens_30} बार`)}
+        ${stat('स्क्रिप्ट', m.script_copies_30 + ' कॉपी', `30 दिन में ${m.script_opens_30} बार पढ़ी`)}
+      </div>
+      <div class="table-title" style="margin-bottom:6px;">डाली गई लीड और उनका नतीजा</div>
+      <div style="overflow-x:auto; margin-bottom:16px;"><table class="tbl">
+        <thead><tr><th>ग्राहक</th><th>मोबाइल</th><th>कब डाली</th><th>नतीजा</th></tr></thead><tbody>${leadRows}</tbody></table></div>
+      <div class="table-title" style="margin-bottom:6px;">गतिविधि — पिछले ${d.days} दिन (नई सबसे ऊपर)</div>
+      <div style="overflow-x:auto;"><table class="tbl">
+        <thead><tr><th>कब</th><th>क्या</th><th>ब्योरा</th></tr></thead><tbody>${tl}</tbody></table></div>
+      <p style="font-size:12px; color:var(--text-muted); margin:10px 0 0;">पोर्टल खोलना, स्क्रिप्ट पढ़ना/कॉपी करना 21 नवंबर 2026 से दर्ज होना शुरू हुआ है; लीड और बिक्री शुरू से हैं।</p>`;
+  } catch (err) {
+    box.innerHTML = `<span style="color:#ef4444;">त्रुटि: ${slEsc(err.message)}</span>`;
+  }
+}
+window.sutraActivity = sutraActivity;
 window.loadSutradharList = loadSutradharList;
 window.sutraAction = sutraAction;
 window.sutraNudgeUnfinished = sutraNudgeUnfinished;

@@ -1282,7 +1282,16 @@ function goToApp() {
 // -----------------------------------------------------------------------
 // TAB SWITCHING
 // -----------------------------------------------------------------------
+// tells the server what the Sutradhar did, so the admin can see the work (fire and forget)
+function trackSutra(kind, detail) {
+  try {
+    if (!firebase.auth().currentUser) return;
+    authFetch('/api/sutradhar/activity', { method: 'POST', body: JSON.stringify({ kind: kind, detail: detail || '' }) }).catch(() => {});
+  } catch (e) {}
+}
+
 function showTab(tab) {
+  trackSutra('tab', tab);
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
 
@@ -1401,6 +1410,7 @@ async function enableScriptReminders() {
 }
 
 function switchCallingScript(id) {
+  trackSutra('script_open', id);
   document.querySelectorAll('.script-pane').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.script-btn').forEach(b => {
     b.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
@@ -1419,6 +1429,7 @@ function copyScriptContent(elementId, btnEl) {
   const el = document.getElementById(elementId);
   if (!el) return;
   const text = el.innerText;
+  trackSutra('script_copy', String(elementId).replace('content-', ''));
   navigator.clipboard.writeText(text).then(() => {
     const orig = btnEl.innerHTML;
     btnEl.innerHTML = '✓ कॉपी हो गया!';

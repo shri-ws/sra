@@ -420,3 +420,30 @@ def test_sutradhar_inactive_after_30_days():
     client.post("/api/sutradhar/leads/add", headers=hdr, json={"customer_phone": "9866600006", "customer_name": "ग्राहक"})
     d = client.get("/api/sutradhar/admin/sutradhars", headers=ADMIN).json()
     assert next(u for u in d["sutradhars"] if u["phone"] == phone)["group"] == "active"
+
+
+def test_sutradhar_activity_for_admin():
+    phone, cust = "9844400004", "9855500005"
+    hdr = {"Authorization": f"Bearer mock_token_{phone}"}
+    assert client.post("/api/sutradhar/register", headers=hdr, json={"name": "कामकाजी", "phone": phone}).status_code == 200
+    sid = client.get("/api/sutradhar/login", headers=hdr).json()["sutradhar"]["id"]
+    for kind, detail in [("tab", "scripts"), ("script_open", "vivah"), ("script_copy", "vivah"), ("script_copy", "vivah")]:
+        assert client.post("/api/sutradhar/activity", headers=hdr, json={"kind": kind, "detail": detail}).status_code == 200
+    assert client.post("/api/sutradhar/activity", headers=hdr, json={"kind": "open"}).status_code == 400
+    assert client.post("/api/sutradhar/activity", json={"kind": "tab", "detail": "home"}).status_code == 401
+    assert client.post("/api/sutradhar/leads/add", headers=hdr, json={"customer_phone": cust, "customer_name": "सीता"}).status_code == 200
+    o = client.post("/api/sutradhar/orders/create", headers={"Authorization": f"Bearer mock_token_{cust}"},
+                    json={"customer_phone": cust, "service_id": "muhurta_vivah"}).json()
+    assert _capture(o["order_id"], 2100_00, "pay_act_1").json()["commission_created"] is True
+
+    url = f"/api/sutradhar/admin/sutradhar-activity?sutradhar_id={sid}"
+    assert client.get(url).status_code == 401
+    d = client.get(url, headers=ADMIN).json()
+    m = d["summary"]
+    assert m["leads_total"] == 1 and m["leads_sold"] == 1 and m["conversion_pct"] == 100 and m["sales"] == 1
+    assert m["portal_days_30"] == 1 and m["opens_30"] == 1 and m["script_copies_30"] == 2 and m["script_opens_30"] == 1
+    assert d["leads"][0]["outcome"] == "sale" and d["leads"][0]["name"] == "सीता"
+    types_ = [e["type"] for e in d["timeline"]]
+    assert {"joined", "lead", "sale", "portal"} <= set(types_)
+    portal = next(e for e in d["timeline"] if e["type"] == "portal")
+    assert "विवाह मिलान स्क्रिप्ट ×2" in portal["text"]

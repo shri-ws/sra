@@ -2938,6 +2938,195 @@ def note_signup_attempt(phone: Optional[str]):
         logger.warning(f"[Sutradhar] signup note failed: {e}")
 
 
+# ── Sutradhar activity: what each Sutradhar did on the portal, one document per Sutradhar per day ──
+ACTIVITY_COL = "sutradhar_activity"
+ACTIVITY_KINDS = {"open", "script_open", "script_copy", "tab", "lead_form"}
+ACTIVITY_MAX_EVENTS = 120          # per Sutradhar per day
+
+
+def note_sutra_activity(sutradhar_id: str, kind: str, detail: str = ""):
+    """Counts the action for today (IST) and keeps a short list of the day's events."""
+    if not sutradhar_id or kind not in ACTIVITY_KINDS:
+        return
+    try:
+        day = today_ist()
+        doc_id = f"{sutradhar_id}_{day}"
+        now = datetime.now(timezone.utc).isoformat()
+        detail = re.sub(r"[^\w\-]", "", str(detail or ""))[:30]
+        with _store_lock:
+            doc = SutradharStore.get_doc(ACTIVITY_COL, doc_id) or {"sutradhar_id": sutradhar_id, "day": day, "counts": {}, "events": []}
+            key = f"{kind}:{detail}" if detail else kind
+            counts = dict(doc.get("counts") or {})
+            counts[key] = int(counts.get(key) or 0) + 1
+            doc["counts"] = counts
+            events = list(doc.get("events") or [])
+            if len(events) < ACTIVITY_MAX_EVENTS:
+                events.append({"t": now, "k": kind, "d": detail})
+            doc["events"] = events
+            doc["first_at"] = doc.get("first_at") or now
+            doc["last_at"] = now
+            SutradharStore.set_doc(ACTIVITY_COL, doc_id, doc)
+    except Exception as e:
+        logger.warning(f"[Sutradhar] activity note failed: {e}")
+
+
+class SutraActivityRequest(BaseModel):
+    kind: str
+    detail: Optional[str] = ""
+
+
+@router.post("/activity")
+async def sutra_activity(req: SutraActivityRequest, authorization: Optional[str] = Header(None)):
+    """The portal reports what the signed-in Sutradhar did (opened or copied a script, opened a tab)."""
+    me = require_sutradhar(authorization)
+    if req.kind not in ACTIVITY_KINDS - {"open"}:
+        raise HTTPException(status_code=400, detail="unknown activity")
+    note_sutra_activity(me.get("sutradhar_id") or me.get("id"), req.kind, req.detail or "")
+    return {"status": "ok"}
+
+
+SCRIPT_NAMES = {"upgrade": "अपग्रेड स्क्रिप्ट", "vivah": "विवाह मिलान स्क्रिप्ट", "patrika": "पत्रिका स्क्रिप्ट", "faq": "सवाल-जवाब"}
+TAB_NAMES = {"home": "होम", "articles": "आर्टिकल्स", "scripts": "स्क्रिप्ट", "incentive": "इंसेंटिव", "payout": "पेआउट", "profile": "प्रोफ़ाइल"}
+
+
+def _activity_days(ids: set) -> List[Dict[str, Any]]:
+    return [d for d in SutradharStore.query_all(ACTIVITY_COL) if d.get("sutradhar_id") in ids]
+
+
+def _aware(iso: str) -> Optional[datetime]:
+    try:
+        dt = datetime.fromisoformat(iso)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+
+
+@router.get("/admin/sutradhar-activity")
+async def admin_sutradhar_activity(sutradhar_id: str = Query(...), days: int = Query(90, ge=1, le=400),
+                                   authorization: Optional[str] = Header(None)):
+    """Everything one Sutradhar has done: joining, portal visits, scripts, leads (and what became of them), sales, payouts."""
+    require_admin(authorization)
+    s = next((x for x in SutradharStore.query_all("sutradhars")
+              if sutradhar_id in (x.get("sutradhar_id"), x.get("id"))), None)
+    if not s:
+        raise HTTPException(status_code=404, detail="सूत्रधार नहीं मिला।")
+    sid = s.get("sutradhar_id") or s.get("id")
+    ids = get_sutradhar_alias_ids(sid) | {sid, s.get("id") or sid}
+    now = datetime.now(timezone.utc)
+    since = now - timedelta(days=days)
+    since_day = since.astimezone(IST).date().isoformat()
+    d7 = now - timedelta(days=7)
+    d30 = now - timedelta(days=30)
+
+    leads = [l for l in SutradharStore.query_all("leads") if l.get("sutradhar_id") in ids]
+    comms = [c for c in SutradharStore.query_all("commissions") if c.get("sutradhar_id") in ids]
+    by_lead = {c.get("lead_id"): c for c in comms if c.get("lead_id")}
+    timeline: List[Dict[str, Any]] = []
+
+    if s.get("created_at"):
+        timeline.append({"at": s["created_at"], "type": "joined", "text": "पोर्टल पर पंजीकरण पूरा किया (परीक्षण पास)"})
+    if s.get("push_since"):
+        timeline.append({"at": s["push_since"], "type": "push",
+                         "text": "रोज़ की स्क्रिप्ट सूचना चालू की" + ("" if s.get("push_on") else " (अब बंद है)")})
+
+    lead_rows = []
+    for l in sorted(leads, key=lambda x: x.get("created_at") or "", reverse=True):
+        c = by_lead.get(l.get("id"))
+        exp = _aware(l.get("expires_at") or "")
+        if c:
+            outcome = "sale"
+        elif exp and exp > now:
+            outcome = "active"
+        else:
+            outcome = "expired"
+        lead_rows.append({"name": l.get("customer_name", ""), "phone": l.get("customer_phone", ""),
+                          "created_at": l.get("created_at", ""), "expires_at": l.get("expires_at", ""),
+                          "outcome": outcome, "product": (c or {}).get("product_name", ""), "amount": (c or {}).get("amount", 0)})
+        ca = _aware(l.get("created_at") or "")
+        if ca and ca >= since:
+            timeline.append({"at": l["created_at"], "type": "lead",
+                             "text": f"लीड डाली: {l.get('customer_name') or 'जातक'} ({l.get('customer_phone', '')})"})
+
+    for c in comms:
+        ca = _aware(c.get("created_at") or "")
+        if ca and ca >= since:
+            timeline.append({"at": c["created_at"], "type": "sale",
+                             "text": f"बिक्री: {c.get('product_name') or c.get('product')} — ग्राहक {c.get('customer_phone', '')}, "
+                                     f"भुगतान ₹{int(c.get('order_amount') or 0):,}, दक्षिणा ₹{int(c.get('amount') or 0):,}"
+                                     + (" (रद्द)" if c.get("status") in ("cancelled", "rejected") else "")})
+        if c.get("status") == "paid" and c.get("paid_at"):
+            pa = _aware(c["paid_at"])
+            if pa and pa >= since:
+                timeline.append({"at": c["paid_at"], "type": "payout",
+                                 "text": f"दक्षिणा ₹{int(c.get('amount') or 0):,} चुकाई" + (f" (UTR {c['utr']})" if c.get("utr") else "")})
+
+    act_days = sorted(_activity_days(ids), key=lambda d: d.get("day") or "", reverse=True)
+    day_rows = []
+    totals = {"portal_days_30": 0, "opens_30": 0, "script_opens_30": 0, "script_copies_30": 0}
+    d30_day = d30.astimezone(IST).date().isoformat()
+    for a in act_days:
+        counts = a.get("counts") or {}
+        opens = int(counts.get("open") or 0)
+        sopen = {k.split(":", 1)[1]: v for k, v in counts.items() if k.startswith("script_open:")}
+        scopy = {k.split(":", 1)[1]: v for k, v in counts.items() if k.startswith("script_copy:")}
+        tabs = {k.split(":", 1)[1]: v for k, v in counts.items() if k.startswith("tab:")}
+        if (a.get("day") or "") >= d30_day:
+            totals["portal_days_30"] += 1
+            totals["opens_30"] += opens
+            totals["script_opens_30"] += sum(sopen.values())
+            totals["script_copies_30"] += sum(scopy.values())
+        if (a.get("day") or "") < since_day:
+            continue
+        parts = []
+        if opens:
+            parts.append(f"पोर्टल {opens} बार खोला")
+        if sopen:
+            parts.append("स्क्रिप्ट पढ़ी: " + ", ".join(f"{SCRIPT_NAMES.get(k, k)} ×{v}" for k, v in sopen.items()))
+        if scopy:
+            parts.append("स्क्रिप्ट कॉपी की: " + ", ".join(f"{SCRIPT_NAMES.get(k, k)} ×{v}" for k, v in scopy.items()))
+        if tabs:
+            parts.append("खोले: " + ", ".join(f"{TAB_NAMES.get(k, k)} ×{v}" for k, v in tabs.items()))
+        if int(counts.get("lead_form") or 0):
+            parts.append(f"लीड फ़ॉर्म खोला ×{counts['lead_form']}")
+        day_rows.append({"day": a.get("day"), "first_at": a.get("first_at", ""), "last_at": a.get("last_at", ""),
+                         "opens": opens, "script_opens": sum(sopen.values()), "script_copies": sum(scopy.values()),
+                         "summary": " · ".join(parts)})
+        if parts:
+            timeline.append({"at": a.get("last_at") or a.get("first_at") or "", "type": "portal", "day": a.get("day"),
+                             "text": " · ".join(parts)})
+
+    timeline.sort(key=lambda x: x.get("at") or "", reverse=True)
+    live = [c for c in comms if c.get("status") not in ("cancelled", "rejected")]
+    sold_leads = sum(1 for r in lead_rows if r["outcome"] == "sale")
+    summary = {
+        "leads_total": len(leads),
+        "leads_7": sum(1 for l in leads if (_aware(l.get("created_at") or "") or since) >= d7),
+        "leads_30": sum(1 for l in leads if (_aware(l.get("created_at") or "") or since) >= d30),
+        "leads_active": sum(1 for r in lead_rows if r["outcome"] == "active"),
+        "leads_sold": sold_leads,
+        "conversion_pct": round(100 * sold_leads / len(leads)) if leads else 0,
+        "sales": len(live),
+        "sales_30": sum(1 for c in live if (_aware(c.get("created_at") or "") or since) >= d30),
+        "earned": sum(int(c.get("amount") or 0) for c in live),
+        "paid": sum(int(c.get("amount") or 0) for c in live if c.get("status") == "paid"),
+        "login_count": int(s.get("login_count") or 0),
+        "last_login_at": s.get("last_login_at", ""),
+        "push_on": bool(s.get("push_on")),
+        "reminded_on": s.get("reminded_on", ""),
+        **totals,
+    }
+    summary["pending"] = summary["earned"] - summary["paid"]
+    return {
+        "sutradhar": {"sutradhar_id": sid, "name": s.get("name", ""), "phone": s.get("phone", ""), "email": s.get("email", ""),
+                      "joined_at": s.get("created_at", ""), "status": s.get("status", "active"), "upi_id": s.get("upi_id", "")},
+        "days": days,
+        "summary": summary,
+        "leads": lead_rows[:300],
+        "portal_days": day_rows[:120],
+        "timeline": timeline[:400],
+    }
+
+
 # -----------------------------------------------------------------------------
 # ENDPOINT 8: SUTRADHAR LOGIN AND DASHBOARD SUMMARY (signed-in Sutradhar only)
 # -----------------------------------------------------------------------------
@@ -2952,6 +3141,7 @@ async def login_sutradhar(phone: Optional[str] = Query(None, description="Ignore
             note_signup_attempt(token_phone(verify_firebase_token(authorization)))
         raise
     note_sutradhar_login(sutradhar)
+    note_sutra_activity(sutradhar.get("sutradhar_id") or sutradhar.get("id"), "open")
     return {"status": "success", "sutradhar": sutradhar}
 
 
