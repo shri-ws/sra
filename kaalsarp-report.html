@@ -9,7 +9,7 @@
 <link rel="icon" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Tiro+Devanagari+Sanskrit&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root { --maroon:#5b1a0e; --gold:#b8862b; --cream:#fffaf0; --ink:#2b1a12; --muted:#6f5a4b; --line:#ead9b8; --green:#166a43; --red:#9a1b0a; }
   * { box-sizing: border-box; }
@@ -35,7 +35,7 @@
   #report { background: #fff; color: var(--ink); }
   .rp { padding: 26px 30px; }
   .rp-head { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 12px; margin-bottom: 16px; }
-  .rp-head h1 { font-family: 'Tiro Devanagari Sanskrit', serif; color: var(--maroon); font-weight: 400; font-size: 27px; margin: 4px 0; }
+  .rp-head h1 { color: var(--maroon); font-weight: 700; font-size: 26px; margin: 4px 0; }
   .rp-head .sub { color: var(--muted); font-size: 13.5px; }
   .rp-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 14px; margin-bottom: 14px; }
   .rp-chart { display: flex; justify-content: center; margin: 8px 0 14px; }
@@ -55,7 +55,7 @@
   .badge.off { background: #e6f4ea; color: var(--green); }
   .why { font-size: 14px; margin: 6px 0 8px; color: #3b2a20; }
   .src { border-top: 1px dashed var(--line); margin-top: 8px; padding-top: 8px; }
-  .shloka { font-family: 'Tiro Devanagari Sanskrit', serif; font-size: 16.5px; line-height: 1.6; color: #4a1608; background: #fbf4e6; border-radius: 8px; padding: 8px 12px; margin: 4px 0 6px; }
+  .shloka { font-family: 'Noto Serif Devanagari', serif; font-size: 16px; font-weight: 600; line-height: 1.6; color: #4a1608; background: #fbf4e6; border-radius: 8px; padding: 8px 12px; margin: 4px 0 6px; }
   .ref { font-size: 12.8px; color: var(--muted); }
   .ref b { color: var(--maroon); }
   .st { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 10px; margin-left: 4px; }
@@ -74,6 +74,23 @@
   .pw-pay { width:100%; margin-top:12px; background:var(--green); color:#fff; border:0; border-radius:12px; padding:14px; font-size:17px; font-weight:800; cursor:pointer; }
   .pw-code { display:flex; gap:8px; margin-top:8px; }
   .pw-code input { flex:1; padding:9px 10px; border:1px solid var(--line); border-radius:8px; text-transform:uppercase; font-weight:700; }
+  /* site styles (sra-elegance.css) set h1-h3 to Cormorant Garamond !important; the report keeps a Devanagari font
+     that this page loads, so the heading looks right on screen and in the PDF */
+  :root body #report h1, :root body #report h2, :root body #report h3, :root body #report .rp-head h1 { font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif !important; letter-spacing: 0 !important; }
+  :root body #report .rp-head h1 { font-size: 26px !important; font-weight: 700 !important; color: var(--maroon) !important; line-height: 1.35 !important; margin: 4px 0 !important; }
+  :root body #report .sec > h3 { font-size: 17px !important; color: var(--maroon) !important; }
+  :root body #report .shloka, :root body #report .mantra { font-family: 'Noto Serif Devanagari', serif !important; letter-spacing: 0 !important; }
+  .arth b { color: var(--maroon); }
+  .granth { font-size: 13px; color: var(--maroon); font-weight: 600; margin-top: 6px; }
+  .an p { font-size: 14.5px; line-height: 1.7; margin: 0 0 10px; }
+  .an h4 { margin: 14px 0 6px; font-size: 15.5px; color: var(--maroon); }
+  .an ul { margin: 0 0 10px; padding-left: 20px; } .an li { font-size: 14.5px; line-height: 1.65; margin-bottom: 5px; }
+  .an .mantra { font-family: 'Noto Serif Devanagari', serif; font-weight: 600; color: #4a1608; }
+  .cta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .cta a { display: block; text-decoration: none; border-radius: 12px; padding: 12px 14px; border: 1.5px solid var(--line); background: var(--cream); color: var(--ink); }
+  .cta a b { display: block; color: var(--maroon); font-size: 15px; } .cta a span { font-size: 12.5px; color: var(--muted); }
+  .cta a.main { background: var(--maroon); border-color: var(--maroon); } .cta a.main b, .cta a.main span { color: #fff; }
+  @media (max-width: 560px) { .cta { grid-template-columns: 1fr; } }
   .disc { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 18px; padding-top: 10px; }
 </style>
 <link rel="stylesheet" href="ui-overrides.css">
@@ -106,7 +123,7 @@
 <script src="sra-coupon-engine.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="patrikaEngineBridge.js?v=13"></script>
-<script src="kaalsarpRules.js?v=2"></script>
+<script src="kaalsarpRules.js?v=3"></script>
 <script src="html2pdf.bundle.min.js?v=13"></script>
 <script src="sra-ui.js?v=32"></script>
 <script src="sra-translate.js"></script>
@@ -116,11 +133,6 @@
 (function () {
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const STATUS = {
-    book_verified: 'छपी पुस्तक से मिलाया', etext_unverified: 'ऑनलाइन पाठ — पुस्तक से मिलान बाक़ी',
-    ocr_reconstructed: 'स्कैन से पढ़ा — पुस्तक से मिलान बाक़ी', tradition: 'परंपरा — श्लोक-प्रमाण नहीं',
-    modern: 'आधुनिक लेखक', reference: 'संदर्भ'
-  };
   let list = [], current = null;
 
   function loadList() {
@@ -130,30 +142,105 @@
       : '<option value="">कोई सेव कुंडली नहीं — पहले पत्रिका पर कुंडली बनाएँ</option>';
   }
 
-  function refLine(s) {
-    const bits = [];
-    if (s.chapter) bits.push(`अध्याय ${esc(s.chapter)}${s.chapter_title ? ' (' + esc(s.chapter_title) + ')' : ''}`);
-    if (s.verse) bits.push(`श्लोक ${esc(s.verse)}`);
-    if (s.printed_page) bits.push(`पृष्ठ ${esc(s.printed_page)}`);
-    return `📖 <b>${esc(s.granth)}</b>${bits.length ? ' · ' + bits.join(' · ') : ''}<span class="st ${esc(s.status)}">${esc(STATUS[s.status] || s.status)}</span>`
-      + (s.edition ? `<br><span>संस्करण: ${esc(s.edition)}</span>` : '');
+  // Each rule shows only: its name, the Sanskrit shloka, the meaning, and the granth with its chapter.
+  // Sources without a shloka text (tradition / modern authors) are not shown.
+  // rule names without the reference numbers kept in kaalsarpRules.js, e.g. "(BPHS 53.30)", "(फलदीपिका)"
+  const cleanTitle = t => String(t || '').replace(/\s*\((?:BPHS|फलदीपिका|मानसागरी)[^)]*\)/g, '').replace(/,\s*BPHS[^)]*\)/g, ')').trim();
+  const isGood = r => /शुभ योग/.test(r.title);
+  const withShloka = srcs => (srcs || []).filter(s => s.text && s.text.length);
+  function granthLine(s) {
+    const ch = s.chapter ? `अध्याय ${esc(s.chapter)}${s.chapter_title ? ' — ' + esc(s.chapter_title) : ''}` : (s.chapter_title ? esc(s.chapter_title) : '');
+    return `<div class="granth">${esc(s.granth)}${ch ? ', ' + ch : ''}</div>`;
   }
-
   function srcBlock(s) {
     return `<div class="src">
-      ${s.text && s.text.length ? `<div class="shloka">${s.text.map(esc).join('<br>')}</div>` : ''}
-      <div class="ref">${refLine(s)}</div>
+      <div class="shloka" lang="sa">${s.text.map(esc).join('<br>')}</div>
       ${s.arth_hi ? `<div class="arth"><b>अर्थ:</b> ${esc(s.arth_hi)}</div>` : ''}
-      ${s.check ? `<div class="ref" style="margin-top:3px">जाँच-टिप्पणी: ${esc(s.check)}</div>` : ''}
+      ${granthLine(s)}
+    </div>`;
+  }
+  function ruleCard(r) {
+    const srcs = withShloka(r.sources);
+    if (!srcs.length) return '';
+    return `<div class="rule ${r.applies ? 'on' : ''}">
+      <div class="rule-h"><b>${esc(cleanTitle(r.title))}</b><span class="badge ${r.applies ? 'on' : 'off'}">${r.applies ? 'आपकी कुंडली में है' : 'नहीं है'}</span></div>
+      ${srcs.map(srcBlock).join('')}
     </div>`;
   }
 
-  function ruleCard(r) {
-    return `<div class="rule ${r.applies ? 'on' : ''}">
-      <div class="rule-h"><b>${esc(r.title)}</b><span class="badge ${r.applies ? 'on' : 'off'}">${r.applies ? 'आपकी कुंडली में है' : 'नहीं है'}</span></div>
-      <div class="why">${esc(r.why)}</div>
-      ${r.note ? `<div class="note">ध्यान दें: ${esc(r.note)}</div>` : ''}
-      ${r.sources.map(srcBlock).join('')}
+  // ---------- Rahu-Ketu analysis at the end ----------
+  const RAHU_IN = {
+    1: 'व्यक्तित्व में तेज़ी, महत्वाकांक्षा और अलग पहचान बनाने की चाह; कभी-कभी बेचैनी, जल्दबाज़ी और स्वास्थ्य के प्रति लापरवाही।',
+    2: 'वाणी और धन के मामलों में उतार-चढ़ाव; परिवार में मतभेद संभव। बोलने में संयम और बचत की आदत लाभ देती है।',
+    3: 'साहस, पराक्रम और संपर्कों से लाभ; यात्रा, मीडिया, लेखन या तकनीक में सफलता की अच्छी संभावना।',
+    4: 'घर, माता और मन की शान्ति पर असर; मकान-वाहन के मामलों में देरी या बदलाव। घर का वातावरण शान्त रखना ज़रूरी।',
+    5: 'शिक्षा, संतान और निर्णय-क्षमता से जुड़े विषयों में भ्रम या देरी; शेयर-सट्टे से दूर रहना उचित।',
+    6: 'शत्रु, रोग और ऋण पर विजय दिलाने वाला अच्छा स्थान; प्रतियोगिता, नौकरी और मुकदमों में सफलता।',
+    7: 'विवाह और साझेदारी में असामान्य स्थितियाँ, देरी या ग़लतफ़हमी; जीवनसाथी के साथ स्पष्ट बातचीत ज़रूरी।',
+    8: 'अचानक घटनाएँ, गुप्त बातें और स्वास्थ्य पर ध्यान आवश्यक; शोध, गूढ़ विद्या और बीमा/विरासत से लाभ भी संभव।',
+    9: 'भाग्य, पिता और गुरु के विषय में उतार-चढ़ाव; धर्म को लेकर अपनी अलग सोच। विदेश या दूर की यात्रा से लाभ।',
+    10: 'करियर में तेज़ उन्नति और पद-प्रतिष्ठा की चाह; राजनीति, प्रबंधन, तकनीक में सफलता, पर कार्यस्थल पर सावधानी।',
+    11: 'लाभ और आय का बहुत अच्छा स्थान; बड़े संपर्कों और मित्रों से फ़ायदा, इच्छाएँ पूरी होने के योग।',
+    12: 'खर्च, विदेश और नींद से जुड़े विषय प्रमुख; विदेश-संबंध, आध्यात्मिकता और दान से शान्ति मिलती है।'
+  };
+  const KETU_IN = {
+    1: 'स्वभाव में वैराग्य, अंतर्मुखता और आध्यात्मिक झुकाव; स्वास्थ्य पर ध्यान रखें।',
+    2: 'धन और परिवार के प्रति कुछ उदासीनता; वाणी कभी-कभी कटु हो सकती है।',
+    3: 'साहस और गहरी अंतर्दृष्टि; भाई-बहनों से दूरी संभव।',
+    4: 'घर-परिवार से मन का कुछ अलगाव; मन की शान्ति के लिए ध्यान लाभकारी।',
+    5: 'गूढ़ विद्या, मंत्र और शोध में रुचि; संतान-विषय में धैर्य आवश्यक।',
+    6: 'रोग और शत्रुओं पर विजय; सेवा-भाव से सफलता।',
+    7: 'जीवनसाथी से अपेक्षाओं में अंतर; साझेदारी में सावधानी।',
+    8: 'गूढ़ ज्ञान और अचानक बदलाव; स्वास्थ्य जाँच समय पर कराते रहें।',
+    9: 'धर्म और गुरु के प्रति अपनी अलग राह; तीर्थ-यात्रा से शान्ति।',
+    10: 'कार्य-क्षेत्र में बदलाव की इच्छा; निःस्वार्थ कर्म से प्रतिष्ठा।',
+    11: 'लाभ के प्रति संतोष-भाव; बड़े समूहों से कुछ दूरी।',
+    12: 'मोक्ष, ध्यान और आध्यात्मिक उन्नति का श्रेष्ठ स्थान; खर्च पर नियंत्रण रखें।'
+  };
+  function analysis(k, res) {
+    const ks = res.kalasarpa;
+    const rh = ks.rahuHouse || null;
+    const kh = rh ? ((rh + 5) % 12) + 1 : null;
+    const on = res.rules.slice(1).filter(r => r.applies && !isGood(r));
+    const good = res.rules.slice(1).filter(r => r.applies && isGood(r));
+    const verdict = ks.applies
+      ? (ks.full
+        ? `आपकी कुंडली में <b>"${esc(ks.name)}" कालसर्प योग</b> बनता है — सातों ग्रह राहु-केतु के एक ही ओर हैं।`
+        : `आपकी कुंडली में <b>आंशिक कालसर्प ("${esc(ks.name)}")</b> है — छह ग्रह एक ओर और एक ग्रह दूसरी ओर है, इसलिए इसका प्रभाव पूर्ण कालसर्प से कम माना जाता है।`)
+      : `आपकी कुंडली में <b>कालसर्प योग नहीं बनता</b> — ग्रह राहु-केतु के दोनों ओर बँटे हुए हैं। कालसर्प के नाम से डरने या उसकी महँगी पूजा कराने की आवश्यकता नहीं है।`;
+    const yogas = (on.length
+      ? `<p>राहु-केतु से जुड़े अशुभ शास्त्रीय योगों में से <b>${on.length}</b> आपकी कुंडली में लागू होते हैं: ${on.map(r => esc(cleanTitle(r.title))).join('; ')}।</p>`
+      : `<p>राहु-केतु से जुड़ा कोई भी अशुभ शास्त्रीय योग आपकी कुंडली में लागू नहीं होता — यह अच्छी बात है।</p>`)
+      + (good.length ? `<p>शुभ पक्ष: ${good.map(r => esc(cleanTitle(r.title))).join('; ')} — यह राहु को आपके लिए सहायक बनाता है।</p>` : '');
+    const serious = ks.full || on.length >= 3;
+    const todo = [];
+    if (ks.full) todo.push('किसी योग्य आचार्य से कालसर्प शान्ति / नाग-पूजा विधि-विधान से कराएँ — नाग-पंचमी, श्रावण मास या किसी अमावस्या पर विशेष फलदायी।');
+    if (ks.applies || on.length) {
+      todo.push('राहु मंत्र का जप: <span class="mantra">ॐ भ्रां भ्रीं भ्रौं सः राहवे नमः</span> (कुल 18,000 जप, या प्रतिदिन एक माला)।');
+      todo.push('केतु मंत्र का जप: <span class="mantra">ॐ स्रां स्रीं स्रौं सः केतवे नमः</span> (कुल 17,000 जप, या प्रतिदिन एक माला)।');
+      todo.push('शनिवार को काले तिल, कंबल या सरसों का तेल ज़रूरतमंद को दान करें; प्रतिदिन शिवलिंग पर जल अर्पित करें।');
+    } else {
+      todo.push('किसी विशेष शान्ति-पूजा की आवश्यकता नहीं। फिर भी शिवजी की आराधना और "ॐ नमः शिवाय" का जप मन को स्थिर रखता है।');
+    }
+    if (res.remedies && res.remedies.length) todo.push('ऊपर "शान्ति व उपाय" में दिए शास्त्रोक्त उपाय आपकी कुंडली के अनुसार चुने गए हैं; उन्हें श्रद्धा से करें।');
+    todo.push('राहु या केतु की महादशा / अन्तर्दशा के समय बड़े निर्णय (नया व्यापार, बड़ा निवेश, विवाह) सोच-समझकर और सलाह लेकर करें।');
+    return `<div class="sec an"><h3>राहु-केतु का समग्र विश्लेषण</h3>
+      <p>${verdict}</p>
+      ${yogas}
+      ${rh ? `<h4>राहु ${rh}वें भाव में</h4><p>${RAHU_IN[rh]}</p><h4>केतु ${kh}वें भाव में</h4><p>${KETU_IN[kh]}</p>` : ''}
+      <h4>कुल मिलाकर</h4>
+      <p>${serious
+        ? 'राहु-केतु का प्रभाव आपकी कुंडली में ध्यान देने योग्य है। घबराने की बात नहीं — सही उपाय और सही समय पर लिए निर्णय इसके असर को काफ़ी हद तक शान्त कर देते हैं।'
+        : ks.applies || on.length
+          ? 'राहु-केतु का प्रभाव मध्यम है। नियमित जप, दान और संयमित जीवन से यह अनुकूल हो जाता है।'
+          : 'राहु-केतु आपकी कुंडली में कोई बड़ी बाधा नहीं बना रहे। अपनी मेहनत और सही दिशा पर भरोसा रखें।'}</p>
+      <h4>आपको क्या करना चाहिए</h4>
+      <ul>${todo.map(t => `<li>${t}</li>`).join('')}</ul>
+      <p>आपकी पूरी कुंडली, दशा और जीवन की परिस्थिति देखकर व्यक्तिगत उपाय जानने के लिए आचार्य से सीधे बात करें।</p>
+      <div class="cta">
+        <a class="main" href="https://shriramjiastro.in/consultation.html"><b>व्यक्तिगत परामर्श लें</b><span>shriramjiastro.in/consultation.html</span></a>
+        <a href="https://shriramjiastro.in/donate.html"><b>सेवा / दान करें</b><span>shriramjiastro.in/donate.html</span></a>
+      </div>
     </div>`;
   }
 
@@ -162,19 +249,21 @@
     const groups = {};
     res.rules.slice(1).forEach(r => (groups[r.group] = groups[r.group] || []).push(r));
     const order = ['शास्त्रीय योग', 'सर्प-शाप (संतान)', 'सर्प-भय', 'ग्रहण-जन्म', 'सर्प-द्रेष्काण', 'राहु-केतु का प्रभाव', 'राहु-केतु के अन्य शास्त्रीय योग'];
-    const books = {};
-    res.rules.concat(res.remedies).forEach(r => r.sources.forEach(s => {
-      const key = s.granth + '|' + (s.edition || '');
-      const b = books[key] = books[key] || { granth: s.granth, edition: s.edition, refs: new Set() };
-      b.refs.add([s.chapter ? 'अ.' + s.chapter : '', s.verse ? 'श्लो.' + s.verse : '', s.printed_page ? 'पृ.' + s.printed_page : ''].filter(Boolean).join(' '));
-    }));
     let svg = '';
     try { svg = PatrikaEngineBridge.renderNorthIndianChartSVG(calc, 'Rahu'); } catch (e) { svg = ''; }
+    const section = g => {
+      const cards = (groups[g] || []).map(ruleCard).filter(Boolean).join('');
+      return cards ? `<div class="sec"><h3>${esc(g)}</h3>${cards}</div>` : '';
+    };
+    const remedyCards = res.remedies.map(m => {
+      const srcs = withShloka(m.sources);
+      return srcs.length ? `<div class="rule"><div class="rule-h"><b>${esc(cleanTitle(m.title))}</b></div>${srcs.map(srcBlock).join('')}</div>` : '';
+    }).filter(Boolean).join('');
     $('report').innerHTML = `<div class="rp">
       <div class="rp-head">
         <div class="sub">श्री राम जी एस्ट्रो · shriramjiastro.in</div>
         <h1>कालसर्प व सर्प-योग रिपोर्ट</h1>
-        <div class="sub">हर नियम के साथ मूल श्लोक, ग्रंथ, अध्याय, श्लोक-संख्या और पृष्ठ</div>
+        <div class="sub">मूल श्लोक, अर्थ और शास्त्र-प्रमाण सहित</div>
       </div>
       <div class="rp-meta">
         <div><b>नाम:</b> ${esc(k.name)}</div><div><b>जन्म:</b> ${esc(k.date)}, ${esc(k.time)}</div>
@@ -185,19 +274,10 @@
       <div class="verdict ${ks.applies ? 'yes' : 'no'}">
         <b>${ks.applies ? (ks.full ? 'कालसर्प योग: हाँ — "' + esc(ks.name) + '"' : 'आंशिक कालसर्प: "' + esc(ks.name) + '"') : 'कालसर्प योग: नहीं'}</b>
         <div class="why">${esc(ks.why)}</div>
-        <div class="note">कालसर्प योग परंपरा से माना जाता है; बृहत्पाराशर, बृहज्जातक, फलदीपिका, जातक पारिजात, मानसागरी के उपलब्ध पाठों में इस नाम का योग नहीं मिला। इसलिए नीचे के शास्त्रीय योग अलग से, श्लोक-प्रमाण सहित दिए गए हैं।</div>
-        ${ks.sources.map(srcBlock).join('')}
       </div>
-      ${order.filter(g => groups[g]).map(g => `<div class="sec"><h3>${esc(g)}</h3>${groups[g].map(ruleCard).join('')}</div>`).join('')}
-      <div class="sec"><h3>शान्ति व उपाय (शास्त्र-वचन)</h3>
-        ${res.remedies.map(m => `<div class="rule"><div class="rule-h"><b>${esc(m.title)}</b></div>${m.sources.map(srcBlock).join('')}</div>`).join('')}
-      </div>
-      <div class="sec"><h3>संदर्भ ग्रंथ-सूची</h3><ol class="biblio">
-        ${Object.values(books).map(b => `<li><b>${esc(b.granth)}</b>${b.edition ? ' — ' + esc(b.edition) : ''}<br><span class="ref">${[...b.refs].filter(Boolean).map(esc).join('; ')}</span></li>`).join('')}
-      </ol></div>
-      <div class="disc">${esc(res.strength_standard)}<br>
-        ग्रह-स्थिति Swiss Ephemeris (लाहिरी अयनांश) से। श्लोक जहाँ "छपी पुस्तक से मिलाया" लिखा है, वहाँ पाठ और पृष्ठ-संख्या दिए गए संस्करण से हैं; बाक़ी पाठ पुस्तक से मिलाए जा रहे हैं।
-        यह रिपोर्ट शास्त्रीय नियमों की जानकारी है; जीवन के बड़े निर्णय पूरी कुंडली देखकर विद्वान ज्योतिषी की सलाह से लें।</div>
+      ${order.map(section).join('')}
+      ${remedyCards ? `<div class="sec"><h3>शान्ति व उपाय (शास्त्र-वचन)</h3>${remedyCards}</div>` : ''}
+      ${analysis(k, res)}
     </div>`;
     $('report').hidden = false;
     $('pdfBtn').hidden = false;
@@ -228,6 +308,8 @@
     // scrollX/scrollY 0: without them html2canvas shifted the capture by the page's scroll position,
     // so the PDF began with a blank band, lost that much from the end, and was cut on the right.
     try {
+      // the Devanagari fonts must be loaded before the page is drawn into the PDF
+      if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
       // iPhone/iPad Safari refuses canvases over ~16.7 million pixels, which gives blank PDFs there.
       const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const scale = ios ? Math.min(2, Math.sqrt(16e6 / (734 * $('report').scrollHeight))) : 2;
