@@ -667,9 +667,37 @@ section.hero.sra-ekmev-hero {
 /* No icons on the site: the download arrow in the app buttons goes too */
 :root body .sra-gn-app svg, :root body .sra-gd-app svg, :root body .nav-app-ico { display: none !important; }
 
+/* ── Speed feel (sra-ui.js): sliding arrow on main buttons, top progress bar, page fade ── */
+/* Main call-to-action buttons get a thin arrow that slides forward on hover / tap (sra-ui.js adds .sra-arrow) */
+:root body .sra-arrow::after {
+  content: "→"; display: inline-block; margin-left: .45em; font-weight: 700; line-height: 1;
+  transition: transform .22s cubic-bezier(.2, .8, .2, 1);
+}
+:root body .sra-arrow:hover::after, :root body .sra-arrow:focus-visible::after { transform: translateX(5px); }
+:root body .sra-arrow:active::after { transform: translateX(8px); }
+/* phones have no hover: the arrow nudges forward now and then so the button feels alive */
+@media (hover: none) {
+  :root body .sra-arrow::after { animation: sra-nudge 3.6s cubic-bezier(.2, .8, .2, 1) infinite; }
+}
+@keyframes sra-nudge { 0%, 78%, 100% { transform: none; } 86% { transform: translateX(5px); } 92% { transform: translateX(1px); } }
+/* thin bar that runs across the top the moment a link is tapped */
+#sra-nprog {
+  position: fixed; top: 0; left: 0; height: 2.5px; width: 0; z-index: 2147483000; pointer-events: none;
+  background: linear-gradient(90deg, var(--sra-kumkum, #7c1305), #d97706); box-shadow: 0 0 8px rgba(217, 119, 6, .55);
+  opacity: 0; transition: width .6s cubic-bezier(.1, .7, .2, 1), opacity .2s ease;
+}
+#sra-nprog.on { opacity: 1; }
+/* page to page: a quick fade instead of a white flash (Chrome / Android; others simply load) */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: sra-vt-out .14s ease both; }
+::view-transition-new(root) { animation: sra-vt-in .2s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes sra-vt-out { to { opacity: 0; } }
+@keyframes sra-vt-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   :root body .sra-reveal { opacity: 1 !important; transform: none !important; }
-  :root body .sra-gn-accent::after, :root body .sra-gd-acc.is-open > .sra-gd-acc-panel { animation: none !important; }
+  :root body .sra-gn-accent::after, :root body .sra-gd-acc.is-open > .sra-gd-acc-panel, :root body .sra-arrow::after { animation: none !important; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
   :root body * { transition-duration: 0s !important; }
   .sra-ekmev-hero .sra-seal, #viewHome .sra-m-seal, .sra-ekmev-hero .sra-pillars, #viewHome .sra-m-ekmev,
   .btn-hero.highlight::after, :root body .sra-tt .sra-tt-rays, .ornament-line { animation: none !important; }

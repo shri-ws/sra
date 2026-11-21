@@ -176,11 +176,93 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // 4. SPEED FEEL: sliding arrow on main buttons, a thin bar the moment a link is
+  // tapped, and the next page fetched while the finger/mouse is still on the link
+  // ══════════════════════════════════════════════════════════════════════════
+  const CTA_SELECTOR = ['.btn-hero', '.pillar-btn', '.app-primary-btn', '.report-btn-preorder', '.btn-main',
+    '.btn-paywall-primary', '.pw-pay', '.of-btn', '.sra-btn-mega-radiant', '.btn.go', '.cta-btn', '.btn-primary',
+    '.hero-ctas > a', '.btn-dhan-pay-primary', '.btn-mangal-pay-primary'].join(',');
+  const TRAIL_ARROW = /\s*[➔→➜➡»›]+\s*$/;
+  function addArrows(root) {
+    if (!root.querySelectorAll) return;
+    const els = root.matches && root.matches(CTA_SELECTOR) ? [root] : [];
+    root.querySelectorAll(CTA_SELECTOR).forEach(el => els.push(el));
+    els.forEach(el => {
+      if (el.classList.contains('sra-arrow') || el.hasAttribute('data-no-arrow') || el.disabled) return;
+      if ((el.textContent || '').trim().length < 3) return;
+      // an arrow typed in the text would show twice: drop it, the CSS one moves
+      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let n, last = null;
+      while ((n = w.nextNode())) if (n.nodeValue.trim()) last = n;
+      if (last && TRAIL_ARROW.test(last.nodeValue)) last.nodeValue = last.nodeValue.replace(TRAIL_ARROW, '');
+      el.classList.add('sra-arrow');
+    });
+  }
+
+  const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function sameSiteLink(a) {
+    if (!a || !a.href || a.target === '_blank' || a.hasAttribute('download')) return null;
+    let u;
+    try { u = new URL(a.href, location.href); } catch (e) { return null; }
+    if (u.origin !== location.origin || !/^https?:$/.test(u.protocol)) return null;
+    if (u.pathname === location.pathname && u.search === location.search) return null;   // only a #hash change
+    if (/\.(pdf|apk|zip|jpg|png|webp|mp4)$/i.test(u.pathname)) return null;
+    return u;
+  }
+  let bar = null, barTimer = null;
+  function startBar() {
+    if (REDUCED) return;
+    if (!bar) { bar = document.createElement('div'); bar.id = 'sra-nprog'; document.body.appendChild(bar); }
+    clearTimeout(barTimer);
+    bar.style.transition = 'none'; bar.style.width = '0'; bar.classList.add('on');
+    void bar.offsetWidth;
+    bar.style.transition = '';
+    bar.style.width = '72%';
+    barTimer = setTimeout(() => { bar.style.width = '90%'; }, 900);
+    setTimeout(stopBar, 8000);   // the page did not change (a script cancelled it): put the bar away
+  }
+  function stopBar() { if (bar) { clearTimeout(barTimer); bar.classList.remove('on'); bar.style.width = '0'; } }
+  const prefetched = new Set();
+  function prefetch(u) {
+    const c = navigator.connection;
+    if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return;
+    const href = u.origin + u.pathname + u.search;
+    if (prefetched.has(href) || prefetched.size > 30) return;
+    prefetched.add(href);
+    const l = document.createElement('link');
+    l.rel = 'prefetch'; l.href = href;
+    document.head.appendChild(l);
+  }
+  function setupSpeed() {
+    addArrows(document);
+    let hoverT = null;
+    document.addEventListener('pointerover', e => {
+      const a = e.target.closest && e.target.closest('a[href]');
+      const u = sameSiteLink(a);
+      if (!u) return;
+      clearTimeout(hoverT);
+      hoverT = setTimeout(() => prefetch(u), 70);
+    }, { passive: true });
+    document.addEventListener('touchstart', e => {
+      const u = sameSiteLink(e.target.closest && e.target.closest('a[href]'));
+      if (u) prefetch(u);
+    }, { passive: true });
+    document.addEventListener('click', e => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (sameSiteLink(e.target.closest && e.target.closest('a[href]'))) startBar();
+    });
+    // cards that navigate with onclick="window.location.href=…" get the bar too
+    window.addEventListener('beforeunload', () => { if (!bar || !bar.classList.contains('on')) startBar(); });
+    window.addEventListener('pageshow', stopBar);   // back button (page restored from cache)
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // BOOT
   // ══════════════════════════════════════════════════════════════════════════
   function boot() {
     upgradeAllToggles();
     setupReveal();
+    setupSpeed();
     fitNav();
     fitGnav();
     window.addEventListener('resize', scheduleFitNav);
@@ -191,22 +273,24 @@
     // theme.js and page scripts inject nav pieces and cards after load
     let queued = false;
     new MutationObserver((mutations) => {
-      let needsToggle = false, needsReveal = false;
+      let needsToggle = false, needsReveal = false, needsArrow = false;
       for (const m of mutations) {
         for (const n of m.addedNodes) {
           if (n.nodeType === 1) {
             if (n.matches && (n.matches(TOGGLE_SELECTOR) || n.querySelector(TOGGLE_SELECTOR))) needsToggle = true;
             if (n.matches && (n.matches(REVEAL_SELECTOR) || n.querySelector(REVEAL_SELECTOR))) needsReveal = true;
+            if (n.matches && (n.matches(CTA_SELECTOR) || n.querySelector(CTA_SELECTOR))) needsArrow = true;
           }
         }
       }
-      if (!needsToggle && !needsReveal) return;
+      if (!needsToggle && !needsReveal && !needsArrow) return;
       if (queued) return;
       queued = true;
       requestAnimationFrame(() => {
         queued = false;
         if (needsToggle) upgradeAllToggles();
         if (needsReveal) observeReveal(document);
+        if (needsArrow) addArrows(document);
       });
     }).observe(document.body, { childList: true, subtree: true });
   }

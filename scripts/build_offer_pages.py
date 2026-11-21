@@ -303,6 +303,10 @@ body { margin:0; font-family:'Noto Sans Devanagari', system-ui, sans-serif; colo
 .of-btn { display:inline-block; background:var(--blue); color:#fff; font-weight:700; font-size:17px; padding:13px 22px; border-radius:12px; text-decoration:none; transition:transform .15s, background .15s, box-shadow .15s; box-shadow:0 6px 18px rgba(37,99,235,.25); }
 .of-btn:hover { background:var(--blue-d); transform:translateY(-1px); }
 .of-btn:active { transform:scale(.97); }
+.of-go::after { content:"→"; display:inline-block; margin-left:.45em; transition:transform .22s cubic-bezier(.2,.8,.2,1); }
+.of-go:hover::after { transform:translateX(5px); } .of-go:active::after { transform:translateX(8px); }
+@media (hover:none) { .of-go::after { animation:ofNudge 3.6s cubic-bezier(.2,.8,.2,1) infinite; } }
+@keyframes ofNudge { 0%, 78%, 100% { transform:none; } 86% { transform:translateX(5px); } 92% { transform:translateX(1px); } }
 .of-note { margin:10px 0 0; color:var(--muted); font-size:13px; }
 .of-card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 18px 8px; margin-top:14px; animation:ofIn .5s cubic-bezier(.2,.8,.2,1) both; }
 .of-card:nth-of-type(2) { animation-delay:.06s; } .of-card:nth-of-type(3) { animation-delay:.12s; } .of-card:nth-of-type(4) { animation-delay:.18s; }
@@ -320,7 +324,7 @@ body { margin:0; font-family:'Noto Sans Devanagari', system-ui, sans-serif; colo
 .of-bar span { font-weight:700; font-size:20px; }
 .of-bar .of-btn { padding:11px 18px; font-size:16px; }
 @keyframes ofIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
-@media (prefers-reduced-motion: reduce) { .of-hero, .of-card { animation:none; } .of-btn { transition:none; } }
+@media (prefers-reduced-motion: reduce) { .of-hero, .of-card, .of-go::after { animation:none; } .of-btn { transition:none; } }
 """
 
 
