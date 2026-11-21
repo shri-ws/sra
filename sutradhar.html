@@ -582,6 +582,27 @@
 
     <!-- ========== INCENTIVE TABLE TAB ========== -->
     <div id="tab-incentive" class="tab-content p-4 space-y-4">
+
+      <!-- Target planner: how many of each per month -> monthly dakshina, against this month's real earnings -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
+        <div>
+          <div class="font-bold text-slate-900 text-base">अपना महीने का लक्ष्य बनाएँ</div>
+          <div class="text-xs text-slate-500 mt-1">हर रिपोर्ट के आगे खिसकाकर चुनिए कि इस महीने कितनी बिकवाएँगे। आपका लक्ष्य इसी फ़ोन में याद रहेगा।</div>
+        </div>
+        <div id="targetRows" class="space-y-4"></div>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div class="text-xs text-blue-800 font-semibold">आपका महीने का लक्ष्य</div>
+          <div class="text-3xl font-bold text-slate-900 mt-1" id="targetTotal">₹0</div>
+          <div class="text-xs text-slate-600 mt-1" id="targetDaily">रोज़ लगभग ₹0</div>
+          <div class="mt-3 h-2.5 bg-white rounded-full overflow-hidden border border-blue-100"><div id="targetBar" class="h-full bg-blue-600 rounded-full" style="width:0%; transition: width .4s ease"></div></div>
+          <div class="flex justify-between text-xs text-slate-600 mt-1.5">
+            <span>इस माह अब तक: <strong class="text-slate-900" id="targetDone">₹0</strong></span>
+            <span id="targetPct">0%</span>
+          </div>
+          <div class="text-xs text-slate-600 mt-2" id="targetBonus"></div>
+        </div>
+        <div class="text-[11px] text-slate-400">यह आपका अपना लक्ष्य है, कोई तय आमदनी का वादा नहीं। दक्षिणा = दाम (GST घटाकर) का 66%; कोर्स पर 30%।</div>
+      </div>
       <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 leading-relaxed">
         <strong>दक्षिणा (Dakshina / Payout) नियम:</strong> दाम GST सहित हैं; दक्षिणा GST घटाकर बचे दाम पर। हर रिपोर्ट और SaaS के पहले वर्ष पर <strong>66%</strong>, गुरुकुल कोर्स और SaaS नवीनीकरण पर <strong>30%</strong>, दैवज्ञ परामर्श पर <strong>दक्षिणा नहीं</strong> (एक दिन, एक परामर्श)।<br><strong>पेआउट:</strong> भुगतान के 2 कार्य-दिवस बाद शाम 7 बजे तक UPI में (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)।
       </div>
@@ -913,7 +934,7 @@ async function loadCatalog() {
         name: it.service_id === 'muhurta_vastu' ? 'वास्तु / यज्ञोपवीत / मुंडन मुहूर्त' : it.name,
         price: it.price, comm: it.sutradhar_commission, rate: it.commission_rate_percent
       }));
-    if (rows.length) { INCENTIVE_ROWS = rows; renderIncentiveTable(); }
+    if (rows.length) { INCENTIVE_ROWS = rows; renderIncentiveTable(); renderTargetRows(); }
   } catch (e) {}
 }
 
@@ -1555,6 +1576,7 @@ async function loadSummary() {
     document.getElementById('homePayoutTotal').textContent = inr(d.lifetime_commission);
     document.getElementById('homePayoutToday').textContent = inr(d.today_commission);
     document.getElementById('homePayoutMonth').textContent = inr(d.month_commission);
+    setTargetDone(d.month_commission);
     document.getElementById('homeActiveLeads').textContent = d.active_leads || 0;
 
     document.getElementById('payToday').textContent = inr(d.today_commission);
@@ -1679,6 +1701,74 @@ async function updateUpi() {
 // -----------------------------------------------------------------------
 // RENDER STATIC DATA
 // -----------------------------------------------------------------------
+// ---------- Monthly target planner (incentive tab) ----------
+const TARGET_KEY = 'sra_sutra_target_v1';
+const TARGET_GROUPS = [
+  { id: 'small', name: 'छोटी रिपोर्ट (मंगल, कालसर्प, धन योग, रत्न)', price: 501, comm: 280, max: 100, start: 20 },
+  { id: 'milan', name: 'गुण मिलान + मांगलिक', price: 1101, comm: 615, max: 50, start: 5 },
+  { id: 'parashara', name: 'मेगा पाराशर रिपोर्ट', price: 1111, comm: 621, max: 50, start: 5 },
+  { id: 'muhurta', name: 'वास्तु / यज्ञोपवीत / मुंडन मुहूर्त', price: 1551, comm: 867, max: 30, start: 2 },
+  { id: 'vivah', name: 'विवाह मुहूर्त', price: 2100, comm: 1174, max: 30, start: 2 },
+  { id: 'saas', name: 'ज्योतिषी सॉफ़्टवेयर (SaaS, पहला वर्ष)', price: 5100, comm: 2852, max: 20, start: 1 },
+  { id: 'course', name: '1-वर्षीय ज्योतिष कोर्स', price: 24000, comm: 6101, max: 10, start: 0 }
+];
+let targetCounts = {};
+let targetDoneAmount = 0;
+function loadTarget() {
+  try { targetCounts = JSON.parse(localStorage.getItem(TARGET_KEY) || '{}') || {}; } catch (e) { targetCounts = {}; }
+  TARGET_GROUPS.forEach(g => { if (typeof targetCounts[g.id] !== 'number') targetCounts[g.id] = g.start; });
+}
+// commission per group follows the server price list when it has loaded (same price, same dakshina)
+function syncTargetCommissions() {
+  TARGET_GROUPS.forEach(g => {
+    const row = INCENTIVE_ROWS.find(r => +r.price === g.price && +r.comm > 0);
+    if (row) g.comm = Math.floor(+row.comm);
+  });
+}
+function renderTargetRows() {
+  const box = document.getElementById('targetRows');
+  if (!box) return;
+  syncTargetCommissions();
+  box.innerHTML = TARGET_GROUPS.map(g => `
+    <div>
+      <div class="flex justify-between items-baseline gap-3">
+        <div class="text-sm font-semibold text-slate-800">${g.name}</div>
+        <div class="text-sm text-slate-900 whitespace-nowrap"><strong id="tc-${g.id}">${targetCounts[g.id]}</strong> बिक्री</div>
+      </div>
+      <div class="text-[11px] text-slate-500">₹${g.price.toLocaleString('en-IN')} · हर बिक्री पर दक्षिणा ₹${g.comm.toLocaleString('en-IN')} · <span id="ts-${g.id}">₹${(g.comm * targetCounts[g.id]).toLocaleString('en-IN')}</span></div>
+      <input type="range" min="0" max="${g.max}" value="${targetCounts[g.id]}" data-g="${g.id}" class="w-full mt-1" style="accent-color:#2563eb; height:28px">
+    </div>`).join('');
+  box.querySelectorAll('input[type=range]').forEach(r => r.addEventListener('input', () => {
+    targetCounts[r.dataset.g] = +r.value;
+    try { localStorage.setItem(TARGET_KEY, JSON.stringify(targetCounts)); } catch (e) {}
+    const g = TARGET_GROUPS.find(x => x.id === r.dataset.g);
+    document.getElementById('tc-' + g.id).textContent = r.value;
+    document.getElementById('ts-' + g.id).textContent = '₹' + (g.comm * +r.value).toLocaleString('en-IN');
+    updateTargetTotals();
+  }));
+  updateTargetTotals();
+}
+function updateTargetTotals() {
+  const total = TARGET_GROUPS.reduce((a, g) => a + g.comm * (targetCounts[g.id] || 0), 0);
+  const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+  const el = id => document.getElementById(id);
+  if (!el('targetTotal')) return;
+  el('targetTotal').textContent = fmt(total);
+  el('targetDaily').textContent = total ? `रोज़ लगभग ${fmt(total / 30)} · हफ़्ते में लगभग ${fmt(total / 4.3)}` : 'ऊपर से अपना लक्ष्य चुनिए';
+  el('targetDone').textContent = fmt(targetDoneAmount);
+  const pct = total ? Math.min(100, Math.round(targetDoneAmount * 100 / total)) : 0;
+  el('targetPct').textContent = total ? pct + '%' : '';
+  el('targetBar').style.width = pct + '%';
+  const BONUS_AT = 100000;
+  el('targetBonus').textContent = total >= BONUS_AT
+    ? 'यह लक्ष्य पूरा हुआ तो ₹10,000 का लेवल-2 बोनस भी मिलेगा (एक माह में ₹1,00,000 कमाई पर)।'
+    : `₹10,000 बोनस के लिए एक माह में ₹1,00,000 चाहिए — आपके लक्ष्य से ${fmt(BONUS_AT - total)} और।`;
+}
+function setTargetDone(amount) { targetDoneAmount = Number(amount) || 0; updateTargetTotals(); }
+loadTarget();
+document.addEventListener('DOMContentLoaded', renderTargetRows);
+if (document.readyState !== 'loading') renderTargetRows();
+
 function renderIncentiveTable() {
   document.getElementById('incentiveTable').innerHTML = INCENTIVE_ROWS.map(r => `
     <div class="grid grid-cols-3 px-4 py-3 items-center">
