@@ -693,12 +693,15 @@ section.hero.sra-ekmev-hero {
 ::view-transition-new(root) { animation: sra-vt-in .2s cubic-bezier(.2, .8, .2, 1) both; }
 @keyframes sra-vt-out { to { opacity: 0; } }
 @keyframes sra-vt-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes sra-vt-fade { from { opacity: 0; } to { opacity: 1; } }
 
+/* Reduce Motion (iPhone: Settings > Accessibility > Motion) keeps the page calm but not dead:
+   nothing slides or loops, while fades, the tap feedback, the arrow on tap and the top bar stay. */
 @media (prefers-reduced-motion: reduce) {
-  :root body .sra-reveal { opacity: 1 !important; transform: none !important; }
+  :root body .sra-reveal { transform: none !important; transition: opacity .35s ease !important; }
   :root body .sra-gn-accent::after, :root body .sra-gd-acc.is-open > .sra-gd-acc-panel, :root body .sra-arrow::after { animation: none !important; }
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
-  :root body * { transition-duration: 0s !important; }
+  ::view-transition-old(root) { animation: sra-vt-out .12s ease both !important; }
+  ::view-transition-new(root) { animation: sra-vt-fade .16s ease both !important; }
   .sra-ekmev-hero .sra-seal, #viewHome .sra-m-seal, .sra-ekmev-hero .sra-pillars, #viewHome .sra-m-ekmev,
   .btn-hero.highlight::after, :root body .sra-tt .sra-tt-rays, .ornament-line { animation: none !important; }
 }

@@ -102,7 +102,7 @@
 
   function setupReveal() {
     if (!('IntersectionObserver' in window)) return;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // with Reduce Motion on, cards still fade in (the CSS drops the slide)
     revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -199,7 +199,6 @@
     });
   }
 
-  const REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function sameSiteLink(a) {
     if (!a || !a.href || a.target === '_blank' || a.hasAttribute('download')) return null;
     let u;
@@ -211,7 +210,6 @@
   }
   let bar = null, barTimer = null;
   function startBar() {
-    if (REDUCED) return;
     if (!bar) { bar = document.createElement('div'); bar.id = 'sra-nprog'; document.body.appendChild(bar); }
     clearTimeout(barTimer);
     bar.style.transition = 'none'; bar.style.width = '0'; bar.classList.add('on');
