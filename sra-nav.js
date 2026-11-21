@@ -59,10 +59,6 @@
       { href: 'srai.html', also: ['ai-samvad'], label: L('SRA AI — ज्योतिष प्रश्न पूछें', 'SRA AI — ask a question') },
       { href: 'blogs.html', label: L('शोध पत्रिका व ब्लॉग', 'Research journal & blogs') }
     ] },
-    { label: L('ज्योतिषियों के लिए', 'For astrologers'), items: [
-      { href: 'sutradhar.html', also: ['sutradhar-invite'], label: L('सूत्रधार पोर्टल', 'Sutradhar portal'), sub: L('लीड डालें, दक्षिणा कमाएँ', 'Add leads, earn dakshina') },
-      { href: 'sutradhar-terms.html', label: L('सूत्रधार बनें — कार्य विवरण', 'Become a Sutradhar') }
-    ] },
     { label: L('श्री राम जी एस्ट्रो', 'Shri Ram Ji Astro'), items: [
       { href: 'about.html', label: L('हमारे बारे में', 'About us') },
       { href: 'donate.html', label: L('सहयोग करें', 'Donate') },
