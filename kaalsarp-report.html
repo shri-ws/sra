@@ -13,6 +13,7 @@
 <style>
   :root { --maroon:#5b1a0e; --gold:#b8862b; --cream:#fffaf0; --ink:#2b1a12; --muted:#6f5a4b; --line:#ead9b8; --green:#166a43; --red:#9a1b0a; }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body { margin: 0; font-family: 'Noto Sans Devanagari', system-ui, sans-serif; color: var(--ink); background: #f5ecdc; }
   .wrap { max-width: 860px; margin: 0 auto; padding: 18px 14px 60px; }
   .top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
@@ -224,11 +225,16 @@
     if (!current) return;
     const btn = $('pdfBtn'); btn.disabled = true; btn.textContent = 'PDF बन रही है…';
     const name = `Kaalsarp-Report-${(current.k.name || 'jatak').replace(/[^\p{L}\p{M}\p{N}]+/gu, '-')}.pdf`;
+    // scrollX/scrollY 0: without them html2canvas shifted the capture by the page's scroll position,
+    // so the PDF began with a blank band, lost that much from the end, and was cut on the right.
     try {
+      // iPhone/iPad Safari refuses canvases over ~16.7 million pixels, which gives blank PDFs there.
+      const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const scale = ios ? Math.min(2, Math.sqrt(16e6 / (734 * $('report').scrollHeight))) : 2;
       const w = html2pdf().set({
         margin: [10, 8, 14, 8], filename: name,
         image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900 },
+        html2canvas: { scale, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['css', 'legacy'], avoid: ['.rule', '.verdict', '.rp-chart', 'li'] }
       }).from($('report')).toPdf().get('pdf').then(p => {
