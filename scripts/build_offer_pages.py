@@ -280,6 +280,8 @@ def page(o: dict) -> str:
     }});
   }})();
 </script>
+<script src="../sra-translate.js" defer></script>
+<script src="../sra-i18n.js" defer></script>
 <script src="../sra-analytics.js" defer></script>
 </body>
 </html>

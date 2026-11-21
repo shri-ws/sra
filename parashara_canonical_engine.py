@@ -1395,6 +1395,14 @@ try:
 except Exception as e:
     print(f"[FastAPI] Site analytics router mount notice: {e}")
 
+# Machine translation for text the site's dictionaries do not cover (sra-i18n.js → Gemini, cached)
+try:
+    from site_i18n import router as site_i18n_router
+    app.include_router(site_i18n_router)
+    print("[FastAPI] Site translation router mounted at /api/i18n")
+except Exception as e:
+    print(f"[FastAPI] Site translation router mount notice: {e}")
+
 
 class ChartRequest(BaseModel):
     year: Optional[int] = None
