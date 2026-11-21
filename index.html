@@ -5544,6 +5544,16 @@
     calculateLandingPanchang();
   }
   window.openLandingPanchang = openLandingPanchang;
+  // Links from the menu on other pages: /?open=panchang and /?preorder=<report>&price=<n>
+  window.addEventListener('load', () => {
+    const q = new URLSearchParams(location.search);
+    setTimeout(() => {
+      try {
+        if (q.get('open') === 'panchang') openLandingPanchang();
+        else if (q.get('preorder') && typeof window.openReportPreOrderModal === 'function') window.openReportPreOrderModal(q.get('preorder'), q.get('price') || '');
+      } catch (e) { console.warn('menu link:', e); }
+    }, 600);
+  });
   window.openPatrikaFromPanchang = openPatrikaFromPanchang;
   window.setLandingPanchangToday = setLandingPanchangToday;
   window.changeLandingPanchangDateOffset = changeLandingPanchangDateOffset;

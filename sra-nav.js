@@ -22,29 +22,52 @@
   }
 
   const L = (hi, en) => ({ hi, en });
+  // THE SITE MENU — every module of the site, grouped. Add a new page here and it shows in the
+  // ☰ drawer on every page (and in the desktop bar if its group has desk: true).
+  // href pages; action: 'panchang' (home page panchang) or 'preorder' (report not out yet).
   const MENU = [
-    { href: 'patrika.html', label: L('जन्म पत्रिका', 'Birth Chart'), icon: '📜' },
-    { label: L('मुहूर्त', 'Muhurta'), icon: '🪔', items: [
-      { href: 'vmm.html', label: L('विवाह मुहूर्त मंथन', 'Vivah Muhurt Manthan'), icon: '💍' },
-      { href: 'gun-milan.html', label: L('गुण मिलान (36 गुण)', 'Gun Milan (36 Guna)'), icon: '💑' },
-      { href: 'vastu-muhurta.html', label: L('वास्तु, नींव व गृह प्रवेश', 'Vastu & Griha Pravesh'), icon: '🏡' },
-      { href: 'yajnopavita.html', label: L('यज्ञोपवीत (उपनयन)', 'Yajnopavita (Upanayana)'), icon: '🧵' },
-      { href: 'mmm.html', label: L('चूड़ाकर्म (मुंडन)', 'Chudakarma (Mundan)'), icon: '✂️' }
+    { label: L('कुण्डली व पंचांग', 'Kundali & Panchang'), desk: true, items: [
+      { href: 'patrika.html', label: L('जन्म पत्रिका (कुण्डली)', 'Birth chart (Patrika)'), sub: L('D1–D60, दशा, योग, श्लोक सहित', 'D1–D60, dashas, yogas, shlokas') },
+      { href: 'gun-milan.html', label: L('गुण मिलान (36 गुण)', 'Gun Milan (36 points)'), sub: L('वर-वधू अष्टकूट मिलान', 'Ashtakoot matching') },
+      { href: 'aaj-panchang.html', label: L('आज का पंचांग — आपकी कुण्डली से', "Today's panchang for you"), sub: L('दिन कैसा रहेगा, क्या करें', 'How the day looks, what to do') },
+      { action: 'panchang', label: L('दैनिक पंचांग', 'Daily panchang'), sub: L('तिथि, नक्षत्र, योग, राहुकाल', 'Tithi, nakshatra, yoga, rahukaal') }
     ] },
-    { label: L('रिपोर्ट्स', 'Reports'), icon: '📑', items: [
-      { href: 'parashara-report.html', label: L('पराशरी रिपोर्ट', 'Parashari Report'), icon: '📖', badge: '₹1111' },
-      { href: 'manglik-dosh-calculator.html', label: L('मंगल दोष कैलकुलेटर', 'Manglik Dosha Calculator'), icon: '🔥' },
-      { href: 'kaalsarp-report.html', label: L('कालसर्प व सर्प-योग रिपोर्ट', 'Kaal Sarp & Sarpa Yoga Report'), icon: '🐍', badge: '₹251' },
-      { href: 'dhan-yoga-calculator.html', label: L('धन योग कैलकुलेटर', 'Dhan Yoga Calculator'), icon: '💰' }
+    { label: L('रिपोर्ट्स', 'Reports'), desk: true, items: [
+      { href: 'parashara-report.html', label: L('मेगा पाराशर रिपोर्ट', 'Mega Parashara report'), sub: L('BPHS के 97 अध्याय', 'All 97 BPHS chapters'), badge: '₹1,111' },
+      { href: 'manglik-dosh-calculator.html', also: ['manglik-calculator'], label: L('मंगल दोष व परिहार', 'Mangal dosha & remedies'), sub: L('21 शास्त्रीय परिहार', '21 classical exceptions'), badge: '₹251' },
+      { href: 'kaalsarp-report.html', label: L('कालसर्प व सर्प-योग', 'Kaal Sarp & Sarpa yoga'), sub: L('शास्त्र-प्रमाण सहित', 'With classical sources'), badge: '₹251' },
+      { href: 'dhan-yoga-calculator.html', also: ['dhana-yoga-calculator'], label: L('धन योग', 'Dhan yoga'), sub: L('23 प्रामाणिक धन योग', '23 classical wealth yogas'), badge: '₹301' },
+      { action: 'preorder', report: 'रत्न और उपाय रिपोर्ट', price: '301', label: L('रत्न व उपाय (जल्द आ रही)', 'Gems & remedies (coming soon)'), sub: L('अभी पहले से बुक करें', 'Book in advance'), badge: '₹301' }
     ] },
-    { label: L('ज्ञान', 'Learn'), icon: '📚', items: [
-      { href: 'blogs.html', label: L('शोध ब्लॉग', 'Research Blog'), icon: '📝' },
-      { href: 'course.html', label: L('ज्योतिष कोर्स', 'Jyotish Course'), icon: '🎓' },
-      { href: 'srai.html', label: L('SRA AI', 'SRA AI'), icon: '🤖' },
-      { href: 'about.html', label: L('अबाउट व जर्नल', 'About & Journal'), icon: '🪷' },
-      { href: 'careers.html', label: L('Careers', 'Careers'), icon: '🏛️', drawerOnly: true }
+    { label: L('मुहूर्त', 'Muhurta'), desk: true, items: [
+      { href: 'vmm.html', label: L('विवाह मुहूर्त', 'Marriage muhurta'), sub: L('10 महादोष व त्रिबल शुद्धि', '10 great doshas, tribala') },
+      { href: 'vastu-muhurta.html', label: L('वास्तु, नींव व गृह प्रवेश', 'Vastu & griha pravesh'), sub: L('शिलान्यास व स्थिर लग्न', 'Foundation & fixed lagna') },
+      { href: 'yajnopavita.html', also: ['ymm'], label: L('यज्ञोपवीत (उपनयन)', 'Yajnopavita (Upanayana)'), sub: L('नक्षत्र व चंद्र शुद्धि', 'Nakshatra & moon purity') },
+      { href: 'mmm.html', label: L('मुंडन (चूड़ाकर्म)', 'Mundan (Chudakarma)'), sub: L('सौर मास, वार व नक्षत्र', 'Solar month, weekday, nakshatra') }
     ] },
-    { href: 'consultation.html', label: L('1-on-1 परामर्श', '1-on-1 Consultation'), icon: '🔱', accent: true }
+    { label: L('परामर्श व उपाय', 'Consultation & remedies'), items: [
+      { href: 'consultation.html', label: L('1-on-1 परामर्श', '1-on-1 consultation'), sub: L('आचार्य से सीधी बात', 'Speak with the acharya'), badge: '₹5,100' },
+      { href: 'sankalp.html', label: L('दैनिक संकल्प पूर्ति', 'Daily sankalp'), sub: L('ज्योतिषी के बताए उपाय, रोज़ टिक करें', 'Tick the remedies your astrologer set') },
+      { href: 'feedback.html', label: L('परामर्श का अनुभव लिखें', 'Consultation feedback') }
+    ] },
+    { label: L('सीखें व शोध', 'Learn & research'), desk: true, items: [
+      { href: 'course.html', also: ['payment'], label: L('1-वर्षीय ज्योतिष कोर्स', '1-year astrology course'), sub: L('फ़ाउंडेशन व मास्टर बैच', 'Foundation & Master batches') },
+      { href: 'lab.html', label: L('ज्योतिष प्रयोगशाला', 'Jyotish lab'), sub: L('BPHS के नियम अपनी कुण्डली पर', 'BPHS rules on your chart') },
+      { href: 'srai.html', also: ['ai-samvad'], label: L('SRA AI — ज्योतिष प्रश्न पूछें', 'SRA AI — ask a question') },
+      { href: 'blogs.html', label: L('शोध पत्रिका व ब्लॉग', 'Research journal & blogs') }
+    ] },
+    { label: L('ज्योतिषियों के लिए', 'For astrologers'), items: [
+      { href: 'consultant.html', label: L('दैवज्ञ परामर्श डेस्क', 'Consultant desk'), sub: L('क्लाइंट व उपाय — SaaS सदस्यों के लिए', 'Clients & remedies — SaaS members') },
+      { href: 'sutradhar.html', also: ['sutradhar-invite'], label: L('सूत्रधार पोर्टल', 'Sutradhar portal'), sub: L('लीड डालें, दक्षिणा कमाएँ', 'Add leads, earn dakshina') },
+      { href: 'sutradhar-terms.html', label: L('सूत्रधार बनें — कार्य विवरण', 'Become a Sutradhar') },
+      { href: 'careers.html', label: L('करियर (नौकरी)', 'Careers') }
+    ] },
+    { label: L('श्री राम जी एस्ट्रो', 'Shri Ram Ji Astro'), items: [
+      { href: 'about.html', label: L('हमारे बारे में', 'About us') },
+      { href: 'donate.html', label: L('सहयोग करें', 'Donate') },
+      { href: 'privacy.html', label: L('गोपनीयता नीति', 'Privacy policy') },
+      { href: 'terms.html', label: L('नियम व शर्तें', 'Terms of service') }
+    ] }
   ];
   const T = {
     brand: L('श्री रामजी एस्ट्रो', 'Shri Ramji Astro'),
@@ -72,41 +95,75 @@
   let header, drawer, backdrop, legacy;
 
   // ── Markup ──────────────────────────────────────────────────────────────
+  const itemHere = (it) => isHere(it.href) || (it.also || []).indexOf(here) !== -1;
+  const itemAttrs = (it) => it.href
+    ? `href="${it.href}"${itemHere(it) ? ' aria-current="page"' : ''}`
+    : `href="#" data-menu-action="${it.action}"${it.report ? ` data-report="${esc(it.report)}" data-price="${esc(it.price)}"` : ''}`;
+
   function desktopLinks() {
-    return MENU.map((m, i) => {
-      if (m.drawerOnly) return '';
-      if (!m.items) {
-        return `<a class="sra-gn-link${m.accent ? ' sra-gn-accent' : ''}" href="${m.href}"${isHere(m.href) ? ' aria-current="page"' : ''}>${esc(t(m.label))}</a>`;
-      }
-      const visibleItems = m.items.filter(it => !it.drawerOnly);
-      if (!visibleItems.length) return '';
-      const active = visibleItems.some(it => isHere(it.href));
+    const groups = MENU.map((m, i) => {
+      if (!m.desk) return '';
+      const active = m.items.some(itemHere);
       return `<div class="sra-gn-dd" data-dd="${i}">
         <button type="button" class="sra-gn-link sra-gn-dd-btn${active ? ' is-active' : ''}" aria-haspopup="true" aria-expanded="false">
           ${esc(t(m.label))}<svg class="sra-gn-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>
         </button>
         <div class="sra-gn-dd-menu" role="menu">
-          ${visibleItems.map(it => `<a role="menuitem" href="${it.href}"${isHere(it.href) ? ' aria-current="page"' : ''}>
-            <span class="sra-gn-ico" aria-hidden="true">${it.icon}</span><span class="sra-gn-txt">${esc(t(it.label))}</span>${it.badge ? `<span class="sra-gn-badge">${it.badge}</span>` : ''}
-          </a>`).join('')}
+          ${m.items.map(it => `<a role="menuitem" ${itemAttrs(it)}><span class="sra-gn-txt">${esc(t(it.label))}</span>${it.badge ? `<span class="sra-gn-badge">${it.badge}</span>` : ''}</a>`).join('')}
         </div>
       </div>`;
     }).join('');
+    return groups + `<a class="sra-gn-link sra-gn-accent" href="consultation.html"${isHere('consultation.html') ? ' aria-current="page"' : ''}>${esc(t(L('1-on-1 परामर्श', '1-on-1 Consultation')))}</a>`;
   }
 
+  // Drawer: every group is a dropdown; tapping a group opens it (and closes the others).
+  // The group holding the current page starts open.
   function drawerLinks() {
-    const row = (it) => `<a class="sra-gd-item${it.accent ? ' sra-gd-accent' : ''}" href="${it.href}"${isHere(it.href) ? ' aria-current="page"' : ''}>
-      <span class="sra-gn-ico" aria-hidden="true">${it.icon}</span><span class="sra-gn-txt">${esc(t(it.label))}</span>${it.badge ? `<span class="sra-gn-badge">${it.badge}</span>` : ''}</a>`;
-    let html = row({ href: 'index.html', label: T.home, icon: '🏠' });
-    MENU.forEach(m => {
-      if (m.drawerOnly) { html += row(m); return; }
-      if (!m.items) { html += row(m); return; }
-      html += `<div class="sra-gd-group"><div class="sra-gd-head">${m.icon} ${esc(t(m.label))}</div>${m.items.map(row).join('')}</div>`;
+    const row = (it) => `<a class="sra-gd-item sra-gd-sub" ${itemAttrs(it)}>
+      <span class="sra-gn-txt"><span class="sra-gd-sub-t">${esc(t(it.label))}</span>${it.sub ? `<small class="sra-gd-sub-h">${esc(t(it.sub))}</small>` : ''}</span>${it.badge ? `<span class="sra-gn-badge">${it.badge}</span>` : ''}</a>`;
+    let html = `<a class="sra-gd-item" href="index.html"${here === 'index' ? ' aria-current="page"' : ''}><span class="sra-gn-txt">${esc(t(T.home))}</span></a>`;
+    MENU.forEach((m, i) => {
+      const open = m.items.some(itemHere);
+      html += `<div class="sra-gd-acc${open ? ' is-open' : ''}">
+        <button type="button" class="sra-gd-acc-btn" aria-expanded="${open}" aria-controls="sraGdAcc${i}">
+          <span>${esc(t(m.label))}</span><svg class="sra-gn-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>
+        </button>
+        <div class="sra-gd-acc-panel" id="sraGdAcc${i}">${m.items.map(row).join('')}</div>
+      </div>`;
     });
     return html;
   }
 
+  function menuAction(a) {
+    const act = a.dataset.menuAction;
+    if (act === 'panchang') {
+      if (typeof window.openLandingPanchang === 'function') window.openLandingPanchang();
+      else location.href = 'index.html?open=panchang';
+    } else if (act === 'preorder') {
+      if (typeof window.openReportPreOrderModal === 'function') window.openReportPreOrderModal(a.dataset.report, a.dataset.price);
+      else location.href = 'index.html?preorder=' + encodeURIComponent(a.dataset.report) + '&price=' + encodeURIComponent(a.dataset.price);
+    }
+  }
+
+  const MENU_CSS = `
+    :root body .sra-gd-acc { margin-top: 6px; border: 1px solid var(--sra-hair, rgba(0,0,0,.1)); border-radius: 10px; overflow: hidden; }
+    :root body .sra-gd-acc-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      min-height: 48px; padding: 12px 14px; border: 0; background: transparent; cursor: pointer; text-align: left;
+      font: 700 15px/1.3 var(--sra-body, inherit); color: var(--sra-ink, inherit); }
+    :root body .sra-gd-acc-btn .sra-gn-caret { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; transition: transform .2s; }
+    :root body .sra-gd-acc.is-open > .sra-gd-acc-btn { color: var(--sra-kumkum, inherit); background: var(--sra-wash, rgba(0,0,0,.04)); }
+    :root body .sra-gd-acc.is-open > .sra-gd-acc-btn .sra-gn-caret { transform: rotate(180deg); }
+    :root body .sra-gd-acc-panel { display: none; padding: 4px 6px 8px; border-top: 1px solid var(--sra-hair, rgba(0,0,0,.08)); }
+    :root body .sra-gd-acc.is-open > .sra-gd-acc-panel { display: block; }
+    :root body .sra-gd-sub { min-height: 0; padding: 10px 10px; }
+    :root body .sra-gd-sub .sra-gn-txt { display: flex; flex-direction: column; gap: 2px; }
+    :root body .sra-gd-sub-t { font-size: 14px; }
+    :root body .sra-gd-sub-h { font-size: 12px; color: var(--sra-muted, #6b7280); font-weight: 400; }`;
+
   function build() {
+    const st = document.createElement('style');
+    st.textContent = MENU_CSS;
+    document.head.appendChild(st);
     header = document.createElement('header');
     header.className = 'sra-gnav';
     header.setAttribute('data-no-i18n', '');      // labels are drawn per language here
@@ -186,6 +243,22 @@
       toggleDrawer(true);
       const langs = drawer.querySelector('#sraGdLangs');
       if (langs) langs.scrollIntoView({ block: 'start' });
+    });
+    drawer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.sra-gd-acc-btn');
+      if (!btn) return;
+      const acc = btn.parentElement;
+      const open = !acc.classList.contains('is-open');
+      drawer.querySelectorAll('.sra-gd-acc.is-open').forEach(x => { x.classList.remove('is-open'); x.querySelector('.sra-gd-acc-btn').setAttribute('aria-expanded', 'false'); });
+      if (open) { acc.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); setTimeout(() => btn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 30); }
+    });
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('.sra-gdrawer [data-menu-action], .sra-gnav [data-menu-action]');
+      if (!a) return;
+      e.preventDefault();
+      toggleDrawer(false);
+      closeAllDd();
+      menuAction(a);
     });
     drawer.addEventListener('click', (e) => {
       const chip = e.target.closest('.sra-gd-langs button');
@@ -339,7 +412,7 @@
     if (!st) return '';
     const cur = st.current();
     return `<div class="sra-gd-group sra-gd-lang-group" id="sraGdLangs">
-      <div class="sra-gd-head">🌐 ${esc(t(T.languages))}</div>
+      <div class="sra-gd-head">${esc(t(T.languages))}</div>
       <div class="sra-gd-langs notranslate" translate="no">
         ${st.LANGS.map(([code, name]) => `<button type="button" data-lang="${code}"${code === cur ? ' aria-pressed="true"' : ''}>${name}</button>`).join('')}
       </div>
