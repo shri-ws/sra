@@ -1079,6 +1079,58 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
 
         </div>
       </div>
+
+      <!-- 🚀 7. INSTAGRAM INFLUENCER OUTREACH QUEUE (11 मार्च 2027 बैच) -->
+      <div class="card" style="margin-bottom:16px; border:1.5px solid var(--gold); border-radius:12px; background:var(--card); padding:16px;" id="card-ig-outreach">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:14px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h3 style="font-size:16px; font-weight:800; color:#e1306c; margin:0;">📸 Instagram Influencer Outreach Queue (11 मार्च 2027 बैच)</h3>
+              <span class="badge" style="background:#fce7f3; color:#9d174d; font-size:11px; font-weight:700;">₹3,500/सीट कमीशन</span>
+            </div>
+            <p style="font-size:12px; color:var(--muted); margin:4px 0 0 0;">
+              करियर गाइडेंस, स्किल मेंटरशिप व स्टूडेंट कोच नैनो-क्रिएटर्स (500–5,000 फॉलोअर्स)। 1-क्लिक में सूत्रधार लिंक बनाएं, पिच कॉपी करें और DM भेजें।
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;" id="ig-queue-stats">
+            <!-- Stats populated by JS -->
+          </div>
+        </div>
+
+        <!-- Add Creator Quick Form -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:var(--bg); padding:10px 12px; border-radius:8px; border:1px solid var(--border); margin-bottom:14px;">
+          <span style="font-size:12px; font-weight:700;">➕ नया क्रिएटर जोड़ें:</span>
+          <input type="text" id="ig-new-handle" placeholder="@instagram_handle" style="padding:6px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; width:160px; background:var(--card); color:var(--text);"/>
+          <select id="ig-new-niche" style="padding:6px 8px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);">
+            <option value="Career Guidance">Career Guidance (करियर सलाह)</option>
+            <option value="Student Mentor">Student Mentor (छात्र मेंटर)</option>
+            <option value="Skill Development">Skill Development (कौशल विकास)</option>
+            <option value="Freelancing/WFH">Freelancing & WFH (रिमोट वर्क)</option>
+            <option value="Sanatan/Sanskrit">Sanatan & Sanskrit (संस्कृत/सनातन)</option>
+          </select>
+          <input type="text" id="ig-new-followers" placeholder="फॉलोअर्स (उदा. 1.8k)" style="padding:6px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; width:130px; background:var(--card); color:var(--text);"/>
+          <button class="export-btn" style="background:var(--gold); color:#000; font-weight:700; padding:6px 12px; font-size:12px;" onclick="addCustomIgCreator()">+ कतार में जोड़ें</button>
+        </div>
+
+        <!-- Queue Table Wrap -->
+        <div class="table-wrap" style="overflow-x:auto;">
+          <table class="tbl" style="width:100%; font-size:12px;">
+            <thead>
+              <tr>
+                <th style="min-width:140px;">हैंडल व प्रोफाइल</th>
+                <th>श्रेणी (Niche)</th>
+                <th>फॉलोअर्स</th>
+                <th>यूनिक सूत्रधार लिंक</th>
+                <th>स्थिति (Status)</th>
+                <th style="min-width:240px;">त्वरित एक्शन (1-Click)</th>
+              </tr>
+            </thead>
+            <tbody id="ig-queue-tbody">
+              <!-- Rendered dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- CAREERS & SUTRADHAR APPLICATION MANAGEMENT -->
@@ -4035,6 +4087,7 @@ function loadMarketingTracker() {
     if (chk) chk.checked = done.includes(k);
   });
   updateMktProgressUI(done.length);
+  renderIgQueue();
 }
 
 function toggleMktTask(taskKey) {
@@ -4195,6 +4248,207 @@ function showInAppAdminToast(html, duration = 6000) {
   setTimeout(() => {
     if (toast && toast.parentElement) toast.remove();
   }, duration);
+}
+
+/* ══ 📸 INSTAGRAM INFLUENCER OUTREACH QUEUE (11 मार्च बैच) ══ */
+const IG_QUEUE_STORAGE_KEY = 'sra_ig_creators_queue';
+
+const INITIAL_IG_CREATORS = [
+  { id: 'ig_01', handle: 'careerguidance_hindi', name: 'Career Guidance Hindi', niche: 'Career Guidance', followers: '3.4k', status: 'pending', code: 'SUTRA-IG-CGHINDI' },
+  { id: 'ig_02', handle: 'student_career_coach', name: 'Student Career Coach', niche: 'Student Mentor', followers: '1.9k', status: 'pending', code: 'SUTRA-IG-STUDENT' },
+  { id: 'ig_03', handle: 'skillup_hindi_official', name: 'SkillUp Hindi', niche: 'Skill Development', followers: '4.2k', status: 'pending', code: 'SUTRA-IG-SKILLUP' },
+  { id: 'ig_04', handle: 'careertips_with_rahul', name: 'Career Tips Rahul', niche: 'Career Guidance', followers: '2.1k', status: 'pending', code: 'SUTRA-IG-RAHUL' },
+  { id: 'ig_05', handle: 'freelance_mentor_india', name: 'Freelance Mentor India', niche: 'Freelancing/WFH', followers: '2.8k', status: 'pending', code: 'SUTRA-IG-FREELANCE' },
+  { id: 'ig_06', handle: 'sanatan_shlok_gyan', name: 'Sanatan Shlok Gyan', niche: 'Sanatan/Sanskrit', followers: '4.8k', status: 'pending', code: 'SUTRA-IG-SANATAN' }
+];
+
+function getIgCreators() {
+  try {
+    const raw = localStorage.getItem(IG_QUEUE_STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(IG_QUEUE_STORAGE_KEY, JSON.stringify(INITIAL_IG_CREATORS));
+      return INITIAL_IG_CREATORS;
+    }
+    return JSON.parse(raw);
+  } catch(e) {
+    return INITIAL_IG_CREATORS;
+  }
+}
+
+function saveIgCreators(list) {
+  try {
+    localStorage.setItem(IG_QUEUE_STORAGE_KEY, JSON.stringify(list));
+  } catch(e) {}
+}
+
+function renderIgQueue() {
+  const tbody = document.getElementById('ig-queue-tbody');
+  if (!tbody) return;
+
+  const creators = getIgCreators();
+  const total = creators.length;
+  const sent = creators.filter(c => c.status === 'sent').length;
+  const agreed = creators.filter(c => c.status === 'agreed').length;
+
+  const statsEl = document.getElementById('ig-queue-stats');
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:11px;">कुल: ${total}</span>
+      <span class="badge" style="background:#fef3c7; color:#92400e; font-size:11px;">DM भेजे गए: ${sent}</span>
+      <span class="badge" style="background:#d1fae5; color:#065f46; font-size:11px;">सक्रिय/सहमत: ${agreed}</span>
+    `;
+  }
+
+  if (!creators.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row" style="text-align:center; padding:16px;">कतार में कोई क्रिएटर नहीं है। ऊपर से नया जोड़ें।</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = creators.map(c => {
+    const cleanHandle = c.handle.replace(/^@/, '').trim();
+    const cleanCode = c.code || ('SUTRA-IG-' + cleanHandle.toUpperCase().slice(0, 8));
+    const fullLink = `https://shriramjiastro.in/course.html?ref=${cleanCode}`;
+    const igProfileUrl = `https://instagram.com/${cleanHandle}`;
+    const igDmUrl = `https://ig.me/m/${cleanHandle}`;
+
+    let statusBadge = '';
+    if (c.status === 'sent') {
+      statusBadge = '<span class="badge" style="background:#fef3c7; color:#92400e;">📨 DM भेजा गया</span>';
+    } else if (c.status === 'agreed') {
+      statusBadge = '<span class="badge" style="background:#d1fae5; color:#065f46;">🤝 सहमत / एक्टिव</span>';
+    } else if (c.status === 'rejected') {
+      statusBadge = '<span class="badge" style="background:#fee2e2; color:#991b1b;">❌ रिजेक्ट</span>';
+    } else {
+      statusBadge = '<span class="badge" style="background:#f3f4f6; color:#374151;">⏳ कतार में (Pending)</span>';
+    }
+
+    return `
+      <tr>
+        <td>
+          <a href="${igProfileUrl}" target="_blank" rel="noopener" style="font-weight:700; color:#e1306c; text-decoration:none;">
+            @${cleanHandle} ↗
+          </a>
+          <div style="font-size:11px; color:var(--muted);">${c.name || ''}</div>
+        </td>
+        <td><span style="font-size:11px; font-weight:600;">${c.niche}</span></td>
+        <td><span style="font-family:monospace; font-size:12px;">${c.followers || '—'}</span></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <code style="font-size:10px; background:rgba(201,168,76,0.1); padding:2px 4px; border-radius:4px; color:var(--gold);">${cleanCode}</code>
+            <button class="export-btn" style="padding:2px 6px; font-size:10px;" onclick="copyIgLink('${fullLink}')" title="लिंक कॉपी करें">📋</button>
+          </div>
+        </td>
+        <td>${statusBadge}</td>
+        <td>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <button class="export-btn" style="padding:4px 8px; font-size:11px; background:#e1306c; color:#fff;" onclick="copyIgPitch('${c.id}')">
+              📋 पिच कॉपी
+            </button>
+            <a href="${igDmUrl}" target="_blank" rel="noopener" class="export-btn" style="padding:4px 8px; font-size:11px; text-decoration:none; background:#1877f2; color:#fff;" onclick="markIgStatus('${c.id}', 'sent')">
+              📲 DM खोलें ↗
+            </a>
+            <select style="font-size:11px; padding:2px 4px; border-radius:4px; border:1px solid var(--border); background:var(--card); color:var(--text);" onchange="markIgStatus('${c.id}', this.value)">
+              <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>⏳ कतार</option>
+              <option value="sent" ${c.status === 'sent' ? 'selected' : ''}>📨 DM भेजा</option>
+              <option value="agreed" ${c.status === 'agreed' ? 'selected' : ''}>🤝 सहमत (Active)</option>
+              <option value="rejected" ${c.status === 'rejected' ? 'selected' : ''}>❌ रिजेक्ट</option>
+            </select>
+            <button class="export-btn" style="padding:2px 6px; font-size:10px; color:#ef4444; border-color:rgba(239,68,68,0.3);" onclick="removeIgCreator('${c.id}')" title="हटाएं">&times;</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function copyIgLink(link) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(() => alert('✓ सूत्रधार लिंक कॉपी हो गया: ' + link)).catch(() => fallbackMktCopy(link));
+  } else {
+    fallbackMktCopy(link);
+  }
+}
+
+function copyIgPitch(creatorId) {
+  const creators = getIgCreators();
+  const c = creators.find(item => item.id === creatorId);
+  if (!c) return;
+
+  const cleanHandle = c.handle.replace(/^@/, '').trim();
+  const cleanCode = c.code || ('SUTRA-IG-' + cleanHandle.toUpperCase().slice(0, 8));
+  const fullLink = `https://shriramjiastro.in/course.html?ref=${cleanCode}`;
+
+  const pitch = `नमस्ते @${cleanHandle}! 🙏\n\nमैं आपका ${c.niche} वाला कंटेंट देख रहा था, आप छात्रों व युवाओं को बहुत व्यावहारिक दिशा दे रहे हैं।\n\n11 मार्च से श्री रामजी एस्ट्रो (shriramjiastro.in) का लाइव 1-वर्षीय वैदिक ज्योतिष व मेंटरशिप प्रोग्राम शुरू हो रहा है (हर बैच में केवल 11 सीटें)। आज के समय में वैदिक ज्योतिष एक सम्मानित स्वतंत्र रिमोट करियर बन चुका है।\n\nहम आपके साथ पार्टनरशिप करना चाहते हैं:\n1. हम आपको एक डेडिकेटेड लिंक दे रहे हैं: ${fullLink}\n2. अगर आपके सुझाव से कोई छात्र करियर गाइडेंस के तहत इस बैच में इनरोल करता है, तो प्रत्येक सीट पर ₹3,500 सीधा UPI कमीशन आपको तुरंत मिलेगा।\n3. केवल 2 सीटें होने पर भी आपको ₹7,000 की सीधी आय होगी।\n\nसीटें केवल 11-11 ही हैं। अगर आप अपनी ऑडियंस को यह अल्टरनेटिव करियर विकल्प सुझाना चाहते हैं, तो बताएं। मैं स्टोरी के लिए 15-सेकंड का ऑफिशियल क्रिएटिव भी शेयर कर दूँगा।\n\n- Astro Raamji (shriramjiastro.in / +91 95171-17775)`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(pitch).then(() => {
+      alert(`✓ @${cleanHandle} के लिए पिच और उनका पर्सनल लिंक कॉपी हो गया!\nअब आप '📲 DM खोलें' दबाकर सीधे इंस्टाग्राम चैट में पेस्ट कर सकते हैं।`);
+    }).catch(() => fallbackMktCopy(pitch));
+  } else {
+    fallbackMktCopy(pitch);
+  }
+}
+
+function markIgStatus(creatorId, status) {
+  let creators = getIgCreators();
+  creators = creators.map(c => {
+    if (c.id === creatorId) {
+      return { ...c, status: status };
+    }
+    return c;
+  });
+  saveIgCreators(creators);
+  renderIgQueue();
+}
+
+function addCustomIgCreator() {
+  const handleInput = document.getElementById('ig-new-handle');
+  const nicheSelect = document.getElementById('ig-new-niche');
+  const followersInput = document.getElementById('ig-new-followers');
+
+  const rawHandle = (handleInput ? handleInput.value : '').trim();
+  if (!rawHandle) {
+    alert('कृपया Instagram हैंडल दर्ज करें (उदा. @career_guide)');
+    return;
+  }
+  const cleanHandle = rawHandle.replace(/^@/, '').trim();
+  const niche = nicheSelect ? nicheSelect.value : 'Career Guidance';
+  const followers = (followersInput ? followersInput.value : '').trim() || '—';
+  const code = 'SUTRA-IG-' + cleanHandle.toUpperCase().slice(0, 8);
+
+  const creators = getIgCreators();
+  if (creators.some(c => c.handle.toLowerCase() === cleanHandle.toLowerCase())) {
+    alert('यह हैंडल पहले से कतार में मौजूद है!');
+    return;
+  }
+
+  const newCreator = {
+    id: 'ig_' + Date.now(),
+    handle: cleanHandle,
+    name: cleanHandle,
+    niche: niche,
+    followers: followers,
+    status: 'pending',
+    code: code
+  };
+
+  creators.unshift(newCreator);
+  saveIgCreators(creators);
+
+  if (handleInput) handleInput.value = '';
+  if (followersInput) followersInput.value = '';
+
+  renderIgQueue();
+  alert(`✓ @${cleanHandle} कतार में जुड़ गया और कोड ${code} जनरेट हो गया!`);
+}
+
+function removeIgCreator(creatorId) {
+  if (confirm('क्या आप इस क्रिएटर को कतार से हटाना चाहते हैं?')) {
+    let creators = getIgCreators();
+    creators = creators.filter(c => c.id !== creatorId);
+    saveIgCreators(creators);
+    renderIgQueue();
+  }
 }
 
 function toggleAdminLanguage() {
