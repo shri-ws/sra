@@ -56,7 +56,6 @@
     ] },
     { label: L('सीखें व शोध', 'Learn & research'), desk: true, items: [
       { href: 'course.html', also: ['payment'], label: L('1-वर्षीय ज्योतिष कोर्स', '1-year astrology course'), sub: L('फ़ाउंडेशन व मास्टर बैच', 'Foundation & Master batches') },
-      { href: 'lab.html', label: L('ज्योतिष प्रयोगशाला', 'Jyotish lab'), sub: L('BPHS के नियम अपनी कुण्डली पर', 'BPHS rules on your chart') },
       { href: 'srai.html', also: ['ai-samvad'], label: L('SRA AI — ज्योतिष प्रश्न पूछें', 'SRA AI — ask a question') },
       { href: 'blogs.html', label: L('शोध पत्रिका व ब्लॉग', 'Research journal & blogs') }
     ] },
