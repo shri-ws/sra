@@ -299,7 +299,11 @@
         <span id="levelBadge" class="hidden bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded text-[10px]"></span>
       </div>
     </div>
-    <div class="text-lg">🕉️</div>
+    <!-- Language: one tap, no searching (names stay in their own script) -->
+    <label class="notranslate flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl pl-2.5 pr-1 py-1" translate="no">
+      <span class="sra-lang-label text-[11px] font-semibold text-slate-500">भाषा</span>
+      <select class="sra-lang-pick bg-transparent text-sm font-semibold text-slate-900 outline-none py-0.5" aria-label="भाषा / Language"></select>
+    </label>
   </header>
 
   <!-- Guiding verse: one line Sanskrit, one line meaning -->
@@ -722,6 +726,11 @@
 
     <!-- ========== PROFILE TAB ========== -->
     <div id="tab-profile" class="tab-content p-4 space-y-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <h3 class="font-bold text-slate-900 text-sm notranslate" translate="no">भाषा / Language</h3>
+        <p class="text-xs text-slate-500 mt-1">पूरा पोर्टल आपकी चुनी हुई भाषा में दिखेगा।</p>
+        <select class="sra-lang-pick notranslate mt-3 w-full border border-slate-300 rounded-xl px-4 py-3 text-slate-900 bg-white outline-none focus:border-blue-500" translate="no" aria-label="भाषा / Language"></select>
+      </div>
       <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
         <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-3">मेरी जानकारी</h3>
         <div class="space-y-2 text-sm">
@@ -2002,5 +2011,35 @@ function showToast(msg) {
   setTimeout(() => { t.style.opacity = '0'; }, 3000);
 }
 </script>
+<script>
+// Language pickers (header + profile): same list and switch as the main site (sra-translate.js)
+(function () {
+  function fill() {
+    const t = window.SRATranslate;
+    if (!t) return false;
+    const cur = t.current();
+    document.querySelectorAll('.sra-lang-label').forEach(l => { l.textContent = cur === 'hi' ? 'भाषा' : 'Language'; });
+    document.querySelectorAll('.sra-lang-pick').forEach(sel => {
+      if (!sel.options.length) sel.innerHTML = t.LANGS.map(([code, name]) => `<option value="${code}">${name}</option>`).join('');
+      sel.value = cur;
+      if (!sel.dataset.bound) {
+        sel.dataset.bound = '1';
+        sel.addEventListener('change', () => {
+          document.querySelectorAll('.sra-lang-pick').forEach(o => { o.value = sel.value; });
+          try { trackSutra('tab', 'lang_' + sel.value.replace(/[^a-zA-Z]/g, '')); } catch (e) {}
+          t.set(sel.value);
+        });
+      }
+    });
+    return true;
+  }
+  let tries = 0;
+  (function wait() { if (!fill() && tries++ < 40) setTimeout(wait, 150); })();
+  document.addEventListener('sra:translate', fill);
+  document.addEventListener('sra:langchange', fill);
+})();
+</script>
+<script src="sra-translate.js" defer></script>
+<script src="sra-i18n.js" defer></script>
 </body>
 </html>

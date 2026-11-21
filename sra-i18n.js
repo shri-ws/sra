@@ -174,7 +174,9 @@
   function ensureToggle() {
     if (typeof window.toggleLanguage === 'function') return;
     window.toggleLanguage = function() {
-      const next = readLang() === 'hi' ? 'en' : 'hi';
+      // flip what the page shows now: sra-translate.js saves the wanted language before it calls this,
+      // so reading the saved value here would flip it straight back
+      const next = currentLang === 'hi' ? 'en' : 'hi';
       try { localStorage.setItem('sra_lang', next); } catch (e) {}
       document.querySelectorAll('.lang-pill-btn, #globalLangBtn').forEach(btn => {
         const hi = btn.querySelector('.lang-hi'), en = btn.querySelector('.lang-en');
@@ -230,8 +232,10 @@
     try { const t = window.SRATranslate; const c = t && t.current && t.current(); if (c && !t.OWN.includes(c)) return c; } catch (e) {}
     return '';
   }
+  // translations kept under the first key (before the Sutradhar-name rule) are dropped once
+  try { Object.keys(localStorage).forEach(k => { if (/^sra_mt_/.test(k)) localStorage.removeItem(k); }); } catch (e) {}
   function mtStore(lang) {
-    if (!mtMem[lang]) { try { mtMem[lang] = JSON.parse(localStorage.getItem('sra_mt_' + lang) || '{}'); } catch (e) { mtMem[lang] = {}; } }
+    if (!mtMem[lang]) { try { mtMem[lang] = JSON.parse(localStorage.getItem('sra_mt2_' + lang) || '{}'); } catch (e) { mtMem[lang] = {}; } }
     return mtMem[lang];
   }
   let saveTimer = null;
@@ -240,8 +244,8 @@
     saveTimer = setTimeout(() => {
       const m = mtStore(lang), keys = Object.keys(m);
       if (keys.length > 4000) keys.slice(0, keys.length - 3000).forEach(k => delete m[k]);
-      try { localStorage.setItem('sra_mt_' + lang, JSON.stringify(m)); }
-      catch (e) { try { localStorage.removeItem('sra_mt_' + lang); } catch (x) {} }
+      try { localStorage.setItem('sra_mt2_' + lang, JSON.stringify(m)); }
+      catch (e) { try { localStorage.removeItem('sra_mt2_' + lang); } catch (x) {} }
     }, 800);
   }
   const KEEP_WORDS = new Set(['upi', 'pdf', 'otp', 'gst', 'emi', 'sms', 'whatsapp', 'razorpay', 'google', 'gmail', 'facebook',

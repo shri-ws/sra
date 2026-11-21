@@ -63,8 +63,11 @@ def _setting(name: str, default: str = "") -> str:
         return os.getenv(name, default)
 
 
+PROMPT_VERSION = "2"   # bump when the translation rules change, so old translations are made again
+
+
 def _key(lang: str, text: str) -> str:
-    return lang + "_" + hashlib.sha1(text.encode("utf-8")).hexdigest()[:24]
+    return lang + "_" + hashlib.sha1((PROMPT_VERSION + "|" + text).encode("utf-8")).hexdigest()[:24]
 
 
 def _cached(lang: str, text: str) -> Optional[str]:
@@ -129,7 +132,8 @@ def _prompt(lang: str, texts: List[str]) -> str:
         "- Translate everything into the target language, including Hindi, Sanskrit or English parts of a mixed string.\n"
         "- Write Indian astrology terms the way a native reader of the target language knows them "
         "(for English: transliterate, e.g. Rahu, Ketu, Nakshatra, Tithi, Bhadra, Manglik, Kaal Sarp).\n"
-        "- The brand is \"Shri Ram Ji Astro\" (in Hindi \"श्री राम जी एस्ट्रो\").\n"
+        "- The brand is \"Shri Ram Ji Astro\" (in Hindi \"श्री राम जी एस्ट्रो\"). The partner role \"सूत्रधार\" is a name: "
+        "write it \"Sutradhar\" in Latin-script languages and transliterate it elsewhere; never translate it.\n"
         "- Keep unchanged: numbers and amounts (₹251), dates, times, URLs, e-mail addresses, and the names "
         "UPI, PDF, OTP, GST, EMI, SMS, AI, WhatsApp, Razorpay, Google, D1-D60.\n"
         "- Keep leading/trailing punctuation, bullets, line breaks and spacing style. Do not add notes.\n\n"
