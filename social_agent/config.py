@@ -26,7 +26,10 @@ DEFAULT_CONFIG = {
     },
     "content": {
         "theme": "parashara_vedic_wisdom",
-        "voice": "hi-IN-MadhurNeural", # Natural Hindi Male voice, alt: hi-IN-SwaraNeural
+        "voice": "hi-IN-SwaraNeural", # Natural Hindi Female voice, alt: hi-IN-MadhurNeural
+        "tts_provider": "sarvam", # sarvam or edge
+        "sarvam_speaker": "shubh",
+        "sarvam_model": "bulbul:v3",
         "target_duration_sec": 45,
         "language": "hi",
         "include_shloka": True,
@@ -35,7 +38,8 @@ DEFAULT_CONFIG = {
     },
     "api_keys": {
         "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
-        "gemini_model": "gemini-2.0-flash"
+        "gemini_model": "gemini-2.0-flash",
+        "sarvam_api_key": os.getenv("SARVAM_API_KEY", "")
     },
     "platforms": {
         "reddit": {
@@ -87,8 +91,10 @@ def load_config() -> dict:
             print(f"[Config] Error reading {CONFIG_FILE}: {e}")
 
     # Fallback to env vars if not set in config
-    if not config["api_keys"]["gemini_api_key"]:
+    if not config["api_keys"].get("gemini_api_key"):
         config["api_keys"]["gemini_api_key"] = os.getenv("GEMINI_API_KEY", "")
+    if not config["api_keys"].get("sarvam_api_key"):
+        config["api_keys"]["sarvam_api_key"] = os.getenv("SARVAM_API_KEY", "")
     
     return config
 

@@ -7,6 +7,10 @@ and divine Vedic temple aesthetics.
 
 import os
 import re
+import json
+import base64
+import tempfile
+import urllib.request
 import html
 import shutil
 import asyncio
@@ -67,11 +71,24 @@ def wrap_text(text: str, font, max_width: int, draw: ImageDraw.Draw) -> list:
         lines.append(" ".join(current_line))
     return lines
 
-async def generate_voiceover(script: str, output_path: str, voice: str = "hi-IN-MadhurNeural") -> float:
+async def generate_voiceover(script: str, output_path: str, voice: str = "hi-IN-MadhurNeural", lang: str = "hi") -> float:
     """
-    Generate natural neural Hindi voiceover using Edge-TTS.
+    Generate natural neural Hindi voiceover using Sarvam AI (for Hindi) or Edge-TTS.
     Returns the total duration in seconds.
     """
+    cfg = load_config()
+    sarvam_key = cfg.get("api_keys", {}).get("sarvam_api_key") or os.getenv("SARVAM_API_KEY", "")
+    if lang in ("hi", "hindi") and sarvam_key:
+        try:
+            speaker = cfg.get("content", {}).get("sarvam_speaker", "shubh")
+            print(f"[VideoEngine] Synthesizing voiceover via Sarvam AI ({speaker})...")
+            tts_sarvam(script, output_path, speaker=speaker)
+            dur = probe_duration(output_path)
+            if dur > 0:
+                return dur
+        except Exception as e:
+            print(f"[VideoEngine] Sarvam AI voiceover failed: {e}. Falling back to Edge-TTS...")
+
     communicate = edge_tts.Communicate(script, voice)
     await communicate.save(output_path)
     
@@ -393,8 +410,86 @@ def probe_duration(path: str) -> float:
         return 0.0
     return float(m.group(1)) * 3600 + float(m.group(2)) * 60 + float(m.group(3))
 
-async def tts_with_words(text: str, output_path: str, voice: str, rate: str) -> list:
+def tts_sarvam(text: str, output_path: str, speaker: str = None, model: str = None) -> list:
+    """
+    Synthesize Hindi narration using Sarvam AI Bulbul TTS API.
+    Converts audio to MP3 and estimates word timings for captions.
+    """
+    cfg = load_config()
+    api_key = cfg.get("api_keys", {}).get("sarvam_api_key") or os.getenv("SARVAM_API_KEY", "")
+    if not api_key:
+        raise ValueError("SARVAM_API_KEY not configured")
+    
+    speaker = speaker or cfg.get("content", {}).get("sarvam_speaker", "shubh")
+    model = model or cfg.get("content", {}).get("sarvam_model", "bulbul:v3")
+    
+    url = "https://api.sarvam.ai/text-to-speech"
+    headers = {
+        "api-subscription-key": api_key,
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "inputs": [text],
+        "target_language_code": "hi-IN",
+        "speaker": speaker,
+        "pitch": 0,
+        "pace": 1.0,
+        "loudness": 1.5,
+        "speech_sample_rate": 22050,
+        "enable_preprocessing": True,
+        "model": model
+    }
+    
+    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+        
+    if not data.get("audios"):
+        raise ValueError("Sarvam AI returned empty audio response")
+        
+    raw_wav = base64.b64decode(data["audios"][0])
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tf:
+        tf.write(raw_wav)
+        temp_wav = tf.name
+        
+    try:
+        exe = imageio_ffmpeg.get_ffmpeg_exe()
+        subprocess.run([exe, "-y", "-i", temp_wav, "-b:a", "192k", output_path], capture_output=True, check=True)
+    finally:
+        if os.path.exists(temp_wav):
+            os.unlink(temp_wav)
+            
+    dur = probe_duration(output_path)
+    tokens = text.split()
+    if not tokens or dur <= 0:
+        return []
+    
+    weights = [max(1, len(tok)) for tok in tokens]
+    total_weight = sum(weights)
+    words = []
+    cur = 0.0
+    for tok, w in zip(tokens, weights):
+        wdur = (w / total_weight) * dur
+        words.append((tok, cur, cur + wdur))
+        cur += wdur
+    return words
+
+async def tts_with_words(text: str, output_path: str, voice: str, rate: str, lang: str = "hi") -> list:
     """Synthesize narration and return its word timings as (word, start_sec, end_sec) with retries."""
+    cfg = load_config()
+    sarvam_key = cfg.get("api_keys", {}).get("sarvam_api_key") or os.getenv("SARVAM_API_KEY", "")
+    
+    # Priority: Sarvam AI for Hindi content
+    if lang in ("hi", "hindi") and sarvam_key:
+        try:
+            speaker = cfg.get("content", {}).get("sarvam_speaker", "shubh")
+            print(f"[VideoEngine] Synthesizing Hindi narration via Sarvam AI (speaker: {speaker})...")
+            words = tts_sarvam(text, output_path, speaker=speaker)
+            if words and os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+                return words
+        except Exception as e:
+            print(f"[VideoEngine] Sarvam AI TTS error: {e}. Falling back to Edge-TTS...")
+
     for attempt in range(1, 4):
         try:
             communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
@@ -414,51 +509,125 @@ async def tts_with_words(text: str, output_path: str, voice: str, rate: str) -> 
         await asyncio.sleep(1.5 * attempt)
     return words
 
-SCENE_CSS = """
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700;800;900&family=Noto+Serif+Devanagari:wght@600;700&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
+THEMES_HI = [
+    {
+        "id": "royal_gold",
+        "bg": "radial-gradient(circle at 50% 28%, rgba(212, 175, 55, 0.16) 0%, transparent 65%), linear-gradient(180deg, #0e0d14 0%, #060509 100%)",
+        "badge_bg": "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+        "badge_color": "#0a0805",
+        "badge_shadow": "0 8px 25px rgba(255, 215, 0, 0.35)",
+        "highlight_color": "#FFE600",
+        "highlight_glow": "0 0 25px rgba(255, 230, 0, 0.5)",
+        "card_bg": "rgba(20, 18, 26, 0.75)",
+        "shloka_color": "#FFF8E7",
+        "accent": "#FFD700",
+        "border_color": "rgba(255, 215, 0, 0.3)"
+    },
+    {
+        "id": "sacred_emerald",
+        "bg": "radial-gradient(circle at 50% 28%, rgba(0, 255, 170, 0.14) 0%, transparent 65%), linear-gradient(180deg, #051410 0%, #020806 100%)",
+        "badge_bg": "linear-gradient(135deg, #00FF88 0%, #00B4D8 100%)",
+        "badge_color": "#01140e",
+        "badge_shadow": "0 8px 25px rgba(0, 255, 136, 0.35)",
+        "highlight_color": "#00FFCC",
+        "highlight_glow": "0 0 25px rgba(0, 255, 204, 0.5)",
+        "card_bg": "rgba(8, 24, 20, 0.75)",
+        "shloka_color": "#E6FFF9",
+        "accent": "#00FFCC",
+        "border_color": "rgba(0, 255, 204, 0.3)"
+    },
+    {
+        "id": "surya_crimson",
+        "bg": "radial-gradient(circle at 50% 28%, rgba(255, 60, 0, 0.14) 0%, transparent 65%), linear-gradient(180deg, #14050a 0%, #080204 100%)",
+        "badge_bg": "linear-gradient(135deg, #FF1744 0%, #FF9100 100%)",
+        "badge_color": "#FFFFFF",
+        "badge_shadow": "0 8px 25px rgba(255, 23, 68, 0.35)",
+        "highlight_color": "#FFD54F",
+        "highlight_glow": "0 0 25px rgba(255, 213, 79, 0.5)",
+        "card_bg": "rgba(24, 10, 16, 0.75)",
+        "shloka_color": "#FFF5E6",
+        "accent": "#FFD54F",
+        "border_color": "rgba(255, 85, 0, 0.3)"
+    }
+]
+
+def get_scene_css_hi(th: dict) -> str:
+    return f"""
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&family=Noto+Serif+Devanagari:wght@600;700&display=swap');
+  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  body {{
     width: 1080px; height: 1920px; overflow: hidden; position: relative;
-    font-family: 'Noto Sans Devanagari', 'Kohinoor Devanagari', sans-serif; color: #fff;
-    background:
-      radial-gradient(ellipse at 50% 20%, rgba(233, 207, 142, 0.30) 0%, rgba(176, 141, 62, 0.14) 36%, transparent 68%),
-      radial-gradient(circle at 50% 85%, rgba(58, 13, 22, 0.40) 0%, transparent 55%),
-      linear-gradient(180deg, #181412 0%, #0f0c0b 40%, #080606 100%);
-  }
-  .mandala {
-    position: absolute; left: 50%; top: 680px; width: 1400px; height: 1400px;
-    transform: translate(-50%, -50%); border-radius: 50%; opacity: 0.14;
-    background: repeating-conic-gradient(from 0deg, #d6b76a 0deg 1.5deg, transparent 1.5deg 12deg);
-    -webkit-mask: radial-gradient(circle, transparent 24%, #000 25%, #000 48%, transparent 49%);
-  }
-  .ring { position: absolute; left: 50%; top: 680px; border-radius: 50%; transform: translate(-50%, -50%);
-          border: 1.5px solid rgba(214, 183, 106, 0.35); box-shadow: 0 0 25px rgba(214, 183, 106, 0.12); }
-  .frame-outer { position: absolute; inset: 36px; border: 1.5px solid rgba(214, 183, 106, 0.45); border-radius: 28px; pointer-events: none; }
-  .frame-inner { position: absolute; inset: 48px; border: 1px solid rgba(214, 183, 106, 0.22); border-radius: 20px; pointer-events: none; }
-  
-  .top { position: absolute; top: 220px; width: 100%; text-align: center; }
-  .om { font-size: 72px; color: #e9cf8e; text-shadow: 0 0 35px rgba(233, 207, 142, 0.75), 0 2px 10px rgba(0,0,0,0.8); line-height: 1; }
-  .brand { margin-top: 16px; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #e9cf8e; text-shadow: 0 2px 12px rgba(0,0,0,0.7); }
-  .badge { display: inline-block; margin-top: 26px; padding: 12px 38px; border-radius: 40px; font-size: 28px; font-weight: 800;
-           color: #fdf6e2; background: linear-gradient(135deg, rgba(58, 13, 22, 0.90) 0%, rgba(28, 8, 12, 0.95) 100%);
-           border: 1.5px solid rgba(214, 183, 106, 0.65); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(233, 207, 142, 0.3); }
-  
-  .stage { position: absolute; top: 540px; left: 65px; right: 65px; height: 860px;
-           display: flex; align-items: center; justify-content: center; text-align: center; }
-  .display { font-weight: 900; line-height: 1.35; color: #fff; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.85); white-space: pre-line; }
-  .display em { font-style: normal; color: #f6d88e; text-shadow: 0 0 40px rgba(246, 216, 142, 0.7), 0 6px 30px rgba(0, 0, 0, 0.8); }
-  .shloka { font-family: 'Noto Serif Devanagari', serif; font-weight: 700; font-size: 52px; line-height: 1.65; color: #fff4d4;
-            white-space: pre-line; padding: 45px 35px; border-radius: 28px;
-            background: rgba(22, 16, 16, 0.85); border: 2px solid rgba(214, 183, 106, 0.55);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(233, 207, 142, 0.25); }
-  .source { margin-top: 26px; font-size: 32px; color: #e9cf8e; font-weight: 700; }
-  .foot { position: absolute; bottom: 120px; width: 100%; text-align: center; font-size: 32px; font-weight: 800; color: #d6b76a; letter-spacing: 2px; }
-  .sub { display: inline-flex; align-items: center; gap: 18px; padding: 24px 60px; border-radius: 80px;
-         background: linear-gradient(135deg, #d4af37, #966f10); font-size: 52px; font-weight: 900; color: #0b0704;
-         box-shadow: 0 18px 50px rgba(212, 175, 55, 0.45); }
-  .cta-lines { margin-top: 50px; font-size: 52px; font-weight: 800; line-height: 1.5; white-space: pre-line; }
-  .cta-lines em { font-style: normal; color: #f6d88e; }
+    font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff;
+    background: {th['bg']};
+  }}
+  .ambient-glow {{
+    position: absolute; width: 850px; height: 850px; border-radius: 50%;
+    background: {th['accent']}; opacity: 0.08; filter: blur(130px);
+    top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
+  }}
+  .header {{
+    position: absolute; top: 180px; left: 0; width: 100%; text-align: center; z-index: 10;
+  }}
+  .pill {{
+    display: inline-block; padding: 12px 36px; border-radius: 50px;
+    font-size: 26px; font-weight: 800; letter-spacing: 1px;
+    color: {th['accent']}; background: rgba(255, 255, 255, 0.05);
+    border: 1px solid {th['border_color']};
+    backdrop-filter: blur(10px);
+  }}
+  .center-container {{
+    position: absolute; top: 50%; left: 75px; width: 930px;
+    transform: translateY(-50%);
+    background: {th['card_bg']};
+    backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 36px;
+    padding: 75px 55px; text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+    z-index: 10;
+  }}
+  .display {{
+    font-size: 68px; font-weight: 800; line-height: 1.4;
+    color: #FFFFFF; white-space: pre-line;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  }}
+  .display em {{
+    font-style: normal; color: {th['highlight_color']};
+    text-shadow: {th['highlight_glow']};
+  }}
+  .shloka {{
+    font-family: 'Noto Serif Devanagari', serif; font-size: 52px;
+    font-weight: 700; line-height: 1.7; color: {th['shloka_color']};
+    white-space: pre-line;
+  }}
+  .source {{
+    margin-top: 32px; font-size: 26px; color: {th['accent']};
+    font-weight: 700; letter-spacing: 1px;
+  }}
+  .cta-lines {{
+    font-size: 64px; font-weight: 800; line-height: 1.4; white-space: pre-line;
+    color: #FFFFFF; margin-bottom: 40px;
+  }}
+  .cta-lines em {{
+    font-style: normal; color: {th['highlight_color']};
+  }}
+  .sub {{
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 18px 48px; border-radius: 50px;
+    background: {th['badge_bg']}; color: {th['badge_color']};
+    font-size: 32px; font-weight: 900; letter-spacing: 1.5px;
+    box-shadow: {th['badge_shadow']};
+  }}
+  .footer {{
+    position: absolute; bottom: 120px; width: 100%; text-align: center;
+    font-size: 24px; color: rgba(255, 255, 255, 0.45); letter-spacing: 2px;
+    font-weight: 700; z-index: 10;
+  }}
+  .footer span {{ color: {th['accent']}; }}
 """
+
+SCENE_CSS = get_scene_css_hi(THEMES_HI[0])
 
 SCENE_CSS_EN = """
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Noto+Serif+Devanagari:wght@600;700&display=swap');
@@ -518,24 +687,29 @@ def scene_html(scene: dict, branding: str) -> str:
     badge = html.escape(scene.get("badge", ""))
     display = scene.get("display", "")
     is_en = (lang in ("en", "english"))
-    css = SCENE_CSS_EN if is_en else SCENE_CSS
+
+    import datetime
+    day_idx = datetime.date.today().timetuple().tm_yday
+    theme_idx = scene.get("theme_index", day_idx) % len(THEMES_HI)
+    th = THEMES_HI[theme_idx]
+
+    css = SCENE_CSS_EN if is_en else get_scene_css_hi(th)
 
     if kind == "shloka":
-        stage = f'<div class="stage"><div><div class="shloka">{html.escape(display)}</div><div class="source">{html.escape(scene.get("source", ""))}</div></div></div>'
+        stage = f'<div class="shloka">{html.escape(display)}</div><div class="source">{html.escape(scene.get("source", ""))}</div>'
     elif kind == "cta":
-        sub_label = "🔔 SUBSCRIBE"
-        stage = (f'<div class="stage"><div><div class="sub">{sub_label}</div>'
-                 f'<div class="cta-lines">{_display_html(display)}</div></div></div>')
+        stage = f'<div class="cta-lines">{_display_html(display)}</div><div class="sub">🔔 SUBSCRIBE</div>'
     else:
-        size = 88 if kind == "hook" else (74 if len(display) < 75 else 62)
-        stage = f'<div class="stage"><div class="display" style="font-size:{size}px">{_display_html(display)}</div></div>'
-    rings = "".join(f'<div class="ring" style="width:{d}px;height:{d}px"></div>' for d in (760, 980))
+        stage = f'<div class="display">{_display_html(display)}</div>'
+
+    badge_html = f'<div class="pill">{badge}</div>' if badge else ''
     return f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>{css}</style></head>
-<body><div class="mandala"></div>{rings}<div class="frame-outer"></div><div class="frame-inner"></div>
-<div class="top"><div class="om">ॐ</div><div class="brand">{html.escape(branding)}</div>
-<div class="badge">{badge}</div></div>
-{stage}
-<div class="foot">shriramjiastro.in</div></body></html>"""
+<body>
+<div class="ambient-glow"></div>
+<div class="header">{badge_html}</div>
+<div class="center-container">{stage}</div>
+<div class="footer"><span>{html.escape(branding)}</span></div>
+</body></html>"""
 
 def render_html_png(html_code: str, output_path: Path) -> bool:
     chrome_bin = find_chrome_binary()
@@ -618,7 +792,7 @@ def render_scene_reel(scenes: list, output_dir: Path, voice: str, branding: str,
     for i, sc in enumerate(scenes):
         mp3 = str(output_dir / f"scene_{i}.mp3")
         scene_voice = sc.get("voice", voice)
-        words = asyncio.run(tts_with_words(sc["narration"], mp3, scene_voice, rate))
+        words = asyncio.run(tts_with_words(sc["narration"], mp3, scene_voice, rate, lang=lang))
         dur = probe_duration(mp3) + SCENE_TAIL
         timed.append({**sc, "audio": mp3, "words": words, "start": t, "dur": dur})
         t += dur
@@ -648,18 +822,20 @@ def render_scene_reel(scenes: list, output_dir: Path, voice: str, branding: str,
     for i, sc in enumerate(timed):
         length = sc["dur"] + (XFADE if i < n - 1 else 0)
         frames = int(round(length * FPS))
-        zoom = 0.10 if sc["kind"] == "hook" else 0.05
-        fc.append(f"[{i}:v]scale=1620:2880,zoompan=z='1+{zoom}*on/{frames}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-                  f":d={frames}:s=1080x1920:fps={FPS},setsar=1,format=yuv420p[v{i}]")
+        if i % 3 == 0:
+            drift = f"x='(in_w-out_w)/2':y='(in_h-out_h)*(1-t/{length:.3f})'"
+        elif i % 3 == 1:
+            drift = f"x='(in_w-out_w)*(t/{length:.3f})':y='(in_h-out_h)/2'"
+        else:
+            drift = f"x='(in_w-out_w)/2':y='(in_h-out_h)*(t/{length:.3f})'"
+        fc.append(f"[{i}:v]loop=loop={frames}:size=1:start=0,scale=1188x2112:flags=lanczos,crop=1080:1920:{drift},fps={FPS},setsar=1,format=yuv420p[v{i}]")
     last, offset = "v0", 0.0
     for i in range(1, n):
         offset += timed[i - 1]["dur"]
         fc.append(f"[{last}][v{i}]xfade=transition=fade:duration={XFADE}:offset={offset:.3f}[x{i}]")
         last = f"x{i}"
-    fc.append(f"color=c=0xFFC83D:s=1080x12:r={FPS}[bar]")
-    fc.append(f"[{last}][bar]overlay=x='-w+w*t/{total:.3f}':y=0:shortest=1[vb]")
-    ass_arg = str(ass_path).replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'")
-    fc.append(f"[vb]ass='{ass_arg}':fontsdir={CAPTION_FONT_DIR}[vout]")
+    fc.append(f"color=c=0xFFD700:s=1080x10:r={FPS}[bar]")
+    fc.append(f"[{last}][bar]overlay=x='-w+w*t/{total:.3f}':y=0:shortest=1[vout]")
     for i, sc in enumerate(timed):
         fc.append(f"[{n + i}:a]aresample=44100,apad=whole_dur={sc['dur']:.3f}[a{i}]")
     fc.append("".join(f"[a{i}]" for i in range(n)) + f"concat=n={n}:v=0:a=1[voice]")
@@ -735,7 +911,7 @@ def render_vertical_video(
     
     # Step 1: Synthesize Voiceover
     print(f"[VideoEngine] Generating voiceover ({voice})...")
-    total_audio_duration = asyncio.run(generate_voiceover(voice_script, audio_path, voice))
+    total_audio_duration = asyncio.run(generate_voiceover(voice_script, audio_path, voice, lang=lang))
     print(f"[VideoEngine] Audio generated: {total_audio_duration:.2f} seconds.")
     
     # Step 2: Render each slide PNG (Chrome first, PIL fallback)
