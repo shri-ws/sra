@@ -1937,12 +1937,18 @@ function renderTutorials() {
   const ls = SRATutor.lessons(), d = SRATutor.done(), seen = ls.filter(l => d[l.id]).length;
   const list = document.getElementById('tutorList');
   if (list) list.innerHTML = ls.map((l, i) => `
-    <button onclick="SRATutor.open('${l.id}')" class="w-full text-left flex items-center gap-3 border ${d[l.id] ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-white'} rounded-xl p-3">
-      <span class="flex-shrink-0 w-9 h-9 rounded-full ${d[l.id] ? 'bg-green-600' : 'bg-blue-600'} text-white font-bold text-sm flex items-center justify-center">${d[l.id] ? '✓' : i + 1}</span>
-      <span class="flex-1"><span class="block text-sm font-semibold text-slate-900">${l.title}</span>
-        <span class="block text-[11px] text-slate-500">${l.mins} · ${l.scenes.length} दृश्य · ${(l.quiz || []).length} सवाल${d[l.id] ? ' · देख लिया' : ''}</span></span>
-      <span class="text-xs font-bold text-blue-700">चलाएँ</span>
-    </button>`).join('');
+    <div class="border ${d[l.id] ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-white'} rounded-xl">
+      <button onclick="SRATutor.open('${l.id}')" class="w-full text-left flex items-center gap-3 p-3 pb-2">
+        <span class="flex-shrink-0 w-9 h-9 rounded-full ${d[l.id] ? 'bg-green-600' : 'bg-blue-600'} text-white font-bold text-sm flex items-center justify-center">${d[l.id] ? '✓' : i + 1}</span>
+        <span class="flex-1"><span class="block text-sm font-semibold text-slate-900">${l.title}</span>
+          <span class="block text-[11px] text-slate-500">${l.mins} · ${l.scenes.length} दृश्य · ${(l.quiz || []).length} सवाल${d[l.id] ? ' · देख लिया' : ''}</span></span>
+        <span class="text-xs font-bold text-blue-700">चलाएँ</span>
+      </button>
+      <div class="flex gap-2 px-3 pb-3 pl-[60px]">
+        <button onclick="tutorShare('${l.id}', this)" class="text-[11px] font-semibold text-green-700 border border-green-300 bg-white rounded-lg px-2.5 py-1">WhatsApp पर भेजें</button>
+        <a href="tutorial/video/${l.id}.mp4" download="sutradhar-path-${i + 1}.mp4" class="text-[11px] font-semibold text-slate-600 border border-slate-300 bg-white rounded-lg px-2.5 py-1">MP4 डाउनलोड</a>
+      </div>
+    </div>`).join('');
   const cnt = document.getElementById('tutorCount'); if (cnt) cnt.textContent = `${seen} / ${ls.length} देखे`;
   const banner = document.getElementById('tutorBanner'), n = tutorNext();
   if (banner) {
@@ -1952,6 +1958,31 @@ function renderTutorials() {
       document.getElementById('tutorBannerTitle').textContent = seen ? 'अगला पाठ: ' + n.title : 'सूत्रधार कैसे काम करता है — वीडियो ट्यूटोरियल';
     }
   }
+}
+// Send a lesson's MP4 (tutorial/video/<id>.mp4, built by scripts/build_tutorial_videos.py): the phone's share
+// sheet with the video file where it can, otherwise a WhatsApp message with the video's link.
+async function tutorShare(id, btn) {
+  const ls = (window.SRATutor && SRATutor.lessons()) || [], i = ls.findIndex(l => l.id === id), l = ls[i] || { title: '' };
+  const url = new URL('tutorial/video/' + id + '.mp4', location.href).href;
+  const text = `सूत्रधार वीडियो पाठ ${i + 1}: ${l.title}`;
+  const label = btn ? btn.textContent : '';
+  try {
+    if (navigator.canShare && window.File) {
+      if (btn) btn.textContent = 'वीडियो तैयार हो रहा…';
+      const blob = await (await fetch(url)).blob();
+      const file = new File([blob], `sutradhar-path-${i + 1}.mp4`, { type: 'video/mp4' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text });
+        if (btn) btn.textContent = label;
+        return;
+      }
+    }
+  } catch (e) {
+    if (btn) btn.textContent = label;
+    if (e && e.name === 'AbortError') return;
+  }
+  if (btn) btn.textContent = label;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text + '\n' + url), '_blank');
 }
 document.addEventListener('DOMContentLoaded', () => { renderTutorials(); if (window.SRATutor) SRATutor.onChange(renderTutorials); });
 
