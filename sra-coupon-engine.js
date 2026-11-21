@@ -226,6 +226,7 @@
         prefill: { name: o.name || '', contact: phone, email: o.email || '' },
         notes: notes,
         theme: { color: o.color || '#7c1305' },
+        webview_intent: true,   // lets UPI apps (GPay, PhonePe…) show inside the Android app and in-app browsers
         handler: function(response) { window._sraLastOrder = order; if (o.onSuccess) o.onSuccess(response, order); },
         modal: { ondismiss: function() { if (o.onDismiss) o.onDismiss(order); } }
       };
@@ -275,6 +276,7 @@
         window._sraLastOrder = order;
         if (userHandler) userHandler(response, order);
       };
+      options.webview_intent = true;   // UPI apps inside the Android app and in-app browsers
       var rzp = new Razorpay(options);
       rzp.on('payment.failed', function(resp) {
         alert('भुगतान असफल रहा: ' + ((resp && resp.error && resp.error.description) || 'कृपया पुनः प्रयास करें।'));
