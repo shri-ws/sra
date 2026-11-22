@@ -41,6 +41,7 @@
 <script src="sra-offers.js"></script>
 <script src="tutorial/lessons-hi.js"></script>
 <script src="tutorial/player.js"></script>
+<script src="sra-ai-prompt.js?v=1"></script>
 <script src="sra-analytics.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-800" style="font-family:system-ui,sans-serif">
@@ -472,6 +473,17 @@
         <p class="text-xs text-blue-200 leading-relaxed">
           गूगल व ऑफलाइन ज्योतिषियों को हमारे वैदिक मॉड्यूल्स से जोड़ने हेतु प्रमाणित टेलीकॉलिंग व आपत्ति-निवारण स्क्रिप्ट्स।
         </p>
+      </div>
+
+      <!-- AI prompt for astrologers (sra-ai-prompt.js) -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="font-bold text-slate-900 text-sm">ज्योतिषी को AI वाला सवाल भेजें</div>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed">ज्योतिषी जी यह संदेश अपने फ़ोन के ChatGPT या Gemini में डालेंगे। उसमें सदस्यता की पूरी जानकारी है, इसलिए AI उनके अपने आँकड़ों से हिसाब लगाकर बताएगा कि कमाई कितनी बढ़ सकती है। सिर्फ़ "shriramjiastro.in से कमाई कैसे बढ़ाएँ" पूछने पर AI को सदस्यता की जानकारी नहीं मिलती।</p>
+        <div class="flex gap-2 mt-3 flex-wrap">
+          <button onclick="sendAiPrompt('hi')" class="text-xs font-semibold bg-green-600 text-white rounded-lg px-3 py-2">WhatsApp पर भेजें (हिंदी)</button>
+          <button onclick="sendAiPrompt('en')" class="text-xs font-semibold border border-green-600 text-green-700 rounded-lg px-3 py-2">English</button>
+          <button onclick="copyAiPrompt()" class="text-xs font-semibold border border-slate-300 text-slate-700 rounded-lg px-3 py-2">सिर्फ़ सवाल कॉपी करें</button>
+        </div>
       </div>
 
       <!-- SCRIPT SWITCHER PILLS -->
@@ -2178,6 +2190,20 @@ function renderStart() {
   if (dot) dot.classList.toggle('hidden', !open);
 }
 function setStartEarned(v) { startEarned = Number(v) || 0; renderStart(); }
+
+// ---------- AI prompt for astrologers (sra-ai-prompt.js) ----------
+function sendAiPrompt(lang) {
+  if (!window.SRAAIPrompt) return;
+  try { trackSutra('script_copy', 'ai_prompt_' + lang); } catch (e) {}
+  window.open('https://wa.me/?text=' + encodeURIComponent(SRAAIPrompt.whatsapp(lang)), '_blank');
+}
+function copyAiPrompt() {
+  if (!window.SRAAIPrompt) return;
+  const t = SRAAIPrompt.text('hi');
+  try { trackSutra('script_copy', 'ai_prompt_copy'); } catch (e) {}
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(() => alert('सवाल कॉपी हो गया।'), () => window.prompt('कॉपी करें:', t));
+  else window.prompt('कॉपी करें:', t);
+}
 
 // ---------- Video tutorials (tutorial/player.js) ----------
 function tutorNext() {

@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script src="sra-coupon-engine.js"></script>
+<script src="sra-ai-prompt.js?v=1"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{--blue:#15803d;--blue-d:#166534;--blue-soft:#ecfdf3;--gold:#e8a800;--maroon-deep:#4a0912;--ink:#0f172a;--muted:#5b6474;--line:#e3e7ee;--bg:#f7f8fa;--card:#fff;--green:#15803d;--green-soft:#ecfdf5;--red:#b91c1c;--red-soft:#fef2f2}
@@ -338,6 +339,15 @@
       <summary>यह हिसाब कैसे बना</summary>
       <div id="calc-detail"></div>
     </details>
+    <div class="card">
+      <h3>किसी AI से ख़ुद जाँचिए</h3>
+      <p class="small muted">यह हिसाब हमारा है। अपने फ़ोन के ChatGPT या Gemini से भी पूछ लीजिए: नीचे के बटन से सदस्यता की पूरी जानकारी वाला सवाल तैयार मिलता है। उसमें अपने आँकड़े भरकर भेजिए।</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <a class="btn sm" id="ai-gpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT में पूछें</a>
+        <button class="btn sm ghost" type="button" id="ai-copy">सवाल कॉपी करें (Gemini आदि के लिए)</button>
+      </div>
+      <p class="small muted" id="ai-copied" style="margin-top:8px;display:none">सवाल कॉपी हो गया। ChatGPT, Gemini या किसी भी AI ऐप के सवाल वाले खाने में चिपकाइए (देर तक दबाएँ, फिर Paste)।</p>
+    </div>
   </section>
 
   <!-- 7. BUY -->
@@ -690,6 +700,22 @@
   // start (a reload keeps the screen the user was on)
   var h = parseInt((location.hash || '').slice(1), 10);
   go(h >= 1 && h <= TOTAL ? h : 1);
+})();
+</script>
+<script>
+// "Ask an AI yourself": ChatGPT opens with the full membership facts typed (sra-ai-prompt.js)
+(function () {
+  if (!window.SRAAIPrompt) return;
+  var gpt = document.getElementById('ai-gpt'), cp = document.getElementById('ai-copy');
+  var t = SRAAIPrompt.text('hi');
+  function copy(then) {
+    var ok = function () { document.getElementById('ai-copied').style.display = 'block'; if (then) then(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, function () { window.prompt('कॉपी करें:', t); });
+    else window.prompt('कॉपी करें:', t);
+  }
+  // ChatGPT fills the box from ?q= only for some signed-in users, so the question is also copied to paste
+  if (gpt) { gpt.href = SRAAIPrompt.chatgptUrl('hi'); gpt.addEventListener('click', function () { copy(); }); }
+  if (cp) cp.addEventListener('click', function () { copy(); });
 })();
 </script>
 </body>
