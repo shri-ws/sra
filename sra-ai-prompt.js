@@ -7,11 +7,11 @@
   if (window.SRAAIPrompt) return;
 
   var HI = 'मैं एक ज्योतिषी हूँ। अभी मेरे पास महीने में लगभग 20 से 25 जातक परामर्श के लिए आते हैं, जो ₹251 से ₹501 तक दक्षिणा देते हैं। ' +
-    'AI के आने वाले भविष्य में, अगर मैं श्री राम जी एस्ट्रो (shriramjiastro.in) की पत्रिका ऐप का इस्तेमाल करूँ, तो मेरी 1 साल की कमाई में कितने प्रतिशत का फ़ायदा हो सकता है? ' +
+    'AI के आने वाले भविष्य में, अगर मैं श्री राम जी एस्ट्रो की पत्रिका ऐप (shriramjiastro.in/jyotishi.html) का इस्तेमाल करूँ, तो मेरी 1 साल की कमाई में कितने प्रतिशत का फ़ायदा हो सकता है? ' +
     'और बाज़ार में उपलब्ध दूसरे ऐप से यह ऐप क्यों बेहतर है, और इसे लेने से मेरा क्या लाभ होगा?';
 
   var EN = 'I am an astrologer. About 20 to 25 clients come to me for consultation every month, paying Rs 251 to Rs 501 each. ' +
-    'In the coming age of AI, if I use the Patrika app of Shri Ramji Astro (shriramjiastro.in), by what percentage could my income grow in one year? ' +
+    'In the coming age of AI, if I use the Patrika app of Shri Ramji Astro (shriramjiastro.in/jyotishi.html), by what percentage could my income grow in one year? ' +
     'Why is this app better than the other apps available, and what will I gain by taking it?';
 
   function text(lang) { return lang === 'en' ? EN : HI; }
