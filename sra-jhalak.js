@@ -162,30 +162,33 @@
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
-  function init() {
-    var mounts = document.querySelectorAll('.jh[data-jh]');
-    if (!mounts.length) return;
-    mounts.forEach(render);
-    document.addEventListener('click', function (e) {
-      var b = e.target.closest && e.target.closest('[data-jh-tool]');
-      if (b) { e.preventDefault(); open(b.getAttribute('data-jh-tool'), +b.getAttribute('data-jh-i')); }
+  // Each mount is drawn as soon as this runs: the script sits in the page right after the
+  // phone mount (and is called again after the desktop mount), so the first paint already
+  // has the cards. Drawing them only after the whole page loaded showed the old layout for
+  // a few seconds on phones.
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: 0.12 }) : null;
+  function renderAll() {
+    document.querySelectorAll('.jh[data-jh]:not([data-jh-done])').forEach(function (m) {
+      render(m);
+      m.setAttribute('data-jh-done', '1');
+      // the first three tiles of the strip load at once; the rest as they scroll near
+      m.querySelectorAll('.jh-top img').forEach(function (im, k) { if (k < 3) im.loading = 'eager'; });
+      m.querySelectorAll('.jh-card').forEach(function (c) { io ? io.observe(c) : c.classList.add('in'); });
     });
-    document.addEventListener('keydown', function (e) {
-      if (!document.documentElement.classList.contains('jh-open')) return;
-      if (e.key === 'Escape') close();
-      if (e.key === 'ArrowRight') go(idx() + 1);
-      if (e.key === 'ArrowLeft') go(idx() - 1);
-    });
-    // cards rise in once as they reach the screen (the phone home view scrolls inside its own pane)
-    var cards = document.querySelectorAll('.jh .jh-card');
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (es) {
-        es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-      }, { threshold: 0.12 });
-      cards.forEach(function (c) { io.observe(c); });
-    } else {
-      cards.forEach(function (c) { c.classList.add('in'); });
-    }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.SRAJhalak = { renderAll: renderAll };
+  renderAll();
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-jh-tool]');
+    if (b) { e.preventDefault(); open(b.getAttribute('data-jh-tool'), +b.getAttribute('data-jh-i')); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!document.documentElement.classList.contains('jh-open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') go(idx() + 1);
+    if (e.key === 'ArrowLeft') go(idx() - 1);
+  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderAll);
 })();
