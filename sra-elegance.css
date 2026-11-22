@@ -1156,3 +1156,30 @@ html, body { overflow-x: clip; }
 [data-theme="night"] body .pillar-icon svg.sra-ic, [data-theme="night"] body .hl-icon svg.sra-ic,
 [data-theme="night"] body .drawer-sub-icon svg.sra-ic { color: var(--sra-gold); }
 @media print { :root body svg.sra-ic { color: #7A5A1E !important; } }
+
+/* 20. PHONE READABILITY & TAP TARGETS ─────────────────────────────────────
+   Form fields at 16px (stops iOS zooming into the field) and at least 44px tall;
+   chips and segment buttons at least 44px; no body text under 14px.
+   The compact header keeps its look: its small controls get an invisible
+   44px-tall touch area instead of growing. */
+@media (max-width: 768px) {
+  :root body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]),
+  :root body select, :root body textarea {
+    font-size: 16px !important; min-height: 44px;
+  }
+  :root body .sra-gnav .sra-gn-burger, :root body .sra-gnav .sra-gn-globe,
+  :root body .sra-gnav .lang-pill-btn, :root body .sra-gnav .sra-gn-brand {
+    position: relative;
+  }
+  :root body .sra-gnav .sra-gn-burger::after, :root body .sra-gnav .sra-gn-globe::after,
+  :root body .sra-gnav .lang-pill-btn::after, :root body .sra-gnav .sra-gn-brand::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; transform: translateY(-50%);
+  }
+  :root body .quick-chip-btn, :root body .panchang-seg-btn {
+    min-height: 44px !important; font-size: 14px !important;
+  }
+  :root body .card-sub, :root body .app-quick-sub, :root body #viewHome .sra-m-sub,
+  :root body .sra-m-explain, :root body .fld label, :root body .field label {
+    font-size: 14px !important;
+  }
+}

@@ -60,6 +60,8 @@
 
   /* tabs */
   .gm-tabs { display:flex; gap:6px; overflow-x:auto; padding:10px 0 2px; scrollbar-width:none; }
+  /* phones: all four steps visible as a 2x2 grid instead of a row that cuts off */
+  @media (max-width: 520px) { .gm-tabs { display:grid; grid-template-columns:1fr 1fr; overflow:visible; } .gm-tabs .gm-tab { min-height:44px; } }
   .gm-tabs::-webkit-scrollbar{display:none;}
   .gm-tab { flex:0 0 auto; border:1px solid var(--gm-border); background:var(--gm-card); color:var(--gm-ink);
     border-radius:12px 12px 0 0; padding:10px 16px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap; opacity:.72; }
@@ -79,8 +81,8 @@
   .person.vadhu h3 { color:var(--gm-girl); }
   .fld { margin-bottom:10px; }
   .fld label { display:block; font-size:12px; font-weight:700; color:var(--gm-soft); margin-bottom:4px; }
-  .fld input { width:100%; height:42px; border:1.5px solid var(--gm-border); border-radius:9px; padding:0 10px;
-    font-size:14px; background:var(--gm-bg); color:var(--gm-ink); font-family:inherit; }
+  .fld input { width:100%; height:46px; border:1.5px solid var(--gm-border); border-radius:9px; padding:0 10px;
+    font-size:16px; background:var(--gm-bg); color:var(--gm-ink); font-family:inherit; }
   .fld .row2 { display:flex; gap:8px; }
   .fld .row2 input { flex:1; }
   .tz { width:84px !important; flex:0 0 84px !important; }
@@ -245,7 +247,7 @@
         <div class="fld"><label>जन्म स्थान</label>
           <div class="row2">
             <input type="text" id="v-city" list="cityList" placeholder="शहर खोजें…" autocomplete="off" />
-            <input type="number" id="v-tz" class="tz" step="0.25" value="5.5" title="टाइमज़ोन (UTC)" />
+            <input type="hidden" id="v-tz" value="" />
           </div>
         </div>
       </div>
@@ -257,7 +259,7 @@
         <div class="fld"><label>जन्म स्थान</label>
           <div class="row2">
             <input type="text" id="g-city" list="cityList" placeholder="शहर खोजें…" autocomplete="off" />
-            <input type="number" id="g-tz" class="tz" step="0.25" value="5.5" title="टाइमज़ोन (UTC)" />
+            <input type="hidden" id="g-tz" value="" />
           </div>
         </div>
       </div>
@@ -265,7 +267,7 @@
     <datalist id="cityList"></datalist>
     <button class="btn-main" id="btnMatch" type="button">💑 गुण मिलान करें ➔</button>
     <div class="gm-msg" id="matchMsg"></div>
-    <p class="mini-note">टिप: शहर टाइप करने पर सूची से चुनें, या पूरा नाम लिखकर मिलान दबाएँ (स्थान अपने आप खोजा जाएगा)। भारत के लिए टाइमज़ोन 5.5 रखें।</p>
+    <p class="mini-note">टिप: शहर टाइप करने पर सूची से चुनें, या पूरा नाम लिखकर मिलान दबाएँ। स्थान और उस तारीख का टाइमज़ोन अपने आप निकाला जाता है।</p>
   </section>
 
   <!-- TAB 2: ASHTAKOOT -->
@@ -357,19 +359,34 @@
     return null;
   }
 
+  // ---- UTC offset in force at that place on that date (handles DST and old offsets) ----
+  async function resolveTz(loc, date, time) {
+    try {
+      var r = await fetch('/timezone?lat=' + loc.lat + '&lon=' + loc.lon +
+        '&date=' + encodeURIComponent(date) + '&time=' + encodeURIComponent(time || '12:00'));
+      if (r.ok) {
+        var j = await r.json();
+        if (j && typeof j.utc_offset === 'number') return j.utc_offset;
+      }
+    } catch (e) {}
+    return 5.5;
+  }
+
   async function castChart(prefix, roleName) {
     var name = (document.getElementById(prefix + '-name').value || '').trim() || roleName;
     var date = document.getElementById(prefix + '-date').value;
     var time = document.getElementById(prefix + '-time').value;
     var cityTxt = document.getElementById(prefix + '-city').value;
-    var tz = parseFloat(document.getElementById(prefix + '-tz').value) || 5.5;
     if (!date || !time) throw new Error(roleName + ' की जन्म तिथि व समय भरें।');
-    // A saved kundali (सेव्ड कुंडली से चुनें) carries its exact coordinates
+    // A saved kundali (सेव्ड कुंडली से चुनें) carries its exact coordinates and timezone
     var cityEl = document.getElementById(prefix + '-city');
-    var loc = (cityEl.dataset.lat && cityEl.dataset.city === cityTxt)
+    var fromSaved = !!(cityEl.dataset.lat && cityEl.dataset.city === cityTxt);
+    var loc = fromSaved
       ? { lat: parseFloat(cityEl.dataset.lat), lon: parseFloat(cityEl.dataset.lon) }
       : await resolveCity(cityTxt);
     if (!loc) throw new Error(roleName + ' का जन्म स्थान नहीं मिला — सूची से शहर चुनें।');
+    var savedTz = parseFloat(document.getElementById(prefix + '-tz').value);
+    var tz = (fromSaved && !isNaN(savedTz)) ? savedTz : await resolveTz(loc, date, time);
     var calc = await window.PatrikaEngineBridge.calculatePatrikaPlanets({
       name: name, date: date, time: time, city: cityTxt, lat: loc.lat, lon: loc.lon, tz: tz
     });
