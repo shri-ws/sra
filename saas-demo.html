@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>ज्योतिषी सॉफ़्टवेयर — डेमो | श्री रामजी ज्योतिष</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+<script src="sra-coupon-engine.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--blue:#2563eb;--blue-d:#1d4ed8;--blue-soft:#eff4ff;--ink:#0f172a;--muted:#5b6474;--line:#e3e7ee;--bg:#f7f8fa;--card:#fff;--green:#15803d;--green-soft:#ecfdf5;--red:#b91c1c;--red-soft:#fef2f2}
+  html,body{background:var(--bg)}
+  body{font-family:'Noto Sans Devanagari',system-ui,sans-serif;color:var(--ink);line-height:1.6;font-size:16px;padding-bottom:84px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:54px}
+  header b{font-size:15px}
+  header small{color:var(--muted);font-size:13px}
+  .prog{height:3px;background:var(--line)}
+  .prog i{display:block;height:100%;background:var(--blue);transition:width .25s}
+  .screen{display:none;padding:24px 0}
+  .screen.on{display:block}
+  .tag{display:inline-block;font-size:13px;font-weight:600;color:var(--blue);background:var(--blue-soft);padding:2px 10px;border-radius:999px;margin-bottom:10px}
+  h1{font-size:28px;line-height:1.35;margin-bottom:10px}
+  h2{font-size:23px;line-height:1.35;margin-bottom:6px}
+  h3{font-size:17px;margin-bottom:4px}
+  .lead{font-size:17px;color:var(--muted)}
+  .muted{color:var(--muted)}
+  .small{font-size:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;background:var(--blue);color:#fff;border:0;font:inherit;font-weight:600;padding:10px 20px;border-radius:8px;cursor:pointer;text-decoration:none}
+  .btn:hover{background:var(--blue-d)}
+  .btn.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue)}
+  .btn.sm{min-height:38px;padding:6px 14px;font-size:14px}
+  .btn.block{width:100%}
+  .btn:disabled{opacity:.5;cursor:default}
+  .hint{background:var(--blue-soft);border-radius:10px;padding:10px 14px;font-size:14px;margin-top:14px}
+  .hint b{color:var(--blue-d)}
+  label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
+  input,select,textarea{width:100%;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;color:var(--ink)}
+  textarea{min-height:84px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  /* bottom nav */
+  .nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:20}
+  .nav .wrap{display:flex;gap:10px;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+  .nav .btn{flex:1}
+  /* welcome */
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .stat .n{font-size:24px;font-weight:700}
+  .stat.now .n{color:var(--muted)}
+  .stat.then .n{color:var(--blue)}
+  ol.plan{margin:14px 0 0 0;padding-left:22px}
+  ol.plan li{padding:4px 0}
+  /* desk */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;-webkit-overflow-scrolling:touch}
+  .chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;text-align:left;font:inherit;min-width:150px}
+  .chip b{display:block;font-size:15px}
+  .chip small{font-size:12px;color:var(--muted)}
+  .chip.on{border-color:var(--blue);background:var(--blue-soft)}
+  .chip.add{min-width:auto;color:var(--blue);font-weight:600;border-style:dashed}
+  .pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--green-soft);color:var(--green);font-weight:600}
+  .pill.warn{background:var(--red-soft);color:var(--red)}
+  .pill.grey{background:#f1f2f4;color:var(--muted)}
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .kv:last-child{border-bottom:0}
+  .kv span:first-child{color:var(--muted)}
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+  .week span{text-align:center;font-size:11px;border-radius:6px;padding:5px 0;background:var(--blue-soft);line-height:1.3}
+  .week span.full{background:var(--blue);color:#fff}
+  .week span.low{background:var(--red-soft);color:var(--red)}
+  .rx{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:8px}
+  .rx small{color:var(--muted)}
+  .rx button{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;padding:2px 6px}
+  .saved{font-size:13px;color:var(--green);margin-left:6px}
+  /* phone */
+  .phone{max-width:330px;margin:16px auto 0;border:10px solid #1f2937;border-radius:34px;background:#fff;padding:18px 14px 22px;min-height:460px}
+  .phone .top{font-size:13px;color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:4px;margin:10px 0 6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--blue);transition:width .25s}
+  .task{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer;user-select:none}
+  .task.done{background:var(--blue-soft);border-color:#c9d8fb}
+  .box{width:22px;height:22px;border:2px solid #c3c9d4;border-radius:6px;flex:none;margin-top:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+  .task.done .box{background:var(--blue);border-color:var(--blue)}
+  .task small{color:var(--muted)}
+  /* call list */
+  .call{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:8px;background:#fff}
+  .call.red{border-color:#f3c4c4;background:var(--red-soft)}
+  .script{background:#fff;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;padding:12px;margin-top:10px;font-size:15px}
+  /* reports */
+  .rep{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .rep:last-child{border-bottom:0}
+  .rep s{color:var(--muted)}
+  .sample{display:block;width:100%;border:1px solid var(--line);border-radius:10px;margin-top:10px}
+  /* calc */
+  .ladder{margin-top:14px}
+  .lrow{display:grid;grid-template-columns:92px 1fr 96px;gap:10px;align-items:center;margin-top:10px;font-size:14px}
+  .lrow .track{height:26px;background:#f1f2f4;border-radius:6px;overflow:hidden}
+  .lrow .track i{display:block;height:100%;background:var(--blue);border-radius:6px;transition:width .3s}
+  .lrow.base .track i{background:#c3c9d4}
+  .lrow .amt{text-align:right;font-weight:700}
+  .lrow .x{display:block;font-size:12px;color:var(--muted);font-weight:500}
+  details{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  details summary{cursor:pointer;font-weight:600;color:var(--blue)}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td:last-child{text-align:right;white-space:nowrap;padding-left:8px}
+  /* price */
+  .price{text-align:center}
+  .price .n{font-size:42px;font-weight:700;color:var(--blue);line-height:1.2}
+  ul.inc{list-style:none;text-align:left;margin-top:12px}
+  ul.inc li{padding:7px 0;border-top:1px solid var(--line)}
+  ul.inc li:first-child{border-top:0}
+  .ok{background:var(--green-soft);border:1px solid #bfe6cf;border-radius:12px;padding:16px;margin-top:14px}
+  .err{color:var(--red);font-size:14px;margin-top:8px;min-height:1em}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
+  .modal.on{display:flex}
+  .sheet{background:#fff;width:100%;max-width:560px;border-radius:16px 16px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
+  @media (min-width:640px){.modal{align-items:center}.sheet{border-radius:16px}}
+  .slip{border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:10px}
+  .slip h3{text-align:center}
+  .slip .sl{padding:8px 0;border-bottom:1px dashed var(--line)}
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;display:none;z-index:60;max-width:90vw}
+  @media (max-width:520px){h1{font-size:24px}.grid2{grid-template-columns:1fr}.lrow{grid-template-columns:78px 1fr 88px}}
+  @media print{
+    body *{visibility:hidden}
+    #slip-print,#slip-print *{visibility:visible}
+    #slip-print{position:absolute;left:0;top:0;width:100%}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap"><div><b>ज्योतिषी सॉफ़्टवेयर</b> <small>· डेमो</small></div><small id="step-label">1 / 7</small></div>
+  <div class="prog"><i id="prog" style="width:14%"></i></div>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. WELCOME -->
+  <section class="screen on" data-s="1">
+    <span class="tag">स्वागत</span>
+    <h1 id="hello">नमस्ते ज्योतिषी जी</h1>
+    <p class="lead">आपसे फ़ोन पर बात हुई थी। अगले 3 मिनट में आप ख़ुद चलाकर देखेंगे कि यह ऐप आपके जातकों को साल भर आपसे कैसे जोड़े रखता है, और आपकी कमाई कैसे बढ़ती है।</p>
+    <div class="grid2" style="margin-top:18px">
+      <div class="stat now"><div class="small muted">एक बार का जातक</div><div class="n">₹251</div><div class="small muted">परामर्श के बाद रिश्ता ख़त्म</div></div>
+      <div class="stat then"><div class="small muted">साल भर का यजमान</div><div class="n">₹4,000+</div><div class="small muted">परामर्श, रिपोर्ट, उपाय-पैकेज, परिवार</div></div>
+    </div>
+    <div class="card">
+      <h3>इस डेमो में आप</h3>
+      <ol class="plan">
+        <li>अपना डिजिटल दफ़्तर (कंसल्टेंट डेस्क) चलाएँगे</li>
+        <li>जातक बनकर उसका फ़ोन देखेंगे</li>
+        <li>देखेंगे कि आज किस जातक को फ़ोन करना है</li>
+        <li>13 रिपोर्ट देखेंगे जो आपके लिए असीमित हैं</li>
+        <li>अपनी कमाई का हिसाब अपने आँकड़ों से निकालेंगे</li>
+      </ol>
+    </div>
+    <p class="small muted" style="margin-top:12px">यह डेमो है: इसमें भरी हर चीज़ सिर्फ़ आपके इसी फ़ोन में रहती है, कहीं भेजी नहीं जाती। कोई लॉगिन नहीं।</p>
+  </section>
+
+  <!-- 2. DESK -->
+  <section class="screen" data-s="2">
+    <span class="tag">कंसल्टेंट डेस्क</span>
+    <h2>आपका डिजिटल दफ़्तर</h2>
+    <p class="lead">हर जातक का खाता उसके मोबाइल नंबर से। कुंडली, आपके गोपनीय नोट और उपाय की पर्ची, सब एक जगह।</p>
+
+    <div class="chips" id="chips" style="margin-top:14px"></div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div><h3 id="d-name">—</h3><div class="small muted" id="d-phone">—</div></div>
+        <span id="d-status" class="pill">—</span>
+      </div>
+      <div style="margin-top:8px">
+        <div class="kv"><span>जन्म</span><span id="d-birth">—</span></div>
+        <div class="kv"><span>स्थान</span><span id="d-place">—</span></div>
+      </div>
+      <label for="d-notes">गोपनीय नोट (सिर्फ़ आपको दिखेगा) <span class="saved" id="notes-saved"></span></label>
+      <textarea id="d-notes" placeholder="जैसे: शनि महादशा, नौकरी में अस्थिरता…"></textarea>
+      <div id="week-wrap">
+        <label>पिछले 7 दिन जातक ने कितने उपाय किए</label>
+        <div class="week" id="d-week"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3>डिजिटल उपाय पर्ची</h3>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost sm" id="btn-print">प्रिंट</button>
+          <button class="btn ghost sm" id="btn-wa">WhatsApp</button>
+        </div>
+      </div>
+      <div id="rx-list"></div>
+
+      <div class="hint" id="rx-hint"><b>करके देखें:</b> नीचे एक उपाय जोड़िए। यही उपाय अगले कदम में जातक के फ़ोन पर दिखेगा।</div>
+      <div class="row2">
+        <div><label for="rx-cat">श्रेणी</label>
+          <select id="rx-cat"><option>पाठ / स्तोत्र</option><option>मंत्र जप</option><option>व्रत / उपवास</option><option>दान / सेवा</option><option>आचरण व नियम</option><option>रत्न / रुद्राक्ष</option></select></div>
+        <div><label for="rx-time">समय</label>
+          <select id="rx-time"><option>प्रातःकाल</option><option>सायंकाल</option><option>दोपहर</option><option>रात्रि</option><option>कभी भी</option></select></div>
+      </div>
+      <label for="rx-name">उपाय का नाम</label>
+      <input id="rx-name" placeholder="जैसे: गायत्री मंत्र"/>
+      <div class="row2">
+        <div><label for="rx-count">संख्या</label><input id="rx-count" placeholder="108 बार"/></div>
+        <div><label for="rx-days">अवधि</label><input id="rx-days" placeholder="21 दिन"/></div>
+      </div>
+      <button class="btn block" id="btn-add-rx" style="margin-top:12px">पर्ची में जोड़ें</button>
+    </div>
+  </section>
+
+  <!-- 3. CLIENT PHONE -->
+  <section class="screen" data-s="3">
+    <span class="tag">जातक की नज़र से</span>
+    <h2>जातक के फ़ोन पर यह दिखता है</h2>
+    <p class="lead">जातक कोई ऐप डाउनलोड नहीं करता। अपने नंबर से लॉगिन करता है और रोज़ के उपाय पर टिक करता है।</p>
+    <div class="hint"><b>करके देखें:</b> जातक बनकर उपायों पर टिक कीजिए, फिर "डेस्क पर देखें" दबाइए।</div>
+    <div class="phone">
+      <div class="top">श्री रामजी ज्योतिष · संकल्प पूर्ति</div>
+      <h3 style="margin-top:8px">आज का संकल्प</h3>
+      <div class="small muted" id="p-sub">—</div>
+      <div class="bar"><i id="p-bar" style="width:0"></i></div>
+      <div class="small muted" id="p-count">—</div>
+      <div id="p-tasks"></div>
+    </div>
+    <div style="text-align:center;margin-top:14px"><button class="btn ghost" id="btn-back-desk">डेस्क पर देखें</button></div>
+    <div class="card" id="desk-echo" style="display:none">
+      <h3>आपकी डेस्क पर अभी</h3>
+      <p id="desk-echo-text" class="muted"></p>
+    </div>
+  </section>
+
+  <!-- 4. WHO TO CALL -->
+  <section class="screen" data-s="4">
+    <span class="tag">जातक को टिकाए रखना</span>
+    <h2>आज किसे फ़ोन करना है</h2>
+    <p class="lead">डेस्क आपको बताती है कि कौन उपाय छोड़ रहा है। उसे एक फ़ोन, और वह जातक आपसे जुड़ा रहता है।</p>
+    <div id="call-list" style="margin-top:12px"></div>
+    <div class="script">
+      <b>फ़ोन पर ऐसे बात करें</b><br>
+      "अजय जी, पिछले 3 दिन से आपका हनुमान चालीसा छूट रहा है। 40 दिन का संकल्प बीच में न टूटे। कोई अड़चन है तो बताइए, उपाय बदल देते हैं।"
+    </div>
+    <div class="card">
+      <h3>यही आगे की कमाई बनता है</h3>
+      <div class="kv"><span>40 दिन पूरे होने पर</span><span>अगला परामर्श</span></div>
+      <div class="kv"><span>जातक को फल दिखा</span><span>परिवार की कुंडली</span></div>
+      <div class="kv"><span>घर में शुभ काम</span><span>विवाह / गृह प्रवेश मुहूर्त</span></div>
+      <div class="kv"><span>साल पूरा</span><span>पैकेज का नवीनीकरण</span></div>
+    </div>
+    <p class="small muted" style="margin-top:12px">बाकी ज्योतिष ऐप कुंडली बनाकर रुक जाते हैं। यह डेस्क कुंडली के बाद का काम करती है।</p>
+  </section>
+
+  <!-- 5. REPORTS -->
+  <section class="screen" data-s="5">
+    <span class="tag">सदस्यता में शामिल</span>
+    <h2>13 रिपोर्ट, जितनी बार चाहें</h2>
+    <p class="lead">वेबसाइट पर जातक इन्हें इन दामों पर ख़रीदता है। आप अपने नंबर से असीमित खोलते हैं और अपनी दक्षिणा ख़ुद तय करते हैं।</p>
+    <div class="card">
+      <h3>नमूना: एक रिपोर्ट का पन्ना</h3>
+      <img class="sample" src="assets/sample-report-preview.webp" alt="नमूना रिपोर्ट का पन्ना" loading="lazy"/>
+    </div>
+    <div class="card" id="rep-list"></div>
+    <div class="hint">महीने में सिर्फ़ <b>एक विवाह मुहूर्त</b> बेचने से पूरे साल की सदस्यता का पैसा निकल आता है।</div>
+  </section>
+
+  <!-- 6. CALCULATOR -->
+  <section class="screen" data-s="6">
+    <span class="tag">आपकी कमाई</span>
+    <h2>अपने आँकड़े डालिए</h2>
+    <p class="lead">18 महीने में आपकी कमाई कहाँ तक जा सकती है, आपके अपने हिसाब से।</p>
+    <div class="card">
+      <div class="row2">
+        <div><label for="c-clients">रोज़ कितने जातक</label><input id="c-clients" type="number" inputmode="numeric" min="1" max="50" value="3"/></div>
+        <div><label for="c-fee">अभी दक्षिणा (₹)</label><input id="c-fee" type="number" inputmode="numeric" min="0" step="50" value="251"/></div>
+      </div>
+      <label for="c-days">महीने में काम के दिन</label>
+      <input id="c-days" type="number" inputmode="numeric" min="1" max="31" value="25"/>
+    </div>
+    <div class="card">
+      <h3>18 महीने की सीढ़ी</h3>
+      <div class="ladder" id="ladder"></div>
+      <p class="small muted" style="margin-top:12px">ख़र्च: सदस्यता ₹5,100 / वर्ष = ₹425 / माह</p>
+    </div>
+    <div class="hint" id="calc-note"></div>
+    <details>
+      <summary>यह हिसाब कैसे बना</summary>
+      <div id="calc-detail"></div>
+    </details>
+  </section>
+
+  <!-- 7. BUY -->
+  <section class="screen" data-s="7">
+    <span class="tag">सदस्यता</span>
+    <div class="card price">
+      <h2>ज्योतिषी सॉफ़्टवेयर</h2>
+      <div class="n">₹5,100</div>
+      <div class="muted">प्रति वर्ष, GST सहित · ₹14 प्रतिदिन</div>
+      <ul class="inc">
+        <li>कंसल्टेंट डेस्क: असीमित जातक, गोपनीय नोट, डिजिटल पर्ची</li>
+        <li>जातक के फ़ोन पर रोज़ का संकल्प और 7 दिन की प्रगति</li>
+        <li>13 रिपोर्ट और मुहूर्त, असीमित</li>
+        <li>2 फ़ोन पर लॉगिन</li>
+      </ul>
+    </div>
+    <div class="card" id="buy-form">
+      <h3>सदस्यता लें</h3>
+      <p class="small muted">जिस नंबर से भुगतान करेंगे, उसी नंबर पर डेस्क और रिपोर्ट खुलेंगी।</p>
+      <label for="b-name">आपका नाम</label>
+      <input id="b-name" autocomplete="name"/>
+      <label for="b-phone">मोबाइल नंबर</label>
+      <input id="b-phone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10 अंकों का नंबर"/>
+      <div class="err" id="b-err"></div>
+      <button class="btn block" id="btn-buy" style="margin-top:6px">₹5,100 भुगतान करें</button>
+    </div>
+    <div class="ok" id="buy-ok" style="display:none">
+      <h3>सदस्यता चालू हो गई</h3>
+      <p class="small">कंसल्टेंट डेस्क खोलें और <b id="ok-phone"></b> से OTP लॉगिन करें। आपकी सदस्यता 365 दिन चलेगी।</p>
+      <a class="btn" href="consultant.html" style="margin-top:10px">कंसल्टेंट डेस्क खोलें</a>
+    </div>
+    <a class="btn ghost block" id="btn-talk" target="_blank" rel="noopener" style="margin-top:14px">पहले WhatsApp पर बात करें</a>
+  </section>
+
+</main>
+
+<nav class="nav"><div class="wrap">
+  <button class="btn ghost" id="btn-prev">पीछे</button>
+  <button class="btn" id="btn-next">डेमो शुरू करें</button>
+</div></nav>
+
+<div class="modal" id="slip-modal">
+  <div class="sheet">
+    <div id="slip-print"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn ghost" style="flex:1" id="slip-close">बंद करें</button>
+      <button class="btn" style="flex:1" id="slip-do-print">प्रिंट करें</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var TOTAL = 7;
+  var KEY = 'sra_saas_demo_v1';
+  var qs = new URLSearchParams(location.search);
+  var astroName = (qs.get('n') || '').trim().slice(0, 40);
+  var talkNumber = (qs.get('w') || '').replace(/\D/g, '');
+  if (talkNumber.length === 10) talkNumber = '91' + talkNumber;
+  if (talkNumber.length !== 12) talkNumber = '919517117775';
+
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function inr(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+  function short(n) { return n >= 100000 ? '₹' + (n / 100000).toFixed(n >= 1000000 ? 1 : 2).replace(/\.?0+$/, '') + ' लाख' : inr(n); }
+  function toast(m) { var t = document.getElementById('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(function () { t.style.display = 'none'; }, 2600); }
+  function $(id) { return document.getElementById(id); }
+
+  // ── sample data (all fictional) ──────────────────────────────────────────
+  // week: [done,total] for the last 7 days ending yesterday
+  function seed() {
+    return {
+      sel: 'ramesh',
+      clients: [
+        { id: 'ramesh', name: 'रमेश शर्मा', phone: '98xxx xx210', birth: '12-03-1984, 06:40', place: 'इंदौर, म.प्र.',
+          notes: 'शनि महादशा, राहु अंतर। नौकरी में अस्थिरता। 40 दिन हनुमान चालीसा, शनिवार दान।',
+          week: [[3,3],[3,3],[2,3],[3,3],[2,3],[3,3],[3,3]],
+          rx: [
+            { cat: 'पाठ / स्तोत्र', name: 'हनुमान चालीसा', count: '7 बार', days: '40 दिन', time: 'प्रातःकाल', done: false },
+            { cat: 'मंत्र जप', name: 'ॐ शं शनैश्चराय नमः', count: '108 बार', days: '40 दिन', time: 'सायंकाल', done: false },
+            { cat: 'आचरण व नियम', name: 'सत्य बोलें, क्रोध न करें', count: 'प्रतिदिन', days: '40 दिन', time: 'कभी भी', done: false }
+          ] },
+        { id: 'sunita', name: 'सुनीता वर्मा', phone: '94xxx xx118', birth: '04-08-1990, 14:15', place: 'भोपाल, म.प्र.',
+          notes: 'विवाह में देरी, मंगल सप्तम। गुण मिलान के बाद विवाह मुहूर्त देना है।',
+          week: [[2,2],[2,2],[2,2],[1,2],[2,2],[2,2],[2,2]],
+          rx: [
+            { cat: 'व्रत / उपवास', name: 'मंगलवार व्रत', count: 'हर मंगलवार', days: '11 सप्ताह', time: 'कभी भी', done: true },
+            { cat: 'पाठ / स्तोत्र', name: 'सुंदरकांड', count: '1 बार', days: '21 दिन', time: 'सायंकाल', done: true }
+          ] },
+        { id: 'ajay', name: 'अजय पटेल', phone: '70xxx xx455', birth: '21-11-1978, 22:05', place: 'उज्जैन, म.प्र.',
+          notes: 'व्यापार में घाटा, गुरु नीच। उपाय बीच में छोड़ने की आदत।',
+          week: [[3,3],[2,3],[3,3],[2,3],[0,3],[0,3],[0,3]],
+          rx: [
+            { cat: 'पाठ / स्तोत्र', name: 'हनुमान चालीसा', count: '3 बार', days: '40 दिन', time: 'प्रातःकाल', done: false },
+            { cat: 'दान / सेवा', name: 'गुरुवार को चने की दाल का दान', count: 'हर गुरुवार', days: '11 सप्ताह', time: 'प्रातःकाल', done: false },
+            { cat: 'मंत्र जप', name: 'ॐ बृं बृहस्पतये नमः', count: '108 बार', days: '40 दिन', time: 'प्रातःकाल', done: false }
+          ] },
+        { id: 'kavita', name: 'कविता जोशी', phone: '88xxx xx902', birth: '30-01-1995, 09:20', place: 'देवास, म.प्र.',
+          notes: '', week: [], rx: [] }
+      ]
+    };
+  }
+  var st;
+  try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { st = null; }
+  if (!st || !st.clients) st = seed();
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+  function cur() { return st.clients.find(function (c) { return c.id === st.sel; }) || st.clients[0]; }
+  function todayDone(c) { return c.rx.filter(function (r) { return r.done; }).length; }
+
+  // ── navigation ──────────────────────────────────────────────────────────
+  var step = 1;
+  var nextLabels = { 1: 'डेमो शुरू करें', 2: 'अब जातक बनकर देखें', 3: 'आज किसे फ़ोन करें', 4: 'रिपोर्ट देखें', 5: 'अपनी कमाई देखें', 6: 'सदस्यता देखें', 7: 'शुरू से देखें' };
+  function go(n) {
+    step = Math.max(1, Math.min(TOTAL, n));
+    document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', +s.dataset.s === step); });
+    $('step-label').textContent = step + ' / ' + TOTAL;
+    $('prog').style.width = (step / TOTAL * 100) + '%';
+    $('btn-prev').style.display = step === 1 ? 'none' : '';
+    $('btn-next').textContent = nextLabels[step];
+    if (step === 2) renderDesk();
+    if (step === 3) renderPhone();
+    if (step === 4) renderCalls();
+    if (step === 6) calc();
+    window.scrollTo(0, 0);
+    if (history.replaceState) history.replaceState(null, '', location.pathname + location.search + '#' + step);
+  }
+  $('btn-prev').onclick = function () { go(step - 1); };
+  $('btn-next').onclick = function () { go(step === TOTAL ? 1 : step + 1); };
+
+  // ── 1. welcome ──────────────────────────────────────────────────────────
+  if (astroName) {
+    var nm = /^(पं|पंडित|आचार्य|डॉ|ज्योतिषी)/.test(astroName) ? astroName : 'पं. ' + astroName;
+    $('hello').textContent = 'नमस्ते ' + nm + ' जी';
+    $('b-name').value = astroName;
+  }
+
+  // ── 2. desk ─────────────────────────────────────────────────────────────
+  var DAYS = ['र', 'सो', 'मं', 'बु', 'गु', 'शु', 'श'];
+  function statusOf(c) {
+    if (!c.rx.length) return { cls: 'grey', txt: 'पर्ची अभी नहीं' };
+    var last3 = c.week.slice(-3);
+    if (last3.length === 3 && last3.every(function (w) { return w[0] === 0; })) return { cls: 'warn', txt: '3 दिन से उपाय छूटे' };
+    return { cls: '', txt: 'उपाय चल रहे हैं' };
+  }
+  function renderDesk() {
+    var html = st.clients.map(function (c) {
+      var s = statusOf(c);
+      var sub = c.rx.length ? 'आज ' + todayDone(c) + '/' + c.rx.length + ' उपाय' : 'पर्ची अभी नहीं';
+      return '<button class="chip' + (c.id === st.sel ? ' on' : '') + '" data-id="' + c.id + '"><b>' + esc(c.name) + '</b><small>' + esc(sub) + '</small>' +
+        (s.cls === 'warn' ? '<br><span class="pill warn">' + s.txt + '</span>' : '') + '</button>';
+    }).join('') + '<button class="chip add" id="chip-add">+ नया जातक</button>';
+    $('chips').innerHTML = html;
+    $('chips').querySelectorAll('.chip[data-id]').forEach(function (b) { b.onclick = function () { st.sel = b.dataset.id; save(); renderDesk(); }; });
+    $('chip-add').onclick = openNewClient;
+
+    var c = cur(), s = statusOf(c);
+    $('d-name').textContent = c.name;
+    $('d-phone').textContent = '+91 ' + c.phone;
+    $('d-status').className = 'pill ' + s.cls;
+    $('d-status').textContent = s.txt;
+    $('d-birth').textContent = c.birth || 'अज्ञात';
+    $('d-place').textContent = c.place || 'अज्ञात';
+    $('d-notes').value = c.notes || '';
+    $('notes-saved').textContent = '';
+
+    if (c.week.length) {
+      $('week-wrap').style.display = '';
+      var now = new Date();
+      $('d-week').innerHTML = c.week.map(function (w, i) {
+        var d = new Date(now); d.setDate(now.getDate() - (7 - i));
+        var cls = w[0] === w[1] ? 'full' : (w[0] === 0 ? 'low' : '');
+        return '<span class="' + cls + '">' + DAYS[d.getDay()] + '<br>' + w[0] + '/' + w[1] + '</span>';
+      }).join('');
+    } else $('week-wrap').style.display = 'none';
+
+    $('rx-list').innerHTML = c.rx.length ? c.rx.map(function (r, i) {
+      return '<div class="rx"><div><b>' + esc(r.name) + '</b><br><small>' + esc([r.cat, r.count, r.days, r.time].filter(Boolean).join(' · ')) + '</small></div><button data-i="' + i + '" aria-label="हटाएँ">हटाएँ</button></div>';
+    }).join('') : '<p class="small muted" style="margin-top:8px">अभी कोई उपाय नहीं। नीचे से जोड़ें।</p>';
+    $('rx-list').querySelectorAll('button[data-i]').forEach(function (b) { b.onclick = function () { c.rx.splice(+b.dataset.i, 1); save(); renderDesk(); }; });
+  }
+  var notesT;
+  $('d-notes').addEventListener('input', function () {
+    var c = cur(); c.notes = this.value; clearTimeout(notesT);
+    notesT = setTimeout(function () { save(); $('notes-saved').textContent = 'सेव हो गया'; }, 700);
+  });
+  $('btn-add-rx').onclick = function () {
+    var name = $('rx-name').value.trim();
+    if (!name) { toast('उपाय का नाम लिखें'); $('rx-name').focus(); return; }
+    var c = cur();
+    c.rx.push({ cat: $('rx-cat').value, name: name, count: $('rx-count').value.trim(), days: $('rx-days').value.trim(), time: $('rx-time').value, done: false, mine: true });
+    if (!c.week.length) c.week = [];
+    save();
+    ['rx-name', 'rx-count', 'rx-days'].forEach(function (id) { $(id).value = ''; });
+    renderDesk();
+    $('rx-hint').innerHTML = '<b>जुड़ गया।</b> अब नीचे "अब जातक बनकर देखें" दबाइए, यही उपाय ' + esc(c.name) + ' के फ़ोन पर दिखेगा।';
+    toast('पर्ची में जुड़ गया');
+  };
+
+  function slipHTML(c) {
+    var who = astroName ? (/^(पं|पंडित|आचार्य|डॉ)/.test(astroName) ? astroName : 'पं. ' + astroName) : 'आपका नाम';
+    return '<div class="slip"><h3>उपाय पर्ची</h3><div class="small muted" style="text-align:center">' + esc(who) + ' · ' + new Date().toLocaleDateString('hi-IN') + '</div>' +
+      '<div class="kv" style="margin-top:10px"><span>जातक</span><span>' + esc(c.name) + '</span></div>' +
+      '<div class="kv"><span>जन्म</span><span>' + esc(c.birth || '—') + '</span></div>' +
+      (c.rx.length ? c.rx.map(function (r, i) { return '<div class="sl"><b>' + (i + 1) + '. ' + esc(r.name) + '</b><br><span class="small muted">' + esc([r.count, r.days, r.time].filter(Boolean).join(' · ')) + '</span></div>'; }).join('') : '<p class="muted small" style="margin-top:8px">कोई उपाय नहीं जोड़ा गया।</p>') +
+      '<p class="small muted" style="margin-top:10px">रोज़ के उपाय अपने फ़ोन पर "संकल्प पूर्ति" में टिक करें।</p></div>';
+  }
+  $('btn-print').onclick = function () { $('slip-print').innerHTML = slipHTML(cur()); $('slip-modal').classList.add('on'); };
+  $('slip-close').onclick = function () { $('slip-modal').classList.remove('on'); };
+  $('slip-modal').onclick = function (e) { if (e.target === this) this.classList.remove('on'); };
+  $('slip-do-print').onclick = function () { window.print(); };
+  $('btn-wa').onclick = function () {
+    var c = cur();
+    var t = 'उपाय पर्ची: ' + c.name + '\n' + c.rx.map(function (r, i) { return (i + 1) + '. ' + r.name + ' (' + [r.count, r.days, r.time].filter(Boolean).join(', ') + ')'; }).join('\n') +
+      '\n\n(यह डेमो पर्ची है)';
+    window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener');
+  };
+
+  function openNewClient() {
+    $('slip-print').innerHTML = '<h3>नया जातक</h3><p class="small muted">डेमो है, अपना ही नाम डालकर देखिए।</p>' +
+      '<label for="nc-name">नाम</label><input id="nc-name"/>' +
+      '<label for="nc-phone">मोबाइल नंबर (जातक की लॉगिन ID)</label><input id="nc-phone" type="tel" inputmode="numeric" maxlength="10"/>' +
+      '<div class="row2"><div><label for="nc-dob">जन्म तिथि</label><input id="nc-dob" type="date"/></div><div><label for="nc-tob">समय</label><input id="nc-tob" type="time"/></div></div>' +
+      '<label for="nc-pob">जन्म स्थान</label><input id="nc-pob"/>' +
+      '<button class="btn block" id="nc-save" style="margin-top:14px">खाता बनाएँ</button>';
+    $('slip-do-print').style.display = 'none';
+    $('slip-modal').classList.add('on');
+    $('nc-name').focus();
+    $('nc-save').onclick = function () {
+      var name = $('nc-name').value.trim(), ph = $('nc-phone').value.replace(/\D/g, '');
+      if (!name || ph.length !== 10) { toast('नाम और 10 अंकों का नंबर भरें'); return; }
+      var dob = $('nc-dob').value, tob = $('nc-tob').value;
+      var c = { id: 'c' + Date.now(), name: name, phone: ph.slice(0, 5) + ' ' + ph.slice(5),
+        birth: (dob ? dob.split('-').reverse().join('-') : '') + (tob ? ', ' + tob : ''), place: $('nc-pob').value.trim(), notes: '', week: [], rx: [] };
+      st.clients.push(c); st.sel = c.id; save();
+      $('slip-modal').classList.remove('on'); $('slip-do-print').style.display = '';
+      renderDesk(); toast('नया खाता बन गया, अब इसकी पर्ची बनाइए');
+      $('rx-name').focus();
+    };
+  }
+  $('slip-close').addEventListener('click', function () { $('slip-do-print').style.display = ''; });
+
+  // ── 3. phone ────────────────────────────────────────────────────────────
+  function renderPhone() {
+    var c = cur();
+    if (!c.rx.length) {
+      var withRx = st.clients.find(function (x) { return x.rx.length; });
+      if (withRx) { st.sel = withRx.id; c = withRx; save(); }
+    }
+    $('p-sub').textContent = new Date().toLocaleDateString('hi-IN', { weekday: 'long', day: 'numeric', month: 'long' }) + ' · ' + c.name;
+    var n = c.rx.length, d = todayDone(c);
+    $('p-bar').style.width = (n ? d / n * 100 : 0) + '%';
+    $('p-count').textContent = n + ' में से ' + d + ' पूर्ण';
+    $('p-tasks').innerHTML = c.rx.map(function (r, i) {
+      return '<div class="task' + (r.done ? ' done' : '') + '" data-i="' + i + '" role="checkbox" aria-checked="' + r.done + '" tabindex="0"><span class="box">' + (r.done ? '✓' : '') + '</span><div><b>' + esc(r.name) + '</b><br><small>' + esc([r.count, r.time].filter(Boolean).join(' · ')) + '</small></div></div>';
+    }).join('') || '<p class="small muted" style="margin-top:12px">कोई उपाय नहीं।</p>';
+    $('p-tasks').querySelectorAll('.task').forEach(function (t) {
+      var flip = function () { c.rx[+t.dataset.i].done = !c.rx[+t.dataset.i].done; save(); renderPhone(); };
+      t.onclick = flip;
+      t.onkeydown = function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); } };
+    });
+    $('desk-echo').style.display = 'none';
+  }
+  $('btn-back-desk').onclick = function () {
+    var c = cur();
+    $('desk-echo-text').innerHTML = '<b>' + esc(c.name) + '</b>: आज ' + todayDone(c) + '/' + c.rx.length + ' उपाय पूरे। जातक ने जैसे ही टिक किया, आपकी डेस्क पर अपने-आप दिख गया। आपको फ़ोन करके पूछना नहीं पड़ा।';
+    $('desk-echo').style.display = 'block';
+    $('desk-echo').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // ── 4. who to call ──────────────────────────────────────────────────────
+  function renderCalls() {
+    var rows = st.clients.filter(function (c) { return c.rx.length; }).map(function (c) {
+      var wk = c.week.length ? c.week.reduce(function (a, w) { return a + (w[1] ? w[0] / w[1] : 0); }, 0) / c.week.length : 1;
+      return { c: c, wk: wk, s: statusOf(c) };
+    }).sort(function (a, b) { return a.wk - b.wk; });
+    $('call-list').innerHTML = rows.map(function (r) {
+      var red = r.s.cls === 'warn';
+      return '<div class="call' + (red ? ' red' : '') + '"><div><b>' + esc(r.c.name) + '</b><br><span class="small muted">पिछले 7 दिन: ' + Math.round(r.wk * 100) + '% उपाय पूरे</span></div>' +
+        (red ? '<span class="pill warn">आज फ़ोन करें</span>' : '<span class="pill">ठीक चल रहा</span>') + '</div>';
+    }).join('');
+  }
+
+  // ── 5. reports ──────────────────────────────────────────────────────────
+  var REPORTS = [
+    ['मंगल दोष रिपोर्ट', 501], ['कालसर्प दोष रिपोर्ट', 501], ['रत्न एवं उपाय रिपोर्ट', 501], ['धन योग रिपोर्ट', 501],
+    ['राजयोग / रश्मि बल', 501], ['वाहन एवं जनबल', 501], ['गुण मिलान + मांगलिक', 1101], ['मेगा पाराशर (97 अध्याय)', 1111],
+    ['BPHS पाराशर संपूर्ण', 2100], ['विवाह मुहूर्त', 2100], ['वास्तु मुहूर्त', 1551], ['यज्ञोपवीत मुहूर्त', 1551], ['मुंडन मुहूर्त', 1551]
+  ];
+  $('rep-list').innerHTML = '<h3>वेबसाइट पर दाम</h3>' + REPORTS.map(function (r) { return '<div class="rep"><span>' + r[0] + '</span><s>' + inr(r[1]) + '</s></div>'; }).join('') +
+    '<p class="small" style="margin-top:10px"><b style="color:var(--blue)">आपके लिए: असीमित, ₹5,100 / वर्ष में शामिल</b></p>';
+
+  // ── 6. calculator ───────────────────────────────────────────────────────
+  // Assumptions (same as the layout): +₹100 fee once reports are printed; 30–35% clients take a report;
+  // 20–25% take a 40-day sankalp package ₹2,100; clients grow ×1.5 by month 7–12 and ×1.67 by 13–18
+  // through family/referrals; muhurtas 4 then 6 a month at ₹1,800; 30% of last year's packages renew.
+  function num(id, def, lo, hi) { var v = parseFloat($(id).value); if (!isFinite(v)) v = def; return Math.max(lo, Math.min(hi, v)); }
+  function calc() {
+    var cpd = num('c-clients', 3, 0.5, 50), fee = num('c-fee', 251, 0, 20000), days = num('c-days', 25, 1, 31);
+    var m0 = cpd * days;
+    var base = m0 * fee;
+    var f1 = fee + 100;
+    var p1 = { consult: m0 * f1, reports: Math.round(m0 * 0.30) * 501 };
+    var p2 = { consult: p1.consult, reports: p1.reports, pkg: Math.round(m0 * 0.20) * 2100 };
+    var m3 = m0 * 1.5;
+    var p3 = { consult: m3 * f1, reports: Math.round(m3 * 0.35) * 600, pkg: Math.round(m3 * 0.25) * 2100, muhurta: 4 * 1800 };
+    var m4 = m0 * 5 / 3, f4 = Math.max(501, fee + 250);
+    var p4 = { consult: m4 * f4, reports: Math.round(m4 * 0.35) * 700, pkg: Math.round(m4 * 0.25) * 2100, muhurta: 6 * 1800, renew: Math.round(m3 * 0.25 * 0.3) * 2100 };
+    function sum(o) { return Object.keys(o).reduce(function (a, k) { return a + o[k]; }, 0); }
+    var rows = [['आज', base, true], ['माह 1–3', sum(p1)], ['माह 4–6', sum(p2)], ['माह 7–12', sum(p3)], ['माह 13–18', sum(p4)]];
+    var max = rows[4][1];
+    $('ladder').innerHTML = rows.map(function (r) {
+      var x = base > 0 ? (r[1] / base) : 0;
+      return '<div class="lrow' + (r[2] ? ' base' : '') + '"><span>' + r[0] + '</span><div class="track"><i style="width:' + Math.max(3, r[1] / max * 100) + '%"></i></div>' +
+        '<span class="amt">' + short(r[1]) + (r[2] ? '' : '<span class="x">' + (x ? x.toFixed(1) + ' गुना' : '') + '</span>') + '</span></div>';
+    }).join('');
+    var xEnd = base > 0 ? sum(p4) / base : 0;
+    $('calc-note').innerHTML = base >= 100000
+      ? '<b>साफ़ बात:</b> आप पहले से अच्छा कमा रहे हैं, इसलिए यहाँ गुना कम दिखेगा। आपके लिए असली फ़ायदा जातकों का साल भर जुड़े रहना और समय की बचत है।'
+      : '<b>साफ़ बात:</b> यह अनुमान है, वादा नहीं। ' + (xEnd >= 8 ? '10 गुना तक' : Math.round(xEnd) + ' गुना तक') + ' तभी, जब आप हर जातक को पर्ची दें, 7 दिन की प्रगति देखकर फ़ोन करें और 40 दिन का पैकेज बताएँ। पहले 3 महीने में 2 गुना सबसे आसान है।';
+    function line(label, v) { return '<tr><td>' + label + '</td><td>' + inr(v) + '</td></tr>'; }
+    $('calc-detail').innerHTML =
+      '<p class="small muted" style="margin-top:8px">आज: ' + Math.round(m0) + ' जातक × ' + inr(fee) + '</p>' +
+      '<p class="small" style="margin-top:10px"><b>माह 1–3:</b> छपी कुंडली से दक्षिणा +₹100, 30% जातकों को एक रिपोर्ट</p><table>' + line('परामर्श', p1.consult) + line('रिपोर्ट (₹501)', p1.reports) + '</table>' +
+      '<p class="small" style="margin-top:10px"><b>माह 4–6:</b> 20% जातक 40 दिन का संकल्प पैकेज (₹2,100) लेते हैं</p><table>' + line('परामर्श + रिपोर्ट', p2.consult + p2.reports) + line('पैकेज', p2.pkg) + '</table>' +
+      '<p class="small" style="margin-top:10px"><b>माह 7–12:</b> परिवार और पड़ोसी से जातक 1.5 गुना, 4 मुहूर्त / माह</p><table>' + line('परामर्श', p3.consult) + line('रिपोर्ट (₹600 औसत)', p3.reports) + line('पैकेज', p3.pkg) + line('मुहूर्त', p3.muhurta) + '</table>' +
+      '<p class="small" style="margin-top:10px"><b>माह 13–18:</b> दक्षिणा ' + inr(f4) + ', जातक 1.67 गुना, 6 मुहूर्त, पिछले पैकेज का 30% नवीनीकरण</p><table>' + line('परामर्श', p4.consult) + line('रिपोर्ट (₹700 औसत)', p4.reports) + line('पैकेज', p4.pkg) + line('मुहूर्त', p4.muhurta) + line('नवीनीकरण', p4.renew) + '</table>';
+  }
+  ['c-clients', 'c-fee', 'c-days'].forEach(function (id) { $(id).addEventListener('input', calc); });
+
+  // ── 7. buy ──────────────────────────────────────────────────────────────
+  $('btn-talk').href = 'https://wa.me/' + talkNumber + '?text=' + encodeURIComponent('नमस्ते, मैंने ज्योतिषी सॉफ़्टवेयर का डेमो देखा। सदस्यता के बारे में बात करनी है।' + (astroName ? ' — ' + astroName : ''));
+  $('btn-buy').onclick = function () {
+    var name = $('b-name').value.trim(), ph = $('b-phone').value.replace(/\D/g, '').slice(-10);
+    $('b-err').textContent = '';
+    if (!name) { $('b-err').textContent = 'अपना नाम लिखें।'; $('b-name').focus(); return; }
+    if (ph.length !== 10) { $('b-err').textContent = '10 अंकों का मोबाइल नंबर लिखें।'; $('b-phone').focus(); return; }
+    if (!window.SraCouponEngine || typeof Razorpay === 'undefined') { $('b-err').textContent = 'भुगतान पेज लोड नहीं हुआ। इंटरनेट जाँचकर पेज फिर खोलें।'; return; }
+    var btn = this; btn.disabled = true; btn.textContent = 'भुगतान खुल रहा है…';
+    SraCouponEngine.openServerCheckout({
+      serviceId: 'astrologer_saas', phone: ph, name: name, description: 'ज्योतिषी सॉफ़्टवेयर (1 वर्ष)', color: '#2563eb',
+      notes: { source: 'saas_demo' },
+      onSuccess: function () {
+        $('buy-form').style.display = 'none';
+        $('ok-phone').textContent = '+91 ' + ph;
+        $('buy-ok').style.display = 'block';
+      },
+      onDismiss: function () { btn.disabled = false; btn.textContent = '₹5,100 भुगतान करें'; },
+      onError: function (e) { btn.disabled = false; btn.textContent = '₹5,100 भुगतान करें'; $('b-err').textContent = (e && e.message) || 'भुगतान शुरू नहीं हो सका।'; }
+    }).then(function (order) { if (!order) { btn.disabled = false; btn.textContent = '₹5,100 भुगतान करें'; } });
+  };
+
+  // start (a reload keeps the screen the user was on)
+  var h = parseInt((location.hash || '').slice(1), 10);
+  go(h >= 1 && h <= TOTAL ? h : 1);
+})();
+</script>
+</body>
+</html>
