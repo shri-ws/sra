@@ -414,6 +414,53 @@
         console.warn('[SRA Sutradhar Engine] Payment server log notice:', err);
         return { status: 'fallback', message: err.message };
       }
+    },
+
+    /**
+     * सर्वर का अनलॉक पास (kaalsarp-report.html वाला तरीका, सब पेड पेजों के लिए):
+     * Razorpay की रसीद / SaaS unlock_id / मालिक का कोड → सर्वर जाँचकर पास देता है,
+     * और हर बार पेज खुलने पर सर्वर उस पास को फिर जाँचता है। केवल browser में रखे
+     * "unlocked = true" जैसे निशान अब कुछ नहीं खोलते।
+     * receipt = { order_id, payment_id, signature } | { unlock_id } | { admin_key }
+     */
+    _unlockPost: async function(path, body) {
+      var res = await fetch(this.apiBase() + '/api/sutradhar/unlock/' + path, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error('server ' + res.status);
+      return res.json();
+    },
+    _passStore: function(session) { try { return session ? window.sessionStorage : window.localStorage; } catch (e) { return null; } },
+    _passKey: function(serviceId, ref) { return 'sra_pass_' + serviceId + '_' + ref; },
+    getUnlockPass: function(serviceId, ref, session) {
+      try { var st = this._passStore(session); return st ? JSON.parse(st.getItem(this._passKey(serviceId, ref)) || 'null') : null; } catch (e) { return null; }
+    },
+    clearUnlockPass: function(serviceId, ref, session) {
+      try { var st = this._passStore(session); if (st) st.removeItem(this._passKey(serviceId, ref)); } catch (e) {}
+    },
+    /** एक ब्राउज़र की पहचान वाला ref (मुहूर्त टूल: सत्र इसी ब्राउज़र के लिए) */
+    deviceRef: function(prefix) { return (prefix || 'dev') + '_' + (this.deviceId() || 'nodevice'); },
+    verifyUnlock: async function(serviceId, ref, receipt, session) {
+      var v = null;
+      for (var i = 0; i < 3 && !v; i++) {
+        try { v = await this._unlockPost('verify', Object.assign({ service_id: serviceId, report_ref: ref }, receipt)); }
+        catch (e) { if (i < 2) await new Promise(function(r) { setTimeout(r, 2500); }); }
+      }
+      if (!v) return { ok: false, message: 'सर्वर से पुष्टि नहीं हो सकी — इंटरनेट देखकर दोबारा प्रयास करें।' };
+      if (v.ok) {
+        try { var st = this._passStore(session); if (st) st.setItem(this._passKey(serviceId, ref), JSON.stringify({ proof: v.proof, token: v.token, exp: v.exp || null })); } catch (e) {}
+      }
+      return v;
+    },
+    /** {ok, exp} — ok केवल तब जब सर्वर पास को सही माने; नेटवर्क न हो तो {ok:false, offline:true} */
+    checkUnlock: async function(serviceId, ref, session) {
+      var p = this.getUnlockPass(serviceId, ref, session);
+      if (!p || !p.proof || !p.token) return { ok: false };
+      try {
+        var r = await this._unlockPost('check', { service_id: serviceId, report_ref: ref, proof: p.proof, token: p.token, exp: p.exp || null });
+        if (!r.ok) this.clearUnlockPass(serviceId, ref, session);
+        return { ok: !!r.ok, exp: p.exp || null };
+      } catch (e) { return { ok: false, offline: true }; }
     }
   };
 

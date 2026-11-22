@@ -1449,6 +1449,19 @@
         const RZP_KEY = 'rzp_live_U1a0a504puKK5e';
         let isUnlocked = false;
         let sessionTimerInterval = null;
+        // Paid session: only a pass the server issued (Razorpay receipt, SaaS number or owner key)
+        // opens this tool, and the server checks it again on every open. Its end time is the server's.
+        const UNLOCK_SERVICE = 'muhurta_yajno';
+        let sessionExpiryMs = 0;
+        const sraUnlockRef = () => window.SraCouponEngine.deviceRef('muhurta');
+        async function sraServerSession() {
+            // the old browser-only flags no longer open anything
+            try { localStorage.removeItem('sra_yajno_unlocked'); localStorage.removeItem('sra_yajno_expiry'); } catch (e) {}
+            if (!window.SraCouponEngine || !window.SraCouponEngine.getUnlockPass(UNLOCK_SERVICE, sraUnlockRef())) return { had: false, ok: false };
+            const r = await window.SraCouponEngine.checkUnlock(UNLOCK_SERVICE, sraUnlockRef());
+            if (r.offline) { console.warn('unlock check: server not reachable'); return { had: false, ok: false }; }
+            return { had: true, ok: !!r.ok && r.exp * 1000 > Date.now(), exp: r.exp };
+        }
 
         function dismissPaywallWithoutPayment() {
             if (!isUnlocked) {
@@ -1506,9 +1519,11 @@
             }
         });
 
-        function checkUnlockStatus() {
-            const unlockedState = localStorage.getItem('sra_yajno_unlocked');
-            const expiry = parseInt(localStorage.getItem('sra_yajno_expiry') || '0');
+        async function checkUnlockStatus() {
+            const srv = await sraServerSession();
+            const unlockedState = srv.had ? 'true' : null;
+            const expiry = srv.ok ? srv.exp * 1000 : 0;
+            if (srv.ok) sessionExpiryMs = expiry;
             const now = Date.now();
 
             if (unlockedState === 'true' && expiry > now) {
@@ -1528,16 +1543,15 @@
             }
         }
 
-        function startVipSession(minutes = 20, paymentId = null) {
-            const durationMs = minutes * 60 * 1000;
-            const expiryTime = Date.now() + durationMs;
-
-            localStorage.setItem('sra_yajno_unlocked', 'true');
-            localStorage.setItem('sra_yajno_expiry', expiryTime.toString());
-            if (paymentId) {
-                localStorage.setItem('sra_yajno_last_payid', paymentId);
+        async function startVipSession(receipt, paymentId = null) {
+            const v = window.SraCouponEngine ? await window.SraCouponEngine.verifyUnlock(UNLOCK_SERVICE, sraUnlockRef(), receipt) : { ok: false };
+            if (!v.ok) {
+                alert((v.message || 'पुष्टि नहीं हो सकी।') + (paymentId && !/^(SAAS_|MASTER)/.test(paymentId) ? '\n\nपैसा कटा हो तो support@shriramjiastro.in पर भुगतान ID भेजें: ' + paymentId : ''));
+                return;
             }
-
+            sessionExpiryMs = v.exp * 1000;
+            const minutes = Math.max(1, Math.round((sessionExpiryMs - Date.now()) / 60000));
+            if (paymentId) { try { localStorage.setItem('sra_yajno_last_payid', paymentId); } catch (e) {} }
             unlockAccess();
             alert(`🎉 भुगतान सफल (Payment Successful)!\n\nआपका 20 मिनट का VIP सत्र सक्रिय कर दिया गया है।\n\nपृष्ठ के शीर्ष पर स्थित टाइमर द्वारा शेष समय देख सकते हैं।`);
         }
@@ -1559,7 +1573,7 @@
             const countdownEl = document.getElementById('sessionCountdown');
 
             function updateTimer() {
-                const expiry = parseInt(localStorage.getItem('sra_yajno_expiry') || '0');
+                const expiry = sessionExpiryMs;
                 const now = Date.now();
                 const remainingMs = expiry - now;
 
@@ -1592,8 +1606,8 @@
         }
 
         function lockAccessExpired() {
-            localStorage.removeItem('sra_yajno_unlocked');
-            localStorage.removeItem('sra_yajno_expiry');
+            sessionExpiryMs = 0;
+            if (window.SraCouponEngine) window.SraCouponEngine.clearUnlockPass(UNLOCK_SERVICE, sraUnlockRef());
             isUnlocked = false;
 
             if (sessionTimerInterval) clearInterval(sessionTimerInterval);
@@ -1657,7 +1671,7 @@
                                 })
                             }).catch(e => console.warn(e));
                         } catch(e) {}
-                        startVipSession(20, payId);
+                        startVipSession({ order_id: response.razorpay_order_id, payment_id: response.razorpay_payment_id, signature: response.razorpay_signature }, payId);
                     },
                     modal: {
                         ondismiss: function() {
@@ -1677,14 +1691,14 @@
             const pin = (document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '').toUpperCase();
             // SaaS astrologer: own login number opens a session; other codes get the same "invalid" reply
             if (window.SraCouponEngine && window.SraCouponEngine.isPhoneCode(pin)) {
-                window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_yajno', code: pin, onUnlock: r => startVipSession(20, 'SAAS_' + r.unlock_id), show: (ok, m) => { if (ok === false) alert(m); } });
+                window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_yajno', code: pin, reportRef: sraUnlockRef(), onUnlock: r => startVipSession({ unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id), show: (ok, m) => { if (ok === false) alert(m); } });
                 return;
             }
             if (window.SraCouponEngine) {
                 const res = window.SraCouponEngine.validateAndCalculate(pin, 1551);
                 window._muhuratCoupon = res.code;  // Code box: every code gets the same reply; the server decides at payment
             }
-            if (window.sraIsMasterKey && window.sraIsMasterKey(pin)) { startVipSession(720, 'MASTER_KEY'); return; }
+            if (window.sraIsMasterKey && window.sraIsMasterKey(pin)) { startVipSession({ admin_key: pin }, 'MASTER_KEY'); return; }
             alert("अमान्य कोड! सही कोड या ₹1,551 भुगतान विकल्प का प्रयोग करें।");
         }
 

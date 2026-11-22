@@ -2274,9 +2274,45 @@ async def saas_redeem(req: SaasRedeemRequest, authorization: Optional[str] = Hea
 # REPORT UNLOCK PROOF: a report page opens only when the server confirms payment
 # -----------------------------------------------------------------------------
 # After checkout the page sends Razorpay's signed receipt (order_id|payment_id signed with our
-# key secret) or a SaaS unlock_id. The server checks it, binds it to that one kundali
-# (report_ref) and returns a pass; every later opening of the report is checked again.
+# key secret), a SaaS unlock_id, or the owner's master key. The server checks it, binds it to
+# one report_ref (a kundali, or one browser for the muhurta tools) and returns a pass; every
+# later opening of the page is checked again with /unlock/check.
+# Muhurta tools are timed sessions: the pass carries an expiry (`exp`, unix seconds) that the
+# server fixes at the first unlock and stores with the payment, so the same receipt cannot
+# start a fresh session again.
 UNLOCK_SECRET = os.environ.get("SRA_UNLOCK_SECRET") or RAZORPAY_KEY_SECRET
+
+UNLOCK_SESSION_MINUTES: Dict[str, int] = {
+    "muhurta_vivah": 20, "muhurta_vastu": 20, "muhurta_yajno": 20, "muhurta_mundan": 20,
+}
+ADMIN_UNLOCK_MINUTES = 12 * 60
+
+# Owner master key: same salted, 50,000-times SHA-256 as sra-master.js / api/master_key.php.
+# Only the hash is here; SRA_MASTER_KEY_HASH / SRA_MASTER_KEY_SALT override it.
+MASTER_KEY_SALT = os.environ.get("SRA_MASTER_KEY_SALT", "ae6f38cffcbc76ea")
+MASTER_KEY_HASH = os.environ.get("SRA_MASTER_KEY_HASH", "f0fe08d25612e21dfbf70e08a0028fc15c7dbc0d8089d335544586f4ac15c15a")
+MASTER_KEY_ROUNDS = 50000
+_ADMIN_FAIL_LIMIT = 8            # wrong owner keys per client in the window below
+_ADMIN_FAIL_WINDOW = 15 * 60
+_admin_key_failures: Dict[str, List[float]] = {}
+
+
+def is_owner_master_key(code: Optional[str]) -> bool:
+    key = (code or "").strip().upper()
+    if not 8 <= len(key) <= 12:
+        return False
+    h = MASTER_KEY_SALT + key
+    for _ in range(MASTER_KEY_ROUNDS):
+        h = hashlib.sha256(h.encode()).hexdigest()
+    return hmac.compare_digest(h, MASTER_KEY_HASH)
+
+
+def _client_ip(request: Optional[Request]) -> str:
+    if request is None:
+        return "unknown"
+    # Render's proxy appends the real client address last; earlier entries can be set by the client
+    fwd = (request.headers.get("x-forwarded-for") or "").split(",")[-1].strip()
+    return fwd or (request.client.host if request.client else "unknown")
 
 
 class UnlockVerifyRequest(BaseModel):
@@ -2286,6 +2322,7 @@ class UnlockVerifyRequest(BaseModel):
     payment_id: Optional[str] = None
     signature: Optional[str] = None
     unlock_id: Optional[str] = None
+    admin_key: Optional[str] = None
 
 
 class UnlockCheckRequest(BaseModel):
@@ -2293,35 +2330,65 @@ class UnlockCheckRequest(BaseModel):
     report_ref: str
     proof: str
     token: str
+    exp: Optional[int] = None
 
 
-def _unlock_token(sid: str, ref: str, proof: str) -> str:
-    return hmac.new(UNLOCK_SECRET.encode(), f"{sid}|{ref}|{proof}".encode(), hashlib.sha256).hexdigest()
+def _unlock_token(sid: str, ref: str, proof: str, exp: Optional[int] = None) -> str:
+    msg = f"{sid}|{ref}|{proof}" + (f"|{int(exp)}" if exp else "")
+    return hmac.new(UNLOCK_SECRET.encode(), msg.encode(), hashlib.sha256).hexdigest()
 
 
 def _clean_ref(ref: Optional[str]) -> str:
     return re.sub(r"[^A-Za-z0-9_-]", "", ref or "")[:120]
 
 
-def _proof_still_valid(sid: str, ref: str, proof: str) -> bool:
+def _proof_record(proof: str):
     kind, _, pid = proof.partition(":")
+    coll = {"pay": "orders", "saas": "saas_usage", "admin": "admin_unlocks"}.get(kind)
+    return (coll, pid, SutradharStore.get_doc(coll, pid)) if coll and pid else (None, pid, None)
+
+
+def _proof_still_valid(sid: str, ref: str, proof: str, exp: Optional[int] = None) -> bool:
+    kind, _, pid = proof.partition(":")
+    _, _, doc = _proof_record(proof)
+    if not doc:
+        return False
     if kind == "pay":
-        order = SutradharStore.get_doc("orders", pid)
-        return bool(order) and resolve_service_id(order.get("service_id", "")) == sid \
-            and order.get("report_ref") == ref and order.get("status") not in ("refunded", "cancelled")
-    if kind == "saas":
-        use = SutradharStore.get_doc("saas_usage", pid)
-        return bool(use) and use.get("service_id") == sid and _clean_ref(use.get("report_ref")) == ref
-    return False
+        ok = resolve_service_id(doc.get("service_id", "")) == sid \
+            and doc.get("report_ref") == ref and doc.get("status") not in ("refunded", "cancelled")
+    elif kind == "saas":
+        ok = doc.get("service_id") == sid and _clean_ref(doc.get("report_ref")) == ref
+    elif kind == "admin":
+        ok = doc.get("service_id") == sid and doc.get("report_ref") == ref
+    else:
+        return False
+    if not ok:
+        return False
+    stored_exp = doc.get("unlock_expires_at")
+    if sid in UNLOCK_SESSION_MINUTES or kind == "admin":
+        # a timed pass: the expiry the server stored must match the pass and still be ahead
+        return bool(stored_exp) and exp == int(stored_exp) and int(stored_exp) > int(time.time())
+    return True
+
+
+def _start_session(coll: str, pid: str, minutes: int) -> int:
+    """Fix the session's end the first time; later calls return the same end."""
+    with _store_lock:
+        doc = SutradharStore.get_doc(coll, pid) or {}
+        if not doc.get("unlock_expires_at"):
+            doc["unlock_expires_at"] = int(time.time()) + minutes * 60
+            SutradharStore.set_doc(coll, pid, doc)
+        return int(doc["unlock_expires_at"])
 
 
 @router.post("/unlock/verify")
-async def unlock_verify(req: UnlockVerifyRequest):
-    """Turn a Razorpay receipt or a SaaS unlock into a pass for one report of one kundali."""
+async def unlock_verify(req: UnlockVerifyRequest, request: Request):
+    """Turn a Razorpay receipt, a SaaS unlock or the owner key into a pass for one report_ref."""
     sid = resolve_service_id(req.service_id)
     ref = _clean_ref(req.report_ref)
     if sid not in SERVICE_CATALOG or not ref:
         return {"ok": False, "message": "रिपोर्ट की पहचान नहीं हो सकी।"}
+    exp: Optional[int] = None
     if req.order_id and req.payment_id and req.signature:
         expected = hmac.new(RAZORPAY_KEY_SECRET.encode(), f"{req.order_id}|{req.payment_id}".encode(), hashlib.sha256).hexdigest()
         if not hmac.compare_digest(expected, req.signature):
@@ -2340,24 +2407,54 @@ async def unlock_verify(req: UnlockVerifyRequest):
                 order["report_bound_at"] = datetime.now(timezone.utc).isoformat()
                 SutradharStore.set_doc("orders", req.order_id, order)
         proof = f"pay:{req.order_id}"
+        if sid in UNLOCK_SESSION_MINUTES:
+            exp = _start_session("orders", req.order_id, UNLOCK_SESSION_MINUTES[sid])
     elif req.unlock_id:
-        if not _proof_still_valid(sid, ref, f"saas:{req.unlock_id}"):
+        use = SutradharStore.get_doc("saas_usage", req.unlock_id)
+        if not use or use.get("service_id") != sid or _clean_ref(use.get("report_ref")) != ref:
             return {"ok": False, "message": "कोड से रिपोर्ट खोलने की पुष्टि नहीं हो सकी।"}
         proof = f"saas:{req.unlock_id}"
+        if sid in UNLOCK_SESSION_MINUTES:
+            exp = _start_session("saas_usage", req.unlock_id, UNLOCK_SESSION_MINUTES[sid])
+    elif req.admin_key:
+        ip = _client_ip(request)
+        now_t = time.time()
+        with _store_lock:
+            fails = [t for t in _admin_key_failures.get(ip, []) if now_t - t < _ADMIN_FAIL_WINDOW]
+            _admin_key_failures[ip] = fails
+        if len(fails) >= _ADMIN_FAIL_LIMIT:
+            return {"ok": False, "message": "बहुत बार गलत कोड। कुछ देर बाद प्रयास करें।"}
+        if not await asyncio.to_thread(is_owner_master_key, req.admin_key):
+            with _store_lock:
+                _admin_key_failures.setdefault(ip, []).append(now_t)
+            log_audit_event("UNLOCK_BAD_ADMIN_KEY", "system", {"service_id": sid, "ip": ip})
+            return {"ok": False, "message": INVALID_CODE_MESSAGE}
+        aid = f"adm_{int(now_t * 1000)}_{os.urandom(4).hex()}"
+        exp = int(now_t) + ADMIN_UNLOCK_MINUTES * 60
+        SutradharStore.set_doc("admin_unlocks", aid, {
+            "id": aid, "service_id": sid, "report_ref": ref, "ip": ip,
+            "at": datetime.now(timezone.utc).isoformat(), "unlock_expires_at": exp})
+        proof = f"admin:{aid}"
     else:
         return {"ok": False, "message": "भुगतान की जानकारी नहीं मिली।"}
-    log_audit_event("REPORT_UNLOCKED", "system", {"service_id": sid, "report_ref": ref, "proof": proof})
-    return {"ok": True, "proof": proof, "token": _unlock_token(sid, ref, proof)}
+    if exp is not None and exp <= int(time.time()):
+        return {"ok": False, "expired": True, "message": "इस भुगतान का सत्र समाप्त हो चुका है।"}
+    log_audit_event("REPORT_UNLOCKED", "system", {"service_id": sid, "report_ref": ref, "proof": proof, "exp": exp})
+    out = {"ok": True, "proof": proof, "token": _unlock_token(sid, ref, proof, exp)}
+    if exp is not None:
+        out["exp"] = exp
+    return out
 
 
 @router.post("/unlock/check")
 async def unlock_check(req: UnlockCheckRequest):
-    """Called every time a paid report opens: is this pass genuine and still backed by a payment?"""
+    """Called every time a paid page opens: is this pass genuine, still backed by a payment, and not expired?"""
     sid = resolve_service_id(req.service_id)
     ref = _clean_ref(req.report_ref)
-    if not ref or not hmac.compare_digest(_unlock_token(sid, ref, req.proof), req.token or ""):
+    if not ref or not hmac.compare_digest(_unlock_token(sid, ref, req.proof, req.exp), req.token or ""):
         return {"ok": False}
-    return {"ok": _proof_still_valid(sid, ref, req.proof)}
+    ok = _proof_still_valid(sid, ref, req.proof, req.exp)
+    return {"ok": ok, "exp": req.exp} if ok and req.exp else {"ok": ok}
 
 
 # -----------------------------------------------------------------------------

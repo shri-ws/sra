@@ -313,6 +313,61 @@ def test_report_unlock_by_saas_code():
     assert not client.post("/api/sutradhar/unlock/verify", json={"service_id": "kaalsarp_dosha", "report_ref": "kundali_S", "unlock_id": "use_made_up"}).json()["ok"]
 
 
+def test_muhurta_unlock_is_a_timed_session():
+    import time as _t
+    o = client.post("/api/sutradhar/orders/create", headers=CUST,
+                    json={"customer_phone": CUST_PHONE, "service_id": "muhurta_vivah"}).json()
+    oid, ref = o["order_id"], "muhurta_dev_ABC123"
+    rec = {"service_id": "muhurta_vivah", "report_ref": ref, "order_id": oid, "payment_id": "pay_m1", "signature": _sig(oid, "pay_m1")}
+    r = client.post("/api/sutradhar/unlock/verify", json=rec).json()
+    assert r["ok"] and 19 * 60 <= r["exp"] - _t.time() <= 20 * 60
+    chk = {"service_id": "muhurta_vivah", "report_ref": ref, "proof": r["proof"], "token": r["token"], "exp": r["exp"]}
+    assert client.post("/api/sutradhar/unlock/check", json=chk).json()["ok"]
+    # the same receipt again gives the same end, not a fresh 20 minutes
+    assert client.post("/api/sutradhar/unlock/verify", json=rec).json()["exp"] == r["exp"]
+    # stretching the expiry in the browser breaks the pass; so does dropping it
+    assert not client.post("/api/sutradhar/unlock/check", json={**chk, "exp": r["exp"] + 3600}).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/check", json={**chk, "exp": None}).json()["ok"]
+    # another browser cannot use the receipt
+    assert not client.post("/api/sutradhar/unlock/verify", json={**rec, "report_ref": "muhurta_dev_OTHER"}).json()["ok"]
+    # once the session time is over the pass and the receipt stop working
+    order = se.SutradharStore.get_doc("orders", oid); order["unlock_expires_at"] = int(_t.time()) - 1; se.SutradharStore.set_doc("orders", oid, order)
+    chk_old = {**chk, "exp": order["unlock_expires_at"], "token": se._unlock_token("muhurta_vivah", ref, r["proof"], order["unlock_expires_at"])}
+    assert not client.post("/api/sutradhar/unlock/check", json=chk_old).json()["ok"]
+    assert not client.post("/api/sutradhar/unlock/verify", json=rec).json()["ok"]
+
+
+def test_muhurta_saas_session():
+    r = client.post("/api/sutradhar/saas/redeem", headers={"Authorization": "Bearer mock_token_9000000001"},
+                    json={"service_id": "muhurta_vastu", "code": "9000000001", "device_id": "dev_test_0001", "report_ref": "muhurta_dev_S1"}).json()
+    assert r["ok"], r
+    v = client.post("/api/sutradhar/unlock/verify", json={"service_id": "muhurta_vastu", "report_ref": "muhurta_dev_S1", "unlock_id": r["unlock_id"]}).json()
+    assert v["ok"] and v["exp"]
+    assert client.post("/api/sutradhar/unlock/check", json={"service_id": "muhurta_vastu", "report_ref": "muhurta_dev_S1", "proof": v["proof"], "token": v["token"], "exp": v["exp"]}).json()["ok"]
+
+
+def test_owner_key_unlock_is_checked_by_the_server(monkeypatch):
+    import hashlib as _h
+    h = se.MASTER_KEY_SALT + "TESTKEY9"
+    for _ in range(se.MASTER_KEY_ROUNDS):
+        h = _h.sha256(h.encode()).hexdigest()
+    monkeypatch.setattr(se, "MASTER_KEY_HASH", h)
+    se._admin_key_failures.clear()
+    base = {"service_id": "parashara_report", "report_ref": "_admin_session"}
+    assert not client.post("/api/sutradhar/unlock/verify", json={**base, "admin_key": "WRONGKEY"}).json()["ok"]
+    v = client.post("/api/sutradhar/unlock/verify", json={**base, "admin_key": "testkey9"}).json()
+    assert v["ok"] and v["proof"].startswith("admin:") and v["exp"]
+    chk = {**base, "proof": v["proof"], "token": v["token"], "exp": v["exp"]}
+    assert client.post("/api/sutradhar/unlock/check", json=chk).json()["ok"]
+    # the pass is for this service only
+    assert not client.post("/api/sutradhar/unlock/check", json={**chk, "service_id": "muhurta_vivah"}).json()["ok"]
+    # too many wrong keys from one client: even the right key waits
+    for _ in range(se._ADMIN_FAIL_LIMIT):
+        client.post("/api/sutradhar/unlock/verify", json={**base, "admin_key": "WRONGKEY"})
+    assert not client.post("/api/sutradhar/unlock/verify", json={**base, "admin_key": "TESTKEY9"}).json()["ok"]
+    se._admin_key_failures.clear()
+
+
 def test_admin_sutradhar_list_and_pause():
     new_phone = "9833300003"
     hdr = {"Authorization": f"Bearer mock_token_{new_phone}"}

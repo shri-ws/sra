@@ -3075,15 +3075,46 @@
       return (k.id || (name + '_' + dob + '_' + tob)).replace(/[^a-zA-Z0-9_-]/g, '_');
     }
 
+    // Only passes the server issued (Razorpay receipt / SaaS number for this kundali, or the owner
+    // key for this browser session) open the report, and the server re-checks them on each open.
+    // The old browser-only flags (sra_mega_paid_*, sra_mpp_admin_unlocked) no longer open anything.
+    const MEGA_SERVICE = 'parashara_report';
+    const MEGA_ADMIN_REF = '_admin_session';
+    const serverPaidRefs = new Set();
+    let megaAdminOk = false, megaAdminChecked = false;
+
     function isKundaliPaid(k) {
       if (!k) return false;
-      // 1. Session admin unlock via verified server token
-      if (sessionStorage.getItem('sra_mpp_admin_unlocked') === 'true') return true;
-      // 2. Verified Razorpay payment specifically for this Kundali
-      const key = getKundaliPaymentKey(k);
-      if (localStorage.getItem('sra_mega_paid_' + key) === 'true') return true;
+      return megaAdminOk || serverPaidRefs.has(getKundaliPaymentKey(k));
+    }
 
-      return false;
+    async function refreshKundaliPaid(k) {
+      const E = window.SraCouponEngine;
+      if (!E) return isKundaliPaid(k);
+      if (!megaAdminChecked) {
+        megaAdminChecked = true;
+        try { sessionStorage.removeItem('sra_mpp_admin_unlocked'); sessionStorage.removeItem('sra_mpp_admin_token'); } catch (e) {}
+        megaAdminOk = (await E.checkUnlock(MEGA_SERVICE, MEGA_ADMIN_REF, true)).ok;
+      }
+      if (k && !isKundaliPaid(k)) {
+        const key = getKundaliPaymentKey(k);
+        if ((await E.checkUnlock(MEGA_SERVICE, key)).ok) serverPaidRefs.add(key);
+      }
+      return isKundaliPaid(k);
+    }
+
+    // Send a receipt / SaaS unlock / owner key to the server; true once it issued a pass
+    async function grantMegaFromServer(k, receipt, paymentId) {
+      const E = window.SraCouponEngine;
+      const admin = !!receipt.admin_key;
+      const ref = admin ? MEGA_ADMIN_REF : getKundaliPaymentKey(k);
+      const v = E ? await E.verifyUnlock(MEGA_SERVICE, ref, receipt, admin) : { ok: false };
+      if (!v.ok) {
+        alert((v.message || 'पुष्टि नहीं हो सकी।') + (paymentId && !/^(SAAS_|MASTER)/.test(paymentId) ? '\n\nपैसा कटा हो तो support@shriramjiastro.in पर भुगतान ID भेजें: ' + paymentId : ''));
+        return false;
+      }
+      if (admin) megaAdminOk = true; else serverPaidRefs.add(ref);
+      return true;
     }
 
     function isAuthorized() {
@@ -3190,14 +3221,12 @@
           sutradhar_id: sutradharRef,
           discount: String(appliedDisc)
         },
-        handler: function (response) {
+        handler: async function (response) {
           const payId = (response && response.razorpay_payment_id) ? response.razorpay_payment_id : ('RZP_MEGA_' + Date.now());
           const targetK = currentSelectedKundali;
           const kKey = targetK ? getKundaliPaymentKey(targetK) : 'default';
-          if (targetK) {
-            localStorage.setItem('sra_mega_paid_' + kKey, 'true');
-            localStorage.setItem('sra_mega_payid_' + kKey, payId);
-          }
+          if (!targetK || !(await grantMegaFromServer(targetK, { order_id: response.razorpay_order_id, payment_id: response.razorpay_payment_id, signature: response.razorpay_signature }, payId))) return;
+          localStorage.setItem('sra_mega_payid_' + kKey, payId);
           localStorage.setItem('sra_mega_last_payid', payId);
 
           // Centralized server payment logging
@@ -3326,13 +3355,10 @@
           serviceId: 'parashara_report',
           code: input,
           reportRef: currentSelectedKundali ? getKundaliPaymentKey(currentSelectedKundali) : '',
-          onUnlock: r => {
+          onUnlock: async r => {
             const k = currentSelectedKundali;
-            const kKey = k ? getKundaliPaymentKey(k) : 'default';
-            if (k) {
-              localStorage.setItem('sra_mega_paid_' + kKey, 'true');
-              localStorage.setItem('sra_mega_payid_' + kKey, 'SAAS_' + r.unlock_id);
-            }
+            if (!k || !(await grantMegaFromServer(k, { unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id))) return;
+            localStorage.setItem('sra_mega_payid_' + getKundaliPaymentKey(k), 'SAAS_' + r.unlock_id);
             closeGateModal();
             updateAuthBadge();
             updateGenerateButtonState(currentSelectedKundali);
@@ -3350,7 +3376,8 @@
       }
 
       if (window.sraIsMasterKey && window.sraIsMasterKey(input)) {
-        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
+        // the owner key is checked again by the server, which issues a pass for this browser session
+        if (!(await grantMegaFromServer(currentSelectedKundali, { admin_key: input }, 'MASTER_KEY'))) return;
         closeGateModal();
         updateAuthBadge();
         updateGenerateButtonState(currentSelectedKundali);
@@ -3358,45 +3385,11 @@
         return;
       }
 
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = "सत्यापित किया जा रहा है...";
-      }
-
-      try {
-        const resp = await fetch("api/verify_payment.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "passcode", passcode: input })
-        });
-        const res = await resp.json();
-
-        if (res.verified || res.status === "success") {
-          sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
-          if (res.token) sessionStorage.setItem('sra_mpp_admin_token', res.token);
-          closeGateModal();
-          updateAuthBadge();
-          updateGenerateButtonState(currentSelectedKundali);
-          alert("✅ अधिकृत प्रशासनिक कोड सत्यापित! सम्पूर्ण रिपोर्ट प्रस्तुत की जा रही है।");
-          generateMegaParasharaReport(true);
-        } else {
-          if (err) {
-            err.innerText = "❌ अमान्य एक्सेस कोड! कृपया सही कोड दर्ज करें अथवा भुगतान करें।";
-            err.style.display = 'block';
-            setTimeout(() => { err.style.display = 'none'; }, 4000);
-          }
-        }
-      } catch (e) {
-        if (err) {
-          err.innerText = "❌ सत्यापन सर्वर से संपर्क नहीं हो सका। कृपया इंटरनेट जांचें।";
-          err.style.display = 'block';
-          setTimeout(() => { err.style.display = 'none'; }, 4000);
-        }
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerText = "सत्यापित करें";
-        }
+      if (err) {
+        err.innerText = "❌ अमान्य एक्सेस कोड! कृपया सही कोड दर्ज करें अथवा भुगतान करें।";
+        err.style.color = '#b91c1c';
+        err.style.display = 'block';
+        setTimeout(() => { err.style.display = 'none'; }, 4000);
       }
     }
 
@@ -3493,6 +3486,7 @@
       populateCityDatalist();
       loadSavedKundalis();
       updateAuthBadge();
+      refreshKundaliPaid(currentSelectedKundali).then(() => { updateAuthBadge(); updateGenerateButtonState(currentSelectedKundali); });
     }
 
     function loadSavedKundalis() {
@@ -3632,6 +3626,8 @@
     function updateGenerateButtonState(k) {
       const btnText = document.getElementById('btnGenerateReportText');
       if (!btnText) return;
+      // ask the server about this kundali's pass; redraw if it turns out paid
+      if (k && !isKundaliPaid(k)) refreshKundaliPaid(k).then(paid => { if (paid && k === currentSelectedKundali) { updateAuthBadge(); updateGenerateButtonState(k); } });
       if (k && isKundaliPaid(k)) {
         btnText.innerHTML = `✨ सम्पूर्ण ९७-अध्याय पाराशर रिपोर्ट देखें (अनलॉक्ड)`;
       } else {
@@ -3705,8 +3701,8 @@
       saveCurrentKundaliToStorage(currentK);
       refreshSavedKundalisDropdown(currentK);
 
-      // Check Payment Gate: strictly block if not paid
-      if (!isKundaliPaid(currentK)) {
+      // Check Payment Gate: strictly block if the server has no pass for this kundali
+      if (!(await refreshKundaliPaid(currentK))) {
         const repContainer = document.getElementById('reportViewContainer');
         if (repContainer) repContainer.style.display = 'none';
 
@@ -3724,7 +3720,7 @@
         return;
       }
 
-      if (!bypassAuthCheck && !isKundaliPaid(currentSelectedKundali)) {
+      if (!bypassAuthCheck && !(await refreshKundaliPaid(currentSelectedKundali))) {
         const repContainer = document.getElementById('reportViewContainer');
         if (repContainer) repContainer.style.display = 'none';
         openGateModal();

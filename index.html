@@ -4312,34 +4312,20 @@
     const err = document.getElementById('indexParasharaErrMsg');
     const val = (inp && inp.value ? inp.value.trim() : '');
     if (!val) return;
-    if (window.sraIsMasterKey && window.sraIsMasterKey(val)) {
-      sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
-      window.location.href = '/parashara-report.html';
-      return;
-    }
+    // The owner key opens the report only through a pass the server issues; the report page checks it again
+    const fail = () => { if (err) { err.style.display = 'block'; setTimeout(() => { err.style.display = 'none'; }, 3000); } };
+    if (!(window.sraIsMasterKey && window.sraIsMasterKey(val))) return fail();
     try {
-      const resp = await fetch("api/verify_payment.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "passcode", passcode: val })
+      const base = window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com';
+      const resp = await fetch(base + '/api/sutradhar/unlock/verify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service_id: 'parashara_report', report_ref: '_admin_session', admin_key: val })
       });
-      const res = await resp.json();
-      if (res.verified || res.status === "success") {
-        sessionStorage.setItem('sra_mpp_admin_unlocked', 'true');
-        if (res.token) sessionStorage.setItem('sra_mpp_admin_token', res.token);
-        window.location.href = '/parashara-report.html';
-      } else {
-        if (err) {
-          err.style.display = 'block';
-          setTimeout(() => { err.style.display = 'none'; }, 3000);
-        }
-      }
-    } catch(e) {
-      if (err) {
-        err.style.display = 'block';
-        setTimeout(() => { err.style.display = 'none'; }, 3000);
-      }
-    }
+      const v = await resp.json();
+      if (!v || !v.ok) return fail();
+      sessionStorage.setItem('sra_pass_parashara_report__admin_session', JSON.stringify({ proof: v.proof, token: v.token, exp: v.exp || null }));
+      window.location.href = '/parashara-report.html';
+    } catch (e) { fail(); }
   }
   function toggleMobileMenu() {
     if (typeof window.toggleNavDrawer === 'function') {

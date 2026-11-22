@@ -1546,6 +1546,19 @@
         let brideProfile = null;
         let isUnlocked = false;
         let sessionTimerInterval = null;
+        // Paid session: only a pass the server issued (Razorpay receipt, SaaS number or owner key)
+        // opens this tool, and the server checks it again on every open. Its end time is the server's.
+        const UNLOCK_SERVICE = 'muhurta_vivah';
+        let sessionExpiryMs = 0;
+        const sraUnlockRef = () => window.SraCouponEngine.deviceRef('muhurta');
+        async function sraServerSession() {
+            // the old browser-only flags no longer open anything
+            try { localStorage.removeItem('sra_vmm_unlocked'); localStorage.removeItem('sra_vmm_expiry'); } catch (e) {}
+            if (!window.SraCouponEngine || !window.SraCouponEngine.getUnlockPass(UNLOCK_SERVICE, sraUnlockRef())) return { had: false, ok: false };
+            const r = await window.SraCouponEngine.checkUnlock(UNLOCK_SERVICE, sraUnlockRef());
+            if (r.offline) { console.warn('unlock check: server not reachable'); return { had: false, ok: false }; }
+            return { had: true, ok: !!r.ok && r.exp * 1000 > Date.now(), exp: r.exp };
+        }
 
         // Toast Notification Helper
         function showToast(msg, duration = 4500) {
@@ -1618,9 +1631,11 @@
         });
 
         // Check Unlock & Expiry Status on Page Load
-        function checkUnlockStatus() {
-            const unlockedState = localStorage.getItem('sra_vmm_unlocked');
-            const expiry = parseInt(localStorage.getItem('sra_vmm_expiry') || '0');
+        async function checkUnlockStatus() {
+            const srv = await sraServerSession();
+            const unlockedState = srv.had ? 'true' : null;
+            const expiry = srv.ok ? srv.exp * 1000 : 0;
+            if (srv.ok) sessionExpiryMs = expiry;
             const now = Date.now();
 
             if (unlockedState === 'true' && expiry > now) {
@@ -1640,17 +1655,15 @@
             }
         }
 
-        function startVipSession(minutes = 20, paymentId = null) {
-            const durationMs = minutes * 60 * 1000;
-            const expiryTime = Date.now() + durationMs;
-
-            localStorage.setItem('sra_vmm_unlocked', 'true');
-            localStorage.setItem('sra_vmm_expiry', expiryTime.toString());
-            
-            if (paymentId) {
-                localStorage.setItem('sra_vmm_last_payid', paymentId);
+        async function startVipSession(receipt, paymentId = null) {
+            const v = window.SraCouponEngine ? await window.SraCouponEngine.verifyUnlock(UNLOCK_SERVICE, sraUnlockRef(), receipt) : { ok: false };
+            if (!v.ok) {
+                alert((v.message || 'पुष्टि नहीं हो सकी।') + (paymentId && !/^(SAAS_|MASTER)/.test(paymentId) ? '\n\nपैसा कटा हो तो support@shriramjiastro.in पर भुगतान ID भेजें: ' + paymentId : ''));
+                return;
             }
-
+            sessionExpiryMs = v.exp * 1000;
+            const minutes = Math.max(1, Math.round((sessionExpiryMs - Date.now()) / 60000));
+            if (paymentId) { try { localStorage.setItem('sra_vmm_last_payid', paymentId); } catch (e) {} }
             unlockAccess();
             showToast(`🎉 <b>भुगतान सफल!</b> आपका ${minutes}-मिनट का VIP एक्सेस प्रारंभ हो गया है।`);
             alert(`🎉 भुगतान सफल (Payment Successful)!\n\nआपका 20 मिनट का VIP सत्र सक्रिय कर दिया गया है।\n\nपृष्ठ के शीर्ष पर स्थित टाइमर द्वारा समय देख सकते हैं।`);
@@ -1674,7 +1687,7 @@
             const countdownEl = document.getElementById('sessionCountdown');
 
             function updateTimer() {
-                const expiry = parseInt(localStorage.getItem('sra_vmm_expiry') || '0');
+                const expiry = sessionExpiryMs;
                 const now = Date.now();
                 const remainingMs = expiry - now;
 
@@ -1712,8 +1725,8 @@
         }
 
         function lockAccessExpired() {
-            localStorage.removeItem('sra_vmm_unlocked');
-            localStorage.removeItem('sra_vmm_expiry');
+            sessionExpiryMs = 0;
+            if (window.SraCouponEngine) window.SraCouponEngine.clearUnlockPass(UNLOCK_SERVICE, sraUnlockRef());
             isUnlocked = false;
 
             if (sessionTimerInterval) clearInterval(sessionTimerInterval);
@@ -1777,7 +1790,7 @@
                                 })
                             }).catch(e => console.warn(e));
                         } catch(e) {}
-                        startVipSession(20, payId);
+                        startVipSession({ order_id: response.razorpay_order_id, payment_id: response.razorpay_payment_id, signature: response.razorpay_signature }, payId);
                     },
                     modal: {
                         ondismiss: function() {
@@ -1802,7 +1815,7 @@
         function verifyPaymentUTR() {
             const utr = document.getElementById('utrInput').value.trim();
             if (utr.length >= 6) {
-                startVipSession(20, 'UTR_' + utr);
+                alert('UTR से हुए भुगतान की जाँच हाथ से होती है। यह UTR नंबर support@shriramjiastro.in पर भेजें; पुष्टि के बाद हम आपसे संपर्क करेंगे।');
             } else {
                 alert("कृपया वैध UTR / Transaction No. दर्ज करें।");
             }
@@ -1812,14 +1825,14 @@
             const code = document.getElementById('vipCodeInput').value.trim().toUpperCase();
             // SaaS astrologer: own login number opens a session; other codes get the same "invalid" reply
             if (window.SraCouponEngine && window.SraCouponEngine.isPhoneCode(code)) {
-                window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_vivah', code: code, onUnlock: r => startVipSession(20, 'SAAS_' + r.unlock_id), show: (ok, m) => { if (ok === false) alert(m); } });
+                window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_vivah', code: code, reportRef: sraUnlockRef(), onUnlock: r => startVipSession({ unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id), show: (ok, m) => { if (ok === false) alert(m); } });
                 return;
             }
             if (window.SraCouponEngine) {
                 const res = window.SraCouponEngine.validateAndCalculate(code, 2100);
                 window._muhuratCoupon = res.code;  // Code box: every code gets the same reply; the server decides at payment
             }
-            if (window.sraIsMasterKey && window.sraIsMasterKey(code)) { startVipSession(720, 'MASTER_KEY'); return; }
+            if (window.sraIsMasterKey && window.sraIsMasterKey(code)) { startVipSession({ admin_key: code }, 'MASTER_KEY'); return; }
             alert("अवैध VIP कोड। कृपया ₹2,100 का भुगतान करें।");
         }
 
