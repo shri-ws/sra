@@ -1383,7 +1383,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
             <label style="font-size:12px;">WhatsApp number for replies (w)<br><input id="scl-w" type="tel" placeholder="10 digits" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"></label>
           </div>
           <label style="font-size:12px; display:block; margin-top:8px;">Message ({नाम} and {लिंक} are filled in automatically)<br>
-            <textarea id="scl-msg" rows="3" style="width:100%; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font:inherit; font-size:13px;"></textarea></label>
+            <textarea id="scl-msg" rows="11" style="width:100%; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font:inherit; font-size:13px;"></textarea></label>
           <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Sample link: <span id="scl-sample" style="font-family:monospace; word-break:break-all;"></span></div>
         </details>
 
@@ -3350,7 +3350,7 @@ const SCL_STATUS = [
   ['bought', 'Bought', '#d1fae5', '#065f46']
 ];
 const SCL_LABEL = Object.fromEntries(SCL_STATUS.map(s => [s[0], s[1]]));
-const SCL_DEFAULT_MSG = 'नमस्ते {नाम} जी, Shri Ramji Astro से आपसे बात हुई थी। ज्योतिषियों के लिए हमारी सदस्यता का डेमो यहाँ देखें, 3 मिनट लगेंगे, कोई लॉगिन नहीं:\n{लिंक}';
+const SCL_DEFAULT_MSG = '🙏 सादर प्रणाम {नाम} जी,\n\nहम Shri Ramji Astro से लिख रहे हैं। Google पर आपका ज्योतिष केंद्र देखा, इसलिए आपको सीधे यह संदेश भेज रहे हैं।\n\nहमने ज्योतिषियों के लिए एक सदस्यता बनाई है:\n• जातक को शास्त्र-प्रमाणित रिपोर्ट दें (मूल श्लोक व ग्रंथ संदर्भ सहित), शुल्क पूरा आपका\n• हर जातक का खाता, आपके गोपनीय नोट और डिजिटल उपाय-पर्ची\n• जातक रोज़ अपने फ़ोन पर उपाय टिक करता है, आपको दिखता है कौन छोड़ रहा है\n\n3 मिनट का डेमो, कोई लॉगिन नहीं:\n{लिंक}\n\nअच्छा लगे तो इसी नंबर पर उत्तर दें, हम पूरी जानकारी देंगे। रुचि न हो तो बस "नहीं" लिख दें, दोबारा संदेश नहीं भेजेंगे।\n\n— Shri Ramji Astro';
 let sclLeads = [], sclFilter = 'all', sclPending = [], sclInited = false;
 
 function sclEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -3359,7 +3359,7 @@ function sclPhone(raw) {
   return m ? m[1].replace(/\D/g, '') : '';
 }
 function sclSettings() {
-  return { ref: (localStorage.getItem('scl_ref') || '').trim(), w: (localStorage.getItem('scl_w') || '').replace(/\D/g, ''), msg: localStorage.getItem('scl_msg') || SCL_DEFAULT_MSG };
+  return { ref: (localStorage.getItem('scl_ref') || '').trim(), w: (localStorage.getItem('scl_w') || '').replace(/\D/g, ''), msg: localStorage.getItem('scl_msg_v2') || SCL_DEFAULT_MSG };
 }
 function sclDemoLink(name) {
   const s = sclSettings(), p = new URLSearchParams();
@@ -3383,7 +3383,7 @@ function initSaasLeads() {
     const upd = () => {
       localStorage.setItem('scl_ref', document.getElementById('scl-ref').value.trim().toUpperCase());
       localStorage.setItem('scl_w', document.getElementById('scl-w').value.replace(/\D/g, ''));
-      localStorage.setItem('scl_msg', document.getElementById('scl-msg').value || SCL_DEFAULT_MSG);
+      localStorage.setItem('scl_msg_v2', document.getElementById('scl-msg').value || SCL_DEFAULT_MSG);
       document.getElementById('scl-sample').textContent = sclDemoLink('शर्मा');
     };
     ['scl-ref', 'scl-w', 'scl-msg'].forEach(id => document.getElementById(id).addEventListener('input', upd));
