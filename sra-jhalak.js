@@ -9,6 +9,7 @@
 (function () {
   'use strict';
   var IMG = 'assets/jhalak/';
+  var V = '.webp?v=2';               // bump when the snippet images are retaken
   function S(id, short, cap, pos, fit) { return { id: id, short: short, cap: cap, pos: pos || 'center top', fit: fit }; }
 
   var TOOLS = {
@@ -83,7 +84,7 @@
     var t = TOOLS[k], sl = t.slides[i];
     return '<button class="jh-snip" type="button" data-jh-tool="' + k + '" data-jh-i="' + i + '" aria-label="' + esc(t.title + ': ' + sl.short) + '">' +
       '<span class="jh-img' + (sl.fit === 'contain' ? ' jh-contain' : '') + '" style="display:block;--pos:' + sl.pos + ';--fit:' + (sl.fit || 'cover') + '">' +
-      '<img src="' + IMG + 's-' + sl.id + '.webp" alt="" loading="lazy" decoding="async">' +
+      '<img src="' + IMG + 's-' + sl.id + V + '" alt="" loading="lazy" decoding="async">' +
       (withTag ? '<span class="jh-tag">' + esc(t.tag) + '</span>' : '') + '</span>' +
       '<span class="jh-cap">' + esc(sl.short) + '</span></button>';
   }
@@ -143,11 +144,11 @@
     title.textContent = t.title; cta.textContent = t.cta[0]; cta.href = t.cta[1];
     count = t.slides.length;
     track.innerHTML = t.slides.map(function (sl) {
-      return '<figure class="jh-slide"><div class="jh-frame"><img src="' + IMG + sl.id + '.webp" alt="' + esc(sl.short) + '" decoding="async"></div>' +
+      return '<figure class="jh-slide"><div class="jh-frame"><img src="' + IMG + sl.id + V + '" alt="' + esc(sl.short) + '" decoding="async"></div>' +
         '<figcaption>' + esc(sl.cap) + '</figcaption></figure>';
     }).join('');
     thumbs.innerHTML = t.slides.map(function (sl, n) {
-      return '<button type="button" aria-label="झलक ' + (n + 1) + '"><img src="' + IMG + 's-' + sl.id + '.webp" alt=""></button>';
+      return '<button type="button" aria-label="झलक ' + (n + 1) + '"><img src="' + IMG + 's-' + sl.id + V + '" alt=""></button>';
     }).join('');
     Array.prototype.forEach.call(thumbs.children, function (b, n) { b.addEventListener('click', function () { go(n); }); });
     document.documentElement.classList.add('jh-open'); root.setAttribute('aria-hidden', 'false');

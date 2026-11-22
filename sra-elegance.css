@@ -9,15 +9,16 @@
 
 /* 1. DESIGN TOKENS ─────────────────────────────────────────────────────── */
 :root {
-  --sra-paper: #FAF6EE;
-  --sra-paper-2: #F3ECDF;
-  --sra-vellum: #FFFDF8;
+  /* White canvas (22 Nov 2026): page and cards pure white, alternate bands a faint gold */
+  --sra-paper: #FFFFFF;
+  --sra-paper-2: #FBF8F3;
+  --sra-vellum: #FFFFFF;
   --sra-ink: #1F1A17;
   --sra-ink-soft: #4A4038;
   --sra-muted: #6E6257;
-  --sra-kumkum: #3A0D16;
+  --sra-kumkum: #6B1424;         /* maroon: headings, main buttons (12:1 on white) */
   --sra-sindoor: #8E1B1B;
-  --sra-gold: #B08D3E;
+  --sra-gold: #8C6A22;           /* gold that stays readable as text on white (5:1) */
   --sra-gold-leaf: #D6B76A;
   --sra-gold-deep: #7A5A1C;
   --sra-hair: rgba(122, 90, 28, 0.20);
@@ -66,7 +67,7 @@
   --gold-dark: var(--sra-gold-deep);
   --gold-border: var(--sra-hair-strong); --card-border: var(--sra-hair); --border-color: var(--sra-hair);
   --gold-dim: var(--sra-wash);
-  --nav-bg: rgba(250, 246, 238, 0.86);
+  --nav-bg: rgba(255, 255, 255, 0.9);
   --footer-bg: var(--sra-paper-2);
   --input-bg: var(--sra-vellum);
   --hero-bg: var(--sra-paper);
@@ -203,7 +204,7 @@ nav {
   border-color: var(--sra-kumkum) !important;
   box-shadow: 0 10px 28px -12px rgba(58, 13, 22, 0.55) !important;
 }
-.btn-hero.highlight:hover { background: #4C1520 !important; box-shadow: 0 16px 34px -14px rgba(58, 13, 22, 0.6) !important; }
+.btn-hero.highlight:hover { background: #521019 !important; box-shadow: 0 16px 34px -14px rgba(58, 13, 22, 0.6) !important; }
 [data-theme="night"] .btn-hero.highlight { background: var(--sra-gold) !important; color: #120E09 !important; border-color: var(--sra-gold) !important; }
 
 /* 5. SURFACES ──────────────────────────────────────────────────────────── */
@@ -1182,4 +1183,23 @@ html, body { overflow-x: clip; }
   :root body .sra-m-explain, :root body .fld label, :root body .field label {
     font-size: 14px !important;
   }
+}
+
+
+/* 21. WHITE CANVAS: GOLD AND MAROON TOUCHES ───────────────────────────────
+   On white the cards need their own edge: a gold hairline all round and a slightly
+   stronger gold line on top. Homepage section headings get a short gold rule underneath.
+   Day theme only; night keeps its own palette. */
+:root:not([data-theme="night"]) body .app-service-card, :root:not([data-theme="night"]) body .report-card,
+:root:not([data-theme="night"]) body .pillar-card, :root:not([data-theme="night"]) body .highlight-card,
+:root:not([data-theme="night"]) body .blog-card, :root:not([data-theme="night"]) body .boxed-card,
+:root:not([data-theme="night"]) body .jh .jh-card, :root:not([data-theme="night"]) body .sra-m-start,
+:root:not([data-theme="night"]) body .sra-m-ekmev {
+  border: 1px solid rgba(140, 106, 34, 0.24) !important;
+  border-top: 2px solid var(--sra-gold-leaf) !important;
+}
+:root:not([data-theme="night"]) body .jh .jh-snip { border-color: rgba(140, 106, 34, 0.24) !important; }
+:root:not([data-theme="night"]) body .jh .jh-label h2::after,
+:root:not([data-theme="night"]) body h2.jh-more-label::after {
+  content: ""; display: block; width: 32px; height: 2px; margin-top: 6px; border-radius: 2px; background: var(--sra-gold-leaf);
 }
