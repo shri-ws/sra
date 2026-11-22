@@ -774,11 +774,16 @@ async def register_or_sync_sutradhar(req: RegisterSutradharRequest, authorizatio
 
     existing = find_sutradhar_by_phone(clean_phone)
 
-    # Changing an existing UPI ID needs a recent OTP sign-in
-    if existing and existing.get("upi_id") and clean_upi and clean_upi != existing.get("upi_id"):
+    # Changing name or existing UPI ID needs a recent OTP sign-in (within 15 minutes)
+    new_name = (req.name or "").strip()
+    old_name = (existing or {}).get("name", "").strip()
+    name_changed = bool(new_name and old_name and new_name != old_name)
+    upi_changed = bool(existing and existing.get("upi_id") and clean_upi and clean_upi != existing.get("upi_id"))
+
+    if (name_changed or upi_changed) and existing:
         auth_time = int((decoded or {}).get("auth_time", 0) or 0)
         if time.time() - auth_time > 15 * 60:
-            raise HTTPException(status_code=409, detail="recent_login_required: सुरक्षा के लिए UPI बदलने से पहले फिर से OTP से लॉगिन करें।")
+            raise HTTPException(status_code=409, detail="recent_login_required: सुरक्षा के लिए नाम या UPI बदलने से पहले फिर से OTP से सत्यापन करें।")
 
     if existing:
         s_id = existing["id"]
@@ -3302,7 +3307,7 @@ def note_signup_attempt(phone: Optional[str]):
 
 # ── Sutradhar activity: what each Sutradhar did on the portal, one document per Sutradhar per day ──
 ACTIVITY_COL = "sutradhar_activity"
-ACTIVITY_KINDS = {"open", "script_open", "script_copy", "tab", "lead_form", "offer_share", "offer_copy", "task", "tutorial"}
+ACTIVITY_KINDS = {"open", "script_open", "script_copy", "tab", "lead_form", "offer_share", "offer_copy", "task", "tutorial", "nudge_open"}
 ACTIVITY_MAX_EVENTS = 120          # per Sutradhar per day
 
 
@@ -3450,6 +3455,8 @@ async def admin_sutradhar_activity(sutradhar_id: str = Query(...), days: int = Q
             parts.append("खोले: " + ", ".join(f"{TAB_NAMES.get(k, k)} ×{v}" for k, v in tabs.items()))
         if int(counts.get("lead_form") or 0):
             parts.append(f"लीड फ़ॉर्म खोला ×{counts['lead_form']}")
+        if int(counts.get("nudge_open") or 0):
+            parts.append(f"आपके संदेश/सूचना से पोर्टल खोला ×{counts['nudge_open']}")
         oshare = {k.split(":", 1)[1]: v for k, v in counts.items() if k.startswith("offer_share:")}
         ocopy = {k.split(":", 1)[1]: v for k, v in counts.items() if k.startswith("offer_copy:")}
         if oshare:
@@ -3501,6 +3508,292 @@ async def admin_sutradhar_activity(sutradhar_id: str = Query(...), days: int = Q
         "timeline": timeline[:400],
     }
 
+
+# =============================================================================
+# ADMIN: DAILY PUSH BOARD — who worked today, who went quiet, and a ready message for each
+# =============================================================================
+# one line per day of the 21-day first-income path (mirrors START_PLAN tips in sutradhar.html)
+START_DAY_TIPS = [
+    "UPI जोड़िए, 20 लोगों की सूची बनाइए और 10 को कालसर्प या मांगलिक रिपोर्ट का link भेजिए।",
+    "कल जिन्होंने link देखा, उन्हें फ़ोन कीजिए और रुचि वालों का नंबर लीड में डालिए।",
+    "आज पहली बिक्री का दिन है: जिसने हाँ कहा, उसे फ़ोन करके भुगतान करवाइए।",
+    "शादी वाले घरों को गुण मिलान का link भेजिए, एक बिक्री में ₹615 दक्षिणा।",
+    "पिछले 4 दिन के सारे \"बाद में देखेंगे\" वालों को फ़ोन कीजिए।",
+    "किसी पंडित को हमारा सॉफ़्टवेयर बताइए, एक बार में ₹2,852 दक्षिणा।",
+    "पहला हफ़्ता पूरा: कमाई देखिए, और जिन लीड का ताला ख़त्म हो रहा है उन्हें आज फ़ोन कीजिए।",
+    "पड़ोस, दुकान या ऑफ़िस के 5 नए लोगों से बात कीजिए और अपनी पत्रिका दिखाइए।",
+    "किसी ज्योतिषी को सॉफ़्टवेयर के बारे में बताइए, एक बार में ₹2,852।",
+    "जिनके घर शादी तय हो रही है, उन्हें विवाह मुहूर्त का link भेजिए (दक्षिणा ₹1,174)।",
+    "पिछले हफ़्ते के 2 लोगों को फ़ॉलो-अप कॉल कीजिए; फ़ॉलो-अप से ही बिक्री होती है।",
+    "नए घर वालों को वास्तु मुहूर्त, बच्चे वालों को मुंडन मुहूर्त का link भेजिए।",
+    "\"सवाल-जवाब\" स्क्रिप्ट दोबारा पढ़िए और 5 नए लोगों को link भेजिए।",
+    "दो हफ़्ते पूरे: ₹4,000 से कम हो तो आज 10 लोगों को link भेजिए और 3 को फ़ोन कीजिए।",
+    "10 लोगों को अलग-अलग रिपोर्ट link भेजिए, जिसको जो सूट करे।",
+    "जिन्होंने रिपोर्ट ली, उनसे 2-2 ऐसे लोगों के नाम माँगिए जिन्हें इसकी ज़रूरत हो।",
+    "अपने Facebook या Telegram ग्रुप में रिपोर्ट link डालिए।",
+    "जिन लीड का ताला ख़त्म हो गया, उनसे फिर बात कीजिए और फिर से लीड डालिए।",
+    "पूरी कुंडली चाहने वालों को मेगा पाराशर रिपोर्ट बताइए (दक्षिणा ₹621)।",
+    "आज सारे बाकी फ़ॉलो-अप पूरे कीजिए।",
+    "21 दिन पूरे! कमाई देखिए और इंसेंटिव में अगले महीने का लक्ष्य बनाइए।",
+]
+PORTAL_URL = "https://shriramjiastro.in/sutradhar.html?n=1"   # n=1: the portal reports that a message brought them back
+NUDGE_KINDS = {
+    # kind: (label for the admin, needs a push today?)
+    "badhai":   ("आज बिक्री हुई", False),
+    "followup": ("लीड का ताला ख़त्म होने वाला", True),
+    "shabash":  ("आज काम किया", False),
+    "start":    ("शुरुआत बाकी: अभी कोई लीड नहीं", True),
+    "gentle":   ("1-2 दिन से चुप", True),
+    "wake":     ("3-6 दिन से चुप", True),
+    "comeback": ("7+ दिन से चुप", True),
+}
+NUDGE_ORDER = ["followup", "start", "gentle", "wake", "comeback", "shabash", "badhai"]
+
+
+def _ist_day(iso: str) -> str:
+    dt = _aware(iso or "")
+    return dt.astimezone(IST).date().isoformat() if dt else ""
+
+
+def _pick(options: List[str], seed: str) -> str:
+    return options[int(hashlib.md5(seed.encode()).hexdigest(), 16) % len(options)]
+
+
+def _nudge_message(kind: str, r: Dict[str, Any], day: str) -> Dict[str, str]:
+    """Title + push text + WhatsApp text for one Sutradhar. Wording changes by day so it never reads like a copy."""
+    name = (r.get("name") or "").strip()
+    ji = f"{name} जी" if name else "जी"
+    seed = f"{r['sutradhar_id']}_{day}_{kind}"
+    inr = lambda n: f"₹{int(n or 0):,}"
+    tip = START_DAY_TIPS[min(max(r["day_n"], 1), 21) - 1]
+    month = inr(r["month_earned"])
+    tab = "start" if r["day_n"] <= 21 else "home"
+    if kind == "badhai":
+        title = "बधाई! आज बिक्री हुई"
+        body = f"आज आपकी {r['sales_today']} बिक्री से {inr(r['earned_today'])} दक्षिणा बनी। इस महीने अब तक {month}। यही रफ़्तार रखिए।"
+        wa = _pick([
+            f"नमस्ते {ji},\n\nबहुत-बहुत बधाई! आज आपकी {r['sales_today']} बिक्री हुई और {inr(r['earned_today'])} दक्षिणा बनी। इस महीने की कुल दक्षिणा अब {month} है।\n\nजिसने आज रिपोर्ट ली, उससे 2 ऐसे लोगों के नाम माँग लीजिए जिन्हें इसकी ज़रूरत हो। खुश ग्राहक ही अगला ग्राहक लाता है।",
+            f"नमस्ते {ji},\n\nआज की बिक्री के लिए शाबाश! {inr(r['earned_today'])} दक्षिणा आपके खाते में दर्ज हो गई है, भुगतान समय पर UPI में आएगा।\n\nकल भी इसी तरह 5 लोगों से बात कीजिए। आप सही रास्ते पर हैं।",
+        ], seed)
+    elif kind == "followup":
+        n = r["leads_expiring"]
+        title = f"{n} लीड का ताला जल्दी ख़त्म होगा"
+        body = f"आपकी {n} लीड का 72 घंटे का ताला 24 घंटे में ख़त्म होगा। आज ही फ़ोन करके भुगतान करवाइए।"
+        wa = _pick([
+            f"नमस्ते {ji},\n\nआपकी {n} लीड का 72 घंटे का ताला अगले 24 घंटे में ख़त्म हो जाएगा। आज ही उन्हें फ़ोन कीजिए और हो सके तो फ़ोन पर रहते-रहते भुगतान करवा दीजिए।\n\nलीड देखें: {PORTAL_URL}",
+            f"नमस्ते {ji},\n\nएक ज़रूरी बात: आपकी {n} लीड जल्दी आपके नाम से हट जाएँगी। आज एक फ़ॉलो-अप कॉल ही बिक्री में बदल सकती है।\n\n{PORTAL_URL}",
+        ], seed)
+        tab = "home"
+    elif kind == "shabash":
+        streak = r["streak"]
+        title = f"शाबाश! लगातार {streak} दिन" if streak > 1 else "शाबाश! आज आपने काम किया"
+        body = f"आज का अगला कदम: {tip}" if r["day_n"] <= 21 else f"इस महीने अब तक {month}। आज 2 फ़ॉलो-अप कॉल और कर लीजिए।"
+        wa = _pick([
+            f"नमस्ते {ji},\n\n{'लगातार ' + str(streak) + ' दिन से आप काम कर रहे हैं, बहुत अच्छा!' if streak > 1 else 'आज आपने पोर्टल पर काम किया, बहुत अच्छा!'} इस महीने की दक्षिणा अब तक {month}।\n\n" + (f"आज के {r['day_n']}वें दिन का काम: {tip}" if r["day_n"] <= 21 else "आज 2 पुराने लोगों को फ़ॉलो-अप कॉल ज़रूर कीजिए।"),
+            f"नमस्ते {ji},\n\nआपकी मेहनत दिख रही है। {('आज ' + str(r['leads_today']) + ' लीड डाली। ') if r['leads_today'] else ''}रोज़ थोड़ा-थोड़ा करने से ही महीने के अंत में बड़ी दक्षिणा बनती है।\n\n" + (f"अगला कदम: {tip}" if r["day_n"] <= 21 else f"{PORTAL_URL}"),
+        ], seed)
+    elif kind == "start":
+        title = f"दिन {min(r['day_n'], 21)}: आज का एक काम"
+        body = tip
+        wa = _pick([
+            f"नमस्ते {ji},\n\nसूत्रधार के रूप में आपका {r['day_n']}वाँ दिन है। आज बस यह एक काम कीजिए:\n{tip}\n\nपहली लीड डालते ही 72 घंटे तक उस ग्राहक की हर खरीद पर आपकी दक्षिणा बनेगी।\n\n{PORTAL_URL}",
+            f"नमस्ते {ji},\n\nपहली बिक्री सबसे कठिन होती है, उसके बाद रास्ता खुल जाता है। आज का काम:\n{tip}\n\nकोई दिक्कत हो तो इसी नंबर पर बताइए, मैं साथ हूँ।\n\n{PORTAL_URL}",
+        ], seed)
+    elif kind == "gentle":
+        title = "आज 10 मिनट सूत्रधार के लिए"
+        body = f"आज सिर्फ़ 5 लोगों को रिपोर्ट का link भेजिए। इस महीने अब तक {month}।"
+        wa = _pick([
+            f"नमस्ते {ji},\n\nकल पोर्टल पर आपकी कोई गतिविधि नहीं दिखी। आज सिर्फ़ 10 मिनट निकालिए और 5 लोगों को कोई भी रिपोर्ट link WhatsApp पर भेज दीजिए।\n\n{PORTAL_URL}",
+            f"नमस्ते {ji},\n\nरोज़ का थोड़ा काम ही बड़ी दक्षिणा बनाता है। आज किसी एक व्यक्ति से बात कीजिए जिसके घर शादी या नया काम हो।\n\nआज की स्क्रिप्ट पोर्टल पर है: {PORTAL_URL}",
+        ], seed)
+    elif kind == "wake":
+        q = r["quiet_days"]
+        title = f"{q} दिन हो गए, आज वापस आइए"
+        body = "एक रिपोर्ट पर ₹280 दक्षिणा। आज 3 लोगों को link भेजिए।"
+        wa = _pick([
+            f"नमस्ते {ji},\n\n{q} दिन से पोर्टल पर आपकी कोई गतिविधि नहीं है। सब ठीक है? अगर कोई दिक्कत हो, कोई सवाल हो तो बताइए, मिलकर हल करेंगे।\n\nएक छोटी रिपोर्ट पर ₹280 दक्षिणा बनती है। आज बस 3 लोगों को link भेजिए।\n\n{PORTAL_URL}",
+            f"नमस्ते {ji},\n\nआपकी याद आई। {q} दिन का ब्रेक हो गया, आज फिर शुरू करते हैं। अपने परिवार के WhatsApp ग्रुप में मांगलिक या कालसर्प रिपोर्ट का link डाल दीजिए, यही आज का काम है।\n\n{PORTAL_URL}",
+        ], seed)
+    else:   # comeback
+        q = r["quiet_days"]
+        title = "आपकी जगह अब भी आपकी है"
+        body = "नई शुरुआत: आज एक रिपोर्ट link भेजिए, बाकी पोर्टल बताएगा।"
+        wa = _pick([
+            f"नमस्ते {ji},\n\n{q} दिन से आपसे बात नहीं हुई। आपका सूत्रधार खाता चालू है और आपकी जगह अब भी आपकी है।\n\nक्या कुछ अटका हुआ है? 2 मिनट फ़ोन पर बात कर लें? आज बस एक रिपोर्ट link किसी को भेज दीजिए, नई शुरुआत वहीं से।\n\n{PORTAL_URL}",
+            f"नमस्ते {ji},\n\nइस महीने कई सूत्रधार रोज़ थोड़ा काम करके दक्षिणा कमा रहे हैं। आप भी कर सकते हैं। एक बार पोर्टल खोलिए, \"आज की स्क्रिप्ट\" पढ़िए और एक व्यक्ति से बात कीजिए।\n\nकोई सवाल हो तो इसी नंबर पर लिखिए।\n\n{PORTAL_URL}",
+        ], seed)
+    url = f"/sutradhar.html?tab={tab}&n=1"
+    return {"title": title, "body": body, "whatsapp": wa, "url": url}
+
+
+def build_daily_board(day: Optional[str] = None) -> Dict[str, Any]:
+    day = day or today_ist()
+    d0 = datetime.fromisoformat(day).date()
+    yday = (d0 - timedelta(days=1)).isoformat()
+    month = day[:7]
+    now = datetime.now(timezone.utc)
+    leads_all = SutradharStore.query_all("leads")
+    comms_all = [c for c in SutradharStore.query_all("commissions") if c.get("status") not in ("cancelled", "rejected")]
+    acts_all = SutradharStore.query_all(ACTIVITY_COL)
+    rows, seen = [], set()
+    for s in SutradharStore.query_all("sutradhars"):
+        sid = s.get("sutradhar_id") or s.get("id")
+        if not sid or sid in seen or s.get("status") == "paused":
+            continue
+        seen.add(sid)
+        ids = get_sutradhar_alias_ids(sid) | {sid, s.get("id") or sid}
+        leads = [l for l in leads_all if l.get("sutradhar_id") in ids]
+        comms = [c for c in comms_all if c.get("sutradhar_id") in ids]
+        acts = {a.get("day"): a for a in acts_all if a.get("sutradhar_id") in ids and a.get("day")}
+        sold_leads = {c.get("lead_id") for c in comms if c.get("lead_id")}
+
+        active_days = set(acts) | {_ist_day(l.get("created_at")) for l in leads} | {_ist_day(c.get("created_at")) for c in comms}
+        active_days = {x for x in active_days if x and x <= day}
+        # streak: consecutive active days ending today (or yesterday, if today has nothing yet)
+        streak, cur = 0, d0 if day in active_days else d0 - timedelta(days=1)
+        while cur.isoformat() in active_days:
+            streak += 1
+            cur -= timedelta(days=1)
+        last_active = max(active_days, default="")
+        joined_day = _ist_day(s.get("created_at")) or day
+        since = last_active or joined_day
+        quiet_days = max(0, (d0 - datetime.fromisoformat(since).date()).days)
+        day_n = max(1, (d0 - datetime.fromisoformat(joined_day).date()).days + 1)
+
+        counts = (acts.get(day) or {}).get("counts") or {}
+        csum = lambda prefix: sum(int(v or 0) for k, v in counts.items() if k == prefix or k.startswith(prefix + ":"))
+        leads_today = sum(1 for l in leads if _ist_day(l.get("created_at")) == day)
+        sales_today = [c for c in comms if _ist_day(c.get("created_at")) == day]
+        expiring = 0
+        live_leads = 0
+        for l in leads:
+            exp = _aware(l.get("expires_at") or "")
+            if exp and exp > now and l.get("id") not in sold_leads:
+                live_leads += 1
+                if exp - now <= timedelta(hours=24):
+                    expiring += 1
+        nudges = list(s.get("nudges") or [])
+        r = {
+            "sutradhar_id": sid, "name": s.get("name", ""), "phone": s.get("phone", ""),
+            "joined_at": s.get("created_at", ""), "day_n": day_n,
+            "push_on": bool(s.get("push_on") and s.get("push")),
+            "opens_today": int(counts.get("open") or 0),
+            "scripts_today": csum("script_open") + csum("script_copy"),
+            "shares_today": csum("offer_share") + csum("offer_copy"),
+            "tasks_today": csum("task"), "lessons_today": csum("tutorial"),
+            "nudge_opens_today": csum("nudge_open"),
+            "leads_today": leads_today, "leads_yesterday": sum(1 for l in leads if _ist_day(l.get("created_at")) == yday),
+            "sales_today": len(sales_today), "earned_today": sum(int(c.get("amount") or 0) for c in sales_today),
+            "month_earned": sum(int(c.get("amount") or 0) for c in comms if _ist_day(c.get("created_at")).startswith(month)),
+            "month_sales": sum(1 for c in comms if _ist_day(c.get("created_at")).startswith(month)),
+            "leads_live": live_leads, "leads_expiring": expiring, "leads_total": len(leads), "sales_total": len(comms),
+            "active_today": day in active_days, "streak": streak, "quiet_days": quiet_days,
+            "active_days_7": sum(1 for i in range(7) if (d0 - timedelta(days=i)).isoformat() in active_days),
+            "last_active_day": last_active, "last_login_at": s.get("last_login_at", ""),
+            "nudged_today": [n for n in nudges if n.get("day") == day],
+            "last_nudge": nudges[-1] if nudges else None,
+        }
+        if r["sales_today"]:
+            kind = "badhai"
+        elif expiring:
+            kind = "followup"
+        elif r["active_today"]:
+            kind = "shabash"
+        elif not leads and day_n <= 21 and quiet_days <= 2:
+            kind = "start"
+        elif quiet_days <= 2:
+            kind = "gentle"
+        elif quiet_days <= 6:
+            kind = "wake"
+        else:
+            kind = "comeback"
+        r["kind"] = kind
+        r["kind_label"] = NUDGE_KINDS[kind][0]
+        r["needs_push"] = NUDGE_KINDS[kind][1]
+        r["message"] = _nudge_message(kind, r, day)
+        rows.append(r)
+    rows.sort(key=lambda r: (NUDGE_ORDER.index(r["kind"]), -r["quiet_days"] if r["kind"] in ("wake", "comeback") else 0, r["name"]))
+    summary = {
+        "total": len(rows),
+        "active_today": sum(1 for r in rows if r["active_today"]),
+        "need_push": sum(1 for r in rows if r["needs_push"]),
+        "nudged_today": sum(1 for r in rows if r["nudged_today"]),
+        "push_ready": sum(1 for r in rows if r["push_on"]),
+        "leads_today": sum(r["leads_today"] for r in rows),
+        "sales_today": sum(r["sales_today"] for r in rows),
+        "earned_today": sum(r["earned_today"] for r in rows),
+        "quiet_3plus": sum(1 for r in rows if not r["active_today"] and r["quiet_days"] >= 3),
+        "opened_from_nudge": sum(1 for r in rows if r["nudge_opens_today"]),
+    }
+    return {"day": day, "summary": summary, "kinds": {k: v[0] for k, v in NUDGE_KINDS.items()}, "rows": rows}
+
+
+def _record_nudge(sutradhar_id: str, entry: Dict[str, Any]):
+    with _store_lock:
+        s = next((x for x in SutradharStore.query_all("sutradhars") if sutradhar_id in (x.get("sutradhar_id"), x.get("id"))), None)
+        if not s:
+            return
+        doc = dict(s)
+        doc["nudges"] = (list(doc.get("nudges") or []) + [entry])[-60:]
+        if entry.get("via") == "push" and entry.get("result") == "gone":
+            doc["push_on"] = False
+        SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
+
+
+class NudgeRequest(BaseModel):
+    sutradhar_id: Optional[str] = None     # empty with all=True: push everyone who needs it today
+    via: str = "whatsapp"                  # "whatsapp" (admin sent it from wa.me) | "push"
+    all: bool = False
+
+
+@router.get("/admin/sutradhar-daily")
+async def admin_sutradhar_daily(day: Optional[str] = Query(None), authorization: Optional[str] = Header(None)):
+    """Today's work of every Sutradhar, the streak, quiet days, and a ready motivation message for each."""
+    require_admin(authorization)
+    if day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        raise HTTPException(status_code=400, detail="तारीख़ YYYY-MM-DD रूप में दें।")
+    return build_daily_board(day)
+
+
+@router.post("/admin/sutradhar-nudge")
+async def admin_sutradhar_nudge(req: NudgeRequest, authorization: Optional[str] = Header(None)):
+    """Notes a WhatsApp nudge, or sends the day's message as a phone notification (one person, or everyone who needs a push)."""
+    admin = require_admin(authorization)
+    if req.via not in ("whatsapp", "push"):
+        raise HTTPException(status_code=400, detail="via whatsapp या push होना चाहिए।")
+    day = today_ist()
+    board = build_daily_board(day)
+    now_iso = datetime.now(timezone.utc).isoformat()
+    if req.all:
+        if req.via != "push":
+            raise HTTPException(status_code=400, detail="सबको एक साथ केवल सूचना भेजी जा सकती है।")
+        targets = [r for r in board["rows"] if r["needs_push"] and r["push_on"]
+                   and not any(n.get("via") == "push" for n in r["nudged_today"])]
+    else:
+        targets = [r for r in board["rows"] if r["sutradhar_id"] == req.sutradhar_id]
+        if not targets:
+            raise HTTPException(status_code=404, detail="सूत्रधार नहीं मिला (या खाता रुका हुआ है)।")
+    if req.via == "push" and not (_vapid("VAPID_PUBLIC_KEY") and _vapid("VAPID_PRIVATE_KEY")):
+        raise HTTPException(status_code=503, detail="सर्वर पर सूचना की चाबी (VAPID) नहीं लगी है।")
+    out = {"sent": 0, "no_push": 0, "gone": 0, "error": 0, "noted": 0}
+    subs = {(x.get("sutradhar_id") or x.get("id")): x for x in SutradharStore.query_all("sutradhars")}
+    for r in targets:
+        entry = {"day": day, "at": now_iso, "via": req.via, "kind": r["kind"], "by": admin}
+        if req.via == "whatsapp":
+            entry["result"] = "noted"
+            out["noted"] += 1
+        else:
+            s = subs.get(r["sutradhar_id"]) or {}
+            if not (s.get("push_on") and s.get("push")):
+                out["no_push"] += 1
+                continue
+            m = r["message"]
+            res = send_sutra_push(s["push"], {"title": m["title"], "body": m["body"], "url": m["url"]})
+            entry["result"] = res
+            out["sent" if res == "sent" else ("gone" if res == "gone" else "error")] += 1
+        _record_nudge(r["sutradhar_id"], entry)
+    log_audit_event("ADMIN_SUTRADHAR_NUDGE", admin, {"via": req.via, "all": req.all, "sutradhar_id": req.sutradhar_id, **out})
+    return {"status": "success", **out}
 
 # -----------------------------------------------------------------------------
 # ENDPOINT 8: SUTRADHAR LOGIN AND DASHBOARD SUMMARY (signed-in Sutradhar only)
