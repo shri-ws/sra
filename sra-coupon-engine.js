@@ -494,6 +494,15 @@
     }
   } catch (e) {}
 
+  // रिपोर्ट पर नाम: SaaS ज्योतिषी का अपना नाम, बाकी सबके लिए Shri Ramji Astro + दान/परामर्श link (sra-report-brand.js)
+  try {
+    if (!window.SRABrand && document.currentScript && document.currentScript.src) {
+      var bs = document.createElement('script');
+      bs.src = document.currentScript.src.replace(/sra-coupon-engine\.js(\?.*)?$/, 'sra-report-brand.js?v=1');
+      document.head.appendChild(bs);
+    }
+  } catch (e) {}
+
   // ग्लोबल एक्सपोज़र
   window.SraCouponEngine = SraCouponEngine;
 

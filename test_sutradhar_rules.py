@@ -637,3 +637,19 @@ def test_foreign_customer_pays_in_dollars():
     t = client.post("/api/sutradhar/orders/create", headers=owner, json={"customer_phone": "9000000001",
                     "service_id": "kaalsarp_dosha", "input_code": "jai hanuman", "currency": "USD"}).json()
     assert t["currency"] == "INR" and t["amount"] == 100
+
+
+def test_report_brand_for_saas_astrologer():
+    """23 Nov 2026: a signed-in active SaaS astrologer prints reports under his own saved name."""
+    phone = "9833300077"
+    hdr = {"Authorization": f"Bearer mock_token_{phone}"}
+    assert client.get("/api/sutradhar/saas/brand", headers=hdr).json() == {"member": False}
+    assert client.get("/api/sutradhar/saas/brand").json() == {"member": False}
+    client.post("/api/sutradhar/admin/saas", headers=ADMIN, json={"phone": phone, "name": "पं. राकेश जोशी", "add_days": 365})
+    assert client.get("/api/sutradhar/saas/brand", headers=hdr).json() == {"member": True, "name": "पं. राकेश जोशी"}
+    # someone else signed in sees Shri Ramji Astro
+    assert client.get("/api/sutradhar/saas/brand", headers=CUST).json() == {"member": False}
+    # paused or expired -> Shri Ramji Astro again
+    sub = se.SutradharStore.get_doc("saas_subscribers", phone)
+    sub["status"] = "paused"; se.SutradharStore.set_doc("saas_subscribers", phone, sub)
+    assert client.get("/api/sutradhar/saas/brand", headers=hdr).json() == {"member": False}

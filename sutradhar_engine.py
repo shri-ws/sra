@@ -2306,6 +2306,21 @@ class SaasRedeemRequest(BaseModel):
     report_ref: Optional[str] = None
 
 
+@router.get("/saas/brand")
+async def saas_brand(authorization: Optional[str] = Header(None)):
+    """Which name goes on a printed report (23 Nov 2026).
+    The signed-in phone is an active SaaS astrologer -> his saved name, and the report carries no
+    Shri Ramji Astro links (only a tiny credit). Anyone else -> Shri Ramji Astro with the donate and
+    consultation links. The owner's test phones count as Shri Ramji Astro."""
+    phone = token_phone(verify_firebase_token(authorization))
+    sub = get_saas_subscriber(phone) if phone else None
+    if phone and phone not in saas_exempt_phones() and saas_is_active(sub) and sub.get("status") != "paused":
+        name = (sub.get("brand_name") or sub.get("name") or "").strip()
+        if name:
+            return {"member": True, "name": name[:80]}
+    return {"member": False}
+
+
 @router.post("/saas/redeem")
 async def saas_redeem(req: SaasRedeemRequest, authorization: Optional[str] = Header(None)):
     """Unlock one report for a SaaS subscriber who typed his own login number."""
