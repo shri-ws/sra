@@ -104,6 +104,36 @@ SERVICE_ALIASES: Dict[str, str] = {
 
 CATALOG_PRICES: Dict[str, int] = {k: v["price"] for k, v in SERVICE_CATALOG.items()}
 
+# -----------------------------------------------------------------------------
+# FOREIGN CUSTOMERS (22 Nov 2026): prices in US dollars, paid by international card.
+# A page sends currency "USD" for visitors outside India; the server decides the dollar price
+# from the rupee price below (sra-currency.js shows the same table). The Razorpay order is made
+# in USD; if the account cannot take USD yet, it falls back to the same amount in rupees at
+# USD_INR_RATE (international cards can still pay rupees). Commission is worked out on the
+# rupee value of the payment at the rate saved on the order.
+# -----------------------------------------------------------------------------
+USD_PRICE_BY_INR: Dict[int, int] = {501: 11, 1101: 21, 1111: 21, 1551: 31, 2100: 41, 5100: 101, 24000: 451}
+SUPPORTED_CURRENCIES = {"INR", "USD"}
+
+
+def usd_inr_rate() -> float:
+    try:
+        return max(1.0, float(os.environ.get("USD_INR_RATE") or 88))
+    except ValueError:
+        return 88.0
+
+
+def usd_price(service_id: str) -> int:
+    inr = int(SERVICE_CATALOG.get(resolve_service_id(service_id), {}).get("price", 0))
+    if inr in USD_PRICE_BY_INR:
+        return USD_PRICE_BY_INR[inr]
+    return max(1, int(round(inr / usd_inr_rate())))
+
+
+def clean_currency(cur: Optional[str]) -> str:
+    c = (cur or "INR").strip().upper()
+    return c if c in SUPPORTED_CURRENCIES else "INR"
+
 
 def resolve_service_id(service_id: str) -> str:
     sid = (service_id or "").strip().lower()
@@ -616,6 +646,7 @@ class QuoteRequest(BaseModel):
     customer_phone: str = Field(..., description="10-digit customer mobile number")
     service_id: str = Field(..., description="Catalog service identifier")
     input_code: Optional[str] = Field(None, description="Promo code entered by customer (optional)")
+    currency: Optional[str] = Field("INR", description="INR, or USD for customers outside India")
 
 class CreateOrderRequest(BaseModel):
     customer_phone: str = Field(..., description="Customer 10-digit mobile number")
@@ -625,6 +656,7 @@ class CreateOrderRequest(BaseModel):
     input_code: Optional[str] = Field(None, description="Optional manual coupon")
     batch_id: Optional[str] = Field(None, description="1-year course only: batch_morning / batch_evening")
     ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
+    currency: Optional[str] = Field("INR", description="INR, or USD for customers outside India")
 
 class ReviewActionRequest(BaseModel):
     commission_id: str
@@ -1090,7 +1122,13 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
 @router.post("/quote")
 async def get_checkout_quote(req: QuoteRequest, authorization: Optional[str] = Header(None)):
     verified_phone = token_phone(verify_firebase_token(authorization))
-    return build_quote(req.customer_phone, req.service_id, req.input_code, verified_phone)
+    q = build_quote(req.customer_phone, req.service_id, req.input_code, verified_phone)
+    if clean_currency(req.currency) == "USD" and not q.get("is_test"):
+        usd = usd_price(q["service_id"])
+        q.update({"currency": "USD", "price_usd": usd, "display_price": f"${usd}"})
+    else:
+        q.update({"currency": "INR", "display_price": f"₹{int(q.get('net_price', q.get('base_price', 0))):,}"})
+    return q
 
 
 @router.get("/catalog")
@@ -1099,10 +1137,10 @@ async def get_service_catalog():
     items = []
     for sid, it in SERVICE_CATALOG.items():
         c = commission_for_payment(sid, it["price"] * 100)
-        items.append({"service_id": sid, "name": it["name"], "price": it["price"],
+        items.append({"service_id": sid, "name": it["name"], "price": it["price"], "price_usd": usd_price(sid),
                       "price_excl_gst": c["amount_excl_gst"], "gst_amount": c["gst_amount"],
                       "commission_rate_percent": it["rate"], "sutradhar_commission": c["commission"]})
-    return {"status": "success", "gst_percent": GST_RATE_PERCENT, "items": items,
+    return {"status": "success", "gst_percent": GST_RATE_PERCENT, "items": items, "usd_inr_rate": usd_inr_rate(),
             "payout_rule": f"भुगतान के {PAYOUT_SETTLEMENT_WORKING_DAYS} कार्य-दिवस बाद {PAYOUT_DEADLINE_TEXT} (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)"}
 
 
@@ -1316,26 +1354,43 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         attributed_lead_id = ""
         attributed_at = None
 
-    # Try creating real order with Razorpay Client if sdk installed
+    # Foreign customer: the dollar price (master test code stays ₹1)
+    currency = "USD" if (clean_currency(req.currency) == "USD" and not is_test_order) else "INR"
+    rate = usd_inr_rate()
+    price_usd = usd_price(service_id) if currency == "USD" else 0
+    if currency == "USD":
+        net_price = int(round(price_usd * rate))      # rupee value: commission and reports
+        net_paise = net_price * 100
+    notes = {
+        "service_id": service_id,
+        "customer_phone": effective_phone,
+        "is_test": "1" if is_test_order else "0",
+        "sutradhar_id": attributed_sutradhar_id,
+        "sutradhar_code": attributed_sutradhar_code,
+        "lead_id": attributed_lead_id,
+        "attributed_at": attributed_at or ""
+    }
+    # Razorpay order in USD (cents); if the account does not take USD, the same amount in rupees
+    attempts = [("USD", price_usd * 100), ("INR", net_paise)] if currency == "USD" else [("INR", net_paise)]
+    order_currency, order_minor = attempts[-1]
+    last_err = None
     try:
         import razorpay
         client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-        rzp_order = client.order.create({
-            "amount": net_paise,
-            "currency": "INR",
-            "receipt": order_id,
-            "notes": {
-                "service_id": service_id,
-                "customer_phone": effective_phone,
-                "is_test": "1" if is_test_order else "0",
-                "sutradhar_id": attributed_sutradhar_id,
-                "sutradhar_code": attributed_sutradhar_code,
-                "lead_id": attributed_lead_id,
-                "attributed_at": attributed_at or ""
-            }
-        })
-        order_id = rzp_order.get("id", order_id)
+        for cur, minor in attempts:
+            try:
+                rzp_order = client.order.create({"amount": minor, "currency": cur, "receipt": order_id, "notes": notes})
+                order_id = rzp_order.get("id", order_id)
+                order_currency, order_minor, last_err = cur, minor, None
+                break
+            except Exception as e:
+                last_err = e
+                logger.warning(f"[Razorpay] order in {cur} not made: {e}")
+        if last_err:
+            raise last_err
     except Exception as e:
+        if currency == "USD" and _is_test_env():
+            order_currency, order_minor = attempts[0]
         if not _is_test_env():
             logger.error(f"[Razorpay] order create failed: {e}")
             if seat_id:
@@ -1357,6 +1412,10 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "discount_amount": quote["discount_amount"],
         "net_amount": net_price,
         "net_amount_paise": net_paise,
+        "currency": order_currency,
+        "order_amount_minor": order_minor,
+        "price_usd": price_usd or None,
+        "usd_inr_rate": rate if currency == "USD" else None,
         "applied_code": attributed_sutradhar_code,
         "sutradhar_id": attributed_sutradhar_id,
         "lead_id": attributed_lead_id,
@@ -1381,9 +1440,11 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
     return {
         "status": "success",
         "order_id": order_id,
-        "amount": net_paise,
+        "amount": order_minor,
         "net_price": net_price,
-        "currency": "INR",
+        "currency": order_currency,
+        "price_usd": price_usd or None,
+        "display_price": f"${price_usd}" if order_currency == "USD" else f"₹{int(order_minor // 100):,}",
         "key_id": RAZORPAY_KEY_ID,
         "sutradhar_code": attributed_sutradhar_code,
         "service_id": service_id,
@@ -1398,6 +1459,25 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
 # -----------------------------------------------------------------------------
 # ENDPOINT 5: WEBHOOK VERIFICATION & SINGLE-COMMISSION IDEMPOTENT CREATION
 # -----------------------------------------------------------------------------
+def order_minor_amount(order: Dict[str, Any]) -> int:
+    """The amount the Razorpay order was made for, in its own currency's smallest unit."""
+    if order.get("order_amount_minor") is not None:
+        return int(order["order_amount_minor"])
+    return int(order.get("net_amount_paise", order.get("net_amount", 0) * 100))
+
+
+def order_payment_matches(order: Dict[str, Any], captured_minor: int, captured_currency: Optional[str]) -> bool:
+    cur = (order.get("currency") or "INR").upper()
+    if captured_currency and captured_currency.upper() != cur:
+        return False
+    return int(captured_minor) == order_minor_amount(order)
+
+
+def order_inr_paise(order: Dict[str, Any]) -> int:
+    """Rupee value of a paid order in paise (what commission is worked out on)."""
+    return int(order.get("net_amount_paise", order.get("net_amount", 0) * 100))
+
+
 FLAT_COMMISSION_BY_SERVICE: Dict[str, float] = {
     "astrologer_saas": 2500.0,
     "saas_annual": 2500.0
@@ -1480,17 +1560,19 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     now = datetime.now(timezone.utc)
     now_iso = now.isoformat()
 
-    # A4: Amount verification between order and captured payment
-    captured_paise = int(pay_entity.get("amount", 0))
-    order_paise = int(order.get("net_amount_paise", order.get("net_amount", 0) * 100))
-    if captured_paise != order_paise:
+    # A4: Amount verification between order and captured payment (same currency, same amount)
+    captured_minor = int(pay_entity.get("amount", 0))
+    if not order_payment_matches(order, captured_minor, pay_entity.get("currency")):
         log_audit_event("WEBHOOK_AMOUNT_MISMATCH", "system", {
             "order_id": order_id,
             "payment_id": payment_id,
-            "captured_paise": captured_paise,
-            "order_paise": order_paise
+            "captured_minor": captured_minor,
+            "captured_currency": pay_entity.get("currency"),
+            "order_minor": order_minor_amount(order),
+            "order_currency": order.get("currency", "INR")
         })
         return {"status": "ignored", "message": "Captured payment amount differs from order amount"}
+    captured_paise = order_inr_paise(order)     # rupee value (USD orders: at the rate saved on the order)
 
     # Mark order as paid
     order["status"] = "paid"
@@ -2098,10 +2180,10 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
             if not sutradhar_id or not lead_id or order.get("is_test"):
                 continue
 
-            captured_paise = int(p.get("amount", 0))
-            order_paise = int(order.get("net_amount_paise", order.get("net_amount", 0) * 100))
-            if captured_paise != order_paise or captured_paise <= 0:
+            captured_minor = int(p.get("amount", 0))
+            if not order_payment_matches(order, captured_minor, p.get("currency")) or captured_minor <= 0:
                 continue
+            captured_paise = order_inr_paise(order)
 
             calc = commission_for_payment(order.get("service_id", ""), captured_paise)
             service_id = calc["service_id"]

@@ -3182,10 +3182,11 @@
 
       const phoneInput = document.getElementById('gateUserPhone');
       let clientMobile = (phoneInput && phoneInput.value.trim()) ? phoneInput.value.trim().replace(/\D/g, '') : (localStorage.getItem('sra_verified_mobile') || '');
-      if (clientMobile && clientMobile.length > 10) clientMobile = clientMobile.slice(-10);
+      const abroad = (window.SRACurrency && SRACurrency.get() === 'USD');   // customer outside India: phone with country code
+      if (clientMobile && clientMobile.length > 10 && !abroad) clientMobile = clientMobile.slice(-10);
 
-      if (!clientMobile || clientMobile.length !== 10) {
-        alert('कृपया भुगतान व रिपोर्ट सुरक्षा हेतु अपना १०-अंकीय वैध मोबाइल नंबर दर्ज करें।');
+      if (!clientMobile || (abroad ? (clientMobile.length < 7 || clientMobile.length > 15) : clientMobile.length !== 10)) {
+        alert(abroad ? 'Please enter your mobile number with country code.' : 'कृपया भुगतान व रिपोर्ट सुरक्षा हेतु अपना १०-अंकीय वैध मोबाइल नंबर दर्ज करें।');
         if (phoneInput) phoneInput.focus();
         return;
       }

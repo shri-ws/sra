@@ -135,6 +135,22 @@
     },
 
     /**
+     * मुद्रा: भारत के बाहर के ग्राहक के लिए 'USD' (sra-currency.js तय करता है), बाकी 'INR'
+     */
+    currency: function() {
+      try { return (window.SRACurrency && window.SRACurrency.get()) || 'INR'; } catch (e) { return 'INR'; }
+    },
+
+    /**
+     * फ़ोन नंबर ठीक है? भारत: 10 अंक। डॉलर वाले (विदेशी) ग्राहक: 7 से 15 अंक, देश के कोड सहित।
+     */
+    phoneOk: function(raw) {
+      var d = String(raw || '').replace(/\D/g, '');
+      if (this.currency() === 'USD') return d.length >= 7 && d.length <= 15;
+      return d.slice(-10).length === 10 && (d.length === 10 || (d.length === 12 && d.slice(0, 2) === '91'));
+    },
+
+    /**
      * सर्वर की दाम-सूची (GST सहित) — एक बार लाकर रख लेते हैं
      */
     _catalog: null,
@@ -182,7 +198,7 @@
         var res = await fetch(this.apiBase() + '/api/sutradhar/quote', {
           method: 'POST',
           headers: await this.authHeaders(),
-          body: JSON.stringify({ customer_phone: phone, service_id: serviceId, input_code: inputCode || null })
+          body: JSON.stringify({ customer_phone: phone, service_id: serviceId, input_code: inputCode || null, currency: this.currency() })
         });
         if (res.ok) return await res.json();
       } catch (err) {
@@ -195,7 +211,8 @@
      * सर्वर पर सुरक्षित Razorpay order बनाना (राशि, लीड, टेस्ट-कोड सब सर्वर तय करता है)
      */
     createServerOrder: async function(customerPhone, customerEmail, serviceId, inputCode, customerName, extra) {
-      var phone = String(customerPhone || this.guessPhone()).replace(/\D/g, '').slice(-10);
+      var phone = String(customerPhone || this.guessPhone()).replace(/\D/g, '');
+      phone = phone.length > 10 && this.currency() === 'USD' ? phone.slice(-15) : phone.slice(-10);
       var res = await fetch(this.apiBase() + '/api/sutradhar/orders/create', {
         method: 'POST',
         headers: await this.authHeaders(),
@@ -206,7 +223,8 @@
           service_id: serviceId,
           input_code: inputCode || null,
           batch_id: (extra && extra.batch_id) || null,
-          ref_code: this.getActiveSutradharId() || null   // Sutradhar's shared offer link (?ref=)
+          ref_code: this.getActiveSutradharId() || null,   // Sutradhar's shared offer link (?ref=)
+          currency: this.currency()                         // USD for customers outside India (sra-currency.js)
         })
       });
       if (res.ok) return await res.json();
@@ -236,7 +254,7 @@
       var options = {
         key: order.key_id || 'rzp_live_U1a0a504puKK5e',
         amount: order.amount,
-        currency: 'INR',
+        currency: order.currency || 'INR',
         order_id: order.order_id,
         name: 'Shri Ramji Astro',
         description: (o.description || order.service_name || '') + (order.is_test ? ' [टेस्ट]' : ''),
@@ -279,7 +297,7 @@
       }
       options.key = order.key_id || options.key;
       options.amount = order.amount;
-      options.currency = 'INR';
+      options.currency = order.currency || 'INR';
       options.order_id = order.order_id;
       options.notes = Object.assign({}, options.notes || {}, {
         service_id: order.service_id, customer_phone: phone, amount: String(order.net_price)
@@ -466,6 +484,15 @@
 
   // तुरंत इनिशियलाइज़ करें
   SraCouponEngine.init();
+
+  // विदेशी ग्राहकों के लिए डॉलर में दाम (sra-currency.js), इस फ़ाइल के पास से
+  try {
+    if (!window.SRACurrency && document.currentScript && document.currentScript.src) {
+      var cs = document.createElement('script');
+      cs.src = document.currentScript.src.replace(/sra-coupon-engine\.js(\?.*)?$/, 'sra-currency.js?v=1');
+      document.head.appendChild(cs);
+    }
+  } catch (e) {}
 
   // ग्लोबल एक्सपोज़र
   window.SraCouponEngine = SraCouponEngine;

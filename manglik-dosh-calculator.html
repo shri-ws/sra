@@ -2261,7 +2261,8 @@
     function handleMangalReportGenerateClick() {
       const name = (document.getElementById('mangalName').value || '').trim();
       const phoneInput = document.getElementById('mangalPhone');
-      const phone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(-10) : (localStorage.getItem('sra_verified_mobile') || '');
+      const abroad = (window.SRACurrency && SRACurrency.get() === 'USD');   // customer outside India: phone with country code
+      const phone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(abroad ? -15 : -10) : (localStorage.getItem('sra_verified_mobile') || '');
       const gender = document.getElementById('mangalGender').value || 'male';
       const date = document.getElementById('mangalDob').value;
       const time = document.getElementById('mangalTob').value;
@@ -2271,7 +2272,7 @@
       const tz = parseFloat(document.getElementById('mangalTz').value) || 5.5;
 
       if (!name) { alert('कृपया जातक का नाम दर्ज करें।'); document.getElementById('mangalName').focus(); return; }
-      if (!phone || phone.length !== 10) { alert('कृपया १० अंकों का वैध मोबाइल नंबर दर्ज करें।'); if (phoneInput) phoneInput.focus(); return; }
+      if (!phone || (abroad ? (phone.length < 7 || phone.length > 15) : phone.length !== 10)) { alert(abroad ? 'Please enter your mobile number with country code.' : 'कृपया १० अंकों का वैध मोबाइल नंबर दर्ज करें।'); if (phoneInput) phoneInput.focus(); return; }
       if (!date) { alert('कृपया जन्म तिथि दर्ज करें।'); document.getElementById('mangalDob').focus(); return; }
       if (!time) { alert('कृपया जन्म समय दर्ज करें।'); document.getElementById('mangalTob').focus(); return; }
       if (!city) { alert('कृपया जन्म स्थान दर्ज करें।'); document.getElementById('mangalCity').focus(); return; }
