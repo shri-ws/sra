@@ -1563,7 +1563,7 @@
         flex-direction: row;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
+        scroll-behavior: auto;   /* tab taps slide with slideTo(), about 0.22 s */
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         height: calc(100% - 48px);
@@ -2210,7 +2210,7 @@
   </style>
   <link rel="stylesheet" href="ui-overrides.css" />
   <link rel="stylesheet" href="sra-elegance.css?v=2" />
-  <link rel="stylesheet" href="sra-jhalak.css?v=1">
+  <link rel="stylesheet" href="sra-jhalak.css?v=2">
   <script src="sra-jhalak.js?v=1" defer></script>
 <script src="sra-ui.js?v=34" defer></script>
 <script src="sra-auth.js" defer></script>
@@ -4367,15 +4367,34 @@
     const tabs = document.querySelectorAll('.app-tab-chip[data-tab-index]');
     if (!pager || !tabs.length) return;
 
+    // A fixed, quick slide (about 0.22 s, a little more when jumping several tabs).
+    // The browser's own smooth scroll took 0.4-2.6 s and grew with the distance.
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+    let pagerAnimating = false;
+    function slideTo(el, targetLeft, onDone) {
+      const start = el.scrollLeft, dist = targetLeft - start;
+      if (Math.abs(dist) <= 2) { if (onDone) onDone(); return; }
+      if (reduceMotion && reduceMotion.matches) { el.scrollLeft = targetLeft; if (onDone) onDone(); return; }
+      const pages = Math.max(1, Math.round(Math.abs(dist) / Math.max(1, el.clientWidth)));
+      const ms = Math.min(300, 200 + 30 * (pages - 1));
+      const snap = el.style.scrollSnapType;
+      el.style.scrollSnapType = 'none';            // snapping would fight the frame-by-frame slide
+      el.style.scrollBehavior = 'auto';
+      const t0 = performance.now();
+      (function step(now) {
+        const p = Math.min(1, (now - t0) / ms);
+        const e = 1 - Math.pow(1 - p, 3);           // ease-out
+        el.scrollLeft = start + dist * e;
+        if (p < 1) requestAnimationFrame(step);
+        else { el.scrollLeft = targetLeft; el.style.scrollSnapType = snap; if (onDone) onDone(); }
+      })(t0);
+    }
+
     window.switchMobileTab = function(index) {
       const width = pager.clientWidth;
       const targetLeft = index * width;
-      if (Math.abs(pager.scrollLeft - targetLeft) > 2) {
-        pager.scrollTo({
-          left: targetLeft,
-          behavior: 'smooth'
-        });
-      }
+      pagerAnimating = true;
+      slideTo(pager, targetLeft, () => { pagerAnimating = false; });
       setActiveTab(index);
       if (index === 2) {
         calculateLandingPanchang();
@@ -4394,18 +4413,14 @@
       if (tabBar) {
         const barWidth = tabBar.clientWidth;
         const targetBarLeft = index * barWidth;
-        if (Math.abs(tabBar.scrollLeft - targetBarLeft) > 2) {
-          tabBar.scrollTo({
-            left: targetBarLeft,
-            behavior: 'smooth'
-          });
-        }
+        slideTo(tabBar, targetBarLeft);
       }
     }
 
     // Scroll listener for horizontal swipe on viewpager
     let scrollTimeout;
     pager.addEventListener('scroll', () => {
+      if (pagerAnimating) return;                  // a tab tap already set the active tab
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
         const width = pager.clientWidth;
