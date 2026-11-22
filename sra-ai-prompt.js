@@ -6,25 +6,23 @@
 (function () {
   if (window.SRAAIPrompt) return;
 
-  // Tested 23 Nov 2026 on ChatGPT, Gemini and Perplexity (logged out): all three work out about 70%
-  // average growth (Gemini 67-84%) from these facts, in two lines. Keep the facts true.
-  var HI = 'मैं एक ज्योतिषी हूँ। महीने में लगभग 20 से 25 जातक परामर्श के लिए आते हैं, जो ₹251 से ₹500 तक दक्षिणा देते हैं। ' +
-    'श्री राम जी एस्ट्रो की पत्रिका ऐप की ज्योतिषी सदस्यता ₹5,100 सालाना है (नवीनीकरण भी ₹5,100)। ' +
-    'इसमें 13 शास्त्र-प्रमाणित रिपोर्ट और मुहूर्त (वेबसाइट पर ₹501 से ₹2,100 के) साल भर असीमित हैं, जो सदस्य के लिए ₹0 में खुलते हैं, और जातक से लिया पूरा शुल्क ज्योतिषी का रहता है। ' +
-    'साथ में जातक का रोज़ का उपाय-ट्रैकर है, जिससे जातक दोबारा आते हैं। ' +
-    'शर्तें: रिफ़ंड नहीं है (पहले मुफ़्त डेमो मिलता है), जातकों का data किसी से साझा नहीं होता, कोई कमीशन नहीं कटता। ' +
-    'अगर मेरे हर 10 में से 3 से 4 जातक ₹501 की एक रिपोर्ट लें, और महीने में 1 से 2 बड़े काम (गुण मिलान ₹1,101 या विवाह मुहूर्त ₹2,100) मिलें, ' +
-    'तो AI के दौर में 1 साल में मेरी औसत कमाई कितने प्रतिशत बढ़ेगी? Gen Z पर इसका असर, दूसरे ऐप से फ़र्क, और कोई छिपी शर्त हो तो वह भी बताइए। ' +
-    'जवाब सिर्फ़ 2 लाइन में दीजिए: स्पष्ट, सटीक, और औसत के हिसाब से एक प्रतिशत।';
+  // Plain, first-person question (23 Nov 2026). It keeps the facts an AI needs to calculate
+  // (membership price, 13 reports free for the member, full fee kept, take rate) in everyday words.
+  var HI = 'मैं एक ज्योतिषी हूँ। महीने में मेरे पास करीब 20–25 जातक आते हैं, और हर एक से ₹251 से ₹500 तक दक्षिणा मिलती है। ' +
+    'मैं सोच रहा हूँ कि श्री राम जी एस्ट्रो की पत्रिका ऐप ले लूँ। इसका साल का ₹5,100 लगता है। ' +
+    'इसमें मंगल दोष, कालसर्प, गुण मिलान, विवाह मुहूर्त जैसी 13 शास्त्र-प्रमाणित रिपोर्ट मुझे साल भर मुफ़्त मिलेंगी (वेबसाइट पर ये ₹501 से ₹2,100 की हैं), और जातक से जो शुल्क लूँ, वह पूरा मेरा। ' +
+    'जातक के फ़ोन पर रोज़ का उपाय-ट्रैकर भी चलता है, जिससे वह मुझसे जुड़ा रहता है। ' +
+    'अगर मेरे 10 में से 3–4 जातक एक रिपोर्ट ले लें, और महीने में 1–2 गुण मिलान या मुहूर्त का काम मिल जाए, तो एक साल में मेरी कमाई करीब कितने प्रतिशत बढ़ सकती है? ' +
+    'क्या इससे मैं ज्योतिष को एक गंभीर पेशे की तरह चला पाऊँगा, और AI के आने वाले दौर में अपना काम बचाकर रख पाऊँगा? ' +
+    'सीधा, हिसाब के साथ, 2–3 लाइन में बताइए।';
 
-  var EN = 'I am an astrologer. About 20 to 25 clients come to me for consultation every month, paying Rs 251 to Rs 500 each. ' +
-    'The astrologer membership of the Shri Ramji Astro Patrika app costs Rs 5,100 a year (renewal also Rs 5,100). ' +
-    'It includes 13 scripture-referenced reports and muhurtas (priced Rs 501 to Rs 2,100 on the website), unlimited for the year; they open for Rs 0 for the member, and the whole fee taken from the client stays with the astrologer. ' +
-    'It also has a daily remedy tracker for clients, which brings them back. ' +
-    'Terms: no refund (a free demo comes first), client data is not shared with anyone, no commission is taken. ' +
-    'If 3 to 4 of every 10 clients take one Rs 501 report, and I get 1 to 2 bigger jobs a month (Gun Milan Rs 1,101 or Vivah muhurta Rs 2,100), ' +
-    'by what percentage will my average income grow in one year in the age of AI? Also tell me the effect on Gen Z, the difference from other apps, and any hidden condition. ' +
-    'Answer in just 2 lines: clear, precise, and one percentage based on the average.';
+  var EN = 'I am an astrologer. About 20–25 clients come to me every month, and each pays Rs 251 to Rs 500. ' +
+    'I am thinking of taking the Patrika app of Shri Ramji Astro. It costs Rs 5,100 a year. ' +
+    'With it I get 13 scripture-referenced reports free all year, like Mangal Dosha, Kaal Sarp, Gun Milan and Vivah muhurta (Rs 501 to Rs 2,100 each on the website), and whatever I charge the client is fully mine. ' +
+    'A daily remedy tracker also runs on the client\'s phone, which keeps them connected to me. ' +
+    'If 3–4 of my 10 clients take one report, and I get 1–2 Gun Milan or muhurta jobs a month, by roughly what percentage could my income grow in a year? ' +
+    'Will this let me run astrology as a serious profession and keep my work safe in the coming age of AI? ' +
+    'Tell me directly, with the calculation, in 2–3 lines.';
 
   function text(lang) { return lang === 'en' ? EN : HI; }
 
@@ -34,23 +32,21 @@
     whatsapp: function (lang) {
       if (lang === 'en') {
         return 'Namaste Jyotishi ji,\n\n' +
-          'About 30 years ago the computer arrived and changed the way astrology was practised. Now AI has arrived, and the change is coming again, far bigger than before.\n\n' +
-          'At such a time the astrologer who keeps himself updated, keeps his work safe and keeps growing it will move ahead. The new generation (Gen Z) has grown up with the reasoning of AI; to connect with them we need their language, their reasoning and twice the depth.\n\n' +
-          'The Patrika app of Shri Ramji Astro is your partner in exactly this. It takes your work to the level of a professional, elite-class astrologer.\n\n' +
-          'Please do not trust this on my word. Copy the question below, ask ChatGPT, Google Gemini or any AI, and see the calculation yourself:\n\n' +
+          'Think about it for a moment. About 30 years ago the computer arrived and the whole work of astrology changed. Now AI has arrived, and this time the change is even bigger. Today\'s client, especially the young one, first asks AI, then comes to an astrologer, and wants reasoning and proof for everything.\n\n' +
+          'In such a time the astrologer who runs his work as a serious profession, with written reports and proof from the scriptures, is the one who will stay, and earn well too.\n\n' +
+          'The Patrika app of Shri Ramji Astro is made for exactly this. But I will not praise it. Ask any AI yourself, ChatGPT or Google Gemini. Just copy this question and paste it:\n\n' +
           '"' + EN + '"\n\n' +
           '(Change the number of clients and the fee to your own.)\n\n' +
-          'If the answer seems right to you, tell me. I will send you the free demo link, where you can run the whole app yourself.\n\n' +
+          'Read the answer and check your own numbers. If it makes sense, write me one line and I will send you the free demo, where you can run the whole app yourself.\n\n' +
           'Thank you.';
       }
       return 'नमस्ते ज्योतिषी जी,\n\n' +
-        'लगभग 30 साल पहले कंप्यूटर आया, तो ज्योतिष का काम करने का तरीका बदल गया। अब AI आया है, और बदलाव फिर आ रहा है, पहले से कहीं बड़ा।\n\n' +
-        'ऐसे समय में वही ज्योतिषी आगे बढ़ेगा, जो ख़ुद को अपडेट रखे, अपने काम को सुरक्षित रखे और उसे बढ़ाता रहे। नई पीढ़ी (Gen Z) AI के तर्क के साथ बड़ी हुई है; उससे जुड़ने के लिए उसी की भाषा, उसी का तर्क और पहले से दोगुनी गहराई चाहिए।\n\n' +
-        'श्री राम जी एस्ट्रो की पत्रिका ऐप इसी काम में आपकी साथी है। यह आपके काम को एक प्रोफ़ेशनल, इलीट क्लास ज्योतिषी के स्तर पर ले जाती है।\n\n' +
-        'इस बात पर मेरी बात मानकर भरोसा मत कीजिए। नीचे का सवाल कॉपी करके ChatGPT, Google Gemini या किसी भी AI से पूछिए, और हिसाब ख़ुद देखिए:\n\n' +
+        'एक बात सोचिए। लगभग 30 साल पहले कंप्यूटर आया था, तो ज्योतिष का पूरा काम बदल गया था। अब AI आ गया है, और इस बार बदलाव उससे भी बड़ा है। आज का जातक, ख़ासकर नई पीढ़ी, पहले AI से पूछता है, फिर ज्योतिषी के पास आता है, और हर बात का तर्क और प्रमाण माँगता है।\n\n' +
+        'ऐसे में जो ज्योतिषी अपने काम को एक गंभीर पेशे की तरह, लिखित रिपोर्ट और शास्त्र के प्रमाण के साथ करेगा, वही आगे टिकेगा, और अच्छा कमाएगा भी।\n\n' +
+        'श्री राम जी एस्ट्रो की पत्रिका ऐप इसी के लिए बनी है। पर मैं इसकी तारीफ़ नहीं करूँगा। आप ख़ुद किसी भी AI से पूछ लीजिए, ChatGPT हो या Google Gemini। बस यह सवाल कॉपी करके डाल दीजिए:\n\n' +
         '"' + HI + '"\n\n' +
-        '(अपने जातकों की संख्या और दक्षिणा अपने हिसाब से बदल लीजिए।)\n\n' +
-        'जवाब पढ़कर अगर बात सही लगे, तो मुझे बताइए। मैं आपको मुफ़्त डेमो का link भेज दूँगा, जिसमें आप ऐप का पूरा काम-काज ख़ुद चलाकर देख सकते हैं।\n\n' +
+        '(जातकों की गिनती और दक्षिणा अपने हिसाब से बदल लीजिए।)\n\n' +
+        'जवाब पढ़िए, अपना हिसाब देखिए। बात जँचे, तो मुझे एक लाइन लिख दीजिए। मैं मुफ़्त डेमो भेज दूँगा, जिसमें आप पूरी ऐप ख़ुद चलाकर देख सकते हैं।\n\n' +
         'धन्यवाद।';
     }
   };
