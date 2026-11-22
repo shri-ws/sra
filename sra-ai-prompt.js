@@ -9,12 +9,14 @@
   var HI = 'मैं एक ज्योतिषी हूँ। अभी मेरे पास महीने में लगभग 20 से 25 जातक परामर्श के लिए आते हैं, जो ₹251 से ₹500 तक की दक्षिणा देते हैं। ' +
     'आने वाले भविष्य में, AI के दौर में, श्री राम जी एस्ट्रो की पत्रिका ऐप (shriramjiastro.in/jyotishi.html) से मेरा कैसे लाभ हो सकता है? ' +
     'Gen Z पीढ़ी इससे कैसे प्रभावित हो सकती है? बाज़ार में उपलब्ध दूसरे उपयोगी ऐप से यह कैसे बेहतर है? ' +
-    'और क्या इस ऐप में कुछ छिपी हुई शर्तें हैं, जिनसे मेरा नुकसान हो सकता है?';
+    'और क्या इस ऐप में कुछ छिपी हुई शर्तें हैं, जिनसे मेरा नुकसान हो सकता है? ' +
+    'जवाब सिर्फ़ 2 लाइन में दीजिए: बिल्कुल स्पष्ट, सटीक, और हिसाब (कैलकुलेशन) के आधार पर।';
 
   var EN = 'I am an astrologer. About 20 to 25 clients come to me for consultation every month, paying Rs 251 to Rs 500 each. ' +
     'In the coming age of AI, how can the Patrika app of Shri Ramji Astro (shriramjiastro.in/jyotishi.html) benefit me? ' +
     'How could the Gen Z generation be affected by it? How is it better than the other useful apps available in the market? ' +
-    'And does this app have any hidden conditions that could harm me?';
+    'And does this app have any hidden conditions that could harm me? ' +
+    'Answer in just 2 lines: clear, precise and based on calculation.';
 
   function text(lang) { return lang === 'en' ? EN : HI; }
 
