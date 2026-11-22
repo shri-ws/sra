@@ -22,16 +22,20 @@
     whatsapp: function (lang) {
       if (lang === 'en') {
         return 'Namaste Jyotishi ji,\n\n' +
-          'Why am I sending you this message? Because reading it will benefit you. But please do not decide how much it benefits you by taking my word for it. ' +
-          'Put the question below into any AI app (ChatGPT, Gemini or another) and see for yourself, impartially:\n\n' +
+          'About 30 years ago the computer arrived and brought new changes to the world of astrology. Now AI has arrived and is bringing many changes again, and this time the challenge is even bigger.\n\n' +
+          'Keeping ourselves updated, protecting our work and taking it forward is the only way to stay in this profession. To connect the new generation (Gen Z) with Jyotish, we have to speak in their language, with their kind of reasoning, and with twice the depth as before, because this generation is shaped by the reasoning of AI.\n\n' +
+          'The Patrika app of Shri Ramji Astro (shriramjiastro.in) helps you cross this challenge: it supports you like a professional astrologer and lets you work like an elite-class astrologer.\n\n' +
+          'If you do not believe this big claim, do not take my word for it. Ask Google Gemini, ChatGPT or any AI the question below:\n\n' +
           '"' + EN + '"\n\n' +
           '(Change the number of clients and the fee to your own.)\n\n' +
           'Read and understand the answer. If it seems right to you, tell me and I will share a demo link so you can see how the app works.\n\n' +
           'Thank you.';
       }
       return 'नमस्ते ज्योतिषी जी,\n\n' +
-        'मैं आपको यह संदेश क्यों भेज रहा हूँ? क्योंकि इसे पढ़ने से आपको लाभ होने वाला है। पर लाभ कितना होगा, यह आप मेरी बात मानकर तय मत कीजिए। ' +
-        'नीचे दिया सवाल निष्पक्ष रूप से किसी भी AI (ChatGPT, Gemini आदि) में डालकर ख़ुद देखिए:\n\n' +
+        'आज से लगभग 30 साल पहले कंप्यूटर आया, तो उसने ज्योतिष की दुनिया में नए बदलाव लाए। अब AI आया है, और वह फिर से बहुत सारे बदलाव ला रहा है। इस बार चुनौती पिछली बार से भी बड़ी है।\n\n' +
+        'ऐसे में ख़ुद को अपडेट रखना, अपने कार्य को बचाकर रखना और उसे आगे बढ़ाते रहना ही इस कार्य में बने रहने का एकमात्र रास्ता है। आने वाली नई पीढ़ी (Gen Z) को ज्योतिष से जोड़ने के लिए उसी की भाषा में, उसी की तरह के तर्क से, और पहले से दोगुनी गहराई के साथ बात करनी होगी, क्योंकि यह AI के तर्क से गढ़ी गई पीढ़ी है।\n\n' +
+        'इसी चुनौती को पार करने में श्री राम जी एस्ट्रो (shriramjiastro.in) का पत्रिका ऐप आपकी मदद करता है: यह एक प्रोफ़ेशनल ज्योतिषी की तरह आपका साथ देता है, और आपको एक इलीट क्लास के ज्योतिषी की तरह काम करने देता है।\n\n' +
+        'अगर इस बड़ी बात पर यक़ीन न हो, तो मेरी बात मत मानिए। नीचे दिया सवाल Google Gemini, ChatGPT या किसी भी AI से पूछ लीजिए:\n\n' +
         '"' + HI + '"\n\n' +
         '(जातकों की संख्या और दक्षिणा अपने हिसाब से बदल लीजिए।)\n\n' +
         'जो जवाब आए, उसे पढ़कर समझिए। अगर जवाब आपको उचित लगे, तो मुझे बताइए, मैं आपको डेमो का link भेज दूँगा, जिससे आप ऐप का पूरा काम-काज समझ सकें।\n\n' +
