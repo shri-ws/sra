@@ -499,6 +499,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item nav-item-marketing" onclick="showPanel('marketing', this)" style="color:#d97706; font-weight:bold; background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.3); border-radius:8px; margin-top:6px;">Daily marketing tracker &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0/6</span></div>
       <div class="nav-item nav-item-ig-outreach" onclick="showPanel('ig-outreach', this)" style="color:#e1306c; font-weight:bold; background:rgba(225,48,108,0.08); border:1px solid rgba(225,48,108,0.3); border-radius:8px; margin-top:6px;">Instagram outreach (11 March) &nbsp;<span id="badge-ig-outreach" style="font-size:9px; background:#e1306c; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">Queue</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">Sutradhar applications &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-sutra-daily" onclick="showPanel('sutra-daily', this)" style="color:#1d4ed8; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">Sutradhar daily message</div>
       <div class="nav-item nav-item-sutra-list" onclick="showPanel('sutra-list', this)" style="color:#0f766e; font-weight:bold; background:rgba(15,118,110,0.06); border:1px solid rgba(15,118,110,0.25); border-radius:8px; margin-top:6px;">Sutradhar list (who is active)</div>
       <div class="nav-item nav-item-visitors" onclick="showPanel('visitors', this)" style="color:#7c3aed; font-weight:bold; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:8px; margin-top:6px;">Website visitors & downloads</div>
       <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">SaaS subscribers &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
@@ -1288,6 +1289,30 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       </div>
     </div>
 
+    <div class="panel" id="panel-sutra-daily">
+      <div class="card">
+        <div class="tbl-header">
+          <span class="table-title">Today’s work and messages</span>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <input type="date" id="sd-day" style="padding:6px 8px; border:1px solid var(--border); border-radius:8px;" onchange="loadSutraDaily()">
+            <button class="export-btn" onclick="loadSutraDaily()">Refresh</button>
+            <button class="export-btn" id="sd-push-all" style="background:#2563eb; color:#fff;" onclick="sutraDailyPushAll()">Notify everyone who allows notifications</button>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">
+          Check here every morning: who opened the portal today, read the script, sent links, added a lead or made a sale — and who has been quiet for how many days.
+          Each Sutradhar has a message ready for where they stand (congratulations, follow-up, today’s step of the 21-day path, or a call to come back); you can edit it before sending.
+          "WhatsApp" opens the message from your phone; "Notification" goes only to those who turned on daily notifications on the portal. Whoever came back to the portal from a message shows as "Came back from message" .
+        </p>
+        <div class="stats-grid" id="sd-stats" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));"></div>
+        <div id="sd-tabs" style="display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 10px;"></div>
+        <div style="overflow-x:auto;"><table class="tbl">
+          <thead><tr><th>Sutradhar</th><th>Stage</th><th>Done today</th><th>Streak / 7 days</th><th>This month</th><th>Today’s message</th><th>Send</th></tr></thead>
+          <tbody id="sd-tbody"><tr><td colspan="7" class="empty-row">Loading...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
     <div class="panel" id="panel-course-batches">
       <div class="card">
         <div class="tbl-header"><span class="table-title">1-year course — batches and seats</span>
@@ -1375,45 +1400,8 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           </div>
         </div>
 
-        <!-- A-Z City Wise WhatsApp Automation Controls -->
-        <div style="background:linear-gradient(135deg, rgba(37,99,235,0.04), rgba(21,128,61,0.04)); border:1.5px solid rgba(37,99,235,0.25); border-radius:10px; padding:12px 14px; margin-bottom:14px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <div style="font-weight:700; font-size:13px; color:#1e40af; display:flex; align-items:center; gap:6px;">
-              <span>City-wise WhatsApp auto-sender (A-Z)</span>
-            </div>
-            <div style="font-size:11px; color:var(--text-muted);">
-              1 city a day • 20s–35s random gap
-            </div>
-          </div>
-
-          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
-            <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px;">City (A-Z):
-              <select id="scl-city-select" onchange="sclOnCityChange()" style="padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font-weight:600; font-size:12px; min-width:220px;"></select>
-            </label>
-
-            <button id="scl-btn-send-city" class="export-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:6px 12px; font-size:12px;" onclick="sclStartCitySender()">
-              Send to this city
-            </button>
-
-            <button id="scl-btn-auto-next" class="export-btn" style="background:#2563eb; border-color:#1d4ed8; color:#fff; font-weight:700; padding:6px 12px; font-size:12px;" onclick="sclNextCitySender()">
-              Next city
-            </button>
-
-            <button id="scl-btn-stop" class="export-btn" style="background:#dc2626; border-color:#b91c1c; color:#fff; font-weight:700; padding:6px 12px; font-size:12px; display:none;" onclick="sclStopCitySender()">
-              Stop
-            </button>
-
-            <button class="export-btn" style="background:var(--card); color:var(--text); padding:6px 10px; font-size:12px;" onclick="sclCopyTerminalCmd()" title="Copy terminal command">
-              Terminal command
-            </button>
-          </div>
-
-          <div id="scl-sender-status" style="font-size:11px; background:var(--card); border:1px solid var(--border); border-radius:6px; padding:7px 10px; color:var(--text-muted); font-family:monospace;">
-            Status: ready. Pick a city and press 'Send' .
-          </div>
-        </div>
-
         <div id="scl-filters" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
+        <select id="scl-city-select" onchange="renderSaasLeads()" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin:0 8px 10px 0; min-width:200px;"><option value="">All cities</option></select>
         <input id="scl-search" placeholder="Search name, number or city" oninput="renderSaasLeads()" style="width:100%; max-width:360px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin-bottom:10px;">
         <div style="overflow-x:auto">
           <table class="tbl">
@@ -2427,6 +2415,7 @@ function showPanel(name, targetEl){
       'saas-leads': currentAdminLang === 'en' ? 'SaaS call list (astrologers)' : 'SaaS कॉल सूची — किसे कॉल हुई, किसे नहीं',
       visitors: currentAdminLang === 'en' ? 'Website Visitors & Downloads' : 'वेबसाइट विज़िटर्स व डाउनलोड',
       'sutra-list': currentAdminLang === 'en' ? 'Sutradhar List — who is active' : 'सूत्रधार सूची — कौन सक्रिय',
+      'sutra-daily': currentAdminLang === 'en' ? 'Sutradhar daily push — who worked today, who needs a message' : 'सूत्रधार रोज़ का संदेश — आज किसने काम किया, किसे धक्का चाहिए',
       'course-batches': currentAdminLang === 'en' ? 'Course batches (11 seats)' : 'कोर्स बैच (11 सीटें)',
       'sutra-invite': currentAdminLang === 'en' ? 'Sutradhar Invite' : 'सूत्रधार आमंत्रण'
     };
@@ -2453,6 +2442,8 @@ function showPanel(name, targetEl){
       initSaasLeads();
     } else if (name === 'sutra-list') {
       loadSutradharList();
+    } else if (name === 'sutra-daily') {
+      loadSutraDaily();
     } else if (name === 'course-batches') {
       loadCourseBatchesAdmin();
     } else if (name === 'sutra-reviews') {
@@ -3496,34 +3487,14 @@ async function importSaasLeads() {
 async function loadSaasLeads() {
   const tbody = document.getElementById('scl-tbody');
   if (tbody && !sclLeads.length) tbody.innerHTML = '<tr><td colspan="4" class="empty-row"><span class="spin"></span> Loading...</td></tr>';
-  
-  let loadedFromServer = false;
   try {
     const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads');
     const d = await res.json();
-    if (res.ok && d.leads && d.leads.length) {
-      sclLeads = d.leads;
-      loadedFromServer = true;
-      renderSaasLeads();
-      return;
-    }
-  } catch (err) {
-    console.warn('Server fetch for SaaS leads failed (offline or not logged in), checking local leads:', err.message);
-  }
-
-  // Fallback to preloaded leads (offline / local)
-  if (!loadedFromServer && window.SRA_PRELOADED_SAAS_LEADS && window.SRA_PRELOADED_SAAS_LEADS.length) {
-    let localSaved = {};
-    try { localSaved = JSON.parse(localStorage.getItem('sra_saas_leads_status') || '{}'); } catch(e){}
-    sclLeads = window.SRA_PRELOADED_SAAS_LEADS.map(l => {
-      if (localSaved[l.phone]) {
-        return Object.assign({}, l, localSaved[l.phone]);
-      }
-      return Object.assign({}, l);
-    });
+    if (!res.ok) throw new Error(d.detail || 'Could not load the list');
+    sclLeads = d.leads || [];
     renderSaasLeads();
-  } else if (!loadedFromServer) {
-    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="empty-row" style="color:#ef4444;">No leads found. Upload an Excel/CSV above.</td></tr>`;
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="empty-row" style="color:#ef4444;">Error: ${sclEsc(err.message)}</td></tr>`;
   }
 }
 function sclStatusOf(l) { return l.is_subscriber ? 'bought' : (SCL_LABEL[l.status] ? l.status : 'new'); }
@@ -3537,7 +3508,8 @@ function renderSaasLeads() {
     `<button class="export-btn" style="padding:5px 10px; font-size:12px;${sclFilter === k ? ' background:#2563eb; border-color:#1d4ed8; color:#fff;' : ''}" onclick="sclFilter='${k}'; renderSaasLeads()">${label} ${counts[k] || 0}</button>`).join('');
 
   const q = (document.getElementById('scl-search').value || '').trim().toLowerCase();
-  const list = sclLeads.filter(l => (sclFilter === 'all' || sclStatusOf(l) === sclFilter) &&
+  const city = (document.getElementById('scl-city-select') || {}).value || '';
+  const list = sclLeads.filter(l => (sclFilter === 'all' || sclStatusOf(l) === sclFilter) && (!city || (l.city || 'Other').trim() === city) &&
     (!q || (l.name || '').toLowerCase().includes(q) || l.phone.includes(q.replace(/\D/g, '') || '~') || (l.city || '').toLowerCase().includes(q)));
   const tbody = document.getElementById('scl-tbody');
   if (!sclLeads.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty-row">The list is empty. Upload an Excel above.</td></tr>'; return; }
@@ -3567,46 +3539,14 @@ function renderSaasLeads() {
 }
 async function sclSave(phone, body, quiet) {
   const l = sclLeads.find(x => x.phone === phone);
-  if (l) {
-    if (body.status) l.status = body.status;
-    if (body.demo_sent) {
-      l.demo_sent_at = new Date().toISOString();
-      if (!body.status && ['new', 'no_answer', 'callback', 'interested'].includes(l.status)) {
-        l.status = 'demo_sent';
-      }
-    }
-    if (body.called) {
-      l.called_at = new Date().toISOString();
-      l.calls = (l.calls || 0) + 1;
-    }
-    if (body.note != null) l.note = body.note;
-    if (body.delete) sclLeads = sclLeads.filter(x => x.phone !== phone);
-
-    // Persist locally
-    try {
-      const localSaved = JSON.parse(localStorage.getItem('sra_saas_leads_status') || '{}');
-      localSaved[phone] = {
-        status: l.status,
-        demo_sent_at: l.demo_sent_at,
-        called_at: l.called_at,
-        calls: l.calls,
-        note: l.note,
-        deleted: l.deleted
-      };
-      localStorage.setItem('sra_saas_leads_status', JSON.stringify(localSaved));
-    } catch(e) {}
-  }
-
-  // Sync to remote server if authorized
   try {
     const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads/update', { method: 'POST', body: JSON.stringify(Object.assign({ phone }, body)) });
     const d = await res.json();
-    if (res.ok && l) Object.assign(l, d.lead, { is_subscriber: l.is_subscriber });
-  } catch (err) {
-    if (!quiet && !window.SRA_PRELOADED_SAAS_LEADS) alert(err.message);
-  }
-
-  if (!quiet || body.status || body.delete) renderSaasLeads();
+    if (!res.ok) throw new Error(d.detail || 'Not saved');
+    if (l) Object.assign(l, d.lead, { is_subscriber: l.is_subscriber });
+    if (body.delete) sclLeads = sclLeads.filter(x => x.phone !== phone);
+    if (!quiet || body.status || body.delete) renderSaasLeads();
+  } catch (err) { alert(err.message); }
 }
 function sclWhatsApp(phone) {
   const l = sclLeads.find(x => x.phone === phone);
@@ -3631,8 +3571,6 @@ function sclDelete(phone) {
 }
 
 /* ── City-wise WhatsApp Automation ── */
-let sclSenderRunning = false;
-
 function sclPopulateCities() {
   const sel = document.getElementById('scl-city-select');
   if (!sel) return;
@@ -3645,95 +3583,11 @@ function sclPopulateCities() {
     if (sclStatusOf(l) === 'new') map[c].pending++;
   });
   const sorted = Object.keys(map).sort((a, b) => a.localeCompare(b));
-  sel.innerHTML = sorted.map(c =>
+  sel.innerHTML = `<option value="">All cities (${sclLeads.length})</option>` + sorted.map(c =>
     `<option value="${sclEsc(c)}"${c === curr ? ' selected' : ''}>${sclEsc(c)} (${map[c].pending} new / ${map[c].total} total)</option>`
   ).join('');
 }
 
-function sclOnCityChange() {
-  const sel = document.getElementById('scl-city-select');
-  const statusBox = document.getElementById('scl-sender-status');
-  if (sel && statusBox && !sclSenderRunning) {
-    statusBox.textContent = `City: ${sel.value}. 'Send to this city' sends the messages one by one.`;
-  }
-}
-
-function sclCopyTerminalCmd() {
-  const sel = document.getElementById('scl-city-select');
-  const city = sel && sel.value ? sel.value : 'Amethi';
-  const cmd = `python3 /Users/shridharmac/.gemini/antigravity/scratch/sra/whatsapp_city_sender.py --city "${city}"`;
-  navigator.clipboard.writeText(cmd).then(() => {
-    alert(`Terminal command copied:\n\n${cmd}\n\nPaste it in the terminal to run it.`);
-  }).catch(() => {
-    prompt('Copy the terminal command:', cmd);
-  });
-}
-
-async function sclStartCitySender() {
-  const sel = document.getElementById('scl-city-select');
-  if (!sel || !sel.value) return alert('Pick a city first.');
-  const city = sel.value;
-  const targets = sclLeads.filter(l => (l.city || '').trim().toLowerCase() === city.toLowerCase() && sclStatusOf(l) === 'new');
-  if (!targets.length) {
-    return alert(`'${city}' has no pending astrologers left.`);
-  }
-  if (!confirm(`Send the WhatsApp demo to ${targets.length} astrologers in ${city}, one by one?\n(20-35s random gap between messages)`)) return;
-
-  sclSenderRunning = true;
-  document.getElementById('scl-btn-send-city').style.display = 'none';
-  document.getElementById('scl-btn-auto-next').style.display = 'none';
-  document.getElementById('scl-btn-stop').style.display = 'inline-block';
-
-  const statusBox = document.getElementById('scl-sender-status');
-
-  for (let i = 0; i < targets.length; i++) {
-    if (!sclSenderRunning) {
-      statusBox.textContent = `Automation stopped. (${i}/${targets.length} sent)`;
-      break;
-    }
-    const l = targets[i];
-    statusBox.innerHTML = `<b>[${city}] (${i + 1}/${targets.length})</b> Sending: ${sclEsc(l.name || 'पंडित जी')} (+91 ${l.phone})...`;
-
-    // Trigger WhatsApp
-    sclWhatsApp(l.phone);
-
-    if (i < targets.length - 1) {
-      const waitSec = Math.floor(Math.random() * 16) + 20; // 20-35s
-      for (let w = waitSec; w > 0; w--) {
-        if (!sclSenderRunning) break;
-        statusBox.innerHTML = `<b>[${city}] (${i + 1}/${targets.length})</b> Sent. Next message in <b>${w}s</b> ...`;
-        await new Promise(r => setTimeout(r, 1000));
-      }
-    }
-  }
-
-  if (sclSenderRunning) {
-    statusBox.textContent = `Done. All available astrologers in ${city} have been messaged.`;
-  }
-  sclStopCitySender();
-  sclPopulateCities();
-}
-
-function sclNextCitySender() {
-  const sel = document.getElementById('scl-city-select');
-  if (!sel) return;
-  for (let opt of sel.options) {
-    const m = opt.textContent.match(/\((\d+)\s+new/);
-    if (m && parseInt(m[1]) > 0) {
-      sel.value = opt.value;
-      sclStartCitySender();
-      return;
-    }
-  }
-  alert('All pending astrologers in every city have been messaged.');
-}
-
-function sclStopCitySender() {
-  sclSenderRunning = false;
-  document.getElementById('scl-btn-send-city').style.display = 'inline-block';
-  document.getElementById('scl-btn-auto-next').style.display = 'inline-block';
-  document.getElementById('scl-btn-stop').style.display = 'none';
-}
 
 /* ══ WEBSITE VISITORS & DOWNLOADS (sra-analytics.js /api/analytics) ══ */
 const anEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -4036,6 +3890,142 @@ window.loadSutradharList = loadSutradharList;
 window.sutraAction = sutraAction;
 window.sutraNudgeUnfinished = sutraNudgeUnfinished;
 window.sutraJoinBadge = sutraJoinBadge;
+
+/* ══ SUTRADHAR DAILY PUSH: today's work of each Sutradhar and a ready message ══ */
+const SD_KIND = {
+  badhai: ['#065f46', '#d1fae5'], shabash: ['#065f46', '#ecfdf5'], followup: ['#92400e', '#fef3c7'],
+  start: ['#1e40af', '#dbeafe'], gentle: ['#92400e', '#fffbeb'], wake: ['#b91c1c', '#fee2e2'], comeback: ['#7f1d1d', '#fecaca'],
+};
+const SD_LABEL = { badhai: 'Sold today', followup: 'Lead lock ending soon', shabash: 'Worked today', start: 'Not started: no leads yet',
+  gentle: 'Quiet 1-2 days', wake: 'Quiet 3-6 days', comeback: 'Quiet 7+ days' };
+let sdRows = [];
+async function loadSutraDaily() {
+  const tbody = document.getElementById('sd-tbody');
+  const dayEl = document.getElementById('sd-day');
+  if (!dayEl.value) dayEl.value = new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);
+  tbody.innerHTML = '<tr><td colspan="7" class="empty-row"><span class="spin"></span> Loading...</td></tr>';
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhar-daily?day=' + encodeURIComponent(dayEl.value));
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'Did not load');
+    window._sdLast = d;
+    sdRows = d.rows || [];
+    renderSutraDaily();
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-row" style="color:#ef4444;">Error: ${slEsc(err.message)}</td></tr>`;
+  }
+}
+function sdIsToday() { return (window._sdLast || {}).day === new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10); }
+function renderSutraDaily() {
+  const d = window._sdLast; if (!d) return;
+  const m = d.summary, inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+  const today = sdIsToday();
+  const waiting = sdRows.filter(r => r.needs_push && !r.nudged_today.length);
+  const pushable = waiting.filter(r => r.push_on && !r.nudged_today.some(n => n.via === 'push'));
+  document.getElementById('sd-stats').innerHTML = [
+    ['Worked today', `${m.active_today} / ${m.total}`, 'portal, script, link, lead or sale'],
+    ['Leads today', m.leads_today, ''],
+    ['Sales today', m.sales_today, 'Commission ' + inr(m.earned_today)],
+    ['Message pending', waiting.length, `of ${m.need_push} who need a nudge`],
+    ['Messages sent today', m.nudged_today, ''],
+    ['Came back from message', m.opened_from_nudge, 'opened the portal from a message/notification'],
+    ['Quiet 3+ days', m.quiet_3plus, ''],
+  ].map(([l, v, sub]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val">${v}</div><div class="stat-sub">${sub}</div></div>`).join('');
+  const btn = document.getElementById('sd-push-all');
+  btn.textContent = `Notify everyone who allows notifications (${pushable.length})`;
+  btn.disabled = !today || !pushable.length;
+  btn.style.opacity = btn.disabled ? '0.5' : '1';
+
+  const tab = window._sdTab || 'waiting';
+  const groups = {
+    waiting: ['Message pending', waiting],
+    sent: ['Message sent', sdRows.filter(r => r.nudged_today.length)],
+    working: ['Worked today', sdRows.filter(r => r.active_today)],
+    all: ['All', sdRows],
+  };
+  document.getElementById('sd-tabs').innerHTML = Object.entries(groups).map(([k, [l, list]]) =>
+    `<button class="export-btn" style="${k === tab ? 'background:#2563eb; color:#fff;' : ''}" onclick="window._sdTab='${k}'; renderSutraDaily()">${l} (${list.length})</button>`).join('');
+  const list = groups[tab][1];
+  document.getElementById('sd-tbody').innerHTML = list.length ? list.map(r => {
+    const i = sdRows.indexOf(r), c = SD_KIND[r.kind] || SD_KIND.gentle;
+    const did = [];
+    if (r.opens_today) did.push(`Portal ×${r.opens_today}`);
+    if (r.scripts_today) did.push(`Script ×${r.scripts_today}`);
+    if (r.shares_today) did.push(`Links sent ×${r.shares_today}`);
+    if (r.tasks_today) did.push(`Tasks ticked ×${r.tasks_today}`);
+    if (r.lessons_today) did.push(`Video lessons ×${r.lessons_today}`);
+    if (r.leads_today) did.push(`<b>Leads ${r.leads_today}</b>`);
+    if (r.sales_today) did.push(`<b style="color:#065f46;">Sales ${r.sales_today} · ${inr(r.earned_today)}</b>`);
+    if (r.nudge_opens_today) did.push('<span style="color:#1d4ed8;">Came back from message</span>');
+    const sent = r.nudged_today.map(n => `${n.via === 'push' ? 'Notification' : 'WhatsApp'}${n.result && n.result !== 'sent' && n.result !== 'noted' ? ' (not delivered)' : ''} ${slDT(n.at).split(',').pop()}`).join('<br>');
+    return `<tr>
+      <td style="min-width:130px;"><div style="font-weight:700;">${slEsc(r.name || '—')}</div>
+        <span style="font-family:monospace; font-size:12px;">${slEsc(r.phone)}</span>
+        <div style="font-size:11px; color:var(--muted);">Day ${r.day_n}${r.day_n <= 21 ? ' / 21' : ''} · Notifications ${r.push_on ? 'On' : 'Off'}</div></td>
+      <td style="min-width:120px;"><span class="badge" style="background:${c[1]}; color:${c[0]}; font-weight:700; white-space:normal; display:inline-block;">${slEsc(SD_LABEL[r.kind] || r.kind_label)}</span>
+        <div style="font-size:11px; color:var(--muted); margin-top:3px;">${r.active_today ? 'Active today' : (r.last_active_day ? r.quiet_days + ' days quiet' : 'Nothing done yet')}</div></td>
+      <td style="font-size:12px; min-width:140px; max-width:220px;">${did.join(' · ') || '<span style="color:var(--muted);">Nothing</span>'}
+        ${r.leads_live ? `<div style="color:var(--muted);">Live leads ${r.leads_live}${r.leads_expiring ? ', ' + r.leads_expiring + ' lock(s) end within 24 hours' : ''}</div>` : ''}</td>
+      <td style="font-size:12px;"><b>${r.streak} days</b><div style="color:var(--muted);">${r.active_days_7} of 7 days</div></td>
+      <td style="font-size:12px;"><b>${inr(r.month_earned)}</b><div style="color:var(--muted);">${r.month_sales} sales</div></td>
+      <td style="min-width:260px;"><div style="font-weight:700; font-size:13px;">${slEsc(r.message.title)}</div>
+        <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">Notification: ${slEsc(r.message.body)}</div>
+        <textarea id="sd-msg-${i}" rows="4" style="width:100%; font-size:12px; padding:6px; border:1px solid var(--border); border-radius:8px; font-family:inherit;">${slEsc(r.message.whatsapp)}</textarea></td>
+      <td style="white-space:nowrap;"><div style="display:flex; flex-direction:column; gap:5px;">
+        <button class="export-btn" style="padding:5px 10px; background:#16a34a; color:#fff;" onclick="sutraDailyWhatsApp(${i})">WhatsApp</button>
+        ${r.push_on ? `<button class="export-btn" style="padding:5px 10px; background:#2563eb; color:#fff;" onclick="sutraDailyPush(${i}, this)" ${today ? '' : 'disabled'}>Notification</button>` : ''}
+        <button class="export-btn" style="padding:5px 10px;" onclick="sutraDailyDetail(${i})">Full work</button>
+        ${sent ? `<div style="font-size:11px; color:#065f46;">Sent: ${sent}</div>` : ''}
+      </div></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="7" class="empty-row">${tab === 'waiting' ? 'Everyone has been messaged today, or nobody needs a nudge.' : 'Nobody.'}</td></tr>`;
+}
+async function sutraDailyNote(i, via) {
+  const r = sdRows[i];
+  const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhar-nudge', { method: 'POST', body: JSON.stringify({ sutradhar_id: r.sutradhar_id, via }) });
+  const d = await res.json();
+  if (!res.ok) throw new Error(d.detail || 'Could not send');
+  return d;
+}
+async function sutraDailyWhatsApp(i) {
+  const r = sdRows[i], text = document.getElementById('sd-msg-' + i).value;
+  window.open(`https://wa.me/91${r.phone}?text=${encodeURIComponent(text)}`, '_blank');
+  if (!sdIsToday()) return;
+  try { await sutraDailyNote(i, 'whatsapp'); loadSutraDaily(); } catch (err) { alert('Not recorded: ' + err.message); }
+}
+async function sutraDailyPush(i, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  try {
+    const d = await sutraDailyNote(i, 'push');
+    if (!d.sent) alert(d.gone ? 'Their phone has turned notifications off. Send on WhatsApp.' : 'The notification did not arrive. Send on WhatsApp.');
+    loadSutraDaily();
+  } catch (err) { alert('Error: ' + err.message); if (btn) { btn.disabled = false; btn.textContent = 'Notification'; } }
+}
+async function sutraDailyPushAll() {
+  const btn = document.getElementById('sd-push-all');
+  if (!confirm('Send today’s message as a phone notification to everyone who needs a nudge and allows notifications?')) return;
+  btn.disabled = true;
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhar-nudge', { method: 'POST', body: JSON.stringify({ all: true, via: 'push' }) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'Could not send');
+    alert(`Delivered to ${d.sent}` + (d.gone ? `, ${d.gone} turned notifications off` : '') + (d.error ? `, ${d.error} failed` : '') + '. Send the rest on WhatsApp.');
+  } catch (err) { alert('Error: ' + err.message); }
+  loadSutraDaily();
+}
+async function sutraDailyDetail(i) {
+  const r = sdRows[i];
+  showPanel('sutra-list', document.querySelector('.nav-item-sutra-list'));
+  for (let t = 0; t < 40 && !sutraList.some(s => s.sutradhar_id === r.sutradhar_id); t++) await new Promise(ok => setTimeout(ok, 150));
+  const k = sutraList.findIndex(s => s.sutradhar_id === r.sutradhar_id);
+  if (k >= 0) sutraActivity(k);
+}
+window.loadSutraDaily = loadSutraDaily;
+window.renderSutraDaily = renderSutraDaily;
+window.sutraDailyWhatsApp = sutraDailyWhatsApp;
+window.sutraDailyPush = sutraDailyPush;
+window.sutraDailyPushAll = sutraDailyPushAll;
+window.sutraDailyDetail = sutraDailyDetail;
 
 /* ══ COURSE BATCHES: 11 seats each — who paid, who is paying now, who asked to be told ══ */
 async function loadCourseBatchesAdmin() {
