@@ -502,8 +502,8 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item nav-item-sutra-list" onclick="showPanel('sutra-list', this)" style="color:#0f766e; font-weight:bold; background:rgba(15,118,110,0.06); border:1px solid rgba(15,118,110,0.25); border-radius:8px; margin-top:6px;">सूत्रधार सूची (कौन सक्रिय)</div>
       <div class="nav-item nav-item-visitors" onclick="showPanel('visitors', this)" style="color:#7c3aed; font-weight:bold; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:8px; margin-top:6px;">वेबसाइट विज़िटर्स व डाउनलोड</div>
       <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">SaaS ग्राहक (ज्योतिषी) &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
-      <div class="nav-item nav-item-sutra-payouts" onclick="showPanel('sutra-payouts', this)" style="color:#16a34a; font-weight:bold; background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.25); border-radius:8px; margin-top:6px;">सूत्रधार पेआउट डेस्क &nbsp;<span id="badge-sutra-payouts" style="display:none; font-size:9px; background:#16a34a; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-saas-leads" onclick="showPanel('saas-leads', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">SaaS कॉल सूची (ज्योतिषी) &nbsp;<span id="badge-saas-leads" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-sutra-payouts" onclick="showPanel('sutra-payouts', this)" style="color:#16a34a; font-weight:bold; background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.25); border-radius:8px; margin-top:6px;">सूत्रधार पेआउट डेस्क &nbsp;<span id="badge-sutra-payouts" style="display:none; font-size:9px; background:#16a34a; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-invite" onclick="showPanel('sutra-invite', this)" style="color:#c2410c; font-weight:bold; background:rgba(234,88,12,0.07); border:1px solid rgba(234,88,12,0.3); border-radius:8px; margin-top:6px;">सूत्रधार आमंत्रण</div>
       <a class="nav-item" href="sutradhar.html" target="_blank" rel="noopener" style="text-decoration:none; color:#b45309; font-weight:bold; background:rgba(180,83,9,0.06); border:1px solid rgba(180,83,9,0.25); border-radius:8px; margin-top:6px;">सूत्रधार पोर्टल खोलें </a>
@@ -1341,31 +1341,6 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       </div>
     </div>
 
-    <div class="panel" id="panel-sutra-payouts">
-      <div class="card">
-        <div class="tbl-header">
-          <span class="table-title">सूत्रधार पेआउट डेस्क (भुगतान के 2 कार्य-दिवस बाद, शाम 7 बजे तक)</span>
-          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <input type="date" id="sp-date" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" onchange="loadSutradharPayoutDesk()" />
-            <button class="export-btn" onclick="loadSutradharPayoutDesk()">रिफ्रेश</button>
-          </div>
-        </div>
-        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">
-          हर सूत्रधार की आज (और पिछली बाकी) देय राशि। UPI से भेजें, बैंक का UTR डालें और "चुकाया" दबाएँ — तभी सूत्रधार के डैशबोर्ड में "UPI में भेजा" दिखेगा। रविवार, दूसरा/चौथा शनिवार और नीचे दिए बैंक अवकाश पर पेआउट नहीं होता।
-        </p>
-        <div id="sp-summary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px;"></div>
-        <div id="sp-due"><div class="empty-row">लोड हो रहा है...</div></div>
-      </div>
-      <div class="card" style="margin-top:16px;">
-        <div class="tbl-header"><span class="table-title">आने वाले पेआउट</span></div>
-        <div id="sp-upcoming" style="font-size:13px;"></div>
-      </div>
-      <div class="card" style="margin-top:16px;">
-        <div class="tbl-header"><span class="table-title">इस दिन चुकाए गए</span></div>
-        <div id="sp-paid" style="font-size:13px;"></div>
-      </div>
-      <div class="card" style="margin-top:16px;">
-        <div class="tbl-header"><span class="table-title">बैंक अवकाश (इन दिनों पेआउट नहीं)</span></div>
     <div class="panel" id="panel-saas-leads">
       <div class="card">
         <div class="tbl-header">
@@ -1400,6 +1375,44 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           </div>
         </div>
 
+        <!-- A-Z City Wise WhatsApp Automation Controls -->
+        <div style="background:linear-gradient(135deg, rgba(37,99,235,0.04), rgba(21,128,61,0.04)); border:1.5px solid rgba(37,99,235,0.25); border-radius:10px; padding:12px 14px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <div style="font-weight:700; font-size:13px; color:#1e40af; display:flex; align-items:center; gap:6px;">
+              <span>⚡ शहर-वार WhatsApp ऑटो-सेंडर (A-Z City Automation)</span>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted);">
+              रोज़ 1 शहर • 20s–35s रैंडम अंतराल • 100% सुरक्षित
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+            <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px;">शहर (A-Z):
+              <select id="scl-city-select" onchange="sclOnCityChange()" style="padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font-weight:600; font-size:12px; min-width:220px;"></select>
+            </label>
+
+            <button id="scl-btn-send-city" class="export-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:6px 12px; font-size:12px;" onclick="sclStartCitySender()">
+              ▶ इस शहर को भेजें
+            </button>
+
+            <button id="scl-btn-auto-next" class="export-btn" style="background:#2563eb; border-color:#1d4ed8; color:#fff; font-weight:700; padding:6px 12px; font-size:12px;" onclick="sclNextCitySender()">
+              ⏭ अगला शहर (Auto-Next)
+            </button>
+
+            <button id="scl-btn-stop" class="export-btn" style="background:#dc2626; border-color:#b91c1c; color:#fff; font-weight:700; padding:6px 12px; font-size:12px; display:none;" onclick="sclStopCitySender()">
+              ⏹ रोकें (Stop)
+            </button>
+
+            <button class="export-btn" style="background:var(--card); color:var(--text); padding:6px 10px; font-size:12px;" onclick="sclCopyTerminalCmd()" title="टर्मिनल कमांड कॉपी करें">
+              📋 टर्मिनल कमांड
+            </button>
+          </div>
+
+          <div id="scl-sender-status" style="font-size:11px; background:var(--card); border:1px solid var(--border); border-radius:6px; padding:7px 10px; color:var(--text-muted); font-family:monospace;">
+            स्थिति: तैयार है। शहर चुनकर 'भेजें' दबाएं।
+          </div>
+        </div>
+
         <div id="scl-filters" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
         <input id="scl-search" placeholder="नाम, नंबर या शहर से खोजें" oninput="renderSaasLeads()" style="width:100%; max-width:360px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin-bottom:10px;">
         <div style="overflow-x:auto">
@@ -1411,6 +1424,31 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       </div>
     </div>
 
+    <div class="panel" id="panel-sutra-payouts">
+      <div class="card">
+        <div class="tbl-header">
+          <span class="table-title">सूत्रधार पेआउट डेस्क (भुगतान के 2 कार्य-दिवस बाद, शाम 7 बजे तक)</span>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <input type="date" id="sp-date" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" onchange="loadSutradharPayoutDesk()" />
+            <button class="export-btn" onclick="loadSutradharPayoutDesk()">रिफ्रेश</button>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">
+          हर सूत्रधार की आज (और पिछली बाकी) देय राशि। UPI से भेजें, बैंक का UTR डालें और "चुकाया" दबाएँ — तभी सूत्रधार के डैशबोर्ड में "UPI में भेजा" दिखेगा। रविवार, दूसरा/चौथा शनिवार और नीचे दिए बैंक अवकाश पर पेआउट नहीं होता।
+        </p>
+        <div id="sp-summary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px;"></div>
+        <div id="sp-due"><div class="empty-row">लोड हो रहा है...</div></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="tbl-header"><span class="table-title">आने वाले पेआउट</span></div>
+        <div id="sp-upcoming" style="font-size:13px;"></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="tbl-header"><span class="table-title">इस दिन चुकाए गए</span></div>
+        <div id="sp-paid" style="font-size:13px;"></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="tbl-header"><span class="table-title">बैंक अवकाश (इन दिनों पेआउट नहीं)</span></div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px;">
           <input type="date" id="sp-hol-date" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
           <input type="text" id="sp-hol-name" placeholder="जैसे: होली" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
@@ -2386,6 +2424,7 @@ function showPanel(name, targetEl){
       'sutra-reviews': currentAdminLang === 'en' ? 'Sutradhar Requires Review Queue' : 'सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
       'sutra-payouts': currentAdminLang === 'en' ? 'Sutradhar Payout Desk' : 'सूत्रधार पेआउट डेस्क',
       saas: currentAdminLang === 'en' ? 'Astrologer SaaS Subscribers' : 'ज्योतिषी SaaS ग्राहक',
+      'saas-leads': currentAdminLang === 'en' ? 'SaaS call list (astrologers)' : 'SaaS कॉल सूची — किसे कॉल हुई, किसे नहीं',
       visitors: currentAdminLang === 'en' ? 'Website Visitors & Downloads' : 'वेबसाइट विज़िटर्स व डाउनलोड',
       'sutra-list': currentAdminLang === 'en' ? 'Sutradhar List — who is active' : 'सूत्रधार सूची — कौन सक्रिय',
       'course-batches': currentAdminLang === 'en' ? 'Course batches (11 seats)' : 'कोर्स बैच (11 सीटें)',
@@ -2410,8 +2449,9 @@ function showPanel(name, targetEl){
     } else if (name === 'careers') {
       fetchCareerApplications();
       loadSutradharList(true);
+    } else if (name === 'saas-leads') {
+      initSaasLeads();
     } else if (name === 'sutra-list') {
-      'saas-leads': currentAdminLang === 'en' ? 'SaaS call list (astrologers)' : 'SaaS कॉल सूची — किसे कॉल हुई, किसे नहीं',
       loadSutradharList();
     } else if (name === 'course-batches') {
       loadCourseBatchesAdmin();
@@ -2437,8 +2477,6 @@ async function loadSocialStatus() {
     if (!res.ok) return;
     const data = await res.json();
     
-    } else if (name === 'saas-leads') {
-      initSaasLeads();
     if (data.today_package && data.today_package.topic) {
       const pkg = data.today_package;
       const themeEl = document.getElementById('socialTodayTheme');
@@ -3306,34 +3344,6 @@ async function sutraAdminFetch(path, opts) {
   return res;
 }
 
-/* ══ WEBSITE VISITORS & DOWNLOADS (sra-analytics.js /api/analytics) ══ */
-const anEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const anNum = n => (Number(n) || 0).toLocaleString('en-IN');
-const anDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('hi-IN', { day: 'numeric', month: 'short' }); } catch (e) { return d; } };
-const anDT = iso => { try { return new Date(iso).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso || '—'; } };
-
-function anRows(list, empty) {
-  if (!list || !list.length) return `<tr><td class="empty-row">${empty || 'अभी कोई डेटा नहीं'}</td></tr>`;
-  const max = Math.max(...list.map(x => x.count)) || 1;
-  return list.map(x => `<tr><td style="width:100%;"><div style="font-size:12.5px;">${anEsc(x.name)}</div>
-    <div style="height:5px; background:rgba(124,58,237,.12); border-radius:3px; margin-top:3px;"><div style="height:5px; width:${Math.max(3, Math.round(x.count / max * 100))}%; background:#7c3aed; border-radius:3px;"></div></div></td>
-    <td style="text-align:right; font-weight:700; white-space:nowrap;">${anNum(x.count)}</td></tr>`).join('');
-}
-
-async function loadVisitors(days) {
-  window._anDays = days;
-  document.querySelectorAll('.an-range').forEach(b => {
-    const on = Number(b.dataset.days) === days;
-    b.style.background = on ? '#7c3aed' : ''; b.style.color = on ? '#fff' : ''; b.style.borderColor = on ? '#6d28d9' : '';
-  });
-  const stats = document.getElementById('an-stats');
-  stats.innerHTML = '<div class="stat-card"><span class="spin"></span> लोड हो रहा है...</div>';
-  try {
-    const res = await sutraAdminFetch('/api/analytics/admin/summary?days=' + days);
-    const d = await res.json();
-    if (!res.ok) throw new Error(d.detail || 'डेटा नहीं मिला');
-    const t = d.totals || {};
-    document.getElementById('an-range-label').textContent = `${anDate(d.from)} से ${anDate(d.to)} तक`;
 /* ══ SaaS CALL LIST: astrologers to call about the software (Excel upload, status, WhatsApp demo link) ══ */
 const SCL_STATUS = [
   ['new', 'कॉल बाकी', '#f1f5f9', '#334155'],
@@ -3486,18 +3496,39 @@ async function importSaasLeads() {
 async function loadSaasLeads() {
   const tbody = document.getElementById('scl-tbody');
   if (tbody && !sclLeads.length) tbody.innerHTML = '<tr><td colspan="4" class="empty-row"><span class="spin"></span> लोड हो रहा है...</td></tr>';
+  
+  let loadedFromServer = false;
   try {
     const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads');
     const d = await res.json();
-    if (!res.ok) throw new Error(d.detail || 'सूची लोड नहीं हो सकी');
-    sclLeads = d.leads || [];
-    renderSaasLeads();
+    if (res.ok && d.leads && d.leads.length) {
+      sclLeads = d.leads;
+      loadedFromServer = true;
+      renderSaasLeads();
+      return;
+    }
   } catch (err) {
-    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="empty-row" style="color:#ef4444;">त्रुटि: ${sclEsc(err.message)}</td></tr>`;
+    console.warn('Server fetch for SaaS leads failed (offline or not logged in), checking local leads:', err.message);
+  }
+
+  // Fallback to preloaded leads (offline / local)
+  if (!loadedFromServer && window.SRA_PRELOADED_SAAS_LEADS && window.SRA_PRELOADED_SAAS_LEADS.length) {
+    let localSaved = {};
+    try { localSaved = JSON.parse(localStorage.getItem('sra_saas_leads_status') || '{}'); } catch(e){}
+    sclLeads = window.SRA_PRELOADED_SAAS_LEADS.map(l => {
+      if (localSaved[l.phone]) {
+        return Object.assign({}, l, localSaved[l.phone]);
+      }
+      return Object.assign({}, l);
+    });
+    renderSaasLeads();
+  } else if (!loadedFromServer) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="empty-row" style="color:#ef4444;">कोई लीड्स नहीं मिलीं। कृपया ऊपर से Excel/CSV डालें।</td></tr>`;
   }
 }
 function sclStatusOf(l) { return l.is_subscriber ? 'bought' : (SCL_LABEL[l.status] ? l.status : 'new'); }
 function renderSaasLeads() {
+  sclPopulateCities();
   const counts = { all: sclLeads.length };
   sclLeads.forEach(l => { const s = sclStatusOf(l); counts[s] = (counts[s] || 0) + 1; });
   const badge = document.getElementById('badge-saas-leads');
@@ -3536,14 +3567,46 @@ function renderSaasLeads() {
 }
 async function sclSave(phone, body, quiet) {
   const l = sclLeads.find(x => x.phone === phone);
+  if (l) {
+    if (body.status) l.status = body.status;
+    if (body.demo_sent) {
+      l.demo_sent_at = new Date().toISOString();
+      if (!body.status && ['new', 'no_answer', 'callback', 'interested'].includes(l.status)) {
+        l.status = 'demo_sent';
+      }
+    }
+    if (body.called) {
+      l.called_at = new Date().toISOString();
+      l.calls = (l.calls || 0) + 1;
+    }
+    if (body.note != null) l.note = body.note;
+    if (body.delete) sclLeads = sclLeads.filter(x => x.phone !== phone);
+
+    // Persist locally
+    try {
+      const localSaved = JSON.parse(localStorage.getItem('sra_saas_leads_status') || '{}');
+      localSaved[phone] = {
+        status: l.status,
+        demo_sent_at: l.demo_sent_at,
+        called_at: l.called_at,
+        calls: l.calls,
+        note: l.note,
+        deleted: l.deleted
+      };
+      localStorage.setItem('sra_saas_leads_status', JSON.stringify(localSaved));
+    } catch(e) {}
+  }
+
+  // Sync to remote server if authorized
   try {
     const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads/update', { method: 'POST', body: JSON.stringify(Object.assign({ phone }, body)) });
     const d = await res.json();
-    if (!res.ok) throw new Error(d.detail || 'सेव नहीं हुआ');
-    if (l) Object.assign(l, d.lead, { is_subscriber: l.is_subscriber });
-    if (body.delete) sclLeads = sclLeads.filter(x => x.phone !== phone);
-    if (!quiet || body.status || body.delete) renderSaasLeads();
-  } catch (err) { alert(err.message); }
+    if (res.ok && l) Object.assign(l, d.lead, { is_subscriber: l.is_subscriber });
+  } catch (err) {
+    if (!quiet && !window.SRA_PRELOADED_SAAS_LEADS) alert(err.message);
+  }
+
+  if (!quiet || body.status || body.delete) renderSaasLeads();
 }
 function sclWhatsApp(phone) {
   const l = sclLeads.find(x => x.phone === phone);
@@ -3567,6 +3630,139 @@ function sclDelete(phone) {
   if (l && confirm(`${l.name || phone} को सूची से हटाएँ?`)) sclSave(phone, { delete: true });
 }
 
+/* ── City-wise WhatsApp Automation ── */
+let sclSenderRunning = false;
+
+function sclPopulateCities() {
+  const sel = document.getElementById('scl-city-select');
+  if (!sel) return;
+  const curr = sel.value;
+  const map = {};
+  sclLeads.forEach(l => {
+    const c = (l.city || 'Other').trim();
+    if (!map[c]) map[c] = { total: 0, pending: 0 };
+    map[c].total++;
+    if (sclStatusOf(l) === 'new') map[c].pending++;
+  });
+  const sorted = Object.keys(map).sort((a, b) => a.localeCompare(b));
+  sel.innerHTML = sorted.map(c =>
+    `<option value="${sclEsc(c)}"${c === curr ? ' selected' : ''}>${sclEsc(c)} (${map[c].pending} नए / ${map[c].total} कुल)</option>`
+  ).join('');
+}
+
+function sclOnCityChange() {
+  const sel = document.getElementById('scl-city-select');
+  const statusBox = document.getElementById('scl-sender-status');
+  if (sel && statusBox && !sclSenderRunning) {
+    statusBox.textContent = `शहर चुना: ${sel.value}। 'इस शहर को भेजें' दबाने पर क्रमवार संदेश भेजे जाएँगे।`;
+  }
+}
+
+function sclCopyTerminalCmd() {
+  const sel = document.getElementById('scl-city-select');
+  const city = sel && sel.value ? sel.value : 'Amethi';
+  const cmd = `python3 /Users/shridharmac/.gemini/antigravity/scratch/sra/whatsapp_city_sender.py --city "${city}"`;
+  navigator.clipboard.writeText(cmd).then(() => {
+    alert(`टर्मिनल कमांड कॉपी हो गया:\n\n${cmd}\n\nआप इसे टर्मिनल में सीधे पेस्ट करके चला सकते हैं।`);
+  }).catch(() => {
+    prompt('टर्मिनल कमांड कॉपी करें:', cmd);
+  });
+}
+
+async function sclStartCitySender() {
+  const sel = document.getElementById('scl-city-select');
+  if (!sel || !sel.value) return alert('कृपया पहले कोई शहर चुनें।');
+  const city = sel.value;
+  const targets = sclLeads.filter(l => (l.city || '').trim().toLowerCase() === city.toLowerCase() && sclStatusOf(l) === 'new');
+  if (!targets.length) {
+    return alert(`'${city}' में कोई नया (Pending) ज्योतिषी नहीं बचा है।`);
+  }
+  if (!confirm(`क्या आप ${city} के ${targets.length} ज्योतिषियों को क्रमवार WhatsApp डेमो भेजना चाहते हैं?\n(हर संदेश के बीच 20-35s का रैंडम गैप रहेगा ताकि WhatsApp सुरक्षित रहे)`)) return;
+
+  sclSenderRunning = true;
+  document.getElementById('scl-btn-send-city').style.display = 'none';
+  document.getElementById('scl-btn-auto-next').style.display = 'none';
+  document.getElementById('scl-btn-stop').style.display = 'inline-block';
+
+  const statusBox = document.getElementById('scl-sender-status');
+
+  for (let i = 0; i < targets.length; i++) {
+    if (!sclSenderRunning) {
+      statusBox.textContent = `ऑटोमेशन रोक दिया गया। (${i}/${targets.length} भेजे गए)`;
+      break;
+    }
+    const l = targets[i];
+    statusBox.innerHTML = `<b>[${city}] (${i + 1}/${targets.length})</b> भेजा जा रहा है: ${sclEsc(l.name || 'पंडित जी')} (+91 ${l.phone})...`;
+
+    // Trigger WhatsApp
+    sclWhatsApp(l.phone);
+
+    if (i < targets.length - 1) {
+      const waitSec = Math.floor(Math.random() * 16) + 20; // 20-35s
+      for (let w = waitSec; w > 0; w--) {
+        if (!sclSenderRunning) break;
+        statusBox.innerHTML = `<b>[${city}] (${i + 1}/${targets.length})</b> भेजा गया। अगला संदेश <b>${w}s</b> में भेजा जाएगा...`;
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+  }
+
+  if (sclSenderRunning) {
+    statusBox.textContent = `सफल! ${city} के सभी उपलब्ध ज्योतिषियों को संदेश भेजे जा चुके हैं।`;
+  }
+  sclStopCitySender();
+  sclPopulateCities();
+}
+
+function sclNextCitySender() {
+  const sel = document.getElementById('scl-city-select');
+  if (!sel) return;
+  for (let opt of sel.options) {
+    const m = opt.textContent.match(/\((\d+)\s+नए/);
+    if (m && parseInt(m[1]) > 0) {
+      sel.value = opt.value;
+      sclStartCitySender();
+      return;
+    }
+  }
+  alert('सभी शहरों के पेंडिंग ज्योतिषियों को संदेश भेजा जा चुका है!');
+}
+
+function sclStopCitySender() {
+  sclSenderRunning = false;
+  document.getElementById('scl-btn-send-city').style.display = 'inline-block';
+  document.getElementById('scl-btn-auto-next').style.display = 'inline-block';
+  document.getElementById('scl-btn-stop').style.display = 'none';
+}
+
+/* ══ WEBSITE VISITORS & DOWNLOADS (sra-analytics.js /api/analytics) ══ */
+const anEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const anNum = n => (Number(n) || 0).toLocaleString('en-IN');
+const anDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('hi-IN', { day: 'numeric', month: 'short' }); } catch (e) { return d; } };
+const anDT = iso => { try { return new Date(iso).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return iso || '—'; } };
+
+function anRows(list, empty) {
+  if (!list || !list.length) return `<tr><td class="empty-row">${empty || 'अभी कोई डेटा नहीं'}</td></tr>`;
+  const max = Math.max(...list.map(x => x.count)) || 1;
+  return list.map(x => `<tr><td style="width:100%;"><div style="font-size:12.5px;">${anEsc(x.name)}</div>
+    <div style="height:5px; background:rgba(124,58,237,.12); border-radius:3px; margin-top:3px;"><div style="height:5px; width:${Math.max(3, Math.round(x.count / max * 100))}%; background:#7c3aed; border-radius:3px;"></div></div></td>
+    <td style="text-align:right; font-weight:700; white-space:nowrap;">${anNum(x.count)}</td></tr>`).join('');
+}
+
+async function loadVisitors(days) {
+  window._anDays = days;
+  document.querySelectorAll('.an-range').forEach(b => {
+    const on = Number(b.dataset.days) === days;
+    b.style.background = on ? '#7c3aed' : ''; b.style.color = on ? '#fff' : ''; b.style.borderColor = on ? '#6d28d9' : '';
+  });
+  const stats = document.getElementById('an-stats');
+  stats.innerHTML = '<div class="stat-card"><span class="spin"></span> लोड हो रहा है...</div>';
+  try {
+    const res = await sutraAdminFetch('/api/analytics/admin/summary?days=' + days);
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'डेटा नहीं मिला');
+    const t = d.totals || {};
+    document.getElementById('an-range-label').textContent = `${anDate(d.from)} से ${anDate(d.to)} तक`;
     stats.innerHTML = [
       ['लोग', t.people, 'अलग-अलग व्यक्ति (हर व्यक्ति एक बार)', 'gold'],
       ['लौटकर आए', t.returning, 'एक से ज़्यादा दिन आए', ''],
