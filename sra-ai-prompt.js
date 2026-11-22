@@ -37,7 +37,7 @@
           'The Patrika app of Shri Ramji Astro is made for exactly this. But I will not praise it. Ask any AI yourself, ChatGPT or Google Gemini. Just copy this question and paste it:\n\n' +
           '"' + EN + '"\n\n' +
           '(Change the number of clients and the fee to your own.)\n\n' +
-          'Read the answer and check your own numbers. If it makes sense, write me one line and send the mobile number you want to use the app with. I will get that number activated; after you log in with it you can see the demo and run the whole app yourself. The demo lasts 1 day.\n\n' +
+          'Read the answer and check your own numbers. If it makes sense, write me one line. I will send you the free demo, where you can run the whole app yourself and see a sample of every report.\n\n' +
           'Thank you.';
       }
       return 'नमस्ते ज्योतिषी जी,\n\n' +
@@ -46,7 +46,7 @@
         'श्री राम जी एस्ट्रो की पत्रिका ऐप इसी के लिए बनी है। पर मैं इसकी तारीफ़ नहीं करूँगा। आप ख़ुद किसी भी AI से पूछ लीजिए, ChatGPT हो या Google Gemini। बस यह सवाल कॉपी करके डाल दीजिए:\n\n' +
         '"' + HI + '"\n\n' +
         '(जातकों की गिनती और दक्षिणा अपने हिसाब से बदल लीजिए।)\n\n' +
-        'जवाब पढ़िए, अपना हिसाब देखिए। बात जँचे, तो मुझे एक लाइन लिख दीजिए, और वह मोबाइल नंबर भेज दीजिए जिससे आप ऐप चलाना चाहते हैं। मैं उसी नंबर को चालू करवा दूँगा। उस नंबर से लॉगिन करके आप डेमो देख सकेंगे और पूरी ऐप ख़ुद चलाकर परख सकेंगे। डेमो 1 दिन के लिए रहेगा।\n\n' +
+        'जवाब पढ़िए, अपना हिसाब देखिए। बात जँचे, तो मुझे एक लाइन लिख दीजिए। मैं आपको मुफ़्त डेमो भेज दूँगा, जिसमें आप पूरी ऐप ख़ुद चलाकर देख सकते हैं, और हर रिपोर्ट का नमूना भी।\n\n' +
         'धन्यवाद।';
     }
   };
