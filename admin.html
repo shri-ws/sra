@@ -3350,7 +3350,7 @@ const SCL_STATUS = [
   ['bought', 'Bought', '#d1fae5', '#065f46']
 ];
 const SCL_LABEL = Object.fromEntries(SCL_STATUS.map(s => [s[0], s[1]]));
-const SCL_DEFAULT_MSG = '🙏 सादर प्रणाम {नाम} जी,\n\nहम Shri Ramji Astro से लिख रहे हैं। Google पर आपका ज्योतिष केंद्र देखा, इसलिए आपको सीधे यह संदेश भेज रहे हैं।\n\nहमने ज्योतिषियों के लिए एक सदस्यता बनाई है:\n• जातक को शास्त्र-प्रमाणित रिपोर्ट दें (मूल श्लोक व ग्रंथ संदर्भ सहित), शुल्क पूरा आपका\n• हर जातक का खाता, आपके गोपनीय नोट और डिजिटल उपाय-पर्ची\n• जातक रोज़ अपने फ़ोन पर उपाय टिक करता है, आपको दिखता है कौन छोड़ रहा है\n\n3 मिनट का डेमो, कोई लॉगिन नहीं:\n{लिंक}\n\nअच्छा लगे तो इसी नंबर पर उत्तर दें, हम पूरी जानकारी देंगे। रुचि न हो तो बस "नहीं" लिख दें, दोबारा संदेश नहीं भेजेंगे।\n\n— Shri Ramji Astro';
+const SCL_DEFAULT_MSG = '🙏 सादर प्रणाम {नाम} जी,\n\nShri Ramji Astro की ओर से एक छोटी-सी जानकारी:\n\nआपकी ज्योतिष की आमदनी 3 गुना तक बढ़ सकती है —\n• जातक को शास्त्र-प्रमाणित रिपोर्ट दें, उसका पूरा शुल्क आपका\n• उपाय की डिजिटल पर्ची दें, जातक रोज़ अपने फ़ोन पर टिक करे\n• जातक आपसे जुड़ा रहे, बार-बार लौटे और परिवार को भी लाए\n\nअपने ज्योतिष को और मज़बूत करें, अपने जातकों को बेहतर समाधान दें।\n\nकैसे होगा, 3 मिनट के डेमो में देखें:\n{लिंक}\n\n— Shri Ramji Astro';
 let sclLeads = [], sclFilter = 'all', sclPending = [], sclInited = false;
 
 function sclEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -3359,7 +3359,7 @@ function sclPhone(raw) {
   return m ? m[1].replace(/\D/g, '') : '';
 }
 function sclSettings() {
-  return { ref: (localStorage.getItem('scl_ref') || '').trim(), w: (localStorage.getItem('scl_w') || '').replace(/\D/g, ''), msg: localStorage.getItem('scl_msg_v2') || SCL_DEFAULT_MSG };
+  return { ref: (localStorage.getItem('scl_ref') || '').trim(), w: (localStorage.getItem('scl_w') || '').replace(/\D/g, ''), msg: localStorage.getItem('scl_msg_v3') || SCL_DEFAULT_MSG };
 }
 function sclDemoLink(name) {
   const s = sclSettings(), p = new URLSearchParams();
@@ -3383,7 +3383,7 @@ function initSaasLeads() {
     const upd = () => {
       localStorage.setItem('scl_ref', document.getElementById('scl-ref').value.trim().toUpperCase());
       localStorage.setItem('scl_w', document.getElementById('scl-w').value.replace(/\D/g, ''));
-      localStorage.setItem('scl_msg_v2', document.getElementById('scl-msg').value || SCL_DEFAULT_MSG);
+      localStorage.setItem('scl_msg_v3', document.getElementById('scl-msg').value || SCL_DEFAULT_MSG);
       document.getElementById('scl-sample').textContent = sclDemoLink('शर्मा');
     };
     ['scl-ref', 'scl-w', 'scl-msg'].forEach(id => document.getElementById(id).addEventListener('input', upd));
