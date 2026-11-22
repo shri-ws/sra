@@ -4455,16 +4455,20 @@ function applyAdminLanguage(lang) {
   // Sidebar navigation items
   const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
   if (navItems.length >= 11) {
-    navItems[0].innerHTML = dict.overview;
-    navItems[1].innerHTML = dict.accounts;
-    navItems[2].innerHTML = dict.emails;
-    navItems[3].innerHTML = dict.users;
-    navItems[4].innerHTML = dict.students;
-    navItems[5].innerHTML = dict.payments;
-    navItems[6].innerHTML = dict.consultations;
-    navItems[7].innerHTML = dict.forum;
-    navItems[8].innerHTML = dict.reviews;
-    navItems[9].innerHTML = dict.social + ' &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span>';
+    // label each menu item by the page it opens, not by its position (positions shift when items are added)
+    const byPanel = {};
+    navItems.forEach(n => { const m = String(n.getAttribute('onclick') || '').match(/showPanel\('([^']+)'/); if (m) byPanel[m[1]] = n; });
+    const setLabel = (panel, html) => { if (byPanel[panel] && html) byPanel[panel].innerHTML = html; };
+    setLabel('overview', dict.overview);
+    setLabel('accounts', dict.accounts);
+    setLabel('emails', dict.emails);
+    setLabel('users', dict.users);
+    setLabel('students', dict.students);
+    setLabel('payments', dict.payments);
+    setLabel('consultations', dict.consultations);
+    setLabel('forum', dict.forum);
+    setLabel('reviews', dict.reviews);
+    setLabel('social', dict.social + ' &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span>');
     const mktItem = document.querySelector('.nav-item-marketing');
     if (mktItem) {
       const doneCount = (typeof getMktCompletedTasks === 'function') ? getMktCompletedTasks().length : 0;
@@ -5004,6 +5008,94 @@ function toggleAdminLanguage() {
       if (main) window.scrollTo({ top: main.getBoundingClientRect().top + window.scrollY - 8, behavior: 'smooth' });
     }
   });
+})();
+</script>
+<!-- ══ LEFT MENU IN GROUPS: मुख्य · मार्केटिंग · सूत्रधार · SaaS (ज्योतिषी); each group folds ══ -->
+<style>
+.nav-group{margin-top:6px}
+.nav-group:first-child{margin-top:0}
+.nav-group-head{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;cursor:pointer;
+  font:inherit;font-size:11.5px;font-weight:700;letter-spacing:.4px;color:var(--text-muted,#6b7280);padding:8px 12px 4px;text-align:left}
+.nav-group-head:hover{color:var(--text,#111)}
+.nav-group-head .ng-count{font-size:10px;font-weight:700;background:#e5e7eb;color:#374151;border-radius:9px;padding:1px 7px;margin-left:6px}
+.nav-group-head .ng-arrow{font-size:10px;transition:transform .15s}
+.nav-group.closed .ng-arrow{transform:rotate(-90deg)}
+.nav-group.closed .nav-group-items{display:none}
+.nav-group-items{display:flex;flex-direction:column}
+@media (max-width:900px){
+  .sidebar-nav .nav-group{flex:1 1 100%;margin-top:2px}
+  .nav-group-head{padding:6px 2px 4px}
+  .nav-group-items{flex-direction:row;flex-wrap:wrap;gap:6px}
+}
+</style>
+<script>
+(function () {
+  var nav = document.querySelector('.sidebar-nav');
+  if (!nav) return;
+  var GROUPS = [
+    ['main', 'मुख्य'],
+    ['marketing', 'मार्केटिंग'],
+    ['sutra', 'सूत्रधार'],
+    ['saas', 'SaaS (ज्योतिषी)']
+  ];
+  function groupOf(el) {
+    var m = String(el.getAttribute('onclick') || '').match(/showPanel\('([^']+)'/);
+    var p = m ? m[1] : '';
+    if (!p && /sutradhar\.html/.test(el.getAttribute('href') || '')) return 'sutra';
+    if (p === 'saas' || p.indexOf('saas-') === 0) return 'saas';
+    if (p === 'careers' || p.indexOf('sutra-') === 0) return 'sutra';
+    if (p === 'social' || p === 'marketing' || p === 'ig-outreach' || p === 'visitors') return 'marketing';
+    return 'main';
+  }
+  var KEY = 'adm_nav_open_v1';
+  var open;
+  try { open = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { open = null; }
+  if (!open) open = { main: true };
+  var boxes = {};
+  var items = [].slice.call(nav.querySelectorAll(':scope > .nav-item'));
+  GROUPS.forEach(function (g) {
+    var wrap = document.createElement('div');
+    wrap.className = 'nav-group' + (open[g[0]] ? '' : ' closed');
+    wrap.dataset.group = g[0];
+    wrap.innerHTML = '<button type="button" class="nav-group-head" aria-expanded="' + !!open[g[0]] + '"><span>' + g[1] + '<span class="ng-count" style="display:none"></span></span><span class="ng-arrow">▾</span></button><div class="nav-group-items"></div>';
+    wrap.querySelector('.nav-group-head').addEventListener('click', function () { setOpen(g[0], wrap.classList.contains('closed')); });
+    boxes[g[0]] = wrap;
+  });
+  items.forEach(function (el) { boxes[groupOf(el)].querySelector('.nav-group-items').appendChild(el); });
+  GROUPS.forEach(function (g) { if (boxes[g[0]].querySelector('.nav-item')) nav.appendChild(boxes[g[0]]); });
+
+  function setOpen(id, yes) {
+    var w = boxes[id];
+    if (!w) return;
+    w.classList.toggle('closed', !yes);
+    w.querySelector('.nav-group-head').setAttribute('aria-expanded', String(!!yes));
+    open[id] = !!yes;
+    try { localStorage.setItem(KEY, JSON.stringify(open)); } catch (e) {}
+  }
+  function openActive() {
+    var a = nav.querySelector('.nav-item.active');
+    if (a) { var g = a.closest('.nav-group'); if (g && g.classList.contains('closed')) setOpen(g.dataset.group, true); }
+  }
+  // a folded group shows how many items inside need attention (sum of their number badges)
+  function counts() {
+    GROUPS.forEach(function (g) {
+      var w = boxes[g[0]], n = 0;
+      if (!w) return;
+      w.querySelectorAll('.nav-item span[id^="badge-"]').forEach(function (b) {
+        var v = parseInt(b.textContent, 10);
+        if (b.style.display !== 'none' && isFinite(v)) n += v;
+      });
+      var c = w.querySelector('.ng-count');
+      c.textContent = n; c.style.display = n ? '' : 'none';
+    });
+  }
+  if (typeof window.showPanel === 'function') {
+    var orig = window.showPanel;
+    window.showPanel = function (name, el) { var r = orig.apply(this, arguments); openActive(); return r; };
+  }
+  openActive();
+  counts();
+  setInterval(counts, 4000);
 })();
 </script>
 </body>
