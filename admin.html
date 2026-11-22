@@ -1401,6 +1401,10 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
         </div>
 
         <div id="scl-filters" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
+        <div id="scl-queue" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:10px;">
+          <button class="export-btn" id="scl-next-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendNext()">Send to next</button>
+          <span id="scl-next-info" style="font-size:12px; color:var(--text-muted);"></span>
+        </div>
         <select id="scl-city-select" onchange="renderSaasLeads()" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin:0 8px 10px 0; min-width:200px;"><option value="">All cities</option></select>
         <input id="scl-search" placeholder="Search name, number or city" oninput="renderSaasLeads()" style="width:100%; max-width:360px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin-bottom:10px;">
         <div style="overflow-x:auto">
@@ -3502,6 +3506,7 @@ function renderSaasLeads() {
   sclPopulateCities();
   const counts = { all: sclLeads.length };
   sclLeads.forEach(l => { const s = sclStatusOf(l); counts[s] = (counts[s] || 0) + 1; });
+  sclRenderQueue();
   const badge = document.getElementById('badge-saas-leads');
   if (badge) { badge.textContent = counts.new || 0; badge.style.display = counts.new ? 'inline-block' : 'none'; }
   document.getElementById('scl-filters').innerHTML = [['all', 'All']].concat(SCL_STATUS.map(s => [s[0], s[1]])).map(([k, label]) =>
@@ -3547,6 +3552,33 @@ async function sclSave(phone, body, quiet) {
     if (body.delete) sclLeads = sclLeads.filter(x => x.phone !== phone);
     if (!quiet || body.status || body.delete) renderSaasLeads();
   } catch (err) { alert(err.message); }
+}
+/* Send-to-next: one click opens WhatsApp for the next not-yet-contacted astrologer in the chosen city.
+   You press Send in WhatsApp yourself — no automatic bulk sending (WhatsApp bans numbers that do that). */
+function sclQueue() {
+  const city = (document.getElementById('scl-city-select') || {}).value || '';
+  return sclLeads.filter(l => sclStatusOf(l) === 'new' && (!city || (l.city || 'Other').trim() === city))
+    .sort((a, b) => (a.row_no || 0) - (b.row_no || 0));
+}
+let sclSentThisRun = 0;
+function sclRenderQueue() {
+  const btn = document.getElementById('scl-next-btn'), info = document.getElementById('scl-next-info');
+  if (!btn || !info) return;
+  const q = sclQueue(), city = (document.getElementById('scl-city-select') || {}).value || 'all cities';
+  btn.textContent = q.length ? `Send to next (${q.length} left)` : 'Nobody left to send';
+  btn.disabled = !q.length; btn.style.opacity = q.length ? '1' : '0.5';
+  info.innerHTML = q.length
+    ? `Next: <b>${sclEsc(q[0].name || '—')}</b> · ${sclEsc(q[0].phone)}${q[0].city ? ' · ' + sclEsc(q[0].city) : ''}` +
+      ` &nbsp;·&nbsp; ${city}${sclSentThisRun ? ` · opened ${sclSentThisRun} this session` : ''}. Press Send in WhatsApp, come back, click again.`
+    : `Everyone in ${sclEsc(city)} has been contacted.`;
+}
+function sclSendNext() {
+  const l = sclQueue()[0];
+  if (!l) return;
+  sclWhatsApp(l.phone);
+  l.status = 'demo_sent'; l.demo_sent_at = new Date().toISOString();   // move on at once; the server reply confirms it
+  sclSentThisRun++;
+  renderSaasLeads();
 }
 function sclWhatsApp(phone) {
   const l = sclLeads.find(x => x.phone === phone);
