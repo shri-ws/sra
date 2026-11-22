@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="theme.js"></script>
 <script src="sra-config.js"></script>
-<script src="sra-ai-prompt.js?v=1"></script>
+<script src="sra-ai-prompt.js?v=2"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root, [data-theme="day"] {
@@ -1387,10 +1387,10 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
             <textarea id="scl-msg" rows="11" style="width:100%; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font:inherit; font-size:13px;"></textarea></label>
           <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Sample link: <span id="scl-sample" style="font-family:monospace; word-break:break-all;"></span></div>
           <div style="margin-top:10px; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:12px; color:var(--text-muted);">
-            <strong style="color:var(--text)">AI prompt for astrologers.</strong> A plain "how to earn more with shriramjiastro.in" question gets generic answers from ChatGPT. This prompt carries the membership facts, so any AI app works out the astrologer's own numbers. Send it after the demo link.
+            <strong style="color:var(--text)">AI question message for astrologers.</strong> A short message: "do not take my word for the benefit, ask any AI this question". When the astrologer finds the answer fair and asks, send the demo link.
             <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="sclCopyAi('hi')">Copy prompt (Hindi)</button>
-              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="sclCopyAi('en')">Copy prompt (English)</button>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="sclCopyAi('hi')">Copy message (Hindi)</button>
+              <button class="social-btn" style="padding:4px 10px;font-size:11px" onclick="sclCopyAi('en')">Copy message (English)</button>
             </div>
           </div>
         </details>
@@ -3384,7 +3384,7 @@ function sclMessage(l) {
 function sclCopyAi(lang) {
   if (!window.SRAAIPrompt) return;
   const t = SRAAIPrompt.whatsapp(lang);
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(() => alert('Copied. Paste it in WhatsApp after the demo link.'), () => window.prompt('Copy:', t));
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(() => alert('Copied. Paste it in WhatsApp.'), () => window.prompt('Copy:', t));
   else window.prompt('Copy:', t);
 }
 
