@@ -571,3 +571,34 @@ def test_offer_link_makes_the_sutradhar_lead():
     # an unknown code changes nothing
     o3 = client.post("/api/sutradhar/orders/create", json={"customer_phone": "9844400044", "service_id": "kaalsarp_dosha", "ref_code": "SUTRA000000"}).json()
     assert not o3.get("sutradhar_code")
+
+
+def test_saas_call_list_import_and_update():
+    url = "/api/sutradhar/admin/saas-leads"
+    assert client.get(url).status_code in (401, 403)
+    rows = [{"name": "पं. रमेश शर्मा", "phone": "+91 98765 43210", "city": "इंदौर"},
+            {"name": "आचार्य सुनील", "phone": "09876500011"},
+            {"name": "ग़लत", "phone": "12345"}]
+    r = client.post(url + "/import", headers=ADMIN, json={"rows": rows, "source": "test.xlsx"}).json()
+    assert (r["added"], r["updated"], r["skipped"]) == (2, 0, 1)
+    d = client.get(url, headers=ADMIN).json()
+    assert d["count"] == 2 and d["counts"]["new"] == 2
+    assert [l["phone"] for l in d["leads"]] == ["9876543210", "9876500011"]
+
+    u = client.post(url + "/update", headers=ADMIN, json={"phone": "9876543210", "status": "interested", "called": True, "note": "शाम को"}).json()
+    assert u["lead"]["status"] == "interested" and u["lead"]["calls"] == 1
+    assert client.post(url + "/update", headers=ADMIN, json={"phone": "9876543210", "status": "xyz"}).status_code == 400
+
+    # the same Excel again: status and note stay, a new number is added
+    r = client.post(url + "/import", headers=ADMIN, json={"rows": rows + [{"name": "नया", "phone": "9123456780"}]}).json()
+    assert (r["added"], r["updated"]) == (1, 2)
+    d = client.get(url, headers=ADMIN).json()
+    ramesh = next(l for l in d["leads"] if l["phone"] == "9876543210")
+    assert ramesh["status"] == "interested" and ramesh["note"] == "शाम को" and d["count"] == 3
+
+    # a number with an active SaaS subscription shows as a buyer; delete hides a row
+    se.extend_saas_subscription("9876500011", "आचार्य सुनील", source="test")
+    d = client.get(url, headers=ADMIN).json()
+    assert next(l for l in d["leads"] if l["phone"] == "9876500011")["is_subscriber"] is True
+    client.post(url + "/update", headers=ADMIN, json={"phone": "9123456780", "delete": True})
+    assert client.get(url, headers=ADMIN).json()["count"] == 2

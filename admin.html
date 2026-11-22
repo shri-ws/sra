@@ -503,6 +503,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item nav-item-visitors" onclick="showPanel('visitors', this)" style="color:#7c3aed; font-weight:bold; background:rgba(124,58,237,0.06); border:1px solid rgba(124,58,237,0.25); border-radius:8px; margin-top:6px;">वेबसाइट विज़िटर्स व डाउनलोड</div>
       <div class="nav-item nav-item-saas" onclick="showPanel('saas', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">SaaS ग्राहक (ज्योतिषी) &nbsp;<span id="badge-saas" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-payouts" onclick="showPanel('sutra-payouts', this)" style="color:#16a34a; font-weight:bold; background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.25); border-radius:8px; margin-top:6px;">सूत्रधार पेआउट डेस्क &nbsp;<span id="badge-sutra-payouts" style="display:none; font-size:9px; background:#16a34a; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
+      <div class="nav-item nav-item-saas-leads" onclick="showPanel('saas-leads', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">SaaS कॉल सूची (ज्योतिषी) &nbsp;<span id="badge-saas-leads" style="display:none; font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-reviews" onclick="showPanel('sutra-reviews', this)" style="color:#ef4444; font-weight:bold; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:8px; margin-top:6px;">सूत्रधार जाँच ज़रूरी &nbsp;<span id="badge-sutra-reviews" style="display:none; font-size:9px; background:#dc2626; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-invite" onclick="showPanel('sutra-invite', this)" style="color:#c2410c; font-weight:bold; background:rgba(234,88,12,0.07); border:1px solid rgba(234,88,12,0.3); border-radius:8px; margin-top:6px;">सूत्रधार आमंत्रण</div>
       <a class="nav-item" href="sutradhar.html" target="_blank" rel="noopener" style="text-decoration:none; color:#b45309; font-weight:bold; background:rgba(180,83,9,0.06); border:1px solid rgba(180,83,9,0.25); border-radius:8px; margin-top:6px;">सूत्रधार पोर्टल खोलें </a>
@@ -1365,6 +1366,51 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       </div>
       <div class="card" style="margin-top:16px;">
         <div class="tbl-header"><span class="table-title">बैंक अवकाश (इन दिनों पेआउट नहीं)</span></div>
+    <div class="panel" id="panel-saas-leads">
+      <div class="card">
+        <div class="tbl-header">
+          <span class="table-title">SaaS कॉल सूची — किसे कॉल हुई, किसे नहीं</span>
+          <button class="export-btn" onclick="loadSaasLeads()">रिफ्रेश</button>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px;">
+          ज्योतिषियों की Excel / CSV सूची डालें। हर नंबर पर कॉल करके स्थिति चुनें। <b>WhatsApp</b> दबाते ही उस ज्योतिषी के नाम वाला डेमो लिंक संदेश में चला जाता है और "डेमो भेजा" लग जाता है। वही Excel दोबारा डालने पर पुरानी स्थिति नहीं मिटती, सिर्फ़ नए नंबर जुड़ते हैं।
+        </p>
+
+        <details id="scl-settings" style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
+          <summary style="cursor:pointer; font-weight:700; font-size:13px;">डेमो लिंक और संदेश की सेटिंग</summary>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <label style="font-size:12px;">सूत्रधार कोड (ref, ख़ाली भी चलेगा)<br><input id="scl-ref" placeholder="जैसे SRA1234" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"></label>
+            <label style="font-size:12px;">जवाब के लिए WhatsApp नंबर (w)<br><input id="scl-w" type="tel" placeholder="10 अंक" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"></label>
+          </div>
+          <label style="font-size:12px; display:block; margin-top:8px;">संदेश ({नाम} और {लिंक} अपने-आप भरेंगे)<br>
+            <textarea id="scl-msg" rows="3" style="width:100%; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font:inherit; font-size:13px;"></textarea></label>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">नमूना लिंक: <span id="scl-sample" style="font-family:monospace; word-break:break-all;"></span></div>
+        </details>
+
+        <div style="border:1.5px dashed var(--border); border-radius:8px; padding:12px; margin-bottom:14px;">
+          <div style="font-weight:700; font-size:13px; margin-bottom:6px;">सूची डालें</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <input type="file" id="scl-file" accept=".xlsx,.xls,.csv,.txt" style="font-size:13px;">
+            <span style="font-size:12px; color:var(--text-muted);">या नीचे नाम, नंबर, शहर चिपकाएँ (हर पंक्ति में एक ज्योतिषी)</span>
+          </div>
+          <textarea id="scl-paste" rows="3" placeholder="पं. रमेश शर्मा, 9876543210, इंदौर" style="width:100%; margin-top:8px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font:inherit; font-size:13px;"></textarea>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px;">
+            <button class="export-btn" style="background:#2563eb; border-color:#1d4ed8; color:#fff;" id="scl-import-btn" onclick="importSaasLeads()" disabled>सूची में जोड़ें</button>
+            <span id="scl-preview" style="font-size:12px; color:var(--text-muted);"></span>
+          </div>
+        </div>
+
+        <div id="scl-filters" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
+        <input id="scl-search" placeholder="नाम, नंबर या शहर से खोजें" oninput="renderSaasLeads()" style="width:100%; max-width:360px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin-bottom:10px;">
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>ज्योतिषी</th><th>स्थिति</th><th>कॉल / डेमो</th><th>नोट</th></tr></thead>
+            <tbody id="scl-tbody"><tr><td colspan="4" class="empty-row">लोड हो रहा है...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 12px;">
           <input type="date" id="sp-hol-date" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
           <input type="text" id="sp-hol-name" placeholder="जैसे: होली" style="padding:6px 8px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
@@ -2365,6 +2411,7 @@ function showPanel(name, targetEl){
       fetchCareerApplications();
       loadSutradharList(true);
     } else if (name === 'sutra-list') {
+      'saas-leads': currentAdminLang === 'en' ? 'SaaS call list (astrologers)' : 'SaaS कॉल सूची — किसे कॉल हुई, किसे नहीं',
       loadSutradharList();
     } else if (name === 'course-batches') {
       loadCourseBatchesAdmin();
@@ -2390,6 +2437,8 @@ async function loadSocialStatus() {
     if (!res.ok) return;
     const data = await res.json();
     
+    } else if (name === 'saas-leads') {
+      initSaasLeads();
     if (data.today_package && data.today_package.topic) {
       const pkg = data.today_package;
       const themeEl = document.getElementById('socialTodayTheme');
@@ -3285,6 +3334,239 @@ async function loadVisitors(days) {
     if (!res.ok) throw new Error(d.detail || 'डेटा नहीं मिला');
     const t = d.totals || {};
     document.getElementById('an-range-label').textContent = `${anDate(d.from)} से ${anDate(d.to)} तक`;
+/* ══ SaaS CALL LIST: astrologers to call about the software (Excel upload, status, WhatsApp demo link) ══ */
+const SCL_STATUS = [
+  ['new', 'कॉल बाकी', '#f1f5f9', '#334155'],
+  ['no_answer', 'फ़ोन नहीं उठा', '#fef3c7', '#92400e'],
+  ['callback', 'बाद में कॉल', '#e0e7ff', '#3730a3'],
+  ['interested', 'इच्छुक', '#dbeafe', '#1d4ed8'],
+  ['demo_sent', 'डेमो भेजा', '#cffafe', '#155e75'],
+  ['not_interested', 'मना किया', '#fee2e2', '#b91c1c'],
+  ['bought', 'ख़रीदा', '#d1fae5', '#065f46']
+];
+const SCL_LABEL = Object.fromEntries(SCL_STATUS.map(s => [s[0], s[1]]));
+const SCL_DEFAULT_MSG = 'नमस्ते {नाम} जी, श्री रामजी ज्योतिष से आपसे बात हुई थी। ज्योतिषी सॉफ़्टवेयर का डेमो यहाँ देखें, 3 मिनट लगेंगे, कोई लॉगिन नहीं:\n{लिंक}';
+let sclLeads = [], sclFilter = 'all', sclPending = [], sclInited = false;
+
+function sclEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function sclPhone(raw) {
+  const m = String(raw == null ? '' : raw).match(/(?:\+?91[\s-]?|0)?([6-9]\d{4}[\s-]?\d{5})/);
+  return m ? m[1].replace(/\D/g, '') : '';
+}
+function sclSettings() {
+  return { ref: (localStorage.getItem('scl_ref') || '').trim(), w: (localStorage.getItem('scl_w') || '').replace(/\D/g, ''), msg: localStorage.getItem('scl_msg') || SCL_DEFAULT_MSG };
+}
+function sclDemoLink(name) {
+  const s = sclSettings(), p = new URLSearchParams();
+  if (s.ref) p.set('ref', s.ref);
+  if (name) p.set('n', String(name).replace(/^\s*(पं\.?|पंडित|आचार्य|श्री|डॉ\.?|pt\.?|pandit|acharya|shri|sri|dr\.?)\s+/i, '').trim());
+  if (s.w.length >= 10) p.set('w', s.w.slice(-10));
+  const q = p.toString();
+  return 'https://shriramjiastro.in/saas-demo.html' + (q ? '?' + q : '');
+}
+function sclMessage(l) {
+  return sclSettings().msg.replace(/\{नाम\}/g, l.name || 'ज्योतिषी').replace(/\{लिंक\}/g, sclDemoLink(l.name));
+}
+
+function initSaasLeads() {
+  if (!sclInited) {
+    sclInited = true;
+    const s = sclSettings();
+    document.getElementById('scl-ref').value = s.ref;
+    document.getElementById('scl-w').value = s.w;
+    document.getElementById('scl-msg').value = s.msg;
+    const upd = () => {
+      localStorage.setItem('scl_ref', document.getElementById('scl-ref').value.trim().toUpperCase());
+      localStorage.setItem('scl_w', document.getElementById('scl-w').value.replace(/\D/g, ''));
+      localStorage.setItem('scl_msg', document.getElementById('scl-msg').value || SCL_DEFAULT_MSG);
+      document.getElementById('scl-sample').textContent = sclDemoLink('शर्मा');
+    };
+    ['scl-ref', 'scl-w', 'scl-msg'].forEach(id => document.getElementById(id).addEventListener('input', upd));
+    document.getElementById('scl-sample').textContent = sclDemoLink('शर्मा');
+    document.getElementById('scl-file').addEventListener('change', sclReadFile);
+    document.getElementById('scl-paste').addEventListener('input', () => sclSetPending(sclParseRows(sclTextRows(document.getElementById('scl-paste').value)), 'चिपकाई सूची'));
+  }
+  loadSaasLeads();
+}
+
+/* ── reading the Excel / CSV / pasted list ── */
+function sclTextRows(text) {
+  return String(text || '').split(/\r?\n/).filter(l => l.trim()).map(l => l.split(/\t|,|;|\|/).map(c => c.trim()));
+}
+function sclParseRows(rows) {
+  rows = (rows || []).filter(r => r && r.some(c => String(c == null ? '' : c).trim()));
+  if (!rows.length) return [];
+  const H = { phone: /phone|mobile|mob|contact|number|whats|नंबर|नम्बर|मोबाइल|फ़ोन|फोन|संपर्क/i, name: /name|नाम|astrolog|ज्योतिषी|पंडित/i,
+    city: /city|शहर|place|स्थान|district|जिला|ज़िला|town|गाँव|state|राज्य|address|पता/i, note: /note|remark|टिप्पणी|नोट|comment/i };
+  let head = null;
+  const first = rows[0].map(c => String(c == null ? '' : c));
+  if (!first.some(c => sclPhone(c)) && first.some(c => /[^\d\s+()-]/.test(c))) {
+    head = {};
+    first.forEach((c, i) => { for (const k in H) if (head[k] == null && H[k].test(c)) { head[k] = i; break; } });
+    rows = rows.slice(1);
+  }
+  head = head || {};
+  if (head.phone == null) {   // the column with the most mobile numbers
+    const score = {};
+    rows.slice(0, 200).forEach(r => r.forEach((c, i) => { if (sclPhone(c)) score[i] = (score[i] || 0) + 1; }));
+    const best = Object.keys(score).sort((a, b) => score[b] - score[a])[0];
+    if (best != null) head.phone = +best;
+  }
+  if (head.phone == null) return [];
+  if (head.name == null) {    // first column with words that is not the phone column
+    const width = Math.max(...rows.slice(0, 50).map(r => r.length));
+    for (let i = 0; i < width; i++) if (i !== head.phone && rows.slice(0, 20).some(r => /[^\d\s+()-]/.test(String(r[i] == null ? '' : r[i])))) { head.name = i; break; }
+  }
+  const cell = (r, k) => head[k] == null ? '' : String(r[head[k]] == null ? '' : r[head[k]]).trim();
+  const seen = new Set(), out = [];
+  rows.forEach(r => {
+    const phone = sclPhone(cell(r, 'phone'));
+    if (!phone || seen.has(phone)) return;
+    seen.add(phone);
+    out.push({ phone, name: cell(r, 'name'), city: cell(r, 'city'), note: cell(r, 'note') });
+  });
+  return out;
+}
+function sclSetPending(list, from) {
+  sclPending = list;
+  const known = new Set(sclLeads.map(l => l.phone));
+  const fresh = list.filter(l => !known.has(l.phone)).length;
+  document.getElementById('scl-preview').textContent = list.length
+    ? `${from}: ${list.length} नंबर मिले (${fresh} नए, ${list.length - fresh} पहले से सूची में)। पहला: ${list[0].name || '—'} ${list[0].phone}`
+    : (from ? `${from}: कोई 10 अंकों का मोबाइल नंबर नहीं मिला।` : '');
+  document.getElementById('scl-import-btn').disabled = !list.length;
+}
+function sclLoadSheetJS() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+    sc.onload = res; sc.onerror = () => rej(new Error('Excel पढ़ने वाली फ़ाइल लोड नहीं हुई। इंटरनेट जाँचें या CSV डालें।'));
+    document.head.appendChild(sc);
+  });
+}
+async function sclReadFile(e) {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  document.getElementById('scl-preview').textContent = 'पढ़ रहे हैं...';
+  try {
+    let rows;
+    if (/\.(csv|txt)$/i.test(f.name)) rows = sclTextRows(await f.text());
+    else {
+      await sclLoadSheetJS();
+      const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+      rows = [];
+      wb.SheetNames.forEach(n => { rows = rows.concat(XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: '' })); });
+    }
+    sclSetPending(sclParseRows(rows), f.name);
+  } catch (err) {
+    document.getElementById('scl-preview').textContent = 'फ़ाइल नहीं पढ़ी जा सकी: ' + err.message;
+  }
+}
+async function importSaasLeads() {
+  if (!sclPending.length) return;
+  const btn = document.getElementById('scl-import-btn');
+  btn.disabled = true; btn.textContent = 'जोड़ रहे हैं...';
+  try {
+    const src = (document.getElementById('scl-file').files[0] || {}).name || 'चिपकाई सूची';
+    const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads/import', { method: 'POST', body: JSON.stringify({ rows: sclPending, source: src }) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सूची नहीं जुड़ी');
+    alert(`${d.added} नए जुड़े, ${d.updated} पहले से थे${d.skipped ? `, ${d.skipped} ग़लत नंबर छोड़े` : ''}।`);
+    sclPending = [];
+    document.getElementById('scl-file').value = '';
+    document.getElementById('scl-paste').value = '';
+    sclSetPending([], '');
+    await loadSaasLeads();
+  } catch (err) { alert(err.message); }
+  btn.textContent = 'सूची में जोड़ें';
+}
+
+/* ── list ── */
+async function loadSaasLeads() {
+  const tbody = document.getElementById('scl-tbody');
+  if (tbody && !sclLeads.length) tbody.innerHTML = '<tr><td colspan="4" class="empty-row"><span class="spin"></span> लोड हो रहा है...</td></tr>';
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads');
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सूची लोड नहीं हो सकी');
+    sclLeads = d.leads || [];
+    renderSaasLeads();
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="empty-row" style="color:#ef4444;">त्रुटि: ${sclEsc(err.message)}</td></tr>`;
+  }
+}
+function sclStatusOf(l) { return l.is_subscriber ? 'bought' : (SCL_LABEL[l.status] ? l.status : 'new'); }
+function renderSaasLeads() {
+  const counts = { all: sclLeads.length };
+  sclLeads.forEach(l => { const s = sclStatusOf(l); counts[s] = (counts[s] || 0) + 1; });
+  const badge = document.getElementById('badge-saas-leads');
+  if (badge) { badge.textContent = counts.new || 0; badge.style.display = counts.new ? 'inline-block' : 'none'; }
+  document.getElementById('scl-filters').innerHTML = [['all', 'सभी']].concat(SCL_STATUS.map(s => [s[0], s[1]])).map(([k, label]) =>
+    `<button class="export-btn" style="padding:5px 10px; font-size:12px;${sclFilter === k ? ' background:#2563eb; border-color:#1d4ed8; color:#fff;' : ''}" onclick="sclFilter='${k}'; renderSaasLeads()">${label} ${counts[k] || 0}</button>`).join('');
+
+  const q = (document.getElementById('scl-search').value || '').trim().toLowerCase();
+  const list = sclLeads.filter(l => (sclFilter === 'all' || sclStatusOf(l) === sclFilter) &&
+    (!q || (l.name || '').toLowerCase().includes(q) || l.phone.includes(q.replace(/\D/g, '') || '~') || (l.city || '').toLowerCase().includes(q)));
+  const tbody = document.getElementById('scl-tbody');
+  if (!sclLeads.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty-row">अभी सूची ख़ाली है। ऊपर से Excel डालें।</td></tr>'; return; }
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty-row">इस छँटाई में कोई नहीं।</td></tr>'; return; }
+  const when = t => t ? new Date(t).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+  tbody.innerHTML = list.slice(0, 500).map(l => {
+    const st = sclStatusOf(l), meta = SCL_STATUS.find(s => s[0] === st);
+    const opts = SCL_STATUS.map(s => `<option value="${s[0]}"${s[0] === st ? ' selected' : ''}>${s[1]}</option>`).join('');
+    const B = 'padding:4px 9px; font-size:11px; white-space:nowrap; text-decoration:none;';
+    return `<tr>
+      <td style="min-width:250px;">
+        <div style="font-weight:700;"><span style="color:var(--text-muted); font-weight:400; font-size:11px;">${l.row_no || ''}.</span> ${sclEsc(l.name || '—')}</div>
+        <div style="font-size:12px;"><span style="font-family:monospace;">${sclEsc(l.phone)}</span>${l.city ? ` · <span style="color:var(--text-muted);">${sclEsc(l.city)}</span>` : ''}</div>
+        <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:6px;">
+          <a class="export-btn" style="${B}" href="tel:+91${l.phone}" onclick="sclSave('${l.phone}', {called:true})">कॉल</a>
+          <button class="export-btn" style="${B} background:#16a34a; border-color:#15803d; color:#fff;" onclick="sclWhatsApp('${l.phone}')">WhatsApp</button>
+          <button class="export-btn" style="${B}" onclick="sclCopy('${l.phone}', 'link', this)">लिंक कॉपी</button>
+          <button class="export-btn" style="${B}" onclick="sclCopy('${l.phone}', 'msg', this)">संदेश कॉपी</button>
+          <button class="export-btn" style="${B} color:#b91c1c;" onclick="sclDelete('${l.phone}')">हटाएँ</button>
+        </div>
+      </td>
+      <td><select onchange="sclSave('${l.phone}', {status:this.value})" style="padding:5px 6px; border-radius:6px; border:1px solid var(--border); background:${meta[2]}; color:${meta[3]}; font-weight:700; font-size:12px;"${l.is_subscriber ? ' disabled title="इस नंबर की SaaS सदस्यता चालू है"' : ''}>${opts}</select></td>
+      <td style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${l.calls ? `कॉल ${l.calls} · ${when(l.called_at)}` : 'कॉल नहीं'}${l.demo_sent_at ? `<br>डेमो ${when(l.demo_sent_at)}` : ''}</td>
+      <td><input value="${sclEsc(l.note || '')}" placeholder="क्या बात हुई" onchange="sclSave('${l.phone}', {note:this.value})" style="min-width:140px; width:100%; padding:5px 7px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font-size:12px;"></td>
+    </tr>`;
+  }).join('') + (list.length > 500 ? `<tr><td colspan="4" class="empty-row">पहले 500 दिखाए। खोज या छँटाई से बाकी देखें।</td></tr>` : '');
+}
+async function sclSave(phone, body, quiet) {
+  const l = sclLeads.find(x => x.phone === phone);
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads/update', { method: 'POST', body: JSON.stringify(Object.assign({ phone }, body)) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सेव नहीं हुआ');
+    if (l) Object.assign(l, d.lead, { is_subscriber: l.is_subscriber });
+    if (body.delete) sclLeads = sclLeads.filter(x => x.phone !== phone);
+    if (!quiet || body.status || body.delete) renderSaasLeads();
+  } catch (err) { alert(err.message); }
+}
+function sclWhatsApp(phone) {
+  const l = sclLeads.find(x => x.phone === phone);
+  if (!l) return;
+  window.open('https://wa.me/91' + phone + '?text=' + encodeURIComponent(sclMessage(l)), '_blank', 'noopener');
+  const body = { demo_sent: true };
+  if (['new', 'no_answer', 'callback', 'interested'].includes(sclStatusOf(l))) body.status = 'demo_sent';
+  sclSave(phone, body);
+}
+async function sclCopy(phone, what, btn) {
+  const l = sclLeads.find(x => x.phone === phone);
+  if (!l) return;
+  const text = what === 'link' ? sclDemoLink(l.name) : sclMessage(l);
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  const old = btn.textContent; btn.textContent = 'कॉपी हो गया'; setTimeout(() => { btn.textContent = old; }, 1500);
+  sclSave(phone, { demo_sent: true }, true);
+}
+function sclDelete(phone) {
+  const l = sclLeads.find(x => x.phone === phone);
+  if (l && confirm(`${l.name || phone} को सूची से हटाएँ?`)) sclSave(phone, { delete: true });
+}
+
     stats.innerHTML = [
       ['लोग', t.people, 'अलग-अलग व्यक्ति (हर व्यक्ति एक बार)', 'gold'],
       ['लौटकर आए', t.returning, 'एक से ज़्यादा दिन आए', ''],

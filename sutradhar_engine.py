@@ -3275,6 +3275,145 @@ async def admin_upsert_saas(req: SaasAdminRequest, authorization: Optional[str] 
     return {"status": "success", "subscriber": _saas_view(sub, SutradharStore.query_all("saas_usage"))}
 
 
+# ── SaaS call list: astrologers the owner calls about the software (Excel upload in admin) ──
+# One document per phone. Status is what the last call ended in; re-importing the same Excel
+# never resets a status that was already set.
+SAAS_LEADS_COL = "saas_leads"
+SAAS_LEAD_STATUSES = ("new", "no_answer", "callback", "interested", "not_interested", "demo_sent", "bought")
+SAAS_LEADS_MAX_IMPORT = 5000
+
+
+class SaasLeadRow(BaseModel):
+    phone: str
+    name: Optional[str] = ""
+    city: Optional[str] = ""
+    note: Optional[str] = ""
+
+
+class SaasLeadImportRequest(BaseModel):
+    rows: List[SaasLeadRow]
+    source: Optional[str] = ""
+
+
+class SaasLeadUpdateRequest(BaseModel):
+    phone: str
+    status: Optional[str] = None
+    note: Optional[str] = None
+    name: Optional[str] = None
+    city: Optional[str] = None
+    called: bool = False          # a call was made just now
+    demo_sent: bool = False       # the demo link was sent just now (WhatsApp / copy)
+    delete: bool = False
+
+
+@router.get("/admin/saas-leads")
+async def admin_list_saas_leads(authorization: Optional[str] = Header(None)):
+    require_admin(authorization)
+    active_subs = {s.get("phone") for s in SutradharStore.query_all("saas_subscribers") if saas_is_active(s)}
+    leads = []
+    for l in SutradharStore.query_all(SAAS_LEADS_COL):
+        if l.get("deleted") or not l.get("phone"):
+            continue
+        l["is_subscriber"] = l["phone"] in active_subs
+        leads.append(l)
+    leads.sort(key=lambda l: (l.get("row_no") or 0))
+    counts = {s: 0 for s in SAAS_LEAD_STATUSES}
+    for l in leads:
+        counts[l.get("status") if l.get("status") in counts else "new"] += 1
+    return {"status": "success", "count": len(leads), "counts": counts, "leads": leads}
+
+
+@router.post("/admin/saas-leads/import")
+async def admin_import_saas_leads(req: SaasLeadImportRequest, authorization: Optional[str] = Header(None)):
+    admin = require_admin(authorization)
+    if len(req.rows) > SAAS_LEADS_MAX_IMPORT:
+        raise HTTPException(status_code=400, detail=f"एक बार में अधिकतम {SAAS_LEADS_MAX_IMPORT} नाम डालें।")
+    now = datetime.now(timezone.utc).isoformat()
+    added = updated = skipped = 0
+    changed: Dict[str, Dict[str, Any]] = {}
+    with _store_lock:
+        local = SutradharStore._read_json(SAAS_LEADS_COL)
+        existing = {d.get("phone") or k: d for k, d in local.items()}
+        if _firestore_db:
+            for d in SutradharStore.query_all(SAAS_LEADS_COL):
+                existing[d.get("phone") or d.get("id")] = d
+        next_no = max([d.get("row_no") or 0 for d in existing.values()] + [0]) + 1
+        for row in req.rows:
+            phone = normalize_phone(row.phone)
+            if len(phone) != 10:
+                skipped += 1
+                continue
+            name, city, note = (row.name or "").strip()[:80], (row.city or "").strip()[:60], (row.note or "").strip()[:300]
+            doc = changed.get(phone) or existing.get(phone)
+            if doc and not doc.get("deleted"):
+                doc = dict(doc)
+                doc["name"] = doc.get("name") or name
+                doc["city"] = doc.get("city") or city
+                if note and note not in (doc.get("note") or ""):
+                    doc["note"] = ((doc.get("note") or "") + (" | " if doc.get("note") else "") + note)[:600]
+                if phone not in changed:
+                    updated += 1
+            else:
+                doc = {"phone": phone, "name": name, "city": city, "note": note, "status": "new", "calls": 0,
+                       "row_no": next_no, "source": (req.source or "")[:80], "created_at": now, "created_by": admin}
+                next_no += 1
+                added += 1
+            doc["updated_at"] = now
+            doc.pop("id", None)
+            doc.pop("is_subscriber", None)
+            changed[phone] = doc
+        if changed:
+            if _firestore_db:
+                try:
+                    items = list(changed.items())
+                    for i in range(0, len(items), 400):
+                        batch = _firestore_db.batch()
+                        for phone, doc in items[i:i + 400]:
+                            batch.set(_firestore_db.collection(SAAS_LEADS_COL).document(phone), doc)
+                        batch.commit()
+                except Exception as e:
+                    logger.warning(f"Firestore saas_leads import error: {e}")
+            local.update(changed)
+            SutradharStore._write_json(SAAS_LEADS_COL, local)
+    log_audit_event("ADMIN_SAAS_LEADS_IMPORT", admin, {"added": added, "updated": updated, "skipped": skipped})
+    return {"status": "success", "added": added, "updated": updated, "skipped": skipped}
+
+
+@router.post("/admin/saas-leads/update")
+async def admin_update_saas_lead(req: SaasLeadUpdateRequest, authorization: Optional[str] = Header(None)):
+    admin = require_admin(authorization)
+    phone = normalize_phone(req.phone)
+    if req.status and req.status not in SAAS_LEAD_STATUSES:
+        raise HTTPException(status_code=400, detail="अमान्य स्थिति।")
+    now = datetime.now(timezone.utc).isoformat()
+    with _store_lock:
+        doc = SutradharStore.get_doc(SAAS_LEADS_COL, phone)
+        if not doc:
+            raise HTTPException(status_code=404, detail="यह नंबर सूची में नहीं है।")
+        doc.pop("id", None)
+        doc.pop("is_subscriber", None)
+        if req.delete:
+            doc["deleted"] = True
+        if req.status:
+            doc["status"] = req.status
+            doc["status_at"] = now
+        if req.note is not None:
+            doc["note"] = req.note.strip()[:600]
+        if req.name is not None:
+            doc["name"] = req.name.strip()[:80]
+        if req.city is not None:
+            doc["city"] = req.city.strip()[:60]
+        if req.called:
+            doc["calls"] = int(doc.get("calls") or 0) + 1
+            doc["called_at"] = now
+        if req.demo_sent:
+            doc["demo_sent_at"] = now
+            doc["demo_sends"] = int(doc.get("demo_sends") or 0) + 1
+        doc["updated_by"] = admin
+        SutradharStore.set_doc(SAAS_LEADS_COL, phone, doc)
+    return {"status": "success", "lead": doc}
+
+
 # ── Who joined: last login of each Sutradhar, and numbers that did the OTP but never finished ──
 def note_sutradhar_login(sutradhar: Dict[str, Any]):
     """Keeps last_login_at (written at most once an hour)."""
