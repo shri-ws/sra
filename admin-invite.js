@@ -50,25 +50,25 @@ ${link()}
   function init() {
     if (!$('inv-msg')) return;
     $('inv-cards').innerHTML = CARDS.map((src, i) =>
-      `<a href="${src}" download="sutradhar-${i + 1}.jpg" title="डाउनलोड"><img src="${src}" alt="कार्ड ${i + 1}" loading="lazy"><span>${i + 1}</span></a>`).join('');
+      `<a href="${src}" download="sutradhar-${i + 1}.jpg" title="Download"><img src="${src}" alt="Card ${i + 1}" loading="lazy"><span>${i + 1}</span></a>`).join('');
     refresh();
     $('inv-name').addEventListener('input', refresh);
     $('inv-msg').addEventListener('input', () => { edited = true; });
 
     $('inv-send').addEventListener('click', () => {
       const p = phone();
-      if (p === null) { status('नंबर सही नहीं लगा — 10 अंकों का मोबाइल डालें।'); return; }
+      if (p === null) { status('That number looks wrong — enter a 10-digit mobile.'); return; }
       if (edited && !$('inv-msg').value.includes('sutradhar-invite.html')) {
-        if (!confirm('संदेश में आमंत्रण का लिंक नहीं है। फिर भी भेजें?')) return;
+        if (!confirm('The message has no invite link. Send anyway?')) return;
       }
       const url = 'https://wa.me/' + p + '?text=' + encodeURIComponent($('inv-msg').value);
       window.open(url, '_blank', 'noopener');
-      status('WhatsApp खुल गया — वहाँ Send दबाएँ।');
+      status('WhatsApp opened — press Send there.');
     });
 
     $('inv-copy').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText($('inv-msg').value); status('✓ संदेश कॉपी हो गया।'); }
-      catch (e) { $('inv-msg').select(); status('चुन लिया है — Ctrl/⌘+C दबाएँ।'); }
+      try { await navigator.clipboard.writeText($('inv-msg').value); status('Message copied.'); }
+      catch (e) { $('inv-msg').select(); status('Selected — press Ctrl/⌘+C.'); }
     });
 
     $('inv-share-imgs').addEventListener('click', async () => {
@@ -76,11 +76,11 @@ ${link()}
         const f = await files();
         if (navigator.canShare && navigator.canShare({ files: f })) {
           await navigator.share({ files: f, text: $('inv-msg').value });
-          status('✓ शेयर हो गया।');
+          status('Shared.');
         } else {
-          status('यह ब्राउज़र एक साथ तस्वीरें शेयर नहीं कर सकता — "सभी डाउनलोड" दबाएँ।');
+          status('This browser cannot share pictures together — press "Download all".');
         }
-      } catch (e) { if (e && e.name !== 'AbortError') status('शेयर नहीं हो सका: ' + (e.message || e)); }
+      } catch (e) { if (e && e.name !== 'AbortError') status('Could not share: ' + (e.message || e)); }
     });
 
     $('inv-dl-imgs').addEventListener('click', async () => {
@@ -91,7 +91,7 @@ ${link()}
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(a.href), 30000);
       }, i * 350));
-      status('पाँचों तस्वीरें डाउनलोड हो रही हैं।');
+      status('Downloading all five pictures.');
     });
   }
 
@@ -123,17 +123,17 @@ ${linkFor(n)}
     box.id = 'inv-send-box';
     box.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px';
     box.innerHTML = `<div style="background:var(--card,#fff);color:var(--text,#222);border-radius:14px;max-width:520px;width:100%;max-height:92vh;overflow:auto;padding:18px 18px 14px;box-shadow:0 20px 60px rgba(0,0,0,.4);font-size:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:16px">💌 ${name ? name.replace(/[<>&"]/g, '') + ' जी को' : ''} आमंत्रण भेजें</b>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:16px">💌 ${name ? name.replace(/[<>&"]/g, '') + '' : ''} — send invite</b>
         <button type="button" data-x style="border:0;background:none;font-size:22px;cursor:pointer;color:inherit">×</button></div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:10px">${CARDS.map(c => `<img src="${c}" style="width:100%;border-radius:6px">`).join('')}</div>
       <textarea data-msg rows="8" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border,#ddd);border-radius:8px;background:var(--card,#fff);color:inherit;font:inherit;font-size:13px"></textarea>
       <div style="display:grid;gap:8px;margin-top:10px">
-        <button type="button" data-share style="background:#16a34a;color:#fff;border:0;border-radius:8px;padding:11px;font-weight:700;cursor:pointer;font-size:14px">📤 तस्वीरें + संदेश एक साथ भेजें</button>
-        <button type="button" data-wa style="background:#fff;color:#15803d;border:1.5px solid #16a34a;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:14px" ${wa ? '' : 'disabled'}>🟢 सिर्फ़ संदेश — सीधे ${wa ? '+' + wa : 'नंबर'} पर</button>
-        <button type="button" data-copy style="background:none;border:1px solid var(--border,#ddd);color:inherit;border-radius:8px;padding:8px;cursor:pointer;font-size:13px">📋 लिंक कॉपी करें</button>
+        <button type="button" data-share style="background:#16a34a;color:#fff;border:0;border-radius:8px;padding:11px;font-weight:700;cursor:pointer;font-size:14px">Send pictures + message together</button>
+        <button type="button" data-wa style="background:#fff;color:#15803d;border:1.5px solid #16a34a;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:14px" ${wa ? '' : 'disabled'}>Message only — straight to ${wa ? '+' + wa : 'the number'}</button>
+        <button type="button" data-copy style="background:none;border:1px solid var(--border,#ddd);color:inherit;border-radius:8px;padding:8px;cursor:pointer;font-size:13px">Copy link</button>
       </div>
       <div data-st style="font-size:12px;opacity:.8;min-height:16px;margin-top:8px"></div>
-      <div style="font-size:11.5px;opacity:.7;margin-top:4px">"एक साथ भेजें" से फ़ोन का शेयर खुलता है — उसमें WhatsApp और फिर व्यक्ति चुनें; पाँचों तस्वीरें संदेश के साथ जाती हैं। कंप्यूटर पर यह न चले तो तस्वीरें डाउनलोड हो जाएँगी और WhatsApp उसी नंबर पर खुल जाएगा — वहाँ तस्वीरें खींचकर डाल दें।</div>
+      <div style="font-size:11.5px;opacity:.7;margin-top:4px">"Send together" opens the phone’s share sheet — pick WhatsApp and then the person; all five pictures go with the message. If that doesn’t work on a computer, the pictures download and WhatsApp opens on that number — drag the pictures in there.</div>
     </div>`;
     document.body.appendChild(box);
     const q = sel => box.querySelector(sel);
@@ -142,17 +142,17 @@ ${linkFor(n)}
     const close = () => box.remove();
     box.addEventListener('click', e => { if (e.target === box || e.target.closest('[data-x]')) close(); });
     const openWa = () => window.open((wa ? 'https://wa.me/' + wa : 'https://wa.me/') + '?text=' + encodeURIComponent(q('[data-msg]').value), '_blank', 'noopener');
-    q('[data-wa]').addEventListener('click', () => { openWa(); st('WhatsApp खुल गया — वहाँ Send दबाएँ।'); });
+    q('[data-wa]').addEventListener('click', () => { openWa(); st('WhatsApp opened — press Send there.'); });
     q('[data-copy]').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(linkFor(name)); st('✓ लिंक कॉपी हो गया।'); } catch (e) { st(linkFor(name)); }
+      try { await navigator.clipboard.writeText(linkFor(name)); st('Link copied.'); } catch (e) { st(linkFor(name)); }
     });
     q('[data-share]').addEventListener('click', async () => {
-      st('तस्वीरें तैयार हो रही हैं…');
+      st('Preparing pictures…');
       let f;
-      try { f = await files(); } catch (e) { st('तस्वीरें नहीं मिलीं: ' + (e.message || e)); return; }
+      try { f = await files(); } catch (e) { st('Pictures not found: ' + (e.message || e)); return; }
       if (navigator.canShare && navigator.canShare({ files: f })) {
-        try { await navigator.share({ files: f, text: q('[data-msg]').value }); st('✓ भेज दिया।'); }
-        catch (e) { st(e && e.name === 'AbortError' ? 'रद्द किया।' : 'शेयर नहीं हो सका: ' + (e.message || e)); }
+        try { await navigator.share({ files: f, text: q('[data-msg]').value }); st('Sent.'); }
+        catch (e) { st(e && e.name === 'AbortError' ? 'Cancelled.' : 'Could not share: ' + (e.message || e)); }
         return;
       }
       f.forEach((file, i) => setTimeout(() => {
@@ -162,7 +162,7 @@ ${linkFor(n)}
         setTimeout(() => URL.revokeObjectURL(a.href), 30000);
       }, i * 350));
       setTimeout(openWa, 2000);
-      st('तस्वीरें डाउनलोड हो रही हैं; WhatsApp खुलेगा — संदेश के साथ तस्वीरें भी डाल दें।');
+      st('Downloading pictures; WhatsApp will open — add the pictures with the message.');
     });
   }
 

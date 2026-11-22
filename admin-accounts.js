@@ -84,7 +84,7 @@
       const email = (res.user && res.user.email) ? res.user.email.toLowerCase() : '';
       if (!ADMINS.includes(email)) {
         await ctx.auth.signOut();
-        const errText = `अस्वीकृत: "${email || 'यह खाता'}" अधिकृत एडमिन खाता नहीं है। कृपया ${PRIMARY_ADMIN} से लॉगिन करें।`;
+        const errText = `Refused: "${email || 'this account'}" is not an authorised admin account. Sign in with ${PRIMARY_ADMIN}.`;
         setStatus(`<span class="acc-err">${esc(errText)}</span>`);
         throw new Error(errText);
       }
@@ -297,7 +297,7 @@
         sessionStorage.setItem('sra_admin_auth', 'true');
         sessionStorage.setItem('sra_admin_email', u.email.toLowerCase());
 
-        if ($('acc-who')) $('acc-who').textContent = '✓ ' + u.email + ' (व्यवस्थापक)';
+        if ($('acc-who')) $('acc-who').textContent = '✓ ' + u.email + ' (admin)';
         if ($('acc-signin')) $('acc-signin').hidden = true;
         if ($('acc-signout')) $('acc-signout').hidden = false;
         if ($('acc-body')) $('acc-body').hidden = false;
@@ -339,11 +339,11 @@
         if (u) {
           ctx.auth.signOut().then(() => {
             const errEl = $('loginErr');
-            if (errEl) errEl.textContent = `अस्वीकृत: "${u.email || u.phoneNumber}" अधिकृत एडमिन खाता नहीं है। कृपया ${PRIMARY_ADMIN} से लॉगिन करें।`;
-            setStatus(`अस्वीकृत: ${esc(u.email || u.phoneNumber)} एडमिन नहीं है। कृपया ${PRIMARY_ADMIN} से लॉगिन करें।`);
+            if (errEl) errEl.textContent = `Refused: "${u.email || u.phoneNumber}" is not an authorised admin account. Sign in with ${PRIMARY_ADMIN}.`;
+            setStatus(`Refused: ${esc(u.email || u.phoneNumber)} is not an admin. Sign in with ${PRIMARY_ADMIN}.`);
           });
         } else {
-          setStatus(`Firebase खातों का लाइव डेटा देखने हेतु Google से साइन इन करें (${PRIMARY_ADMIN})।`);
+          setStatus(`Sign in with Google to see live Firebase account data (${PRIMARY_ADMIN}).`);
         }
       }
     });
