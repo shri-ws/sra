@@ -1963,8 +1963,8 @@ async def ig_webhook_event(request: Request):
         entries = payload.get("entry", [])
         from social_agent.publishers.instagram_dm_bot import generate_dm_reply, send_ig_dm
 
-        token = os.getenv("IG_ACCESS_TOKEN", IG_DEFAULT_TOKEN)
         for entry in entries:
+            # Format 1: entry.messaging
             for messaging in entry.get("messaging", []):
                 sender_id = messaging.get("sender", {}).get("id")
                 msg_text = messaging.get("message", {}).get("text", "")
@@ -1972,12 +1972,57 @@ async def ig_webhook_event(request: Request):
                 if sender_id and msg_text and not is_echo:
                     print(f"[IG-Webhook] Incoming message from {sender_id}: {msg_text}")
                     reply = generate_dm_reply(msg_text)
-                    print(f"[IG-Webhook] Replying to {sender_id}: {reply[:60]}...")
                     res = send_ig_dm(sender_id, reply, dry_run=False)
-                    print(f"[IG-Webhook] Send result: {res}")
+                    print(f"[IG-Webhook] Reply sent: {res}")
+
+            # Format 2: entry.changes (v27.0 format)
+            for change in entry.get("changes", []):
+                val = change.get("value", {})
+                sender_id = val.get("sender", {}).get("id")
+                msg_text = val.get("message", {}).get("text", "")
+                is_echo = val.get("message", {}).get("is_echo", False)
+                if sender_id and msg_text and not is_echo:
+                    print(f"[IG-Webhook] Incoming message (changes) from {sender_id}: {msg_text}")
+                    reply = generate_dm_reply(msg_text)
+                    res = send_ig_dm(sender_id, reply, dry_run=False)
+                    print(f"[IG-Webhook] Reply sent: {res}")
         return {"status": "ok"}
     except Exception as e:
         print(f"[IG-Webhook] Error processing event: {e}")
+        return {"status": "error", "detail": str(e)}
+
+@app.get("/api/ig/sync")
+async def ig_sync_recent_dms():
+    """Polls recent Instagram conversations and auto-replies to any unreplied incoming messages."""
+    import urllib.request as _ureq
+    from social_agent.publishers.instagram_dm_bot import generate_dm_reply, send_ig_dm
+    token = os.getenv("IG_ACCESS_TOKEN", IG_DEFAULT_TOKEN)
+    ig_user_id = os.getenv("IG_USER_ID", IG_DEFAULT_USER_ID)
+
+    conv_url = f"https://graph.facebook.com/v19.0/{ig_user_id}/conversations?fields=id,updated_time,participants&limit=10&access_token={token}"
+    try:
+        with _ureq.urlopen(conv_url, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        replied = []
+        for conv in data.get("data", []):
+            conv_id = conv.get("id")
+            # Get latest message
+            msg_url = f"https://graph.facebook.com/v19.0/{conv_id}/messages?fields=id,message,from,created_time&limit=2&access_token={token}"
+            with _ureq.urlopen(msg_url, timeout=10) as mresp:
+                mdata = json.loads(mresp.read().decode("utf-8"))
+            msgs = mdata.get("data", [])
+            if msgs:
+                latest = msgs[0]
+                from_id = latest.get("from", {}).get("id")
+                from_user = latest.get("from", {}).get("username")
+                msg_text = latest.get("message", "")
+                # If last message was from the other user (not astro_raamji)
+                if from_id and from_id != ig_user_id and from_user != "astro_raamji" and msg_text:
+                    reply = generate_dm_reply(msg_text)
+                    send_res = send_ig_dm(from_id, reply)
+                    replied.append({"from": from_user, "incoming": msg_text, "reply": reply, "res": send_res})
+        return {"status": "success", "replied_count": len(replied), "details": replied}
+    except Exception as e:
         return {"status": "error", "detail": str(e)}
 
 
