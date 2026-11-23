@@ -1991,6 +1991,8 @@ async def ig_webhook_event(request: Request):
         print(f"[IG-Webhook] Error processing event: {e}")
         return {"status": "error", "detail": str(e)}
 
+_ig_seen_msg_ids = set()
+
 @app.get("/api/ig/sync")
 async def ig_sync_recent_dms():
     """Polls recent Instagram conversations and auto-replies to any unreplied incoming messages."""
@@ -1999,31 +2001,47 @@ async def ig_sync_recent_dms():
     token = os.getenv("IG_ACCESS_TOKEN", IG_DEFAULT_TOKEN)
     ig_user_id = os.getenv("IG_USER_ID", IG_DEFAULT_USER_ID)
 
-    conv_url = f"https://graph.facebook.com/v19.0/{ig_user_id}/conversations?fields=id,updated_time,participants&limit=10&access_token={token}"
+    conv_url = f"https://graph.facebook.com/v19.0/{ig_user_id}/conversations?fields=id,updated_time,participants&limit=3&access_token={token}"
     try:
-        with _ureq.urlopen(conv_url, timeout=10) as resp:
+        with _ureq.urlopen(conv_url, timeout=8) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         replied = []
         for conv in data.get("data", []):
             conv_id = conv.get("id")
-            # Get latest message
-            msg_url = f"https://graph.facebook.com/v19.0/{conv_id}/messages?fields=id,message,from,created_time&limit=2&access_token={token}"
-            with _ureq.urlopen(msg_url, timeout=10) as mresp:
+            msg_url = f"https://graph.facebook.com/v19.0/{conv_id}/messages?fields=id,message,from,created_time&limit=1&access_token={token}"
+            with _ureq.urlopen(msg_url, timeout=8) as mresp:
                 mdata = json.loads(mresp.read().decode("utf-8"))
             msgs = mdata.get("data", [])
             if msgs:
                 latest = msgs[0]
+                mid = latest.get("id")
                 from_id = latest.get("from", {}).get("id")
                 from_user = latest.get("from", {}).get("username")
                 msg_text = latest.get("message", "")
-                # If last message was from the other user (not astro_raamji)
-                if from_id and from_id != ig_user_id and from_user != "astro_raamji" and msg_text:
-                    reply = generate_dm_reply(msg_text)
-                    send_res = send_ig_dm(from_id, reply)
-                    replied.append({"from": from_user, "incoming": msg_text, "reply": reply, "res": send_res})
+                if mid and mid not in _ig_seen_msg_ids:
+                    _ig_seen_msg_ids.add(mid)
+                    if from_id and from_id != ig_user_id and from_user != "astro_raamji" and msg_text:
+                        reply = generate_dm_reply(msg_text)
+                        send_res = send_ig_dm(from_id, reply)
+                        replied.append({"from": from_user, "incoming": msg_text, "reply": reply, "res": send_res})
         return {"status": "success", "replied_count": len(replied), "details": replied}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
+
+@app.on_event("startup")
+async def start_ig_background_poller():
+    """Starts background real-time poller to guarantee instant replies."""
+    import asyncio
+    async def _poller():
+        # Wait for server to finish initializing
+        await asyncio.sleep(5)
+        while True:
+            try:
+                await ig_sync_recent_dms()
+            except Exception as _e:
+                pass
+            await asyncio.sleep(5)
+    asyncio.create_task(_poller())
 
 
 if __name__ == "__main__":
