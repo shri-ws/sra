@@ -1937,7 +1937,8 @@ except Exception as e:
 # =============================================================================
 from fastapi.responses import PlainTextResponse
 
-IG_DEFAULT_TOKEN = "EAAzxIRpfdn4BTCvGYZAuUYcKO2lxNZCb7CDLwwCI7g9LPzIImiYB9ZBoVOsqD3sVJDo41nGCpyTLPpoDw0ZCqeuL1PbhE7wbRxZCXLIpMXlPmw39qUfW9fIBiaPSCjcfzTggjONc1bhU5wRpCw9EAGi3JWXIRZAWZCRbvCqkwH2rf0Yvm89zJ8MoBzW1DXDLWeCZCZAt9yYRSBnE8QliPGm8vAmXvZBiSaXeT5mEEzrB3ZBZAJeUsU96fClBmUyETU4ob81CYZAO7wGvOC4p4jItQoZCZB4dZBsjHwZDZD"
+IG_DEFAULT_TOKEN = "EAAzxIRpfdn4BTM4IQfhieahbRmeZC3D0ZBkTSxhPPZBko3QTScZBxbFJTDWiDJthFbgT5kSkqZAaARrAVlL68IRdUhv1l5j4ZAEPs8k9j0QZB0ggZBP1RPZBV9gZAbQyuU70xmibGH4aUKXE0egzcO1GmmwjZAdjVFqzpgZCbZBZCcMZCv8TuAoyN49qcj9zSWvw0vvrjGYN5NZBp6EJeE5SvJqyaDb0eKTethIpogZBdCF5ZCifqZAljXdzKW76UKZA3wZDZD"
+IG_DEFAULT_USER_ID = "17841480651751645"
 
 @app.get("/api/ig/webhook")
 async def ig_webhook_verify(request: Request):

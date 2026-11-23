@@ -13,14 +13,15 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG_FILE = BASE_DIR / "social_agent" / "social_config.json"
 
-DEFAULT_TOKEN = "EAAzxIRpfdn4BTCvGYZAuUYcKO2lxNZCb7CDLwwCI7g9LPzIImiYB9ZBoVOsqD3sVJDo41nGCpyTLPpoDw0ZCqeuL1PbhE7wbRxZCXLIpMXlPmw39qUfW9fIBiaPSCjcfzTggjONc1bhU5wRpCw9EAGi3JWXIRZAWZCRbvCqkwH2rf0Yvm89zJ8MoBzW1DXDLWeCZCZAt9yYRSBnE8QliPGm8vAmXvZBiSaXeT5mEEzrB3ZBZAJeUsU96fClBmUyETU4ob81CYZAO7wGvOC4p4jItQoZCZB4dZBsjHwZDZD"
+DEFAULT_TOKEN = "EAAzxIRpfdn4BTM4IQfhieahbRmeZC3D0ZBkTSxhPPZBko3QTScZBxbFJTDWiDJthFbgT5kSkqZAaARrAVlL68IRdUhv1l5j4ZAEPs8k9j0QZB0ggZBP1RPZBV9gZAbQyuU70xmibGH4aUKXE0egzcO1GmmwjZAdjVFqzpgZCbZBZCcMZCv8TuAoyN49qcj9zSWvw0vvrjGYN5NZBp6EJeE5SvJqyaDb0eKTethIpogZBdCF5ZCifqZAljXdzKW76UKZA3wZDZD"
+DEFAULT_IG_USER_ID = "17841480651751645"
 
 def load_ig_config():
     if CONFIG_FILE.exists():
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             cfg = json.load(f)
             return cfg.get("platforms", {}).get("instagram", {})
-    return {"access_token": DEFAULT_TOKEN}
+    return {"access_token": DEFAULT_TOKEN, "ig_user_id": DEFAULT_IG_USER_ID}
 
 def generate_dm_reply(user_query: str) -> str:
     """Generate quick, engaging context-aware reply."""
@@ -51,7 +52,8 @@ def generate_dm_reply(user_query: str) -> str:
 def send_ig_dm(recipient_id: str, message_text: str, dry_run: bool = False) -> dict:
     """Send DM to a user ID via Meta Graph API."""
     ig_cfg = load_ig_config()
-    token = ig_cfg.get("access_token", "").strip()
+    token = ig_cfg.get("access_token", DEFAULT_TOKEN).strip()
+    ig_user_id = ig_cfg.get("ig_user_id", DEFAULT_IG_USER_ID).strip()
 
     if dry_run or not token:
         print(f"[IG-DM-Bot] Dry run / Token pending:")
@@ -59,7 +61,7 @@ def send_ig_dm(recipient_id: str, message_text: str, dry_run: bool = False) -> d
         print(f"  Reply: {message_text}")
         return {"status": "simulated", "recipient_id": recipient_id, "text": message_text}
 
-    url = "https://graph.facebook.com/v19.0/me/messages"
+    url = f"https://graph.facebook.com/v19.0/{ig_user_id}/messages"
     payload = json.dumps({
         "recipient": {"id": recipient_id},
         "message": {"text": message_text}
