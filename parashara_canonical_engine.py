@@ -1937,6 +1937,8 @@ except Exception as e:
 # =============================================================================
 from fastapi.responses import PlainTextResponse
 
+IG_DEFAULT_TOKEN = "EAAzxIRpfdn4BTCvGYZAuUYcKO2lxNZCb7CDLwwCI7g9LPzIImiYB9ZBoVOsqD3sVJDo41nGCpyTLPpoDw0ZCqeuL1PbhE7wbRxZCXLIpMXlPmw39qUfW9fIBiaPSCjcfzTggjONc1bhU5wRpCw9EAGi3JWXIRZAWZCRbvCqkwH2rf0Yvm89zJ8MoBzW1DXDLWeCZCZAt9yYRSBnE8QliPGm8vAmXvZBiSaXeT5mEEzrB3ZBZAJeUsU96fClBmUyETU4ob81CYZAO7wGvOC4p4jItQoZCZB4dZBsjHwZDZD"
+
 @app.get("/api/ig/webhook")
 async def ig_webhook_verify(request: Request):
     """Handles Meta Webhook subscription verification challenge."""
@@ -1946,7 +1948,9 @@ async def ig_webhook_verify(request: Request):
     verify_token = os.getenv("IG_WEBHOOK_VERIFY_TOKEN", "sra_ig_verify_secret_2026")
 
     if mode == "subscribe" and token == verify_token:
+        print(f"[IG-Webhook] GET handshake verified with challenge: {challenge}")
         return PlainTextResponse(content=challenge or "", status_code=200)
+    print(f"[IG-Webhook] GET handshake mismatch: token={token}, mode={mode}")
     raise HTTPException(status_code=403, detail="Verify token mismatch")
 
 @app.post("/api/ig/webhook")
@@ -1954,18 +1958,25 @@ async def ig_webhook_event(request: Request):
     """Handles incoming Instagram DM events and dispatches automated replies."""
     try:
         payload = await request.json()
+        print(f"[IG-Webhook] POST Event received: {json.dumps(payload)}")
         entries = payload.get("entry", [])
         from social_agent.publishers.instagram_dm_bot import generate_dm_reply, send_ig_dm
+
+        token = os.getenv("IG_ACCESS_TOKEN", IG_DEFAULT_TOKEN)
         for entry in entries:
             for messaging in entry.get("messaging", []):
                 sender_id = messaging.get("sender", {}).get("id")
                 msg_text = messaging.get("message", {}).get("text", "")
                 is_echo = messaging.get("message", {}).get("is_echo", False)
                 if sender_id and msg_text and not is_echo:
+                    print(f"[IG-Webhook] Incoming message from {sender_id}: {msg_text}")
                     reply = generate_dm_reply(msg_text)
-                    send_ig_dm(sender_id, reply)
+                    print(f"[IG-Webhook] Replying to {sender_id}: {reply[:60]}...")
+                    res = send_ig_dm(sender_id, reply, dry_run=False)
+                    print(f"[IG-Webhook] Send result: {res}")
         return {"status": "ok"}
     except Exception as e:
+        print(f"[IG-Webhook] Error processing event: {e}")
         return {"status": "error", "detail": str(e)}
 
 

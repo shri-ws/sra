@@ -13,12 +13,14 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG_FILE = BASE_DIR / "social_agent" / "social_config.json"
 
+DEFAULT_TOKEN = "EAAzxIRpfdn4BTCvGYZAuUYcKO2lxNZCb7CDLwwCI7g9LPzIImiYB9ZBoVOsqD3sVJDo41nGCpyTLPpoDw0ZCqeuL1PbhE7wbRxZCXLIpMXlPmw39qUfW9fIBiaPSCjcfzTggjONc1bhU5wRpCw9EAGi3JWXIRZAWZCRbvCqkwH2rf0Yvm89zJ8MoBzW1DXDLWeCZCZAt9yYRSBnE8QliPGm8vAmXvZBiSaXeT5mEEzrB3ZBZAJeUsU96fClBmUyETU4ob81CYZAO7wGvOC4p4jItQoZCZB4dZBsjHwZDZD"
+
 def load_ig_config():
     if CONFIG_FILE.exists():
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             cfg = json.load(f)
             return cfg.get("platforms", {}).get("instagram", {})
-    return {}
+    return {"access_token": DEFAULT_TOKEN}
 
 def generate_dm_reply(user_query: str) -> str:
     """Generate quick, engaging context-aware reply."""

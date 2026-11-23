@@ -134,7 +134,10 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
   <button data-tab="ch8">9 राशि-दृष्टि</button>
   <button data-tab="bhava">10 भाव-फल</button>
   <button data-tab="bhavesh">11 भावेश-फल</button>
-  <button data-tab="quiz">12 प्रश्नोत्तरी</button>
+  <button data-tab="drishti">12 स्पष्ट दृष्टि</button>
+  <button data-tab="bala">13 षड्बल</button>
+  <button data-tab="pada">14 आरूढ और उपपद</button>
+  <button data-tab="quiz">15 प्रश्नोत्तरी</button>
 </div></nav>
 
 <main class="wrap">
@@ -267,6 +270,36 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
     <div class="note">फल ग्रह के बल के अनुसार घटता-बढ़ता है: पूर्ण बली हो तो पूरा, आधा बली हो तो आधा, हीन बल हो तो चौथाई (25.145, 25.148)। जो ग्रह दो भावों का स्वामी हो, उसके दोनों फल मिलते हैं; पर दोनों बराबर और विरोधी हों तो दोनों का अभाव होता है (25.146–147)।</div>
   </section>
 
+  <section class="station" id="drishti">
+    <h1>अध्याय 27: स्पष्ट दृष्टि</h1>
+    <p class="lede">दृष्टि केवल "है या नहीं" नहीं, अंशों के अन्तर से 0 से 60 तक का मान है। देखने वाला ग्रह चुनें और अन्तर बदलें; श्लोक का सूत्र और मान तुरन्त दिखेगा।</p>
+    <div class="card">
+      <div class="form">
+        <div><label for="drSeer">देखने वाला ग्रह</label><select id="drSeer"></select></div>
+        <div style="grid-column: span 2"><label for="drGap">देखे जाने वाले से अन्तर (देखे जाने वाला − देखने वाला): <b id="drGapOut"></b></label><input id="drGap" type="range" min="0" max="359.5" step="0.5" value="180"></div>
+      </div>
+      <div id="drOut" style="margin-top:10px"></div>
+      <div id="drCurve" style="margin-top:10px"></div>
+    </div>
+    <h2>आपकी कुंडली में स्पष्ट दृष्टि</h2>
+    <div id="drChart"><div class="card"><p style="margin:0">पहले स्टेशन 5 में कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+  </section>
+
+  <section class="station" id="bala">
+    <h1>अध्याय 28: स्पष्ट बल (षड्बल)</h1>
+    <p class="lede">हर ग्रह के छह बल: स्थान, दिक्, काल, चेष्टा, नैसर्गिक और दृक्। सब कला (षष्ट्यंश) में हैं; 60 कला = 1 रूप। किसी ग्रह की पंक्ति पर क्लिक करें तो उसकी पूरी गणना खुलेगी।</p>
+    <div id="balaOut"><div class="card"><p style="margin:0">पहले स्टेशन 5 में कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+  </section>
+
+  <section class="station" id="pada">
+    <h1>अध्याय 30–31: आरूढ पद और उपपद</h1>
+    <p class="lede">हर भाव का एक "पद" (आरूढ) होता है: भाव से उसके स्वामी तक जितनी राशियाँ, स्वामी से उतनी ही आगे। लग्न का पद आरूढ लग्न है, और लग्न के अनुचर भाव का पद उपपद। नीचे आपकी कुंडली के सब पद, उनकी गिनती, और अध्याय 30–31 के फल-नियम आपकी कुंडली पर परखे हुए।</p>
+    <div class="card"><div class="form">
+      <div><label for="ulFrom">उपपद किस भाव का पद (31.2 "अनुचर")</label><select id="ulFrom"><option value="12">12वाँ भाव (प्रचलित परम्परा)</option><option value="5">5वाँ भाव (एक अन्य व्याख्या)</option></select></div>
+    </div></div>
+    <div id="padaOut"><div class="card"><p style="margin:0">पहले स्टेशन 5 में कुंडली बनाएँ।</p><button class="ghost" style="margin-top:10px" data-goto="chart">स्टेशन 5 पर जाएँ</button></div></div>
+  </section>
+
   <section class="station" id="quiz">
     <h1>प्रश्नोत्तरी</h1>
     <p class="lede">हर उत्तर के बाद उसका श्लोक देख सकते हैं।</p>
@@ -278,11 +311,14 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
 
 <script src="sra-config.js"></script>
 <script src="patrikaEngineBridge.js"></script>
-<script src="data/bphs/bphs.js"></script>
-<script src="bphsLabCh03.js"></script>
-<script src="bphsLabCh04.js"></script>
-<script src="bphsLabCh05_08.js"></script>
-<script src="bphsLabBhava.js"></script>
+<script src="data/bphs/bphs.js?v=20261120"></script>
+<script src="bphsLabCh03.js?v=20261120"></script>
+<script src="bphsLabCh04.js?v=20261120"></script>
+<script src="bphsLabCh05_08.js?v=20261120"></script>
+<script src="bphsLabBhava.js?v=20261120"></script>
+<script src="bphsLabCh27.js?v=20261120"></script>
+<script src="bphsLabCh28.js?v=20261120"></script>
+<script src="bphsLabPada.js?v=20261121"></script>
 <script>
 (function () {
   'use strict';
@@ -324,7 +360,7 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
   // Plain-Hindi meanings, one file per chapter, loaded when a verse from that chapter is first opened
   const MEANINGS = {};
   function meaningOf(ch, n) {
-    if (!MEANINGS[ch]) MEANINGS[ch] = fetch(`data/bphs_lab/meanings/${String(ch).padStart(3, '0')}.json`)
+    if (!MEANINGS[ch]) MEANINGS[ch] = fetch(`data/bphs_lab/meanings/${String(ch).padStart(3, '0')}.json`, { cache: 'no-cache' })
       .then(r => r.ok ? r.json() : { meanings: {} }).catch(() => ({ meanings: {} }));
     return MEANINGS[ch].then(d => d.meanings[n] || null);
   }
@@ -345,7 +381,7 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
       ${s.lab_hint ? `<div class="note">${esc(s.lab_hint)}</div>` : ''}<div style="margin-top:8px">${rangeChips(chapter, s.verses[0], s.verses[1])}</div></div>`).join('');
   }
 
-  Promise.all(['data/bphs_lab/lab_ch01_03.json', 'data/bphs_lab/lab_ch04.json', 'data/bphs_lab/lab_ch05_08.json', 'data/bphs_lab/rules_bhava.json'].map(u => fetch(u).then(r => r.json()))).then(([LAB, LAB4, LAB5, RULES]) => {
+  Promise.all(['data/bphs_lab/lab_ch01_03.json', 'data/bphs_lab/lab_ch04.json', 'data/bphs_lab/lab_ch05_08.json', 'data/bphs_lab/rules_bhava.json'].map(u => fetch(u, { cache: 'no-cache' }).then(r => r.json()))).then(([LAB, LAB4, LAB5, RULES]) => {
     buildBhava(RULES);
     buildEntry(LAB.ch1);
     buildCards(LAB.ch2, LAB.ch3);
@@ -469,6 +505,9 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
       renderCh8Chart(chart);
       bhavaChart(chart);
       bhaveshChart(chart);
+      drishtiChart(chart);
+      balaChart(chart);
+      padaChart(chart);
     } catch (err) { st.className = 'status err'; st.textContent = err.message; }
   });
 
@@ -531,7 +570,10 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
 
   // Station 6 — chapter 4 calculations on the visitor's chart
   const shiftDate = (date, days) => { const d = new Date(date + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10); };
+  let CH26 = null, showSens26 = false, lastCh4 = null;
+  document.addEventListener('change', e => { if (e.target.id === 'sensToggle26' && lastCh4) { showSens26 = e.target.checked; renderCh4(lastCh4[0], lastCh4[1]); } });
   async function renderCh4(chart, input) {
+    lastCh4 = [chart, input];
     const out = $('#ch4Out');
     out.innerHTML = '<div class="status">अध्याय 4 की गणना हो रही है…</div>';
     try {
@@ -626,6 +668,20 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
         </table>
         <div class="note">श्लोक 44–45 मध्य पर पूरा और सन्धि पर शून्य फल बताते हैं। बीच के अंश के लिए श्लोक कोई सूत्र नहीं देता। यहाँ उसे सीधी रेखा में बढ़ता-घटता माना गया है, जो व्याख्या है।</div></div>`);
 
+      // Chapter 26: the result of each of these bodies by the house it falls in (verse 2 + 12 × body + house − 1)
+      const m26 = await (CH26 || (CH26 = fetch('data/bphs_lab/meanings/026.json', { cache: 'no-cache' }).then(r => r.json())));
+      const sens26 = new Set(m26.sensitive_verses || []);
+      const bodies26 = [['धूम', ap.steps[0].sign], ['पात (व्यतीपात)', ap.steps[1].sign], ['परिधि (परिवेष)', ap.steps[2].sign], ['चाप (इन्द्रचाप)', ap.steps[3].sign],
+        ['शिखी', ap.steps[4].sign], ['गुलिक (मान्दि)', gLag.sign], ['प्राणपद', pp.result.sign]]
+        .map(([name, sign], b) => { const h = ((sign - lagnaSign + 12) % 12) + 1; return { name, sign, h, verse: 2 + 12 * b + h - 1 }; });
+      const hidden26 = bodies26.filter(x => sens26.has(x.verse)).length;
+      html.push(`<h2>अध्याय 26: इन सात का भाव-फल</h2>
+        ${hidden26 ? `<div class="card"><label style="display:flex;gap:8px;align-items:center;margin:0;cursor:pointer"><input type="checkbox" id="sensToggle26" style="width:auto"${showSens26 ? ' checked' : ''}> संवेदनशील फल भी दिखाएँ</label>
+          <p style="margin:6px 0 0;color:var(--muted)">${showSens26 ? 'ये श्लोक-फल पढ़ने और सीखने के लिए हैं; किसी व्यक्ति के बारे में भविष्यवाणी के रूप में न कहें।' : `${hidden26} संवेदनशील फल छिपे हैं।`}</p></div>` : ''}
+        <div class="grid g2">${bodies26.filter(x => showSens26 || !sens26.has(x.verse)).map(x => `<div class="card" style="margin:0">
+          <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${x.name}: ${C5.SIGN_HI[x.sign]}, भाव ${x.h}</b>${sens26.has(x.verse) ? '<span class="pill p-mid">संवेदनशील</span>' : ''}</div>
+          <p style="margin:6px 0">${esc(m26.meanings[x.verse])}</p>${chip(`BPHS.26.${x.verse}`)}</div>`).join('')}</div>
+        <div class="note">भाव राशि से गिने गए हैं (लग्न-राशि = भाव 1)। श्लोक 86–87 के अनुसार यह फल भी शुभ, अशुभ या मध्यम विवेक से कहना चाहिए ${rangeChips(26, 86, 87)}</div>`);
       out.innerHTML = html.join('');
     } catch (err) {
       out.innerHTML = `<div class="status err">अध्याय 4 की गणना नहीं हो सकी: ${esc(err.message)}</div>`;
@@ -812,7 +868,9 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
     showBhava();
   }
   function bhavaChart(chart) {
-    bhavaCtx = BH.context(chart, L.analyze(chart), C5);
+    const an = L.analyze(chart);
+    const sb = window.BphsLabCh28.shadbala(chart, an, C5, window.BphsLabCh27);
+    bhavaCtx = BH.context(chart, an, C5, sb, window.BphsLabCh28.bhavaBala(chart, an, window.BphsLabCh27, sb));
     if (RULESET) showBhava();
   }
   function showBhava() {
@@ -855,7 +913,7 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
   const ORD = ['', 'लग्न', 'धन', 'सहज', 'सुख', 'सुत', 'रिपु', 'जाया', 'आयु', 'भाग्य', 'कर्म', 'लाभ', 'व्यय'];
   let CH25 = null, ch25Chart = null, showSens25 = false;
   const v25 = (h, k) => (h - 1) * 12 + k;
-  fetch('data/bphs_lab/meanings/025.json').then(r => r.json()).then(d => { CH25 = d; drawBhaveshGrid(); if (ch25Chart) bhaveshChart(ch25Chart); });
+  fetch('data/bphs_lab/meanings/025.json', { cache: 'no-cache' }).then(r => r.json()).then(d => { CH25 = d; drawBhaveshGrid(); if (ch25Chart) bhaveshChart(ch25Chart); });
   function placements(chart) {
     const P = {}; chart.planets.forEach(p => { P[p.id] = p; });
     const lg = P.Lagna.sign;
@@ -891,7 +949,123 @@ dialog .meta { font-size: 15px; color: var(--muted); margin-top: 10px; }
   }
   document.addEventListener('change', e => { if (e.target.id === 'sensToggle25') { showSens25 = e.target.checked; if (ch25Chart) bhaveshChart(ch25Chart); } });
 
-  // Station 12 — quiz
+  // Station 12 — chapter 27, exact aspect values
+  const D27 = window.BphsLabCh27;
+  opts($('#drSeer'), D27.SEERS.map(id => [id, L.NAME_HI[id]]));
+  function drishtiSandbox() {
+    const seer = $('#drSeer').value, gap = +$('#drGap').value;
+    const r = D27.drishti(seer, 0, gap);
+    $('#drGapOut').textContent = `${Math.floor(gap / 30)} राशि ${(gap % 30).toFixed(1)}° (${gap.toFixed(1)}°)`;
+    $('#drOut').innerHTML = `<div class="big">${r.value.toFixed(1)} / 60</div><div class="bar" style="max-width:320px;margin:6px 0"><i style="width:${r.value / 60 * 100}%"></i></div>
+      <div>${esc(r.text)} ${chips(r.verses)}</div>`;
+    // the whole curve for this seer, 0–360°
+    const W = 360, H = 80, pts = [];
+    for (let d = 0; d <= 360; d += 1) pts.push(`${d},${H - D27.drishti(seer, 0, d % 360).value / 60 * H}`);
+    $('#drCurve').innerHTML = `<svg viewBox="-2 -4 ${W + 4} ${H + 22}" style="width:100%;max-width:640px" role="img" aria-label="दृष्टि-वक्र">
+      <polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+      <line x1="${gap}" y1="0" x2="${gap}" y2="${H}" stroke="var(--ink)" stroke-dasharray="3 3"/>
+      ${[...Array(13)].map((_, i) => `<text x="${i * 30}" y="${H + 14}" font-size="9" text-anchor="middle" fill="var(--muted)">${i * 30}</text>`).join('')}</svg>
+      <div class="note">पूरी दृष्टि = 60। सामान्य ग्रह: तीसरे-दसवें पर 15, पाँचवें-नवें पर 30, चौथे-आठवें पर 45, सातवें पर 60 ${rangeChips(27, 2, 3)}। गुरु के वक्र में 270° (दसवें भाव का आरम्भ) पर छलाँग श्लोक 12 के सूत्र से ही आती है।</div>`;
+  }
+  $('#drSeer').addEventListener('input', drishtiSandbox); $('#drGap').addEventListener('input', drishtiSandbox); drishtiSandbox();
+  function drishtiChart(chart) {
+    const m = D27.matrix(chart);
+    const NM = Object.assign({ Lagna: 'लग्न', Rahu: 'राहु', Ketu: 'केतु' }, L.NAME_HI);
+    const cell = v => { const a = v.value / 60; return `<td title="${esc(v.text)}" style="background:color-mix(in srgb, var(--accent) ${Math.round(a * 45)}%, transparent)">${v.value ? v.value.toFixed(0) : '·'}</td>`; };
+    $('#drChart').innerHTML = `<div class="card tablewrap"><table class="matrix"><tr><th>देखने वाला ↓ / देखा गया →</th>${m.targets.map(t => `<th>${NM[t]}</th>`).join('')}</tr>
+      ${m.seers.map(a => `<tr><th style="text-align:left">${GLYPH[a]} ${NM[a]}</th>${m.targets.map(t => t === a ? '<td class="self">—</td>' : cell(m.values[a][t])).join('')}</tr>`).join('')}</table>
+      <div class="note">मान 0–60 हैं; गहरा रंग = प्रबल दृष्टि। खाने पर माउस रखने से उपयोग हुआ सूत्र दिखता है। राहु-केतु की अपनी दृष्टि श्लोकों में नहीं है, इसलिए वे केवल देखे जाने वाले के रूप में हैं ${rangeChips(27, 5, 13)}</div></div>`;
+  }
+
+  // Station 13 — chapter 28, shadbala
+  const S28 = window.BphsLabCh28;
+  function balaChart(chart) {
+    const r = S28.shadbala(chart, L.analyze(chart), C5, D27);
+    const f = x => x.toFixed(1);
+    const rows = S28.SEVEN.map(id => {
+      const x = r.planets[id], pct = Math.round(x.ratio * 100);
+      return `<tr class="cell" data-bala="${id}" style="cursor:pointer"><td><b>${GLYPH[id]} ${L.NAME_HI[id]}</b></td><td>${f(x.sthana.total)}</td><td>${f(x.dig.total)}</td><td>${f(x.kala.total)}</td><td>${f(x.cheshta.total)}</td>
+        <td>${f(x.naisargika.total)}</td><td>${f(x.drik.total)}</td><td><b>${f(x.total)}</b><br><span style="color:var(--muted)">${x.rupas.toFixed(2)} रूप</span></td>
+        <td>${x.required}<div class="bar" style="margin-top:4px"><i style="width:${Math.min(100, pct)}%;background:${pct >= 100 ? 'var(--good)' : 'var(--mid)'}"></i></div>
+        <span class="pill ${pct >= 100 ? 'p-good' : 'p-mid'}">${pct}% ${pct >= 100 ? 'सुबली' : ''}</span></td></tr>`;
+    }).join('');
+    $('#balaOut').innerHTML = `<div class="card tablewrap"><table><tr><th>ग्रह</th><th>स्थान</th><th>दिक्</th><th>काल</th><th>चेष्टा</th><th>नैसर्गिक</th><th>दृक्</th><th>कुल</th><th>सुबली के लिए</th></tr>${rows}</table>
+      <div style="margin-top:6px">${rangeChips(28, 25, 26)} ${rangeChips(28, 32, 33)}</div>
+      ${r.war.length ? `<div class="note">ग्रह-युद्ध: ${r.war.map(w => w.map(id => L.NAME_HI[id]).join('–')).join(', ')} एक अंश के भीतर हैं (28.20)। विजेता का नियम इस अध्याय में नहीं, इसलिए बल नहीं बदला।</div>` : ''}</div>
+      <div id="balaDetail"></div>
+      <h2>भाव-बल (28.26–31)</h2>
+      <div class="card tablewrap">${(() => {
+        const bb = S28.bhavaBala(chart, L.analyze(chart), D27, r);
+        return `<table><tr><th>भाव</th><th>राशि</th><th>दिक् (किससे घटाया)</th><th>दृष्टि</th><th>स्वामी का षड्बल</th><th>स्थित ग्रह</th><th>उदय</th><th>कुल</th></tr>
+          ${bb.bhavas.map(x => `<tr${x.strong ? ' style="background:var(--good-soft)"' : ''}><td><b>${x.house}</b></td><td>${C5.SIGN_HI[x.sign]}</td><td>${f(x.dig)} (भाव ${x.from})</td><td>${f(x.drik)}</td>
+            <td>${L.NAME_HI[x.lord]} ${f(x.lordBala)}</td><td>${x.occupants.map(id => L.NAME_HI[id]).join(', ') || '—'} ${x.occupant ? `(${x.occupant > 0 ? '+' : ''}${x.occupant})` : ''}</td><td>${x.rising || '—'}</td>
+            <td><b>${f(x.total)}</b> <span style="color:var(--muted)">${x.rupas.toFixed(2)} रूप</span>${x.strong ? ' <span class="pill p-good">बली</span>' : ''}</td></tr>`).join('')}</table>
+          <div style="margin-top:6px">${rangeChips(28, 26, 31)}</div><div class="note">${bb.notes.map(esc).join('<br>')}</div>`;
+      })()}</div>
+      <div class="note">${r.notes.map(esc).join('<br>')}</div>`;
+    const detail = id => {
+      const x = r.planets[id], rp = x.requiredPart;
+      const part = (name, val, need) => `<tr><td>${name}</td><td>${f(val)}</td><td>${need == null ? '—' : need}</td><td>${need == null ? '' : `<span class="pill ${val >= need ? 'p-good' : 'p-neutral'}">${val >= need ? 'सुबली' : '—'}</span>`}</td></tr>`;
+      $('#balaDetail').innerHTML = `<div class="card"><h3>${GLYPH[id]} ${L.NAME_HI[id]}: गणना</h3><div class="grid g2">
+        <div><table><tr><th>बल</th><th>कला</th><th>सुबली हेतु (28.34–36)</th><th></th></tr>
+          ${part('स्थान', x.sthana.total, rp[0])}${part('दिक्', x.dig.total, rp[1])}${part('चेष्टा', x.cheshta.total, rp[2])}${part('काल', x.kala.total, rp[3])}${part('अयन (काल में सम्मिलित)', x.kala.ayana, rp[4])}
+          ${part('नैसर्गिक', x.naisargika.total)}${part('दृक्', x.drik.total)}</table></div>
+        <div><b>स्थान-बल</b> ${chips(x.sthana.verses)}<br>उच्च ${f(x.sthana.uchcha)} · सप्तवर्गज ${x.sthana.saptavarga} · ओज-युग्म ${x.sthana.oja} · केन्द्रादि ${x.sthana.kendradi} · द्रेष्काण ${x.sthana.drekkana}
+          <div style="font-size:14.5px;color:var(--muted);margin-top:4px">सप्तवर्ग: ${x.sthana.sv.map(v => `${v.key} ${C5.SIGN_HI[v.sign]} (${{ moolatrikona: 'मूलत्रिकोण', own: 'स्वगृह', adhimitra: 'अधिमित्र', mitra: 'मित्र', sama: 'सम', shatru: 'शत्रु', adhishatru: 'अधिशत्रु' }[v.standing]} ${v.points})`).join(', ')}</div>
+          <p><b>दिक्-बल</b> ${f(x.dig.total)}: भाव ${x.dig.point} के मध्य से अन्तर ÷ 3 ${chips(x.dig.verses)}</p>
+          <p><b>काल-बल</b> ${chips(x.kala.verses)}<br>नतोन्नत ${f(x.kala.natonnata)} · पक्ष ${f(x.kala.paksha)} · त्रिभाग ${x.kala.tribhaga} · वार ${x.kala.vara} · होरा ${x.kala.hora} · अयन ${f(x.kala.ayana)}</p>
+          <p><b>चेष्टा-बल</b> ${f(x.cheshta.total)} ${x.cheshta.kendra != null ? `(चेष्टा-केन्द्र ${f(x.cheshta.kendra)}° ÷ 3)` : id === 'Sun' ? '(सूर्य का अयन-बल)' : '(चन्द्र का पक्ष-बल)'} ${chips(x.cheshta.verses)}</p>
+          <p><b>दृक्-बल</b> ${f(x.drik.total)}: ${x.drik.parts.map(d => `${L.NAME_HI[d.by]} ${f(d.value)} → ${d.contribution >= 0 ? '+' : ''}${f(d.contribution)}`).join(', ') || 'कोई दृष्टि नहीं'} ${chips(x.drik.verses)}</p></div></div></div>`;
+    };
+    $('#balaOut').querySelectorAll('[data-bala]').forEach(tr => tr.addEventListener('click', () => detail(tr.dataset.bala)));
+    detail('Sun');
+  }
+
+  // Station 14 — chapters 30–31, arudha padas and the upapada
+  const PD = window.BphsLabPada;
+  let padaOn = null, showSensPada = false;
+  function padaChart(chart) { padaOn = chart; drawPada(); }
+  function drawPada() {
+    if (!padaOn) return;
+    const chart = padaOn, an = L.analyze(chart), sb = S28.shadbala(chart, an, C5, D27);
+    const r = PD.compute(chart, an, C5, sb, S28.bhavaBala(chart, an, D27, sb), { upapadaFrom: +$('#ulFrom').value });
+    const SH = PD.SIGN_HI, ulH = r.upapadaFrom;
+    const padaRows = r.padas.map((p, i) => `<tr${p.house === 1 || p.house === 7 || p.house === ulH ? ' style="background:var(--accent-soft)"' : ''}>
+      <td><b>${p.house}</b> ${ORD[p.house]}</td><td>${SH[p.sign]}</td><td>${GLYPH[p.lord]} ${L.NAME_HI[p.lord]} → ${SH[p.lordSign]} (गिनती ${p.n})</td>
+      <td><b>${SH[p.pada]}</b>${p.exception ? ` <span class="pill p-mid">${p.exception === 'self' ? 'भाव पर लौटा → 10वाँ' : 'सातवें पर → 4था'}</span>` : ''}</td>
+      <td>${r.fromAL[i].k}</td><td>${chips(p.verses)}</td></tr>`).join('');
+    const grahaRows = r.grahas.map(g => `<tr><td><b>${GLYPH[g.id]} ${L.NAME_HI[g.id]}</b></td><td>${esc(g.steps)}${g.why ? `<div style="font-size:14.5px;color:var(--muted)">${esc(g.why)}</div>` : ''}</td><td><b>${SH[g.pada]}</b></td><td>${chips(g.verses)}</td></tr>`).join('');
+    const all = r.results, hidden = all.filter(x => x.rule.sensitive).length;
+    const card = x => {
+      const st = { yes: ['p-good', 'लागू'], no: ['p-neutral', 'लागू नहीं'], open: ['p-mid', 'अभी नहीं परखा'] }[x.status];
+      const lines = x.lines.length ? `<details><summary style="cursor:pointer;color:var(--accent)">गणना देखें</summary><div style="font-size:15px;margin-top:4px">${x.join === 'any' ? 'इनमें से कोई एक चाहिए:' : x.lines.length > 1 ? 'ये सब चाहिए:' : ''}
+        ${x.lines.map(l => `<div>${l.ok ? '✓' : '✗'} ${esc(l.text)}</div>`).join('')}</div></details>` : '';
+      return `<div class="card"${x.status === 'yes' ? ' style="border-color:var(--good)"' : ''}><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">${esc(x.rule.text)}</div><span>${x.rule.sensitive ? '<span class="pill p-mid">संवेदनशील</span> ' : ''}<span class="pill ${st[0]}">${st[1]}</span></span></div>
+        <div style="margin-top:6px">${chips(x.rule.verses.map(n => vid(x.rule.chapter, n)))}</div>${lines}${x.rule.interpretation ? `<div class="note">${esc(x.rule.interpretation)}</div>` : ''}</div>`;
+    };
+    const group = ch => all.filter(x => x.rule.chapter === ch && (showSensPada || !x.rule.sensitive)).map(card).join('');
+    const yes = ch => all.filter(x => x.rule.chapter === ch && x.status === 'yes' && (showSensPada || !x.rule.sensitive)).length;
+    $('#padaOut').innerHTML = `<div class="grid g3">
+        <div class="card" style="margin:0"><label>आरूढ लग्न (लग्न का पद)</label><div class="big">${SH[r.AL]}</div>${chips([vid(30, 2), vid(30, 3)])}</div>
+        <div class="card" style="margin:0"><label>उपपद (${ulH}वें भाव का पद)</label><div class="big">${SH[r.UL]}</div>${chips([vid(31, 2)])}</div>
+        <div class="card" style="margin:0"><label>दारपद (सप्तम का पद)</label><div class="big">${SH[r.A7]}</div>आरूढ से ${PD.count(r.AL, r.A7)}वाँ ${chips([vid(30, 30), vid(30, 33)])}</div>
+      </div>
+      <h2>बारह भावों के पद</h2>
+      <div class="card tablewrap"><table><tr><th>भाव</th><th>राशि</th><th>स्वामी कहाँ (भाव से गिनती)</th><th>पद</th><th>आरूढ लग्न से</th><th>श्लोक</th></tr>${padaRows}</table>
+        <div class="note">पद = स्वामी से उतनी ही राशियाँ आगे जितनी भाव से स्वामी तक (30.2)। गिनती भाव पर ही लौटे तो उससे दसवाँ, सातवें पर आए तो उससे चौथा पद (30.4–5)। अन्तिम स्तम्भ 30.34 के लिए है: पुत्र आदि के पद आरूढ लग्न से केन्द्र-त्रिकोण में हों तो उनसे मैत्री और वृद्धि, त्रिक (6, 8, 12) में हों तो शत्रुता और हानि ${chip(vid(30, 34))}</div></div>
+      <h2>ग्रहों के पद (30.6–7)</h2>
+      <div class="card tablewrap"><table><tr><th>ग्रह</th><th>गिनती</th><th>पद</th><th>श्लोक</th></tr>${grahaRows}</table>
+        <div class="note">दो राशियों वाले ग्रह के लिए "बली" राशि की पहचान श्लोक में नहीं दी गई; यहाँ अध्याय 28 का भाव-बल (उस राशि का भाव) तुलना के लिए लिया है।</div></div>
+      ${hidden ? `<div class="card"><label style="display:flex;gap:8px;align-items:center;margin:0;cursor:pointer"><input type="checkbox" id="sensTogglePada" style="width:auto"${showSensPada ? ' checked' : ''}> संवेदनशील फल भी दिखाएँ (पत्नी या भाइयों की मृत्यु, रोग, सन्तान-हीनता, चोरी आदि)</label>
+        <p style="margin:6px 0 0;color:var(--muted)">${showSensPada ? 'ये श्लोक-फल पढ़ने और सीखने के लिए हैं; किसी व्यक्ति के बारे में भविष्यवाणी के रूप में न लें।' : `${hidden} नियम छिपे हैं।`}</p></div>` : ''}
+      <h2>अध्याय 30: आरूढ से फल <span style="font-size:16px;color:var(--muted)">(${yes(30)} लागू)</span></h2>${group(30)}
+      <h2>अध्याय 31: उपपद और उससे फल <span style="font-size:16px;color:var(--muted)">(${yes(31)} लागू)</span></h2>${group(31)}`;
+  }
+  $('#ulFrom').addEventListener('change', drawPada);
+  document.addEventListener('change', e => { if (e.target.id === 'sensTogglePada') { showSensPada = e.target.checked; drawPada(); } });
+
+  // Station 15 — quiz
   function buildQuiz(chs) {
     const qs = chs.flatMap(c => c.quiz.map(q => Object.assign({ chapter: c.chapter }, q)));
     $('#quizBox').innerHTML = qs.map((q, i) => `<div class="qitem" style="margin-bottom:18px"><b>${deva(i + 1)}. ${esc(q.q)}</b>

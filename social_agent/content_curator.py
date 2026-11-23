@@ -182,7 +182,7 @@ def build_video_scenes_en(topic_data: dict, theme_en: str) -> list:
         {
             "kind": "shloka",
             "lang": "sa",
-            "voice": "hi-IN-MadhurNeural",
+            "voice": "hi-IN-SwaraNeural",
             "badge": f"BPHS • CHAPTER {ch_num}",
             "display": shloka,
             "source": f"Brihat Parashara Hora Shastra • Chapter {ch_num} • {verse_lbl_en}",
