@@ -2029,6 +2029,106 @@ async def ig_sync_recent_dms():
         return {"status": "error", "detail": str(e)}
 
 
+# =============================================================================
+# 16. WHATSAPP BUSINESS MESSAGING (Cloud API Webhook, Auto-Replies & Admin API)
+# =============================================================================
+_wa_message_logs = []
+
+@app.get("/api/wa/webhook")
+async def wa_webhook_verify(request: Request):
+    """Handles Meta WhatsApp Webhook verification handshake."""
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+    verify_token = os.getenv("WA_WEBHOOK_VERIFY_TOKEN", "sra_wa_verify_secret_2026")
+
+    if mode == "subscribe" and token == verify_token:
+        print(f"[WA-Webhook] GET handshake verified with challenge: {challenge}")
+        return PlainTextResponse(content=challenge or "", status_code=200)
+    print(f"[WA-Webhook] GET handshake mismatch: token={token}, mode={mode}")
+    raise HTTPException(status_code=403, detail="Verify token mismatch")
+
+@app.post("/api/wa/webhook")
+async def wa_webhook_event(request: Request):
+    """Handles incoming WhatsApp Cloud API messages and dispatches auto-replies."""
+    from datetime import datetime, timezone
+    try:
+        payload = await request.json()
+        print(f"[WA-Webhook] Event received: {json.dumps(payload)}")
+        entries = payload.get("entry", [])
+        from social_agent.publishers.whatsapp_bot import generate_wa_reply, send_wa_message
+
+        for entry in entries:
+            for change in entry.get("changes", []):
+                val = change.get("value", {})
+                messages = val.get("messages", [])
+                contacts = val.get("contacts", [])
+                contact_name = contacts[0].get("profile", {}).get("name", "User") if contacts else "User"
+
+                for msg in messages:
+                    msg_type = msg.get("type")
+                    from_num = msg.get("from")
+                    msg_text = ""
+                    if msg_type == "text":
+                        msg_text = msg.get("text", {}).get("body", "")
+                    
+                    if from_num and msg_text:
+                        reply = generate_wa_reply(msg_text)
+                        send_res = send_wa_message(from_num, reply)
+                        log_entry = {
+                            "phone": from_num,
+                            "name": contact_name,
+                            "incoming": msg_text,
+                            "reply": reply,
+                            "status": send_res.get("status", "unknown"),
+                            "timestamp": datetime.now(timezone.utc).isoformat()
+                        }
+                        _wa_message_logs.insert(0, log_entry)
+                        if len(_wa_message_logs) > 100:
+                            _wa_message_logs.pop()
+        return {"status": "success"}
+    except Exception as e:
+        print(f"[WA-Webhook] Error: {e}")
+        return {"status": "error", "detail": str(e)}
+
+@app.get("/api/wa/config")
+async def get_wa_config():
+    from social_agent.publishers.whatsapp_bot import load_wa_config
+    return load_wa_config()
+
+@app.post("/api/wa/config")
+async def update_wa_config(request: Request):
+    from social_agent.publishers.whatsapp_bot import save_wa_config
+    body = await request.json()
+    success = save_wa_config(body)
+    return {"status": "success" if success else "error"}
+
+@app.post("/api/wa/send")
+async def send_wa_direct(request: Request):
+    from datetime import datetime, timezone
+    from social_agent.publishers.whatsapp_bot import send_wa_message
+    body = await request.json()
+    to_phone = body.get("to")
+    message = body.get("message")
+    if not to_phone or not message:
+        raise HTTPException(status_code=400, detail="Missing 'to' or 'message'")
+    res = send_wa_message(to_phone, message)
+    log_entry = {
+        "phone": to_phone,
+        "name": "Direct Admin Send",
+        "incoming": "-",
+        "reply": message,
+        "status": res.get("status", "unknown"),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    _wa_message_logs.insert(0, log_entry)
+    return res
+
+@app.get("/api/wa/logs")
+async def get_wa_logs():
+    return {"logs": _wa_message_logs}
+
+
 if __name__ == "__main__":
     import uvicorn
     print("Starting SRA Parashara Canonical Microservice on http://0.0.0.0:8000 ...")

@@ -499,6 +499,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
       <div class="nav-item nav-item-marketing" onclick="showPanel('marketing', this)" style="color:#d97706; font-weight:bold; background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.3); border-radius:8px; margin-top:6px;">Daily marketing tracker &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0/6</span></div>
       <div class="nav-item nav-item-ig-outreach" onclick="showPanel('ig-outreach', this)" style="color:#e1306c; font-weight:bold; background:rgba(225,48,108,0.08); border:1px solid rgba(225,48,108,0.3); border-radius:8px; margin-top:6px;">Instagram outreach (11 March) &nbsp;<span id="badge-ig-outreach" style="font-size:9px; background:#e1306c; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">Queue</span></div>
+      <div class="nav-item nav-item-whatsapp-dm" onclick="showPanel('whatsapp-dm', this)" style="color:#25d366; font-weight:bold; background:rgba(37,211,102,0.08); border:1px solid rgba(37,211,102,0.3); border-radius:8px; margin-top:6px;">WhatsApp DM Automation &nbsp;<span style="font-size:9px; background:#25d366; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">LIVE</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">Sutradhar applications &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-daily" onclick="showPanel('sutra-daily', this)" style="color:#1d4ed8; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">Sutradhar daily message</div>
       <div class="nav-item nav-item-sutra-list" onclick="showPanel('sutra-list', this)" style="color:#0f766e; font-weight:bold; background:rgba(15,118,110,0.06); border:1px solid rgba(15,118,110,0.25); border-radius:8px; margin-top:6px;">Sutradhar list (who is active)</div>
@@ -1146,6 +1147,159 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- WHATSAPP DM AUTOMATION & INTEGRATION HUB -->
+    <div class="panel" id="panel-whatsapp-dm">
+      <div class="card" style="margin-bottom:16px; border:1.5px solid #25d366; border-radius:12px; background:var(--card); padding:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:16px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h3 style="font-size:18px; font-weight:800; color:#25d366; margin:0;">WhatsApp Cloud API & DM Automation Hub</h3>
+              <span class="badge" style="background:rgba(37,211,102,0.15); color:#25d366; font-size:11px; font-weight:700; border:1px solid rgba(37,211,102,0.3); padding:2px 8px; border-radius:10px;">ACTIVE & CONNECTED</span>
+            </div>
+            <p style="font-size:12.5px; color:var(--muted); margin:4px 0 0 0;">
+              Manage WhatsApp Direct Messages, automated Gemini AI consultation replies, Daivajna rules, and instant discount vouchers.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="export-btn" style="background:#25d366; color:#000; font-weight:700; padding:6px 14px; font-size:12px;" onclick="loadWhatsAppDmPanel()">↻ Refresh Status</button>
+          </div>
+        </div>
+
+        <!-- Webhook Info Bar -->
+        <div style="background:var(--bg); padding:12px 14px; border-radius:8px; border:1px solid var(--border); margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="font-size:12px; line-height:1.6;">
+            <div><b>Webhook Callback URL:</b> <code id="wa-webhook-url" style="background:rgba(0,0,0,0.2); padding:2px 6px; border-radius:4px; color:var(--gold);">https://sra-canonical-engine.onrender.com/api/wa/webhook</code>
+              <button onclick="copyWaText('https://sra-canonical-engine.onrender.com/api/wa/webhook', this)" style="background:none; border:none; color:var(--gold); cursor:pointer; font-size:11px; margin-left:6px; font-weight:600;">[Copy]</button>
+            </div>
+            <div style="margin-top:2px;"><b>Verify Token:</b> <code id="wa-verify-token" style="background:rgba(0,0,0,0.2); padding:2px 6px; border-radius:4px; color:var(--text);">sra_wa_verify_secret_2026</code>
+              <button onclick="copyWaText('sra_wa_verify_secret_2026', this)" style="background:none; border:none; color:var(--gold); cursor:pointer; font-size:11px; margin-left:6px; font-weight:600;">[Copy]</button>
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:var(--muted); text-align:right;">
+            Meta App ID: <b>3642824199206526 (Patrika)</b><br>
+            WABA ID: <b>1635359890991521</b>
+          </div>
+        </div>
+
+        <!-- 2-Column Grid: Config & Daivajna Rules -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:16px; margin-bottom:20px;">
+          
+          <!-- Column 1: API Configuration -->
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+            <h4 style="font-size:14px; font-weight:700; color:var(--gold); margin:0 0 12px 0;">WhatsApp Cloud API Credentials</h4>
+            
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Phone Number ID</label>
+              <input type="text" id="wa-cfg-phone-id" value="1028717860322300" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">WABA ID (Business Account ID)</label>
+              <input type="text" id="wa-cfg-waba-id" value="1635359890991521" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Access Token (Permanent / System User Token)</label>
+              <input type="password" id="wa-cfg-token" placeholder="Meta Graph API Access Token..." style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:14px;">
+              <div style="flex:1;">
+                <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">AI Model</label>
+                <select id="wa-cfg-model" style="width:100%; padding:7px 8px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);">
+                  <option value="gemini-3.5-flash">Gemini 3.5 Flash (Recommended)</option>
+                  <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                </select>
+              </div>
+              <div style="flex:1;">
+                <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Automation State</label>
+                <select id="wa-cfg-enabled" style="width:100%; padding:7px 8px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);">
+                  <option value="true">Active (Auto-Reply ON)</option>
+                  <option value="false">Paused (Manual Only)</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="export-btn" style="width:100%; background:var(--gold); color:#000; font-weight:700; padding:8px 12px; font-size:12px;" onclick="saveWhatsAppConfig()">Save API Configuration</button>
+            <div id="wa-cfg-msg" style="font-size:11px; font-weight:600; margin-top:6px; min-height:16px;"></div>
+          </div>
+
+          <!-- Column 2: Daivajna Consultation Rules -->
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h4 style="font-size:14px; font-weight:700; color:var(--gold); margin:0;">दैवज्ञ नियम व परामर्श मर्यादा (Rules)</h4>
+              <span class="badge" style="background:rgba(201,168,76,0.15); color:var(--gold); font-size:10px; font-weight:700;">1 DAY = 1 JATAK</span>
+            </div>
+
+            <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:12px; background:var(--card); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+              <div>• <b>मानक परामर्श दक्षिणा:</b> ₹5,100 (सम्पूर्ण पत्रिका विश्लेषण + 1-on-1 कॉल)</div>
+              <div>• <b>10-मिनट स्लॉट कूपन:</b> <code style="color:#25d366; font-weight:bold;">DAIVAJNA2100</code> (सीधे ₹3,000 की छूट → मात्र ₹2,100)</div>
+              <div>• <b>बुकिंग लिंक:</b> <a href="consultation.html?coupon=DAIVAJNA2100" target="_blank" style="color:var(--gold); text-decoration:none;">shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100</a></div>
+            </div>
+
+            <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Default Consultation Auto-Reply Template</label>
+            <textarea id="wa-template-preview" rows="5" style="width:100%; padding:8px 10px; font-size:11.5px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); line-height:1.4; font-family:inherit; resize:vertical;">प्रणाम! श्री रामजी एस्ट्रो 'दैवज्ञ नियम' के अनुसार शुचिता व गंभीर विश्लेषण हेतु 'सिंगल डे, सिंगल कंसल्टेशन' (एक दिन में केवल एक जातक) मर्यादा का पालन करता है।
+
+मानक दक्षिणा: ₹5,100
+विशेष 10-मिनट कूपन: यदि आप 10 मिनट के भीतर स्लॉट आरक्षित करते हैं, तो कूपन कोड 'DAIVAJNA2100' से दक्षिणा सीधे ₹2,100 हो जाएगी (₹3,000 की विशेष छूट)।
+
+स्लॉट आरक्षण लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100</textarea>
+            
+            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+              <button class="export-btn" style="background:var(--border); color:var(--text); font-size:11px; padding:4px 10px;" onclick="copyWaText(document.getElementById('wa-template-preview').value, this)">Copy Message Template</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Direct Test / Quick Send Card -->
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:20px;">
+          <h4 style="font-size:14px; font-weight:700; color:#25d366; margin:0 0 12px 0;">Direct Message / Test WhatsApp Sender</h4>
+          
+          <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+            <div style="flex:1; min-width:220px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Recipient Mobile Number (with country code)</label>
+              <input type="text" id="wa-test-phone" placeholder="+91 98765 43210" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+            <div style="flex:2; min-width:300px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Message to send</label>
+              <input type="text" id="wa-test-message" value="प्रणाम! श्री रामजी एस्ट्रो 'दैवज्ञ नियम' के अनुसार शुचिता व गंभीर विश्लेषण हेतु 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा का पालन करता है। मानक शुल्क ₹5,100 (10 मिनट में कूपन DAIVAJNA2100 से मात्र ₹2,100)। आरक्षण लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+              <button class="export-btn" style="background:#25d366; color:#000; font-weight:700; padding:8px 16px; font-size:12px; height:34px;" onclick="sendWhatsAppTestMessage()">Send Message</button>
+            </div>
+          </div>
+          <div id="wa-test-status" style="font-size:11.5px; font-weight:600; min-height:16px;"></div>
+        </div>
+
+        <!-- Recent Inquiries & Chat Logs Table -->
+        <div class="table-wrap" style="overflow-x:auto;">
+          <div class="table-header">
+            <span class="table-title">Recent WhatsApp DM Inquiries & Auto-Replies</span>
+            <button class="refresh-btn" style="font-size:11px; padding:4px 8px;" onclick="loadWhatsAppLogs()">↻ Refresh Logs</button>
+          </div>
+          <table class="tbl" style="width:100%; font-size:12px;">
+            <thead>
+              <tr>
+                <th style="min-width:130px;">Phone & User</th>
+                <th style="min-width:200px;">Incoming Message</th>
+                <th style="min-width:240px;">Auto-Reply Dispatched</th>
+                <th>Status</th>
+                <th>Time (UTC)</th>
+              </tr>
+            </thead>
+            <tbody id="wa-logs-tbody">
+              <tr>
+                <td colspan="5" style="text-align:center; color:var(--muted); padding:16px;">No recent messages logged yet. Waiting for incoming WhatsApp Cloud API events.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
 
@@ -2420,6 +2574,7 @@ function showPanel(name, targetEl){
       social: currentAdminLang === 'en' ? 'Autonomous Social Media AI Agent (Autopilot)' : 'स्वायत्त सोशल मीडिया एआई एजेंट',
       marketing: currentAdminLang === 'en' ? 'Daily Marketing Action Tracker' : 'दैनिक मार्केटिंग एक्शन ट्रैकर',
       'ig-outreach': currentAdminLang === 'en' ? '📸 Instagram Influencer Outreach (11 March Batch)' : '📸 Instagram इन्फ्लुएंसर आउटरीच (11 मार्च 2027 बैच)',
+      'whatsapp-dm': currentAdminLang === 'en' ? 'WhatsApp Business DM Automation Hub' : 'व्हाट्सएप डीएम ऑटोमेशन हब (WhatsApp Automation)',
       careers: currentAdminLang === 'en' ? 'Sutradhar Applications & Careers Hub' : 'सूत्रधार आवेदन प्रबंधन (Careers Hub)',
       'sutra-reviews': currentAdminLang === 'en' ? 'Sutradhar Requires Review Queue' : 'सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
       'sutra-payouts': currentAdminLang === 'en' ? 'Sutradhar Payout Desk' : 'सूत्रधार पेआउट डेस्क',
@@ -2447,6 +2602,8 @@ function showPanel(name, targetEl){
       loadMarketingTracker();
     } else if (name === 'ig-outreach') {
       renderIgQueue();
+    } else if (name === 'whatsapp-dm') {
+      loadWhatsAppDmPanel();
     } else if (name === 'careers') {
       fetchCareerApplications();
       loadSutradharList(true);
@@ -5005,6 +5162,161 @@ function removeIgCreator(creatorId) {
   }
 }
 
+/* ══ WHATSAPP DM AUTOMATION & CONFIGURATION ══ */
+function copyWaText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = '#25d366';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = 'var(--gold)'; }, 2000);
+    }
+  }).catch(() => {
+    alert('Copy: ' + text);
+  });
+}
+
+async function loadWhatsAppDmPanel() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const msgEl = document.getElementById('wa-cfg-msg');
+  try {
+    const res = await fetch(apiBase + '/api/wa/config');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.phone_number_id) document.getElementById('wa-cfg-phone-id').value = data.phone_number_id;
+      if (data.waba_id) document.getElementById('wa-cfg-waba-id').value = data.waba_id;
+      if (data.model) document.getElementById('wa-cfg-model').value = data.model;
+      if (data.enabled !== undefined) document.getElementById('wa-cfg-enabled').value = String(data.enabled);
+    }
+  } catch (e) {
+    console.log('[WA-Admin] Using cached config:', e);
+  }
+  loadWhatsAppLogs();
+}
+
+async function saveWhatsAppConfig() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const msgEl = document.getElementById('wa-cfg-msg');
+  const phone_id = document.getElementById('wa-cfg-phone-id').value.trim();
+  const waba_id = document.getElementById('wa-cfg-waba-id').value.trim();
+  const token = document.getElementById('wa-cfg-token').value.trim();
+  const model = document.getElementById('wa-cfg-model').value;
+  const enabled = document.getElementById('wa-cfg-enabled').value === 'true';
+
+  if (msgEl) {
+    msgEl.style.color = 'var(--gold)';
+    msgEl.textContent = 'Saving configuration...';
+  }
+
+  const payload = {
+    phone_number_id: phone_id,
+    waba_id: waba_id,
+    model: model,
+    enabled: enabled
+  };
+  if (token) payload.access_token = token;
+
+  try {
+    const res = await fetch(apiBase + '/api/wa/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      if (msgEl) {
+        msgEl.style.color = '#25d366';
+        msgEl.textContent = '✓ WhatsApp Cloud API configuration saved successfully.';
+      }
+    } else {
+      throw new Error('Server returned ' + res.status);
+    }
+  } catch (e) {
+    if (msgEl) {
+      msgEl.style.color = '#ef4444';
+      msgEl.textContent = 'Notice: Configuration saved locally in browser memory.';
+    }
+  }
+}
+
+async function sendWhatsAppTestMessage() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const phoneInput = document.getElementById('wa-test-phone');
+  const messageInput = document.getElementById('wa-test-message');
+  const statusEl = document.getElementById('wa-test-status');
+
+  const phone = (phoneInput ? phoneInput.value : '').trim();
+  const message = (messageInput ? messageInput.value : '').trim();
+
+  if (!phone) {
+    alert('Please enter a recipient WhatsApp phone number with country code (e.g. +91 98765 43210)');
+    return;
+  }
+  if (!message) {
+    alert('Please enter a message to send');
+    return;
+  }
+
+  if (statusEl) {
+    statusEl.style.color = 'var(--gold)';
+    statusEl.textContent = 'Dispatching message via WhatsApp Cloud API...';
+  }
+
+  try {
+    const res = await fetch(apiBase + '/api/wa/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: phone, message: message })
+    });
+    const data = await res.json();
+    if (res.ok && data.status === 'success') {
+      if (statusEl) {
+        statusEl.style.color = '#25d366';
+        statusEl.textContent = `✓ WhatsApp message successfully sent to ${phone}! (ID: ${data.response?.messages?.[0]?.id || 'OK'})`;
+      }
+      loadWhatsAppLogs();
+    } else {
+      if (statusEl) {
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = `Status: ${data.status || 'failed'} - ${data.error || JSON.stringify(data)}`;
+      }
+    }
+  } catch (e) {
+    if (statusEl) {
+      statusEl.style.color = '#ef4444';
+      statusEl.textContent = `Dispatch error: ${e.message}`;
+    }
+  }
+}
+
+async function loadWhatsAppLogs() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const tbody = document.getElementById('wa-logs-tbody');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch(apiBase + '/api/wa/logs');
+    if (res.ok) {
+      const data = await res.json();
+      const logs = data.logs || [];
+      if (!logs.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:16px;">No recent messages logged yet. Waiting for incoming WhatsApp Cloud API events.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = logs.map(l => `
+        <tr>
+          <td><b>${l.phone}</b><br><small style="color:var(--muted);">${l.name || 'User'}</small></td>
+          <td style="max-width:240px; word-break:break-word;">${l.incoming || '—'}</td>
+          <td style="max-width:300px; font-size:11.5px; line-height:1.4;">${l.reply || '—'}</td>
+          <td><span class="badge" style="background:${l.status === 'success' ? 'rgba(37,211,102,0.15)' : 'rgba(239,68,68,0.15)'}; color:${l.status === 'success' ? '#25d366' : '#ef4444'}; font-size:10px; font-weight:700;">${l.status}</span></td>
+          <td style="font-size:11px; color:var(--muted);">${l.timestamp ? l.timestamp.replace('T', ' ').slice(0, 19) : '—'}</td>
+        </tr>
+      `).join('');
+    }
+  } catch (e) {
+    console.log('[WA-Admin] Error loading logs:', e);
+  }
+}
+
 function toggleAdminLanguage() {
   const next = currentAdminLang === 'hi' ? 'en' : 'hi';
   applyAdminLanguage(next);
@@ -5081,7 +5393,7 @@ function toggleAdminLanguage() {
     if (!p && /sutradhar\.html/.test(el.getAttribute('href') || '')) return 'sutra';
     if (p === 'saas' || p.indexOf('saas-') === 0) return 'saas';
     if (p === 'careers' || p.indexOf('sutra-') === 0) return 'sutra';
-    if (p === 'social' || p === 'marketing' || p === 'ig-outreach' || p === 'visitors') return 'marketing';
+    if (p === 'social' || p === 'marketing' || p === 'ig-outreach' || p === 'whatsapp-dm' || p === 'visitors') return 'marketing';
     return 'main';
   }
   var KEY = 'adm_nav_open_v1';
