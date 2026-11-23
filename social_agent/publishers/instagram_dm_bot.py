@@ -24,6 +24,24 @@ def load_ig_config():
             return cfg.get("platforms", {}).get("instagram", {})
     return {"access_token": DEFAULT_TOKEN, "ig_user_id": DEFAULT_IG_USER_ID}
 
+def save_ig_config(new_cfg: dict):
+    if not CONFIG_FILE.exists():
+        return False
+    try:
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            full_cfg = json.load(f)
+        if "platforms" not in full_cfg:
+            full_cfg["platforms"] = {}
+        if "instagram" not in full_cfg["platforms"]:
+            full_cfg["platforms"]["instagram"] = {}
+        full_cfg["platforms"]["instagram"].update(new_cfg)
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(full_cfg, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        print(f"[IG-DM-Bot] Error saving config: {e}")
+        return False
+
 def generate_dm_reply(user_query: str) -> str:
     """Generate dynamic Gemini AI reply with graceful fallback to contextual templates."""
     # Try Gemini AI first

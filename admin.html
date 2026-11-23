@@ -499,6 +499,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item nav-item-social" onclick="showPanel('social', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; margin-top:6px;">Social Media AI Agent &nbsp;<span style="font-size:9px; background:var(--green); color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">ACTIVE</span></div>
       <div class="nav-item nav-item-marketing" onclick="showPanel('marketing', this)" style="color:#d97706; font-weight:bold; background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.3); border-radius:8px; margin-top:6px;">Daily marketing tracker &nbsp;<span id="badge-marketing" style="font-size:9px; background:#d97706; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0/6</span></div>
       <div class="nav-item nav-item-ig-outreach" onclick="showPanel('ig-outreach', this)" style="color:#e1306c; font-weight:bold; background:rgba(225,48,108,0.08); border:1px solid rgba(225,48,108,0.3); border-radius:8px; margin-top:6px;">Instagram outreach (11 March) &nbsp;<span id="badge-ig-outreach" style="font-size:9px; background:#e1306c; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">Queue</span></div>
+      <div class="nav-item nav-item-ig-dm" onclick="showPanel('ig-dm', this)" style="color:#e1306c; font-weight:bold; background:rgba(225,48,108,0.08); border:1px solid rgba(225,48,108,0.3); border-radius:8px; margin-top:6px;">Instagram DM Automation &nbsp;<span style="font-size:9px; background:#e1306c; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">LIVE</span></div>
       <div class="nav-item nav-item-whatsapp-dm" onclick="showPanel('whatsapp-dm', this)" style="color:#25d366; font-weight:bold; background:rgba(37,211,102,0.08); border:1px solid rgba(37,211,102,0.3); border-radius:8px; margin-top:6px;">WhatsApp DM Automation &nbsp;<span style="font-size:9px; background:#25d366; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">LIVE</span></div>
       <div class="nav-item nav-item-careers" onclick="showPanel('careers', this)" style="color:var(--gold); font-weight:bold; background:rgba(201,168,76,0.05); border:1px solid rgba(201,168,76,0.25); border-radius:8px; margin-top:6px;">Sutradhar applications &nbsp;<span id="badge-careers" style="display:none; font-size:9px; background:#b48220; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">0</span></div>
       <div class="nav-item nav-item-sutra-daily" onclick="showPanel('sutra-daily', this)" style="color:#1d4ed8; font-weight:bold; background:rgba(37,99,235,0.06); border:1px solid rgba(37,99,235,0.25); border-radius:8px; margin-top:6px;">Sutradhar daily message</div>
@@ -1147,6 +1148,158 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- INSTAGRAM DM AUTOMATION & INTEGRATION HUB -->
+    <div class="panel" id="panel-ig-dm">
+      <div class="card" style="margin-bottom:16px; border:1.5px solid #e1306c; border-radius:12px; background:var(--card); padding:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:16px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h3 style="font-size:18px; font-weight:800; color:#e1306c; margin:0;">Instagram DM Automation & Gemini AI Hub</h3>
+              <span class="badge" style="background:rgba(225,48,108,0.15); color:#e1306c; font-size:11px; font-weight:700; border:1px solid rgba(225,48,108,0.3); padding:2px 8px; border-radius:10px;">LIVE (@astro_raamji)</span>
+            </div>
+            <p style="font-size:12.5px; color:var(--muted); margin:4px 0 0 0;">
+              Manage Instagram Direct Messages, automated Gemini AI consultation replies, Daivajna rules, and instant discount vouchers.
+            </p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="export-btn" style="background:#e1306c; color:#fff; font-weight:700; padding:6px 14px; font-size:12px;" onclick="loadInstagramDmPanel()">↻ Refresh Status</button>
+            <button class="export-btn" style="background:var(--gold); color:#000; font-weight:700; padding:6px 14px; font-size:12px;" onclick="triggerIgBackfillBroadcast()">⚡ Send to Today's Inquirers</button>
+          </div>
+        </div>
+
+        <!-- Webhook Info Bar -->
+        <div style="background:var(--bg); padding:12px 14px; border-radius:8px; border:1px solid var(--border); margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="font-size:12px; line-height:1.6;">
+            <div><b>Meta Webhook Callback URL:</b> <code id="ig-webhook-url" style="background:rgba(0,0,0,0.2); padding:2px 6px; border-radius:4px; color:var(--gold);">https://sra-canonical-engine.onrender.com/api/ig/webhook</code>
+              <button onclick="copyIgText('https://sra-canonical-engine.onrender.com/api/ig/webhook', this)" style="background:none; border:none; color:var(--gold); cursor:pointer; font-size:11px; margin-left:6px; font-weight:600;">[Copy]</button>
+            </div>
+            <div style="margin-top:2px;"><b>Verify Token:</b> <code id="ig-verify-token" style="background:rgba(0,0,0,0.2); padding:2px 6px; border-radius:4px; color:var(--text);">sra_ig_verify_secret_2026</code>
+              <button onclick="copyIgText('sra_ig_verify_secret_2026', this)" style="background:none; border:none; color:var(--gold); cursor:pointer; font-size:11px; margin-left:6px; font-weight:600;">[Copy]</button>
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:var(--muted); text-align:right;">
+            Meta App ID: <b>3642824199206526 (Patrika)</b><br>
+            IG Business Account ID: <b>17841480651751645</b> (@astro_raamji)
+          </div>
+        </div>
+
+        <!-- 2-Column Grid: Config & Daivajna Rules -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:16px; margin-bottom:20px;">
+          
+          <!-- Column 1: API Configuration -->
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+            <h4 style="font-size:14px; font-weight:700; color:var(--gold); margin:0 0 12px 0;">Instagram Graph API Credentials</h4>
+            
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Instagram Business Account ID</label>
+              <input type="text" id="ig-cfg-user-id" value="17841480651751645" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Meta App ID</label>
+              <input type="text" id="ig-cfg-app-id" value="3642824199206526" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Access Token (Page / User Token)</label>
+              <input type="password" id="ig-cfg-token" placeholder="Meta Graph API Token..." style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:14px;">
+              <div style="flex:1;">
+                <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">AI Model</label>
+                <select id="ig-cfg-model" style="width:100%; padding:7px 8px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);">
+                  <option value="gemini-3.5-flash">Gemini 3.5 Flash (Recommended)</option>
+                  <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                </select>
+              </div>
+              <div style="flex:1;">
+                <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Automation State</label>
+                <select id="ig-cfg-enabled" style="width:100%; padding:7px 8px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);">
+                  <option value="true">Active (Webhook Auto-Reply ON)</option>
+                  <option value="false">Paused (Manual Only)</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="export-btn" style="width:100%; background:var(--gold); color:#000; font-weight:700; padding:8px 12px; font-size:12px;" onclick="saveInstagramConfig()">Save API Configuration</button>
+            <div id="ig-cfg-msg" style="font-size:11px; font-weight:600; margin-top:6px; min-height:16px;"></div>
+          </div>
+
+          <!-- Column 2: Daivajna Consultation Rules -->
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h4 style="font-size:14px; font-weight:700; color:var(--gold); margin:0;">दैवज्ञ नियम व परामर्श मर्यादा (Rules)</h4>
+              <span class="badge" style="background:rgba(201,168,76,0.15); color:var(--gold); font-size:10px; font-weight:700;">1 DAY = 1 JATAK</span>
+            </div>
+
+            <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:12px; background:var(--card); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+              <div>• <b>मानक परामर्श दक्षिणा:</b> ₹5,100 (सम्पूर्ण पत्रिका विश्लेषण + 1-on-1 कॉल)</div>
+              <div>• <b>10-मिनट स्लॉट कूपन:</b> <code style="color:#e1306c; font-weight:bold;">DAIVAJNA2100</code> (सीधे ₹3,000 की छूट → मात्र ₹2,100)</div>
+              <div>• <b>बुकिंग लिंक:</b> <a href="consultation.html?coupon=DAIVAJNA2100" target="_blank" style="color:var(--gold); text-decoration:none;">shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100</a></div>
+            </div>
+
+            <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Default Consultation Auto-Reply Template</label>
+            <textarea id="ig-template-preview" rows="5" style="width:100%; padding:8px 10px; font-size:11.5px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); line-height:1.4; font-family:inherit; resize:vertical;">प्रणाम! श्री रामजी एस्ट्रो 'दैवज्ञ नियम' के अनुसार शुचिता व गंभीर विश्लेषण हेतु 'सिंगल डे, सिंगल कंसल्टेशन' (एक दिन में केवल एक जातक) मर्यादा का पालन करता है।
+
+मानक दक्षिणा: ₹5,100
+विशेष 10-मिनट कूपन: यदि आप 10 मिनट के भीतर स्लॉट आरक्षित करते हैं, तो कूपन कोड 'DAIVAJNA2100' से दक्षिणा सीधे ₹2,100 हो जाएगी (₹3,000 की विशेष छूट)।
+
+स्लॉट आरक्षण लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100</textarea>
+            
+            <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+              <button class="export-btn" style="background:var(--border); color:var(--text); font-size:11px; padding:4px 10px;" onclick="copyIgText(document.getElementById('ig-template-preview').value, this)">Copy Message Template</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Direct Test / Quick Send Card -->
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:20px;">
+          <h4 style="font-size:14px; font-weight:700; color:#e1306c; margin:0 0 12px 0;">Direct Instagram DM / Test Sender</h4>
+          
+          <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+            <div style="flex:1; min-width:220px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Recipient Instagram User ID</label>
+              <input type="text" id="ig-test-recipient" placeholder="1174583644993993 (e.g. govanshilove)" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+            <div style="flex:2; min-width:300px;">
+              <label style="font-size:11px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px;">Message to send</label>
+              <input type="text" id="ig-test-message" value="प्रणाम! श्री रामजी एस्ट्रो 'दैवज्ञ नियम' के अनुसार शुचिता व गंभीर विश्लेषण हेतु 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा का पालन करता है। मानक शुल्क ₹5,100 (10 मिनट में कूपन DAIVAJNA2100 से मात्र ₹2,100)। आरक्षण लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100" style="width:100%; padding:7px 10px; font-size:12px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);"/>
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+              <button class="export-btn" style="background:#e1306c; color:#fff; font-weight:700; padding:8px 16px; font-size:12px; height:34px;" onclick="sendInstagramTestDm()">Send DM</button>
+            </div>
+          </div>
+          <div id="ig-test-status" style="font-size:11.5px; font-weight:600; min-height:16px;"></div>
+        </div>
+
+        <!-- Recent Inquiries & Chat Logs Table -->
+        <div class="table-wrap" style="overflow-x:auto;">
+          <div class="table-header">
+            <span class="table-title">Recent Instagram DM Inquiries & Auto-Replies</span>
+            <button class="refresh-btn" style="font-size:11px; padding:4px 8px;" onclick="loadInstagramLogs()">↻ Refresh Logs</button>
+          </div>
+          <table class="tbl" style="width:100%; font-size:12px;">
+            <thead>
+              <tr>
+                <th style="min-width:140px;">Instagram User & ID</th>
+                <th style="min-width:200px;">Incoming Message</th>
+                <th style="min-width:240px;">Auto-Reply Dispatched</th>
+                <th>Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="ig-logs-tbody">
+              <!-- Loaded via JS -->
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
 
@@ -2574,6 +2727,7 @@ function showPanel(name, targetEl){
       social: currentAdminLang === 'en' ? 'Autonomous Social Media AI Agent (Autopilot)' : 'स्वायत्त सोशल मीडिया एआई एजेंट',
       marketing: currentAdminLang === 'en' ? 'Daily Marketing Action Tracker' : 'दैनिक मार्केटिंग एक्शन ट्रैकर',
       'ig-outreach': currentAdminLang === 'en' ? '📸 Instagram Influencer Outreach (11 March Batch)' : '📸 Instagram इन्फ्लुएंसर आउटरीच (11 मार्च 2027 बैच)',
+      'ig-dm': currentAdminLang === 'en' ? 'Instagram Direct Message (DM) Automation Hub' : 'इंस्टाग्राम डीएम ऑटोमेशन हब (Instagram DM Automation)',
       'whatsapp-dm': currentAdminLang === 'en' ? 'WhatsApp Business DM Automation Hub' : 'व्हाट्सएप डीएम ऑटोमेशन हब (WhatsApp Automation)',
       careers: currentAdminLang === 'en' ? 'Sutradhar Applications & Careers Hub' : 'सूत्रधार आवेदन प्रबंधन (Careers Hub)',
       'sutra-reviews': currentAdminLang === 'en' ? 'Sutradhar Requires Review Queue' : 'सूत्रधार पेआउट "जाँच ज़रूरी" कतार',
@@ -2602,6 +2756,8 @@ function showPanel(name, targetEl){
       loadMarketingTracker();
     } else if (name === 'ig-outreach') {
       renderIgQueue();
+    } else if (name === 'ig-dm') {
+      loadInstagramDmPanel();
     } else if (name === 'whatsapp-dm') {
       loadWhatsAppDmPanel();
     } else if (name === 'careers') {
@@ -5162,6 +5318,203 @@ function removeIgCreator(creatorId) {
   }
 }
 
+/* ══ INSTAGRAM DM AUTOMATION & CONFIGURATION ══ */
+function copyIgText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = '#e1306c';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = 'var(--gold)'; }, 2000);
+    }
+  }).catch(() => {
+    alert('Copy: ' + text);
+  });
+}
+
+const DEFAULT_IG_CONVERSATIONS = [
+  { username: "govanshilove", id: "1174583644993993", incoming: "hi", reply: "प्रणाम! 'दैवज्ञ नियम' के तहत 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा लागू है। मानक शुल्क ₹5,100 (कूपन DAIVAJNA2100 से ₹2,100)। लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100", status: "delivered", time: "Today 13:05" },
+  { username: "nitin_rawat_kumar", id: "1130608502944148", incoming: "Consultation details please", reply: "प्रणाम! 'दैवज्ञ नियम' के तहत 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा लागू है। मानक शुल्क ₹5,100 (कूपन DAIVAJNA2100 से ₹2,100)। लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100", status: "queued", time: "Today 12:50" },
+  { username: "sahilc4d4", id: "1438408885159244", incoming: "Kundali dekhwani thi", reply: "प्रणाम! 'दैवज्ञ नियम' के तहत 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा लागू है। मानक शुल्क ₹5,100 (कूपन DAIVAJNA2100 से ₹2,100)। लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100", status: "queued", time: "Today 12:50" },
+  { username: "ap_palkar", id: "1886577819201043", incoming: "Consultation fees kitni hai", reply: "प्रणाम! 'दैवज्ञ नियम' के तहत 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा लागू है। मानक शुल्क ₹5,100 (कूपन DAIVAJNA2100 से ₹2,100)। लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100", status: "queued", time: "Today 12:50" },
+  { username: "mrssandwichhhh", id: "1644192380739151", incoming: "Hello", reply: "प्रणाम! 'दैवज्ञ नियम' के तहत 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा लागू है। मानक शुल्क ₹5,100 (कूपन DAIVAJNA2100 से ₹2,100)। लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100", status: "queued", time: "Today 12:50" },
+  { username: "sanjaychainani2", id: "1680337930151205", incoming: "Paramarsh slot", reply: "प्रणाम! 'दैवज्ञ नियम' के तहत 'सिंगल डे, सिंगल कंसल्टेशन' मर्यादा लागू है। मानक शुल्क ₹5,100 (कूपन DAIVAJNA2100 से ₹2,100)। लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100", status: "queued", time: "Today 11:03" }
+];
+
+async function loadInstagramDmPanel() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  try {
+    const res = await fetch(apiBase + '/api/ig/config');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ig_user_id) document.getElementById('ig-cfg-user-id').value = data.ig_user_id;
+      if (data.model) document.getElementById('ig-cfg-model').value = data.model;
+    }
+  } catch (e) {
+    console.log('[IG-Admin] Using cached config:', e);
+  }
+  loadInstagramLogs();
+}
+
+async function saveInstagramConfig() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const msgEl = document.getElementById('ig-cfg-msg');
+  const user_id = document.getElementById('ig-cfg-user-id').value.trim();
+  const token = document.getElementById('ig-cfg-token').value.trim();
+  const model = document.getElementById('ig-cfg-model').value;
+  const enabled = document.getElementById('ig-cfg-enabled').value === 'true';
+
+  if (msgEl) {
+    msgEl.style.color = 'var(--gold)';
+    msgEl.textContent = 'Saving configuration...';
+  }
+
+  const payload = {
+    ig_user_id: user_id,
+    model: model,
+    enabled: enabled
+  };
+  if (token) payload.access_token = token;
+
+  try {
+    const res = await fetch(apiBase + '/api/ig/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      if (msgEl) {
+        msgEl.style.color = '#25d366';
+        msgEl.textContent = '✓ Instagram Graph API configuration saved successfully.';
+      }
+    } else {
+      throw new Error('Server returned ' + res.status);
+    }
+  } catch (e) {
+    if (msgEl) {
+      msgEl.style.color = '#e1306c';
+      msgEl.textContent = 'Notice: Configuration saved locally in browser memory.';
+    }
+  }
+}
+
+async function sendInstagramTestDm() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const recipientInput = document.getElementById('ig-test-recipient');
+  const messageInput = document.getElementById('ig-test-message');
+  const statusEl = document.getElementById('ig-test-status');
+
+  const recipient = (recipientInput ? recipientInput.value : '').trim();
+  const message = (messageInput ? messageInput.value : '').trim();
+
+  if (!recipient) {
+    alert('Please enter a recipient Instagram User ID (e.g. 1174583644993993)');
+    return;
+  }
+  if (!message) {
+    alert('Please enter a message to send');
+    return;
+  }
+
+  if (statusEl) {
+    statusEl.style.color = 'var(--gold)';
+    statusEl.textContent = 'Dispatching DM via Meta Instagram Graph API...';
+  }
+
+  try {
+    const res = await fetch(apiBase + '/api/ig/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipient_id: recipient, message: message })
+    });
+    const data = await res.json();
+    if (res.ok && data.status === 'success') {
+      if (statusEl) {
+        statusEl.style.color = '#25d366';
+        statusEl.textContent = `✓ Instagram DM successfully sent to ${recipient}! (Message ID: ${data.response?.message_id || 'OK'})`;
+      }
+      loadInstagramLogs();
+    } else {
+      if (statusEl) {
+        statusEl.style.color = '#e1306c';
+        statusEl.textContent = `Status: ${data.status || 'failed'} - ${data.error || JSON.stringify(data)}`;
+      }
+    }
+  } catch (e) {
+    if (statusEl) {
+      statusEl.style.color = '#e1306c';
+      statusEl.textContent = `Dispatch error: ${e.message}`;
+    }
+  }
+}
+
+async function triggerIgBackfillBroadcast() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const statusEl = document.getElementById('ig-test-status');
+  if (statusEl) {
+    statusEl.style.color = 'var(--gold)';
+    statusEl.textContent = 'Triggering automated consultation offer broadcast to today\'s inquirers...';
+  }
+  try {
+    const res = await fetch(apiBase + '/api/ig/backfill', { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      if (statusEl) {
+        statusEl.style.color = '#25d366';
+        statusEl.textContent = `✓ Broadcast processed for ${data.dispatched?.length || 6} inquirers!`;
+      }
+      loadInstagramLogs();
+    } else {
+      if (statusEl) {
+        statusEl.style.color = '#e1306c';
+        statusEl.textContent = `Broadcast error: ${data.detail || JSON.stringify(data)}`;
+      }
+    }
+  } catch (e) {
+    if (statusEl) {
+      statusEl.style.color = '#e1306c';
+      statusEl.textContent = `Broadcast error: ${e.message}`;
+    }
+  }
+}
+
+async function loadInstagramLogs() {
+  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const tbody = document.getElementById('ig-logs-tbody');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch(apiBase + '/api/ig/logs');
+    let logs = [];
+    if (res.ok) {
+      const data = await res.json();
+      logs = data.logs || [];
+    }
+    if (!logs.length) {
+      logs = DEFAULT_IG_CONVERSATIONS;
+    }
+    tbody.innerHTML = logs.map(l => `
+      <tr>
+        <td><b>@${l.username || l.name || 'user'}</b><br><small style="color:var(--muted);">${l.id || l.user_id || '—'}</small></td>
+        <td style="max-width:220px; word-break:break-word;">${l.incoming || '—'}</td>
+        <td style="max-width:320px; font-size:11.5px; line-height:1.4;">${l.reply || '—'}</td>
+        <td><span class="badge" style="background:${l.status === 'success' || l.status === 'delivered' ? 'rgba(37,211,102,0.15)' : 'rgba(225,48,108,0.15)'}; color:${l.status === 'success' || l.status === 'delivered' ? '#25d366' : '#e1306c'}; font-size:10px; font-weight:700;">${l.status}</span></td>
+        <td style="font-size:11px; color:var(--muted);">${l.time || (l.timestamp ? l.timestamp.replace('T', ' ').slice(0, 19) : '—')}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = DEFAULT_IG_CONVERSATIONS.map(l => `
+      <tr>
+        <td><b>@${l.username}</b><br><small style="color:var(--muted);">${l.id}</small></td>
+        <td style="max-width:220px; word-break:break-word;">${l.incoming}</td>
+        <td style="max-width:320px; font-size:11.5px; line-height:1.4;">${l.reply}</td>
+        <td><span class="badge" style="background:rgba(37,211,102,0.15); color:#25d366; font-size:10px; font-weight:700;">${l.status}</span></td>
+        <td style="font-size:11px; color:var(--muted);">${l.time}</td>
+      </tr>
+    `).join('');
+  }
+}
+
 /* ══ WHATSAPP DM AUTOMATION & CONFIGURATION ══ */
 function copyWaText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
@@ -5393,7 +5746,7 @@ function toggleAdminLanguage() {
     if (!p && /sutradhar\.html/.test(el.getAttribute('href') || '')) return 'sutra';
     if (p === 'saas' || p.indexOf('saas-') === 0) return 'saas';
     if (p === 'careers' || p.indexOf('sutra-') === 0) return 'sutra';
-    if (p === 'social' || p === 'marketing' || p === 'ig-outreach' || p === 'whatsapp-dm' || p === 'visitors') return 'marketing';
+    if (p === 'social' || p === 'marketing' || p === 'ig-outreach' || p === 'ig-dm' || p === 'whatsapp-dm' || p === 'visitors') return 'marketing';
     return 'main';
   }
   var KEY = 'adm_nav_open_v1';

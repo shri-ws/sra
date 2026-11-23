@@ -2028,6 +2028,77 @@ async def ig_sync_recent_dms():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
+_ig_message_logs = []
+
+@app.get("/api/ig/config")
+async def get_ig_config():
+    from social_agent.publishers.instagram_dm_bot import load_ig_config
+    return load_ig_config()
+
+@app.post("/api/ig/config")
+async def update_ig_config(request: Request):
+    from social_agent.publishers.instagram_dm_bot import save_ig_config
+    body = await request.json()
+    success = save_ig_config(body)
+    return {"status": "success" if success else "error"}
+
+@app.post("/api/ig/send")
+async def send_ig_direct(request: Request):
+    from datetime import datetime, timezone
+    from social_agent.publishers.instagram_dm_bot import send_ig_dm
+    body = await request.json()
+    recipient_id = body.get("recipient_id")
+    message = body.get("message")
+    if not recipient_id or not message:
+        raise HTTPException(status_code=400, detail="Missing 'recipient_id' or 'message'")
+    res = send_ig_dm(recipient_id, message)
+    log_entry = {
+        "user_id": recipient_id,
+        "name": body.get("username", "Direct Admin Send"),
+        "incoming": "-",
+        "reply": message,
+        "status": res.get("status", "unknown"),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    _ig_message_logs.insert(0, log_entry)
+    return res
+
+@app.get("/api/ig/logs")
+async def get_ig_logs():
+    return {"logs": _ig_message_logs}
+
+@app.post("/api/ig/backfill")
+async def trigger_ig_backfill():
+    from datetime import datetime, timezone
+    from social_agent.publishers.instagram_dm_bot import send_ig_dm
+    recipients = [
+        {"username": "govanshilove", "id": "1174583644993993"},
+        {"username": "nitin_rawat_kumar", "id": "1130608502944148"},
+        {"username": "sahilc4d4", "id": "1438408885159244"},
+        {"username": "ap_palkar", "id": "1886577819201043"},
+        {"username": "mrssandwichhhh", "id": "1644192380739151"},
+        {"username": "sanjaychainani2", "id": "1680337930151205"}
+    ]
+    consultation_msg = (
+        "प्रणाम! श्री रामजी एस्ट्रो 'दैवज्ञ नियम' के अनुसार शुचिता व गंभीर विश्लेषण हेतु 'सिंगल डे, सिंगल कंसल्टेशन' (एक दिन में केवल एक जातक) मर्यादा का पालन करता है।\n\n"
+        "मानक दक्षिणा: ₹5,100\n"
+        "विशेष 10-मिनट कूपन: यदि आप 10 मिनट के भीतर स्लॉट आरक्षित करते हैं, तो कूपन कोड 'DAIVAJNA2100' से दक्षिणा सीधे ₹2,100 हो जाएगी (₹3,000 की विशेष छूट)।\n\n"
+        "स्लॉट आरक्षण लिंक: https://shriramjiastro.in/consultation.html?coupon=DAIVAJNA2100"
+    )
+    dispatched = []
+    for r in recipients:
+        res = send_ig_dm(r["id"], consultation_msg)
+        dispatched.append({"username": r["username"], "id": r["id"], "result": res})
+        _ig_message_logs.insert(0, {
+            "user_id": r["id"],
+            "name": r["username"],
+            "incoming": "Consultation Inquiry",
+            "reply": consultation_msg,
+            "status": res.get("status", "unknown"),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+    return {"status": "completed", "dispatched": dispatched}
+
 
 # =============================================================================
 # 16. WHATSAPP BUSINESS MESSAGING (Cloud API Webhook, Auto-Replies & Admin API)
