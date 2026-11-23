@@ -2028,8 +2028,16 @@
                 return;
             }
 
-            // Code box: every code gets the same reply; the server decides at payment
+            // Code box: validate coupon
             const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, 5100) : { valid: false, message: 'कोई कूपन कोड मान्य नहीं है।' };
+            if (res.valid && res.finalPrice) {
+                consultationAmountPaise = res.finalPrice * 100;
+                appliedPromoCode = code;
+                msg.style.color = "var(--pass-green, #15803D)";
+                msg.innerHTML = "✨ <b>" + (res.message || "कूपन कोड लागू!") + "</b>";
+                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹" + res.finalPrice.toLocaleString('en-IN') + ")</span>";
+                return;
+            }
             consultationAmountPaise = 510000;
             appliedPromoCode = code;
             msg.style.color = res.valid ? "var(--pass-green, #15803D)" : "var(--fail-red, #b91c1c)";

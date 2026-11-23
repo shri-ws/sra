@@ -1076,6 +1076,21 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
     }
 
     code_given = bool((input_code or "").strip())
+    clean_code = (input_code or "").strip().upper().replace("-", "").replace("_", "")
+    if clean_code in ("DAIVAJNA2100", "INSTA2100") and sid == "consultation_acharya":
+        disc = max(0, base_price - 2100)
+        base.update({
+            "has_active_lead": False,
+            "is_test": False,
+            "discount_amount": disc,
+            "discount_percent": round((disc * 100) / base_price, 2),
+            "net_price": 2100,
+            "final_price": 2100,
+            "net_price_paise": 210000,
+            "code_status": "applied",
+            "message": "विशेष दैवज्ञ कूपन लागू: ₹2,100 (₹3,000 की छूट)।"
+        })
+        return base
     if code_given and is_master_code(input_code):
         if verified_phone and verified_phone in master_test_phones():
             base.update({

@@ -63,6 +63,9 @@
       var code = String(rawCode).trim().toUpperCase();
       var cleanCode = code.replace(/[-_\s]/g, '');
 
+      // १. विशेष दैवज्ञ कंसल्टेशन कूपन कोड
+      if (cleanCode === 'DAIVAJNA2100' || cleanCode === 'INSTA2100') return true;
+
       // २. सूत्रधार यूनिक कोड प्रारूप (बिना हाइफ़न या हाइफ़न सहित: SRA..., SUTRA..., SD...)
       if (/^SRA[A-Z0-9]{4,10}$/i.test(cleanCode) || /^SRA-[A-Z0-9]{4,10}$/i.test(code) || /^SD-?\d{2,6}$/i.test(code) || /^SUTRA/i.test(code)) return true;
 
@@ -390,10 +393,19 @@
      * कूपन बॉक्स: हर कोड पर एक ही जवाब ("कोड अमान्य है")। निर्णय केवल सर्वर पर।
      */
     validateAndCalculate: function(rawCode, basePrice) {
-      // Every code gets the same reply. The typed code is still sent with the order;
-      // only the server knows if it is the developer's test code for the developer's own number.
-      var code = (rawCode || '').trim();
+      var code = (rawCode || '').trim().toUpperCase();
       if (!code) return { valid: false, code: '', message: 'कृपया कोड दर्ज करें।' };
+      var clean = code.replace(/[-_\s]/g, '');
+      if (clean === 'DAIVAJNA2100' || clean === 'INSTA2100') {
+        var base = Number(basePrice) || 5100;
+        return {
+          valid: true,
+          code: code,
+          finalPrice: 2100,
+          discount: Math.max(0, base - 2100),
+          message: 'विशेष दैवज्ञ कूपन लागू! दक्षिणा ₹2,100 (₹3,000 की छूट)'
+        };
+      }
       return { valid: false, code: code, message: 'कोड अमान्य है।' };
     },
 
