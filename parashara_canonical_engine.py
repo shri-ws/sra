@@ -2028,21 +2028,6 @@ async def ig_sync_recent_dms():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
-@app.on_event("startup")
-async def start_ig_background_poller():
-    """Starts background real-time poller to guarantee instant replies."""
-    import asyncio
-    async def _poller():
-        # Wait for server to finish initializing
-        await asyncio.sleep(5)
-        while True:
-            try:
-                await ig_sync_recent_dms()
-            except Exception as _e:
-                pass
-            await asyncio.sleep(5)
-    asyncio.create_task(_poller())
-
 
 if __name__ == "__main__":
     import uvicorn
