@@ -1932,6 +1932,43 @@ except Exception as e:
     print(f"[FastAPI] Personalized Panchang router mount notice: {e}")
 
 
+# =============================================================================
+# 15. INSTAGRAM MESSAGING WEBHOOK (Auto-Replies & Meta Webhook Handshake)
+# =============================================================================
+from fastapi.responses import PlainTextResponse
+
+@app.get("/api/ig/webhook")
+async def ig_webhook_verify(request: Request):
+    """Handles Meta Webhook subscription verification challenge."""
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+    verify_token = os.getenv("IG_WEBHOOK_VERIFY_TOKEN", "sra_ig_verify_secret_2026")
+
+    if mode == "subscribe" and token == verify_token:
+        return PlainTextResponse(content=challenge or "", status_code=200)
+    raise HTTPException(status_code=403, detail="Verify token mismatch")
+
+@app.post("/api/ig/webhook")
+async def ig_webhook_event(request: Request):
+    """Handles incoming Instagram DM events and dispatches automated replies."""
+    try:
+        payload = await request.json()
+        entries = payload.get("entry", [])
+        from social_agent.publishers.instagram_dm_bot import generate_dm_reply, send_ig_dm
+        for entry in entries:
+            for messaging in entry.get("messaging", []):
+                sender_id = messaging.get("sender", {}).get("id")
+                msg_text = messaging.get("message", {}).get("text", "")
+                is_echo = messaging.get("message", {}).get("is_echo", False)
+                if sender_id and msg_text and not is_echo:
+                    reply = generate_dm_reply(msg_text)
+                    send_ig_dm(sender_id, reply)
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
 if __name__ == "__main__":
     import uvicorn
     print("Starting SRA Parashara Canonical Microservice on http://0.0.0.0:8000 ...")

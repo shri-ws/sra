@@ -1,0 +1,91 @@
+"""
+Shri Ramji Astro (SRA) - Instagram Direct Message (DM) Automation Helper
+Provides automated replies to Instagram DMs using predefined SRA intents
+or Gemini model for incoming query handling.
+"""
+
+import sys
+import json
+import urllib.request
+import urllib.parse
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+CONFIG_FILE = BASE_DIR / "social_agent" / "social_config.json"
+
+def load_ig_config():
+    if CONFIG_FILE.exists():
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+            return cfg.get("platforms", {}).get("instagram", {})
+    return {}
+
+def generate_dm_reply(user_query: str) -> str:
+    """Generate quick, engaging context-aware reply."""
+    q = user_query.lower()
+    if any(k in q for k in ["sutradhar", "income", "earning", "wfh", "job", "career"]):
+        return (
+            "प्रणाम! श्री रामजी एस्ट्रो 'सूत्रधार' कार्यक्रम के तहत आप घर बैठे प्रामाणिक "
+            "ज्योतिष परामर्श जोड़कर सम्मानजनक आय प्राप्त कर सकते हैं।\n\n"
+            "आवेदन व पूरी जानकारी: https://shriramjiastro.in/careers.html"
+        )
+    elif any(k in q for k in ["kundali", "kundli", "chart", "horoscope", "bhavishya"]):
+        return (
+            "प्रणाम! सटीक पाराशर एवं NASA JPL गणना पर आधारित अपनी संपूर्ण कुंडली "
+            "और दशा विश्लेषण के लिए आप हमारी वेबसाइट विजिट कर सकते हैं:\n"
+            "https://shriramjiastro.in"
+        )
+    elif any(k in q for k in ["panchang", "tithi", "muhurta"]):
+        return (
+            "प्रणाम! आज का दैनिक शुद्ध पंचांग एवं शुभ मुहूर्त देखने के लिए यहाँ क्लिक करें:\n"
+            "https://shriramjiastro.in/panchang"
+        )
+    return (
+        "नमस्ते! श्री रामजी एस्ट्रो में संपर्क करने के लिए धन्यवाद।\n\n"
+        "हमसे जुड़ने के लिए कृपया अपनी जन्मतिथि, समय और स्थान साझा करें, "
+        "या अधिक जानकारी के लिए हमारी वेबसाइट shriramjiastro.in पर पधारें।"
+    )
+
+def send_ig_dm(recipient_id: str, message_text: str, dry_run: bool = False) -> dict:
+    """Send DM to a user ID via Meta Graph API."""
+    ig_cfg = load_ig_config()
+    token = ig_cfg.get("access_token", "").strip()
+
+    if dry_run or not token:
+        print(f"[IG-DM-Bot] Dry run / Token pending:")
+        print(f"  Recipient: {recipient_id}")
+        print(f"  Reply: {message_text}")
+        return {"status": "simulated", "recipient_id": recipient_id, "text": message_text}
+
+    url = "https://graph.facebook.com/v19.0/me/messages"
+    payload = json.dumps({
+        "recipient": {"id": recipient_id},
+        "message": {"text": message_text}
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return {"status": "success", "response": data}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+if __name__ == "__main__":
+    test_queries = [
+        "Hi, how can I earn as a Sutradhar?",
+        "Mujhe apni kundali banwani hai",
+        "Aaj ka panchang kya hai?",
+        "Hello!"
+    ]
+    print("=== Testing Instagram DM Auto-Reply Generation ===")
+    for q in test_queries:
+        reply = generate_dm_reply(q)
+        print(f"\n[Incoming]: {q}")
+        print(f"[Auto-Reply]:\n{reply}")
