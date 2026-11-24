@@ -400,6 +400,19 @@ class SutradharStore:
                 res.append(item)
             return res
 
+    @classmethod
+    def delete_doc(cls, col_name: str, doc_id: str):
+        with _store_lock:
+            if _firestore_db:
+                try:
+                    _firestore_db.collection(col_name).document(doc_id).delete()
+                except Exception as e:
+                    logger.warning(f"Firestore delete error: {e}")
+            local = cls._read_json(col_name)
+            if doc_id in local:
+                del local[doc_id]
+                cls._write_json(col_name, local)
+
 
 def log_audit_event(event_type: str, actor: str, details: Dict[str, Any]):
     """Appends an immutable audit event to audit_logs."""
@@ -3305,6 +3318,7 @@ async def admin_desk(authorization: Optional[str] = Header(None)):
 
 class SaasAdminRequest(BaseModel):
     phone: str
+    new_phone: Optional[str] = None
     name: Optional[str] = None
     add_days: Optional[int] = Field(None, description="Extend by this many days (365 = one year)")
     expires_at: Optional[str] = Field(None, description="Set an exact expiry date YYYY-MM-DD")
@@ -3518,9 +3532,12 @@ SUTRADHAR_INACTIVE_DAYS = int(os.environ.get("SUTRADHAR_INACTIVE_DAYS", "30") or
 
 
 class SutradharAdminRequest(BaseModel):
-    sutradhar_id: str
+    sutradhar_id: Optional[str] = None
     status: Optional[str] = None          # "active" | "paused"
     upi_verified: Optional[bool] = None   # after the Rs 1 name check
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    upi_id: Optional[str] = None
 
 
 @router.get("/admin/sutradhars")
@@ -3601,22 +3618,76 @@ async def admin_list_sutradhars(authorization: Optional[str] = Header(None)):
 
 @router.post("/admin/sutradhars")
 async def admin_update_sutradhar(req: SutradharAdminRequest, authorization: Optional[str] = Header(None)):
-    """Pause / re-activate a Sutradhar, or mark the UPI as checked."""
+    """Pause / re-activate a Sutradhar, mark UPI checked, edit name/phone/upi, or create a new Sutradhar."""
     admin = require_admin(authorization)
-    target = next((s for s in SutradharStore.query_all("sutradhars")
-                   if req.sutradhar_id in (s.get("sutradhar_id"), s.get("id"))), None)
-    if not target:
-        raise HTTPException(status_code=404, detail="सूत्रधार नहीं मिला।")
-    doc = dict(target)
-    if req.status is not None:
-        if req.status not in ("active", "paused"):
-            raise HTTPException(status_code=400, detail="status active या paused होना चाहिए।")
-        doc["status"] = req.status
-    if req.upi_verified is not None:
-        doc["upi_verified"] = bool(req.upi_verified)
-    SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
-    log_audit_event("ADMIN_SUTRADHAR_UPDATE", admin, {"sutradhar_id": req.sutradhar_id, "status": req.status, "upi_verified": req.upi_verified})
-    return {"status": "success", "sutradhar": doc}
+    if req.sutradhar_id:
+        target = next((s for s in SutradharStore.query_all("sutradhars")
+                       if req.sutradhar_id in (s.get("sutradhar_id"), s.get("id"))), None)
+        if not target:
+            raise HTTPException(status_code=404, detail="सूत्रधार नहीं मिला।")
+        doc = dict(target)
+        if req.status is not None:
+            if req.status not in ("active", "paused"):
+                raise HTTPException(status_code=400, detail="status active या paused होना चाहिए।")
+            doc["status"] = req.status
+        if req.upi_verified is not None:
+            doc["upi_verified"] = bool(req.upi_verified)
+        if req.name is not None and req.name.strip():
+            doc["name"] = req.name.strip()
+        if req.phone is not None and req.phone.strip():
+            new_phone = normalize_phone(req.phone)
+            if len(new_phone) != 10:
+                raise HTTPException(status_code=400, detail="मान्य 10 अंकों का मोबाइल नंबर दर्ज करें।")
+            other = next((s for s in SutradharStore.query_all("sutradhars")
+                          if s.get("phone") == new_phone and s.get("id") != doc.get("id") and s.get("sutradhar_id") != doc.get("sutradhar_id")), None)
+            if other:
+                raise HTTPException(status_code=400, detail="यह मोबाइल नंबर पहले से किसी अन्य सूत्रधार के पास दर्ज है।")
+            doc["phone"] = new_phone
+        if req.upi_id is not None:
+            doc["upi_id"] = req.upi_id.strip()
+        doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+        SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
+        log_audit_event("ADMIN_SUTRADHAR_UPDATE", admin, {
+            "sutradhar_id": req.sutradhar_id, "name": doc.get("name"), "phone": doc.get("phone"),
+            "status": doc.get("status"), "upi_verified": req.upi_verified
+        })
+        return {"status": "success", "sutradhar": doc}
+
+    # Creating / adding a new Sutradhar directly from admin portal
+    clean_phone = normalize_phone(req.phone or "")
+    if len(clean_phone) != 10:
+        raise HTTPException(status_code=400, detail="मान्य 10 अंकों का मोबाइल नंबर आवश्यक है।")
+    clean_name = (req.name or "").strip() or "सूत्रधार"
+    existing = find_sutradhar_by_phone(clean_phone)
+    if existing:
+        doc = dict(existing)
+        doc["name"] = clean_name
+        if req.upi_id is not None:
+            doc["upi_id"] = req.upi_id.strip()
+        doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+        SutradharStore.set_doc("sutradhars", doc.get("id") or doc.get("sutradhar_id"), doc)
+        return {"status": "success", "message": "मौजूदा सूत्रधार अपडेट किया गया।", "sutradhar": doc}
+
+    s_id = f"SUTRA-{clean_phone[-4:]}-01"
+    if SutradharStore.get_doc("sutradhars", s_id):
+        s_id = f"SUTRA-{clean_phone[-4:]}-{os.urandom(2).hex().upper()}"
+    code = f"SRA{os.urandom(3).hex().upper()}"
+    new_doc = {
+        "id": s_id,
+        "sutradhar_id": s_id,
+        "name": clean_name,
+        "phone": clean_phone,
+        "email": "",
+        "code": code,
+        "upi_id": (req.upi_id or "").strip(),
+        "pan": "",
+        "status": req.status or "active",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    SutradharStore.set_doc("sutradhars", s_id, new_doc)
+    log_audit_event("ADMIN_SUTRADHAR_CREATED", admin, {"sutradhar_id": s_id, "phone": clean_phone, "name": clean_name})
+    return {"status": "success", "message": "नया सूत्रधार सफलतापूर्वक जोड़ा गया।", "sutradhar": new_doc}
 
 
 @router.get("/admin/saas")
@@ -3656,8 +3727,8 @@ async def admin_upsert_saas(req: SaasAdminRequest, authorization: Optional[str] 
                 raise HTTPException(status_code=400, detail="तारीख़ YYYY-MM-DD रूप में दें।")
             sub["expires_at"] = exp.astimezone(timezone.utc).isoformat()
             sub.setdefault("history", []).append({"at": now.isoformat(), "set_expiry": req.expires_at, "source": f"admin:{admin}"})
-        if req.name:
-            sub["name"] = req.name
+        if req.name is not None:
+            sub["name"] = req.name.strip()
         if req.status:
             sub["status"] = req.status
         if req.reset_devices:
@@ -3666,10 +3737,22 @@ async def admin_upsert_saas(req: SaasAdminRequest, authorization: Optional[str] 
             sub["devices"] = [d for d in sub.get("devices", []) if d.get("device_id") != req.remove_device_id]
         if req.note is not None:
             sub["note"] = req.note
+        target_phone = phone
+        if req.new_phone:
+            new_p = normalize_phone(req.new_phone)
+            if len(new_p) != 10:
+                raise HTTPException(status_code=400, detail="नया मोबाइल नंबर 10 अंकों का होना चाहिए।")
+            if new_p != phone:
+                existing_new = get_saas_subscriber(new_p)
+                if existing_new:
+                    raise HTTPException(status_code=400, detail="यह नया मोबाइल नंबर पहले से किसी अन्य SaaS ग्राहक का है।")
+                sub["phone"] = new_p
+                target_phone = new_p
+                SutradharStore.delete_doc("saas_subscribers", phone)
         sub["updated_at"] = now.isoformat()
-        SutradharStore.set_doc("saas_subscribers", phone, sub)
-    log_audit_event("ADMIN_SAAS_UPDATE", admin, {"phone": phone, "add_days": req.add_days, "expires_at": req.expires_at,
-                                                 "status": req.status, "reset_devices": req.reset_devices})
+        SutradharStore.set_doc("saas_subscribers", target_phone, sub)
+    log_audit_event("ADMIN_SAAS_UPDATE", admin, {"phone": target_phone, "old_phone": phone, "add_days": req.add_days, "expires_at": req.expires_at,
+                                                 "status": req.status, "reset_devices": req.reset_devices, "name": sub.get("name")})
     return {"status": "success", "subscriber": _saas_view(sub, SutradharStore.query_all("saas_usage"))}
 
 

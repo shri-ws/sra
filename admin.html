@@ -443,7 +443,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
 .spin{border-top-color:#2563eb !important}
 </style>
 <script src="admin-invite.js?v=20261122_01" defer></script>
-<script src="admin-accounts.js?v=20261122_01" defer></script>
+<script src="admin-accounts.js?v=20261125_02" defer></script>
 </head>
 <body>
 
@@ -690,7 +690,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
             </div>
           </div>
           <div style="overflow-x:auto"><table class="tbl">
-            <thead><tr><th>Name</th><th>Email / Mobile</th><th>Login method</th><th>Joined</th><th>Last login</th><th>Kundalis</th><th>UID</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email / Mobile</th><th>Login method</th><th>Joined</th><th>Last login</th><th>Kundalis</th><th>UID</th><th>Action</th></tr></thead>
             <tbody id="acc-tbody"></tbody>
           </table></div>
         </div>
@@ -1581,6 +1581,12 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           After the invite, the person gives name + number + OTP on the portal and passes the test after the intro — only then do they show here as a "Sutradhar" .
           People who did the OTP but stopped show below under "Incomplete signup" . "Last login" shows whether they still open the portal.
         </p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 14px; align-items:center; background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.25); border-radius:10px; padding:10px 14px;">
+          <span style="font-weight:700; font-size:12px; color:var(--gold);">+ नया सूत्रधार जोड़ें:</span>
+          <input type="tel" id="sutra-new-phone" placeholder="मोबाइल नंबर (10 अंक)" maxlength="10" style="padding:6px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font-family:monospace; font-size:13px;" oninput="this.value=this.value.replace(/\D/g,'')" />
+          <input type="text" id="sutra-new-name" placeholder="सूत्रधार का नाम" style="padding:6px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font-size:13px;" />
+          <button class="export-btn" style="background:#059669; border-color:#047857; color:#fff; font-weight:700; padding:6px 12px;" onclick="addSutradharAdmin()">+ जोड़ें (Add)</button>
+        </div>
         <div class="stats-grid" id="sl-stats" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));"></div>
         <div id="sl-tabs" style="display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 10px;"></div>
         <p id="sl-tab-note" style="font-size:13px; color:var(--text-muted); margin:0 0 8px;"></p>
@@ -1781,12 +1787,25 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
             <input id="inv-phone" inputmode="numeric" placeholder="10-digit mobile" maxlength="14">
             <label>Message <span style="opacity:.7">(you can edit)</span></label>
             <textarea id="inv-msg" rows="9"></textarea>
-            <div class="inv-btns">
-              <button class="inv-wa" id="inv-send" type="button">Send on WhatsApp</button>
-              <button class="export-btn" id="inv-copy" type="button">Copy message</button>
-              <a class="export-btn" id="inv-open" href="sutradhar-invite.html" target="_blank" rel="noopener">View page </a>
+            <div style="margin-top:12px;">
+              <div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:6px;">१. इनवाइट लिंक (WhatsApp Invite Link):</div>
+              <div class="inv-btns" style="margin-top:0;">
+                <button class="inv-wa" id="inv-send" type="button">WhatsApp इनवाइट भेजें</button>
+                <button class="export-btn" id="inv-copy" type="button">Copy Invite</button>
+                <a class="export-btn" id="inv-open" href="sutradhar-invite.html" target="_blank" rel="noopener">View page </a>
+              </div>
             </div>
-            <div id="inv-status" style="font-size:12px; color:var(--text-muted); min-height:18px; margin-top:6px"></div>
+            <div style="margin-top:14px; padding:12px; border:1px solid var(--border); border-radius:10px; background:rgba(37,99,235,0.05);">
+              <div style="font-size:12px; font-weight:700; margin-bottom:6px; color:var(--text);">२. केवल AI कमाई प्रॉम्प्ट (Separate AI Earning Prompt):</div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:8px;">"आप श्री राम जी एस्ट्रो से कितना कमा सकते हैं, इसे AI पर चलाकर समझें..."</div>
+              <div class="inv-btns" style="margin-top:0;">
+                <button class="inv-wa" id="inv-send-prompt-hi" type="button" style="background:#2563eb; font-size:12px; padding:8px 12px;">WhatsApp प्रॉम्प्ट (हिंदी)</button>
+                <button class="inv-wa" id="inv-send-prompt-en" type="button" style="background:#0284c7; font-size:12px; padding:8px 12px;">WhatsApp Prompt (English)</button>
+                <button class="export-btn" id="inv-copy-prompt-hi" type="button" style="font-size:11.5px;">Copy प्रॉम्प्ट (हिंदी)</button>
+                <button class="export-btn" id="inv-copy-prompt-en" type="button" style="font-size:11.5px;">Copy Prompt (English)</button>
+              </div>
+            </div>
+            <div id="inv-status" style="font-size:12px; color:var(--text-muted); min-height:18px; margin-top:8px"></div>
           </div>
           <div>
             <label style="display:block; font-weight:700; margin-bottom:8px">Pictures (send in order)</label>
@@ -1899,6 +1918,116 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           <button class="export-btn" style="background:#059669; color:#fff; font-weight:700; padding:10px; font-size:12px;" onclick="sendSutradharWhatsAppReceipt()">
             Send receipt to Sutradhar on WhatsApp
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUTRADHAR EDIT MODAL (Name spelling mistake / Phone number correction) -->
+  <div id="modalEditSutradhar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--card-bg, #1a1622); border:1px solid var(--gold, #b08d3e); border-radius:16px; max-width:440px; width:100%; padding:24px; box-shadow:0 20px 50px rgba(0,0,0,0.5); color:var(--text, #fff); font-family:sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(176,141,62,0.3); padding-bottom:10px;">
+        <h3 style="margin:0; font-size:17px; font-weight:700; color:var(--gold, #d4af37);">
+          सूत्रधार विवरण सुधारें (Edit Sutradhar)
+        </h3>
+        <button onclick="closeEditSutradharModal()" style="background:none; border:none; color:#9ca3af; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
+        <input type="hidden" id="editSutraIdHidden">
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">Sutradhar ID</label>
+          <div id="editSutraIdDisplay" style="font-family:monospace; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:8px; color:#3b82f6; font-weight:700;">—</div>
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">नाम (Name - स्पेलिंग सुधारें) *</label>
+          <input type="text" id="editSutraName" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:14px;" placeholder="सूत्रधार का पूरा नाम">
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">मोबाइल नंबर (WhatsApp / Phone - 10 अंक) *</label>
+          <input type="tel" id="editSutraPhone" maxlength="10" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-family:monospace; font-size:14px;" placeholder="10-digit mobile" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">UPI ID (वैकल्पिक)</label>
+          <input type="text" id="editSutraUpi" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-family:monospace; font-size:14px;" placeholder="name@upi">
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button id="editSutraSaveBtn" class="export-btn" style="flex:1; background:var(--gold, #b08d3e); color:#000; font-weight:700; padding:10px; font-size:13px;" onclick="saveEditSutradhar()">सुरक्षित करें (Save)</button>
+          <button class="export-btn" style="padding:10px 16px; font-size:13px;" onclick="closeEditSutradharModal()">रद्द करें</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAAS SUBSCRIBER EDIT MODAL (Name spelling mistake / Phone number correction) -->
+  <div id="modalEditSaas" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--card-bg, #1a1622); border:1px solid var(--gold, #b08d3e); border-radius:16px; max-width:440px; width:100%; padding:24px; box-shadow:0 20px 50px rgba(0,0,0,0.5); color:var(--text, #fff); font-family:sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(176,141,62,0.3); padding-bottom:10px;">
+        <h3 style="margin:0; font-size:17px; font-weight:700; color:var(--gold, #d4af37);">
+          SaaS ग्राहक विवरण सुधारें (Edit Astrologer)
+        </h3>
+        <button onclick="closeEditSaasModal()" style="background:none; border:none; color:#9ca3af; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
+        <input type="hidden" id="editSaasOldPhone">
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">नाम (Name - स्पेलिंग सुधारें) *</label>
+          <input type="text" id="editSaasName" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:14px;" placeholder="ज्योतिषी का नाम">
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">मोबाइल नंबर (Phone - 10 अंक) *</label>
+          <input type="tel" id="editSaasPhone" maxlength="10" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-family:monospace; font-size:14px;" placeholder="10-digit mobile" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">वैधता समाप्ति तारीख (Valid till / Expiry date)</label>
+          <input type="date" id="editSaasExpiry" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:14px;">
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button id="editSaasSaveBtn" class="export-btn" style="flex:1; background:var(--gold, #b08d3e); color:#000; font-weight:700; padding:10px; font-size:13px;" onclick="saveEditSaas()">सुरक्षित करें (Save)</button>
+          <button class="export-btn" style="padding:10px 16px; font-size:13px;" onclick="closeEditSaasModal()">रद्द करें</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBSITE ACCOUNT EDIT MODAL (Name spelling mistake / Phone correction) -->
+  <div id="modalEditAccount" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--card-bg, #1a1622); border:1px solid var(--gold, #b08d3e); border-radius:16px; max-width:440px; width:100%; padding:24px; box-shadow:0 20px 50px rgba(0,0,0,0.5); color:var(--text, #fff); font-family:sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(176,141,62,0.3); padding-bottom:10px;">
+        <h3 style="margin:0; font-size:17px; font-weight:700; color:var(--gold, #d4af37);">
+          खाता / ग्राहक विवरण सुधारें (Edit Account / User)
+        </h3>
+        <button onclick="closeEditAccountModal()" style="background:none; border:none; color:#9ca3af; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
+        <input type="hidden" id="editAccountUid">
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">नाम (Candidate / User Name - स्पेलिंग सुधारें) *</label>
+          <input type="text" id="editAccountName" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:14px;" placeholder="उपयोगकर्ता का नाम">
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">मोबाइल नंबर (Phone - 10 अंक)</label>
+          <input type="tel" id="editAccountPhone" maxlength="10" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-family:monospace; font-size:14px;" placeholder="10-digit mobile" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">ईमेल (Email Address - optional)</label>
+          <input type="email" id="editAccountEmail" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:14px;" placeholder="Email address">
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <button id="editAccountSaveBtn" class="export-btn" style="flex:1; background:var(--gold, #b08d3e); color:#000; font-weight:700; padding:10px; font-size:13px;" onclick="saveEditAccount()">सुरक्षित करें (Save)</button>
+          <button class="export-btn" style="padding:10px 16px; font-size:13px;" onclick="closeEditAccountModal()">रद्द करें</button>
         </div>
       </div>
     </div>
@@ -2408,6 +2537,9 @@ function renderUserQueryRows(tbodyId, rows){
       <td class="date-cell">${safe(u.created_at || u.logged_at)}</td>
       <td>${waChat}</td>
       <td>
+        <button class="export-btn" style="background:#0284c7; color:#fff; font-size:10px; padding:3px 8px; font-weight:700; margin-right:4px; cursor:pointer;" onclick="editUserQueryModal('${safe(uId)}')">
+          Edit
+        </button>
         <button class="export-btn" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; font-size:10px; padding:3px 8px; cursor:pointer;" onclick="deleteUserQuery('${safe(uId)}')">
           Delete
         </button>
@@ -2632,6 +2764,49 @@ async function deleteUserQuery(id) {
   } catch(e) {
     alert('Error: ' + (e.message || e));
   }
+}
+
+async function editUserQueryModal(id) {
+  const u = (D.users || []).find(x => x.id === id);
+  if (!u) return;
+  const currentName = u.candidate_name || u.name || '';
+  const currentPhone = u.phone || '';
+  const newName = prompt('नाम में सुधार करें (Correct Candidate/User Name):', currentName);
+  if (newName === null) return;
+  const newPhone = prompt('मोबाइल नंबर में सुधार करें (Correct Phone Number):', currentPhone);
+  if (newPhone === null) return;
+
+  const cleanName = newName.trim();
+  const cleanPhone = newPhone.trim();
+  if (!cleanName) { alert('नाम खाली नहीं हो सकता।'); return; }
+
+  u.candidate_name = cleanName;
+  u.name = cleanName;
+  if (cleanPhone) u.phone = cleanPhone;
+
+  // 1. Update in Firestore Cloud
+  if (window.SRAAdminData && SRAAdminData.update) {
+    try {
+      await SRAAdminData.update('user_queries', id, { candidate_name: cleanName, name: cleanName, phone: cleanPhone });
+    } catch(e) { console.warn('Firestore update error:', e); }
+  }
+
+  // 2. Update in LocalStorage
+  try {
+    let localUsers = JSON.parse(localStorage.getItem('sra_user_db') || '[]');
+    const idx = localUsers.findIndex(x => x.id === id);
+    if (idx !== -1) {
+      localUsers[idx].candidate_name = cleanName;
+      localUsers[idx].name = cleanName;
+      if (cleanPhone) localUsers[idx].phone = cleanPhone;
+      localStorage.setItem('sra_user_db', JSON.stringify(localUsers));
+    }
+  } catch(e) {}
+
+  // 3. Re-render UI
+  renderUserQueryRows('users-tbody', D.users);
+  renderRecentUserRows('recent-users-tbody', D.users.slice(0, 8));
+  alert('यूजर विवरण सफलतापूर्वक अपडेट किया गया।');
 }
 
 function renderForumRows(tbodyId, rows){
@@ -3195,6 +3370,9 @@ function renderCareerRows(tbodyId, rows) {
               ${dict.btnSendWa}
             </button>
           `}
+          <button class="export-btn" style="background:#0284c7; color:#fff; font-weight:700; font-size:11px;" onclick="careerEditModal('${safe(app.id)}')">
+            Edit
+          </button>
           <button class="export-btn" style="background:#16a34a; color:#fff; font-weight:700; font-size:11px;" onclick="openManualUpiModal('${safe(app.name)}', '${safe(app.sutradhar_id || '')}', '${safe(app.upi_id || app.upi || '')}', '${safe(app.phone)}', 250)">
             Pay by UPI
           </button>
@@ -3330,6 +3508,31 @@ async function deleteCareerApplication(id, phone, name) {
   } catch (err) {
     alert('Error while deleting: ' + err.message);
   }
+}
+
+function careerEditModal(id) {
+  const app = (D.careers || []).find(c => c.id === id);
+  if (!app) return;
+  const newName = prompt('नाम में सुधार करें (Correct Name):', app.name || '');
+  if (newName === null) return;
+  const newPhone = prompt('मोबाइल नंबर में सुधार करें (10 अंक Mobile Number):', app.phone || '');
+  if (newPhone === null) return;
+  const cleanPhone = (newPhone || '').replace(/\D/g, '');
+  if (!newName.trim()) { alert('नाम खाली नहीं हो सकता।'); return; }
+  if (cleanPhone.length !== 10) { alert('कृपया मान्य 10 अंकों का मोबाइल नंबर दर्ज करें।'); return; }
+
+  app.name = newName.trim();
+  app.phone = cleanPhone;
+
+  if (window.SRAAdminData && SRAAdminData.update) {
+    SRAAdminData.update('career_applications', id, { name: app.name, phone: app.phone }).catch(console.warn);
+  }
+  try {
+    localStorage.setItem('sra_career_applications', JSON.stringify(D.careers));
+  } catch (e) {}
+
+  renderCareerRows('careers-tbody', D.careers);
+  alert('आवेदक विवरण सफलतापूर्वक अपडेट किया गया।');
 }
 
 async function purgeAllCareerApplications() {
@@ -3550,7 +3753,7 @@ async function loadSutradharReviewQueue() {
   if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="empty-row"><span class="spin"></span> Loading...</td></tr>';
 
   try {
-    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
     const res = await sutraAdminFetch('/api/sutradhar/admin/reviews');
     if (!res.ok) throw new Error('Could not load the review queue from the server');
     const data = await res.json();
@@ -3617,7 +3820,7 @@ async function reviewActionSutradhar(commissionId, action) {
   }
 
   try {
-    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
     const res = await sutraAdminFetch('/api/sutradhar/admin/review-action', {
       method: 'POST',
       body: JSON.stringify({ commission_id: commissionId, action: action, reason: reason })
@@ -3634,7 +3837,7 @@ async function reviewActionSutradhar(commissionId, action) {
 async function triggerSutradharBatchPayouts() {
   if (!confirm('Process all pending Sutradhar payouts now?')) return;
   try {
-    const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+    const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
     const res = await sutraAdminFetch('/api/sutradhar/payouts/process', {
       method: 'POST',
       body: JSON.stringify({})
@@ -3650,7 +3853,7 @@ async function triggerSutradharBatchPayouts() {
 /* ══ SUTRADHAR PAYOUT DESK (T+2 working days, manual UPI, closed with UTR) ══ */
 async function sutraAdminFetch(path, opts) {
   opts = opts || {};
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const user = window.SRAAdminAccounts && SRAAdminAccounts.getAdminUser && SRAAdminAccounts.getAdminUser();
   if (!user || !user.getIdToken) throw new Error('Sign in with the admin Google account first.');
   const token = await user.getIdToken();
@@ -4131,9 +4334,12 @@ async function loadSutradharList(silent) {
         <td><b>₹${(s.earned || 0).toLocaleString('en-IN')}</b><div style="font-size:11px; color:var(--muted);">Paid ₹${(s.paid || 0).toLocaleString('en-IN')} · due ₹${(s.pending || 0).toLocaleString('en-IN')}</div></td>
         <td style="font-size:12px;">${upi}</td>
         <td><div style="display:flex; gap:5px; flex-wrap:wrap;">
+          <button class="export-btn" style="padding:4px 9px; background:#0284c7; color:#fff; font-weight:700;" onclick="openEditSutradharModal(${i})" title="नाम या नंबर में सुधार करें">Edit</button>
           <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, '${s.status === 'paused' ? 'activate' : 'pause'}')">${s.status === 'paused' ? 'Resume' : 'Pause'}</button>
           <button class="export-btn" style="padding:4px 9px; background:#2563eb;" onclick="sutraActivity(${i})">View work</button>
           <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, 'nudge')">Remind</button>
+          <button class="export-btn" style="padding:4px 9px;" onclick="sutraAction(${i}, 'invite')" title="Open invite modal">Invite</button>
+          <button class="export-btn" style="padding:4px 9px; color:#2563eb; font-weight:700;" onclick="sutraAction(${i}, 'prompt')" title="Send pure AI Prompt on WhatsApp">AI प्रॉम्प्ट</button>
         </div></td>
       </tr>`;
     }).join('') : `<tr><td colspan="10" class="empty-row">${group === 'inactive' ? 'No inactive Sutradhars.' : group === 'paused' ? 'No paused accounts.' : 'No active Sutradhars yet.'}</td></tr>`;
@@ -4154,11 +4360,24 @@ async function loadSutradharList(silent) {
 async function sutraAction(i, action) {
   const s = sutraList[i];
   if (!s) return;
+  if (action === 'invite') {
+    if (window.SRAInvite) SRAInvite.openSend({ name: s.name, phone: s.phone });
+    return;
+  }
+  if (action === 'prompt') {
+    const txt = window.SRAInvite ? SRAInvite.promptOnlyHindi(s.name) : '';
+    window.open(`https://wa.me/91${s.phone}?text=${encodeURIComponent(txt)}`, '_blank');
+    return;
+  }
   if (action === 'nudge') {
     const msg = s.state === 'joined'
       ? `🙏 नमस्ते ${s.name || ''} जी,\n\nश्री राम जी एस्ट्रो सूत्रधार पोर्टल में आपका स्वागत है। अपने पहले ग्राहक का नंबर "नई लीड जोड़ें" में डालिए — 72 घंटे में उनकी हर खरीद पर आपकी दक्षिणा बनेगी।\n\nपोर्टल: https://shriramjiastro.in/sutradhar.html`
       : `🙏 नमस्ते ${s.name || ''} जी,\n\nश्री राम जी एस्ट्रो सूत्रधार पोर्टल पर आपकी लीड और दक्षिणा का ब्योरा देखें: https://shriramjiastro.in/sutradhar.html`;
     window.open(`https://wa.me/91${s.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+    return;
+  }
+  if (action === 'edit') {
+    openEditSutradharModal(i);
     return;
   }
   const body = { sutradhar_id: s.sutradhar_id };
@@ -4171,6 +4390,77 @@ async function sutraAction(i, action) {
     if (!res.ok) throw new Error(d.detail || 'Not saved');
     loadSutradharList();
   } catch (err) { alert('Error: ' + err.message); }
+}
+
+function openEditSutradharModal(i) {
+  const s = sutraList[i];
+  if (!s) return;
+  document.getElementById('editSutraIdHidden').value = s.sutradhar_id || s.id;
+  document.getElementById('editSutraIdDisplay').textContent = s.sutradhar_id || s.id;
+  document.getElementById('editSutraName').value = s.name || '';
+  document.getElementById('editSutraPhone').value = s.phone || '';
+  document.getElementById('editSutraUpi').value = s.upi_id || '';
+  const m = document.getElementById('modalEditSutradhar');
+  if (m) m.style.display = 'flex';
+}
+
+function closeEditSutradharModal() {
+  const m = document.getElementById('modalEditSutradhar');
+  if (m) m.style.display = 'none';
+}
+
+async function saveEditSutradhar() {
+  const sid = document.getElementById('editSutraIdHidden').value;
+  const name = (document.getElementById('editSutraName').value || '').trim();
+  const phone = (document.getElementById('editSutraPhone').value || '').trim().replace(/\D/g, '');
+  const upi = (document.getElementById('editSutraUpi').value || '').trim();
+  if (!name) { alert('कृपया सूत्रधार का नाम दर्ज करें।'); return; }
+  if (phone.length !== 10) { alert('कृपया मान्य 10 अंकों का मोबाइल नंबर दर्ज करें।'); return; }
+
+  const btn = document.getElementById('editSutraSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'सुरक्षित हो रहा है...';
+
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhars', {
+      method: 'POST',
+      body: JSON.stringify({ sutradhar_id: sid, name: name, phone: phone, upi_id: upi })
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सुधार सुरक्षित नहीं हो सका');
+    alert('सूत्रधार विवरण सफलतापूर्वक अपडेट किया गया।');
+    closeEditSutradharModal();
+    loadSutradharList();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'सुरक्षित करें (Save)';
+  }
+}
+
+async function addSutradharAdmin() {
+  const phoneEl = document.getElementById('sutra-new-phone');
+  const nameEl = document.getElementById('sutra-new-name');
+  const phone = (phoneEl.value || '').trim().replace(/\D/g, '');
+  const name = (nameEl.value || '').trim();
+  if (phone.length !== 10) { alert('कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।'); return; }
+  if (!name) { alert('कृपया सूत्रधार का नाम दर्ज करें।'); return; }
+
+  try {
+    const res = await sutraAdminFetch('/api/sutradhar/admin/sutradhars', {
+      method: 'POST',
+      body: JSON.stringify({ phone: phone, name: name })
+    });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.detail || 'सूत्रधार नहीं जोड़ा जा सका');
+    alert('सूत्रधार सफलतापूर्वक जोड़ा गया।');
+    phoneEl.value = '';
+    nameEl.value = '';
+    loadSutradharList();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
 }
 
 function sutraNudgeUnfinished(phone) {
@@ -4250,6 +4540,11 @@ window.loadSutradharList = loadSutradharList;
 window.sutraAction = sutraAction;
 window.sutraNudgeUnfinished = sutraNudgeUnfinished;
 window.sutraJoinBadge = sutraJoinBadge;
+window.openEditSutradharModal = openEditSutradharModal;
+window.closeEditSutradharModal = closeEditSutradharModal;
+window.saveEditSutradhar = saveEditSutradhar;
+window.addSutradharAdmin = addSutradharAdmin;
+window.careerEditModal = careerEditModal;
 
 /* ══ SUTRADHAR DAILY PUSH: today's work of each Sutradhar and a ready message ══ */
 const SD_KIND = {
@@ -4629,6 +4924,7 @@ async function loadSaasSubscribers() {
           <td style="font-size:11px; color:var(--text-muted);">${s.last_used_at ? new Date(s.last_used_at).toLocaleString('hi-IN') : '—'}</td>
           <td>
             <div style="display:flex; gap:5px; flex-wrap:wrap;">
+              <button class="export-btn" style="padding:4px 8px; font-size:11px; background:#0284c7; color:#fff; font-weight:700;" onclick="openEditSaasModal(${i})" title="नाम या नंबर में सुधार करें">Edit</button>
               <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, 'renew')">+1 year</button>
               <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, 'expiry')">Date</button>
               <button class="export-btn" style="padding:4px 8px; font-size:11px;" onclick="saasAction(${i}, 'reset')">Reset phones</button>
@@ -4688,7 +4984,56 @@ async function saasAction(i, action) {
     loadSaasSubscribers();
   } catch (err) { alert('Error: ' + err.message); }
 }
+
+function openEditSaasModal(i) {
+  const s = saasList[i];
+  if (!s) return;
+  document.getElementById('editSaasOldPhone').value = s.phone || '';
+  document.getElementById('editSaasName').value = s.name || '';
+  document.getElementById('editSaasPhone').value = s.phone || '';
+  document.getElementById('editSaasExpiry').value = s.expires_at ? s.expires_at.slice(0, 10) : '';
+  const m = document.getElementById('modalEditSaas');
+  if (m) m.style.display = 'flex';
+}
+
+function closeEditSaasModal() {
+  const m = document.getElementById('modalEditSaas');
+  if (m) m.style.display = 'none';
+}
+
+async function saveEditSaas() {
+  const oldPhone = document.getElementById('editSaasOldPhone').value;
+  const name = (document.getElementById('editSaasName').value || '').trim();
+  const newPhone = (document.getElementById('editSaasPhone').value || '').trim().replace(/\D/g, '');
+  const expiry = document.getElementById('editSaasExpiry').value;
+
+  if (!name) { alert('कृपया नाम दर्ज करें।'); return; }
+  if (newPhone.length !== 10) { alert('कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।'); return; }
+
+  const btn = document.getElementById('editSaasSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'सुरक्षित हो रहा है...';
+
+  try {
+    const payload = { phone: oldPhone, name: name };
+    if (newPhone !== oldPhone) payload.new_phone = newPhone;
+    if (expiry) payload.expires_at = expiry;
+
+    await saasSave(payload);
+    alert('SaaS ग्राहक विवरण सफलतापूर्वक अपडेट किया गया।');
+    closeEditSaasModal();
+    loadSaasSubscribers();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'सुरक्षित करें (Save)';
+  }
+}
 window.loadSaasSubscribers = loadSaasSubscribers;
+window.openEditSaasModal = openEditSaasModal;
+window.closeEditSaasModal = closeEditSaasModal;
+window.saveEditSaas = saveEditSaas;
 
 async function loadApprovedConsultants() {
   const el = document.getElementById('approved-consultants-list');
@@ -5344,7 +5689,7 @@ const DEFAULT_IG_CONVERSATIONS = [
 ];
 
 async function loadInstagramDmPanel() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   try {
     const res = await fetch(apiBase + '/api/ig/config');
     if (res.ok) {
@@ -5359,7 +5704,7 @@ async function loadInstagramDmPanel() {
 }
 
 async function saveInstagramConfig() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const msgEl = document.getElementById('ig-cfg-msg');
   const user_id = document.getElementById('ig-cfg-user-id').value.trim();
   const token = document.getElementById('ig-cfg-token').value.trim();
@@ -5401,7 +5746,7 @@ async function saveInstagramConfig() {
 }
 
 async function sendInstagramTestDm() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const recipientInput = document.getElementById('ig-test-recipient');
   const messageInput = document.getElementById('ig-test-message');
   const statusEl = document.getElementById('ig-test-status');
@@ -5451,7 +5796,7 @@ async function sendInstagramTestDm() {
 }
 
 async function triggerIgBackfillBroadcast() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const statusEl = document.getElementById('ig-test-status');
   if (statusEl) {
     statusEl.style.color = 'var(--gold)';
@@ -5481,7 +5826,7 @@ async function triggerIgBackfillBroadcast() {
 }
 
 async function loadInstagramLogs() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const tbody = document.getElementById('ig-logs-tbody');
   if (!tbody) return;
 
@@ -5532,7 +5877,7 @@ function copyWaText(text, btn) {
 }
 
 async function loadWhatsAppDmPanel() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const msgEl = document.getElementById('wa-cfg-msg');
   try {
     const res = await fetch(apiBase + '/api/wa/config');
@@ -5550,7 +5895,7 @@ async function loadWhatsAppDmPanel() {
 }
 
 async function saveWhatsAppConfig() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const msgEl = document.getElementById('wa-cfg-msg');
   const phone_id = document.getElementById('wa-cfg-phone-id').value.trim();
   const waba_id = document.getElementById('wa-cfg-waba-id').value.trim();
@@ -5594,7 +5939,7 @@ async function saveWhatsAppConfig() {
 }
 
 async function sendWhatsAppTestMessage() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const phoneInput = document.getElementById('wa-test-phone');
   const messageInput = document.getElementById('wa-test-message');
   const statusEl = document.getElementById('wa-test-status');
@@ -5644,7 +5989,7 @@ async function sendWhatsAppTestMessage() {
 }
 
 async function loadWhatsAppLogs() {
-  const apiBase = (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com');
+  const apiBase = (typeof window.SRA_API_BASE === 'string' ? window.SRA_API_BASE : 'https://sra-canonical-engine.onrender.com');
   const tbody = document.getElementById('wa-logs-tbody');
   if (!tbody) return;
 

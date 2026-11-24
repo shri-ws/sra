@@ -169,11 +169,98 @@
             <td>${fmt(toDate(p.lastLoginAt))}</td>
             <td><button class="export-btn acc-toggle" type="button">${r.kundalis.length} ▾</button></td>
             <td><code title="${esc(r.uid)}">${esc(r.uid.slice(0, 8))}…</code></td>
+            <td>
+              <button class="export-btn acc-edit-btn" type="button" style="background:#0284c7; color:#fff; font-size:11px; padding:3px 8px; font-weight:700; cursor:pointer;" data-uid="${esc(r.uid)}" title="नाम या विवरण सुधारें">Edit</button>
+            </td>
           </tr>
-          <tr class="acc-kund" hidden><td colspan="7">${r.kundalis.length
+          <tr class="acc-kund" hidden><td colspan="8">${r.kundalis.length
             ? `<table class="tbl acc-kund-tbl"><thead><tr><th>Kundali name</th><th>DOB</th><th>Time</th><th>Place</th><th>Lat / Lon</th><th>TZ</th><th>Saved</th></tr></thead><tbody>${kund}</tbody></table>`
             : '<div class="acc-empty">No kundalis saved in this account yet.</div>'}</td></tr>`;
-      }).join('') : `<tr><td colspan="7" class="acc-empty">${rows.length ? 'No account matches the search.' : 'No accounts yet.'}</td></tr>`;
+      }).join('') : `<tr><td colspan="8" class="acc-empty">${rows.length ? 'No account matches the search.' : 'No accounts yet.'}</td></tr>`;
+    }
+  }
+
+  function openEditAccount(uid) {
+    const r = rows.find(x => x.uid === uid);
+    if (!r) return;
+    const p = r.profile || {};
+    const modal = $('modalEditAccount');
+    if (modal) {
+      if ($('editAccountUid')) $('editAccountUid').value = uid;
+      if ($('editAccountName')) $('editAccountName').value = p.name || '';
+      if ($('editAccountPhone')) $('editAccountPhone').value = (p.phone || '').replace(/\D/g, '').slice(-10);
+      if ($('editAccountEmail')) $('editAccountEmail').value = isPhoneMail(p.email) ? '' : (p.email || '');
+      modal.style.display = 'flex';
+    } else {
+      const curName = p.name || '';
+      const newName = window.prompt(`Edit account name for UID ${uid}:`, curName);
+      if (newName === null) return;
+      const cleanName = newName.trim();
+      if (!cleanName) { alert('Name cannot be empty.'); return; }
+      saveAccountData(uid, cleanName, p.phone, p.email);
+    }
+  }
+
+  function closeEditAccountModal() {
+    const modal = $('modalEditAccount');
+    if (modal) modal.style.display = 'none';
+  }
+
+  async function saveEditAccount() {
+    const uid = $('editAccountUid') ? $('editAccountUid').value : '';
+    const name = $('editAccountName') ? $('editAccountName').value.trim() : '';
+    const phone = $('editAccountPhone') ? $('editAccountPhone').value.replace(/\D/g, '').slice(-10) : '';
+    const email = $('editAccountEmail') ? $('editAccountEmail').value.trim() : '';
+
+    if (!uid) return;
+    if (!name) { alert('कृपया नाम दर्ज करें।'); return; }
+
+    const btn = $('editAccountSaveBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'सुरक्षित हो रहा है...'; }
+
+    try {
+      await saveAccountData(uid, name, phone, email);
+      closeEditAccountModal();
+      alert('खाता विवरण सफलतापूर्वक अपडेट किया गया।');
+    } catch (e) {
+      alert('Error: ' + (e.message || e));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'सुरक्षित करें (Save)'; }
+    }
+  }
+
+  async function saveAccountData(uid, name, phone, email) {
+    setStatus('⏳ Updating account…');
+    const ctx = await ensureAdminFirebase();
+    const updateData = { name: name };
+    if (phone) updateData.phone = phone;
+    if (email) updateData.email = email;
+
+    await ctx.firestore.collection('users').doc(uid).set(updateData, { merge: true });
+
+    const r = rows.find(x => x.uid === uid);
+    if (r) {
+      r.profile.name = name;
+      if (phone) r.profile.phone = phone;
+      if (email) r.profile.email = email;
+    }
+    render();
+    setStatus(`✓ Live from Firebase · Updated ${new Date().toLocaleTimeString('en-IN')}`);
+
+    // If D.users is also active in window, keep it in sync
+    if (window.D && Array.isArray(window.D.users)) {
+      let matched = false;
+      window.D.users.forEach(u => {
+        if (u.id === uid || (phone && (u.phone || '').includes(phone))) {
+          u.candidate_name = name;
+          u.name = name;
+          if (phone) u.phone = phone;
+          matched = true;
+        }
+      });
+      if (matched && typeof window.renderUserQueryRows === 'function') {
+        window.renderUserQueryRows('users-tbody', window.D.users);
+      }
     }
   }
 
@@ -274,10 +361,17 @@
     if ($('acc-search')) $('acc-search').addEventListener('input', render);
     if ($('acc-tbody')) {
       $('acc-tbody').addEventListener('click', (e) => {
-        const btn = e.target.closest('.acc-toggle');
-        if (!btn) return;
-        const detail = btn.closest('tr').nextElementSibling;
-        if (detail) detail.hidden = !detail.hidden;
+        const toggleBtn = e.target.closest('.acc-toggle');
+        if (toggleBtn) {
+          const detail = toggleBtn.closest('tr').nextElementSibling;
+          if (detail) detail.hidden = !detail.hidden;
+          return;
+        }
+        const editBtn = e.target.closest('.acc-edit-btn');
+        if (editBtn) {
+          const uid = editBtn.dataset.uid;
+          if (uid) openEditAccount(uid);
+        }
       });
     }
 
@@ -389,6 +483,10 @@
     login_method: 'GOOGLE', created_at: (toDate(r.profile.lastLoginAt) || toDate(r.profile.createdAt) || new Date(0)).toISOString()
   }));
 
+  window.openEditAccount = openEditAccount;
+  window.closeEditAccountModal = closeEditAccountModal;
+  window.saveEditAccount = saveEditAccount;
+
   window.SRAAdminAccounts = {
     load,
     signIn,
@@ -397,7 +495,10 @@
     PRIMARY_ADMIN,
     ensureFirebase: ensureAdminFirebase,
     isAdminSignedIn: () => !!adminUser,
-    getAdminUser: () => adminUser
+    getAdminUser: () => adminUser,
+    openEditAccount,
+    closeEditAccountModal,
+    saveEditAccount
   };
   window.SRAAdminData = {
     whenAdmin,

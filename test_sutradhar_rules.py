@@ -653,3 +653,51 @@ def test_report_brand_for_saas_astrologer():
     sub = se.SutradharStore.get_doc("saas_subscribers", phone)
     sub["status"] = "paused"; se.SutradharStore.set_doc("saas_subscribers", phone, sub)
     assert client.get("/api/sutradhar/saas/brand", headers=hdr).json() == {"member": False}
+
+
+def test_admin_sutradhar_add_and_edit():
+    """Admin can add a Sutradhar directly and edit name (spelling mistake) / phone number / upi."""
+    # 1. Add new sutradhar via admin
+    r1 = client.post("/api/sutradhar/admin/sutradhars", headers=ADMIN, json={"name": "सुरेश कुमार", "phone": "9876543210"})
+    assert r1.status_code == 200, r1.text
+    d1 = r1.json()["sutradhar"]
+    sid = d1["sutradhar_id"]
+    assert d1["name"] == "सुरेश कुमार"
+    assert d1["phone"] == "9876543210"
+
+    # 2. Edit existing sutradhar name spelling and phone
+    r2 = client.post("/api/sutradhar/admin/sutradhars", headers=ADMIN, json={
+        "sutradhar_id": sid,
+        "name": "सुरेश कुमार शर्मा",
+        "phone": "9876543211",
+        "upi_id": "suresh@okaxis"
+    })
+    assert r2.status_code == 200, r2.text
+    d2 = r2.json()["sutradhar"]
+    assert d2["name"] == "सुरेश कुमार शर्मा"
+    assert d2["phone"] == "9876543211"
+    assert d2["upi_id"] == "suresh@okaxis"
+
+    # 3. Invalid phone validation
+    r_bad = client.post("/api/sutradhar/admin/sutradhars", headers=ADMIN, json={"name": "गलत नंबर", "phone": "123"})
+    assert r_bad.status_code == 400
+
+
+def test_admin_saas_subscriber_edit():
+    """Admin can edit SaaS subscriber name (spelling fix) and phone number."""
+    phone = "9844400088"
+    client.post("/api/sutradhar/admin/saas", headers=ADMIN, json={"phone": phone, "name": "पं. राधेश्याम", "add_days": 365})
+    sub = se.get_saas_subscriber(phone)
+    assert sub["name"] == "पं. राधेश्याम"
+
+    # Edit name (fix spelling) and update phone
+    new_phone = "9844400089"
+    r = client.post("/api/sutradhar/admin/saas", headers=ADMIN, json={"phone": phone, "new_phone": new_phone, "name": "पं. राधेश्याम त्रिपाठी"})
+    assert r.status_code == 200, r.text
+    assert se.get_saas_subscriber(phone) is None
+    new_sub = se.get_saas_subscriber(new_phone)
+    assert new_sub is not None
+    assert new_sub["name"] == "पं. राधेश्याम त्रिपाठी"
+    assert new_sub["phone"] == new_phone
+
+
