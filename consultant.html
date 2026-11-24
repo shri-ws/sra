@@ -56,17 +56,61 @@
       flex-direction: column;
     }
 
-    /* Top Nav */
-    header {
+    /* Desk bar under the site's own navigation bar (sra-nav.js draws that one, as on every page) */
+    .desk-head {
       background: var(--card);
       border-bottom: 1.5px solid var(--border);
       padding: 10px 20px;
       display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 50;
+    }
+    .brand img { width: 40px; height: 40px; border-radius: 50%; flex: none; }
+    /* the site stylesheet (needed for the top bar) pads every .panel; the desk's panels carry their own headers */
+    html:root body .workspace .panel.panel.panel { padding: 0 !important; }   /* beats sra-elegance's section padding */
+    /* Stay-connected section */
+    .dc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 20px 24px; }
+    @media (max-width: 900px) { .dc-wrap { grid-template-columns: 1fr; padding: 0 12px 20px; } }
+    .dc-body { padding: 14px 16px; }
+    .dc-muted { font-size: 0.82rem; color: var(--muted); margin: 0 0 10px; line-height: 1.5; }
+    .dc-parv { background: var(--accent-soft); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 0.86rem; margin-bottom: 10px; line-height: 1.6; }
+    .dc-search { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); margin-bottom: 8px; font: inherit; }
+    .dc-list { max-height: 520px; overflow-y: auto; }
+    .dc-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .dc-who { display: flex; flex-direction: column; min-width: 140px; }
+    .dc-who span { font-size: 0.78rem; color: var(--muted); }
+    .dc-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dc-piece-acts { margin: 6px 0 12px; }
+    .dc-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .dc-tab { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 6px 14px; cursor: pointer; font: inherit; font-size: 0.85rem; font-weight: 600; }
+    .dc-tab.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .dc-dev { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; background: var(--card); overflow: hidden; }
+    .dc-dev > summary { display: flex; gap: 12px; align-items: center; padding: 8px; cursor: pointer; list-style: none; }
+    .dc-dev > summary::-webkit-details-marker { display: none; }
+    .dc-dev > summary img { width: 72px; height: 96px; object-fit: cover; border-radius: 6px; flex: none; background: var(--accent-soft); }
+    .dc-dev > summary span { display: flex; flex-direction: column; gap: 2px; }
+    .dc-dev > summary small { font-size: 0.78rem; color: var(--muted); }
+    .dc-dev-body { padding: 0 12px 6px; }
+    .dc-mantra { font-weight: 700; color: var(--accent); white-space: pre-line; margin: 10px 0 0; line-height: 1.7; }
+    .dc-shloka { white-space: pre-line; line-height: 1.8; margin: 8px 0 0; font-size: 0.95rem; }
+    .dc-stotra { border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 8px; }
+    .dc-stotra > summary { cursor: pointer; font-weight: 700; font-size: 0.9rem; }
+    .dc-graha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+    .dc-graha { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--card); }
+    .dc-graha h4 { margin: 0; font-size: 1rem; color: var(--accent); }
+    .dc-graha h4 small { display: block; font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+    .dc-ul { margin: 6px 0 4px 18px; line-height: 1.7; font-size: 0.9rem; }
+    .dc-pane h4 { margin: 10px 0 2px; font-size: 0.95rem; }
+    .dc-credit { margin-top: 8px; font-size: 0.72rem; }
+    /* the site's floating "Daily Updates" button would sit on the slip's WhatsApp button */
+    #sra-wa-float-container { display: none !important; }
+    .brand .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand .brand-text small { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+    @media (max-width: 600px) {
+      .desk-head { padding: 10px 14px; }
+      .nav-actions { flex-wrap: wrap; gap: 8px; }
     }
     .brand {
       display: flex;
@@ -485,7 +529,7 @@
 
     /* Print View */
     @media print {
-      header, .workspace > .panel:not(.right-panel), .rx-form, .btn, .client-preview-box, .search-box {
+      .desk-head, .workspace > .panel:not(.right-panel), .rx-form, .btn, .client-preview-box, .search-box {
         display: none !important;
       }
       .workspace { display: block; padding: 0; }
@@ -503,10 +547,13 @@
   <div id="desk-lock" class="desk-lock"><div class="desk-lock-card"><p>डेस्क खुल रही है...</p></div></div>
 
   <!-- Top Header -->
-  <header>
+  <div class="desk-head">
     <div class="brand">
-      <h1>श्री रामजी दैवज्ञ डेस्क</h1>
-      <span class="badge">कंसल्टेशन व डिजिटल उपचार</span>
+      <img src="logo.png" alt="Shri Ramji Astro" width="40" height="40"/>
+      <div class="brand-text">
+        <h1>पत्रिका ऐप · दैवज्ञ डेस्क</h1>
+        <small>श्री राम जी एस्ट्रो · ज्योतिषी का डिजिटल दफ़्तर</small>
+      </div>
     </div>
 
     <div class="nav-actions">
@@ -516,9 +563,9 @@
       </div>
       <button class="btn btn-outline btn-sm" id="monthly-cancel" style="display:none" onclick="cancelMonthly()" title="₹499 मासिक autopay बंद करें">मासिक autopay रद्द करें</button>
       <button class="btn btn-outline btn-sm" onclick="toggleTheme()" title="दिन/रात्रि मोड">थीम</button>
-      <a href="index.html" class="btn btn-outline btn-sm">वेबसाइट</a>
+      <a href="patrika.html" class="btn btn-outline btn-sm">पत्रिका खोलें</a>
     </div>
-  </header>
+  </div>
 
   <!-- Main 3-Column Workspace -->
   <main class="workspace">
@@ -699,6 +746,26 @@
 
   </main>
 
+  <!-- Stay connected: clients on WhatsApp, and the mantra / stotra library (sra-desk-connect.js) -->
+  <div class="dc-wrap">
+    <div class="panel dc-panel">
+      <div class="panel-header"><span class="panel-title">जातकों से WhatsApp पर जुड़ें</span></div>
+      <div class="dc-body">
+        <p class="dc-muted">हर जातक को उसकी कुण्डली से बना आज का पंचांग, या आज के व्रत-त्योहार का संदेश एक बटन से भेजें। संदेश WhatsApp में तैयार खुलता है, भेजने से पहले आप उसे बदल सकते हैं।</p>
+        <div class="dc-parv" id="dc-parv">आज का पंचांग देखा जा रहा है…</div>
+        <input type="search" id="dc-search" class="dc-search" placeholder="जातक का नाम या नंबर खोजें…"/>
+        <div id="dc-clients" class="dc-list"></div>
+      </div>
+    </div>
+    <div class="panel dc-panel">
+      <div class="panel-header"><span class="panel-title">मंत्र, स्तोत्र व दैनिक उपाय</span></div>
+      <div class="dc-body">
+        <p class="dc-muted">कोई भी मंत्र या स्तोत्र चुने हुए जातक को WhatsApp पर भेजें, या सीधे उसकी उपाय-पर्ची में जोड़ें।</p>
+        <div id="dc-library"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Add New Client -->
   <div class="modal-overlay" id="new-client-modal">
     <div class="modal">
@@ -790,6 +857,7 @@
       }
       if (!me.allowed) { lockDesk(me.reason === 'expired' ? 'expired' : 'nosub', me); return; }
       consultantPhone = me.phone;
+      window.deskMe = me;
       document.getElementById('desk-lock').style.display = 'none';
       document.getElementById('consultant-phone').textContent = '+91 ' + me.phone;
       showPlan(me);
@@ -865,6 +933,7 @@
     function renderClientList() {
       const el = document.getElementById('client-list');
       el.innerHTML = '';
+      if (window.renderDeskConnect) window.renderDeskConnect();
       if (clientsCache.length === 0) {
         el.innerHTML = '<div style="font-size:0.8rem; color:var(--muted); text-align:center; padding:10px;">अभी कोई क्लाइंट नहीं। "+ नया खाता" से पहला क्लाइंट जोड़ें।</div>';
         return;
@@ -1093,6 +1162,11 @@
   </script>
 
 <!-- Whole page in the chosen language: dictionaries + machine fill-in (sra-i18n.js), other languages (sra-translate.js) -->
+<link rel="stylesheet" href="sra-elegance.css?v=2" />
+<script src="sra-mantra-library.js" defer></script>
+<script src="sra-desk-connect.js" defer></script>
+<script src="sra-ui.js?v=34" defer></script>
+<script src="sra-nav.js" defer></script>
 <script src="sra-translate.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 </body>
