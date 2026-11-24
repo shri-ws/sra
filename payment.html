@@ -319,32 +319,34 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
       </div>
 
       <!-- PLAN 2: Indian Classical Batch -->
-      <div class="plan active" id="p-course" onclick="pick('course',24000,32000,'1-Year Vedic Astrology Program (भारतीय बैच)')">
+      <div class="plan" id="p-course" onclick="pick('course',24000,32000,'1-Year Vedic Astrology Program (भारतीय बैच)')">
         <div class="plan-dot"></div>
         <div class="plan-text">
           <div class="plan-name">📚 भारतीय शास्त्रीय वैदिक बैच</div>
           <div class="plan-sub">48 लाइव कक्षाएं हिंदी में · BPHS · प्रमाण पत्र · फोरम एक्सेस</div>
           <div class="plan-emi">EMI 3–24 months · approx ₹1,000/month + bank interest</div>
         </div>
-        <div class="plan-price"><span class="plan-amt">₹24,000</span><span class="plan-orig">₹32,000</span></div>
+        <div class="plan-price"><span class="plan-amt" id="amtCourse">₹24,000</span><span class="plan-orig" id="origCourse">₹32,000</span></div>
         <div class="badge">National</div>
       </div>
-      <div id="batchBox" style="margin:4px 0 14px; padding:14px 16px; border:1px solid var(--border); border-radius:10px;">
+      <div id="batchBox" style="margin:4px 0 14px; padding:14px 16px; border:1px solid var(--border); border-radius:10px; display:none;">
         <div style="font-weight:700; margin-bottom:4px;">बैच चुनें (हर बैच में केवल 11 सीटें)</div>
         <div id="batchInfo" style="font-size:13px; color:var(--muted); margin-bottom:10px;">कक्षाएँ 11 मार्च 2027 से। सीटों की जानकारी लोड हो रही है…</div>
         <div id="batchList" style="display:grid; gap:8px;"></div>
       </div>
-      <div class="plan" id="p-consult" onclick="pick('consult',5100,0,'Personal Consultation (1 Year)')">
+      <!-- PLAN 3: Super Exclusive 1-on-1 Consultation -->
+      <div class="plan" id="p-consult" onclick="pick('consult',5100,0,'Super Exclusive 1-on-1 Consultation (> 1.5 Hours)')">
         <div class="plan-dot"></div>
         <div class="plan-text">
-          <div class="plan-name">🔮 Personal Consultation</div>
-          <div class="plan-sub">1-on-1 chart readings with Shri Ramji Astro for 1 year</div>
-          <div class="plan-emi">EMI available · approx ₹425/month (12 months)</div>
+          <div class="plan-name">🔮 Super Exclusive 1-on-1 Consultation (> 1.5 Hours)</div>
+          <div class="plan-sub">Single-day in-depth chart diagnosis (> 90 mins) · One-time session · Deep Kundali root-cause analysis & remedies with Astro Raamji</div>
+          <div class="plan-emi" style="color:var(--heading-color); font-weight:700;">One-time session (> 1.5 hours) · Strictly 1 client per solar day (Daivagya Rules)</div>
         </div>
-        <div class="plan-price"><span class="plan-amt">₹5,100</span></div>
+        <div class="plan-price"><span class="plan-amt" id="amtConsult">₹5,100</span></div>
+        <div class="badge" style="background:var(--heading-color); color:#fff;">Single Day</div>
       </div>
 
-      <div class="emi-highlight">
+      <div class="emi-highlight" id="emiHighlight">
         <div class="emi-highlight-icon">✨</div>
         <div class="emi-highlight-text">
           <strong>EMI Available (3–24 months)</strong>
@@ -395,7 +397,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
     </div>
   </div>
 
-  <div class="section">
+  <div class="section" id="emiSection">
     <div class="section-label">⑤ EMI</div>
     <div class="section-body">
       <div style="display:flex;align-items:center;gap:18px;background:var(--box-bg);border:1px solid var(--border);border-radius:10px;padding:18px 20px">
@@ -493,16 +495,69 @@ async function dbPatch(table, filter, data) {
   } catch(e) { console.error('DB patch error',e); return false; }
 }
 
-let S={id:'course',name:'1-Year Vedic Astrology Program (भारतीय बैच)',base:24000,orig:32000,disc:0,total:0};
-const isUSD = () => S.id === 'global_eleven' || (window.SRACurrency && SRACurrency.get() === 'USD') || new URLSearchParams(location.search).get('cur') === 'usd';
+function isInternational() {
+  const p = new URLSearchParams(location.search);
+  const plan = p.get('plan');
+  const cur = p.get('cur');
+  if (plan === 'global_eleven' || plan === 'course_global' || cur === 'usd') return true;
+  if (plan === 'course' || cur === 'inr') return false;
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    if (tz && !/^Asia\/(Kolkata|Calcutta)$/.test(tz)) return true;
+  } catch(e) {}
+  return false;
+}
+
+let S={id:'global_eleven',name:'The Global Eleven | 1-Year Classical Immersion',base:94600,orig:128000,disc:0,total:0};
+const isUSD = () => S.id === 'global_eleven' || isInternational() || (window.SRACurrency && SRACurrency.get() === 'USD') || new URLSearchParams(location.search).get('cur') === 'usd';
 const fmt = n => {
   if (S.id === 'global_eleven' || isUSD()) {
     if (S.id === 'global_eleven' || n === 94600) return '$1,111';
     if (n === 24000) return '$451';
     if (n === 5100) return '$101';
+    return '$' + Math.max(1, Math.round(n / 88));
   }
   return '₹' + Math.round(n).toLocaleString('en-IN');
 };
+
+function applyInternationalExperience() {
+  if (!isInternational()) return;
+  document.documentElement.setAttribute('lang', 'en');
+  try {
+    localStorage.setItem('sra_lang', 'en');
+    localStorage.setItem('sra_currency', 'USD');
+  } catch(e) {}
+  document.title = "Admissions & Enrolment — The Global Eleven 2027 | Shri Ramji Astro";
+  const titleEl = document.querySelector('.page-title h1');
+  if (titleEl) titleEl.textContent = "Complete Your Enrolment";
+  const subEl = document.querySelector('.page-title p');
+  if (subEl) subEl.textContent = "The Global Eleven · Strictly 1 Seat Per Sovereign Nation · Cards · Apple Pay · Google Pay";
+  
+  // Auto-detect sovereign nation representation from timezone
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const sel = document.getElementById('sovereignCountry');
+    if (sel) {
+      if (/^America\//.test(tz)) sel.value = 'US';
+      else if (/^Europe\/(London|Belfast)/.test(tz)) sel.value = 'UK';
+      else if (/^Australia\//.test(tz)) sel.value = 'AU';
+      else if (/^Canada\//.test(tz) || /Toronto|Vancouver|Montreal|Edmonton|Winnipeg/.test(tz)) sel.value = 'CA';
+      else if (/^Europe\/(Berlin|Frankfurt)/.test(tz)) sel.value = 'DE';
+      else if (/^Europe\/Paris/.test(tz)) sel.value = 'FR';
+      else if (/^Europe\/Madrid/.test(tz)) sel.value = 'ES';
+      else if (/^Europe\/Moscow/.test(tz)) sel.value = 'RU';
+      else if (/^Asia\/Dubai/.test(tz)) sel.value = 'AE';
+      else if (/^Asia\/Singapore/.test(tz)) sel.value = 'SG';
+      else if (/^Asia\/Tokyo/.test(tz)) sel.value = 'JP';
+    }
+  } catch(e) {}
+
+  const fn = document.getElementById('fname'), ln = document.getElementById('lname'), ph = document.getElementById('phone'), ct = document.getElementById('city');
+  if (fn && !fn.value) fn.placeholder = "John";
+  if (ln && !ln.value) ln.placeholder = "Smith";
+  if (ph && !ph.value) ph.placeholder = "+1 (555) 019-2834";
+  if (ct && !ct.value) ct.placeholder = "New York, United States";
+}
 
 function pick(id,base,orig,name){
   S={id,name,base,orig,disc:0,total:0};
@@ -514,6 +569,8 @@ function pick(id,base,orig,name){
   });
   const cb=document.getElementById('countryBox'); if(cb) cb.style.display = id==='global_eleven' ? 'block' : 'none';
   const bb=document.getElementById('batchBox'); if(bb) bb.style.display = id==='course' ? 'block' : 'none';
+  const emiSec = document.getElementById('emiSection'); if(emiSec) emiSec.style.display = (id==='course' && !isUSD()) ? 'block' : 'none';
+  const emiHi = document.getElementById('emiHighlight'); if(emiHi) emiHi.style.display = (id==='course' && !isUSD()) ? 'flex' : 'none';
   updateSummary();
 }
 
@@ -523,13 +580,13 @@ function applyCoupon(){
   if(!code){
     S.disc = 0;
     el.className='coupon-status err';
-    el.textContent='कृपया कोड दर्ज करें।';
+    el.textContent=isInternational() ? 'Please enter a code.' : 'कृपया कोड दर्ज करें।';
     updateSummary();
     return;
   }
   
-  // Code box: every code gets the same reply; the server decides at payment
-  const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, S.base) : { valid: false, message: 'कोई कूपन कोड मान्य नहीं है।' };
+  // Code box: validate coupon
+  const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, S.base) : { valid: false, message: isInternational() ? 'Invalid coupon code.' : 'कोई कूपन कोड मान्य नहीं है।' };
   S.disc = 0;
   S.code = code;
   el.className = 'coupon-status ' + (res.valid ? 'ok' : 'err');
@@ -540,18 +597,27 @@ function applyCoupon(){
 function updateSummary(){
   const after=S.base-S.disc;
   S.total=Math.round(after);
+  const curSuffix = isUSD() ? ' USD' : '';
   document.getElementById('sumPlan').textContent=S.name;
-  document.getElementById('sumBase').textContent=fmt(S.base);
-  document.getElementById('sumTotal').textContent=fmt(after);
-  document.getElementById('btnAmt').textContent=fmt(after);
+  document.getElementById('sumBase').textContent=fmt(S.base) + curSuffix;
+  document.getElementById('sumTotal').textContent=fmt(after) + curSuffix;
+  document.getElementById('btnAmt').textContent=fmt(after) + curSuffix;
   const dr=document.getElementById('discRow');
   dr.style.display=S.disc>0?'flex':'none';
-  if(S.disc>0)document.getElementById('sumDisc').textContent='− '+fmt(S.disc);
+  if(S.disc>0)document.getElementById('sumDisc').textContent='− '+fmt(S.disc) + curSuffix;
   const saved=(S.orig>S.base?S.orig-S.base:0)+S.disc;
   const sb=document.getElementById('savingsBox');
   sb.style.display=saved>0?'block':'none';
-  if(saved>0)document.getElementById('savingsAmt').textContent=fmt(saved);
+  if(saved>0)document.getElementById('savingsAmt').textContent=fmt(saved) + curSuffix;
   document.getElementById('emi12').textContent='≈ '+fmt(after/24)+'/mo';
+
+  // Dynamic card price displays
+  const cAmt = document.getElementById('amtConsult');
+  if (cAmt) cAmt.textContent = isUSD() ? '$101' : '₹5,100';
+  const crAmt = document.getElementById('amtCourse');
+  if (crAmt) crAmt.textContent = isUSD() ? '$451' : '₹24,000';
+  const crOrig = document.getElementById('origCourse');
+  if (crOrig) crOrig.textContent = isUSD() ? '$600' : '₹32,000';
 }
 
 // Support / Donation logic
@@ -562,7 +628,6 @@ function setSupport(amt) {
   document.querySelectorAll('.support-chip').forEach(c => c.classList.remove('active'));
   if(amt > 0) {
     document.getElementById('supportAmt').value = amt;
-    // highlight correct chip
     const chips = document.querySelectorAll('.support-chip');
     chips.forEach(c => { if(c.textContent === fmt(amt)) c.classList.add('active'); });
   } else {
@@ -633,30 +698,37 @@ async function pay(){
   if(!fname){alert('Please enter your first name.');return;}
   if(!lname){alert('Please enter your last name.');return;}
   if(!email||!/\S+@\S+\.\S+/.test(email)){alert('Please enter a valid email.');return;}
-  if(!phone){alert('Please enter your WhatsApp number.');return;}
+  if(!phone){alert('Please enter your WhatsApp/phone number.');return;}
   if (S.id === 'course') {
-    if (window._courseInfo && !window._courseInfo.registration_open) { alert('कोर्स का पंजीकरण 26 दिसंबर 2026 से खुलेगा।'); return; }
-    if (!window._courseBatch) { alert('कृपया बैच चुनें: फ़ाउंडेशन या मास्टर।'); document.getElementById('batchBox').scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    if (window._courseInfo && !window._courseInfo.registration_open) { 
+      alert(isInternational() ? 'Registration opens soon.' : 'कोर्स का पंजीकरण जल्द खुलेगा।'); 
+      return; 
+    }
+    if (!window._courseBatch) { 
+      alert(isInternational() ? 'Please select a batch.' : 'कृपया बैच चुनें।'); 
+      document.getElementById('batchBox').scrollIntoView({behavior:'smooth', block:'center'}); 
+      return; 
+    }
   }
 
   const btn=document.getElementById('payBtn');
   btn.disabled=true;
   btn.innerHTML='<span class="spin"></span> Opening Payment...';
 
-
   try {
+    const curSuffix = isUSD() ? ' USD' : '';
+    const cleanPhone = phone.replace(/[^\d+]/g, '');
     const options={
       key:RZP_KEY, amount:S.total*100, currency:'INR',
       name:'Shri Ramji Astro', description:S.name,
-      prefill:{name:fname+' '+lname,email,contact:phone.replace(/\D/g,'').slice(-10)},
+      prefill:{name:fname+' '+lname,email,contact:cleanPhone},
       theme:{color:'#c9a84c'},
-      config:{display:{blocks:{upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'EMI',instruments:[{method:'emi'}]},card:{name:'Card',instruments:[{method:'card'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.upi','block.emi','block.card','block.nb'],preferences:{show_default_blocks:true}}},
+      config:{display:{blocks:{card:{name:'International Card',instruments:[{method:'card'}]},upi:{name:'UPI',instruments:[{method:'upi'}]},emi:{name:'EMI',instruments:[{method:'emi'}]},nb:{name:'Net Banking',instruments:[{method:'netbanking'}]}},sequence:['block.card','block.upi','block.emi','block.nb'],preferences:{show_default_blocks:true}}},
       async handler(r){
-        // Only a paid 1-year course enrolment makes someone a student (admin → Students)
         const usedCoupon = S.code || '';
         const activeSutradhar = window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '';
 
-        if (S.id === 'course') {
+        if (S.id === 'course' || S.id === 'global_eleven') {
           await dbInsert('students',{first_name:fname,last_name:lname,email,phone,city,course_interest:S.name,
             amount_paid:S.total,coupon:usedCoupon,sutradhar_id:activeSutradhar,razorpay_payment_id:r.razorpay_payment_id,status:'paid'});
         }
@@ -670,7 +742,7 @@ async function pay(){
               student_phone: phone,
               student_email: email,
               plan_name: S.name,
-              report_type: 'vedic_academy_course',
+              report_type: S.id === 'consult' ? 'personal_consultation' : 'vedic_academy_course',
               amount: S.total,
               discount: S.disc,
               coupon_code: usedCoupon,
@@ -679,14 +751,16 @@ async function pay(){
             })
           }).catch(err => console.warn('Payment logging note:', err));
         } catch(e) {}
-        document.getElementById('successTitle').textContent = 'Payment Successful!';
-        document.getElementById('successMsg').innerHTML = 'Your enrolment is confirmed.<br/>Shri Ramji Astro will contact you on WhatsApp within <strong style="color:var(--heading-color)">16–24 hours.</strong>';
+        document.getElementById('successTitle').textContent = isInternational() ? 'Enrolment Confirmed!' : 'भुगतान सफल!';
+        document.getElementById('successMsg').innerHTML = isInternational() 
+          ? 'Your reservation is confirmed.<br/>Astro Raamji will contact you via WhatsApp / Email within <strong style="color:var(--heading-color)">16–24 hours.</strong>'
+          : 'आपका नामांकन पक्का हो गया है।<br/>श्री राम जी एस्ट्रो आपसे 16–24 घंटे में संपर्क करेंगे।';
         document.getElementById('payId').textContent=r.razorpay_payment_id;
         document.getElementById('overlay').classList.add('show');
-        const msg=encodeURIComponent('🙏 NEW PAYMENT\n\nName: '+fname+' '+lname+'\nEmail: '+email+'\nPhone: '+phone+'\nPlan: '+S.name+'\nAmount: '+fmt(S.total)+'\nCoupon/ID: '+(usedCoupon||'None')+'\nPayment ID: '+r.razorpay_payment_id);
+        const msg=encodeURIComponent('🙏 NEW ADMISSIONS PAYMENT\n\nName: '+fname+' '+lname+'\nEmail: '+email+'\nPhone: '+phone+'\nPlan: '+S.name+'\nAmount: '+fmt(S.total)+curSuffix+'\nCoupon/ID: '+(usedCoupon||'None')+'\nPayment ID: '+r.razorpay_payment_id);
         setTimeout(()=>window.open('https://wa.me/919517117775?text='+msg,'_blank'),1200);
       },
-      modal:{ondismiss(){btn.disabled=false;btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';}}
+      modal:{ondismiss(){btn.disabled=false;btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+curSuffix+'</span>';}}
     };
 
     // Amount, order and lead come from the server order
@@ -694,10 +768,16 @@ async function pay(){
     var extraData = null;
     if (S.id === 'global_eleven') {
       sId = 'course_global_eleven';
-      extraData = { batch_id: 'batch_global_eleven', country: document.getElementById('sovereignCountry') ? document.getElementById('sovereignCountry').value : 'US' };
+      extraData = { 
+        batch_id: 'batch_global_eleven', 
+        country: document.getElementById('sovereignCountry') ? document.getElementById('sovereignCountry').value : 'US' 
+      };
     } else if (S.id === 'course') {
       sId = 'consultation_gurukul';
       extraData = { batch_id: window._courseBatch || 'batch_indian' };
+    } else if (S.id === 'consult') {
+      sId = 'consultation_yearly';
+      extraData = { type: 'single_session_1.5hr' };
     }
 
     const order = await window.SraCouponEngine.checkoutWithOptions({
@@ -706,18 +786,18 @@ async function pay(){
       extra: extraData
     });
     if (S.id === 'course') loadCourseBatches();
-    if (!order) { btn.disabled=false; btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>'; }
+    if (!order) { btn.disabled=false; btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+curSuffix+'</span>'; }
   } catch(e){
     alert('Something went wrong. Please try again or contact us on WhatsApp.');
     btn.disabled=false;
-    btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';
+    btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+curSuffix+'</span>';
   }
 }
 
-
-// ── 1-year course batches: 11 seats each; the server refuses the 12th ──
+// ── 1-year course batches: 11 seats each ──
 async function loadCourseBatches() {
   const info = document.getElementById('batchInfo'), list = document.getElementById('batchList');
+  if (!info || !list) return;
   try {
     const base = (window.SraCouponEngine && SraCouponEngine.apiBase()) || 'https://sra-canonical-engine.onrender.com';
     const d = await (await fetch(base + '/api/sutradhar/course/batches')).json();
@@ -726,31 +806,50 @@ async function loadCourseBatches() {
     if (!window._courseBatch && want && d.batches.some(b => b.id === want && !b.full)) window._courseBatch = want;
     if (window._courseBatch && d.batches.some(b => b.id === window._courseBatch && b.full)) window._courseBatch = '';
     info.textContent = d.registration_open
-      ? 'कक्षाएँ 11 मार्च 2027 से। भुगतान शुरू करते ही आपकी सीट ' + d.hold_minutes + ' मिनट के लिए रोक ली जाती है।'
-      : 'पंजीकरण 26 दिसंबर 2026 से खुलेगा। कक्षाएँ 11 मार्च 2027 से।';
+      ? (isInternational() ? 'Classes start March 11, 2027. Your seat is held for ' + d.hold_minutes + ' minutes once checkout begins.' : 'कक्षाएँ 11 मार्च 2027 से। भुगतान शुरू करते ही आपकी सीट ' + d.hold_minutes + ' मिनट के लिए रोक ली जाती है।')
+      : (isInternational() ? 'Registration opens soon. Classes start March 11, 2027.' : 'पंजीकरण 26 दिसंबर 2026 से खुलेगा। कक्षाएँ 11 मार्च 2027 से।');
     list.innerHTML = d.batches.map(b => {
       const on = window._courseBatch === b.id;
       const dis = b.full || !d.registration_open;
+      const bName = (isInternational() && b.name_en) ? b.name_en : b.name;
+      const leftText = isInternational() 
+        ? (b.full ? 'Sold Out' : b.left + ' / ' + b.seats + ' Seats Left')
+        : (b.full ? 'सीटें भर गईं' : b.left + ' / ' + b.seats + ' सीटें बचीं');
       return `<label style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px; border:1px solid ${on ? 'var(--gold)' : 'var(--border)'}; border-radius:8px; cursor:${dis ? 'not-allowed' : 'pointer'}; opacity:${b.full ? .55 : 1};">
-        <span><input type="radio" name="courseBatch" value="${b.id}" ${on ? 'checked' : ''} ${dis ? 'disabled' : ''} onchange="window._courseBatch=this.value; loadCourseBatches();" style="margin-right:8px;">${b.name}</span>
-        <span style="font-weight:700; color:${b.full ? 'var(--muted)' : 'var(--gold)'};">${b.full ? 'सीटें भर गईं' : b.left + ' / ' + b.seats + ' सीटें बचीं'}</span>
+        <span><input type="radio" name="courseBatch" value="${b.id}" ${on ? 'checked' : ''} ${dis ? 'disabled' : ''} onchange="window._courseBatch=this.value; loadCourseBatches();" style="margin-right:8px;">${bName}</span>
+        <span style="font-weight:700; color:${b.full ? 'var(--muted)' : 'var(--gold)'};">${leftText}</span>
       </label>`;
     }).join('');
   } catch (e) {
-    info.textContent = 'सीटों की जानकारी नहीं मिल सकी। थोड़ी देर बाद पृष्ठ ताज़ा करें।';
+    info.textContent = isInternational() ? 'Could not load seat counts. Please refresh.' : 'सीटों की जानकारी नहीं मिल सकी। थोड़ी देर बाद पृष्ठ ताज़ा करें।';
   }
 }
 
-// Auto-fill and apply Sutradhar referral code if present in URL/Storage
+// Auto-fill and apply default plan
 document.addEventListener('DOMContentLoaded', function() {
+  applyInternationalExperience();
   loadCourseBatches();
   const p = new URLSearchParams(location.search).get('plan');
   if (p === 'global_eleven' || p === 'course_global') {
     pick('global_eleven', 94600, 128000, 'The Global Eleven | 1-Year Classical Immersion');
     return;
   }
-  if (p === 'consult') { pick('consult',5100,0,'Personal Consultation (1 Year)'); return; }
-  updateSummary();
+  if (p === 'consult') { 
+    pick('consult', 5100, 0, 'Super Exclusive 1-on-1 Consultation (> 1.5 Hours)'); 
+    return; 
+  }
+  if (p === 'course') {
+    pick('course', 24000, 32000, '1-Year Vedic Astrology Program (भारतीय बैच)');
+    return;
+  }
+
+  // DEFAULT BEHAVIOR:
+  // If visiting from USA / overseas, automatically select The Global Eleven ($1,111 USD) in English!
+  if (isInternational()) {
+    pick('global_eleven', 94600, 128000, 'The Global Eleven | 1-Year Classical Immersion');
+  } else {
+    pick('course', 24000, 32000, '1-Year Vedic Astrology Program (भारतीय बैच)');
+  }
 });
 </script>
 </body>

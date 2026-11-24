@@ -84,7 +84,7 @@ SERVICE_CATALOG: Dict[str, Dict[str, Any]] = {
     "patrika_rajyoga":         {"price": 501,   "rate": 66, "name": "राजयोग / रश्मि बल रिपोर्ट"},
     "patrika_vahan":           {"price": 501,   "rate": 66, "name": "वाहन एवं जनबल रिपोर्ट"},
     "consultation_acharya":    {"price": 5100,  "rate": 0,  "name": "दैवज्ञ 1-on-1 परामर्श"},
-    "consultation_yearly":     {"price": 5100,  "rate": 0,  "name": "व्यक्तिगत परामर्श (1 वर्ष)"},
+    "consultation_yearly":     {"price": 5100,  "rate": 0,  "name": "सुपर एक्सक्लूसिव 1-on-1 परामर्श (> 1.5 घंटे)"},
     "consultation_gurukul":    {"price": 24000, "rate": 30, "name": "1-वर्षीय वैदिक कोर्स (भारतीय बैच)"},
     "course_global_eleven":    {"price": 94600, "rate": 30, "name": "The Global Eleven | 1-Year Classical Immersion"},
     "astrologer_saas":         {"price": 5100,  "rate": 66, "name": "ज्योतिषी SaaS (पहला वर्ष)"},
