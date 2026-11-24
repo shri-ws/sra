@@ -187,7 +187,7 @@
       timing: r.timing || 'प्रातःकाल (ब्रह्म मुहूर्त / सूर्योदय)', instructions: '' }));
     rxDirty = true;
     renderRxItems(); renderClientPreview();
-    toast(currentClient.name + ' की पर्ची में ' + (rows.length > 1 ? rows.length + ' उपाय' : '') + ' जोड़ा गया। "पर्ची सुरक्षित करें" दबाएँ।');
+    toast(currentClient.name + ' की पर्ची में ' + (rows.length > 1 ? rows.length + ' उपाय जोड़े गए' : 'उपाय जोड़ा गया') + '। "पर्ची सुरक्षित करें" दबाएँ।');
   }
 
   const items = [];   // every sendable piece, by index
