@@ -226,11 +226,32 @@
     const daily = LIB.dailyUpay.map(u => tick(esc(u), { text: u, title: u, category: 'आचरण व नियम', count: 'प्रतिदिन', days: '40 दिन', timing: 'प्रतिदिन' })).join('');
     const week = LIB.weekdayUpay.map(u => tick(`<b>${esc(u.day)}:</b> ${esc(u.text)}`,
       { text: u.day + ': ' + u.text, title: u.day + ': ' + u.text, category: 'आचरण व नियम', count: 'हर ' + u.day, days: '11 सप्ताह', timing: u.day })).join('');
+    const multi = t => esc(t).replace(/\n/g, '<br>');
+    const tithi = (LIB.visheshTithi || []).map(v => tick(`<b>${esc(v.name)}</b> <small class="dc-muted">· ${esc(v.devta)}</small><br>${multi(v.text)}`,
+      { text: '*' + v.name + '* (' + v.devta + ')\n' + v.text, title: v.name + ': ' + v.text.replace(/\n/g, ' '), category: 'व्रत / तिथि', count: 'हर ' + v.name.split(' (')[0], days: '1 वर्ष', timing: v.name.split(' (')[0] })).join('');
+    const parv = (LIB.visheshParv || []).map(m => `<h5 class="dc-month">${esc(m.month)}</h5><ul class="dc-ul dc-checks">` +
+      m.items.map(([n, t]) => tick(`<b>${esc(n)}</b>: ${esc(t)}`,
+        { text: '*' + m.month + ' — ' + n + '*\n' + t, title: m.month + ' — ' + n + ': ' + t, category: 'पर्व', count: '1 बार (पर्व के दिन)', days: n, timing: m.month })).join('') + '</ul>').join('');
+    const P = LIB.puja || { samagri: [], panchopachar: [], kram: [], niyam: [] };
+    const pujaRow = (title, text, sec) => ({ text, title, sec, category: 'पूजा विधि', count: 'प्रतिदिन', days: 'नियमित', timing: 'प्रातः / सायं' });
+    const pujaSamagri = P.samagri.map(x => tick(esc(x), pujaRow('सामग्री: ' + x, '• ' + x, 'पूजा की सामग्री'))).join('');
+    const pujaPancho = P.panchopachar.map((x, i) => tick(`<b>${i + 1}. ${esc(x.name)}</b><br>${esc(x.mantra)}`,
+      pujaRow('पंचोपचार ' + (i + 1) + '. ' + x.name + ' — ' + x.mantra, (i + 1) + '. ' + x.name + ': ' + x.mantra, 'पंचोपचार पूजन'))).join('');
+    const pujaKram = P.kram.map((x, i) => tick(`<b>${i + 1}.</b> ${multi(x)}`, pujaRow('क्रम ' + (i + 1) + ': ' + x.replace(/\n/g, ' '), (i + 1) + '. ' + x, 'पूजा का क्रम'))).join('');
+    const pujaNiyam = P.niyam.map(x => tick(`<b>${esc(x.title)}</b><br>${multi(x.text)}`, pujaRow(x.title + ': ' + x.text.replace(/\n/g, ' '), x.title + ': ' + x.text, 'घर की पूजा के नियम'))).join('');
+    const pickBar = `<div class="dc-pick-bar">
+          <span class="dc-pick-n">कोई उपाय नहीं चुना</span>
+          <button class="btn btn-outline btn-sm" data-pick-all>सब चुनें</button>
+          <button class="btn btn-primary btn-sm" data-pick-share disabled>चुने हुए WhatsApp पर भेजें</button>
+          <button class="btn btn-outline btn-sm" data-pick-slip disabled>चुने हुए पर्ची में जोड़ें</button>
+        </div>`;
     box.innerHTML = `
       <div class="dc-tabs" role="tablist">
         <button class="dc-tab on" data-tab="dev">देवी-देवता</button>
         <button class="dc-tab" data-tab="graha">नवग्रह मंत्र</button>
         <button class="dc-tab" data-tab="upay">दैनिक उपाय</button>
+        <button class="dc-tab" data-tab="vishesh">विशेष उपाय</button>
+        <button class="dc-tab" data-tab="puja">सामान्य पूजा विधि</button>
       </div>
       <div class="dc-pane" data-pane="dev">${devta}<p class="dc-muted dc-credit">${esc(LIB.credit)}</p></div>
       <div class="dc-pane" data-pane="graha" hidden><div class="dc-graha-grid">${graha}</div></div>
@@ -238,35 +259,56 @@
         <p class="dc-muted">जो उपाय देने हैं उन पर सही का निशान लगाएँ, फिर नीचे से WhatsApp पर भेजें या पर्ची में जोड़ें।</p>
         <h4>रोज़ के सरल उपाय</h4><ul class="dc-ul dc-checks">${daily}</ul>
         <h4>वार के अनुसार उपाय</h4><ul class="dc-ul dc-checks">${week}</ul>
-        <div class="dc-pick-bar">
-          <span class="dc-pick-n" id="dc-pick-n">कोई उपाय नहीं चुना</span>
-          <button class="btn btn-outline btn-sm" data-pick-all>सब चुनें</button>
-          <button class="btn btn-primary btn-sm" data-pick-share disabled>चुने हुए WhatsApp पर भेजें</button>
-          <button class="btn btn-outline btn-sm" data-pick-slip disabled>चुने हुए पर्ची में जोड़ें</button>
-        </div>
+        ${pickBar}
+      </div>
+      <div class="dc-pane" data-pane="vishesh" hidden>
+        <p class="dc-muted">हर महीने आने वाली तिथियों और महीने के पर्वों के पूजन, उपाय और मंत्र। जो देने हैं उन पर सही का निशान लगाएँ।</p>
+        <h4>हर महीने की विशेष तिथियाँ</h4><ul class="dc-ul dc-checks">${tithi}</ul>
+        <h4>महीने के पर्व <small class="dc-muted">(उत्तर भारत की पूर्णिमान्त मास गणना)</small></h4>${parv}
+        ${pickBar}
+      </div>
+      <div class="dc-pane" data-pane="puja" hidden>
+        <p class="dc-muted">घर में रोज़ की पूजा की सरल विधि। पूरी विधि भेजने के लिए "सब चुनें", या केवल ज़रूरी भाग चुनें।</p>
+        <h4>पूजा की सामग्री</h4><ul class="dc-ul dc-checks">${pujaSamagri}</ul>
+        <h4>पंचोपचार पूजन (पाँच उपचार, इसी क्रम से)</h4><ul class="dc-ul dc-checks">${pujaPancho}</ul>
+        <h4>पूजा का क्रम</h4><ul class="dc-ul dc-checks">${pujaKram}</ul>
+        <h4>घर की पूजा के नियम</h4><ul class="dc-ul dc-checks">${pujaNiyam}</ul>
+        ${pickBar}
       </div>`;
   }
-  const chosen = () => [...document.querySelectorAll('#dc-library [data-pick]:checked')].map(x => picks[+x.dataset.pick]);
-  function syncPicks() {
-    const n = chosen().length, all = document.querySelectorAll('#dc-library [data-pick]').length;
-    $('dc-pick-n').textContent = n ? n + ' उपाय चुने' : 'कोई उपाय नहीं चुना';
-    document.querySelectorAll('#dc-library [data-pick-share], #dc-library [data-pick-slip]').forEach(b => { b.disabled = !n; });
-    const a = document.querySelector('#dc-library [data-pick-all]');
-    if (a) a.textContent = n === all ? 'सब हटाएँ' : 'सब चुनें';
+  // each tab keeps its own ticks and its own send / add bar
+  const chosen = pane => [...pane.querySelectorAll('[data-pick]:checked')].map(x => picks[+x.dataset.pick]);
+  function syncPicks(pane) {
+    const n = chosen(pane).length, all = pane.querySelectorAll('[data-pick]').length;
+    const word = pane.dataset.pane === 'puja' ? 'भाग' : 'उपाय';
+    pane.querySelector('.dc-pick-n').textContent = n ? n + ' ' + word + ' चुने' : 'कुछ नहीं चुना';
+    pane.querySelectorAll('[data-pick-share], [data-pick-slip]').forEach(b => { b.disabled = !n; });
+    pane.querySelector('[data-pick-all]').textContent = n === all ? 'सब हटाएँ' : 'सब चुनें';
   }
+  const shareTitle = (pane, n) => pane.dataset.pane === 'puja' ? 'घर में पूजा की विधि' :
+    pane.dataset.pane === 'vishesh' ? (n > 1 ? 'विशेष दिनों के उपाय' : 'विशेष दिन का उपाय') : (n > 1 ? 'आपके उपाय' : 'आपका उपाय');
   function onLibraryClick(e) {
-    if (e.target.closest('[data-pick-all]')) {
-      const boxes = [...document.querySelectorAll('#dc-library [data-pick]')];
+    const pane = e.target.closest('.dc-pane');
+    if (pane && e.target.closest('[data-pick-all]')) {
+      const boxes = [...pane.querySelectorAll('[data-pick]')];
       const on = boxes.some(b => !b.checked);
       boxes.forEach(b => { b.checked = on; });
-      syncPicks(); return;
+      syncPicks(pane); return;
     }
-    if (e.target.closest('[data-pick-share]')) {
-      const rows = chosen();
-      if (rows.length) shareText(rows.length > 1 ? 'आपके उपाय' : 'आपका उपाय', rows.map((r, i) => (rows.length > 1 ? (i + 1) + '. ' : '') + r.text).join('\n'));
+    if (pane && e.target.closest('[data-pick-share]')) {
+      const rows = chosen(pane);
+      const sep = pane.dataset.pane === 'upay' ? '\n' : '\n\n';
+      if (!rows.length) return;
+      let body;
+      if (pane.dataset.pane === 'puja') {   // one heading per section, its lines under it
+        const secs = [];
+        rows.forEach(r => { let g = secs.find(x => x.sec === r.sec); if (!g) secs.push(g = { sec: r.sec, lines: [] }); g.lines.push(r.text); });
+        body = secs.map(g => '*' + g.sec + '*\n' + g.lines.join(g.sec === 'पूजा की सामग्री' || g.sec === 'पंचोपचार पूजन' ? '\n' : '\n\n')).join('\n\n');
+      } else body = rows.map((r, i) => (rows.length > 1 && pane.dataset.pane === 'upay' ? (i + 1) + '. ' : '') + r.text).join(sep);
+      shareText(shareTitle(pane, rows.length), body);
       return;
     }
-    if (e.target.closest('[data-pick-slip]')) { const rows = chosen(); if (rows.length) addToSlip(rows); return; }
+    if (pane && e.target.closest('[data-pick-slip]')) { const rows = chosen(pane); if (rows.length) addToSlip(rows); return; }
     const t = e.target.closest('.dc-tab');
     if (t) {
       document.querySelectorAll('.dc-tab').forEach(x => x.classList.toggle('on', x === t));
@@ -290,7 +332,7 @@
     $('dc-clients').addEventListener('click', onClientAction);
     $('dc-search').addEventListener('input', renderClients);
     $('dc-library').addEventListener('click', onLibraryClick);
-    $('dc-library').addEventListener('change', e => { if (e.target.matches('[data-pick]')) syncPicks(); });
+    $('dc-library').addEventListener('change', e => { if (e.target.matches('[data-pick]')) syncPicks(e.target.closest('.dc-pane')); });
     renderLibrary();
     window.renderDeskConnect();
   }
