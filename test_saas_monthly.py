@@ -2,7 +2,7 @@
 Astrologer SaaS monthly plan (24 Nov 2026): ₹499 a month by Razorpay Subscription.
 - OTP sign-in required; the plan belongs to the signed-in phone
 - each paid month opens access to the period end + 3 days; never shortens a longer expiry
-- Sutradhar gets 30% without GST (₹126) on every monthly payment, once per payment
+- Sutradhar gets 30% without GST (₹126) on the first 12 monthly payments only, once per payment
 - member can cancel: no further charge, the paid month keeps running
 
 Run: .venv/bin/python -m pytest -q test_saas_monthly.py
@@ -194,3 +194,18 @@ def test_admin_pause_survives_status_events():
     client.post("/api/sutradhar/webhook/razorpay", headers=HOOK, json={
         "event": "subscription.pending", "payload": {"subscription": {"entity": {"id": sub_id, "status": "pending"}}}})
     assert se.get_saas_subscriber(ph)["status"] == "paused"
+
+
+def test_commission_only_for_first_12_months():
+    ph = "9833300010"
+    _lead(ph)
+    sub_id = _start(ph)
+    _verify(ph, sub_id, "pay_m12_1")
+    base = datetime.now(timezone.utc)
+    for i in range(2, 15):
+        assert _charged(sub_id, f"pay_m12_{i}", base + timedelta(days=30 * i)).json()["status"] == "success"
+    comms = _commissions(ph)
+    assert len(comms) == 12 and all(c["amount"] == 126 for c in comms)
+    assert "comm_pay_m12_13" not in {c["id"] for c in comms}
+    # access still runs for every paid month
+    assert se.saas_is_active(se.get_saas_subscriber(ph))

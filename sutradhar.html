@@ -186,7 +186,7 @@
           <div class="font-bold text-green-900">आपको मिलेगा:</div>
           <ul class="space-y-1.5 text-green-900">
             <li>✅ हर रिपोर्ट पर <strong>66% दक्षिणा</strong> (GST घटाकर; ₹280 से ₹1,174 प्रति रिपोर्ट)</li>
-            <li>✅ ज्योतिषी SaaS पहले वर्ष <strong>66%</strong>, नवीनीकरण पर <strong>30%</strong></li>
+            <li>✅ ज्योतिषी SaaS पहले वर्ष <strong>66%</strong>, नवीनीकरण पर <strong>30%</strong>; ₹499 मासिक प्लान पर पहले 12 महीने हर माह <strong>30%</strong> (₹126)</li>
             <li>✅ गुरुकुल कोर्स पर <strong>30%</strong> (₹6,101)</li>
             <li>✅ अपना और परिवार का नंबर भी डाल सकते हैं</li>
             <li>✅ <strong>कोई निवेश नहीं</strong>, कोई stock नहीं</li>
@@ -678,7 +678,7 @@
         <div class="text-[11px] text-slate-400">यह आपका अपना लक्ष्य है, कोई तय आमदनी का वादा नहीं। दक्षिणा = दाम (GST घटाकर) का 66%; कोर्स पर 30%।</div>
       </div>
       <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 leading-relaxed">
-        <strong>दक्षिणा (Dakshina / Payout) नियम:</strong> दाम GST सहित हैं; दक्षिणा GST घटाकर बचे दाम पर। हर रिपोर्ट और SaaS के पहले वर्ष पर <strong>66%</strong>, गुरुकुल कोर्स और SaaS नवीनीकरण पर <strong>30%</strong>, दैवज्ञ परामर्श पर <strong>दक्षिणा नहीं</strong> (एक दिन, एक परामर्श)।<br><strong>पेआउट:</strong> भुगतान के 2 कार्य-दिवस बाद शाम 7 बजे तक UPI में (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)।
+        <strong>दक्षिणा (Dakshina / Payout) नियम:</strong> दाम GST सहित हैं; दक्षिणा GST घटाकर बचे दाम पर। हर रिपोर्ट और SaaS के पहले वर्ष पर <strong>66%</strong>, गुरुकुल कोर्स और SaaS नवीनीकरण पर <strong>30%</strong>, ₹499 मासिक SaaS पर पहले 12 महीने हर माह <strong>30%</strong> (₹126 / माह; 13वें महीने से नहीं), दैवज्ञ परामर्श पर <strong>दक्षिणा नहीं</strong> (एक दिन, एक परामर्श)।<br><strong>पेआउट:</strong> भुगतान के 2 कार्य-दिवस बाद शाम 7 बजे तक UPI में (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)।
       </div>
 
       <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
@@ -1055,6 +1055,7 @@ let INCENTIVE_ROWS = [
   { name: 'विवाह मुहूर्त', price: 2100, comm: 1174, rate: 66 },
   { name: 'ज्योतिषी SaaS (पहला वर्ष)', price: 5100, comm: 2852, rate: 66 },
   { name: 'ज्योतिषी SaaS (नवीनीकरण)', price: 5100, comm: 1296, rate: 30 },
+  { name: 'ज्योतिषी SaaS (₹499 मासिक; हर माह, पहले 12 महीने)', price: 499, comm: 126, rate: 30 },
   { name: '1-वर्षीय गुरुकुल कोर्स', price: 24000, comm: 6101, rate: 30 },
   { name: 'दैवज्ञ 1-on-1 परामर्श', price: 5100, comm: 0, rate: 0 }
 ];
@@ -1068,7 +1069,8 @@ async function loadCatalog() {
     const rows = (d.items || [])
       .filter(it => HIDDEN_CATALOG.indexOf(it.service_id) === -1)
       .map(it => ({
-        name: it.service_id === 'muhurta_vastu' ? 'वास्तु / यज्ञोपवीत / मुंडन मुहूर्त' : it.name,
+        name: it.service_id === 'muhurta_vastu' ? 'वास्तु / यज्ञोपवीत / मुंडन मुहूर्त'
+          : it.service_id === 'astrologer_saas_monthly' ? 'ज्योतिषी SaaS (₹499 मासिक; हर माह, पहले 12 महीने)' : it.name,
         price: it.price, comm: it.sutradhar_commission, rate: it.commission_rate_percent
       }));
     if (rows.length) { INCENTIVE_ROWS = rows; renderIncentiveTable(); renderTargetRows(); }
@@ -2074,7 +2076,7 @@ const START_PLAN = [
     { t: 'पड़ोस, दुकान या ऑफ़िस के 5 नए लोगों से बात करें; अपनी पत्रिका दिखाएँ।', a: 'पत्रिका खोलें', go: 'patrika' },
     { t: 'रुचि लेने वालों को लीड में डालें।', a: 'लीड जोड़ें', go: 'lead' } ] },
   { tip: 'एक ज्योतिषी = एक बार में ₹2,852।', tasks: [
-    { t: 'किसी पंडित या ज्योतिष जानने वाले को हमारे सॉफ़्टवेयर (₹5,100/वर्ष) के बारे में बताएँ।', a: 'अपग्रेड स्क्रिप्ट', go: 'script:upgrade' } ] },
+    { t: 'किसी पंडित या ज्योतिष जानने वाले को हमारे सॉफ़्टवेयर (₹5,100/वर्ष, या ₹499/माह) के बारे में बताएँ।', a: 'अपग्रेड स्क्रिप्ट', go: 'script:upgrade' } ] },
   { tip: 'शादी वाले घर सबसे अच्छे ग्राहक हैं।', tasks: [
     { t: 'जिनके घर शादी तय हो रही है, उन्हें विवाह मुहूर्त (दक्षिणा ₹1,174) का link भेजें।', a: 'रिपोर्ट लिंक भेजें', go: 'offers' } ] },
   { tip: 'फ़ॉलो-अप से ही बिक्री होती है।', tasks: [
@@ -2274,6 +2276,7 @@ const TARGET_GROUPS = [
   { id: 'muhurta', name: 'वास्तु / यज्ञोपवीत / मुंडन मुहूर्त', price: 1551, comm: 867, max: 30, start: 2 },
   { id: 'vivah', name: 'विवाह मुहूर्त', price: 2100, comm: 1174, max: 30, start: 2 },
   { id: 'saas', name: 'ज्योतिषी सॉफ़्टवेयर (SaaS, पहला वर्ष)', price: 5100, comm: 2852, max: 20, start: 1 },
+  { id: 'saas_m', name: 'ज्योतिषी सॉफ़्टवेयर (₹499 मासिक; पहले 12 महीने हर माह)', price: 499, comm: 126, max: 50, start: 0 },
   { id: 'course', name: '1-वर्षीय ज्योतिष कोर्स', price: 24000, comm: 6101, max: 10, start: 0 }
 ];
 let targetCounts = {};

@@ -2329,8 +2329,8 @@ def extend_saas_subscription(phone: str, name: str = "", days: int = SAAS_SUBSCR
 # - the subscriber must be signed in by OTP: the subscription belongs to that phone
 # - every paid month opens the membership until the end of that month + 3 days of grace
 #   (Razorpay retries a failed charge in that time; if it still fails, access ends)
-# - the Sutradhar who held the lead when the plan started gets 30% of every monthly
-#   payment without GST (₹126), for as long as the plan runs
+# - the Sutradhar who held the lead when the plan started gets 30% without GST (₹126)
+#   on the first 12 monthly payments of that plan only (owner, 24 Nov 2026)
 # - the member can cancel from the desk: no further charge, the paid month runs out
 # The plan id comes from env RAZORPAY_SAAS_MONTHLY_PLAN_ID, or is made once and saved.
 # -----------------------------------------------------------------------------
@@ -2338,6 +2338,7 @@ SAAS_MONTHLY_COL = "saas_monthly"
 SAAS_MONTHLY_PRICE = int(SERVICE_CATALOG[SAAS_MONTHLY_SERVICE_ID]["price"])
 SAAS_MONTHLY_GRACE_DAYS = 3
 SAAS_MONTHLY_TOTAL_COUNT = 60          # Razorpay needs a count: 60 months, renewable
+SAAS_MONTHLY_COMMISSION_MONTHS = 12    # Sutradhar commission on the first 12 paid months only
 
 
 def _rzp_client():
@@ -2449,6 +2450,8 @@ def _record_monthly_payment(m: Dict[str, Any], payment_id: str, amount_paise: in
 
     sutradhar_id, lead_id = m.get("sutradhar_id"), m.get("lead_id")
     if not sutradhar_id or not lead_id:
+        return True
+    if len(m["payments"]) > SAAS_MONTHLY_COMMISSION_MONTHS:
         return True
     calc = commission_for_payment(SAAS_MONTHLY_SERVICE_ID, amount_paise)
     if calc["commission"] <= 0:
