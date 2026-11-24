@@ -7,7 +7,7 @@
   <title>दैवज्ञ कंसल्टेशन डेस्क — Shri Ramji Astro</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="theme.js"></script>
+  <script src="theme.js?v=20261124"></script>
   <script src="sra-auth.js" defer></script>
   <script src="sra-records.js" defer></script>
 
@@ -933,10 +933,15 @@
     function openNewClientModal(prefilledPhone = '') {
       document.getElementById('nc-phone').value = prefilledPhone;
       ['nc-name', 'nc-dob', 'nc-tob', 'nc-pob'].forEach(id => { document.getElementById(id).value = ''; });
-      document.getElementById('new-client-modal').style.display = 'flex';
+      const m = document.getElementById('new-client-modal');
+      m.style.display = 'flex';
+      // on phones theme.js turns this box into a bottom sheet that slides up only with .open
+      requestAnimationFrame(() => m.classList.add('open'));
     }
     function closeNewClientModal() {
-      document.getElementById('new-client-modal').style.display = 'none';
+      const m = document.getElementById('new-client-modal');
+      m.classList.remove('open');
+      m.style.display = 'none';
     }
 
     async function saveNewClient() {
