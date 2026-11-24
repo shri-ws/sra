@@ -178,16 +178,20 @@
     const head = (c ? c.name + ' जी, ' : '') + 'आपके लिए — ' + title;
     window.open(waUrl(c && c.phone, head + '\n\n' + text + signature()), inApp() ? '_self' : '_blank');
   }
-  function addToSlip(title, category, count) {
+  // rows: [{ title, category, count, days?, timing? }]
+  function addToSlip(rows) {
     if (typeof currentClient === 'undefined' || !currentClient) { toast('पहले बाईं सूची से किसी जातक का खाता चुनें।'); return; }
-    currentRemedies.push({ id: 'rx_' + Date.now(), category, title, count: count || '108 बार (एक माला)', days: '40 दिन',
-      timing: 'प्रातःकाल (ब्रह्म मुहूर्त / सूर्योदय)', instructions: '' });
+    const t = Date.now();
+    rows.forEach((r, i) => currentRemedies.push({ id: 'rx_' + t + '_' + i, category: r.category, title: r.title,
+      count: r.count || '108 बार (एक माला)', days: r.days || '40 दिन',
+      timing: r.timing || 'प्रातःकाल (ब्रह्म मुहूर्त / सूर्योदय)', instructions: '' }));
     rxDirty = true;
     renderRxItems(); renderClientPreview();
-    toast(currentClient.name + ' की पर्ची में जोड़ा गया। "पर्ची सुरक्षित करें" दबाएँ।');
+    toast(currentClient.name + ' की पर्ची में ' + (rows.length > 1 ? rows.length + ' उपाय' : '') + ' जोड़ा गया। "पर्ची सुरक्षित करें" दबाएँ।');
   }
 
   const items = [];   // every sendable piece, by index
+  const picks = [];   // every remedy that can be ticked, by index
   function piece(title, text, category, count) {
     items.push({ title, text, category, count });
     const i = items.length - 1;
@@ -213,8 +217,15 @@
           ${d.stotras.map(s => `<details class="dc-stotra"><summary>${esc(s.name)}</summary><p class="dc-shloka">${esc(s.text)}</p>
             ${piece(s.name, s.text, 'पाठ / स्तोत्र', '1 पाठ')}</details>`).join('')}
         </div></details>`).join('');
-    const daily = LIB.dailyUpay.map(u => `<li>${esc(u)}</li>`).join('');
-    const week = LIB.weekdayUpay.map(u => `<li><b>${esc(u.day)}:</b> ${esc(u.text)}</li>`).join('');
+    // remedies to tick: the astrologer picks any of them and sends or adds only those
+    picks.length = 0;
+    const tick = (label, row) => {
+      picks.push(row);
+      return `<li><label class="dc-check"><input type="checkbox" data-pick="${picks.length - 1}"/><span>${label}</span></label></li>`;
+    };
+    const daily = LIB.dailyUpay.map(u => tick(esc(u), { text: u, title: u, category: 'आचरण व नियम', count: 'प्रतिदिन', days: '40 दिन', timing: 'प्रतिदिन' })).join('');
+    const week = LIB.weekdayUpay.map(u => tick(`<b>${esc(u.day)}:</b> ${esc(u.text)}`,
+      { text: u.day + ': ' + u.text, title: u.day + ': ' + u.text, category: 'आचरण व नियम', count: 'हर ' + u.day, days: '11 सप्ताह', timing: u.day })).join('');
     box.innerHTML = `
       <div class="dc-tabs" role="tablist">
         <button class="dc-tab on" data-tab="dev">देवी-देवता</button>
@@ -224,13 +235,38 @@
       <div class="dc-pane" data-pane="dev">${devta}<p class="dc-muted dc-credit">${esc(LIB.credit)}</p></div>
       <div class="dc-pane" data-pane="graha" hidden><div class="dc-graha-grid">${graha}</div></div>
       <div class="dc-pane" data-pane="upay" hidden>
-        <h4>रोज़ के सरल उपाय</h4><ul class="dc-ul">${daily}</ul>
-        ${piece('रोज़ के सरल उपाय', LIB.dailyUpay.map((u, i) => (i + 1) + '. ' + u).join('\n'), 'आचरण व नियम', 'प्रतिदिन')}
-        <h4>वार के अनुसार उपाय</h4><ul class="dc-ul">${week}</ul>
-        ${piece('वार के अनुसार उपाय', LIB.weekdayUpay.map(u => u.day + ': ' + u.text).join('\n'), 'आचरण व नियम', 'हर सप्ताह')}
+        <p class="dc-muted">जो उपाय देने हैं उन पर सही का निशान लगाएँ, फिर नीचे से WhatsApp पर भेजें या पर्ची में जोड़ें।</p>
+        <h4>रोज़ के सरल उपाय</h4><ul class="dc-ul dc-checks">${daily}</ul>
+        <h4>वार के अनुसार उपाय</h4><ul class="dc-ul dc-checks">${week}</ul>
+        <div class="dc-pick-bar">
+          <span class="dc-pick-n" id="dc-pick-n">कोई उपाय नहीं चुना</span>
+          <button class="btn btn-outline btn-sm" data-pick-all>सब चुनें</button>
+          <button class="btn btn-primary btn-sm" data-pick-share disabled>चुने हुए WhatsApp पर भेजें</button>
+          <button class="btn btn-outline btn-sm" data-pick-slip disabled>चुने हुए पर्ची में जोड़ें</button>
+        </div>
       </div>`;
   }
+  const chosen = () => [...document.querySelectorAll('#dc-library [data-pick]:checked')].map(x => picks[+x.dataset.pick]);
+  function syncPicks() {
+    const n = chosen().length, all = document.querySelectorAll('#dc-library [data-pick]').length;
+    $('dc-pick-n').textContent = n ? n + ' उपाय चुने' : 'कोई उपाय नहीं चुना';
+    document.querySelectorAll('#dc-library [data-pick-share], #dc-library [data-pick-slip]').forEach(b => { b.disabled = !n; });
+    const a = document.querySelector('#dc-library [data-pick-all]');
+    if (a) a.textContent = n === all ? 'सब हटाएँ' : 'सब चुनें';
+  }
   function onLibraryClick(e) {
+    if (e.target.closest('[data-pick-all]')) {
+      const boxes = [...document.querySelectorAll('#dc-library [data-pick]')];
+      const on = boxes.some(b => !b.checked);
+      boxes.forEach(b => { b.checked = on; });
+      syncPicks(); return;
+    }
+    if (e.target.closest('[data-pick-share]')) {
+      const rows = chosen();
+      if (rows.length) shareText(rows.length > 1 ? 'आपके उपाय' : 'आपका उपाय', rows.map((r, i) => (rows.length > 1 ? (i + 1) + '. ' : '') + r.text).join('\n'));
+      return;
+    }
+    if (e.target.closest('[data-pick-slip]')) { const rows = chosen(); if (rows.length) addToSlip(rows); return; }
     const t = e.target.closest('.dc-tab');
     if (t) {
       document.querySelectorAll('.dc-tab').forEach(x => x.classList.toggle('on', x === t));
@@ -240,7 +276,7 @@
     const s = e.target.closest('[data-share]');
     if (s) { const it = items[+s.dataset.share]; shareText(it.title, it.text); return; }
     const a = e.target.closest('[data-slip]');
-    if (a) { const it = items[+a.dataset.slip]; addToSlip(it.title + (it.text.length < 160 ? ': ' + it.text.replace(/\n/g, ' ') : ''), it.category, it.count); }
+    if (a) { const it = items[+a.dataset.slip]; addToSlip([{ title: it.title + (it.text.length < 160 ? ': ' + it.text.replace(/\n/g, ' ') : ''), category: it.category, count: it.count }]); }
   }
 
   // ── Mount ──────────────────────────────────────────────────────────────
@@ -254,6 +290,7 @@
     $('dc-clients').addEventListener('click', onClientAction);
     $('dc-search').addEventListener('input', renderClients);
     $('dc-library').addEventListener('click', onLibraryClick);
+    $('dc-library').addEventListener('change', e => { if (e.target.matches('[data-pick]')) syncPicks(); });
     renderLibrary();
     window.renderDeskConnect();
   }
