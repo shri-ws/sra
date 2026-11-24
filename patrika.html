@@ -1280,6 +1280,67 @@
     box-shadow: 0 2px 8px rgba(124, 19, 5, 0.2);
   }
 
+  /* Chart picker: only the open chart's name, between two small arrows */
+  #chartCarouselToolbar .chart-selector-chips {
+    justify-content: center !important;
+    overflow: visible !important;
+    flex-wrap: nowrap !important;
+    width: 100%;
+    gap: 10px !important;
+  }
+  #chartCarouselToolbar .chart-selector-chips .chip-btn:not(.active) { display: none !important; }
+  #chartCarouselToolbar .chart-selector-chips .chip-btn.active {
+    flex: 0 1 220px;
+    min-width: 0;
+    width: auto !important;
+    max-width: calc(100% - 100px);
+    height: auto !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-align: center;
+    line-height: 1.35;
+    padding: 9px 16px;
+    font-size: 14px;
+    cursor: default;
+  }
+  .chip-arrow {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--primary);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chip-arrow:hover { border-color: var(--gold); }
+  #vargaStrip { display: flex !important; align-items: center; justify-content: center; gap: 10px; overflow: visible !important; }
+  #vargaStrip .varga-current {
+    flex: 0 1 240px;
+    min-width: 0;
+    max-width: calc(100% - 100px);
+    padding: 9px 30px 9px 16px;
+    border-radius: 9999px;
+    border: 1px solid var(--primary);
+    background: var(--primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center / 12px;
+    color: #fff;
+    font: 700 14px/1.35 inherit;
+    font-family: inherit;
+    text-align: center;
+    text-align-last: center;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+  #vargaStrip .varga-current option { color: #222; background: #fff; }
+
   .chart-style-toggle {
     display: inline-flex;
     border: 1px solid var(--gold-border);
@@ -3758,12 +3819,15 @@
 
       <!-- 2. Carousel Toolbar Placed BELOW the Chart -->
       <div class="chart-carousel-toolbar" id="chartCarouselToolbar">
-        <div class="chart-selector-chips">
+        <!-- one chart name at a time, with small arrows on both sides (24 Nov 2026: five chips did not fit on a phone) -->
+        <div class="chart-selector-chips" aria-live="polite">
+          <button type="button" class="chip-arrow" onclick="prevChartSlide()" title="पिछला चक्र" aria-label="पिछला चक्र">‹</button>
           <button type="button" class="chip-btn active" onclick="goToChartSlide(0)" id="chipSlide0" data-i18n-hi="D1 लग्न कुण्डली" data-i18n-en="D1 Ascendant Chart">D1 लग्न कुण्डली</button>
           <button type="button" class="chip-btn" onclick="goToChartSlide(1)" id="chipSlide1" data-i18n-hi="भाव चलित (श्रीपति)" data-i18n-en="Sripati Bhava Chalit">भाव चलित (श्रीपति)</button>
           <button type="button" class="chip-btn" onclick="goToChartSlide(2)" id="chipSlide2" data-i18n-hi="D9 नवमांश" data-i18n-en="D9 Navamsha Chart">D9 नवमांश</button>
           <button type="button" class="chip-btn" onclick="goToChartSlide(3)" id="chipSlide3">D10 दशमांश</button>
           <button type="button" class="chip-btn" onclick="goToChartSlide(4)" id="chipSlide4">षोडशवर्ग (D1-D60)</button>
+          <button type="button" class="chip-arrow" onclick="nextChartSlide()" title="अगला चक्र" aria-label="अगला चक्र">›</button>
         </div>
 
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
@@ -3771,11 +3835,6 @@
             <button type="button" class="style-toggle-btn active" onclick="setChartStyle('north')" id="btnStyleNorth">उत्तर भारतीय</button>
             <button type="button" class="style-toggle-btn" onclick="setChartStyle('south')" id="btnStyleSouth">दक्षिण भारतीय</button>
             <button type="button" class="style-toggle-btn" onclick="setChartStyle('both')" id="btnStyleBoth">दोनों शैलियाँ</button>
-          </div>
-          <div class="carousel-arrows">
-            <span class="swipe-hint-pill" title="उंगली से बाएँ या दाएँ स्वाइप करके चक्र बदलें">👆 स्वाइप ↔️</span>
-            <button type="button" class="carousel-arrow-btn" onclick="prevChartSlide()" title="पिछला चक्र">❮</button>
-            <button type="button" class="carousel-arrow-btn" onclick="nextChartSlide()" title="अगला चक्र">❯</button>
           </div>
         </div>
       </div>
@@ -9514,12 +9573,22 @@ function drawSpecificVarga(vId, northSvgId, southSvgId) {
 // -------------------------------------------------------------
 // VARGA CHARTS RENDERER (D1 to D60)
 // -------------------------------------------------------------
+// One box at a time (24 Nov 2026): the open varga's name between ‹ › arrows; tapping the box lists all 17
 function initVargaButtons() {
   const strip = document.getElementById("vargaStrip");
   if (!strip) return;
-  strip.innerHTML = VARGAS_CONFIG.map(v => `
-    <button type="button" class="v-btn ${String(v.id) === String(selectedVarga) ? 'active' : ''}" data-varga-id="${v.id}" onclick="selectVarga('${v.id}')">${v.name}</button>
-  `).join('');
+  strip.innerHTML = `
+    <button type="button" class="chip-arrow" onclick="stepVarga(-1)" title="पिछला वर्ग" aria-label="पिछला वर्ग">‹</button>
+    <select id="vargaSelect" class="varga-current" aria-label="वर्ग कुण्डली चुनें" onchange="selectVarga(this.value)">
+      ${VARGAS_CONFIG.map(v => `<option value="${v.id}" ${String(v.id) === String(selectedVarga) ? 'selected' : ''}>${v.name}</option>`).join('')}
+    </select>
+    <button type="button" class="chip-arrow" onclick="stepVarga(1)" title="अगला वर्ग" aria-label="अगला वर्ग">›</button>`;
+}
+
+function stepVarga(d) {
+  const n = VARGAS_CONFIG.length;
+  const i = Math.max(0, VARGAS_CONFIG.findIndex(v => String(v.id) === String(selectedVarga)));
+  selectVarga(String(VARGAS_CONFIG[(i + d + n) % n].id));
 }
 
 function selectVarga(vId) {
@@ -9543,6 +9612,8 @@ function selectVarga(vId) {
   document.querySelectorAll('#vargaStrip .v-btn').forEach(btn => {
     btn.classList.toggle('active', String(btn.getAttribute('data-varga-id')) === String(vId));
   });
+  const vSel = document.getElementById('vargaSelect');
+  if (vSel) vSel.value = String(selectedVarga);
 
   if (String(vId).toUpperCase() === "GOCHAR") {
     renderGocharChart();
