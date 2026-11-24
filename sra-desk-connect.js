@@ -36,20 +36,53 @@
   }
 
   // ── Client's birth place → coordinates (kept on this phone) ─────────────
-  async function coordsFor(place) {
-    const q = String(place || '').split(',')[0].trim();
-    if (!q) return null;
-    const key = 'sra_desk_geo_' + q;
-    try { const c = JSON.parse(localStorage.getItem(key) || 'null'); if (c) return c; } catch (e) {}
+  // 1) a saved kundali on this phone with the same person or the same city carries exact lat/lon;
+  // 2) "23.25°, 77.40°" typed as the place; 3) open-meteo, then OpenStreetMap for small towns.
+  function savedKundalis() {
+    const out = [];
     try {
-      const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=hi&name=' + encodeURIComponent(q));
-      const d = await r.json();
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || key.indexOf('sra_saved_kundalis_') !== 0) continue;
+        const v = JSON.parse(localStorage.getItem(key) || '[]');
+        if (Array.isArray(v)) v.forEach(k => { if (k && k.lat !== undefined && k.lat !== '' && !isNaN(Number(k.lat))) out.push(k); });
+      }
+    } catch (e) {}
+    return out;
+  }
+  const norm = s => String(s || '').toLowerCase().replace(/[\s.,]+/g, ' ').trim();
+  function fromSaved(c) {
+    const list = savedKundalis();
+    const place = norm(c.pob), first = norm(String(c.pob || '').split(',')[0]);
+    const hit = list.find(k => k.date === c.dob && norm(k.name) === norm(c.name)) ||
+      list.find(k => place && norm(k.city) === place) ||
+      list.find(k => first && norm(String(k.city || '').split(',')[0]) === first);
+    return hit ? { lat: Number(hit.lat), lon: Number(hit.lon) } : null;
+  }
+  async function coordsFor(c) {
+    const saved = fromSaved(c);
+    if (saved) return saved;
+    const place = String(c.pob || '').trim();
+    const m = place.match(/(-?\d{1,2}(?:\.\d+)?)\s*°?\s*[NS]?\s*,\s*(-?\d{1,3}(?:\.\d+)?)/i);
+    if (m) return { lat: Number(m[1]), lon: Number(m[2]) };
+    const q = place.split(',')[0].trim();
+    if (!q) return null;
+    const key = 'sra_desk_geo_' + norm(place);
+    try { const v = JSON.parse(localStorage.getItem(key) || 'null'); if (v) return v; } catch (e) {}
+    let geo = null;
+    try {
+      const d = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=hi&name=' + encodeURIComponent(q))).json();
       const g = d.results && d.results[0];
-      if (!g) return null;
-      const c = { lat: g.latitude, lon: g.longitude };
-      try { localStorage.setItem(key, JSON.stringify(c)); } catch (e) {}
-      return c;
-    } catch (e) { return null; }
+      if (g) geo = { lat: g.latitude, lon: g.longitude };
+    } catch (e) {}
+    if (!geo) {
+      try {
+        const d = await (await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q=' + encodeURIComponent(place))).json();
+        if (d && d[0]) geo = { lat: Number(d[0].lat), lon: Number(d[0].lon) };
+      } catch (e) {}
+    }
+    if (geo) { try { localStorage.setItem(key, JSON.stringify(geo)); } catch (e) {} }
+    return geo;
   }
 
   const forecastCache = {};
@@ -57,7 +90,7 @@
     const k = c.phone + '|' + new Date().toDateString();
     if (forecastCache[k]) return forecastCache[k];
     if (!c.dob || !c.tob) throw new Error(c.name + ' की जन्म तिथि और समय खाते में भरें, तभी पंचांग बनेगा।');
-    const geo = await coordsFor(c.pob);
+    const geo = await coordsFor(c);
     if (!geo) throw new Error(c.name + ' का जन्म स्थान नहीं मिला। खाते में शहर का नाम ठीक लिखें।');
     const [y, mo, d] = c.dob.split('-').map(Number);
     const [h, mi] = c.tob.split(':').map(Number);
