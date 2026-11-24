@@ -62,6 +62,10 @@
       { who: 'जातक', slot: 'sraPickSlotDhan', name: 'birthName', date: 'birthDate', time: 'birthTime', city: 'birthCity',
         lat: 'birthLat', lon: 'birthLon', tz: 'birthTz', gender: 'birthGender' }
     ],
+    // Daivagya Desk: "+ नया खाता" box (the client's mobile number is typed by the astrologer)
+    'consultant.html': [
+      { who: 'जातक', slot: 'sraPickSlotDesk', name: 'nc-name', date: 'nc-dob', time: 'nc-tob', city: 'nc-pob' }
+    ],
     'consultation.html': [
       { who: 'जातक', at: ['clientName', '.form-group'], name: 'clientName', date: 'clientDob', time: 'clientTob',
         city: 'clientLocation', gender: 'clientGender' }

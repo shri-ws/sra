@@ -10,6 +10,7 @@
   <script src="theme.js?v=20261124"></script>
   <script src="sra-auth.js" defer></script>
   <script src="sra-records.js" defer></script>
+  <script src="sra-saved-pick.js?v=2" defer></script>
 
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -706,6 +707,7 @@
         <button onclick="closeNewClientModal()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text);">&times;</button>
       </div>
       <div class="modal-body">
+        <div id="sraPickSlotDesk" style="margin-bottom:10px;"></div>
         <div class="form-group">
           <label style="font-size:0.75rem; font-weight:700; color:var(--muted);">क्लाइंट का नाम *</label>
           <input type="text" id="nc-name" style="width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text);" placeholder="उदा. राहुल शर्मा"/>
@@ -791,7 +793,9 @@
       document.getElementById('desk-lock').style.display = 'none';
       document.getElementById('consultant-phone').textContent = '+91 ' + me.phone;
       showPlan(me);
-      loadClientsForConsultant();
+      // back from पत्रिका: consultant.html?client=<phone> opens that client
+      const back = (new URLSearchParams(location.search).get('client') || '').replace(/\D/g, '').slice(-10);
+      loadClientsForConsultant(back || undefined);
     }
 
     // Plan line in the header; a running ₹499 monthly plan gets a cancel button (24 Nov 2026)
@@ -967,8 +971,10 @@
 
     function openClientChart() {
       if (!currentClient) return;
-      const url = `patrika.html?name=${encodeURIComponent(currentClient.name)}&dob=${encodeURIComponent(currentClient.dob || '')}&tob=${encodeURIComponent(currentClient.tob || '')}&pob=${encodeURIComponent(currentClient.pob || '')}`;
-      window.open(url, '_blank');
+      // same tab: पत्रिका shows "दैवज्ञ डेस्क पर लौटें", which brings the astrologer back to this client
+      const url = `patrika.html?name=${encodeURIComponent(currentClient.name)}&dob=${encodeURIComponent(currentClient.dob || '')}&tob=${encodeURIComponent(currentClient.tob || '')}&city=${encodeURIComponent(currentClient.pob || '')}&desk=${encodeURIComponent(currentClient.phone)}`;
+      if (rxDirty && !confirm('इस क्लाइंट की पर्ची में बदलाव सुरक्षित नहीं हुए हैं। छोड़कर पत्रिका खोलें?')) return;
+      location.href = url;
     }
 
     // ══════════════════════════════════════════════════════════════════════════
