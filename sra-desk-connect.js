@@ -208,12 +208,14 @@
         <h4>${esc(g.name)} <small>${esc(g.day)} · जप संख्या ${esc(g.japa)}</small></h4>
         <p class="dc-mantra">${esc(g.beej)}</p>
         <p class="dc-shloka">${esc(g.shloka)}</p>
-        ${piece(g.name + ' मंत्र', g.beej + '\n\n' + g.shloka, 'मंत्र जप', '108 बार (एक माला)')}</div>`).join('');
+        ${g.src ? `<p class="dc-muted dc-src">श्लोक का स्रोत: ${esc(g.src)}</p>` : ''}
+        ${piece(g.name + ' मंत्र', g.beej + '\n\n' + g.shloka + (g.src ? '\n\nश्लोक: ' + g.src : ''), 'मंत्र जप', '108 बार (एक माला)')}</div>`).join('');
     const devta = LIB.devta.map(d => `<details class="dc-dev">
         <summary><img src="${esc(d.img)}" alt="${esc(d.name)}" loading="lazy" width="72" height="96"/>
           <span><b>${esc(d.name)}</b><small>${esc(d.day)}</small></span></summary>
         <div class="dc-dev-body">
-          ${d.mantras.map(m => `<p class="dc-mantra">${esc(m)}</p>${piece(d.name + ' — मंत्र', m, 'मंत्र जप', '108 बार (एक माला)')}`).join('')}
+          ${d.mantras.map((m, k) => { const src = (d.mantraSrc || [])[k];
+            return `<p class="dc-mantra">${esc(m)}</p>${src ? `<p class="dc-muted dc-src">स्रोत: ${esc(src)}</p>` : ''}${piece(d.name + ' — मंत्र', m + (src ? '\n\nस्रोत: ' + src : ''), 'मंत्र जप', '108 बार (एक माला)')}`; }).join('')}
           ${d.stotras.map(s => `<details class="dc-stotra"><summary>${esc(s.name)}</summary><p class="dc-shloka">${esc(s.text)}</p>
             ${s.src ? `<p class="dc-muted dc-src">स्रोत: ${esc(s.src)}</p>` : ''}
             ${piece(s.name, s.text + (s.src ? '\n\nस्रोत: ' + s.src : ''), 'पाठ / स्तोत्र', '1 पाठ')}</details>`).join('')}
@@ -255,7 +257,7 @@
         <button class="dc-tab" data-tab="puja">सामान्य पूजा विधि</button>
       </div>
       <div class="dc-pane" data-pane="dev">${devta}<p class="dc-muted dc-credit">${esc(LIB.credit)}</p></div>
-      <div class="dc-pane" data-pane="graha" hidden><div class="dc-graha-grid">${graha}</div></div>
+      <div class="dc-pane" data-pane="graha" hidden>${LIB.grahaNote ? `<p class="dc-muted">${esc(LIB.grahaNote)}</p>` : ''}<div class="dc-graha-grid">${graha}</div></div>
       <div class="dc-pane" data-pane="upay" hidden>
         <p class="dc-muted">जो उपाय देने हैं उन पर सही का निशान लगाएँ, फिर नीचे से WhatsApp पर भेजें या पर्ची में जोड़ें।</p>
         <h4>रोज़ के सरल उपाय</h4><ul class="dc-ul dc-checks">${daily}</ul>
