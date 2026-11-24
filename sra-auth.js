@@ -217,6 +217,13 @@
 
   // ── Login window (Google + mobile OTP) ──────────────────────────────────
   let modal, confirmation = null;
+  // Pages without sra-elegance.css get the window's own small stylesheet
+  function ensureAuthStyles() {
+    if (!modal || getComputedStyle(modal).position === 'fixed' || document.getElementById('sra-auth-css')) return;
+    const l = document.createElement('link');
+    l.id = 'sra-auth-css'; l.rel = 'stylesheet'; l.href = 'sra-auth.css';
+    document.head.appendChild(l);
+  }
   function buildModal() {
     modal = document.createElement('div');
     modal.className = 'sra-auth-overlay';
@@ -278,9 +285,12 @@
     msg('');
     if (step === 'code') setTimeout(() => modal.querySelector('[data-code]').focus(), 50);
   }
-  function open() {
-    if (currentUser()) { if (window.SRANav) window.SRANav.open(); return; }
+  // open({ force: true }) shows the OTP box even when an older login is remembered on this
+  // device but Firebase has no session (a page that needs the server token asks for it)
+  function open(opts) {
+    if (currentUser() && !(opts && opts.force)) { if (window.SRANav) window.SRANav.open(); return; }
     if (!modal) buildModal();
+    ensureAuthStyles();
     texts();
     showStep('phone');
     modal.classList.add('is-open');

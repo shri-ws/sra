@@ -4616,10 +4616,12 @@ async function loadSaasSubscribers() {
       const soon = s.active && s.days_left !== null && s.days_left <= 15 ? ` <span style="color:#b45309; font-weight:700;">(${s.days_left} days left)</span>` : '';
       const devs = (s.devices || []).map(dv => `<div style="font-size:10px; color:var(--text-muted); font-family:monospace;">${safe(dv.device_id.slice(0, 8))}… · ${dv.last_seen ? new Date(dv.last_seen).toLocaleDateString('hi-IN') : ''}</div>`).join('');
       const usage = Object.entries(s.uses_by_service_this_month || {}).map(([k, v]) => `${safe(k)}: ${v}`).join(', ');
+      const mo = s.monthly;   // ₹499 monthly autopay (Razorpay Subscription)
+      const monthly = mo ? `<div style="font-size:11px; margin-top:4px;">Monthly ₹499: <b>${safe(mo.cancel_requested ? 'cancel requested' : mo.status)}</b> · ${mo.payments} paid${mo.paid_until ? ' · till ' + new Date(mo.paid_until).toLocaleDateString('hi-IN') : ''}</div>` : '';
       return `
         <tr>
           <td><div style="font-weight:700;">${safe(s.name || '—')}</div><div style="font-family:monospace; font-size:12px;">${safe(s.phone)}</div></td>
-          <td>${state}</td>
+          <td>${state}${monthly}</td>
           <td>${exp}${soon}</td>
           <td><b>${(s.devices || []).length}/${s.device_limit}</b>${devs}</td>
           <td><b>${s.uses_this_month}</b> <span style="font-size:11px; color:var(--text-muted);">(total ${s.uses_total})</span><div style="font-size:10px; color:var(--text-muted);">${usage}</div></td>

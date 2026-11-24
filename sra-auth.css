@@ -1,0 +1,40 @@
+/* Login window for pages that do not load sra-elegance.css (saas-demo, consultant desk).
+   sra-auth.js loads this file only when the window would otherwise have no styles.
+   Rules copied from sra-elegance.css section 15, with the theme colours set here. */
+.sra-auth-overlay {
+  --sra-paper: #FFFFFF; --sra-vellum: #FFFFFF; --sra-ink: #1F1A17; --sra-muted: #6E6257;
+  --sra-kumkum: #6B1424; --sra-gold-deep: #7A5A1C;
+  --sra-hair: rgba(122, 90, 28, 0.20); --sra-hair-strong: rgba(122, 90, 28, 0.38);
+  --sra-body: 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+  --sra-display: 'Noto Serif Devanagari', Georgia, serif;
+}
+.sra-auth-overlay { position: fixed; inset: 0; z-index: 100500; display: none; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(20, 10, 12, .55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.sra-auth-overlay.is-open { display: flex; }
+html.sra-auth-lock, html.sra-auth-lock body { overflow: hidden !important; }
+.sra-auth-card { position: relative; width: min(400px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
+  padding: 28px 24px 20px; border-radius: 18px; background: var(--sra-paper); border: 1px solid var(--sra-hair-strong);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .35); font-family: var(--sra-body); color: var(--sra-ink); text-align: center; }
+.sra-auth-x { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--sra-hair-strong); background: transparent; color: var(--sra-ink); cursor: pointer; font-size: 14px; }
+.sra-auth-logo { width: 54px; height: 54px; border-radius: 50%; box-shadow: 0 0 0 1px var(--sra-hair-strong); }
+.sra-auth-title { margin: 10px 0 4px; font-family: var(--sra-display); font-size: 26px; color: var(--sra-kumkum); }
+.sra-auth-sub { margin: 0 0 18px; font-size: 13.5px; color: var(--sra-muted); line-height: 1.5; }
+.sra-auth-google { width: 100%; height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  border: 1px solid var(--sra-hair-strong); border-radius: 12px; background: #fff; color: #1f1f1f; cursor: pointer;
+  font: 600 15px/1 var(--sra-body); box-shadow: 0 1px 2px rgba(0, 0, 0, .06); }
+.sra-auth-google svg { width: 20px; height: 20px; }
+.sra-auth-or { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; font-size: 12px; color: var(--sra-muted); }
+.sra-auth-or::before, .sra-auth-or::after { content: ""; flex: 1; height: 1px; background: var(--sra-hair); }
+.sra-auth-phone { display: flex; align-items: center; height: 48px; border: 1px solid var(--sra-hair-strong); border-radius: 12px; overflow: hidden; background: var(--sra-vellum); }
+.sra-auth-phone span { padding: 0 12px; font-weight: 700; color: var(--sra-gold-deep); border-right: 1px solid var(--sra-hair); height: 100%; display: grid; place-items: center; }
+.sra-auth-phone input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; padding: 0 12px; background: transparent; font: 600 17px/1 var(--sra-body); color: var(--sra-ink); letter-spacing: .5px; }
+.sra-auth-code { width: 100%; height: 52px; border: 1px solid var(--sra-hair-strong); border-radius: 12px; background: var(--sra-vellum);
+  text-align: center; font: 800 24px/1 var(--sra-body); letter-spacing: 10px; color: var(--sra-kumkum); outline: 0; }
+.sra-auth-primary { width: 100%; height: 48px; margin-top: 10px; border: 0; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(135deg, #5A1A1F, #3A0D16); color: #F6E7C1; font: 700 15px/1 var(--sra-body); }
+.sra-auth-primary:disabled { opacity: .6; cursor: wait; }
+.sra-auth-link { margin-top: 8px; border: 0; background: none; color: var(--sra-gold-deep); cursor: pointer; font: 600 13px/1.4 var(--sra-body); }
+.sra-auth-msg { min-height: 20px; margin: 10px 0 0; font-size: 13px; color: #B42318; }
+.sra-auth-msg.ok { color: #1E7A46; }
+.sra-auth-note { margin: 6px 0 0; font-size: 12px; color: var(--sra-muted); line-height: 1.5; }

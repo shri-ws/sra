@@ -88,6 +88,9 @@ SERVICE_CATALOG: Dict[str, Dict[str, Any]] = {
     "consultation_gurukul":    {"price": 24000, "rate": 30, "name": "1-वर्षीय गुरुकुल कोर्स"},
     "astrologer_saas":         {"price": 5100,  "rate": 66, "name": "ज्योतिषी SaaS (पहला वर्ष)"},
     "astrologer_saas_renewal": {"price": 5100,  "rate": 30, "name": "ज्योतिषी SaaS (नवीनीकरण)"},
+    # Monthly plan (24 Nov 2026): Razorpay Subscription with autopay, INR only; 30% to the
+    # Sutradhar on every monthly payment. Bought only through /saas/monthly/start, never as an order.
+    "astrologer_saas_monthly": {"price": 499,   "rate": 30, "name": "ज्योतिषी SaaS (मासिक)"},
 }
 
 # Older ids still sent by some pages
@@ -1059,6 +1062,8 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
     item = SERVICE_CATALOG.get(sid)
     if not item:
         raise HTTPException(status_code=400, detail=f"अज्ञात सेवा: {service_id}")
+    if sid == "astrologer_saas_monthly":
+        raise HTTPException(status_code=400, detail="मासिक सदस्यता autopay से ही ली जाती है।")
     base_price = int(item["price"])
     gst_inclusive = commission_for_payment(sid, base_price * 100)
     base = {
@@ -1541,6 +1546,8 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
 
     # A2: Strict event check
     event = payload.get("event")
+    if isinstance(event, str) and event.startswith("subscription."):
+        return handle_saas_subscription_event(event, payload)
     if event != "payment.captured":
         return {"status": "ignored", "event": event, "message": "Only payment.captured events are processed."}
 
@@ -2263,7 +2270,9 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
 SAAS_MAX_DEVICES = 2
 SAAS_SUBSCRIPTION_DAYS = 365
 SAAS_SERVICE_IDS = ("astrologer_saas", "astrologer_saas_renewal")
-SAAS_NOT_UNLOCKABLE = ("consultation_acharya", "consultation_yearly", "consultation_gurukul") + SAAS_SERVICE_IDS
+SAAS_MONTHLY_SERVICE_ID = "astrologer_saas_monthly"
+SAAS_NOT_UNLOCKABLE = ("consultation_acharya", "consultation_yearly", "consultation_gurukul",
+                       SAAS_MONTHLY_SERVICE_ID) + SAAS_SERVICE_IDS
 INVALID_CODE_MESSAGE = "कोड अमान्य है।"
 
 
@@ -2312,6 +2321,278 @@ def extend_saas_subscription(phone: str, name: str = "", days: int = SAAS_SUBSCR
         SutradharStore.set_doc("saas_subscribers", phone, sub)
     log_audit_event("SAAS_SUBSCRIPTION_EXTENDED", phone, {"days": days, "source": source, "expires_at": sub["expires_at"]})
     return sub
+
+
+# -----------------------------------------------------------------------------
+# ASTROLOGER SaaS — MONTHLY PLAN (24 Nov 2026): ₹499 a month by Razorpay Subscription
+# (UPI AutoPay / card / e-mandate). Rules decided by the owner:
+# - the subscriber must be signed in by OTP: the subscription belongs to that phone
+# - every paid month opens the membership until the end of that month + 3 days of grace
+#   (Razorpay retries a failed charge in that time; if it still fails, access ends)
+# - the Sutradhar who held the lead when the plan started gets 30% of every monthly
+#   payment without GST (₹126), for as long as the plan runs
+# - the member can cancel from the desk: no further charge, the paid month runs out
+# The plan id comes from env RAZORPAY_SAAS_MONTHLY_PLAN_ID, or is made once and saved.
+# -----------------------------------------------------------------------------
+SAAS_MONTHLY_COL = "saas_monthly"
+SAAS_MONTHLY_PRICE = int(SERVICE_CATALOG[SAAS_MONTHLY_SERVICE_ID]["price"])
+SAAS_MONTHLY_GRACE_DAYS = 3
+SAAS_MONTHLY_TOTAL_COUNT = 60          # Razorpay needs a count: 60 months, renewable
+
+
+def _rzp_client():
+    import razorpay
+    return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+
+
+def saas_monthly_plan_id() -> str:
+    env_id = (os.environ.get("RAZORPAY_SAAS_MONTHLY_PLAN_ID") or "").strip()
+    if env_id:
+        return env_id
+    saved = SutradharStore.get_doc("settings", "razorpay_plans") or {}
+    key = f"saas_monthly_{SAAS_MONTHLY_PRICE}"
+    if saved.get(key):
+        return saved[key]
+    plan = _rzp_client().plan.create({
+        "period": "monthly", "interval": 1,
+        "item": {"name": "Shri Ramji Astro ज्योतिषी सदस्यता (मासिक)", "amount": SAAS_MONTHLY_PRICE * 100,
+                 "currency": "INR", "description": "Patrika app astrologer membership, monthly autopay"},
+        "notes": {"service_id": SAAS_MONTHLY_SERVICE_ID},
+    })
+    saved[key] = plan["id"]
+    SutradharStore.set_doc("settings", "razorpay_plans", saved)
+    log_audit_event("SAAS_MONTHLY_PLAN_CREATED", "system", {"plan_id": plan["id"]})
+    return plan["id"]
+
+
+def _lead_for(phone: str, ref_code: Optional[str], now: datetime) -> Optional[Dict[str, Any]]:
+    """The Sutradhar lead that a purchase by this phone counts for (same rule as one-time orders)."""
+    for l in SutradharStore.query_all("leads"):
+        if l.get("customer_phone") == phone and l.get("status") in ("active", "converted"):
+            try:
+                if datetime.fromisoformat(l["expires_at"]) > now:
+                    return l
+            except Exception:
+                continue
+    return lead_from_link(phone, ref_code, now) if ref_code else None
+
+
+def _set_monthly_summary(m: Dict[str, Any]) -> Dict[str, Any]:
+    """Show the plan's state on the member's record without changing the expiry."""
+    return saas_grant_until(m["phone"], m.get("name", ""), datetime(2000, 1, 1, tzinfo=timezone.utc),
+                            source="", monthly=_monthly_summary(m))
+
+
+def saas_grant_until(phone: str, name: str, until: datetime, source: str, sutradhar_id: str = "",
+                     monthly: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Open the membership at least until `until` (never shortens a longer yearly expiry)."""
+    now = datetime.now(timezone.utc)
+    with _store_lock:
+        sub = get_saas_subscriber(phone) or {
+            "phone": phone, "name": name or "", "devices": [], "created_at": now.isoformat(), "history": []}
+        try:
+            current = datetime.fromisoformat(sub["expires_at"]) if sub.get("expires_at") else now
+        except Exception:
+            current = now
+        changed = until > current
+        if changed:
+            sub["expires_at"] = until.isoformat()
+            sub.setdefault("history", []).append({"at": now.isoformat(), "until": until.isoformat(), "source": source})
+        if changed:
+            sub["status"] = "active"
+        if name and not sub.get("name"):
+            sub["name"] = name
+        if sutradhar_id and not sub.get("sold_by_sutradhar"):
+            sub["sold_by_sutradhar"] = sutradhar_id
+        if monthly is not None:
+            sub["monthly"] = monthly
+        sub["updated_at"] = now.isoformat()
+        SutradharStore.set_doc("saas_subscribers", phone, sub)
+    if changed:
+        log_audit_event("SAAS_SUBSCRIPTION_EXTENDED", phone, {"until": until.isoformat(), "source": source})
+    return sub
+
+
+def _monthly_summary(m: Dict[str, Any]) -> Dict[str, Any]:
+    return {"subscription_id": m.get("id"), "status": m.get("status"), "paid_until": m.get("paid_until", ""),
+            "price": SAAS_MONTHLY_PRICE, "payments": len(m.get("payments", [])),
+            "cancel_requested": bool(m.get("cancel_requested_at"))}
+
+
+def _monthly_for_phone(phone: str) -> Optional[Dict[str, Any]]:
+    rows = [m for m in SutradharStore.query_all(SAAS_MONTHLY_COL) if m.get("phone") == phone]
+    rows.sort(key=lambda m: m.get("created_at", ""), reverse=True)
+    live = [m for m in rows if m.get("status") in ("active", "authenticated", "pending", "created")]
+    return (live or rows or [None])[0]
+
+
+def _record_monthly_payment(m: Dict[str, Any], payment_id: str, amount_paise: int,
+                            period_end: Optional[datetime], source: str) -> bool:
+    """Open access for one paid month and pay the Sutradhar 30%. Safe to call twice."""
+    now = datetime.now(timezone.utc)
+    if payment_id in (m.get("payments") or []):
+        return False
+    if amount_paise != SAAS_MONTHLY_PRICE * 100:
+        log_audit_event("SAAS_MONTHLY_AMOUNT_MISMATCH", m.get("phone", ""), {
+            "subscription_id": m.get("id"), "payment_id": payment_id, "amount_paise": amount_paise})
+        return False
+    paid_until = period_end or (now + timedelta(days=30))
+    m.setdefault("payments", []).append(payment_id)
+    m["paid_until"] = max(m.get("paid_until") or "", paid_until.isoformat())
+    m["last_paid_at"] = now.isoformat()
+    if m.get("status") in ("created", "authenticated", "pending", None, ""):
+        m["status"] = "active"
+    SutradharStore.set_doc(SAAS_MONTHLY_COL, m["id"], m)
+    saas_grant_until(m["phone"], m.get("name", ""), paid_until + timedelta(days=SAAS_MONTHLY_GRACE_DAYS),
+                     source=f"{source}:{payment_id}", sutradhar_id=m.get("sutradhar_id", ""),
+                     monthly=_monthly_summary(m))
+
+    sutradhar_id, lead_id = m.get("sutradhar_id"), m.get("lead_id")
+    if not sutradhar_id or not lead_id:
+        return True
+    calc = commission_for_payment(SAAS_MONTHLY_SERVICE_ID, amount_paise)
+    if calc["commission"] <= 0:
+        return True
+    comm_id = f"comm_{payment_id}"
+    created = SutradharStore.create_doc_if_not_exists("commissions", comm_id, {
+        "id": comm_id, "commission_id": comm_id, "lead_id": lead_id, "payment_id": payment_id,
+        "order_id": m["id"], "subscription_id": m["id"], "sutradhar_id": sutradhar_id,
+        "customer_phone": m["phone"], "product": SAAS_MONTHLY_SERVICE_ID,
+        "product_name": SERVICE_CATALOG[SAAS_MONTHLY_SERVICE_ID]["name"],
+        "order_amount": amount_paise / 100, "amount_excl_gst": calc["amount_excl_gst"],
+        "gst_amount": calc["gst_amount"], "rate_percent": calc["rate_percent"], "amount": calc["commission"],
+        "status": "created", "paid_on": now.astimezone(IST).date().isoformat(),
+        "payout_due_date": payout_due_date_for(now), "retry_count": 0, "failure_reason": None,
+        "utr": None, "created_at": now.isoformat()})
+    if created:
+        log_audit_event("COMMISSION_CREATED", sutradhar_id, {
+            "commission_id": comm_id, "payment_id": payment_id, "amount": calc["commission"],
+            "service_id": SAAS_MONTHLY_SERVICE_ID})
+        lead = SutradharStore.get_doc("leads", lead_id)
+        if lead and lead.get("status") != "converted":
+            lead.update({"status": "converted", "converted_at": now.isoformat(), "order_id": m["id"],
+                         "payment_id": payment_id})
+            SutradharStore.set_doc("leads", lead_id, lead)
+        if payout_mode() != "manual":
+            try:
+                asyncio.create_task(process_pending_payouts())
+            except Exception:
+                pass
+    return True
+
+
+def handle_saas_subscription_event(event: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Razorpay subscription.* webhooks (signature already checked by the caller)."""
+    sub_entity = (payload.get("payload", {}).get("subscription", {}) or {}).get("entity", {}) or {}
+    sub_id = sub_entity.get("id")
+    m = SutradharStore.get_doc(SAAS_MONTHLY_COL, sub_id) if sub_id else None
+    if not m:
+        log_audit_event("SAAS_MONTHLY_UNKNOWN_SUBSCRIPTION", "system", {"event": event, "subscription_id": sub_id})
+        return {"status": "ignored", "message": "Subscription not found"}
+    rzp_status = sub_entity.get("status") or ""
+    if event == "subscription.charged":
+        pay = (payload.get("payload", {}).get("payment", {}) or {}).get("entity", {}) or {}
+        end = sub_entity.get("current_end")
+        period_end = datetime.fromtimestamp(int(end), tz=timezone.utc) if end else None
+        if rzp_status:
+            m["status"] = rzp_status
+        done = _record_monthly_payment(m, pay.get("id", ""), int(pay.get("amount", 0)), period_end, "rzp_sub")
+        return {"status": "success" if done else "ignored_duplicate", "subscription_id": sub_id}
+    # activated / authenticated / pending / halted / cancelled / completed / paused / resumed
+    m["status"] = rzp_status or event.split(".", 1)[1]
+    m.setdefault("events", []).append({"at": datetime.now(timezone.utc).isoformat(), "event": event})
+    m["events"] = m["events"][-20:]
+    SutradharStore.set_doc(SAAS_MONTHLY_COL, sub_id, m)
+    _set_monthly_summary(m)
+    log_audit_event("SAAS_MONTHLY_STATUS", m["phone"], {"subscription_id": sub_id, "event": event, "status": m["status"]})
+    return {"status": "success", "subscription_id": sub_id, "subscription_status": m["status"]}
+
+
+class SaasMonthlyStartRequest(BaseModel):
+    name: Optional[str] = Field("", description="Astrologer's name")
+    ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
+
+
+class SaasMonthlyVerifyRequest(BaseModel):
+    razorpay_payment_id: str
+    razorpay_subscription_id: str
+    razorpay_signature: str
+
+
+def _signed_in_phone(authorization: Optional[str]) -> str:
+    phone = get_authenticated_customer_phone(authorization)
+    if not phone or len(phone) != 10:
+        raise HTTPException(status_code=401, detail="पहले अपने मोबाइल नंबर से OTP लॉगिन करें। सदस्यता इसी नंबर पर चलेगी।")
+    return phone
+
+
+@router.post("/saas/monthly/start")
+async def saas_monthly_start(req: SaasMonthlyStartRequest, authorization: Optional[str] = Header(None)):
+    """Make a Razorpay subscription for the signed-in phone; the page opens checkout with its id."""
+    phone = _signed_in_phone(authorization)
+    now = datetime.now(timezone.utc)
+    current = _monthly_for_phone(phone)
+    if current and current.get("status") in ("active", "authenticated") and not current.get("cancel_requested_at"):
+        raise HTTPException(status_code=409, detail="इस नंबर पर मासिक सदस्यता पहले से चालू है।")
+    lead = _lead_for(phone, req.ref_code, now)
+    notes = {"service_id": SAAS_MONTHLY_SERVICE_ID, "customer_phone": phone,
+             "sutradhar_id": (lead or {}).get("sutradhar_id", ""), "lead_id": (lead or {}).get("id", "")}
+    try:
+        rzp = _rzp_client().subscription.create({
+            "plan_id": saas_monthly_plan_id(), "total_count": SAAS_MONTHLY_TOTAL_COUNT,
+            "quantity": 1, "customer_notify": 1, "notes": notes})
+        sub_id = rzp["id"]
+    except Exception as e:
+        if not _is_test_env():
+            logger.error(f"[Razorpay] subscription create failed: {e}")
+            raise HTTPException(status_code=502, detail="मासिक सदस्यता शुरू नहीं हो सकी। थोड़ी देर बाद फिर प्रयास करें।")
+        sub_id = f"sub_test_{int(now.timestamp())}_{os.urandom(3).hex()}"
+    SutradharStore.set_doc(SAAS_MONTHLY_COL, sub_id, {
+        "id": sub_id, "phone": phone, "name": (req.name or "").strip()[:80], "status": "created",
+        "sutradhar_id": notes["sutradhar_id"], "lead_id": notes["lead_id"], "payments": [],
+        "created_at": now.isoformat()})
+    log_audit_event("SAAS_MONTHLY_CREATED", phone, {"subscription_id": sub_id, "sutradhar_id": notes["sutradhar_id"]})
+    return {"status": "success", "subscription_id": sub_id, "key_id": RAZORPAY_KEY_ID,
+            "price": SAAS_MONTHLY_PRICE, "phone": phone}
+
+
+@router.post("/saas/monthly/verify")
+async def saas_monthly_verify(req: SaasMonthlyVerifyRequest, authorization: Optional[str] = Header(None)):
+    """Checkout success: check Razorpay's signature and open the first month at once
+    (the subscription.charged webhook records the same payment again without double counting)."""
+    phone = _signed_in_phone(authorization)
+    m = SutradharStore.get_doc(SAAS_MONTHLY_COL, req.razorpay_subscription_id)
+    if not m or m.get("phone") != phone:
+        raise HTTPException(status_code=404, detail="सदस्यता नहीं मिली।")
+    expected = hmac.new(RAZORPAY_KEY_SECRET.encode(),
+                        f"{req.razorpay_payment_id}|{req.razorpay_subscription_id}".encode(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected, req.razorpay_signature) and not (
+            _is_test_env() and req.razorpay_signature == "test_signature_bypass"):
+        log_audit_event("SAAS_MONTHLY_BAD_SIGNATURE", phone, {"subscription_id": m["id"]})
+        raise HTTPException(status_code=400, detail="भुगतान की पुष्टि नहीं हो सकी।")
+    _record_monthly_payment(m, req.razorpay_payment_id, SAAS_MONTHLY_PRICE * 100, None, "checkout")
+    sub = get_saas_subscriber(phone) or {}
+    return {"status": "success", "expires_at": sub.get("expires_at", ""), "monthly": _monthly_summary(m)}
+
+
+@router.post("/saas/monthly/cancel")
+async def saas_monthly_cancel(authorization: Optional[str] = Header(None)):
+    """Stop future charges; the month already paid for keeps running."""
+    phone = _signed_in_phone(authorization)
+    m = _monthly_for_phone(phone)
+    if not m or m.get("status") in ("cancelled", "completed", "halted") or m.get("cancel_requested_at"):
+        raise HTTPException(status_code=404, detail="इस नंबर पर कोई चालू मासिक सदस्यता नहीं है।")
+    try:
+        _rzp_client().subscription.cancel(m["id"], {"cancel_at_cycle_end": 1})
+    except Exception as e:
+        if not _is_test_env():
+            logger.error(f"[Razorpay] subscription cancel failed: {e}")
+            raise HTTPException(status_code=502, detail="रद्द नहीं हो सका। थोड़ी देर बाद फिर प्रयास करें या WhatsApp करें।")
+    m["cancel_requested_at"] = datetime.now(timezone.utc).isoformat()
+    SutradharStore.set_doc(SAAS_MONTHLY_COL, m["id"], m)
+    sub = _set_monthly_summary(m)
+    log_audit_event("SAAS_MONTHLY_CANCEL_REQUESTED", phone, {"subscription_id": m["id"]})
+    return {"status": "success", "access_until": sub.get("expires_at", ""), "monthly": _monthly_summary(m)}
 
 
 class SaasRedeemRequest(BaseModel):
@@ -2838,7 +3119,8 @@ def desk_access(phone: str) -> Dict[str, Any]:
         return {"allowed": True, "phone": phone, "plan": "owner", "name": "श्री राम जी एस्ट्रो", "expires_at": ""}
     sub = get_saas_subscriber(phone)
     if saas_is_active(sub):
-        return {"allowed": True, "phone": phone, "plan": "saas", "name": sub.get("name", ""), "expires_at": sub.get("expires_at", "")}
+        return {"allowed": True, "phone": phone, "plan": "saas", "name": sub.get("name", ""), "expires_at": sub.get("expires_at", ""),
+                "monthly": sub.get("monthly")}
     return {"allowed": False, "phone": phone, "plan": "", "name": (sub or {}).get("name", ""),
             "expires_at": (sub or {}).get("expires_at", ""),
             "reason": "expired" if sub else "no_subscription"}
@@ -3049,6 +3331,7 @@ def _saas_view(sub: Dict[str, Any], usage: List[Dict[str, Any]]) -> Dict[str, An
         "sold_by_sutradhar": sub.get("sold_by_sutradhar", ""), "last_used_at": sub.get("last_used_at"),
         "uses_this_month": len(month_uses), "uses_total": len(mine), "uses_by_service_this_month": by_service,
         "history": sub.get("history", [])[-10:], "note": sub.get("note", ""),
+        "monthly": sub.get("monthly"),
     }
 
 

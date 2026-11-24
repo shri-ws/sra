@@ -513,6 +513,7 @@
         <span style="font-size:0.75rem; color:var(--muted);">कंसल्टेंट ID:</span>
         <b id="consultant-phone">—</b> <span id="consultant-plan" style="font-size:0.72rem; color:var(--muted);"></span>
       </div>
+      <button class="btn btn-outline btn-sm" id="monthly-cancel" style="display:none" onclick="cancelMonthly()" title="₹499 मासिक autopay बंद करें">मासिक autopay रद्द करें</button>
       <button class="btn btn-outline btn-sm" onclick="toggleTheme()" title="दिन/रात्रि मोड">थीम</button>
       <a href="index.html" class="btn btn-outline btn-sm">वेबसाइट</a>
     </div>
@@ -789,9 +790,33 @@
       consultantPhone = me.phone;
       document.getElementById('desk-lock').style.display = 'none';
       document.getElementById('consultant-phone').textContent = '+91 ' + me.phone;
-      document.getElementById('consultant-plan').textContent = me.plan === 'owner' ? 'मुख्य खाता'
-        : ('सदस्यता ' + (me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') + ' तक' : 'चालू'));
+      showPlan(me);
       loadClientsForConsultant();
+    }
+
+    // Plan line in the header; a running ₹499 monthly plan gets a cancel button (24 Nov 2026)
+    function showPlan(me) {
+      const m = me.monthly;
+      const until = me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') : '';
+      let t = me.plan === 'owner' ? 'मुख्य खाता' : ('सदस्यता ' + (until ? until + ' तक' : 'चालू'));
+      const running = m && ['active', 'authenticated', 'pending'].includes(m.status) && !m.cancel_requested;
+      if (m && me.plan !== 'owner') t += running ? ' · मासिक ₹499 autopay चालू' : (m.cancel_requested ? ' · मासिक autopay रद्द, आगे पैसा नहीं कटेगा' : '');
+      document.getElementById('consultant-plan').textContent = t;
+      document.getElementById('monthly-cancel').style.display = running ? '' : 'none';
+    }
+
+    async function cancelMonthly() {
+      if (!confirm('मासिक ₹499 autopay बंद करें?\n\nआगे से पैसा नहीं कटेगा। जिस महीने का भुगतान हो चुका है, वह पूरा चलेगा, उसके बाद डेस्क और रिपोर्ट बंद हो जाएँगी।')) return;
+      const btn = document.getElementById('monthly-cancel');
+      btn.disabled = true;
+      try {
+        await deskFetch('/../saas/monthly/cancel', { method: 'POST' });   // = /api/sutradhar/saas/monthly/cancel
+        const me = await deskFetch('/me');
+        showPlan(me);
+        alert('मासिक autopay रद्द हो गया। सदस्यता ' + (me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') : '') + ' तक चलेगी।');
+      } catch (e) {
+        alert(e.message || 'रद्द नहीं हो सका। WhatsApp करें।');
+      } finally { btn.disabled = false; }
     }
 
     function lockDesk(kind, me, msg) {
@@ -799,7 +824,7 @@
       const wa = 'https://wa.me/919517117775?text=' + encodeURIComponent('नमस्ते, मुझे ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्यता के बारे में जानना है।');
       const body = {
         login: `<h2>कंसल्टेंट डेस्क</h2><p>यह डेस्क ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्यों के लिए है। अपने उसी मोबाइल नंबर से OTP लॉगिन करें जिस पर सदस्यता ली है।</p>
-               <button class="btn btn-primary" onclick="window.SRAAuth && SRAAuth.open()">मोबाइल से लॉगिन करें</button>`,
+               <button class="btn btn-primary" onclick="window.SRAAuth && SRAAuth.open({ force: true })">मोबाइल से लॉगिन करें</button>`,
         nosub: `<h2>सदस्यता आवश्यक</h2><p>आपका नंबर +91 ${esc(me && me.phone)} अभी ज्योतिषी सॉफ़्टवेयर (SaaS) सदस्य नहीं है। सदस्यता लेते ही यह डेस्क और सारी रिपोर्ट्स आपके नंबर पर खुल जाएँगी।</p>
                <a class="btn btn-primary" href="${wa}" target="_blank" rel="noopener">सदस्यता के लिए संपर्क करें</a>`,
         expired: `<h2>सदस्यता समाप्त</h2><p>+91 ${esc(me && me.phone)} की सदस्यता ${me && me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') + ' को' : ''} समाप्त हो गई है। आपके क्लाइंट और उपाय सुरक्षित हैं — नवीनीकरण होते ही डेस्क फिर खुल जाएगी।</p>
