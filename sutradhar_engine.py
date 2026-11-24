@@ -85,7 +85,8 @@ SERVICE_CATALOG: Dict[str, Dict[str, Any]] = {
     "patrika_vahan":           {"price": 501,   "rate": 66, "name": "वाहन एवं जनबल रिपोर्ट"},
     "consultation_acharya":    {"price": 5100,  "rate": 0,  "name": "दैवज्ञ 1-on-1 परामर्श"},
     "consultation_yearly":     {"price": 5100,  "rate": 0,  "name": "व्यक्तिगत परामर्श (1 वर्ष)"},
-    "consultation_gurukul":    {"price": 24000, "rate": 30, "name": "1-वर्षीय गुरुकुल कोर्स"},
+    "consultation_gurukul":    {"price": 24000, "rate": 30, "name": "1-वर्षीय वैदिक कोर्स (भारतीय बैच)"},
+    "course_global_eleven":    {"price": 94600, "rate": 30, "name": "The Global Eleven | 1-Year Classical Immersion"},
     "astrologer_saas":         {"price": 5100,  "rate": 66, "name": "ज्योतिषी SaaS (पहला वर्ष)"},
     "astrologer_saas_renewal": {"price": 5100,  "rate": 30, "name": "ज्योतिषी SaaS (नवीनीकरण)"},
     # Monthly plan (24 Nov 2026): Razorpay Subscription with autopay, INR only; 30% to the
@@ -103,6 +104,8 @@ SERVICE_ALIASES: Dict[str, str] = {
     "gun_milan": "gun_milan_manglik",
     "saas_annual": "astrologer_saas",
     "gurukul_course": "consultation_gurukul",
+    "global_eleven": "course_global_eleven",
+    "batch_global_eleven": "course_global_eleven",
 }
 
 CATALOG_PRICES: Dict[str, int] = {k: v["price"] for k, v in SERVICE_CATALOG.items()}
@@ -115,7 +118,7 @@ CATALOG_PRICES: Dict[str, int] = {k: v["price"] for k, v in SERVICE_CATALOG.item
 # USD_INR_RATE (international cards can still pay rupees). Commission is worked out on the
 # rupee value of the payment at the rate saved on the order.
 # -----------------------------------------------------------------------------
-USD_PRICE_BY_INR: Dict[int, int] = {501: 11, 1101: 21, 1111: 21, 1551: 31, 2100: 41, 5100: 101, 24000: 451}
+USD_PRICE_BY_INR: Dict[int, int] = {501: 11, 1101: 21, 1111: 21, 1551: 31, 2100: 41, 5100: 101, 24000: 451, 94600: 1111}
 SUPPORTED_CURRENCIES = {"INR", "USD"}
 
 
@@ -1192,17 +1195,32 @@ async def get_service_catalog():
 # paid + held seats reach the limit. A payment that still lands on a full batch is refunded.
 # =============================================================================
 COURSE_SERVICE_ID = "consultation_gurukul"
+GLOBAL_ELEVEN_SERVICE_ID = "course_global_eleven"
 COURSE_START_DATE = "2027-03-11"
 COURSE_HOLD_MINUTES = 20
 COURSE_BATCHES = {
-    "batch_morning": {"name": "फ़ाउंडेशन एस्ट्रोलॉजिकल बैच", "name_en": "Foundation Astrological Batch", "seats": 11},
-    "batch_evening": {"name": "मास्टर एस्ट्रोलॉजिकल बैच (रिसर्च — पहले से ज्योतिष का ज्ञान आवश्यक)", "name_en": "Master Astrological Batch (Research — previous astrology knowledge required)", "seats": 11},
+    "batch_global_eleven": {
+        "name": "The Global Eleven (इंटरनेशनल वैदिक बैच)",
+        "name_en": "The Global Eleven — 1-Year Classical Immersion",
+        "seats": 11,
+        "price": 94600,
+        "price_usd": 1111,
+        "service_id": "course_global_eleven",
+    },
+    "batch_indian": {
+        "name": "भारतीय शास्त्रीय वैदिक बैच",
+        "name_en": "Indian Classical Vedic Batch",
+        "seats": 11,
+        "price": 24000,
+        "price_usd": 451,
+        "service_id": "consultation_gurukul",
+    },
 }
 _course_lock = threading.Lock()
 
 
 def course_registration_opens() -> str:
-    return (os.environ.get("COURSE_REGISTRATION_OPENS") or "2026-12-26").strip()
+    return (os.environ.get("COURSE_REGISTRATION_OPENS") or "2026-11-20").strip()
 
 
 def course_registration_open() -> bool:
@@ -1232,12 +1250,16 @@ def course_seat_counts() -> Dict[str, Dict[str, int]]:
 
 def hold_course_seat(batch_id: str, phone: str, name: str) -> str:
     """Reserves one seat for this phone (replacing its earlier hold) or refuses when the batch is full."""
+    if batch_id in ("batch_morning", "batch_evening"):
+        batch_id = "batch_indian"
+    if not batch_id:
+        batch_id = "batch_global_eleven"
     if batch_id not in COURSE_BATCHES:
-        raise HTTPException(status_code=400, detail="कृपया बैच चुनें: फ़ाउंडेशन या मास्टर।")
+        raise HTTPException(status_code=400, detail="कृपया मान्य बैच चुनें: The Global Eleven या भारतीय शास्त्रीय बैच।")
     if not course_registration_open():
-        raise HTTPException(status_code=403, detail="कोर्स का पंजीकरण 26 दिसंबर 2026 से खुलेगा।")
-    if len(phone) != 10 or phone == "9999999999":
-        raise HTTPException(status_code=400, detail="सीट पक्की करने के लिए अपना 10 अंकों का मोबाइल नंबर दें।")
+        raise HTTPException(status_code=403, detail="कोर्स का पंजीकरण जल्द शुरू होगा।")
+    if len(phone) < 7 or phone == "9999999999":
+        raise HTTPException(status_code=400, detail="सीट पक्की करने के लिए अपना सही मोबाइल नंबर दें।")
     now = datetime.now(timezone.utc)
     with _course_lock:
         seats = SutradharStore.query_all("course_seats")
@@ -1385,7 +1407,7 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
     net_paise = net_price * 100
     is_test_order = bool(quote.get("is_test"))
     seat_id = ""
-    if service_id == COURSE_SERVICE_ID:
+    if service_id in (COURSE_SERVICE_ID, GLOBAL_ELEVEN_SERVICE_ID):
         seat_phone = effective_phone if effective_phone != "9999999999" else (body_phone or "")
         seat_id = hold_course_seat((req.batch_id or "").strip(), seat_phone, req.customer_name or "")
         effective_phone = seat_phone
@@ -1625,7 +1647,7 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     SutradharStore.set_doc("orders", order_id, order)
 
     # Course: the held seat becomes paid, or the payment is refunded if the batch is already full
-    if order.get("seat_id") or resolve_service_id(order.get("service_id", "")) == COURSE_SERVICE_ID:
+    if order.get("seat_id") or resolve_service_id(order.get("service_id", "")) in (COURSE_SERVICE_ID, GLOBAL_ELEVEN_SERVICE_ID):
         res = confirm_course_seat(order, payment_id, captured_paise)
         if not res["ok"]:
             order["status"] = "refunded_batch_full"
@@ -3494,11 +3516,14 @@ async def course_batches():
     counts = course_seat_counts()
     batches = []
     for bid, b in COURSE_BATCHES.items():
-        taken = counts[bid]["paid"] + counts[bid]["held"]
+        taken = counts.get(bid, {}).get("paid", 0) + counts.get(bid, {}).get("held", 0)
         batches.append({"id": bid, "name": b["name"], "name_en": b["name_en"], "seats": b["seats"],
-                        "taken": taken, "left": max(0, b["seats"] - taken), "full": taken >= b["seats"]})
+                        "taken": taken, "left": max(0, b["seats"] - taken), "full": taken >= b["seats"],
+                        "price": b.get("price", 24000), "price_usd": b.get("price_usd", 451),
+                        "service_id": b.get("service_id", COURSE_SERVICE_ID)})
     return {"start_date": COURSE_START_DATE, "registration_opens": course_registration_opens(),
             "registration_open": course_registration_open(), "price": SERVICE_CATALOG[COURSE_SERVICE_ID]["price"],
+            "price_global_usd": 1111, "price_global_inr": 94600,
             "hold_minutes": COURSE_HOLD_MINUTES, "batches": batches}
 
 

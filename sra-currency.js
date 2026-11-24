@@ -8,7 +8,7 @@
   if (window.SRACurrency) return;
   var KEY = 'sra_currency';
   // rupee price -> dollar price (keep in step with USD_PRICE_BY_INR in sutradhar_engine.py)
-  var USD = { 501: 11, 1101: 21, 1111: 21, 1551: 31, 2100: 41, 5100: 101, 24000: 451 };
+  var USD = { 501: 11, 1101: 21, 1111: 21, 1551: 31, 2100: 41, 5100: 101, 24000: 451, 94600: 1111 };
   // pages for Sutradhars, the team and donations stay in rupees
   var SKIP = /(sutradhar|admin|donate|careers|consultant|sankalp|lab|terms|privacy|saas-demo|jyotishi)[^/]*$/i;
   var skipPage = SKIP.test(location.pathname);

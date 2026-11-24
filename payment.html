@@ -287,15 +287,47 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
   <div class="section">
     <div class="section-label">① Choose Your Plan</div>
     <div class="section-body">
-      <div class="plan active" id="p-course" onclick="pick('course',24000,32000,'1-Year Vedic Astrology Program')">
+      <!-- PLAN 1: The Global Eleven (International Immersion) -->
+      <div class="plan" id="p-global" onclick="pick('global_eleven',94600,128000,'The Global Eleven | 1-Year Classical Immersion')">
         <div class="plan-dot"></div>
         <div class="plan-text">
-          <div class="plan-name">📚 1-Year Astrology Program</div>
-          <div class="plan-sub">48 Live Classes · Recordings · Certificate · Forum Access</div>
+          <div class="plan-name">🌐 The Global Eleven (2027 Cohort)</div>
+          <div class="plan-sub">11 Scholars Worldwide · Strictly 1 Seat Per Nation · English · D1–D60 Mastery</div>
+          <div class="plan-emi">🇺🇸 🇬🇧 🇨🇦 🇦🇺 🇩🇪 🇫🇷 🇪🇸 🇷🇺 🇦🇪 🇸🇬 🇯🇵</div>
+        </div>
+        <div class="plan-price"><span class="plan-amt">$1,111</span><span class="plan-orig">$1,500</span></div>
+        <div class="badge" style="background:#b8860b; color:#fff;">Exclusive</div>
+      </div>
+      
+      <div id="countryBox" style="display:none; margin:4px 0 14px; padding:14px 16px; border:2px solid #b8860b; border-radius:10px; background:rgba(184,134,11,0.06);">
+        <div style="font-weight:800; color:#0f172a; margin-bottom:4px;">Select Sovereign Country Representation</div>
+        <div style="font-size:12.5px; color:#475569; margin-bottom:10px;">Strictly 1 Scholar Per Nation (First-Come, First-Served). Once confirmed, admissions for your country close.</div>
+        <select id="sovereignCountry" style="width:100%; padding:10px 12px; border:1.5px solid #b8860b; border-radius:8px; font-size:14px; background:#fff; font-weight:700; color:#0f172a;">
+          <option value="US">🇺🇸 United States (Seat 1)</option>
+          <option value="UK">🇬🇧 United Kingdom (Seat 2)</option>
+          <option value="CA">🇨🇦 Canada (Seat 3)</option>
+          <option value="AU">🇦🇺 Australia (Seat 4)</option>
+          <option value="DE">🇩🇪 Germany (Seat 5)</option>
+          <option value="FR">🇫🇷 France (Seat 6)</option>
+          <option value="ES">🇪🇸 Spain (Seat 7)</option>
+          <option value="RU">🇷🇺 Russia (Seat 8)</option>
+          <option value="AE">🇦🇪 United Arab Emirates (Seat 9)</option>
+          <option value="SG">🇸🇬 Singapore (Seat 10)</option>
+          <option value="JP">🇯🇵 Japan (Seat 11)</option>
+          <option value="OTHER">🌍 Other Sovereign Nation (Sovereign Allocation Waitlist)</option>
+        </select>
+      </div>
+
+      <!-- PLAN 2: Indian Classical Batch -->
+      <div class="plan active" id="p-course" onclick="pick('course',24000,32000,'1-Year Vedic Astrology Program (भारतीय बैच)')">
+        <div class="plan-dot"></div>
+        <div class="plan-text">
+          <div class="plan-name">📚 भारतीय शास्त्रीय वैदिक बैच</div>
+          <div class="plan-sub">48 लाइव कक्षाएं हिंदी में · BPHS · प्रमाण पत्र · फोरम एक्सेस</div>
           <div class="plan-emi">EMI 3–24 months · approx ₹1,000/month + bank interest</div>
         </div>
         <div class="plan-price"><span class="plan-amt">₹24,000</span><span class="plan-orig">₹32,000</span></div>
-        <div class="badge">Popular</div>
+        <div class="badge">National</div>
       </div>
       <div id="batchBox" style="margin:4px 0 14px; padding:14px 16px; border:1px solid var(--border); border-radius:10px;">
         <div style="font-weight:700; margin-bottom:4px;">बैच चुनें (हर बैच में केवल 11 सीटें)</div>
@@ -461,15 +493,27 @@ async function dbPatch(table, filter, data) {
   } catch(e) { console.error('DB patch error',e); return false; }
 }
 
-let S={id:'course',name:'1-Year Astrology Program',base:24000,orig:32000,disc:0,total:0};
-const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+let S={id:'course',name:'1-Year Vedic Astrology Program (भारतीय बैच)',base:24000,orig:32000,disc:0,total:0};
+const isUSD = () => S.id === 'global_eleven' || (window.SRACurrency && SRACurrency.get() === 'USD') || new URLSearchParams(location.search).get('cur') === 'usd';
+const fmt = n => {
+  if (S.id === 'global_eleven' || isUSD()) {
+    if (S.id === 'global_eleven' || n === 94600) return '$1,111';
+    if (n === 24000) return '$451';
+    if (n === 5100) return '$101';
+  }
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+};
 
 function pick(id,base,orig,name){
   S={id,name,base,orig,disc:0,total:0};
   document.getElementById('coupon').value='';
   document.getElementById('couponStatus').textContent='';
-  ['course','consult'].forEach(p=>{ const el=document.getElementById('p-'+p); if(el) el.classList.toggle('active',p===id); });
-  const bb=document.getElementById('batchBox'); if(bb) bb.style.display = id==='course' ? '' : 'none';
+  ['global','course','consult'].forEach(p=>{ 
+    const el=document.getElementById('p-'+p); 
+    if(el) el.classList.toggle('active', (p==='global' && id==='global_eleven') || p===id); 
+  });
+  const cb=document.getElementById('countryBox'); if(cb) cb.style.display = id==='global_eleven' ? 'block' : 'none';
+  const bb=document.getElementById('batchBox'); if(bb) bb.style.display = id==='course' ? 'block' : 'none';
   updateSummary();
 }
 
@@ -645,11 +689,21 @@ async function pay(){
       modal:{ondismiss(){btn.disabled=false;btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>';}}
     };
 
-    // Amount, order and lead come from the server order (course: 30% Sutradhar commission; consultation: none)
+    // Amount, order and lead come from the server order
+    var sId = 'consultation_yearly';
+    var extraData = null;
+    if (S.id === 'global_eleven') {
+      sId = 'course_global_eleven';
+      extraData = { batch_id: 'batch_global_eleven', country: document.getElementById('sovereignCountry') ? document.getElementById('sovereignCountry').value : 'US' };
+    } else if (S.id === 'course') {
+      sId = 'consultation_gurukul';
+      extraData = { batch_id: window._courseBatch || 'batch_indian' };
+    }
+
     const order = await window.SraCouponEngine.checkoutWithOptions({
-      serviceId: S.id === 'course' ? 'consultation_gurukul' : 'consultation_yearly',
+      serviceId: sId,
       options: options, code: S.code || '', phone: phone, email: email, name: fname + ' ' + lname,
-      extra: S.id === 'course' ? { batch_id: window._courseBatch } : null
+      extra: extraData
     });
     if (S.id === 'course') loadCourseBatches();
     if (!order) { btn.disabled=false; btn.innerHTML='🔒 Pay Securely — <span id="btnAmt">'+fmt(S.total)+'</span>'; }
@@ -690,10 +744,13 @@ async function loadCourseBatches() {
 // Auto-fill and apply Sutradhar referral code if present in URL/Storage
 document.addEventListener('DOMContentLoaded', function() {
   loadCourseBatches();
-  // course.html links here with ?plan=course (default); ?plan=consult opens the consultation plan
-  if (new URLSearchParams(location.search).get('plan') === 'consult') { pick('consult',5100,0,'Personal Consultation (1 Year)'); return; }
+  const p = new URLSearchParams(location.search).get('plan');
+  if (p === 'global_eleven' || p === 'course_global') {
+    pick('global_eleven', 94600, 128000, 'The Global Eleven | 1-Year Classical Immersion');
+    return;
+  }
+  if (p === 'consult') { pick('consult',5100,0,'Personal Consultation (1 Year)'); return; }
   updateSummary();
-  // A Sutradhar's lead is attached by the server from the customer's mobile; no code to fill
 });
 </script>
 </body>
