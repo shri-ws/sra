@@ -895,7 +895,13 @@
           max-height: 90vh !important;
           overflow-y: auto !important;
         }
-        .modal-overlay.open .modal {
+        /* pages that show the overlay with style.display = 'flex' or .active (consultant desk,
+           about share box, careers) never add .open: the sheet must slide in for them too,
+           or it stays below the screen behind a dark backdrop and the page looks frozen */
+        .modal-overlay.open .modal,
+        .modal-overlay.active .modal,
+        .modal-overlay[style*="flex"] .modal,
+        .modal-overlay[style*="block"] .modal {
           transform: translateY(0) !important;
         }
         .bottom-sheet-handle {
