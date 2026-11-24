@@ -215,7 +215,8 @@
         <div class="dc-dev-body">
           ${d.mantras.map(m => `<p class="dc-mantra">${esc(m)}</p>${piece(d.name + ' — मंत्र', m, 'मंत्र जप', '108 बार (एक माला)')}`).join('')}
           ${d.stotras.map(s => `<details class="dc-stotra"><summary>${esc(s.name)}</summary><p class="dc-shloka">${esc(s.text)}</p>
-            ${piece(s.name, s.text, 'पाठ / स्तोत्र', '1 पाठ')}</details>`).join('')}
+            ${s.src ? `<p class="dc-muted dc-src">स्रोत: ${esc(s.src)}</p>` : ''}
+            ${piece(s.name, s.text + (s.src ? '\n\nस्रोत: ' + s.src : ''), 'पाठ / स्तोत्र', '1 पाठ')}</details>`).join('')}
         </div></details>`).join('');
     // remedies to tick: the astrologer picks any of them and sends or adds only those
     picks.length = 0;
