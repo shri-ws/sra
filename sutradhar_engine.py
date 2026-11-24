@@ -170,9 +170,18 @@ MASTER_TEST_PRICE = 1
 MASTER_CODES = {"JAIHANUMAN", "जयहनुमान"}
 
 
-def master_test_phones() -> set:
+# Extra numbers allowed the Rs 1 "JAI HANUMAN" test (owner's request, 25 Nov 2026).
+# They get only the Rs 1 test price — not the owner's free SaaS access.
+MASTER_TEST_EXTRA_PHONES = {"9453561588"}
+
+
+def owner_phones() -> set:
     raw = os.environ.get("SRA_MASTER_TEST_PHONES", "9517117775")
     return {normalize_phone(p) for p in raw.split(",") if normalize_phone(p)}
+
+
+def master_test_phones() -> set:
+    return owner_phones() | MASTER_TEST_EXTRA_PHONES
 
 
 def is_master_code(code: Optional[str]) -> bool:
@@ -2290,7 +2299,7 @@ INVALID_CODE_MESSAGE = "कोड अमान्य है।"
 
 
 def saas_exempt_phones() -> set:
-    return master_test_phones()
+    return owner_phones()
 
 
 def saas_unlockable(service_id: str) -> bool:

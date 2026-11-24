@@ -701,3 +701,15 @@ def test_admin_saas_subscriber_edit():
     assert new_sub["phone"] == new_phone
 
 
+
+
+def test_extra_master_phone_gets_rs1_but_not_free_saas():
+    extra = {"Authorization": "Bearer mock_token_9453561588"}
+    for sid in ("mangal_dosha", "muhurta_vivah", "mega_parashara", "consultation_gurukul"):
+        q = client.post("/api/sutradhar/quote", headers=extra, json={"customer_phone": "9453561588",
+                        "service_id": sid, "input_code": "JAI HANUMAN"}).json()
+        assert q["net_price"] == 1 and q["is_test"] is True, (sid, q)
+    assert "9453561588" not in se.saas_exempt_phones()
+    r = client.post("/api/sutradhar/saas/redeem", headers=extra,
+                    json={"service_id": "mangal_dosha", "code": "9453561588", "device_id": "dev_test_12345"}).json()
+    assert r["ok"] is False
