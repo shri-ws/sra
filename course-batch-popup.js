@@ -12,6 +12,7 @@
   var today = new Date().toISOString().slice(0, 10);
   try { if (localStorage.getItem(KEY) === today) return; } catch (e) {}
   if (/[?&]nopopup=1/.test(location.search)) return;
+  if (/(payment|admin|sutradhar)/i.test(location.pathname)) return;
 
   var LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
   var API = (LOCAL ? '' : (window.SRA_API_BASE || 'https://sra-canonical-engine.onrender.com')) + '/api/sutradhar/course';
@@ -135,5 +136,6 @@
       fetch(API + '/batches').then(function (r) { return r.json(); }).then(render).catch(function () { render(FALLBACK); });
     })();
   }
-  window.addEventListener('load', function () { setTimeout(start, 4000); });
+  var DELAY_MS = 7 * 60 * 1000; // 7 minutes
+  window.addEventListener('load', function () { setTimeout(start, DELAY_MS); });
 })();
