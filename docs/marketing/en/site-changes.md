@@ -18,7 +18,8 @@ Not pushed. Not live until the user says yes and the branch is merged.
 
 ## Changes to existing files (small hunks)
 
-- `index.html`, `gun-milan.html`, `parashara-report.html`, `manglik-dosh-calculator.html`: three `<link rel="alternate" hreflang=...>` lines after the canonical (hi = the page itself, en and x-default = the English page). Manglik uses its canonical URL without `.html`.
+- `index.html` keeps the language set already on main (`?lang=` URLs, added by another session); `/en/` is a separate English hub with only its canonical.
+- `gun-milan.html`, `parashara-report.html`, `manglik-dosh-calculator.html`: three `<link rel="alternate" hreflang=...>` lines after the canonical (hi = the page itself, en and x-default = the English page). Manglik uses its canonical URL without `.html`.
 - `sitemap.xml`: `xhtml` namespace added, and the four `/en/` URLs with their language alternates.
 - `llms.txt`: one line under "Main pages" listing the English pages.
 
