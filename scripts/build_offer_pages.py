@@ -176,6 +176,23 @@ OFFERS = [
         "wa": "बच्चे का मुंडन कराना है? उसकी कुंडली से शुद्ध चूडाकर्म मुहूर्त — मात्र ₹1,551 में आज ही जानिए।",
     },
     {
+        "slug": "vyapar-muhurta", "service": "muhurta_vyapar", "price": 1551, "rate": 66, "page": "vyapar-muhurta.html",
+        "name": "व्यापार व नया कार्य मुहूर्त",
+        "headline": "दुकान, दफ़्तर या नई नौकरी — आपकी कुंडली से शुभ मुहूर्त",
+        "preview": "आपकी कुंडली के कार्य-ग्रह और मुहूर्त चिन्तामणि के नियमों से व्यापार शुरू करने का शुद्ध मुहूर्त — मात्र ₹1,551",
+        "why": [
+            "नया काम शुरू करने का समय उसकी नींव है।",
+            "यह मुहूर्त सिर्फ़ पंचांग से नहीं, आपकी कुंडली के दशमेश, दशांश, अमात्यकारक और चल रही दशा से निकलता है।",
+            "हर मुहूर्त के साथ उसका कारण और ग्रंथ का प्रमाण मिलता है।",
+        ],
+        "gets": [
+            "चुनी अवधि (6 महीने तक) के शुद्ध मुहूर्त, रैंक के साथ",
+            "दुकान, दफ़्तर, फ़ैक्ट्री, नौकरी, बिक्री या निवेश — हर काम के अलग नियम",
+            "जहाँ काम शुरू होगा, उस शहर का सटीक लग्न-समय",
+        ],
+        "wa": "नया व्यापार या नई नौकरी शुरू कर रहे हैं? अपनी कुंडली के कार्य-ग्रहों से शुभ मुहूर्त निकालें — मात्र ₹1,551 में।",
+    },
+    {
         "slug": "jyotish-course", "service": "consultation_gurukul", "price": 24000, "rate": 30, "page": "course.html",
         "name": "1-वर्षीय वैदिक ज्योतिष कोर्स",
         "headline": "ज्योतिष सीखिए, शास्त्र से",
@@ -243,6 +260,7 @@ def page(o: dict) -> str:
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="offer.css">
+<link rel="stylesheet" href="/sra-fonts.css"><script src="/sra-fonts.js" defer></script>
 </head>
 <body>
 <header class="of-top"><a href="../index.html"><img src="../logo.jpg" alt=""> श्री राम जी एस्ट्रो</a></header>

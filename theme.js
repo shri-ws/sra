@@ -109,6 +109,8 @@
       muhurat_yajno_sub: "पारस्कर गृह्यसूत्र • त्रिबल शुद्धि • अष्टम रिक्त",
       muhurat_mundan_title: "चूड़ाकर्म (मुंडन) संस्कार",
       muhurat_mundan_sub: "१४ शास्त्रीय नियम • चंद्रबल • ताराबल",
+      muhurat_vyapar_title: "व्यापार व नया कार्य",
+      muhurat_vyapar_sub: "दुकान, दफ़्तर, नौकरी • दशमेश, दशांश, अमात्यकारक",
       muhurat_notice: "ℹ️ सभी मुहूर्त शोधन ₹1,111 VIP शास्त्रीय शोध सत्र (20 मिनट पूर्ण एक्सेस) द्वारा संचालित हैं।",
 
       // Tab 4: 1-on-1 Consultation
@@ -156,6 +158,8 @@
       sub_yajno_desc: "पारस्कर गृह्यसूत्र व चंद्र शुद्धि",
       sub_mundan_title: "चूड़ाकर्म (मुंडन) मुहूर्त",
       sub_mundan_desc: "शुभ सौर मास, वार व नक्षत्र शुद्धि",
+      sub_vyapar_title: "व्यापार व नया कार्य मुहूर्त",
+      sub_vyapar_desc: "आपकी कुण्डली के कार्य-ग्रह से",
       sub_patrika_title: "पत्रिका (Patrika)",
       sub_patrika_desc: "षोडशवर्ग, विंशोत्तरी व योग",
       sub_kaalsarp_title: "कालसर्प दोष रिपोर्ट",
@@ -169,6 +173,7 @@
       nav_vastu: "वास्तु मुहूर्त",
       nav_yajno: "यज्ञोपवीत",
       nav_mundan: "चूड़ाकर्म (मुंडन)",
+      nav_vyapar: "व्यापार मुहूर्त",
       nav_consult: "1-on-1 परामर्श",
       nav_course: "कोर्स (Academy)",
       nav_about: "अबाउट व ब्लॉग",
@@ -267,6 +272,8 @@
       muhurat_yajno_sub: "Paraskara Grihyasutra • Tribala Shuddhi",
       muhurat_mundan_title: "Chudakarma (Mundan) Ceremony",
       muhurat_mundan_sub: "14 Classical Injunctions • Moon & Tara Bala",
+      muhurat_vyapar_title: "Business & New Work",
+      muhurat_vyapar_sub: "Shop, office, job • 10th lord, D10, Amatyakaraka",
       muhurat_notice: "ℹ️ All Muhurta elections are backed by ₹1,111 VIP Classical Session (20 Mins unmetered access).",
 
       // Tab 4: 1-on-1 Consultation
@@ -314,6 +321,8 @@
       sub_yajno_desc: "Paraskara Grihyasutra & Moon",
       sub_mundan_title: "Mundan (Chudakarma)",
       sub_mundan_desc: "Solar Month, Vara & Star Shuddhi",
+      sub_vyapar_title: "Business & New Work Muhurta",
+      sub_vyapar_desc: "From your own chart's work planets",
       sub_patrika_title: "Patrika (Birth Chart)",
       sub_patrika_desc: "Shodashvarga, Dashas & Yogas",
       sub_kaalsarp_title: "Kaal Sarp Dosh Report",
@@ -327,6 +336,7 @@
       nav_vastu: "Vastu Muhurta",
       nav_yajno: "Yajnopavita",
       nav_mundan: "Mundan Muhurta",
+      nav_vyapar: "Business Muhurta",
       nav_consult: "1-on-1 Consult",
       nav_course: "Academy Course",
       nav_about: "About & Blog",
@@ -1592,6 +1602,7 @@
         <li><a href="/vastu-muhurta.html" style="color: #60a5fa; text-decoration: none;">Vastu (Neev & Griha Pravesh) Muhurta</a></li>
         <li><a href="/yajnopavita.html" style="color: #60a5fa; text-decoration: none;">Upanayana (Yajnopavita) Scanner</a></li>
         <li><a href="/mmm.html" style="color: #60a5fa; text-decoration: none;">Mundan (Chudakarma) Scanner</a></li>
+        <li><a href="/vyapar-muhurta.html" style="color: #60a5fa; text-decoration: none;">Business &amp; New Work Muhurta</a></li>
         <li><a href="/patrika.html" style="color: #60a5fa; text-decoration: none;">Astro 360 / Patrika (Birth Chart)</a></li>
         <li><a href="/consultation.html" style="color: #60a5fa; text-decoration: none;">VIP Sacred Consultations</a></li>
       </ul>

@@ -42,6 +42,7 @@
       { href: 'manglik-dosh-calculator.html', also: ['manglik-calculator'], label: L('मंगल दोष व परिहार', 'Mangal dosha & remedies'), sub: L('21 शास्त्रीय परिहार', '21 classical exceptions'), badge: '₹501' },
       { href: 'kaalsarp-report.html', label: L('कालसर्प व सर्प-योग', 'Kaal Sarp & Sarpa yoga'), sub: L('शास्त्र-प्रमाण सहित', 'With classical sources'), badge: '₹501' },
       { href: 'dhan-yoga-calculator.html', also: ['dhana-yoga-calculator'], label: L('धन योग', 'Dhan yoga'), sub: L('23 प्रामाणिक धन योग', '23 classical wealth yogas'), badge: '₹501' },
+      { href: 'vyapar-muhurta.html', label: L('व्यापार मुहूर्त — आपकी कुण्डली से', 'Business muhurta from your chart'), sub: L('दशमेश, दशांश, अमात्यकारक', '10th lord, D10, Amatyakaraka') },
       { action: 'preorder', report: 'रत्न और उपाय रिपोर्ट', price: '501', label: L('रत्न व उपाय (जल्द आ रही)', 'Gems & remedies (coming soon)'), sub: L('अभी पहले से बुक करें', 'Book in advance'), badge: '₹501' }
     ] },
     { label: L('मुहूर्त', 'Muhurta'), desk: true, items: [

@@ -9,6 +9,14 @@ SRA_I18N.add([
   ["श्री रामजी एस्ट्रो (पत्रिका)", "Shri Ramji Astro (Patrika)"],
 
   // Nav & drawer
+  ["व्यापार व नया कार्य मुहूर्त", "Business & New Work Muhurta"],
+  ["व्यापार व नया कार्य", "Business & New Work"],
+  ["व्यापार मुहूर्त", "Business Muhurta"],
+  ["₹ व्यापार मुहूर्त", "₹ Business Muhurta"],
+  ["₹ व्यापार व नया कार्य मुहूर्त", "₹ Business & New Work Muhurta"],
+  ["आपकी कुण्डली के कार्य-ग्रह से", "From your own chart's work planets"],
+  ["व्यापार मुहूर्त — आपकी कुण्डली से", "Business muhurta from your chart"],
+  ["दशमेश, दशांश, अमात्यकारक", "10th lord, D10, Amatyakaraka"],
   ["पत्रिका ऐप डाउनलोड करें", "Download Patrika App", "पत्रिका ऐप डाउनलोड करें / Download Patrika App"],
   ["भाषा बदलें", "Switch language", "Switch Language / भाषा बदलें"],
   ["दिन (सूर्यदेव) / रात्रि (चंद्रदेव)", "Day (Surya Dev) / Night (Chandra Dev)"],
