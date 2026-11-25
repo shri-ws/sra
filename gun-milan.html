@@ -615,8 +615,17 @@
     var cg = window.extractMangalDoshaContract(g.calc, { name: g.name, gender: g.gender || 'female', dob: g.dob, tob: g.tob, pob: g.pob });
     if (!cb || !cg) throw new Error('कुंडली से मांगलिक गणना नहीं हो सकी।');
     cb.partner_d1 = cg.d1; cg.partner_d1 = cb.d1;
-    return { rb: window.calculateMangalDoshaReport(cb, 'hi'), rg: window.calculateMangalDoshaReport(cg, 'hi') };
+    var lang = gmLang();
+    return { rb: window.calculateMangalDoshaReport(cb, lang), rg: window.calculateMangalDoshaReport(cg, lang) };
   }
+
+  // English visitors (language menu, or the English landing pages) get the Manglik engine's own English text;
+  // the page's Hindi labels are mapped by sra-i18n/gun-milan.js
+  function gmLang() { return document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'hi'; }
+  document.addEventListener('sra:langchange', function () {
+    var zone = document.getElementById('manglikZone');
+    if (zone && zone.querySelector('.gm-reveal')) renderCombinedManglik();
+  });
 
   function combinedVerdict(rb, rg) {
     var gb = !!rb.is_manglik, gg = !!rg.is_manglik;
@@ -642,6 +651,7 @@
   }
 
   function hinGrah(s) {
+    if (gmLang() === 'en') return String(s).replace(/\bH(\d+)/g, 'house $1');
     return String(s).replace(/Saturn/g, 'शनि').replace(/Rahu/g, 'राहु').replace(/Ketu/g, 'केतु')
       .replace(/Mars/g, 'मंगल').replace(/\bH(\d+)/g, 'भाव $1');
   }
@@ -678,7 +688,7 @@
 
     // parihars
     var pls = (r.applied_pariharas || []).map(function (p) {
-      return '<li>' + esc(p.title_hi || p.title || p.title_en || '') + (p.deduction ? ' <b style="color:var(--gm-ok)">(−' + p.deduction + '%)</b>' : '') + '</li>';
+      return '<li>' + esc((gmLang() === 'en' ? (p.title_en || p.title) : (p.title_hi || p.title)) || p.title_en || '') + (p.deduction ? ' <b style="color:var(--gm-ok)">(−' + p.deduction + '%)</b>' : '') + '</li>';
     }).join('');
     var samya = (r.is_manglik && r.partner_counter_details && r.partner_counter_details.length)
       ? '<div class="mg-advice" style="background:rgba(27,122,70,0.09);"><b>जीवनसाथी-साम्य:</b> साथी की कुंडली में ' + esc(hinGrah(r.partner_counter_details.join(', '))) + ' — पाप-साम्य से दोष परस्पर कट जाता है।</div>' : '';

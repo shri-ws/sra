@@ -26,9 +26,9 @@ Not pushed. Not live until the user says yes and the branch is merged.
 
 `docs/marketing/en/screenshots/`: each page at desktop width (1280) and phone width (390), light mode.
 
-## Known gaps (not fixed here)
+## Known gaps
 
-1. **The Gun Milan tool page has no English dictionary** (`sra-i18n/` has files for the Parashara and Manglik pages but not `gun-milan.js`). An English visitor who clicks "Match two charts" sees the tool in Hindi, or in Google's machine translation. This is the biggest leak in the matching funnel; a hand-written `sra-i18n/gun-milan.js` should come next.
+1. **Gun Milan tool in English (fixed, second commit).** `sra-i18n/gun-milan.js` is a hand-written English dictionary for every label, koota value, note, exception and verdict on `gun-milan.html`, with patterns for text that carries names or numbers. `gun-milan.html` now asks the Manglik engine for its English text when the page is in English and redraws the Manglik report when the language changes. Checked on a real couple from Astro-Databank (Charles, 14 Nov 1948 21:14 London; Diana, 1 Jul 1961 19:45 Sandringham): every tab reads in English, only the language-menu names stay in Devanagari, and switching back to Hindi restores the Hindi text. Screenshot: `screenshots/gun-milan-tool-english.jpg`.
 2. **Gun Milan has no PDF download**; the English page says so honestly (save with the browser's print). The Manglik and Parashara pages do have the A4 PDF button.
 3. **Prices on the English pages are written in by hand** (USD 11 / 21). If the server prices change, update these pages too.
 4. **hreflang for other languages:** sibling sessions (Spanish, French and others) will add their own `hreflang` lines to the same four Hindi pages; each page's set must list every language version, so the last one to merge should check that all lines are present.
