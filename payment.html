@@ -511,11 +511,14 @@ function isInternational() {
 let S={id:'global_eleven',name:'The Global Eleven | 1-Year Classical Immersion',base:94600,orig:128000,disc:0,total:0};
 const isUSD = () => S.id === 'global_eleven' || isInternational() || (window.SRACurrency && SRACurrency.get() === 'USD') || new URLSearchParams(location.search).get('cur') === 'usd';
 const fmt = n => {
-  if (S.id === 'global_eleven' || isUSD()) {
-    if (S.id === 'global_eleven' || n === 94600) return '$1,111';
+  n = Number(n) || 0;
+  if (isUSD()) {
+    if (n === 94600) return '$1,111';
     if (n === 24000) return '$451';
     if (n === 5100) return '$101';
-    return '$' + Math.max(1, Math.round(n / 88));
+    if (n === 128000) return '$1,500';
+    if (n === 32000) return '$600';
+    return '$' + Math.max(0, Math.round(n / 85));
   }
   return '₹' + Math.round(n).toLocaleString('en-IN');
 };
@@ -605,10 +608,13 @@ function updateSummary(){
   const dr=document.getElementById('discRow');
   dr.style.display=S.disc>0?'flex':'none';
   if(S.disc>0)document.getElementById('sumDisc').textContent='− '+fmt(S.disc) + curSuffix;
-  const saved=(S.orig>S.base?S.orig-S.base:0)+S.disc;
   const sb=document.getElementById('savingsBox');
-  sb.style.display=saved>0?'block':'none';
-  if(saved>0)document.getElementById('savingsAmt').textContent=fmt(saved) + curSuffix;
+  if (S.disc > 0) {
+    sb.style.display = 'block';
+    document.getElementById('savingsAmt').textContent = fmt(S.disc) + curSuffix;
+  } else {
+    sb.style.display = 'none';
+  }
   document.getElementById('emi12').textContent='≈ '+fmt(after/24)+'/mo';
 
   // Dynamic card price displays
