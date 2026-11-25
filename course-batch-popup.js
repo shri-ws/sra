@@ -1,6 +1,6 @@
 /* SHRI RAMJI ASTRO — 1-YEAR VEDIC IMMERSION BATCH INVITATION POPUP
    Dual Cohort Architecture:
-   1. The Global Eleven: 11 Scholars Worldwide, Strictly 1 Seat Per Nation ($1,111 USD), 100% in English.
+   1. The Global Eleven: 11 Scholars Worldwide, first come, first served ($1,111 USD), 100% in English.
    2. Indian Classical Batch: Classical BPHS Curriculum in Hindi (₹24,000 INR), 11 seats.
    Classes Commence: March 11, 2027.
 */
@@ -74,23 +74,23 @@
       '<button class="sra-cbp-x" aria-label="Close">✕</button>' +
       '<div class="sra-cbp-crest"><span>Classical Jyotish · BPHS · March 11, 2027</span></div>' +
       '<h3>Admissions Protocol 2027–2028</h3>' +
-      '<p class="sra-cbp-sub">Comprehensive 1-Year Classical Vedic Astrology Immersion with Astro Raamji. Select your sovereign cohort below:</p>' +
+      '<p class="sra-cbp-sub">Comprehensive 1-Year Classical Vedic Astrology Immersion with Astro Raamji. Choose your batch below:</p>' +
       
       '<div class="sra-cbp-cards">' +
         // Card 1: The Global Eleven
         '<div class="sra-cbp-card featured">' +
           '<div class="sra-cbp-head">' +
             '<div>' +
-              '<span class="sra-cbp-tag gold">Worldwide Sovereign Immersion</span>' +
+              '<span class="sra-cbp-tag gold">Worldwide Immersion</span>' +
               '<div class="sra-cbp-title">The Global Eleven (2027)</div>' +
             '</div>' +
             '<div class="sra-cbp-price">$1,111 <span style="font-size:11px;font-weight:600;color:#64748b;">USD</span></div>' +
           '</div>' +
           '<div class="sra-cbp-flags">🇺🇸 🇬🇧 🇨🇦 🇦🇺 🇩🇪 🇫🇷 🇪🇸 🇷🇺 🇦🇪 🇸🇬 🇯🇵</div>' +
-          '<div class="sra-cbp-desc">100% in English • Strictly 11 Scholars Worldwide • <strong>Exactly 1 Seat Per Sovereign Nation</strong> (First-Come First-Served) • 48 Live Masterclasses • D1 to D60 Mastery.</div>' +
+          '<div class="sra-cbp-desc">100% in English • Strictly 11 Scholars Worldwide • <strong>First Come, First Served</strong> • 48 Live Masterclasses • D1 to D60 Mastery.</div>' +
           '<div class="sra-cbp-act">' +
-            '<div class="sra-cbp-meta">Seats: 11 Sovereign Spots</div>' +
-            '<a class="sra-cbp-btn" href="payment.html?plan=global_eleven&batch=batch_global_eleven&cur=usd">Apply for Sovereign Seat ➔</a>' +
+            '<div class="sra-cbp-meta">Seats: 11 worldwide</div>' +
+            '<a class="sra-cbp-btn" href="payment.html?plan=global_eleven&batch=batch_global_eleven&cur=usd">Apply for Your Seat ➔</a>' +
           '</div>' +
         '</div>' +
 

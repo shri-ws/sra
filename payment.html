@@ -292,32 +292,13 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
         <div class="plan-dot"></div>
         <div class="plan-text">
           <div class="plan-name">🌐 The Global Eleven (2027 Cohort)</div>
-          <div class="plan-sub">11 Scholars Worldwide · Strictly 1 Seat Per Nation · English · D1–D60 Mastery</div>
+          <div class="plan-sub">11 Scholars Worldwide · First Come, First Served · English · D1–D60 Mastery</div>
           <div class="plan-emi">🇺🇸 🇬🇧 🇨🇦 🇦🇺 🇩🇪 🇫🇷 🇪🇸 🇷🇺 🇦🇪 🇸🇬 🇯🇵</div>
         </div>
         <div class="plan-price"><span class="plan-amt" id="amtGlobal">$1,111</span><span class="plan-orig" id="origGlobal">$1,500</span></div>
         <div class="badge" style="background:#b8860b; color:#fff;">Exclusive</div>
       </div>
       
-      <div id="countryBox" style="display:none; margin:4px 0 14px; padding:14px 16px; border:2px solid #b8860b; border-radius:10px; background:rgba(184,134,11,0.06);">
-        <div style="font-weight:800; color:#0f172a; margin-bottom:4px;">Select Sovereign Country Representation</div>
-        <div style="font-size:12.5px; color:#475569; margin-bottom:10px;">Strictly 1 Scholar Per Nation (First-Come, First-Served). Once confirmed, admissions for your country close.</div>
-        <select id="sovereignCountry" style="width:100%; padding:10px 12px; border:1.5px solid #b8860b; border-radius:8px; font-size:14px; background:#fff; font-weight:700; color:#0f172a;">
-          <option value="US">🇺🇸 United States (Seat 1)</option>
-          <option value="UK">🇬🇧 United Kingdom (Seat 2)</option>
-          <option value="CA">🇨🇦 Canada (Seat 3)</option>
-          <option value="AU">🇦🇺 Australia (Seat 4)</option>
-          <option value="DE">🇩🇪 Germany (Seat 5)</option>
-          <option value="FR">🇫🇷 France (Seat 6)</option>
-          <option value="ES">🇪🇸 Spain (Seat 7)</option>
-          <option value="RU">🇷🇺 Russia (Seat 8)</option>
-          <option value="AE">🇦🇪 United Arab Emirates (Seat 9)</option>
-          <option value="SG">🇸🇬 Singapore (Seat 10)</option>
-          <option value="JP">🇯🇵 Japan (Seat 11)</option>
-          <option value="OTHER">🌍 Other Sovereign Nation (Sovereign Allocation Waitlist)</option>
-        </select>
-      </div>
-
       <!-- PLAN 2: Indian Classical Batch -->
       <div class="plan" id="p-course" onclick="pick('course',24000,32000,'1-Year Vedic Astrology Program (भारतीय बैच)')">
         <div class="plan-dot"></div>
@@ -544,27 +525,8 @@ function applyInternationalExperience() {
   const titleEl = document.querySelector('.page-title h1');
   if (titleEl) titleEl.textContent = "Complete Your Enrolment";
   const subEl = document.querySelector('.page-title p');
-  if (subEl) subEl.textContent = "The Global Eleven · Strictly 1 Seat Per Sovereign Nation · Cards · Apple Pay · Google Pay";
+  if (subEl) subEl.textContent = "The Global Eleven · 11 Seats, First Come, First Served · Cards · Apple Pay · Google Pay";
   
-  // Auto-detect sovereign nation representation from timezone
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-    const sel = document.getElementById('sovereignCountry');
-    if (sel) {
-      if (/^America\//.test(tz)) sel.value = 'US';
-      else if (/^Europe\/(London|Belfast)/.test(tz)) sel.value = 'UK';
-      else if (/^Australia\//.test(tz)) sel.value = 'AU';
-      else if (/^Canada\//.test(tz) || /Toronto|Vancouver|Montreal|Edmonton|Winnipeg/.test(tz)) sel.value = 'CA';
-      else if (/^Europe\/(Berlin|Frankfurt)/.test(tz)) sel.value = 'DE';
-      else if (/^Europe\/Paris/.test(tz)) sel.value = 'FR';
-      else if (/^Europe\/Madrid/.test(tz)) sel.value = 'ES';
-      else if (/^Europe\/Moscow/.test(tz)) sel.value = 'RU';
-      else if (/^Asia\/Dubai/.test(tz)) sel.value = 'AE';
-      else if (/^Asia\/Singapore/.test(tz)) sel.value = 'SG';
-      else if (/^Asia\/Tokyo/.test(tz)) sel.value = 'JP';
-    }
-  } catch(e) {}
-
   const fn = document.getElementById('fname'), ln = document.getElementById('lname'), ph = document.getElementById('phone'), ct = document.getElementById('city');
   if (fn && !fn.value) fn.placeholder = "John";
   if (ln && !ln.value) ln.placeholder = "Smith";
@@ -580,7 +542,6 @@ function pick(id,base,orig,name){
     const el=document.getElementById('p-'+p); 
     if(el) el.classList.toggle('active', (p==='global' && id==='global_eleven') || p===id); 
   });
-  const cb=document.getElementById('countryBox'); if(cb) cb.style.display = id==='global_eleven' ? 'block' : 'none';
   const bb=document.getElementById('batchBox'); if(bb) bb.style.display = id==='course' ? 'block' : 'none';
   const emiSec = document.getElementById('emiSection'); if(emiSec) emiSec.style.display = (id==='course' && !isUSD()) ? 'block' : 'none';
   const emiHi = document.getElementById('emiHighlight'); if(emiHi) emiHi.style.display = (id==='course' && !isUSD()) ? 'flex' : 'none';
@@ -782,10 +743,7 @@ async function pay(){
     var extraData = null;
     if (S.id === 'global_eleven') {
       sId = 'course_global_eleven';
-      extraData = { 
-        batch_id: 'batch_global_eleven', 
-        country: document.getElementById('sovereignCountry') ? document.getElementById('sovereignCountry').value : 'US' 
-      };
+      extraData = { batch_id: 'batch_global_eleven' };
     } else if (S.id === 'course') {
       sId = 'consultation_gurukul';
       extraData = { batch_id: window._courseBatch || 'batch_indian' };
