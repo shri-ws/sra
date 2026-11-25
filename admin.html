@@ -1726,12 +1726,18 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           <button class="export-btn" id="scl-next-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendNext()">Send to next</button>
           <span id="scl-next-info" style="font-size:12px; color:var(--text-muted);"></span>
         </div>
+        <div id="scl-selbar" style="display:none; gap:10px; align-items:center; flex-wrap:wrap; border:1px solid #bbf7d0; background:#f0fdf4; border-radius:8px; padding:10px 12px; margin-bottom:10px;">
+          <b id="scl-sel-count" style="font-size:13px;"></b>
+          <button class="export-btn" id="scl-sel-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendSelected()">WhatsApp selected</button>
+          <button class="export-btn" style="padding:6px 10px;" onclick="sclClearSelected()">Clear</button>
+          <span id="scl-sel-info" style="font-size:12px; color:var(--text-muted);">WhatsApp opens one chat per click: each click opens the next selected astrologer.</span>
+        </div>
         <select id="scl-city-select" onchange="renderSaasLeads()" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin:0 8px 10px 0; min-width:200px;"><option value="">All cities</option></select>
         <input id="scl-search" placeholder="Search name, number or city" oninput="renderSaasLeads()" style="width:100%; max-width:360px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin-bottom:10px;">
         <div style="overflow-x:auto">
           <table class="tbl">
-            <thead><tr><th>Astrologer</th><th>Status</th><th>Call / demo</th><th>Note</th></tr></thead>
-            <tbody id="scl-tbody"><tr><td colspan="4" class="empty-row">Loading...</td></tr></tbody>
+            <thead><tr><th style="width:28px;"><input type="checkbox" id="scl-sel-all" title="Select all shown" onchange="sclSelectAll(this.checked)"></th><th>Astrologer</th><th>Status</th><th>Call / demo</th><th>Note</th></tr></thead>
+            <tbody id="scl-tbody"><tr><td colspan="5" class="empty-row">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -3874,7 +3880,7 @@ const SCL_STATUS = [
   ['bought', 'Bought', '#d1fae5', '#065f46']
 ];
 const SCL_LABEL = Object.fromEntries(SCL_STATUS.map(s => [s[0], s[1]]));
-const SCL_DEFAULT_MSG = '🙏 सादर प्रणाम {नाम} जी,\n\nShri Ramji Astro की ओर से एक छोटी-सी जानकारी:\n\nआपकी ज्योतिष की आमदनी 3 गुना तक बढ़ सकती है —\n• जातक को शास्त्र-प्रमाणित रिपोर्ट दें, उसका पूरा शुल्क आपका\n• उपाय की डिजिटल पर्ची दें, जातक रोज़ अपने फ़ोन पर टिक करे\n• जातक आपसे जुड़ा रहे, बार-बार लौटे और परिवार को भी लाए\n\nअपने ज्योतिष को और मज़बूत करें, अपने जातकों को बेहतर समाधान दें।\n\nकैसे होगा, 3 मिनट के डेमो में देखें:\n{लिंक}\n\n— Shri Ramji Astro';
+const SCL_DEFAULT_MSG = '🙏 नमस्ते {नाम} जी,\n\nShri Ramji Astro में आपका स्वागत है — ज्योतिषियों के लिए एक नई, तेज़ी से उभरती ऐप।\n\nइससे आप:\n• ज्योतिष को पूरा पेशेवर काम बना सकते हैं\n• जातक को शास्त्र-प्रमाणित रिपोर्ट दें, शुल्क पूरा आपका\n• अपनी आज की आमदनी 2 से 2.5 गुना तक पहुँचा सकते हैं\n\n3 मिनट का डेमो देखें:\n{लिंक}';
 let sclLeads = [], sclFilter = 'all', sclPending = [], sclInited = false;
 
 function sclEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -3883,7 +3889,7 @@ function sclPhone(raw) {
   return m ? m[1].replace(/\D/g, '') : '';
 }
 function sclSettings() {
-  return { ref: (localStorage.getItem('scl_ref') || '').trim(), w: (localStorage.getItem('scl_w') || '').replace(/\D/g, ''), msg: localStorage.getItem('scl_msg_v3') || SCL_DEFAULT_MSG };
+  return { ref: (localStorage.getItem('scl_ref') || '').trim(), w: (localStorage.getItem('scl_w') || '').replace(/\D/g, ''), msg: localStorage.getItem('scl_msg_v4') || SCL_DEFAULT_MSG };
 }
 function sclDemoLink(name) {
   const s = sclSettings(), p = new URLSearchParams();
@@ -3936,7 +3942,7 @@ function initSaasLeads() {
     const upd = () => {
       localStorage.setItem('scl_ref', document.getElementById('scl-ref').value.trim().toUpperCase());
       localStorage.setItem('scl_w', document.getElementById('scl-w').value.replace(/\D/g, ''));
-      localStorage.setItem('scl_msg_v3', document.getElementById('scl-msg').value || SCL_DEFAULT_MSG);
+      localStorage.setItem('scl_msg_v4', document.getElementById('scl-msg').value || SCL_DEFAULT_MSG);
       document.getElementById('scl-sample').textContent = sclDemoLink('शर्मा');
     };
     ['scl-ref', 'scl-w', 'scl-msg'].forEach(id => document.getElementById(id).addEventListener('input', upd));
@@ -4043,7 +4049,7 @@ async function importSaasLeads() {
 /* ── list ── */
 async function loadSaasLeads() {
   const tbody = document.getElementById('scl-tbody');
-  if (tbody && !sclLeads.length) tbody.innerHTML = '<tr><td colspan="4" class="empty-row"><span class="spin"></span> Loading...</td></tr>';
+  if (tbody && !sclLeads.length) tbody.innerHTML = '<tr><td colspan="5" class="empty-row"><span class="spin"></span> Loading...</td></tr>';
   try {
     const res = await sutraAdminFetch('/api/sutradhar/admin/saas-leads');
     const d = await res.json();
@@ -4051,7 +4057,7 @@ async function loadSaasLeads() {
     sclLeads = d.leads || [];
     renderSaasLeads();
   } catch (err) {
-    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="empty-row" style="color:#ef4444;">Error: ${sclEsc(err.message)}</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="empty-row" style="color:#ef4444;">Error: ${sclEsc(err.message)}</td></tr>`;
   }
 }
 function sclStatusOf(l) { return l.is_subscriber ? 'bought' : (SCL_LABEL[l.status] ? l.status : 'new'); }
@@ -4070,14 +4076,17 @@ function renderSaasLeads() {
   const list = sclLeads.filter(l => (sclFilter === 'all' || sclStatusOf(l) === sclFilter) && (!city || (l.city || 'Other').trim() === city) &&
     (!q || (l.name || '').toLowerCase().includes(q) || l.phone.includes(q.replace(/\D/g, '') || '~') || (l.city || '').toLowerCase().includes(q)));
   const tbody = document.getElementById('scl-tbody');
-  if (!sclLeads.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty-row">The list is empty. Upload an Excel above.</td></tr>'; return; }
-  if (!list.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Nobody in this filter.</td></tr>'; return; }
+  if (!sclLeads.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-row">The list is empty. Upload an Excel above.</td></tr>'; return; }
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-row">Nobody in this filter.</td></tr>'; return; }
   const when = t => t ? new Date(t).toLocaleString('hi-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+  sclShown = list.slice(0, 500).map(l => l.phone);
+  sclRenderSel();
   tbody.innerHTML = list.slice(0, 500).map(l => {
     const st = sclStatusOf(l), meta = SCL_STATUS.find(s => s[0] === st);
     const opts = SCL_STATUS.map(s => `<option value="${s[0]}"${s[0] === st ? ' selected' : ''}>${s[1]}</option>`).join('');
     const B = 'padding:4px 9px; font-size:11px; white-space:nowrap; text-decoration:none;';
-    return `<tr>
+    return `<tr${sclSelected.has(l.phone) ? ' style="background:#f0fdf4;"' : ''}>
+      <td><input type="checkbox" ${sclSelected.has(l.phone) ? 'checked' : ''} onchange="sclToggleSel('${l.phone}', this.checked)"></td>
       <td style="min-width:250px;">
         <div style="font-weight:700;"><span style="color:var(--text-muted); font-weight:400; font-size:11px;">${l.row_no || ''}.</span> ${sclEsc(l.name || '—')}</div>
         <div style="font-size:12px;"><span style="font-family:monospace;">${sclEsc(l.phone)}</span>${l.city ? ` · <span style="color:var(--text-muted);">${sclEsc(l.city)}</span>` : ''}</div>
@@ -4094,7 +4103,7 @@ function renderSaasLeads() {
       <td style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${l.calls ? `Called ${l.calls} · ${when(l.called_at)}` : 'Not called'}${l.demo_sent_at ? `<br>Demo ${when(l.demo_sent_at)}` : ''}</td>
       <td><input value="${sclEsc(l.note || '')}" placeholder="What was said" onchange="sclSave('${l.phone}', {note:this.value})" style="min-width:140px; width:100%; padding:5px 7px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); font-size:12px;"></td>
     </tr>`;
-  }).join('') + (list.length > 500 ? `<tr><td colspan="4" class="empty-row">Showing the first 500. Use search or filters for the rest.</td></tr>` : '');
+  }).join('') + (list.length > 500 ? `<tr><td colspan="5" class="empty-row">Showing the first 500. Use search or filters for the rest.</td></tr>` : '');
 }
 async function sclSave(phone, body, quiet) {
   const l = sclLeads.find(x => x.phone === phone);
@@ -4115,6 +4124,32 @@ function sclQueue() {
     .sort((a, b) => (a.row_no || 0) - (b.row_no || 0));
 }
 let sclSentThisRun = 0;
+/* Select 5-10 astrologers with the tick boxes, then "WhatsApp selected": each click opens the next one's chat
+   with his own message (a browser opens only one WhatsApp window per click). */
+const sclSelected = new Set();
+let sclShown = [];
+function sclToggleSel(phone, on) { if (on) sclSelected.add(phone); else sclSelected.delete(phone); renderSaasLeads(); }
+function sclSelectAll(on) { sclShown.forEach(p => on ? sclSelected.add(p) : sclSelected.delete(p)); renderSaasLeads(); }
+function sclClearSelected() { sclSelected.clear(); renderSaasLeads(); }
+function sclSelQueue() { return sclLeads.filter(l => sclSelected.has(l.phone)).sort((a, b) => (a.row_no || 0) - (b.row_no || 0)); }
+function sclRenderSel() {
+  const bar = document.getElementById('scl-selbar'); if (!bar) return;
+  const q = sclSelQueue();
+  bar.style.display = q.length ? 'flex' : 'none';
+  const all = document.getElementById('scl-sel-all');
+  if (all) all.checked = sclShown.length > 0 && sclShown.every(p => sclSelected.has(p));
+  if (!q.length) return;
+  document.getElementById('scl-sel-count').textContent = `${q.length} selected`;
+  document.getElementById('scl-sel-btn').textContent = `WhatsApp selected (${q.length} left) — next: ${q[0].name || q[0].phone}`;
+}
+function sclSendSelected() {
+  const l = sclSelQueue()[0];
+  if (!l) return;
+  sclWhatsApp(l.phone);
+  sclSelected.delete(l.phone);
+  if (sclStatusOf(l) === 'new') { l.status = 'demo_sent'; l.demo_sent_at = new Date().toISOString(); }
+  renderSaasLeads();
+}
 function sclRenderQueue() {
   const btn = document.getElementById('scl-next-btn'), info = document.getElementById('scl-next-info');
   if (!btn || !info) return;
