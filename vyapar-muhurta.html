@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>व्यापार व नया कार्य मुहूर्त — आपकी कुण्डली के अनुसार | श्री राम जी एस्ट्रो</title>
+<meta name="description" content="दुकान, दफ़्तर, फ़ैक्ट्री, नई नौकरी या निवेश का मुहूर्त — मुहूर्त चिन्तामणि के नियम और आपकी कुण्डली के कार्य-ग्रह (दशमेश, दशांश, अमात्यकारक, आरूढ, दशा) मिलाकर, रैंक के साथ।">
+<meta name="keywords" content="व्यापार मुहूर्त, दुकान उद्घाटन मुहूर्त, business muhurat, shop opening muhurat, नौकरी ज्वाइन मुहूर्त, मुहूर्त चिन्तामणि, दशमेश, दशांश, अमात्यकारक">
+<link rel="canonical" href="https://shriramjiastro.in/vyapar-muhurta.html">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="sra-config.js"></script>
+<script src="patrikaEngineBridge.js"></script>
+<script src="vyapar-shuddhi.js?v=1"></script>
+<script src="theme.js"></script>
+<style>
+  /* vyapar-muhurta.html — business / new-work muhurta from the native's own chart (25 Nov 2026).
+     Engine: vyapar-shuddhi.js (rules and references). Planet positions: the site's engine (Swiss Ephemeris). */
+  :root { --vm-bg:#faf8f4; --vm-card:#fff; --vm-text:#1f2328; --vm-muted:#5b6470; --vm-line:#e6e1d8; --vm-accent:#2563eb; --vm-accent-soft:#eff4ff;
+          --vm-good:#15803d; --vm-bad:#b42318; --vm-brand:#6B1424; }
+  html[data-theme="dark"] { --vm-bg:#14161a; --vm-card:#1c1f24; --vm-text:#e8eaed; --vm-muted:#a3aab4; --vm-line:#2e333a; --vm-accent-soft:#1b2a4a; --vm-good:#4ade80; --vm-bad:#f87171; }
+  body { background:var(--vm-bg); color:var(--vm-text); }
+  .vm { max-width:960px; margin:0 auto; padding:24px 16px 60px; font-family:"Plus Jakarta Sans","Noto Sans Devanagari",system-ui,sans-serif; }
+  .vm h1 { font-size:1.7rem; line-height:1.35; margin:8px 0 6px; color:var(--vm-brand); }
+  html[data-theme="dark"] .vm h1 { color:#f3c9d1; }
+  .vm .lead { color:var(--vm-muted); margin:0 0 18px; line-height:1.6; }
+  .vm .card { background:var(--vm-card); border:1px solid var(--vm-line); border-radius:14px; padding:18px; margin-bottom:16px; }
+  .vm h2 { font-size:1.15rem; margin:0 0 12px; }
+  .vm h3 { font-size:1rem; margin:14px 0 8px; }
+  .vm .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .vm label { display:block; font-size:.85rem; font-weight:600; margin-bottom:4px; color:var(--vm-muted); }
+  .vm input, .vm select { width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--vm-line); border-radius:10px; background:var(--vm-card); color:var(--vm-text); font:inherit; }
+  .vm .city { position:relative; }
+  .vm .city-list { position:absolute; left:0; right:0; top:100%; z-index:20; background:var(--vm-card); border:1px solid var(--vm-line); border-radius:10px; margin-top:4px; box-shadow:0 10px 24px rgba(0,0,0,.12); max-height:240px; overflow:auto; }
+  .vm .city-list button { display:block; width:100%; text-align:left; padding:9px 12px; border:0; background:none; color:var(--vm-text); font:inherit; cursor:pointer; }
+  .vm .city-list button:hover { background:var(--vm-accent-soft); }
+  .vm .hint { font-size:.8rem; color:var(--vm-muted); margin-top:4px; }
+  .vm .works { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px; }
+  .vm .works label { display:flex; gap:8px; align-items:flex-start; border:1px solid var(--vm-line); border-radius:10px; padding:10px; cursor:pointer; color:var(--vm-text); font-weight:500; }
+  .vm .works input { width:auto; margin-top:3px; accent-color:var(--vm-accent); }
+  .vm .works label:has(input:checked) { border-color:var(--vm-accent); background:var(--vm-accent-soft); }
+  .vm .go { margin-top:16px; width:100%; min-height:50px; border:0; border-radius:12px; background:var(--vm-accent); color:#fff; font:700 1.05rem inherit; cursor:pointer; }
+  .vm .go:disabled { opacity:.6; cursor:wait; }
+  .vm .muted { color:var(--vm-muted); }
+  .vm .wp { display:grid; gap:8px; }
+  .vm .wp-row { border:1px solid var(--vm-line); border-radius:10px; padding:10px 12px; }
+  .vm .wp-row b { font-size:1rem; }
+  .vm .wp-row .roles { font-size:.85rem; color:var(--vm-muted); margin-top:3px; line-height:1.55; }
+  .vm .ref { font-size:.75rem; color:var(--vm-muted); }
+  .vm .note { border-left:3px solid var(--vm-accent); padding:6px 10px; margin:8px 0; background:var(--vm-accent-soft); border-radius:0 8px 8px 0; font-size:.9rem; }
+  .vm .filters { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px; }
+  .vm .filters button { border:1px solid var(--vm-line); background:var(--vm-card); color:var(--vm-text); border-radius:999px; padding:6px 12px; font:inherit; font-size:.85rem; cursor:pointer; }
+  .vm .filters button.on { background:var(--vm-accent); border-color:var(--vm-accent); color:#fff; }
+  .vm .slot { border:1px solid var(--vm-line); border-radius:12px; padding:14px; margin-bottom:10px; background:var(--vm-card); }
+  .vm .slot-top { display:flex; gap:10px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
+  .vm .rank { font-weight:800; font-size:1.05rem; }
+  .vm .when { font-size:1.05rem; font-weight:700; margin-top:2px; }
+  .vm .meta { font-size:.88rem; color:var(--vm-muted); margin-top:3px; }
+  .vm .tier { font-size:.8rem; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; border:1px solid var(--vm-line); }
+  .vm .tier.t3 { background:#dcfce7; color:#14532d; border-color:#86efac; }
+  .vm .tier.t2 { background:#e0ecff; color:#1e3a8a; border-color:#a5c4ff; }
+  .vm .tier.t1 { background:#f4f4f5; color:#3f3f46; }
+  .vm .score { font-size:.8rem; color:var(--vm-muted); text-align:right; margin-top:4px; }
+  .vm details { margin-top:8px; }
+  .vm summary { cursor:pointer; font-weight:600; font-size:.9rem; color:var(--vm-accent); }
+  .vm ul.rs { margin:8px 0 0; padding-left:18px; }
+  .vm ul.rs li { margin:4px 0; font-size:.9rem; line-height:1.5; }
+  .vm ul.rs li.p::marker { color:var(--vm-good); }
+  .vm ul.rs li.n::marker { color:var(--vm-bad); }
+  .vm ul.rs li.n { color:var(--vm-bad); }
+  html[data-theme="dark"] .vm ul.rs li.n { color:#fca5a5; }
+  .vm .refs li { margin:5px 0; font-size:.88rem; line-height:1.5; }
+  .vm .err { color:var(--vm-bad); margin-top:10px; }
+  .vm .progress { margin-top:10px; font-size:.9rem; color:var(--vm-muted); }
+  @media (max-width:560px) { .vm h1 { font-size:1.35rem; } .vm .card { padding:14px; } }
+  @media print { .vm form, .vm .filters, #sra-wa-float-container { display:none !important; } .vm details { display:block; } }
+</style>
+</head>
+<body>
+<main class="vm">
+  <h1>व्यापार व नया कार्य मुहूर्त — आपकी कुण्डली के अनुसार</h1>
+  <p class="lead">दुकान, दफ़्तर, फ़ैक्ट्री, नई नौकरी या निवेश — काम शुरू करने का समय <b>मुहूर्त चिन्तामणि</b> के नियमों से शुद्ध हो, और उस समय की ग्रह-स्थिति <b>आपकी कुण्डली के कार्य-ग्रहों</b> (दशमेश, दशांश, अमात्यकारक, आरूढ, चल रही दशा) के अनुकूल हो। हर मुहूर्त के साथ उसके कारण और ग्रन्थ का प्रमाण दिया जाता है।</p>
+
+  <form id="vForm" class="card" autocomplete="off">
+    <h2>1. जातक (जिसका काम शुरू हो रहा है)</h2>
+    <div id="sraPickSlotVyapar"></div>
+    <div class="grid">
+      <div><label for="vName">नाम</label><input id="vName" placeholder="उदा. रमेश शर्मा"></div>
+      <div><label for="vDob">जन्म तिथि</label><input id="vDob" type="date" required></div>
+      <div><label for="vTob">जन्म समय</label><input id="vTob" type="time" required></div>
+      <div class="city"><label for="vCity">जन्म स्थान</label><input id="vCity" placeholder="शहर का नाम लिखें" required>
+        <input type="hidden" id="vLat"><input type="hidden" id="vLon"><input type="hidden" id="vTz" value="5.5">
+        <div class="city-list" id="vCityList" hidden></div><div class="hint" id="vCityHint"></div></div>
+    </div>
+
+    <h2 style="margin-top:20px;">2. कौन-सा काम</h2>
+    <div class="works" id="vWork"></div>
+    <div class="grid" style="margin-top:12px;">
+      <div><label for="vDomain">कारोबार की श्रेणी</label><select id="vDomain"></select><div class="hint">इसी से "कारोबार का कारक" ग्रह चुना जाता है (फलदीपिका 5)।</div></div>
+      <div class="city"><label for="bCity">काम कहाँ शुरू होगा (शहर)</label><input id="bCity" placeholder="ख़ाली छोड़ें तो जन्म स्थान">
+        <input type="hidden" id="bLat"><input type="hidden" id="bLon"><input type="hidden" id="bTz">
+        <div class="city-list" id="bCityList" hidden></div><div class="hint" id="bCityHint">मुहूर्त का लग्न उसी जगह से बनता है।</div></div>
+    </div>
+
+    <h2 style="margin-top:20px;">3. किन तारीख़ों में</h2>
+    <div class="grid">
+      <div><label for="vFrom">कब से</label><input id="vFrom" type="date" required></div>
+      <div><label for="vSpan">कितने समय में देखें</label>
+        <select id="vSpan"><option value="30">1 महीना</option><option value="61" selected>2 महीने</option><option value="91">3 महीने</option><option value="183">6 महीने</option></select></div>
+    </div>
+    <button class="go" id="vGo" type="submit">मुहूर्त निकालें</button>
+    <div class="progress" id="vProgress" hidden></div>
+    <div class="err" id="vErr" hidden></div>
+  </form>
+
+  <section id="vResult" hidden>
+    <div class="card" id="vProfile"></div>
+    <div class="card">
+      <h2 id="vListTitle">मुहूर्त — रैंक के साथ</h2>
+      <p class="muted" style="margin-top:-4px;font-size:.9rem;">पहले <b>सर्वश्रेष्ठ</b> (उस काम के श्लोक की सारी मुख्य शर्तें पूरी), फिर उत्तम, फिर ग्राह्य। हर श्रेणी में आपकी कुण्डली से मेल के अंक से क्रम। समय भारतीय मानक समय (कार्य-स्थान का), खण्ड का आरम्भ-अन्त एक ही लग्न के भीतर।</p>
+      <div class="filters" id="vFilters"></div>
+      <div id="vSlots"></div>
+    </div>
+    <div class="card">
+      <h2>शास्त्र-प्रमाण</h2>
+      <ul class="refs" id="vRefs"></ul>
+      <h3>सीमाएँ (ईमानदारी से)</h3>
+      <ul class="refs">
+        <li>"बली" ग्रह चुनने में सरल बल (राशि-बल और भाव) लिया है, पूरा षड्बल नहीं।</li>
+        <li>चन्द्र बल और तारा बल मुहूर्त चिन्तामणि के गोचर-विचार से हैं; उनकी श्लोक-संख्या पुस्तक से मिलाना अभी बाकी है।</li>
+        <li>जिन नियमों के साथ "युक्ति" लिखा है, वे सीधे किसी श्लोक के वाक्य नहीं — BPHS और फलदीपिका के सिद्धान्त (कर्मेश-बल, दशांश, अमात्यकारक, आरूढ) को मुहूर्त-कुण्डली पर लगाकर बनाए गए हैं।</li>
+        <li>स्थानीय पंचांग में सूर्योदय-आधारित वार, ग्रहण, संक्रान्ति, अधिक मास आदि का अलग विचार आपके ज्योतिषी से कराएँ।</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  const V = window.VyaparShuddhi;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ── form setup ──
+  $('vWork').innerHTML = Object.entries(V.WORK).map(([k, w], i) =>
+    `<label><input type="radio" name="vWork" value="${k}"${i === 0 ? ' checked' : ''}><span>${esc(w.title)}<br><span class="ref">${esc(w.ref)}</span></span></label>`).join('');
+  $('vDomain').innerHTML = Object.entries(V.DOMAIN).map(([k, d]) => `<option value="${k}">${esc(d.title)}</option>`).join('');
+  const today = new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);
+  $('vFrom').value = today;
+
+  // ── city search (open-meteo, then OpenStreetMap) with the time zone of that place ──
+  function tzOffset(zone, dateStr) {
+    try {
+      const d = new Date((dateStr || today) + 'T12:00:00Z');
+      const p = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'longOffset' }).formatToParts(d).find(x => x.type === 'timeZoneName').value;
+      const m = p.match(/GMT([+-])(\d{2}):?(\d{2})?/);
+      return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) + Number(m[3] || 0) / 60) : 0;
+    } catch (e) { return 5.5; }
+  }
+  async function findCity(q) {
+    try {
+      const d = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=hi&name=' + encodeURIComponent(q.split(',')[0].trim()))).json();
+      if (d.results && d.results.length) return d.results.map(r => ({ name: [r.name, r.admin1, r.country].filter(Boolean).join(', '), lat: r.latitude, lon: r.longitude, zone: r.timezone }));
+    } catch (e) {}
+    try {
+      const d = await (await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&q=' + encodeURIComponent(q))).json();
+      return (d || []).map(r => ({ name: r.display_name.split(',').slice(0, 3).join(','), lat: +r.lat, lon: +r.lon, zone: Math.abs(+r.lon - 80) < 15 && +r.lat > 5 && +r.lat < 38 ? 'Asia/Kolkata' : null }));
+    } catch (e) { return []; }
+  }
+  function cityBox(pre, dateId) {
+    const inp = $(pre + 'City'), list = $(pre + 'CityList'), hint = $(pre + 'CityHint');
+    let timer;
+    const pick = r => {
+      inp.value = r.name; $(pre + 'Lat').value = r.lat; $(pre + 'Lon').value = r.lon;
+      $(pre + 'Tz').value = r.zone ? tzOffset(r.zone, $(dateId).value) : 5.5;
+      list.hidden = true;
+      hint.textContent = `${Number(r.lat).toFixed(2)}°, ${Number(r.lon).toFixed(2)}° · UTC${$(pre + 'Tz').value >= 0 ? '+' : ''}${$(pre + 'Tz').value}`;
+    };
+    inp.addEventListener('input', () => {
+      $(pre + 'Lat').value = ''; clearTimeout(timer);
+      const q = inp.value.trim();
+      if (q.length < 2) { list.hidden = true; return; }
+      timer = setTimeout(async () => {
+        const rs = await findCity(q);
+        list.innerHTML = rs.length ? '' : '<div class="hint" style="padding:9px 12px;">यह शहर नहीं मिला। पास का बड़ा शहर लिखें।</div>';
+        rs.forEach(r => { const b = document.createElement('button'); b.type = 'button'; b.textContent = r.name; b.onclick = () => pick(r); list.appendChild(b); });
+        list.hidden = false;
+      }, 350);
+    });
+    document.addEventListener('click', e => { if (!inp.parentElement.contains(e.target)) list.hidden = true; });
+  }
+  cityBox('v', 'vDob'); cityBox('b', 'vFrom');
+  // a saved kundali filled the birth fields (sra-saved-pick.js): show its place
+  window.sraOnSavedKundaliPicked = k => { if ($('vLat').value) $('vCityHint').textContent = `${Number($('vLat').value).toFixed(2)}°, ${Number($('vLon').value).toFixed(2)}° · सेव्ड कुण्डली से`; };
+
+  async function ensureCoords(pre) {
+    if ($(pre + 'Lat').value) return true;
+    const q = $(pre + 'City').value.trim();
+    if (!q) return false;
+    const rs = await findCity(q);
+    if (!rs.length) return false;
+    const r = rs[0];
+    $(pre + 'Lat').value = r.lat; $(pre + 'Lon').value = r.lon; $(pre + 'Tz').value = r.zone ? tzOffset(r.zone, pre === 'v' ? $('vDob').value : $('vFrom').value) : 5.5;
+    return true;
+  }
+
+  // ── run ──
+  let lastProfile = null, lastSlots = [], filter = 'all';
+  $('vForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('vGo'), prog = $('vProgress'), err = $('vErr');
+    err.hidden = true; prog.hidden = false; btn.disabled = true;
+    try {
+      prog.textContent = 'जन्म स्थान देखा जा रहा है…';
+      if (!await ensureCoords('v')) throw new Error('जन्म स्थान नहीं मिला। सूची से शहर चुनें।');
+      const useBirth = !$('bCity').value.trim();
+      if (!useBirth && !await ensureCoords('b')) throw new Error('कार्य-स्थान का शहर नहीं मिला। सूची से शहर चुनें।');
+      const bLat = +(useBirth ? $('vLat').value : $('bLat').value), bLon = +(useBirth ? $('vLon').value : $('bLon').value);
+      const bTz = +(useBirth ? ($('vTz').value || 5.5) : ($('bTz').value || 5.5));
+
+      prog.textContent = 'आपकी कुण्डली बनाई जा रही है…';
+      const tob = $('vTob').value.length === 5 ? $('vTob').value + ':00' : $('vTob').value;
+      const natal = await PatrikaEngineBridge.calculatePatrikaPlanets({ date: $('vDob').value, time: tob, lat: +$('vLat').value, lon: +$('vLon').value, tz: +($('vTz').value || 5.5) });
+      if (!natal || !natal.planets) throw new Error('कुण्डली नहीं बन सकी। थोड़ी देर बाद फिर प्रयास करें।');
+      const work = (document.querySelector('input[name="vWork"]:checked') || {}).value || 'vipani';
+      const prof = V.workProfile(natal, $('vDomain').value);
+      prof.name = $('vName').value.trim() || 'जातक';
+
+      const span = +$('vSpan').value, from = $('vFrom').value;
+      const dates = [];
+      for (let i = 0; i < span; i++) dates.push(new Date(Date.parse(from + 'T00:00:00Z') + i * 864e5).toISOString().slice(0, 10));
+      const charts = [];
+      for (let i = 0; i < dates.length; i += 46) {
+        prog.textContent = `ग्रह-स्थिति ली जा रही है… ${Math.min(i + 46, dates.length)}/${dates.length} दिन`;
+        const part = dates.slice(i, i + 46);
+        const r = await PatrikaEngineBridge.calculateBatchPlanets(part.map(d => ({ date: d, time: '12:00:00', lat: bLat, lon: bLon, tz: bTz })));
+        const list = r.results || r.charts || [];
+        part.forEach((d, j) => charts.push({ date: d, chart: list[j] }));
+      }
+      prog.textContent = 'हर लग्न-खण्ड की जाँच हो रही है…';
+      await new Promise(r => setTimeout(r, 30));
+      const slots = V.scanRange(charts.filter(c => c.chart && c.chart.planets), { lat: bLat, lon: bLon, tz: bTz, work, profile: prof });
+      lastProfile = prof; lastSlots = slots; filter = 'all';
+      renderProfile(prof, work, dates);
+      renderSlots();
+      $('vRefs').innerHTML = Object.values(V.REF).map(r => `<li>${esc(r)}</li>`).join('') +
+        '<li>स्रोत: मुहूर्त चिन्तामणि (पीयूषधारा टीका) — jainqq.org/booktext/Muhurt_Chintamani/002342; फलदीपिका — wisdomlib.org (वी. सुब्रह्मण्य शास्त्री); BPHS — चौखम्बा सुधा टीका (साइट का पुस्तक-डेटाबेस)।</li>';
+      $('vResult').hidden = false;
+      prog.hidden = true;
+      $('vResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (ex) {
+      err.textContent = ex.message || 'कुछ गड़बड़ हुई। फिर प्रयास करें।'; err.hidden = false; prog.hidden = true;
+    } finally { btn.disabled = false; }
+  });
+
+  function renderProfile(p, work, dates) {
+    const nowD = V.dashaAt(p.dasha, dates[0]);
+    $('vProfile').innerHTML = `
+      <h2>${esc(p.name)} के कार्य-ग्रह</h2>
+      <p class="muted" style="margin-top:-4px;">लग्न ${esc(V.RASHI[p.lagna])} · चन्द्र राशि ${esc(V.RASHI[p.moonSign])}, नक्षत्र ${esc(V.NAK[p.moonNak])}${p.d10 ? ' · दशांश लग्न ' + esc(V.RASHI[p.d10.lagna]) : ''} · आरूढ लग्न ${esc(V.RASHI[p.al])}${nowD ? ' · अभी ' + esc(V.HI[nowD.md]) + '–' + esc(V.HI[nowD.ad]) + ' दशा' : ''}</p>
+      ${p.livelihood ? `<div class="note"><b>आजीविका ग्रह: ${esc(V.HI[p.livelihood])}</b> — ${esc(p.livelihoodWork)}<br><span class="ref">${esc(V.REF.pd51)}</span></div>` : ''}
+      <div class="wp">${p.work.slice(0, 6).map(w => `<div class="wp-row"><b>${esc(w.hi)}</b>
+        <div class="roles">${w.roles.map(r => `${esc(r.role)}: ${esc(r.why)} <span class="ref">(${esc(r.ref)})</span>`).join('<br>')}</div></div>`).join('')}</div>
+      ${p.notes.map(n => `<div class="note">${esc(n.text)} <span class="ref">(${esc(n.ref)})</span></div>`).join('')}
+      <p class="ref" style="margin-top:10px;">${esc(p.d7Note)}</p>
+      <p class="muted" style="font-size:.9rem;">मुहूर्त में ऊपर के पहले पाँच ग्रह देखे गए: वे केन्द्र, त्रिकोण या लाभ भाव में, अपनी या मित्र राशि में और अस्त न हों। काम: <b>${esc(V.WORK[work].title)}</b> (${esc(V.WORK[work].ref)}).</p>`;
+  }
+
+  // छोटा प्रमाण, सूची में पढ़ने लायक: "मु.चि. नक्षत्र 17 (पृ. 79–80)", "BPHS 22.4 (पृ. 117)", "युक्ति"
+  function short(ref) {
+    let r = String(ref).replace(V.REF.yukti, 'युक्ति').replace(V.REF.gochara, 'मु.चि. गोचर');
+    Object.values(V.REF).forEach(full => { if (full.includes(':')) r = r.split(full).join(full.replace(/:.*$/, '')); });
+    return r.split(' — ').map(part => part
+      .replace(/^युक्ति.*$/, 'युक्ति')
+      .replace('मुहूर्त चिन्तामणि, नक्षत्रप्रकरण श्लो.', 'मु.चि. नक्षत्र')
+      .replace(/मुहूर्त चिन्तामणि, गोचर-विचार.*$/, 'मु.चि. गोचर')
+      .replace('मुहूर्त चिन्तामणि, विवाह प्रकरण', 'मु.चि. विवाह')
+      .replace(/:.*$/, '').trim()).filter((x, i, a) => x && a.indexOf(x) === i).join(' · ');
+  }
+  function renderSlots() {
+    const tiers = ['सर्वश्रेष्ठ', 'उत्तम', 'ग्राह्य'];
+    const counts = { all: lastSlots.length };
+    lastSlots.forEach(s => { counts[s.tier] = (counts[s.tier] || 0) + 1; });
+    $('vFilters').innerHTML = [['all', 'सब']].concat(tiers.map(t => [t, t])).map(([k, l]) =>
+      `<button type="button" data-f="${k}" class="${filter === k ? 'on' : ''}">${l} ${counts[k] || 0}</button>`).join('');
+    const list = lastSlots.filter(s => (filter === 'all' ? s.tierN >= 1 : s.tier === filter)).slice(0, 60);
+    $('vListTitle').textContent = `मुहूर्त — रैंक के साथ (${lastSlots.filter(s => s.tierN >= 1).length})`;
+    if (!list.length) {
+      $('vSlots').innerHTML = '<p class="muted">इन तारीख़ों में इस काम का कोई शुद्ध मुहूर्त नहीं मिला। अवधि बढ़ाकर देखें — शास्त्र की शर्तें कड़ी हैं, और ढीली करना ठीक नहीं।</p>';
+      return;
+    }
+    const fmt = d => new Date(d + 'T12:00:00Z').toLocaleDateString('hi-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    $('vSlots').innerHTML = list.map(s => `
+      <div class="slot">
+        <div class="slot-top">
+          <div><div class="rank">#${s.rank} · ${esc(fmt(s.date))}, ${esc(s.vaar)}</div>
+            <div class="when">${esc(s.start)} से ${esc(s.end)} तक · ${esc(s.lagna)} लग्न</div>
+            <div class="meta">${esc(s.tithi)} · ${esc(s.nakshatra)} (${esc(s.nakClass)})${s.hora ? ` · सबसे अच्छा: ${esc(s.hora.from)}–${esc(s.hora.to)} (${esc(s.hora.planet)} होरा)` : ''}</div></div>
+          <div><span class="tier t${s.tierN}">${esc(s.tier)}</span><div class="score">अंक ${Math.min(100, Math.round(s.raw))}</div></div>
+        </div>
+        <details><summary>क्यों — ${s.positives.length} अनुकूल, ${s.negatives.length} प्रतिकूल बातें</summary>
+          <ul class="rs">${s.positives.map(x => `<li class="p">${esc(x.text)} <span class="ref">— ${esc(short(x.ref))}</span></li>`).join('')}
+          ${s.negatives.map(x => `<li class="n">${esc(x.text)} <span class="ref">— ${esc(short(x.ref))}</span></li>`).join('')}</ul></details>
+      </div>`).join('');
+  }
+  $('vFilters').addEventListener('click', e => { const b = e.target.closest('button[data-f]'); if (b) { filter = b.dataset.f; renderSlots(); } });
+})();
+</script>
+
+<link rel="stylesheet" href="sra-elegance.css?v=2">
+<script src="sra-ui.js?v=34" defer></script>
+<script src="sra-auth.js" defer></script>
+<script src="sra-records.js" defer></script>
+<script src="sra-translate.js" defer></script>
+<script src="sra-nav.js" defer></script>
+<script src="sra-i18n.js" defer></script>
+<script src="sra-analytics.js" defer></script>
+<link rel="stylesheet" href="/sra-fonts.css"><script src="/sra-fonts.js" defer></script>
+</body>
+</html>

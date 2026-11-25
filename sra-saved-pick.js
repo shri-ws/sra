@@ -46,6 +46,9 @@
       { who: 'बालक', at: ['childName', '.form-grid'], name: 'childName', date: 'childDob', time: 'childTob',
         city: 'worldSearchInput', lat: 'latInput', lon: 'lonInput', tz: 'tzInput' }
     ],
+    'vyapar-muhurta.html': [
+      { who: 'जातक', slot: 'sraPickSlotVyapar', name: 'vName', date: 'vDob', time: 'vTob', city: 'vCity', lat: 'vLat', lon: 'vLon', tz: 'vTz' }
+    ],
     'vastu-muhurta.html': [
       { who: 'गृहस्वामी', at: ['ownerName', '.form-grid'], name: 'ownerName', date: 'ownerDob', time: 'ownerTob',
         city: 'citySearchInput', lat: 'lat', lon: 'lon', tz: 'tz' }
