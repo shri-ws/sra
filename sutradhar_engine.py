@@ -81,6 +81,7 @@ SERVICE_CATALOG: Dict[str, Dict[str, Any]] = {
     "muhurta_vastu":           {"price": 1551,  "rate": 66, "name": "वास्तु मुहूर्त"},
     "muhurta_yajno":           {"price": 1551,  "rate": 66, "name": "यज्ञोपवीत मुहूर्त"},
     "muhurta_mundan":          {"price": 1551,  "rate": 66, "name": "मुंडन (चूडाकर्म) मुहूर्त"},
+    "muhurta_vyapar":          {"price": 1551,  "rate": 66, "name": "व्यापार व नया कार्य मुहूर्त"},
     "patrika_rajyoga":         {"price": 501,   "rate": 66, "name": "राजयोग / रश्मि बल रिपोर्ट"},
     "patrika_vahan":           {"price": 501,   "rate": 66, "name": "वाहन एवं जनबल रिपोर्ट"},
     "consultation_acharya":    {"price": 5100,  "rate": 0,  "name": "दैवज्ञ 1-on-1 परामर्श"},
@@ -2781,7 +2782,7 @@ async def saas_redeem(req: SaasRedeemRequest, authorization: Optional[str] = Hea
 UNLOCK_SECRET = os.environ.get("SRA_UNLOCK_SECRET") or RAZORPAY_KEY_SECRET
 
 UNLOCK_SESSION_MINUTES: Dict[str, int] = {
-    "muhurta_vivah": 20, "muhurta_vastu": 20, "muhurta_yajno": 20, "muhurta_mundan": 20,
+    "muhurta_vivah": 20, "muhurta_vastu": 20, "muhurta_yajno": 20, "muhurta_mundan": 20, "muhurta_vyapar": 20,
 }
 ADMIN_UNLOCK_MINUTES = 12 * 60
 

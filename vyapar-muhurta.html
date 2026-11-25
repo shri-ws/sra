@@ -10,6 +10,7 @@
 <link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="sra-config.js"></script>
 <script src="patrikaEngineBridge.js"></script>
 <script src="vyapar-shuddhi.js?v=1"></script>
@@ -40,7 +41,7 @@
   .vm .works label { display:flex; gap:8px; align-items:flex-start; border:1px solid var(--vm-line); border-radius:10px; padding:10px; cursor:pointer; color:var(--vm-text); font-weight:500; }
   .vm .works input { width:auto; margin-top:3px; accent-color:var(--vm-accent); }
   .vm .works label:has(input:checked) { border-color:var(--vm-accent); background:var(--vm-accent-soft); }
-  .vm .go { margin-top:16px; width:100%; min-height:50px; border:0; border-radius:12px; background:var(--vm-accent); color:#fff; font:700 1.05rem inherit; cursor:pointer; }
+  .vm .go { margin-top:16px; width:100%; min-height:50px; border:0; border-radius:12px; background:var(--vm-accent); color:#fff; font-family:inherit; font-weight:700; font-size:1.05rem; cursor:pointer; }
   .vm .go:disabled { opacity:.6; cursor:wait; }
   .vm .muted { color:var(--vm-muted); }
   .vm .wp { display:grid; gap:8px; }
@@ -72,6 +73,15 @@
   html[data-theme="dark"] .vm ul.rs li.n { color:#fca5a5; }
   .vm .refs li { margin:5px 0; font-size:.88rem; line-height:1.5; }
   .vm .err { color:var(--vm-bad); margin-top:10px; }
+  .vm [hidden] { display:none !important; }
+  .vm .pay { border:2px solid var(--vm-accent); }
+  .vm .pay .price { font-size:1.8rem; font-weight:800; margin:4px 0; }
+  .vm .pay ul { margin:8px 0 12px; padding-left:20px; line-height:1.7; font-size:.92rem; }
+  .vm .pay .code { display:flex; gap:8px; margin-top:12px; }
+  .vm .pay .code input { flex:1; }
+  .vm .pay .code button, .vm .btn2 { border:1px solid var(--vm-line); background:var(--vm-card); color:var(--vm-text); border-radius:10px; padding:0 16px; font-family:inherit; font-weight:600; font-size:.95rem; cursor:pointer; min-height:44px; }
+  .vm .pay-msg { font-size:.9rem; margin-top:8px; min-height:1.2em; }
+  .vm .session { display:flex; justify-content:space-between; align-items:center; gap:10px; background:var(--vm-accent-soft); border:1px solid var(--vm-line); border-radius:10px; padding:8px 12px; margin-bottom:14px; font-size:.9rem; }
   .vm .progress { margin-top:10px; font-size:.9rem; color:var(--vm-muted); }
   @media (max-width:560px) { .vm h1 { font-size:1.35rem; } .vm .card { padding:14px; } }
   @media print { .vm form, .vm .filters, #sra-wa-float-container { display:none !important; } .vm details { display:block; } }
@@ -82,6 +92,7 @@
   <h1>व्यापार व नया कार्य मुहूर्त — आपकी कुण्डली के अनुसार</h1>
   <p class="lead">दुकान, दफ़्तर, फ़ैक्ट्री, नई नौकरी या निवेश — काम शुरू करने का समय <b>मुहूर्त चिन्तामणि</b> के नियमों से शुद्ध हो, और उस समय की ग्रह-स्थिति <b>आपकी कुण्डली के कार्य-ग्रहों</b> (दशमेश, दशांश, अमात्यकारक, आरूढ, चल रही दशा) के अनुकूल हो। हर मुहूर्त के साथ उसके कारण और ग्रन्थ का प्रमाण दिया जाता है।</p>
 
+  <div class="session" id="vSession" hidden><span>मुहूर्त सत्र चालू है — इस बीच कितनी भी बार, किसी भी जातक या काम के लिए निकालें।</span><b id="vSessionLeft"></b></div>
   <form id="vForm" class="card" autocomplete="off">
     <h2>1. जातक (जिसका काम शुरू हो रहा है)</h2>
     <div id="sraPickSlotVyapar"></div>
@@ -113,6 +124,20 @@
     <div class="progress" id="vProgress" hidden></div>
     <div class="err" id="vErr" hidden></div>
   </form>
+
+  <div class="card pay" id="vPay" hidden>
+    <h2>व्यापार मुहूर्त सत्र</h2>
+    <div class="price" id="vPrice">₹1,551</div>
+    <div class="muted">GST सहित · भुगतान के बाद 20 मिनट का सत्र</div>
+    <ul>
+      <li>आपकी कुण्डली के कार्य-ग्रह — दशमेश, आजीविका ग्रह, दशांश, अमात्यकारक, आरूढ, दशा — ग्रन्थ-प्रमाण सहित</li>
+      <li>चुनी अवधि (6 महीने तक) के सारे शुद्ध मुहूर्त, रैंक और हर मुहूर्त के कारणों के साथ</li>
+      <li>सत्र के भीतर कितनी भी बार — दूसरे जातक, दूसरा काम या दूसरा शहर</li>
+    </ul>
+    <button type="button" class="go" id="vPayBtn" style="margin-top:0;">भुगतान करें और मुहूर्त देखें</button>
+    <div class="code"><input id="vCode" placeholder="कोड या ज्योतिषी सदस्य का मोबाइल नंबर"><button type="button" id="vCodeBtn">लगाएँ</button></div>
+    <div class="pay-msg" id="vPayMsg"></div>
+  </div>
 
   <section id="vResult" hidden>
     <div class="card" id="vProfile"></div>
@@ -208,8 +233,12 @@
 
   // ── run ──
   let lastProfile = null, lastSlots = [], filter = 'all';
-  $('vForm').addEventListener('submit', async e => {
+  $('vForm').addEventListener('submit', e => {
     e.preventDefault();
+    if (!sessionLive()) { showPay(); return; }
+    run();
+  });
+  async function run() {
     const btn = $('vGo'), prog = $('vProgress'), err = $('vErr');
     err.hidden = true; prog.hidden = false; btn.disabled = true;
     try {
@@ -253,6 +282,67 @@
     } catch (ex) {
       err.textContent = ex.message || 'कुछ गड़बड़ हुई। फिर प्रयास करें।'; err.hidden = false; prog.hidden = true;
     } finally { btn.disabled = false; }
+  }
+
+  // ── भुगतान: सर्वर से तय कीमत (muhurta_vyapar, ₹1,551), 20 मिनट का सत्र — वास्तु मुहूर्त जैसा ──
+  const SVC = 'muhurta_vyapar';
+  let sessionExp = 0, tick = null, codeUsed = '';
+  const CE = () => window.SraCouponEngine;
+  const ref = () => CE().deviceRef('muhurta');
+  const sessionLive = () => sessionExp > Date.now();
+  function startSessionUi(expSec) {
+    sessionExp = expSec * 1000;
+    $('vPay').hidden = true; $('vSession').hidden = false;
+    clearInterval(tick);
+    const upd = () => {
+      const left = sessionExp - Date.now();
+      if (left <= 0) { clearInterval(tick); sessionExp = 0; $('vSession').hidden = true; if (CE()) CE().clearUnlockPass(SVC, ref()); return; }
+      $('vSessionLeft').textContent = Math.floor(left / 60000) + ':' + String(Math.floor(left / 1000) % 60).padStart(2, '0') + ' बाकी';
+    };
+    upd(); tick = setInterval(upd, 1000);
+  }
+  function showPay() {
+    $('vPay').hidden = false;
+    if (window.SRACurrency && SRACurrency.get() !== 'INR') $('vPrice').textContent = SRACurrency.format(1551);
+    $('vPay').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  async function unlocked(receipt, payId) {
+    const v = await CE().verifyUnlock(SVC, ref(), receipt);
+    if (!v.ok) {
+      $('vPayMsg').textContent = (v.message || 'पुष्टि नहीं हो सकी।') + (payId && !/^(SAAS_|MASTER)/.test(payId) ? ' पैसा कटा हो तो support@shriramjiastro.in पर भुगतान ID भेजें: ' + payId : '');
+      return;
+    }
+    startSessionUi(v.exp);
+    run();
+  }
+  $('vPayBtn').addEventListener('click', () => {
+    if (!CE()) { $('vPayMsg').textContent = 'पेज पूरा लोड होने दें, फिर दबाएँ।'; return; }
+    CE().checkoutWithOptions({
+      serviceId: SVC, code: codeUsed, name: $('vName').value.trim(),
+      options: {
+        name: 'Shri Ramji Astro', description: 'व्यापार व नया कार्य मुहूर्त — 20 मिनट सत्र',
+        prefill: { name: $('vName').value.trim() }, theme: { color: '#2563eb' },
+        notes: { report_type: 'vyapar_muhurta' },
+        handler: r => unlocked({ order_id: r.razorpay_order_id, payment_id: r.razorpay_payment_id, signature: r.razorpay_signature }, r.razorpay_payment_id)
+      }
+    });
+  });
+  $('vCodeBtn').addEventListener('click', async () => {
+    const code = $('vCode').value.trim();
+    if (window.sraIsMasterKey && window.sraIsMasterKey(code)) { unlocked({ admin_key: code }, 'MASTER_KEY'); return; }
+    if (!CE()) return;
+    await CE().handleCodeBox({
+      serviceId: SVC, code, reportRef: ref(),
+      remember: c => { codeUsed = c; },
+      onUnlock: r => unlocked({ unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id),
+      show: (ok, m) => { $('vPayMsg').textContent = m || ''; $('vPayMsg').style.color = ok === false ? 'var(--vm-bad)' : ok ? 'var(--vm-good)' : ''; }
+    });
+  });
+  // an earlier session on this phone, checked again by the server
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!CE() || !CE().getUnlockPass(SVC, ref())) return;
+    const r = await CE().checkUnlock(SVC, ref());
+    if (r && r.ok && r.exp * 1000 > Date.now()) startSessionUi(r.exp);
   });
 
   function renderProfile(p, work, dates) {
@@ -315,6 +405,8 @@
 <script src="sra-records.js" defer></script>
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
+<script src="sra-master.js" defer></script>
+<script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 <script src="sra-analytics.js" defer></script>
 <link rel="stylesheet" href="/sra-fonts.css"><script src="/sra-fonts.js" defer></script>

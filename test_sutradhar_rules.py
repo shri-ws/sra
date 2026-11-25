@@ -346,6 +346,18 @@ def test_muhurta_saas_session():
     assert client.post("/api/sutradhar/unlock/check", json={"service_id": "muhurta_vastu", "report_ref": "muhurta_dev_S1", "proof": v["proof"], "token": v["token"], "exp": v["exp"]}).json()["ok"]
 
 
+def test_business_muhurta_price_and_saas_session():
+    # व्यापार मुहूर्त (25 Nov 2026): ₹1,551 like the other muhurtas, 66% on the price without GST, 20-minute session
+    q = client.post("/api/sutradhar/quote", json={"customer_phone": CUST_PHONE, "service_id": "muhurta_vyapar"}).json()
+    assert q["net_price"] == 1551 and q["is_test"] is False, q
+    assert se.SERVICE_CATALOG["muhurta_vyapar"]["rate"] == 66 and se.UNLOCK_SESSION_MINUTES["muhurta_vyapar"] == 20
+    r = client.post("/api/sutradhar/saas/redeem", headers={"Authorization": "Bearer mock_token_9000000001"},
+                    json={"service_id": "muhurta_vyapar", "code": "9000000001", "device_id": "dev_test_0001", "report_ref": "muhurta_dev_V1"}).json()
+    assert r["ok"], r
+    v = client.post("/api/sutradhar/unlock/verify", json={"service_id": "muhurta_vyapar", "report_ref": "muhurta_dev_V1", "unlock_id": r["unlock_id"]}).json()
+    assert v["ok"] and v["exp"]
+
+
 def test_owner_key_unlock_is_checked_by_the_server(monkeypatch):
     import hashlib as _h
     h = se.MASTER_KEY_SALT + "TESTKEY9"

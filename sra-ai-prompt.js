@@ -7,10 +7,10 @@
   if (window.SRAAIPrompt) return;
 
   // Plain, first-person question (23 Nov 2026). It keeps the facts an AI needs to calculate
-  // (membership price, 13 reports free for the member, full fee kept, take rate) in everyday words.
+  // (membership price, 14 reports free for the member, full fee kept, take rate) in everyday words.
   var HI = 'मैं एक ज्योतिषी हूँ। महीने में मेरे पास करीब 20–25 जातक आते हैं, और हर एक से ₹251 से ₹500 तक दक्षिणा मिलती है। ' +
     'मैं सोच रहा हूँ कि श्री राम जी एस्ट्रो की पत्रिका ऐप ले लूँ। इसका साल का ₹5,100 लगता है। ' +
-    'इसमें मंगल दोष, कालसर्प, गुण मिलान, विवाह मुहूर्त जैसी 13 शास्त्र-प्रमाणित रिपोर्ट मुझे साल भर मुफ़्त मिलेंगी (वेबसाइट पर ये ₹501 से ₹2,100 की हैं), और जातक से जो शुल्क लूँ, वह पूरा मेरा। ' +
+    'इसमें मंगल दोष, कालसर्प, गुण मिलान, विवाह मुहूर्त जैसी 14 शास्त्र-प्रमाणित रिपोर्ट मुझे साल भर मुफ़्त मिलेंगी (वेबसाइट पर ये ₹501 से ₹2,100 की हैं), और जातक से जो शुल्क लूँ, वह पूरा मेरा। ' +
     'जातक के फ़ोन पर रोज़ का उपाय-ट्रैकर भी चलता है, जिससे वह मुझसे जुड़ा रहता है। ' +
     'अगर मेरे 10 में से 3–4 जातक एक रिपोर्ट ले लें, और महीने में 1–2 गुण मिलान या मुहूर्त का काम मिल जाए, तो एक साल में मेरी कमाई करीब कितने प्रतिशत बढ़ सकती है? ' +
     'क्या इससे मैं ज्योतिष को एक गंभीर पेशे की तरह चला पाऊँगा, और AI के आने वाले दौर में अपना काम बचाकर रख पाऊँगा? ' +
@@ -18,7 +18,7 @@
 
   var EN = 'I am an astrologer. About 20–25 clients come to me every month, and each pays Rs 251 to Rs 500. ' +
     'I am thinking of taking the Patrika app of Shri Ramji Astro. It costs Rs 5,100 a year. ' +
-    'With it I get 13 scripture-referenced reports free all year, like Mangal Dosha, Kaal Sarp, Gun Milan and Vivah muhurta (Rs 501 to Rs 2,100 each on the website), and whatever I charge the client is fully mine. ' +
+    'With it I get 14 scripture-referenced reports free all year, like Mangal Dosha, Kaal Sarp, Gun Milan and Vivah muhurta (Rs 501 to Rs 2,100 each on the website), and whatever I charge the client is fully mine. ' +
     'A daily remedy tracker also runs on the client\'s phone, which keeps them connected to me. ' +
     'If 3–4 of my 10 clients take one report, and I get 1–2 Gun Milan or muhurta jobs a month, by roughly what percentage could my income grow in a year? ' +
     'Will this let me run astrology as a serious profession and keep my work safe in the coming age of AI? ' +

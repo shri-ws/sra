@@ -48,7 +48,8 @@
       { href: 'vmm.html', label: L('विवाह मुहूर्त', 'Marriage muhurta'), sub: L('10 महादोष व त्रिबल शुद्धि', '10 great doshas, tribala') },
       { href: 'vastu-muhurta.html', label: L('वास्तु, नींव व गृह प्रवेश', 'Vastu & griha pravesh'), sub: L('शिलान्यास व स्थिर लग्न', 'Foundation & fixed lagna') },
       { href: 'yajnopavita.html', also: ['ymm'], label: L('यज्ञोपवीत (उपनयन)', 'Yajnopavita (Upanayana)'), sub: L('नक्षत्र व चंद्र शुद्धि', 'Nakshatra & moon purity') },
-      { href: 'mmm.html', label: L('मुंडन (चूड़ाकर्म)', 'Mundan (Chudakarma)'), sub: L('सौर मास, वार व नक्षत्र', 'Solar month, weekday, nakshatra') }
+      { href: 'mmm.html', label: L('मुंडन (चूड़ाकर्म)', 'Mundan (Chudakarma)'), sub: L('सौर मास, वार व नक्षत्र', 'Solar month, weekday, nakshatra') },
+      { href: 'vyapar-muhurta.html', label: L('व्यापार व नया कार्य', 'Business & new work'), sub: L('आपकी कुण्डली के कार्य-ग्रह से', 'From your own chart') }
     ] },
     { label: L('परामर्श व उपाय', 'Consultation & remedies'), items: [
       { href: 'consultation.html', label: L('1-on-1 परामर्श', '1-on-1 consultation'), sub: L('आचार्य से सीधी बात', 'Speak with the acharya'), badge: '₹5,100' },
