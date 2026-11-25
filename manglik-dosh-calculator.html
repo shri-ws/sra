@@ -2264,7 +2264,7 @@
     function handleMangalReportGenerateClick() {
       const name = (document.getElementById('mangalName').value || '').trim();
       const phoneInput = document.getElementById('mangalPhone');
-      const abroad = (window.SRACurrency && SRACurrency.get() === 'USD');   // customer outside India: phone with country code
+      const abroad = (window.SRACurrency && SRACurrency.get() !== 'INR');   // customer outside India: phone with country code
       const phone = phoneInput ? phoneInput.value.replace(/\D/g, '').slice(abroad ? -15 : -10) : (localStorage.getItem('sra_verified_mobile') || '');
       const gender = document.getElementById('mangalGender').value || 'male';
       const date = document.getElementById('mangalDob').value;

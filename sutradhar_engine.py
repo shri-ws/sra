@@ -111,7 +111,7 @@ SERVICE_ALIASES: Dict[str, str] = {
 CATALOG_PRICES: Dict[str, int] = {k: v["price"] for k, v in SERVICE_CATALOG.items()}
 
 # -----------------------------------------------------------------------------
-# FOREIGN CUSTOMERS (22 Nov 2026): prices in US dollars, paid by international card.
+# FOREIGN CUSTOMERS (22 Nov 2026): prices in US dollars (euros from 25 Nov), paid by international card.
 # A page sends currency "USD" for visitors outside India; the server decides the dollar price
 # from the rupee price below (sra-currency.js shows the same table). The Razorpay order is made
 # in USD; if the account cannot take USD yet, it falls back to the same amount in rupees at
@@ -119,21 +119,38 @@ CATALOG_PRICES: Dict[str, int] = {k: v["price"] for k, v in SERVICE_CATALOG.item
 # rupee value of the payment at the rate saved on the order.
 # -----------------------------------------------------------------------------
 USD_PRICE_BY_INR: Dict[int, int] = {501: 11, 1101: 21, 1111: 21, 1551: 31, 2100: 41, 5100: 101, 24000: 451, 94600: 1111}
-SUPPORTED_CURRENCIES = {"INR", "USD"}
+# EURO (25 Nov 2026): visitors in euro countries see euro prices; same rules as dollars,
+# rate EUR_INR_RATE (default 100). Keep in step with EUR in sra-currency.js.
+EUR_PRICE_BY_INR: Dict[int, int] = {501: 10, 1101: 19, 1111: 19, 1551: 29, 2100: 39, 5100: 95, 24000: 415, 94600: 1050}
+FOREIGN_PRICE_BY_INR: Dict[str, Dict[int, int]] = {"USD": USD_PRICE_BY_INR, "EUR": EUR_PRICE_BY_INR}
+FOREIGN_RATE_DEFAULT: Dict[str, float] = {"USD": 88.0, "EUR": 100.0}
+CURRENCY_SYMBOL: Dict[str, str] = {"INR": "₹", "USD": "$", "EUR": "€"}
+SUPPORTED_CURRENCIES = {"INR", "USD", "EUR"}
+
+
+def inr_rate(cur: str) -> float:
+    """Rupees for one unit of a foreign currency (env USD_INR_RATE / EUR_INR_RATE)."""
+    default = FOREIGN_RATE_DEFAULT.get(cur, 88.0)
+    try:
+        return max(1.0, float(os.environ.get(f"{cur}_INR_RATE") or default))
+    except ValueError:
+        return default
 
 
 def usd_inr_rate() -> float:
-    try:
-        return max(1.0, float(os.environ.get("USD_INR_RATE") or 88))
-    except ValueError:
-        return 88.0
+    return inr_rate("USD")
+
+
+def foreign_price(service_id: str, cur: str) -> int:
+    inr = int(SERVICE_CATALOG.get(resolve_service_id(service_id), {}).get("price", 0))
+    table = FOREIGN_PRICE_BY_INR.get(cur, USD_PRICE_BY_INR)
+    if inr in table:
+        return table[inr]
+    return max(1, int(round(inr / inr_rate(cur))))
 
 
 def usd_price(service_id: str) -> int:
-    inr = int(SERVICE_CATALOG.get(resolve_service_id(service_id), {}).get("price", 0))
-    if inr in USD_PRICE_BY_INR:
-        return USD_PRICE_BY_INR[inr]
-    return max(1, int(round(inr / usd_inr_rate())))
+    return foreign_price(service_id, "USD")
 
 
 def clean_currency(cur: Optional[str]) -> str:
@@ -674,7 +691,7 @@ class QuoteRequest(BaseModel):
     customer_phone: str = Field(..., description="10-digit customer mobile number")
     service_id: str = Field(..., description="Catalog service identifier")
     input_code: Optional[str] = Field(None, description="Promo code entered by customer (optional)")
-    currency: Optional[str] = Field("INR", description="INR, or USD for customers outside India")
+    currency: Optional[str] = Field("INR", description="INR, or USD/EUR for customers outside India")
 
 class CreateOrderRequest(BaseModel):
     customer_phone: str = Field(..., description="Customer 10-digit mobile number")
@@ -684,7 +701,7 @@ class CreateOrderRequest(BaseModel):
     input_code: Optional[str] = Field(None, description="Optional manual coupon")
     batch_id: Optional[str] = Field(None, description="1-year course only: batch_morning / batch_evening")
     ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
-    currency: Optional[str] = Field("INR", description="INR, or USD for customers outside India")
+    currency: Optional[str] = Field("INR", description="INR, or USD/EUR for customers outside India")
 
 class ReviewActionRequest(BaseModel):
     commission_id: str
@@ -1168,9 +1185,12 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
 async def get_checkout_quote(req: QuoteRequest, authorization: Optional[str] = Header(None)):
     verified_phone = token_phone(verify_firebase_token(authorization))
     q = build_quote(req.customer_phone, req.service_id, req.input_code, verified_phone)
-    if clean_currency(req.currency) == "USD" and not q.get("is_test"):
-        usd = usd_price(q["service_id"])
-        q.update({"currency": "USD", "price_usd": usd, "display_price": f"${usd}"})
+    cur = clean_currency(req.currency)
+    if cur != "INR" and not q.get("is_test"):
+        amt = foreign_price(q["service_id"], cur)
+        q.update({"currency": cur, "price_foreign": amt, "display_price": f"{CURRENCY_SYMBOL[cur]}{amt}"})
+        if cur == "USD":
+            q["price_usd"] = amt
     else:
         q.update({"currency": "INR", "display_price": f"₹{int(q.get('net_price', q.get('base_price', 0))):,}"})
     return q
@@ -1183,10 +1203,11 @@ async def get_service_catalog():
     for sid, it in SERVICE_CATALOG.items():
         c = commission_for_payment(sid, it["price"] * 100)
         items.append({"service_id": sid, "name": it["name"], "price": it["price"], "price_usd": usd_price(sid),
+                      "price_eur": foreign_price(sid, "EUR"),
                       "price_excl_gst": c["amount_excl_gst"], "gst_amount": c["gst_amount"],
                       "commission_rate_percent": it["rate"], "sutradhar_commission": c["commission"]})
     return {"status": "success", "gst_percent": GST_RATE_PERCENT, "items": items, "usd_inr_rate": usd_inr_rate(),
-            "payout_rule": f"भुगतान के {PAYOUT_SETTLEMENT_WORKING_DAYS} कार्य-दिवस बाद {PAYOUT_DEADLINE_TEXT} (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)"}
+            "eur_inr_rate": inr_rate("EUR"), "payout_rule": f"भुगतान के {PAYOUT_SETTLEMENT_WORKING_DAYS} कार्य-दिवस बाद {PAYOUT_DEADLINE_TEXT} (रविवार, दूसरा/चौथा शनिवार और बैंक अवकाश छोड़कर)"}
 
 
 # =============================================================================
@@ -1418,12 +1439,14 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         attributed_lead_id = ""
         attributed_at = None
 
-    # Foreign customer: the dollar price (master test code stays ₹1)
-    currency = "USD" if (clean_currency(req.currency) == "USD" and not is_test_order) else "INR"
-    rate = usd_inr_rate()
-    price_usd = usd_price(service_id) if currency == "USD" else 0
-    if currency == "USD":
-        net_price = int(round(price_usd * rate))      # rupee value: commission and reports
+    # Foreign customer: the dollar or euro price (master test code stays ₹1)
+    asked = clean_currency(req.currency)
+    currency = asked if (asked != "INR" and not is_test_order) else "INR"
+    rate = inr_rate(currency) if currency != "INR" else None
+    price_foreign = foreign_price(service_id, currency) if currency != "INR" else 0
+    price_usd = price_foreign if currency == "USD" else 0
+    if currency != "INR":
+        net_price = int(round(price_foreign * rate))      # rupee value: commission and reports
         net_paise = net_price * 100
     notes = {
         "service_id": service_id,
@@ -1434,8 +1457,8 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "lead_id": attributed_lead_id,
         "attributed_at": attributed_at or ""
     }
-    # Razorpay order in USD (cents); if the account does not take USD, the same amount in rupees
-    attempts = [("USD", price_usd * 100), ("INR", net_paise)] if currency == "USD" else [("INR", net_paise)]
+    # Razorpay order in USD/EUR (cents); if the account does not take it, the same amount in rupees
+    attempts = [(currency, price_foreign * 100), ("INR", net_paise)] if currency != "INR" else [("INR", net_paise)]
     order_currency, order_minor = attempts[-1]
     last_err = None
     try:
@@ -1453,7 +1476,7 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         if last_err:
             raise last_err
     except Exception as e:
-        if currency == "USD" and _is_test_env():
+        if currency != "INR" and _is_test_env():
             order_currency, order_minor = attempts[0]
         if not _is_test_env():
             logger.error(f"[Razorpay] order create failed: {e}")
@@ -1479,7 +1502,9 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "currency": order_currency,
         "order_amount_minor": order_minor,
         "price_usd": price_usd or None,
+        "price_foreign": price_foreign or None,
         "usd_inr_rate": rate if currency == "USD" else None,
+        "foreign_inr_rate": rate,
         "applied_code": attributed_sutradhar_code,
         "sutradhar_id": attributed_sutradhar_id,
         "lead_id": attributed_lead_id,
@@ -1508,7 +1533,9 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "net_price": net_price,
         "currency": order_currency,
         "price_usd": price_usd or None,
-        "display_price": f"${price_usd}" if order_currency == "USD" else f"₹{int(order_minor // 100):,}",
+        "price_foreign": price_foreign or None,
+        "display_price": (f"{CURRENCY_SYMBOL[order_currency]}{price_foreign}" if order_currency != "INR"
+                          else f"₹{int(order_minor // 100):,}"),
         "key_id": RAZORPAY_KEY_ID,
         "sutradhar_code": attributed_sutradhar_code,
         "service_id": service_id,
@@ -1638,7 +1665,7 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
             "order_currency": order.get("currency", "INR")
         })
         return {"status": "ignored", "message": "Captured payment amount differs from order amount"}
-    captured_paise = order_inr_paise(order)     # rupee value (USD orders: at the rate saved on the order)
+    captured_paise = order_inr_paise(order)     # rupee value (USD/EUR orders: at the rate saved on the order)
 
     # Mark order as paid
     order["status"] = "paid"

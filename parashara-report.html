@@ -3185,7 +3185,7 @@
 
       const phoneInput = document.getElementById('gateUserPhone');
       let clientMobile = (phoneInput && phoneInput.value.trim()) ? phoneInput.value.trim().replace(/\D/g, '') : (localStorage.getItem('sra_verified_mobile') || '');
-      const abroad = (window.SRACurrency && SRACurrency.get() === 'USD');   // customer outside India: phone with country code
+      const abroad = (window.SRACurrency && SRACurrency.get() !== 'INR');   // customer outside India: phone with country code
       if (clientMobile && clientMobile.length > 10 && !abroad) clientMobile = clientMobile.slice(-10);
 
       if (!clientMobile || (abroad ? (clientMobile.length < 7 || clientMobile.length > 15) : clientMobile.length !== 10)) {

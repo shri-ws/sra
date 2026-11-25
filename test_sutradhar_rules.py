@@ -639,6 +639,41 @@ def test_foreign_customer_pays_in_dollars():
     assert t["currency"] == "INR" and t["amount"] == 100
 
 
+def test_foreign_customer_pays_in_euros():
+    """25 Nov 2026: currency EUR -> euro price from the rupee tier; commission on the rupee value."""
+    q = client.post("/api/sutradhar/quote", json={"customer_phone": "", "service_id": "kaalsarp_dosha", "currency": "eur"}).json()
+    assert q["currency"] == "EUR" and q["price_foreign"] == 10 and q["display_price"] == "€10"
+    cat = {i["service_id"]: i for i in client.get("/api/sutradhar/catalog").json()["items"]}
+    assert cat["gun_milan_manglik"]["price_eur"] == 19 and cat["muhurta_vivah"]["price_eur"] == 39
+    assert cat["gun_milan_manglik"]["price_usd"] == 21
+
+    s_phone, buyer = "9811100081", "9822200082"
+    s_hdr = {"Authorization": f"Bearer mock_token_{s_phone}"}
+    me = client.post("/api/sutradhar/register", headers=s_hdr, json={"name": "यूरोप सूत्रधार", "phone": s_phone, "upi_id": "europe@okaxis"}).json()["sutradhar"]
+    code = (me.get("code") or me["id"]).replace("-", "")
+    o = client.post("/api/sutradhar/orders/create", headers={"Authorization": f"Bearer mock_token_{buyer}"},
+                    json={"customer_phone": buyer, "service_id": "gun_milan_manglik", "ref_code": code, "currency": "EUR"}).json()
+    assert o["currency"] == "EUR" and o["amount"] == 19_00 and o["display_price"] == "€19" and o["price_usd"] is None
+    rate = se.inr_rate("EUR")
+    assert o["net_price"] == round(19 * rate)
+    # paid in dollars or rupees instead of euros -> ignored
+    for i, cur in enumerate(("USD", "INR")):
+        bad = client.post("/api/sutradhar/webhook/razorpay", headers=WEBHOOK_HDR, json={"event": "payment.captured",
+              "payload": {"payment": {"entity": {"id": f"pay_eur_bad{i}", "order_id": o["order_id"], "amount": 19_00, "currency": cur}}}}).json()
+        assert bad["status"] == "ignored"
+    ok = client.post("/api/sutradhar/webhook/razorpay", headers=WEBHOOK_HDR, json={"event": "payment.captured",
+         "payload": {"payment": {"entity": {"id": "pay_eur_1", "order_id": o["order_id"], "amount": 19_00, "currency": "EUR"}}}}).json()
+    assert ok["commission_created"] is True
+    comm = se.SutradharStore.get_doc("commissions", "comm_pay_eur_1")
+    assert comm["amount"] == (round(19 * rate) * 100 * 100 // 118) * 66 // 100 // 100
+
+    # the master test code stays ₹1 in rupees
+    owner = {"Authorization": "Bearer mock_token_9000000001"}
+    t = client.post("/api/sutradhar/orders/create", headers=owner, json={"customer_phone": "9000000001",
+                    "service_id": "kaalsarp_dosha", "input_code": "jai hanuman", "currency": "EUR"}).json()
+    assert t["currency"] == "INR" and t["amount"] == 100
+
+
 def test_report_brand_for_saas_astrologer():
     """23 Nov 2026: a signed-in active SaaS astrologer prints reports under his own saved name."""
     phone = "9833300077"

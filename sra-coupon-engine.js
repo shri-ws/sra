@@ -149,7 +149,7 @@
      */
     phoneOk: function(raw) {
       var d = String(raw || '').replace(/\D/g, '');
-      if (this.currency() === 'USD') return d.length >= 7 && d.length <= 15;
+      if (this.currency() !== 'INR') return d.length >= 7 && d.length <= 15;
       return d.slice(-10).length === 10 && (d.length === 10 || (d.length === 12 && d.slice(0, 2) === '91'));
     },
 
@@ -215,7 +215,7 @@
      */
     createServerOrder: async function(customerPhone, customerEmail, serviceId, inputCode, customerName, extra) {
       var phone = String(customerPhone || this.guessPhone()).replace(/\D/g, '');
-      phone = phone.length > 10 && this.currency() === 'USD' ? phone.slice(-15) : phone.slice(-10);
+      phone = phone.length > 10 && this.currency() !== 'INR' ? phone.slice(-15) : phone.slice(-10);
       var res = await fetch(this.apiBase() + '/api/sutradhar/orders/create', {
         method: 'POST',
         headers: await this.authHeaders(),
@@ -501,7 +501,7 @@
   try {
     if (!window.SRACurrency && document.currentScript && document.currentScript.src) {
       var cs = document.createElement('script');
-      cs.src = document.currentScript.src.replace(/sra-coupon-engine\.js(\?.*)?$/, 'sra-currency.js?v=1');
+      cs.src = document.currentScript.src.replace(/sra-coupon-engine\.js(\?.*)?$/, 'sra-currency.js?v=3');
       document.head.appendChild(cs);
     }
   } catch (e) {}
