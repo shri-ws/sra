@@ -51,14 +51,69 @@
     overflow-x: hidden;
   }
 
-  /* Navigation Bar */
-  .top-nav {
+  /* Sticky Header Wrapper */
+  .sticky-header-container {
     position: sticky; top: 0; z-index: 100;
+  }
+  .top-nav {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
-    border-bottom: 1.5px solid var(--gold-border);
-    padding: 14px 28px;
+    border-bottom: 1px solid var(--gold-border);
+    padding: 12px 28px;
     display: flex; justify-content: space-between; align-items: center;
+  }
+
+  /* Horizontal Animated Glowing Announcement Bar */
+  .announcement-bar {
+    background: linear-gradient(90deg, #0A0E17 0%, #171105 25%, #2B1D04 50%, #171105 75%, #0A0E17 100%);
+    border-bottom: 1.5px solid #D4AF37;
+    padding: 8px 16px;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.25);
+    animation: barGlow 3s infinite alternate ease-in-out;
+  }
+  @keyframes barGlow {
+    0% { border-bottom-color: rgba(212, 175, 55, 0.5); box-shadow: 0 4px 14px rgba(212, 175, 55, 0.2); }
+    100% { border-bottom-color: rgba(255, 215, 0, 0.95); box-shadow: 0 4px 22px rgba(255, 215, 0, 0.45); }
+  }
+  .announcement-link {
+    display: flex; justify-content: center; align-items: center; gap: 14px;
+    text-decoration: none; color: #FFFFFF; font-size: 13px; font-weight: 600;
+    flex-wrap: wrap; text-align: center;
+  }
+  .announcement-badge {
+    background: linear-gradient(135deg, #B8860B, #E6CA65);
+    color: #0A0E17; font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px;
+    padding: 3px 10px; border-radius: 12px; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    animation: badgePulse 2s infinite ease-in-out;
+  }
+  .announcement-dot {
+    width: 6.5px; height: 6.5px; border-radius: 50%; background: #7C1305;
+    animation: dotBlink 1.2s infinite;
+  }
+  @keyframes badgePulse {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.04); filter: brightness(1.2); }
+  }
+  @keyframes dotBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.7); }
+  }
+  .announcement-text {
+    color: #F8FAFC; letter-spacing: 0.3px;
+  }
+  .announcement-text strong {
+    color: #FDE047; font-weight: 800;
+  }
+  .announcement-cta {
+    background: rgba(212, 175, 55, 0.18); border: 1px solid #D4AF37;
+    color: #FDE047; font-size: 11px; font-weight: 800; letter-spacing: 0.8px;
+    padding: 3px 11px; border-radius: 20px; text-transform: uppercase;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .announcement-link:hover .announcement-cta {
+    background: #D4AF37; color: #0A0E17;
   }
   .nav-brand {
     display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;
@@ -360,17 +415,28 @@
 </head>
 <body>
 
-<!-- Navigation Bar -->
-<header class="top-nav">
-  <a href="index.html" class="nav-brand">
-    <img src="logo.png" alt="Shri Ramji Astro" class="nav-logo">
-    <span class="nav-title">SHRI RAMJI ASTRO</span>
-  </a>
-  <div class="nav-actions">
-    <a href="#syllabus" class="nav-btn" style="color:#0F172A;">Syllabus</a>
-    <a href="#tuition" class="nav-btn nav-btn-gold">Tuition ($1,111 / ₹24,000)</a>
-  </div>
-</header>
+<!-- Sticky Header & Persistent Announcement Bar -->
+<div class="sticky-header-container">
+  <header class="top-nav">
+    <a href="index.html" class="nav-brand">
+      <img src="logo.png" alt="Shri Ramji Astro" class="nav-logo">
+      <span class="nav-title">SHRI RAMJI ASTRO</span>
+    </a>
+    <div class="nav-actions">
+      <a href="#syllabus" class="nav-btn" style="color:#0F172A;">Syllabus</a>
+      <a href="#tuition" class="nav-btn nav-btn-gold">Tuition ($1,111 / ₹24,000)</a>
+    </div>
+  </header>
+
+  <!-- Glowing Horizontal Announcement Bar -->
+  <aside class="announcement-bar">
+    <a href="#tuition" class="announcement-link">
+      <span class="announcement-badge"><span class="announcement-dot"></span> NEW BATCHES STARTING SOON</span>
+      <span class="announcement-text">March 11, 2027: <strong>The Global Eleven ($1,111 USD)</strong> · 11 Sovereign Seats &amp; <strong>National Batch (₹24,000 INR)</strong></span>
+      <span class="announcement-cta">Reserve Seat ➔</span>
+    </a>
+  </aside>
+</div>
 
 <!-- Hero Section -->
 <section class="hero-section">
