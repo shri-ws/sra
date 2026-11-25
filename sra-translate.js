@@ -124,8 +124,15 @@
     document.dispatchEvent(new CustomEvent('sra:translate', { detail: { lang } }));
   }
 
-  // A machine language chosen on an earlier page: switch to the English base and translate again
+  // A machine language chosen on an earlier page or via ?lang= URL param
   function resume() {
+    const qm = location.search.match(/[?&]lang=([a-zA-Z\-]+)\b/i);
+    const qLang = qm ? qm[1] : null;
+    const matchLang = qLang ? LANGS.find(l => l[0].toLowerCase() === qLang.toLowerCase()) : null;
+    if (matchLang && matchLang[0] !== current()) {
+      set(matchLang[0]);
+      return;
+    }
     const g = readCookie();
     if (!g || OWN.includes(g)) return;
     // Google's widget, when it starts with the cookie already set, marks the page translated
