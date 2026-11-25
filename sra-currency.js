@@ -70,11 +70,16 @@
       return !tz || /^Asia\/(Kolkata|Calcutta)$/.test(tz);
     } catch (e) { return true; }
   }
+  // Prices shown follow where the visitor is (25 Nov 2026, owner's rule): India always rupees, abroad the
+  // local currency. Nothing is remembered across visits any more — an old saved "USD" (e.g. from a Global
+  // Eleven link) had made Indian visitors see dollars on Hindi pages. ?cur=xxx (testing) lasts for this tab
+  // only. The payer can still pick any currency at the payment step (sra-coupon-engine.js chooseCurrency).
+  try { localStorage.removeItem(KEY); } catch (e) {}
   function get() {
     if (skipPage) return 'INR';
     var m = location.search.match(/[?&]cur=([a-z]{3})\b/i);
-    if (m && ok(m[1].toUpperCase())) { try { localStorage.setItem(KEY, m[1].toUpperCase()); } catch (e) {} return m[1].toUpperCase(); }
-    try { var v = localStorage.getItem(KEY); if (ok(v)) return v; } catch (e) {}
+    if (m && ok(m[1].toUpperCase())) { try { sessionStorage.setItem(KEY, m[1].toUpperCase()); } catch (e) {} return m[1].toUpperCase(); }
+    try { var v = sessionStorage.getItem(KEY); if (ok(v)) return v; } catch (e) {}
     return inIndia() ? 'INR' : localCurrency();
   }
   function ok(c) { return c === 'INR' || !!TABLE[c]; }
@@ -184,19 +189,25 @@
   }
   function set(c) {
     c = ok(c) ? c : 'INR';
-    try { localStorage.setItem(KEY, c); } catch (e) {}
+    try { sessionStorage.setItem(KEY, c); } catch (e) {}
     var u = location.href.replace(/([?&])cur=[a-z]{3}&?/i, '$1').replace(/[?&]$/, '');
     if (u === location.href) location.reload(); else location.replace(u);
   }
 
+  function formatIn(inr, c) { return c === 'INR' ? '₹' + Number(inr).toLocaleString('en-IN') : SYM[c] + Number(inCur(inr, c)).toLocaleString('en-US'); }
   window.SRACurrency = {
     get: function () { return cur; }, set: set, usd: usd, inIndia: inIndia,
     price: function (inr) { return inCur(inr, cur); }, symbol: function () { return SYM[cur]; },
-    format: function (inr) { return cur === 'INR' ? '₹' + Number(inr).toLocaleString('en-IN') : money(inCur(inr, cur)); }
+    format: function (inr) { return formatIn(inr, cur); },
+    // for the payment step: every currency we take, and the price in each
+    local: function () { return skipPage ? 'INR' : (inIndia() ? 'INR' : localCurrency()); },
+    all: function () { return ['INR'].concat(Object.keys(TABLE)); },
+    name: function (c) { return c === 'INR' ? '₹ INR' : NAME[c]; },
+    priceIn: function (inr, c) { return inCur(inr, c); }, formatIn: formatIn,
+    rupeesOnly: function () { return skipPage; }
   };
 
   function start() {
-    bar();
     if (cur === 'INR') return;
     document.documentElement.setAttribute('data-sra-currency', cur);
     // phone boxes made for 10-digit Indian numbers: allow a number with country code

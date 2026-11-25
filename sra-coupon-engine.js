@@ -502,7 +502,7 @@
   try {
     if (!window.SRACurrency && document.currentScript && document.currentScript.src) {
       var cs = document.createElement('script');
-      cs.src = document.currentScript.src.replace(/sra-coupon-engine\.js(\?.*)?$/, 'sra-currency.js?v=5');
+      cs.src = document.currentScript.src.replace(/sra-coupon-engine\.js(\?.*)?$/, 'sra-currency.js?v=6');
       document.head.appendChild(cs);
     }
   } catch (e) {}

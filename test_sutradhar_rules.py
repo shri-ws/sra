@@ -698,6 +698,43 @@ def test_more_local_currencies_russia_china_gulf():
         assert o["net_price"] == round(price * se.inr_rate(cur))
 
 
+def test_ip_country_decides_the_currency(monkeypatch):
+    # 25 Nov 2026: India pays in rupees, abroad in the local currency, whatever the page asked for
+    buyer = "9822200093"
+    hdr = {"Authorization": f"Bearer mock_token_{buyer}"}
+    make = lambda cur, sid="muhurta_vyapar": client.post("/api/sutradhar/orders/create", headers=hdr,
+                                                         json={"customer_phone": buyer, "service_id": sid, "currency": cur}).json()
+    monkeypatch.setattr(se, "visitor_country", lambda request: "US")
+    o = make("INR")                                        # Indian time zone set on a phone in the USA
+    assert o["currency"] == "USD" and o["amount"] == 31 * 100, o
+    monkeypatch.setattr(se, "visitor_country", lambda request: "DE")
+    assert make("INR")["currency"] == "EUR"
+    monkeypatch.setattr(se, "visitor_country", lambda request: "RU")
+    assert make("USD")["currency"] == "RUB"
+    monkeypatch.setattr(se, "visitor_country", lambda request: "BR")   # no local table: US dollars
+    assert make("INR")["currency"] == "USD"
+    monkeypatch.setattr(se, "visitor_country", lambda request: "IN")
+    o = make("USD")                                        # Indian visitor never pays in dollars
+    assert o["currency"] == "INR" and o["amount"] == 1551 * 100, o
+    q = client.post("/api/sutradhar/quote", json={"customer_phone": buyer, "service_id": "muhurta_vyapar", "currency": "EUR"}).json()
+    assert q["currency"] == "INR" and q["display_price"] == "₹1,551"
+    monkeypatch.setattr(se, "visitor_country", lambda request: "FR")
+    assert make("INR", "astrologer_saas")["currency"] == "USD"           # membership abroad: dollars only
+    monkeypatch.setattr(se, "visitor_country", lambda request: "")     # country unknown: page's currency
+    assert make("GBP")["currency"] == "GBP"
+
+
+def test_country_database_reads_real_addresses():
+    if se._geo() is None:
+        import pytest; pytest.skip("maxminddb not installed")
+    class R:  # a request as Render passes it
+        def __init__(self, ip): self.headers = {"x-forwarded-for": ip}; self.client = None
+    assert se.visitor_country(R("49.36.0.1")) == "IN"
+    assert se.visitor_country(R("8.8.8.8")) == "US"
+    assert se.currency_for_visitor(R("49.36.0.1"), "USD") == "INR"
+    assert se.currency_for_visitor(R("8.8.8.8"), "INR") == "USD"
+
+
 def test_foreign_customer_pays_in_local_currency():
     """25 Nov 2026: JPY (whole yen, no cents), GBP and AED orders; anything unknown -> rupees."""
     q = client.post("/api/sutradhar/quote", json={"customer_phone": "", "service_id": "gun_milan_manglik", "currency": "jpy"}).json()

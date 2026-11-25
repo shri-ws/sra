@@ -451,13 +451,8 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
   </div>
 </div>
 
-<script>
-// A Global Eleven link opened from India keeps showing and charging US dollars (as before);
-// everywhere else the currency comes from sra-currency.js, the same one the server charges.
-(function(){try{var p=new URLSearchParams(location.search),tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
-if(!p.get('cur')&&!localStorage.getItem('sra_currency')&&/^(global_eleven|course_global)$/.test(p.get('plan')||'')&&/^Asia\/(Kolkata|Calcutta)$/.test(tz))localStorage.setItem('sra_currency','USD');}catch(e){}})();
-</script>
-<script src="sra-currency.js?v=5"></script>
+<!-- Currency follows where the visitor is (sra-currency.js); the server checks the IP country (25 Nov 2026). -->
+<script src="sra-currency.js?v=6"></script>
 <script src="sra-coupon-engine.js?v=2"></script>
 <script>
 const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';

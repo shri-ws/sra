@@ -197,6 +197,59 @@ def clean_currency(cur: Optional[str]) -> str:
     return c if c in SUPPORTED_CURRENCIES else "INR"
 
 
+# -----------------------------------------------------------------------------
+# VISITOR'S COUNTRY DECIDES THE CURRENCY (25 Nov 2026, owner's rule): India pays only in rupees, a
+# visitor abroad only in the local currency (US dollars where we do not sell in theirs). The page
+# picks the currency from the phone's time zone; the server checks the visitor's IP country so a
+# visitor abroad who sets an Indian time zone still pays the foreign price, and an Indian visitor is
+# never charged in dollars. Country lookup is local: DB-IP "IP to Country Lite" (CC BY 4.0,
+# https://db-ip.com), data/geo/dbip-country-lite.mmdb — no IP leaves the server. Refresh monthly.
+# If the country cannot be read (database missing, private address), the page's currency is used.
+# -----------------------------------------------------------------------------
+GEO_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "geo", "dbip-country-lite.mmdb")
+_geo_reader: Any = None
+EURO_COUNTRIES = {"AT", "BE", "HR", "CY", "EE", "FI", "FR", "DE", "GR", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PT", "SK",
+                  "SI", "ES", "BG", "MC", "SM", "VA", "AD", "ME", "XK", "AX", "GF", "GP", "MQ", "RE", "YT", "BL", "MF", "PM"}
+COUNTRY_CURRENCY: Dict[str, str] = {"IN": "INR", "US": "USD", "JP": "JPY", "GB": "GBP", "IM": "GBP", "JE": "GBP", "GG": "GBP",
+                                    "AU": "AUD", "CA": "CAD", "SG": "SGD", "AE": "AED", "CH": "CHF", "LI": "CHF", "RU": "RUB",
+                                    "CN": "CNY", "HK": "HKD", "SA": "SAR", "QA": "QAR", "NZ": "NZD", "MY": "MYR", "ZA": "ZAR"}
+
+
+def _geo():
+    global _geo_reader
+    if _geo_reader is None:
+        try:
+            import maxminddb
+            _geo_reader = maxminddb.open_database(GEO_DB_PATH)
+        except Exception as e:
+            logger.warning(f"country database not loaded ({e}); using the page's currency")
+            _geo_reader = False
+    return _geo_reader or None
+
+
+def visitor_country(request: Optional["Request"]) -> str:
+    """Two-letter country of the visitor's IP, or "" when it cannot be told."""
+    try:
+        ip = _client_ip(request)
+        r = _geo()
+        if not r or not ip or ip in ("unknown", "testclient"):
+            return ""
+        d = r.get(ip) or {}
+        return ((d.get("country") or {}).get("iso_code") or "").upper()
+    except Exception:
+        return ""
+
+
+def currency_for_visitor(request: Optional["Request"], asked: str, service_id: str = "") -> str:
+    cc = visitor_country(request)
+    if not cc:
+        return asked
+    cur = "INR" if cc == "IN" else ("EUR" if cc in EURO_COUNTRIES else COUNTRY_CURRENCY.get(cc, "USD"))
+    if cur != "INR" and service_id in ("astrologer_saas", "astrologer_saas_renewal"):
+        cur = "USD"            # astrologer membership abroad: US dollars only
+    return cur
+
+
 def resolve_service_id(service_id: str) -> str:
     sid = (service_id or "").strip().lower()
     return SERVICE_ALIASES.get(sid, sid)
@@ -1221,10 +1274,10 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
 
 
 @router.post("/quote")
-async def get_checkout_quote(req: QuoteRequest, authorization: Optional[str] = Header(None)):
+async def get_checkout_quote(req: QuoteRequest, request: Request, authorization: Optional[str] = Header(None)):
     verified_phone = token_phone(verify_firebase_token(authorization))
     q = build_quote(req.customer_phone, req.service_id, req.input_code, verified_phone)
-    cur = clean_currency(req.currency)
+    cur = currency_for_visitor(request, clean_currency(req.currency), q.get("service_id", ""))
     if cur != "INR" and not q.get("is_test"):
         amt = foreign_price(q["service_id"], cur)
         q.update({"currency": cur, "price_foreign": amt, "display_price": money_text(amt, cur)})
@@ -1394,7 +1447,7 @@ def confirm_course_seat(order: Dict[str, Any], payment_id: str, captured_paise: 
 # ENDPOINT 4: SERVER-SIDE RAZORPAY ORDER CREATION (TAMPER-PROOF PRICING & R2 AUTH)
 # -----------------------------------------------------------------------------
 @router.post("/orders/create")
-async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional[str] = Header(None)):
+async def create_razorpay_order(req: CreateOrderRequest, request: Request, authorization: Optional[str] = Header(None)):
     """
     Razorpay order बनाना:
     R1 & R2: ग्राहक की पहचान केवल सर्वर पर सत्यापित Firebase ID टोकन से ली जाती है।
@@ -1480,7 +1533,7 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         attributed_at = None
 
     # Foreign customer: the dollar or euro price (master test code stays ₹1)
-    asked = clean_currency(req.currency)
+    asked = currency_for_visitor(request, clean_currency(req.currency), service_id)   # the IP country decides
     currency = asked if (asked != "INR" and not is_test_order) else "INR"
     rate = inr_rate(currency) if currency != "INR" else None
     price_foreign = foreign_price(service_id, currency) if currency != "INR" else 0
