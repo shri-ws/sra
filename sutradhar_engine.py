@@ -122,10 +122,35 @@ USD_PRICE_BY_INR: Dict[int, int] = {501: 11, 1101: 21, 1111: 21, 1551: 31, 2100:
 # EURO (25 Nov 2026): visitors in euro countries see euro prices; same rules as dollars,
 # rate EUR_INR_RATE (default 100). Keep in step with EUR in sra-currency.js.
 EUR_PRICE_BY_INR: Dict[int, int] = {501: 10, 1101: 19, 1111: 19, 1551: 29, 2100: 39, 5100: 95, 24000: 415, 94600: 1050}
-FOREIGN_PRICE_BY_INR: Dict[str, Dict[int, int]] = {"USD": USD_PRICE_BY_INR, "EUR": EUR_PRICE_BY_INR}
-FOREIGN_RATE_DEFAULT: Dict[str, float] = {"USD": 88.0, "EUR": 100.0}
-CURRENCY_SYMBOL: Dict[str, str] = {"INR": "₹", "USD": "$", "EUR": "€"}
-SUPPORTED_CURRENCIES = {"INR", "USD", "EUR"}
+# MORE LOCAL CURRENCIES (25 Nov 2026): Japan, UK, Australia, Canada, Singapore, UAE, Switzerland.
+# Everyone else abroad pays in USD. Rates (rupees for one unit) come from <CUR>_INR_RATE env vars.
+# JPY has no cents: Razorpay takes yen as whole yen (CURRENCY_EXPONENT).
+FOREIGN_PRICE_BY_INR: Dict[str, Dict[int, int]] = {
+    "USD": USD_PRICE_BY_INR,
+    "EUR": EUR_PRICE_BY_INR,
+    "JPY": {501: 1700, 1101: 3200, 1111: 3200, 1551: 4800, 2100: 6300, 5100: 15500, 24000: 69000, 94600: 170000},
+    "GBP": {501: 9, 1101: 17, 1111: 17, 1551: 25, 2100: 33, 5100: 79, 24000: 355, 94600: 870},
+    "AUD": {501: 17, 1101: 32, 1111: 32, 1551: 47, 2100: 62, 5100: 155, 24000: 685, 94600: 1690},
+    "CAD": {501: 15, 1101: 29, 1111: 29, 1551: 43, 2100: 57, 5100: 139, 24000: 625, 94600: 1540},
+    "SGD": {501: 15, 1101: 28, 1111: 28, 1551: 41, 2100: 55, 5100: 135, 24000: 599, 94600: 1470},
+    "AED": {501: 41, 1101: 77, 1111: 77, 1551: 114, 2100: 151, 5100: 371, 24000: 1651, 94600: 4080},
+    "CHF": {501: 10, 1101: 19, 1111: 19, 1551: 27, 2100: 36, 5100: 89, 24000: 395, 94600: 970},
+}
+FOREIGN_RATE_DEFAULT: Dict[str, float] = {"USD": 88.0, "EUR": 100.0, "JPY": 0.58, "GBP": 112.0, "AUD": 58.0,
+                                          "CAD": 63.0, "SGD": 66.0, "AED": 24.0, "CHF": 104.0}
+CURRENCY_SYMBOL: Dict[str, str] = {"INR": "₹", "USD": "$", "EUR": "€", "JPY": "¥", "GBP": "£", "AUD": "A$",
+                                   "CAD": "C$", "SGD": "S$", "AED": "AED ", "CHF": "CHF "}
+CURRENCY_EXPONENT: Dict[str, int] = {"JPY": 0}      # all others: 2 (cents)
+SUPPORTED_CURRENCIES = {"INR"} | set(FOREIGN_PRICE_BY_INR)
+
+
+def minor_units(amount: int, cur: str) -> int:
+    """Amount in the unit Razorpay wants: paise/cents, or whole yen."""
+    return int(amount) * (10 ** CURRENCY_EXPONENT.get(cur, 2))
+
+
+def money_text(amount: int, cur: str) -> str:
+    return f"{CURRENCY_SYMBOL.get(cur, cur + ' ')}{int(amount):,}"
 
 
 def inr_rate(cur: str) -> float:
@@ -691,7 +716,7 @@ class QuoteRequest(BaseModel):
     customer_phone: str = Field(..., description="10-digit customer mobile number")
     service_id: str = Field(..., description="Catalog service identifier")
     input_code: Optional[str] = Field(None, description="Promo code entered by customer (optional)")
-    currency: Optional[str] = Field("INR", description="INR, or USD/EUR for customers outside India")
+    currency: Optional[str] = Field("INR", description="INR, or USD/EUR/JPY/GBP/AUD/CAD/SGD/AED/CHF for customers outside India")
 
 class CreateOrderRequest(BaseModel):
     customer_phone: str = Field(..., description="Customer 10-digit mobile number")
@@ -701,7 +726,7 @@ class CreateOrderRequest(BaseModel):
     input_code: Optional[str] = Field(None, description="Optional manual coupon")
     batch_id: Optional[str] = Field(None, description="1-year course only: batch_morning / batch_evening")
     ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
-    currency: Optional[str] = Field("INR", description="INR, or USD/EUR for customers outside India")
+    currency: Optional[str] = Field("INR", description="INR, or USD/EUR/JPY/GBP/AUD/CAD/SGD/AED/CHF for customers outside India")
 
 class ReviewActionRequest(BaseModel):
     commission_id: str
@@ -1188,7 +1213,7 @@ async def get_checkout_quote(req: QuoteRequest, authorization: Optional[str] = H
     cur = clean_currency(req.currency)
     if cur != "INR" and not q.get("is_test"):
         amt = foreign_price(q["service_id"], cur)
-        q.update({"currency": cur, "price_foreign": amt, "display_price": f"{CURRENCY_SYMBOL[cur]}{amt}"})
+        q.update({"currency": cur, "price_foreign": amt, "display_price": money_text(amt, cur)})
         if cur == "USD":
             q["price_usd"] = amt
     else:
@@ -1204,6 +1229,7 @@ async def get_service_catalog():
         c = commission_for_payment(sid, it["price"] * 100)
         items.append({"service_id": sid, "name": it["name"], "price": it["price"], "price_usd": usd_price(sid),
                       "price_eur": foreign_price(sid, "EUR"),
+                      "prices_foreign": {c: foreign_price(sid, c) for c in FOREIGN_PRICE_BY_INR},
                       "price_excl_gst": c["amount_excl_gst"], "gst_amount": c["gst_amount"],
                       "commission_rate_percent": it["rate"], "sutradhar_commission": c["commission"]})
     return {"status": "success", "gst_percent": GST_RATE_PERCENT, "items": items, "usd_inr_rate": usd_inr_rate(),
@@ -1458,7 +1484,7 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "attributed_at": attributed_at or ""
     }
     # Razorpay order in USD/EUR (cents); if the account does not take it, the same amount in rupees
-    attempts = [(currency, price_foreign * 100), ("INR", net_paise)] if currency != "INR" else [("INR", net_paise)]
+    attempts = [(currency, minor_units(price_foreign, currency)), ("INR", net_paise)] if currency != "INR" else [("INR", net_paise)]
     order_currency, order_minor = attempts[-1]
     last_err = None
     try:
@@ -1534,7 +1560,7 @@ async def create_razorpay_order(req: CreateOrderRequest, authorization: Optional
         "currency": order_currency,
         "price_usd": price_usd or None,
         "price_foreign": price_foreign or None,
-        "display_price": (f"{CURRENCY_SYMBOL[order_currency]}{price_foreign}" if order_currency != "INR"
+        "display_price": (money_text(price_foreign, order_currency) if order_currency != "INR"
                           else f"₹{int(order_minor // 100):,}"),
         "key_id": RAZORPAY_KEY_ID,
         "sutradhar_code": attributed_sutradhar_code,

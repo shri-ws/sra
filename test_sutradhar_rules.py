@@ -674,6 +674,35 @@ def test_foreign_customer_pays_in_euros():
     assert t["currency"] == "INR" and t["amount"] == 100
 
 
+def test_foreign_customer_pays_in_local_currency():
+    """25 Nov 2026: JPY (whole yen, no cents), GBP and AED orders; anything unknown -> rupees."""
+    q = client.post("/api/sutradhar/quote", json={"customer_phone": "", "service_id": "gun_milan_manglik", "currency": "jpy"}).json()
+    assert q["currency"] == "JPY" and q["price_foreign"] == 3200 and q["display_price"] == "¥3,200"
+    cat = {i["service_id"]: i for i in client.get("/api/sutradhar/catalog").json()["items"]}
+    assert cat["mangal_dosha"]["prices_foreign"]["GBP"] == 9 and cat["muhurta_vivah"]["prices_foreign"]["AED"] == 151
+
+    buyer = "9822200091"
+    hdr = {"Authorization": f"Bearer mock_token_{buyer}"}
+    o = client.post("/api/sutradhar/orders/create", headers=hdr,
+                    json={"customer_phone": buyer, "service_id": "gun_milan_manglik", "currency": "JPY"}).json()
+    assert o["currency"] == "JPY" and o["amount"] == 3200 and o["display_price"] == "¥3,200"   # yen, not yen x 100
+    assert o["net_price"] == round(3200 * se.inr_rate("JPY"))
+    bad = client.post("/api/sutradhar/webhook/razorpay", headers=WEBHOOK_HDR, json={"event": "payment.captured",
+          "payload": {"payment": {"entity": {"id": "pay_jpy_bad", "order_id": o["order_id"], "amount": 320000, "currency": "JPY"}}}}).json()
+    assert bad["status"] == "ignored"
+    ok = client.post("/api/sutradhar/webhook/razorpay", headers=WEBHOOK_HDR, json={"event": "payment.captured",
+         "payload": {"payment": {"entity": {"id": "pay_jpy_1", "order_id": o["order_id"], "amount": 3200, "currency": "JPY"}}}}).json()
+    assert ok["status"] != "ignored"
+
+    g = client.post("/api/sutradhar/orders/create", headers=hdr,
+                    json={"customer_phone": buyer, "service_id": "muhurta_vivah", "currency": "gbp"}).json()
+    assert g["currency"] == "GBP" and g["amount"] == 33_00 and g["display_price"] == "£33"
+    u = client.post("/api/sutradhar/orders/create", headers=hdr,
+                    json={"customer_phone": buyer, "service_id": "muhurta_vastu", "currency": "AED"}).json()
+    assert u["currency"] == "AED" and u["amount"] == 114_00 and u["display_price"] == "AED 114"
+    assert client.post("/api/sutradhar/quote", json={"customer_phone": "", "service_id": "mangal_dosha", "currency": "KWD"}).json()["currency"] == "INR"
+
+
 def test_report_brand_for_saas_astrologer():
     """23 Nov 2026: a signed-in active SaaS astrologer prints reports under his own saved name."""
     phone = "9833300077"

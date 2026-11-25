@@ -351,7 +351,7 @@ SRA_I18N.add([
   ["निपुणता", "Mastery"],
   ["व्यावसायिक केस स्टडी, चिकित्सा ज्योतिष, आर्थिक ज्योतिष, वास्तु मूल सिद्धांत, लाइव कुण्डली पठन प्रयोगशाला", "Professional Case Studies, Medical Astrology, Financial Astrology, Vastu Fundamentals, Live Chart Reading Lab"],
   ["वार्षिक कोर्स शुल्क", "Annual Course Fee"],
-  ["≈ USD 289 · EMI 24 महीने तक · लगभग ₹1,000/माह", "≈ USD 289 · EMI up to 24 months · approx ₹1,000/month"],
+  ["EMI 24 महीने तक · लगभग ₹1,000/माह", "EMI up to 24 months · approx ₹1,000/month"],
   ["अभी नामांकन करें — ₹24,000", "Enrol Now — ₹24,000"],
   ["48 लाइव ज़ूम कक्षाएँ + आजीवन रिकॉर्डिंग सम्मिलित", "Includes 48 Live Zoom Classes + Lifetime Recorded Access"],
   ["खाता बनाएं", "Create Account"],

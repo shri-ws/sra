@@ -167,7 +167,7 @@ SRA_I18N.add([
   ["💳 ₹501 ऑनलाइन भुगतान करें (UPI / कार्ड / नेटबैंकिंग)", "💳 Pay ₹501 online (UPI / Card / Netbanking)"],
   ["देय कुल राशि:", "Net Payable:", "देय कुल राशि (Net Payable):"],
   ["विशेष छूट (80%):", "Special discount (80% OFF):", "विशेष छूट (80% OFF):"],
-  ["₹5,100 / $99 USD", "₹5,100 / $99 USD"],
+  ["₹5,100 / $101 USD", "₹5,100 / $101 USD"],
   ["मुंडन (चूड़ाकर्म) मुहूर्त", "Mundan (Chudakarma) Scanner"],
   ["© 2026 श्री रामजी एस्ट्रो की पत्रिका। सर्वाधिकार सुरक्षित। उच्च-सटीक गणितीय शोध हेतु निर्मित।", "© 2026 Patrika by Shri Ram Ji Astro. All rights reserved. Built for high-precision mathematical research."],
   ["विशिष्ट", "VIP"],
