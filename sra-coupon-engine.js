@@ -290,7 +290,8 @@
         return null;
       }
       var prefill = options.prefill || {};
-      var phone = String(o.phone || this.guessPhone() || '').replace(/\D/g, '').slice(-10);
+      var phone = String(o.phone || this.guessPhone() || '').replace(/\D/g, '');
+      phone = phone.length > 10 && this.currency() !== 'INR' ? phone.slice(-15) : phone.slice(-10);   // keep a foreign country code
       var order;
       try {
         order = await this.createServerOrder(phone, o.email || prefill.email || '', o.serviceId, o.code, o.name || prefill.name, o.extra);

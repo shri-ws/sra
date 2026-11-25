@@ -295,7 +295,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
           <div class="plan-sub">11 Scholars Worldwide · Strictly 1 Seat Per Nation · English · D1–D60 Mastery</div>
           <div class="plan-emi">🇺🇸 🇬🇧 🇨🇦 🇦🇺 🇩🇪 🇫🇷 🇪🇸 🇷🇺 🇦🇪 🇸🇬 🇯🇵</div>
         </div>
-        <div class="plan-price"><span class="plan-amt">$1,111</span><span class="plan-orig">$1,500</span></div>
+        <div class="plan-price"><span class="plan-amt" id="amtGlobal">$1,111</span><span class="plan-orig" id="origGlobal">$1,500</span></div>
         <div class="badge" style="background:#b8860b; color:#fff;">Exclusive</div>
       </div>
       
@@ -415,7 +415,7 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
   </div>
 
   <!-- Support Section -->
-  <div class="support-section">
+  <div class="support-section" data-sra-inr="1">
     <div class="section-label" style="background:rgba(201,168,76,0.06)">🙏 Support Our Work (Optional)</div>
     <div class="support-body">
       <div class="support-msg">
@@ -469,7 +469,14 @@ nav{background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 24p
   </div>
 </div>
 
-<script src="sra-coupon-engine.js"></script>
+<script>
+// A Global Eleven link opened from India keeps showing and charging US dollars (as before);
+// everywhere else the currency comes from sra-currency.js, the same one the server charges.
+(function(){try{var p=new URLSearchParams(location.search),tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+if(!p.get('cur')&&!localStorage.getItem('sra_currency')&&/^(global_eleven|course_global)$/.test(p.get('plan')||'')&&/^Asia\/(Kolkata|Calcutta)$/.test(tz))localStorage.setItem('sra_currency','USD');}catch(e){}})();
+</script>
+<script src="sra-currency.js?v=4"></script>
+<script src="sra-coupon-engine.js?v=2"></script>
 <script>
 const SUPA_URL = 'https://jhnfrlgodpvdhvndpoam.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpobmZybGdvZHB2ZGh2bmRwb2FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTE1ODIsImV4cCI6MjA4Nzk2NzU4Mn0.ta_8NX0MEcu1CxIpPdQmemDav4j53L_QVC0rxog0anI';
@@ -509,18 +516,22 @@ function isInternational() {
 }
 
 let S={id:'global_eleven',name:'The Global Eleven | 1-Year Classical Immersion',base:94600,orig:128000,disc:0,total:0};
-const isUSD = () => S.id === 'global_eleven' || isInternational() || (window.SRACurrency && SRACurrency.get() === 'USD') || new URLSearchParams(location.search).get('cur') === 'usd';
+// The page shows the same currency the server will charge (sra-currency.js -> orders/create)
+const curNow = () => (window.SRACurrency ? SRACurrency.get() : 'INR');
+const isUSD = () => curNow() !== 'INR';          // paying in a foreign currency (old name kept)
+const curTag = () => curNow() === 'USD' ? ' USD' : '';
+const ORIG_OF = { 128000: 94600, 32000: 24000 };  // struck-out old price -> today's price
 const fmt = n => {
   n = Number(n) || 0;
-  if (isUSD()) {
-    if (n === 94600) return '$1,111';
-    if (n === 24000) return '$451';
-    if (n === 5100) return '$101';
-    if (n === 128000) return '$1,500';
-    if (n === 32000) return '$600';
-    return '$' + Math.max(0, Math.round(n / 85));
+  const c = curNow();
+  if (c === 'INR') return '₹' + Math.round(n).toLocaleString('en-IN');
+  let v = SRACurrency.price(n);
+  if (ORIG_OF[n]) {                                  // old price, rounded to a plain figure ($1,500, ¥230,000)
+    const raw = SRACurrency.price(ORIG_OF[n]) * n / ORIG_OF[n];
+    const step = Math.pow(10, Math.max(1, String(Math.round(raw)).length - 2));
+    v = Math.round(raw / step) * step;
   }
-  return '₹' + Math.round(n).toLocaleString('en-IN');
+  return SRACurrency.symbol() + Math.max(0, v).toLocaleString('en-US');
 };
 
 function applyInternationalExperience() {
@@ -528,7 +539,6 @@ function applyInternationalExperience() {
   document.documentElement.setAttribute('lang', 'en');
   try {
     localStorage.setItem('sra_lang', 'en');
-    localStorage.setItem('sra_currency', 'USD');
   } catch(e) {}
   document.title = "Admissions & Enrolment — The Global Eleven 2027 | Shri Ramji Astro";
   const titleEl = document.querySelector('.page-title h1');
@@ -600,7 +610,7 @@ function applyCoupon(){
 function updateSummary(){
   const after=S.base-S.disc;
   S.total=Math.round(after);
-  const curSuffix = isUSD() ? ' USD' : '';
+  const curSuffix = curTag();
   document.getElementById('sumPlan').textContent=S.name;
   document.getElementById('sumBase').textContent=fmt(S.base) + curSuffix;
   document.getElementById('sumTotal').textContent=fmt(after) + curSuffix;
@@ -618,12 +628,10 @@ function updateSummary(){
   document.getElementById('emi12').textContent='≈ '+fmt(after/24)+'/mo';
 
   // Dynamic card price displays
-  const cAmt = document.getElementById('amtConsult');
-  if (cAmt) cAmt.textContent = isUSD() ? '$101' : '₹5,100';
-  const crAmt = document.getElementById('amtCourse');
-  if (crAmt) crAmt.textContent = isUSD() ? '$451' : '₹24,000';
-  const crOrig = document.getElementById('origCourse');
-  if (crOrig) crOrig.textContent = isUSD() ? '$600' : '₹32,000';
+  [['amtConsult', 5100], ['amtCourse', 24000], ['origCourse', 32000], ['amtGlobal', 94600], ['origGlobal', 128000]].forEach(([id, n]) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = fmt(n); el.setAttribute('data-sra-inr', '1'); }
+  });
 }
 
 // Support / Donation logic
@@ -635,7 +643,7 @@ function setSupport(amt) {
   if(amt > 0) {
     document.getElementById('supportAmt').value = amt;
     const chips = document.querySelectorAll('.support-chip');
-    chips.forEach(c => { if(c.textContent === fmt(amt)) c.classList.add('active'); });
+    chips.forEach(c => { if(c.textContent === '₹' + amt.toLocaleString('en-IN')) c.classList.add('active'); });   // support is in rupees
   } else {
     document.getElementById('supportAmt').value = '';
     document.getElementById('chip-custom').classList.add('active');
@@ -722,7 +730,7 @@ async function pay(){
   btn.innerHTML='<span class="spin"></span> Opening Payment...';
 
   try {
-    const curSuffix = isUSD() ? ' USD' : '';
+    const curSuffix = curTag();
     const cleanPhone = phone.replace(/[^\d+]/g, '');
     const options={
       key:RZP_KEY, amount:S.total*100, currency:'INR',
