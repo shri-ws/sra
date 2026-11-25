@@ -1728,9 +1728,10 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
         </div>
         <div id="scl-selbar" style="display:none; gap:10px; align-items:center; flex-wrap:wrap; border:1px solid #bbf7d0; background:#f0fdf4; border-radius:8px; padding:10px 12px; margin-bottom:10px;">
           <b id="scl-sel-count" style="font-size:13px;"></b>
-          <button class="export-btn" id="scl-sel-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendSelected()">WhatsApp selected</button>
+          <button class="export-btn" id="scl-sel-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendSelected('welcome')">Welcome message</button>
+          <button class="export-btn" id="scl-sel-video-btn" style="background:#2563eb; border-color:#1d4ed8; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendSelected('video')">Demo video</button>
           <button class="export-btn" style="padding:6px 10px;" onclick="sclClearSelected()">Clear</button>
-          <span id="scl-sel-info" style="font-size:12px; color:var(--text-muted);">WhatsApp opens one chat per click: each click opens the next selected astrologer.</span>
+          <span id="scl-sel-info" style="font-size:12px; color:var(--text-muted);">Pick which message to send. Each click opens the next selected astrologer’s WhatsApp (one chat per click).</span>
         </div>
         <select id="scl-city-select" onchange="renderSaasLeads()" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin:0 8px 10px 0; min-width:200px;"><option value="">All cities</option></select>
         <input id="scl-search" placeholder="Search name, number or city" oninput="renderSaasLeads()" style="width:100%; max-width:360px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin-bottom:10px;">
@@ -4093,7 +4094,7 @@ function renderSaasLeads() {
         <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:6px;">
           <a class="export-btn" style="${B}" href="tel:+91${l.phone}" onclick="sclSave('${l.phone}', {called:true})">Call</a>
           <button class="export-btn" style="${B} background:#2563eb; border-color:#1d4ed8; color:#fff;" onclick="sclVideoWhatsApp('${l.phone}')" title="बात होने के बाद: मोबाइल और कंप्यूटर, दोनों डेमो वीडियो के लिंक एक संदेश में">Demo video</button>
-          <button class="export-btn" style="${B} background:#16a34a; border-color:#15803d; color:#fff;" onclick="sclWhatsApp('${l.phone}')">WhatsApp</button>
+          <button class="export-btn" style="${B} background:#16a34a; border-color:#15803d; color:#fff;" onclick="sclWhatsApp('${l.phone}')">Welcome message</button>
           <button class="export-btn" style="${B}" onclick="sclCopy('${l.phone}', 'link', this)">Copy link</button>
           <button class="export-btn" style="${B}" onclick="sclCopy('${l.phone}', 'msg', this)">Copy message</button>
           <button class="export-btn" style="${B} color:#b91c1c;" onclick="sclDelete('${l.phone}')">Delete</button>
@@ -4139,13 +4140,14 @@ function sclRenderSel() {
   const all = document.getElementById('scl-sel-all');
   if (all) all.checked = sclShown.length > 0 && sclShown.every(p => sclSelected.has(p));
   if (!q.length) return;
-  document.getElementById('scl-sel-count').textContent = `${q.length} selected`;
-  document.getElementById('scl-sel-btn').textContent = `WhatsApp selected (${q.length} left) — next: ${q[0].name || q[0].phone}`;
+  document.getElementById('scl-sel-count').textContent = `${q.length} selected · next: ${q[0].name || q[0].phone}`;
+  document.getElementById('scl-sel-btn').textContent = `Welcome message (${q.length} left)`;
+  document.getElementById('scl-sel-video-btn').textContent = `Demo video (${q.length} left)`;
 }
-function sclSendSelected() {
+function sclSendSelected(kind) {
   const l = sclSelQueue()[0];
   if (!l) return;
-  sclWhatsApp(l.phone);
+  if (kind === 'video') sclVideoWhatsApp(l.phone); else sclWhatsApp(l.phone);
   sclSelected.delete(l.phone);
   if (sclStatusOf(l) === 'new') { l.status = 'demo_sent'; l.demo_sent_at = new Date().toISOString(); }
   renderSaasLeads();
