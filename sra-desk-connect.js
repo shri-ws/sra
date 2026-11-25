@@ -124,17 +124,24 @@
   // Today's festival: from the first client with full birth details (the day's parv is the same for all)
   let todayFests = null;
   async function loadTodayFestivals() {
-    const c = clients().find(x => x.dob && x.tob && x.pob);
+    const list = clients().filter(x => x.dob && x.tob && x.pob);
     const box = $('dc-parv');
-    if (!c) { box.textContent = 'किसी जातक का पूरा जन्म विवरण (तिथि, समय, स्थान) भरते ही आज का पर्व यहाँ दिखेगा।'; return; }
-    try {
-      const f = await forecastFor(c);
-      todayFests = f.festivals || [];
-      const pl = f.panchang_line || {};
-      box.innerHTML = '<b>' + esc(todayHi()) + '</b> · ' + esc([pl.masa, pl.paksha, pl.tithi, pl.nakshatra].filter(Boolean).join(', ')) +
-        (todayFests.length ? '<br>आज का पर्व: <b>' + esc(todayFests.map(p => p.name).join(' · ')) + '</b>' : '<br>आज कोई बड़ा व्रत या पर्व नहीं है।');
-      renderClients();
-    } catch (e) { box.textContent = e.message; }
+    if (!list.length) { box.textContent = 'किसी जातक का पूरा जन्म विवरण (तिथि, समय, स्थान) भरते ही आज का पर्व यहाँ दिखेगा।'; return; }
+    // the day's parv is the same for everyone: if one client's place can't be looked up, try the next
+    for (const c of list.slice(0, 4)) {
+      try {
+        const f = await forecastFor(c);
+        todayFests = f.festivals || [];
+        const pl = f.panchang_line || {};
+        box.innerHTML = '<b>' + esc(todayHi()) + '</b> · ' + esc([pl.masa, pl.paksha, pl.tithi, pl.nakshatra].filter(Boolean).join(', ')) +
+          (todayFests.length ? '<br>आज का पर्व: <b>' + esc(todayFests.map(p => p.name).join(' · ')) + '</b>' : '<br>आज कोई बड़ा व्रत या पर्व नहीं है।');
+        renderClients();
+        return;
+      } catch (e) {}
+    }
+    todayFests = null;
+    box.innerHTML = 'आज का पंचांग अभी नहीं आ सका। <button class="btn btn-outline btn-sm" type="button" id="dc-parv-retry">फिर देखें</button>';
+    $('dc-parv-retry').onclick = () => { box.textContent = 'आज का पंचांग देखा जा रहा है…'; loadTodayFestivals(); };
   }
 
   function renderClients() {
