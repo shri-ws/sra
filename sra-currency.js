@@ -6,7 +6,8 @@
    Euro (25 Nov 2026): visitors whose clock is in a euro country see euro prices, paid the same way
    (?cur=eur also works). Tables below must match USD_PRICE_BY_INR / EUR_PRICE_BY_INR in sutradhar_engine.py.
    More local currencies (25 Nov 2026): Japan JPY, UK GBP, Australia AUD, Canada CAD, Singapore SGD,
-   UAE AED, Switzerland/Liechtenstein CHF, chosen from the clock's time zone; everyone else abroad USD.
+   UAE AED, Switzerland/Liechtenstein CHF; later Russia RUB, China CNY, Hong Kong HKD, Saudi SAR, Qatar QAR,
+   New Zealand NZD, Malaysia MYR, South Africa ZAR — chosen from the clock's time zone; everyone else abroad USD.
    Tables must match FOREIGN_PRICE_BY_INR in sutradhar_engine.py.
    API: SRACurrency.get() -> 'INR' | 'USD' | 'EUR' | 'JPY' | ..., SRACurrency.set(c), SRACurrency.usd(inrPrice),
         SRACurrency.price(inrPrice) -> number in the current currency, SRACurrency.symbol(). */
@@ -24,13 +25,21 @@
     CAD: { 501: 15, 1101: 29, 1111: 29, 1551: 43, 2100: 57, 5100: 139, 24000: 625, 94600: 1540 },
     SGD: { 501: 15, 1101: 28, 1111: 28, 1551: 41, 2100: 55, 5100: 135, 24000: 599, 94600: 1470 },
     AED: { 501: 41, 1101: 77, 1111: 77, 1551: 114, 2100: 151, 5100: 371, 24000: 1651, 94600: 4080 },
-    CHF: { 501: 10, 1101: 19, 1111: 19, 1551: 27, 2100: 36, 5100: 89, 24000: 395, 94600: 970 }
+    CHF: { 501: 10, 1101: 19, 1111: 19, 1551: 27, 2100: 36, 5100: 89, 24000: 395, 94600: 970 },
+    RUB: { 501: 900, 1101: 1700, 1111: 1700, 1551: 2500, 2100: 3400, 5100: 8300, 24000: 37000, 94600: 91000 },
+    CNY: { 501: 75, 1101: 139, 1111: 139, 1551: 209, 2100: 275, 5100: 679, 24000: 2999, 94600: 7399 },
+    HKD: { 501: 86, 1101: 165, 1111: 165, 1551: 243, 2100: 321, 5100: 792, 24000: 3536, 94600: 8710 },
+    SAR: { 501: 41, 1101: 79, 1111: 79, 1551: 116, 2100: 154, 5100: 379, 24000: 1690, 94600: 4170 },
+    QAR: { 501: 40, 1101: 76, 1111: 76, 1551: 113, 2100: 149, 5100: 368, 24000: 1640, 94600: 4040 },
+    NZD: { 501: 20, 1101: 39, 1111: 39, 1551: 57, 2100: 75, 5100: 185, 24000: 829, 94600: 2045 },
+    MYR: { 501: 45, 1101: 87, 1111: 87, 1551: 128, 2100: 169, 5100: 416, 24000: 1858, 94600: 4577 },
+    ZAR: { 501: 195, 1101: 369, 1111: 369, 1551: 545, 2100: 719, 5100: 1769, 24000: 7899, 94600: 19449 }
   };
-  var RATE = { USD: 88, EUR: 100, JPY: 0.58, GBP: 112, AUD: 58, CAD: 63, SGD: 66, AED: 24, CHF: 104 };
-  var SYM = { INR: '₹', USD: '$', EUR: '€', JPY: '¥', GBP: '£', AUD: 'A$', CAD: 'C$', SGD: 'S$', AED: 'AED ', CHF: 'CHF ' };
-  var NAME = { USD: 'US$', EUR: '€ EUR', JPY: '¥ JPY', GBP: '£ GBP', AUD: 'A$ AUD', CAD: 'C$ CAD', SGD: 'S$ SGD', AED: 'AED', CHF: 'CHF' };
+  var RATE = { USD: 88, EUR: 100, JPY: 0.58, GBP: 112, AUD: 58, CAD: 63, SGD: 66, AED: 24, CHF: 104, RUB: 1.07, CNY: 13.2, HKD: 11.2, SAR: 23.5, QAR: 24.2, NZD: 47.8, MYR: 21.4, ZAR: 5.03 };
+  var SYM = { INR: '₹', USD: '$', EUR: '€', JPY: '¥', GBP: '£', AUD: 'A$', CAD: 'C$', SGD: 'S$', AED: 'AED ', CHF: 'CHF ', RUB: '₽', CNY: 'CN¥', HKD: 'HK$', SAR: 'SAR ', QAR: 'QAR ', NZD: 'NZ$', MYR: 'RM ', ZAR: 'R ' };
+  var NAME = { USD: 'US$', EUR: '€ EUR', JPY: '¥ JPY', GBP: '£ GBP', AUD: 'A$ AUD', CAD: 'C$ CAD', SGD: 'S$ SGD', AED: 'AED', CHF: 'CHF', RUB: '₽ RUB', CNY: 'CN¥ CNY', HKD: 'HK$ HKD', SAR: 'SAR', QAR: 'QAR', NZD: 'NZ$ NZD', MYR: 'RM MYR', ZAR: 'R ZAR' };
   var PHONE = { EUR: '+49 151 2345 6789', JPY: '+81 90 1234 5678', GBP: '+44 7700 900123', AUD: '+61 412 345 678',
-                CAD: '+1 416 555 0123', SGD: '+65 8123 4567', AED: '+971 50 123 4567', CHF: '+41 79 123 45 67' };
+                CAD: '+1 416 555 0123', SGD: '+65 8123 4567', AED: '+971 50 123 4567', CHF: '+41 79 123 45 67', RUB: '+7 912 345 6789', CNY: '+86 139 1234 5678', HKD: '+852 5123 4567', SAR: '+966 50 123 4567', QAR: '+974 3312 3456', NZD: '+64 21 123 4567', MYR: '+60 12 345 6789', ZAR: '+27 82 123 4567' };
   // time zone -> local currency (only where we sell in that currency)
   var LOCAL_TZ = [
     ['JPY', /^Asia\/Tokyo$/],
@@ -39,7 +48,15 @@
     ['CAD', /^America\/(Toronto|Montreal|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Moncton|Whitehorse|Yellowknife|Iqaluit|Glace_Bay|Goose_Bay|Dawson|Dawson_Creek|Fort_Nelson|Creston|Rankin_Inlet|Resolute|Cambridge_Bay|Inuvik|Swift_Current|Atikokan|Coral_Harbour|Nipigon|Thunder_Bay|Rainy_River|Pangnirtung)$|^Canada\//],
     ['SGD', /^(Asia\/Singapore|Singapore)$/],
     ['AED', /^Asia\/Dubai$/],
-    ['CHF', /^Europe\/(Zurich|Vaduz)$/]
+    ['CHF', /^Europe\/(Zurich|Vaduz)$/],
+    ['RUB', /^(Europe\/(Moscow|Kaliningrad|Samara|Volgograd|Saratov|Ulyanovsk|Astrakhan|Kirov)|Asia\/(Yekaterinburg|Omsk|Novosibirsk|Barnaul|Tomsk|Novokuznetsk|Krasnoyarsk|Irkutsk|Chita|Yakutsk|Khandyga|Vladivostok|Ust-Nera|Magadan|Sakhalin|Srednekolymsk|Kamchatka|Anadyr)|W-SU)$/],
+    ['CNY', /^(Asia\/(Shanghai|Chongqing|Chungking|Harbin|Urumqi|Kashgar)|PRC)$/],
+    ['HKD', /^(Asia\/Hong_Kong|Hongkong)$/],
+    ['SAR', /^Asia\/Riyadh$/],
+    ['QAR', /^Asia\/Qatar$/],
+    ['NZD', /^(Pacific\/(Auckland|Chatham)|NZ|NZ-CHAT)$/],
+    ['MYR', /^Asia\/(Kuala_Lumpur|Kuching)$/],
+    ['ZAR', /^Africa\/Johannesburg$/]
   ];
   // clocks in countries that pay in euros (euro area, small euro states, French overseas regions)
   var EURO_TZ = /^(Europe\/(Vienna|Brussels|Zagreb|Nicosia|Tallinn|Helsinki|Mariehamn|Paris|Berlin|Busingen|Athens|Dublin|Rome|Riga|Vilnius|Luxembourg|Malta|Amsterdam|Lisbon|Bratislava|Ljubljana|Madrid|Sofia|Monaco|San_Marino|Vatican|Andorra|Podgorica)|Asia\/(Nicosia|Famagusta)|Atlantic\/(Azores|Madeira|Canary)|Africa\/Ceuta|Indian\/(Reunion|Mayotte)|America\/(Martinique|Guadeloupe|Cayenne|St_Barthelemy|Marigot|Miquelon))$/;
@@ -94,7 +111,7 @@
       return t[v] ? money(t[v]) : all;     // only real price tiers change; other rupee figures stay
     });
     if (out !== text) {
-      var P = '((?:A\\$|C\\$|S\\$|AED |CHF |[$€¥£])[\\d,]+)';
+      var P = '((?:A\\$|C\\$|S\\$|HK\\$|NZ\\$|CN¥|AED |CHF |SAR |QAR |RM |R |[$€¥£₽])[\\d,]+)';
       // old hand-written dollar hints next to a rupee price ("₹5,100 / $99 USD") give way to the real price
       out = out.replace(new RegExp(P + '\\s*\\/\\s*\\$[\\d,]+\\s*USD', 'g'), '$1');
       // a price that was swapped no longer says "INR" after it ("₹24,000 INR" -> "€415")

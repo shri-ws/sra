@@ -686,6 +686,18 @@ def test_foreign_customer_pays_in_euros():
     assert t["currency"] == "INR" and t["amount"] == 100
 
 
+def test_more_local_currencies_russia_china_gulf():
+    # 25 Nov 2026: rouble, yuan, riyal and the rest — same tiers as sra-currency.js
+    buyer = "9822200092"
+    hdr = {"Authorization": f"Bearer mock_token_{buyer}"}
+    for cur, price, shown in (("RUB", 2500, "₽2,500"), ("CNY", 209, "CN¥209"), ("SAR", 116, "SAR 116"), ("QAR", 113, "QAR 113"),
+                              ("HKD", 243, "HK$243"), ("NZD", 57, "NZ$57"), ("MYR", 128, "RM 128"), ("ZAR", 545, "R 545")):
+        o = client.post("/api/sutradhar/orders/create", headers=hdr,
+                        json={"customer_phone": buyer, "service_id": "muhurta_vyapar", "currency": cur}).json()
+        assert o["currency"] == cur and o["amount"] == price * 100 and o["display_price"] == shown, (cur, o)
+        assert o["net_price"] == round(price * se.inr_rate(cur))
+
+
 def test_foreign_customer_pays_in_local_currency():
     """25 Nov 2026: JPY (whole yen, no cents), GBP and AED orders; anything unknown -> rupees."""
     q = client.post("/api/sutradhar/quote", json={"customer_phone": "", "service_id": "gun_milan_manglik", "currency": "jpy"}).json()

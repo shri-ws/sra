@@ -123,7 +123,8 @@ USD_PRICE_BY_INR: Dict[int, int] = {501: 11, 1101: 21, 1111: 21, 1551: 31, 2100:
 # EURO (25 Nov 2026): visitors in euro countries see euro prices; same rules as dollars,
 # rate EUR_INR_RATE (default 100). Keep in step with EUR in sra-currency.js.
 EUR_PRICE_BY_INR: Dict[int, int] = {501: 10, 1101: 19, 1111: 19, 1551: 29, 2100: 39, 5100: 95, 24000: 415, 94600: 1050}
-# MORE LOCAL CURRENCIES (25 Nov 2026): Japan, UK, Australia, Canada, Singapore, UAE, Switzerland.
+# MORE LOCAL CURRENCIES (25 Nov 2026): Japan, UK, Australia, Canada, Singapore, UAE, Switzerland;
+# later the same day Russia, China, Hong Kong, Saudi Arabia, Qatar, New Zealand, Malaysia, South Africa.
 # Everyone else abroad pays in USD. Rates (rupees for one unit) come from <CUR>_INR_RATE env vars.
 # JPY has no cents: Razorpay takes yen as whole yen (CURRENCY_EXPONENT).
 FOREIGN_PRICE_BY_INR: Dict[str, Dict[int, int]] = {
@@ -136,11 +137,23 @@ FOREIGN_PRICE_BY_INR: Dict[str, Dict[int, int]] = {
     "SGD": {501: 15, 1101: 28, 1111: 28, 1551: 41, 2100: 55, 5100: 135, 24000: 599, 94600: 1470},
     "AED": {501: 41, 1101: 77, 1111: 77, 1551: 114, 2100: 151, 5100: 371, 24000: 1651, 94600: 4080},
     "CHF": {501: 10, 1101: 19, 1111: 19, 1551: 27, 2100: 36, 5100: 89, 24000: 395, 94600: 970},
+    # 25 Nov 2026: Russia, China, Hong Kong, Saudi Arabia, Qatar, New Zealand, Malaysia, South Africa
+    # (prices from the 25 Nov 2026 rates: 1 USD = 82 RUB, 6.67 CNY, 7.84 HKD, 3.75 SAR, 3.64 QAR, 1.84 NZD, 4.12 MYR, 17.5 ZAR)
+    "RUB": {501: 900, 1101: 1700, 1111: 1700, 1551: 2500, 2100: 3400, 5100: 8300, 24000: 37000, 94600: 91000},
+    "CNY": {501: 75, 1101: 139, 1111: 139, 1551: 209, 2100: 275, 5100: 679, 24000: 2999, 94600: 7399},
+    "HKD": {501: 86, 1101: 165, 1111: 165, 1551: 243, 2100: 321, 5100: 792, 24000: 3536, 94600: 8710},
+    "SAR": {501: 41, 1101: 79, 1111: 79, 1551: 116, 2100: 154, 5100: 379, 24000: 1690, 94600: 4170},
+    "QAR": {501: 40, 1101: 76, 1111: 76, 1551: 113, 2100: 149, 5100: 368, 24000: 1640, 94600: 4040},
+    "NZD": {501: 20, 1101: 39, 1111: 39, 1551: 57, 2100: 75, 5100: 185, 24000: 829, 94600: 2045},
+    "MYR": {501: 45, 1101: 87, 1111: 87, 1551: 128, 2100: 169, 5100: 416, 24000: 1858, 94600: 4577},
+    "ZAR": {501: 195, 1101: 369, 1111: 369, 1551: 545, 2100: 719, 5100: 1769, 24000: 7899, 94600: 19449},
 }
 FOREIGN_RATE_DEFAULT: Dict[str, float] = {"USD": 88.0, "EUR": 100.0, "JPY": 0.58, "GBP": 112.0, "AUD": 58.0,
-                                          "CAD": 63.0, "SGD": 66.0, "AED": 24.0, "CHF": 104.0}
+                                          "CAD": 63.0, "SGD": 66.0, "AED": 24.0, "CHF": 104.0,
+                                          "RUB": 1.07, "CNY": 13.2, "HKD": 11.2, "SAR": 23.5, "QAR": 24.2, "NZD": 47.8, "MYR": 21.4, "ZAR": 5.03}
 CURRENCY_SYMBOL: Dict[str, str] = {"INR": "₹", "USD": "$", "EUR": "€", "JPY": "¥", "GBP": "£", "AUD": "A$",
-                                   "CAD": "C$", "SGD": "S$", "AED": "AED ", "CHF": "CHF "}
+                                   "CAD": "C$", "SGD": "S$", "AED": "AED ", "CHF": "CHF ",
+                                   "RUB": "₽", "CNY": "CN¥", "HKD": "HK$", "SAR": "SAR ", "QAR": "QAR ", "NZD": "NZ$", "MYR": "RM ", "ZAR": "R "}
 CURRENCY_EXPONENT: Dict[str, int] = {"JPY": 0}      # all others: 2 (cents)
 SUPPORTED_CURRENCIES = {"INR"} | set(FOREIGN_PRICE_BY_INR)
 
