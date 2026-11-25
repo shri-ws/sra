@@ -27,6 +27,20 @@ t('Phaladeepika 5.1: the 10th lord with the highest shadbala (from Lagna, Moon, 
 t('BPHS 7.17–27: vimshopaka shown out of 20 for the work planets', () => {
   prof.work.filter(w => w.vim).forEach(w => assert.ok(w.vim.total > 0 && w.vim.total <= 20));
 });
+t('BPHS 29.2–6: the book example (p. 161–162), Sun 2s5°25m15s, ayanamsa 23°3m48s', () => {
+  // the book adds the ayanamsa to get sayana Sun 2।28°28'53" (65°25'15" + 23°3'48" is really 88°29'03"); its own figure is used
+  const r = V.ishtaKashtaOf('Sun', 65 + 25 / 60 + 15 / 3600, 0, (88 + 28 / 60 + 53 / 3600) - (65 + 25 / 60 + 15 / 3600));
+  const dms = x => { const sg = Math.floor(x), d = (x - sg) * 30; return [sg, Math.floor(d), Math.floor((d % 1) * 60)]; };
+  assert.deepStrictEqual(dms(r.uccha), [5, 9, 9]);          // book: उच्चरश्मि 5।9।9।30
+  assert.deepStrictEqual(dms(r.cheshta), [7, 26, 57]);      // book: चेष्टारश्मि 7।26।57।46 (sayana Sun 2।28।28।53 + 3 signs)
+  assert.deepStrictEqual(dms(r.shubhRashmi), [6, 18, 3]);   // book: शुभरश्मि 6।18।3।38
+  // 29.6: ((U−1)·10 + (C−1)·10) / 2 = (43।1।35 + 68।29।37।40) / 2 = 56।0।36।20; the book prints 64 for 68 and 53 for 56
+  assert.ok(Math.abs(r.ishta - 56.02) < 0.01 && Math.abs(r.kashta - 3.98) < 0.01, r.ishta);
+});
+t('BPHS 29: ishta and kashta for the natal planets add up to 60', () => {
+  Object.values(prof.ik).forEach(x => assert.ok(Math.abs(x.ishta + x.kashta - 60) < 1e-9));
+  prof.work.filter(w => w.ik).forEach(w => assert.ok(w.ik.ishta >= 0));
+});
 t('BPHS 33.13: Amatyakaraka is second by degrees among seven planets', () => {
   const deg = id => fx.natal.planets.find(p => p.id === id).abs % 30;
   const order = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'].sort((a, b) => deg(b) - deg(a));
@@ -68,6 +82,9 @@ t('eclipse: no muhurta within 7 days after the solar eclipse of 6 Feb 2027', () 
 });
 t('BPHS 28 at the muhurta moment: slots report shadbala of the work planets and the lagna lord', () => {
   assert.ok(slots.some(s => s.positives.concat(s.negatives).some(x => /षड्बल/.test(x.text))));
+});
+t('BPHS 29.1: the dasha lords\' ishta-kashta is weighed in each muhurta', () => {
+  assert.ok(slots.some(s => s.positives.concat(s.negatives).some(x => /इष्ट/.test(x.text))));
 });
 t('lunar month from the engine new moons: 20 Jan 2027 is Pausha', () => {
   assert.strictEqual(slots.find(s => s.date === '2027-01-20').masa, 'पौष');

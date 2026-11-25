@@ -102,6 +102,7 @@
     yukti: 'युक्ति — ऊपर के शास्त्रीय सिद्धान्त को मुहूर्त-कुण्डली पर लगाकर',
     bphs28: 'BPHS 28 स्पष्टबलनिर्णय (पृ. 154–161): षड्बल — स्थान, दिक्, काल, चेष्टा, नैसर्गिक, दृक्',
     bphs7v: 'BPHS 7.17–27 (पृ. 59–61): विंशोपक बल',
+    bphs29: 'BPHS 29.1–6, 29.12 (पृ. 161–163): इष्ट-कष्ट — उच्चरश्मि, चेष्टारश्मि; दशा का शुभाशुभ फल इसी से',
     pd59: 'फलदीपिका 5.9: नवांशेश बली तो बिना श्रम धन',
     mcAsta: 'मुहूर्त चिन्तामणि, विवाह प्रकरण — 21 महादोष "उदयास्त-शुद्धि" (पृ. 356)',
     mcGrahan: 'मुहूर्त चिन्तामणि, विवाह प्रकरण — "ग्रहणाद्दिनसप्तकम्", ग्रहण-नक्षत्र (पृ. 364, 425–427)',
@@ -128,6 +129,24 @@
     try { const an = X.L3.analyze(chart); return { X, an, sb: X.S28.shadbala(chart, an, X.C5, X.D27), req: X.S28.REQUIRED }; } catch (e) { return null; }
   }
   const SB_RATIO = (SB, p) => SB && SB.sb.planets[p] ? SB.sb.planets[p].total / SB.req[p] : null;
+
+  // ── इष्ट-कष्ट (BPHS 29.2–6, पुस्तक पृ. 161–162 की टीका और उदाहरण के अनुसार) ──
+  // रश्मि: केन्द्र (0–6 राशि, 6 से अधिक हो तो 12 में से घटाया) की राशि में 1 जोड़ें, अंशादि दूने करें (29.2)
+  const rashmi = x => { x = Math.min(180, Math.max(0, x)); return Math.floor(x / 30) + 1 + 2 * (x % 30) / 30; };
+  const foldDeg = x => { x = N(x); return x > 180 ? 360 - x : x; };
+  const DEBIL_PT = { Sun: 190, Moon: 213, Mars: 118, Mercury: 345, Jupiter: 275, Venus: 177, Saturn: 20 };
+  /* abs: निरयन; ayan: अयनांश; cheshtaKendra: मंगल–शनि का चेष्टा-केन्द्र (BPHS 28.24–25, 0–180°) */
+  function ishtaKashtaOf(id, abs, sunAbs, ayan, cheshtaKendra) {
+    const U = rashmi(foldDeg(abs - DEBIL_PT[id]));                      // उच्चरश्मि (29.2)
+    let C;                                                              // चेष्टारश्मि (29.3–4)
+    if (id === 'Sun') C = rashmi(foldDeg(abs + ayan + 90));             // सायन सूर्य + 3 राशि
+    else if (id === 'Moon') C = rashmi(foldDeg(abs - sunAbs));          // चन्द्र − सूर्य
+    else if (typeof cheshtaKendra === 'number') C = rashmi(cheshtaKendra);
+    else return null;
+    // 29.6; रश्मि 8 तक जा सकती है, तो योगार्ध कभी 60 से ऊपर — "कष्टमिष्टोनखाङ्गकम्" (60 − इष्ट) ऋण न हो, इसलिए 60 पर रोका
+    const ishta = Math.min(60, ((U - 1) * 10 + (C - 1) * 10) / 2);
+    return { uccha: U, cheshta: C, shubhRashmi: (U + C) / 2, ishta, kashta: 60 - ishta };
+  }
 
   // काम के प्रकार — हर एक का मुहूर्त चिन्तामणि श्लोक अलग
   const WORK = {
@@ -257,6 +276,9 @@
         const q = SB.sb.planets[w.planet];
         w.shad = { rupas: +(q.total / 60).toFixed(2), required: +(SB.req[w.planet] / 60).toFixed(2), ratio: +r.toFixed(2) };
         w.weight += r >= 1 ? 1 : r < 0.8 ? -0.5 : 0;
+        const ik = ishtaKashtaOf(w.planet, pl[w.planet].abs, pl.Sun.abs, natal.astronomy.ayanamsa_deg,
+          SB.sb.planets[w.planet].cheshta && SB.sb.planets[w.planet].cheshta.kendra);
+        if (ik) { w.ik = { ishta: +ik.ishta.toFixed(1), kashta: +ik.kashta.toFixed(1) }; w.weight += ik.ishta > ik.kashta ? 0.5 : -0.5; }
         try {
           const p = pl[w.planet], v = SB.X.C5.vimshopaka(w.planet, p.sign, p.deg, SB.an.relations);
           if (v && v.shodasha) w.vim = { total: +v.shodasha.total.toFixed(1), grade: v.shodasha.grade };
@@ -291,6 +313,8 @@
       d10: d10Info, ak, amk, karakamsha, al, al11, lord7,
       domain: dom, work: workList, workSet: workList.map(w => w.planet), notes,
       dasha: natal.vimshottariDasa || null, bala: SB ? 'shadbala' : 'simple',
+      ik: SB ? Object.fromEntries(P7.map(id => [id, ishtaKashtaOf(id, pl[id].abs, pl.Sun.abs, natal.astronomy.ayanamsa_deg,
+        SB.sb.planets[id] && SB.sb.planets[id].cheshta && SB.sb.planets[id].cheshta.kendra)]).filter(([, v]) => v)) : null,
       d7Note: 'सप्तमांश (D7) व्यापार के लिए नहीं: BPHS 7.2 में सप्तमांश से पुत्र-पौत्र (सन्तान) का विचार कहा है। व्यापार-कर्म के लिए दशांश (D10) और ग्रह-बल के लिए नवांश (D9) लिए गए हैं।'
     };
   }
@@ -574,6 +598,13 @@
       if (da && da.ad) {
         const set = prof.workSet.slice(0, 5);
         if (set.includes(da.ad) || set.includes(da.md)) good(6, `उस दिन ${HI[da.md]}-${HI[da.ad]} दशा — कार्य-ग्रह की दशा`, 'विंशोत्तरी दशा (BPHS दशाध्याय) — ' + REF.yukti);
+        // 29.1, 29.12: दशा का शुभ-अशुभ फल दशा-स्वामी के इष्ट-कष्ट से (जन्म-कुण्डली में)
+        [['महादशा', da.md], ['अन्तर्दशा', da.ad]].forEach(([nm, lord]) => {
+          const ik = prof.ik && prof.ik[lord];
+          if (!ik) return;
+          if (ik.ishta > ik.kashta) good(3, `${nm}-स्वामी ${HI[lord]} का इष्ट ${ik.ishta.toFixed(1)}, कष्ट ${ik.kashta.toFixed(1)} — दशा का फल शुभ`, REF.bphs29);
+          else bad(3, `${nm}-स्वामी ${HI[lord]} का कष्ट ${ik.kashta.toFixed(1)}, इष्ट ${ik.ishta.toFixed(1)} — दशा का फल कठिन`, REF.bphs29);
+        });
       }
     }
 
@@ -627,5 +658,5 @@
     return best;
   }
 
-  return { workProfile, scanDay, scanRange, dashaAt, WORK, DOMAIN, REF, CLASS, NAK, RASHI, HI, PD_WORK, dignity };
+  return { workProfile, scanDay, scanRange, dashaAt, ishtaKashtaOf, rashmi, WORK, DOMAIN, REF, CLASS, NAK, RASHI, HI, PD_WORK, dignity };
 });

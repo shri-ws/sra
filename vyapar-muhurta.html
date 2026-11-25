@@ -18,7 +18,7 @@
 <script src="bphsLabCh05_08.js?v=1"></script>
 <script src="bphsLabCh27.js?v=1"></script>
 <script src="bphsLabCh28.js?v=1"></script>
-<script src="vyapar-shuddhi.js?v=2"></script>
+<script src="vyapar-shuddhi.js?v=3"></script>
 <script src="theme.js"></script>
 <style>
   /* vyapar-muhurta.html — business / new-work muhurta from the native's own chart (25 Nov 2026).
@@ -157,7 +157,7 @@
       <ul class="refs" id="vRefs"></ul>
       <h3>सीमाएँ (ईमानदारी से)</h3>
       <ul class="refs">
-        <li>षड्बल BPHS अध्याय 28 के श्लोकों से है; वर्ष-मास स्वामी का बल (28.13, अहर्गण पर टिका) और ग्रह-युद्ध का विजेता (इस अध्याय में नियम नहीं) नहीं जोड़े। इष्ट-कष्ट फल (अध्याय 29) पुस्तक की टीका से मिलाकर आगे जोड़ा जाएगा।</li>
+        <li>षड्बल BPHS अध्याय 28 के श्लोकों से है; वर्ष-मास स्वामी का बल (28.13, अहर्गण पर टिका) और ग्रह-युद्ध का विजेता (इस अध्याय में नियम नहीं) नहीं जोड़े। इष्ट-कष्ट (अध्याय 29.2–6) पुस्तक की टीका और उसके उदाहरण (पृ. 161–162) से मिलाकर; उदाहरण के अन्तिम जोड़ में छपाई की भूल है (68 की जगह 64), विधि वही है।</li>
         <li>चन्द्र बल और तारा बल मुहूर्त चिन्तामणि के गोचर-विचार से हैं; उनकी श्लोक-संख्या पुस्तक से मिलाना अभी बाकी है।</li>
         <li>जिन नियमों के साथ "युक्ति" लिखा है, वे सीधे किसी श्लोक के वाक्य नहीं — BPHS और फलदीपिका के सिद्धान्त (कर्मेश-बल, दशांश, अमात्यकारक, आरूढ) को मुहूर्त-कुण्डली पर लगाकर बनाए गए हैं।</li>
       </ul>
@@ -375,7 +375,7 @@
       <h2>${esc(p.name)} के कार्य-ग्रह</h2>
       <p class="muted" style="margin-top:-4px;">लग्न ${esc(V.RASHI[p.lagna])} · चन्द्र राशि ${esc(V.RASHI[p.moonSign])}, नक्षत्र ${esc(V.NAK[p.moonNak])}${p.d10 ? ' · दशांश लग्न ' + esc(V.RASHI[p.d10.lagna]) : ''} · आरूढ लग्न ${esc(V.RASHI[p.al])}${nowD ? ' · अभी ' + esc(V.HI[nowD.md]) + '–' + esc(V.HI[nowD.ad]) + ' दशा' : ''}</p>
       ${p.livelihood ? `<div class="note"><b>आजीविका ग्रह: ${esc(V.HI[p.livelihood])}</b> — ${esc(p.livelihoodWork)}<br><span class="ref">${esc(V.REF.pd51)}</span></div>` : ''}
-      <div class="wp">${p.work.slice(0, 6).map(w => `<div class="wp-row"><b>${esc(w.hi)}</b>${w.shad ? ` <span class="ref">· षड्बल ${w.shad.rupas} रूप (आवश्यक ${w.shad.required}) — ${w.shad.ratio >= 1 ? 'सबल' : 'आवश्यक से कम'}${w.vim ? ` · विंशोपक ${w.vim.total}/20 (${esc(w.vim.grade)})` : ''}</span>` : ''}
+      <div class="wp">${p.work.slice(0, 6).map(w => `<div class="wp-row"><b>${esc(w.hi)}</b>${w.shad ? ` <span class="ref">· षड्बल ${w.shad.rupas} रूप (आवश्यक ${w.shad.required}) — ${w.shad.ratio >= 1 ? 'सबल' : 'आवश्यक से कम'}${w.vim ? ` · विंशोपक ${w.vim.total}/20 (${esc(w.vim.grade)})` : ''}${w.ik ? ` · इष्ट ${w.ik.ishta}, कष्ट ${w.ik.kashta}` : ''}</span>` : ''}
         <div class="roles">${w.roles.map(r => `${esc(r.role)}: ${esc(r.why)} <span class="ref">(${esc(r.ref)})</span>`).join('<br>')}</div></div>`).join('')}</div>
       ${p.notes.map(n => `<div class="note">${esc(n.text)} <span class="ref">(${esc(n.ref)})</span></div>`).join('')}
       <p class="ref" style="margin-top:10px;">${esc(p.d7Note)}</p>
