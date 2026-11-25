@@ -99,8 +99,35 @@
     bphs34: 'BPHS 34.15, 34.57–61 (पृ. 186, 192): कारकांश से दशम-एकादश',
     pd51: 'फलदीपिका 5.1: बली लग्न/चन्द्र/सूर्य से दशमेश के नवांशेश से आजीविका',
     pd5: 'फलदीपिका 5.2–5.8: नवांशेश के अनुसार काम',
-    yukti: 'युक्ति — ऊपर के शास्त्रीय सिद्धान्त को मुहूर्त-कुण्डली पर लगाकर'
+    yukti: 'युक्ति — ऊपर के शास्त्रीय सिद्धान्त को मुहूर्त-कुण्डली पर लगाकर',
+    bphs28: 'BPHS 28 स्पष्टबलनिर्णय (पृ. 154–161): षड्बल — स्थान, दिक्, काल, चेष्टा, नैसर्गिक, दृक्',
+    bphs7v: 'BPHS 7.17–27 (पृ. 59–61): विंशोपक बल',
+    pd59: 'फलदीपिका 5.9: नवांशेश बली तो बिना श्रम धन',
+    mcAsta: 'मुहूर्त चिन्तामणि, विवाह प्रकरण — 21 महादोष "उदयास्त-शुद्धि" (पृ. 356)',
+    mcGrahan: 'मुहूर्त चिन्तामणि, विवाह प्रकरण — "ग्रहणाद्दिनसप्तकम्", ग्रहण-नक्षत्र (पृ. 364, 425–427)',
+    mcSank: 'मुहूर्त चिन्तामणि, विवाह प्रकरण श्लो. 79–80 (पृ. 399–400): संक्रान्ति',
+    mcVish: 'मुहूर्त चिन्तामणि, विवाह प्रकरण श्लो. 49–51 (पृ. 372): विषघटी',
+    mcDur: 'मुहूर्त चिन्तामणि, विवाह प्रकरण श्लो. 54 (पृ. 375): वार-निषिद्ध मुहूर्त; श्लो. 65: कुलिक',
+    mcGanda: 'मुहूर्त चिन्तामणि, विवाह प्रकरण श्लो. 43: गण्डान्त',
+    mcMala: 'मलमास / क्षय मास — शुभ आरम्भ वर्ज्य (मुहूर्त ग्रन्थ; श्लोक-संख्या पुस्तक से मिलान बाकी)',
+    parampara: 'परम्परा (लोक-व्यवहार में शुभ आरम्भ टाले जाते हैं)'
   };
+  // विवाह प्रकरण के ये महादोष सभी शुभ आरम्भों में टाले जाते हैं, इसलिए व्यापार मुहूर्त में भी लगाए हैं।
+
+  // पाराशरी बल: साइट के BPHS मॉड्यूल (अ. 3 मैत्री, 7 वर्ग व विंशोपक, 27 स्पष्ट दृष्टि, 28 षड्बल)
+  function lab() {
+    const g = typeof self !== 'undefined' ? self : (typeof globalThis !== 'undefined' ? globalThis : {});
+    let L3 = g.BphsLabCh03, C5 = g.BphsLabCh05_08, D27 = g.BphsLabCh27, S28 = g.BphsLabCh28;
+    if ((!L3 || !C5 || !D27 || !S28) && typeof require === 'function') {
+      try { L3 = require('./bphsLabCh03.js'); C5 = require('./bphsLabCh05_08.js'); D27 = require('./bphsLabCh27.js'); S28 = require('./bphsLabCh28.js'); } catch (e) {}
+    }
+    return L3 && C5 && D27 && S28 ? { L3, C5, D27, S28 } : null;
+  }
+  function shadbalaOf(chart) {
+    const X = lab(); if (!X) return null;
+    try { const an = X.L3.analyze(chart); return { X, an, sb: X.S28.shadbala(chart, an, X.C5, X.D27), req: X.S28.REQUIRED }; } catch (e) { return null; }
+  }
+  const SB_RATIO = (SB, p) => SB && SB.sb.planets[p] ? SB.sb.planets[p].total / SB.req[p] : null;
 
   // काम के प्रकार — हर एक का मुहूर्त चिन्तामणि श्लोक अलग
   const WORK = {
@@ -170,9 +197,11 @@
     const add = (planet, role, why, ref, weight) => { if (planet) items.push({ planet, role, why, ref, weight }); };
 
     // (क) फलदीपिका 5.1 — लग्न, चन्द्र, सूर्य में बली से दशमेश, उसका नवांशेश = आजीविका ग्रह
+    const SB = shadbalaOf(natal);
     const bases = [['लग्न', lagna], ['चन्द्र', moonS], ['सूर्य', sunS]].map(([n, s]) => {
       const lord = LORD[plus(s, 10)];
-      return { from: n, tenth: plus(s, 10), lord, strength: simpleStrength(lord, S(lord), lagna) };
+      const r = SB_RATIO(SB, lord);
+      return { from: n, tenth: plus(s, 10), lord, strength: r !== null ? r : simpleStrength(lord, S(lord), lagna) / 10 };
     });
     const best = bases.slice().sort((a, b) => b.strength - a.strength)[0];
     const navSign = typeof d9[best.lord] === 'number' ? d9[best.lord] : null;
@@ -221,6 +250,19 @@
       const w = work[it.planet] || (work[it.planet] = { planet: it.planet, hi: HI[it.planet], weight: 0, roles: [] });
       w.weight += it.weight; w.roles.push(it);
     });
+    // षड्बल (BPHS 28) और विंशोपक (BPHS 7.17–27): सबल ग्रह का भार बढ़े, निर्बल का घटे
+    Object.values(work).forEach(w => {
+      const r = SB_RATIO(SB, w.planet);
+      if (r !== null) {
+        const q = SB.sb.planets[w.planet];
+        w.shad = { rupas: +(q.total / 60).toFixed(2), required: +(SB.req[w.planet] / 60).toFixed(2), ratio: +r.toFixed(2) };
+        w.weight += r >= 1 ? 1 : r < 0.8 ? -0.5 : 0;
+        try {
+          const p = pl[w.planet], v = SB.X.C5.vimshopaka(w.planet, p.sign, p.deg, SB.an.relations);
+          if (v && v.shodasha) w.vim = { total: +v.shodasha.total.toFixed(1), grade: v.shodasha.grade };
+        } catch (e) {}
+      }
+    });
     const workList = Object.values(work).sort((a, b) => b.weight - a.weight);
 
     // कारकांश से दशम/एकादश (BPHS 34.57–61) — जन्म-कुण्डली का संकेत, मुहूर्त पर नहीं बदलता
@@ -234,6 +276,10 @@
       if (inK11.length) notes.push({ text: 'कारकांश से एकादश में ग्रह — सब ओर से लाभ।', ref: 'BPHS 34.61 (पृ. 192)' });
     }
     const in11fromAL = P9.filter(p => S(p) === al11);
+    const lr = livelihood ? SB_RATIO(SB, livelihood) : null;
+    if (lr !== null) notes.push(lr >= 1
+      ? { text: `आजीविका ग्रह ${HI[livelihood]} षड्बल में सबल (आवश्यक का ${lr.toFixed(2)} गुना) — कम श्रम में धन-लाभ का योग।`, ref: REF.pd59 + '; ' + REF.bphs28 }
+      : { text: `आजीविका ग्रह ${HI[livelihood]} षड्बल में आवश्यक से कम (${lr.toFixed(2)} गुना) — लाभ परिश्रम से; मुहूर्त में इसका बली होना और ज़रूरी।`, ref: REF.pd59 + '; ' + REF.bphs28 });
     if (in11fromAL.some(p => BENEFIC.includes(p))) notes.push({ text: `आरूढ लग्न (${RASHI[al]}) से एकादश में शुभ ग्रह — न्याय से धन।`, ref: 'BPHS 30.8–9 (पृ. 166)' });
     if (dignity(best.lord, S(best.lord)) >= 3 && [1, 2, 4, 5, 7, 9, 10, 11].includes(house(lagna, S(best.lord))) &&
         P9.some(p => p !== best.lord && BENEFIC.includes(p) && S(p) === S(best.lord)))
@@ -244,7 +290,7 @@
       karmesh: best, bases, livelihood, livelihoodWork: livelihood ? PD_WORK[livelihood] : '',
       d10: d10Info, ak, amk, karakamsha, al, al11, lord7,
       domain: dom, work: workList, workSet: workList.map(w => w.planet), notes,
-      dasha: natal.vimshottariDasa || null,
+      dasha: natal.vimshottariDasa || null, bala: SB ? 'shadbala' : 'simple',
       d7Note: 'सप्तमांश (D7) व्यापार के लिए नहीं: BPHS 7.2 में सप्तमांश से पुत्र-पौत्र (सन्तान) का विचार कहा है। व्यापार-कर्म के लिए दशांश (D10) और ग्रह-बल के लिए नवांश (D9) लिए गए हैं।'
     };
   }
@@ -268,6 +314,44 @@
   const localJd = (y, m, d, min, tz) => (Date.UTC(y, m - 1, d) + min * 60000 - tz * 3600000) / 86400000 + 2440587.5;
   const hm = min => { const h = Math.floor(min / 60), m = Math.round(min % 60); return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m; };
 
+  function siderealMc(jdUT, lon, ayan) {
+    const d = jdUT - 2451545.0, T = d / 36525;
+    const gmst = 280.46061837 + 360.98564736629 * d + 0.000387933 * T * T - T * T * T / 38710000;
+    const ramc = N(gmst + lon) * D2R, eps = (23.4392911 - 0.0130042 * T) * D2R;
+    return N(Math.atan2(Math.sin(ramc), Math.cos(ramc) * Math.cos(eps)) / D2R - ayan);
+  }
+  // श्रीपति भाव-मध्य: लग्न, चतुर्थ, सप्तम, दशम; बीच के भाव चाप के तीसरे भाग से; सन्धि दो मध्यों के बीच
+  function sripati(asc, mc) {
+    const ic = N(mc + 180), ds = N(asc + 180), arc = (a, b) => N(b - a);
+    const quads = [[asc, ic], [ic, ds], [ds, mc], [mc, asc]];
+    const mids = [];
+    quads.forEach(([a, b]) => { const w = arc(a, b) / 3; mids.push(a, N(a + w), N(a + 2 * w)); });
+    const order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => mids[i]);   // houses 1..12
+    return order.map((m, i) => {
+      const prev = order[(i + 11) % 12], next = order[(i + 1) % 12];
+      return { house: i + 1, mid: m, sandhi1: N(prev + arc(prev, m) / 2), sandhi2: N(m + arc(m, next) / 2) };
+    });
+  }
+  // मुहूर्त के क्षण का पूरा चार्ट (षड्बल के लिए): दिन के इंजन-चार्ट से ग्रह, उस मिनट का लग्न, दशम व भाव
+  function slotChart(dayChart, jd, asc, mc) {
+    const ast = dayChart.astronomy, t = (jd - ast.jd_ut);
+    const planets = dayChart.planets.filter(p => p.id !== 'Lagna').map(p => {
+      const abs = N(p.abs + (p.speed || 0) * t);
+      return Object.assign({}, p, { abs, sign: sgn(abs), deg: abs % 30 });
+    });
+    planets.unshift({ id: 'Lagna', abs: asc, sign: sgn(asc), deg: asc % 30, speed: 0 });
+    return { planets, sripatiBhavas: sripati(asc, mc), panchang: dayChart.panchang,
+      astronomy: Object.assign({}, ast, { jd_ut: jd }) };
+  }
+
+  // मु.चि. श्लो. 49–51 विषघटी (नक्षत्र के प्रारम्भ से इतनी घटी के बाद 4 घटी), श्लो. 54 दुर्मुहूर्त, 65 कुलिक, 80 संक्रान्ति घटी
+  const VISH = [50, 24, 30, 40, 14, 21, 30, 20, 32, 30, 20, 18, 21, 20, 14, 14, 10, 14, 56, 24, 20, 10, 10, 18, 16, 24, 30];
+  const DURMUHURTA_DAY = { 0: [14], 1: [9, 12], 2: [4], 3: [8], 4: [6, 12], 5: [9, 4], 6: [1, 2] };
+  const KULIKA_DAY = { 0: 14, 1: 12, 2: 10, 3: 8, 4: 6, 5: 4, 6: 2 };
+  const SANK_GHATI = { Moon: 2, Mars: 9, Mercury: 6, Jupiter: 88, Venus: 9, Saturn: 160 };
+  // अमान्त चान्द्र मास: अमावस्या के समय सूर्य की राशि से (मीन → चैत्र)
+  const MASA = ['वैशाख', 'ज्येष्ठ', 'आषाढ़', 'श्रावण', 'भाद्रपद', 'आश्विन', 'कार्तिक', 'मार्गशीर्ष', 'पौष', 'माघ', 'फाल्गुन', 'चैत्र'];
+
   // रविवार से राहुकाल दिन के किस आठवें भाग में (1..8)
   const RAHU_PART = [8, 2, 7, 5, 6, 4, 3];
   const HORA_ORDER = ['Sun', 'Venus', 'Mercury', 'Moon', 'Saturn', 'Jupiter', 'Mars'];
@@ -289,6 +373,52 @@
     const rahuS = sr + (RAHU_PART[vaar] - 1) * dm / 8, rahuE = rahuS + dm / 8;
     const abhS = sr + 7 * dm / 15, abhE = sr + 8 * dm / 15;
     const from = sr, to = opts.daytime === false ? Math.min(1440, ss + 180) : ss;
+    const jdNoon = localJd(y, mo, d, 720, opts.tz);
+
+    // ── दिन-स्तर के दोष: मलमास, क्षय मास, गुरु-शुक्र अस्त, ग्रहण के 7 दिन, अयन/विषुव संक्रान्ति ──
+    const sunSpd = pos.Sun.speed || 0.9856, moonSpd = pos.Moon.speed || 13.18, relSpd = moonSpd - sunSpd;
+    const E0 = N(pos.Moon.abs - pos.Sun.abs);
+    let sunAtNM = sgn(pos.Sun.abs - sunSpd * E0 / relSpd), sunAtNext = sgn(pos.Sun.abs + sunSpd * (360 - E0) / relSpd);
+    if (Array.isArray(opts.newMoons) && opts.newMoons.length) {
+      const prev = opts.newMoons.filter(x => x.jd <= jdNoon).pop(), next = opts.newMoons.find(x => x.jd > jdNoon);
+      if (prev) sunAtNM = (prev.sunSign + 11) % 12;          // vivah-shuddhi गिनती 1–12
+      if (next) sunAtNext = (next.sunSign + 11) % 12;
+    }
+    const masa = MASA[sunAtNM], dayStop = [], dayWarn = [];
+    if (sunAtNM === sunAtNext) dayStop.push({ text: 'अधिक (मल) मास', ref: REF.mcMala });
+    if ((sunAtNext - sunAtNM + 12) % 12 === 2) dayStop.push({ text: 'क्षय मास', ref: REF.mcMala });
+    const sep = (a, b) => { const x = N(a - b); return Math.min(x, 360 - x); };
+    if (sep(pos.Jupiter.abs, pos.Sun.abs) < 11) dayStop.push({ text: 'गुरु अस्त', ref: REF.mcAsta });
+    if (sep(pos.Venus.abs, pos.Sun.abs) < ((pos.Venus.speed || 1) < 0 ? 8 : 10)) dayStop.push({ text: 'शुक्र अस्त', ref: REF.mcAsta });
+    (opts.eclipses || []).forEach(e => {
+      const dd = jdNoon - e.jd;
+      if (dd >= -0.5 && dd < 7.5) dayStop.push({ text: `${e.kind === 0 ? 'सूर्य' : 'चन्द्र'} ग्रहण (${e.date}) के 7 दिन के भीतर`, ref: REF.mcGrahan });
+    });
+    { const sNow = N(pos.Sun.abs), b0 = Math.floor(sNow / 30) * 30;
+      [[b0, (b0 - sNow) / sunSpd], [b0 + 30, (b0 + 30 - sNow) / sunSpd]].forEach(([b, tt]) => {
+        if ([0, 90, 180, 270].includes(N(b)) && Math.abs(Math.floor((720 + tt * 1440) / 1440)) <= 1) dayStop.push({ text: 'अयन/विषुव संक्रान्ति का पूर्व, वर्तमान या आगामी दिन', ref: REF.mcSank });
+      }); }
+    // परम्परा से टाले जाने वाले समय (दण्ड, निषेध नहीं)
+    const sunSg = sgn(pos.Sun.abs), tNoon = Math.floor(E0 / 12);
+    if (sunSg === 8 || sunSg === 11) dayWarn.push({ pts: 12, text: `खरमास (सूर्य ${RASHI[sunSg]} में)`, ref: REF.parampara });
+    if (masa === 'भाद्रपद' && tNoon >= 15) dayWarn.push({ pts: 15, text: 'पितृ पक्ष', ref: REF.parampara });
+    if (masa === 'फाल्गुन' && tNoon >= 7 && tNoon <= 14) dayWarn.push({ pts: 12, text: 'होलाष्टक', ref: REF.parampara });
+    if (dayStop.length) return [];
+
+    // ग्रहों की संक्रान्ति-घटी (श्लो. 80): राशि बदलने के आगे-पीछे वर्ज्य मिनट (सूर्य ±16 घटी)
+    const sankWin = [];
+    ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'].forEach(k => {
+      const spd = pos[k].speed; if (!spd) return;
+      const half = (k === 'Sun' ? 16 : SANK_GHATI[k] / 2) * 24, l = N(pos[k].abs), base = Math.floor(l / 30) * 30;
+      [base, base + 30].forEach(b => {
+        const tt = (b - l) / spd; if (Math.abs(tt) > 5) return;
+        if (k === 'Sun' && [0, 90, 180, 270].includes(N(b))) return;
+        const mm = 720 + tt * 1440; sankWin.push([mm - half, mm + half]);
+      });
+    });
+    const grahanNaks = (opts.eclipses || []).filter(e => jdNoon - e.jd > 0 && jdNoon - e.jd < 183).map(e => e.nak);
+    const lagAt = m => sgn(N(tropicalAsc(localJd(y, mo, d, m, opts.tz), opts.lat, opts.lon) - ayan));
+    const jupStrong = [8, 11, 3].includes(sgn(pos.Jupiter.abs));
 
     // हर मिनट पर स्थिति; जो बातें एक-सी रहें वे एक खण्ड. खण्ड का आरम्भ और अन्त वही मिनट हैं जिन पर
     // जाँच हुई — लग्न या तिथि बदलने का क्षण कभी खण्ड के भीतर नहीं आता (लग्न-गणना इंजन से 0.001° तक मिलती है)
@@ -299,16 +429,31 @@
       const tIdx = Math.floor(el / 12);                       // 0..29
       const kIdx = Math.floor(el / 6);                        // करण 0..59
       const vishti = kIdx >= 1 && kIdx <= 56 && (kIdx - 1) % 7 === 6;
-      const lag = sgn(N(tropicalAsc(localJd(y, mo, d, m, opts.tz), opts.lat, opts.lon) - ayan));
+      const lag = lagAt(m);
       const hIdx = Math.floor((m - sr) / (dm / 12));
       const hora = HORA_ORDER[(HORA_ORDER.indexOf(VAAR_LORD[vaar]) + hIdx) % 7];
-      const st = { lag, tIdx, nk: nak(moon), vishti, rahu: m >= rahuS && m < rahuE };
-      const key = [st.lag, st.tIdx, st.nk, st.vishti, st.rahu].join('|');
+      // मिनट-स्तर के दोष
+      const dz = [], nk = nak(moon), abh = m >= abhS && m < abhE;
+      const muh = Math.floor((m - sr) / (dm / 15)) + 1;
+      if ((DURMUHURTA_DAY[vaar] || []).includes(muh)) dz.push('dur');
+      if (KULIKA_DAY[vaar] === muh) dz.push('kulika');
+      const g = (N(moon) % NAKW) / NAKW * 60, moonH = house(lag, sgn(moon));
+      if (g >= VISH[nk] && g < VISH[nk] + 4 && ![4, 5, 7, 9, 10].includes(moonH)) dz.push('vish');
+      if (sankWin.some(([a, b]) => m >= a && m <= b)) dz.push('sank');
+      if (grahanNaks.includes(nk)) dz.push('grahanNak');
+      if (!abh) {
+        const moonStrong = [1, 3].includes(sgn(moon));
+        if (!moonStrong && [0, 60, 120, 180, 240, 300, 360].some(b => Math.abs(el - b) < 0.2)) dz.push('tGanda');
+        if ([0, 120, 240, 360].some(b => Math.abs(N(moon) - b) < 2 / 60 * NAKW || Math.abs(N(moon) - b) > 360 - 2 / 60 * NAKW)) dz.push('nGanda');
+        if (!jupStrong && (([3, 7, 11].includes(lag) && lagAt(m + 12) !== lag) || ([4, 8, 0].includes(lag) && lagAt(m - 12) !== lag))) dz.push('lGanda');
+      }
+      const st = { lag, tIdx, nk, vishti, rahu: m >= rahuS && m < rahuE, dz: dz.join(',') };
+      const key = [st.lag, st.tIdx, st.nk, st.vishti, st.rahu, st.dz].join('|');
       const last = raw[raw.length - 1];
       if (last && last.key === key) { last.end = m; last.horas.push([m, hora]); }
       else raw.push(Object.assign({ key, start: m, end: m, horas: [[m, hora]] }, st));
     }
-    return raw.filter(s => s.end - s.start >= 12).map(s => judge(s, { y, mo, d, vaar, at, opts, abhS, abhE, date: day.date }))
+    return raw.filter(s => s.end - s.start >= 12).map(s => judge(s, { y, mo, d, vaar, at, opts, abhS, abhE, date: day.date, masa, dayWarn, dayChart: ch }))
       .filter(Boolean);
   }
 
@@ -338,6 +483,10 @@
     if (rikta && (work === 'seva' || work === 'dhan')) bad(15, `रिक्ता तिथि (${tithiName})`, 'परम्परा — रिक्ता तिथियाँ शुभ आरम्भ में वर्ज्य');
     if (s.tIdx === 29) bad(20, 'अमावस्या — नए आरम्भ के लिए क्षीण चन्द्र', 'परम्परा (मुहूर्त ग्रन्थों में सामान्यतः वर्ज्य)');
     if (s.vishti) reject('भद्रा (विष्टि करण)', REF.mc24);
+    const DZ = { dur: ['दुर्मुहूर्त', REF.mcDur], kulika: ['कुलिक', REF.mcDur], vish: ['विषघटी', REF.mcVish], sank: ['ग्रह-संक्रान्ति काल', REF.mcSank],
+      grahanNak: ['ग्रहण-नक्षत्र (पिछले 6 मास)', REF.mcGrahan], tGanda: ['तिथि-गण्डान्त', REF.mcGanda], nGanda: ['नक्षत्र-गण्डान्त', REF.mcGanda], lGanda: ['लग्न-गण्डान्त', REF.mcGanda] };
+    (s.dz ? s.dz.split(',') : []).forEach(k => DZ[k] && reject(DZ[k][0], DZ[k][1]));
+    (c.dayWarn || []).forEach(w => bad(w.pts, w.text, w.ref));
     if (s.rahu) reject('राहुकाल', 'परम्परा (दिनमान के आठ भाग)');
 
     if (work === 'vipani') {
@@ -411,9 +560,12 @@
       if ([10, 11, 2].includes(hl)) good(8, `मुहूर्त लग्न ${RASHI[s.lag]} आपकी कुण्डली का ${hl}वाँ भाव (${hl === 10 ? 'कर्म' : hl === 11 ? 'लाभ' : 'धन'})`, REF.yukti + ' — ' + REF.bphs22);
       if (s.lag === prof.al11 || s.lag === prof.al) good(6, `मुहूर्त लग्न ${s.lag === prof.al ? 'आपका आरूढ लग्न' : 'आरूढ से एकादश'}`, REF.yukti + ' — ' + REF.bphs30);
       // होरा: खण्ड के भीतर जो समय कार्य-ग्रह की होरा में पड़े
-      const hs = s.horas.filter(([, h]) => prof.workSet.slice(0, 3).includes(h));
-      if (hs.length) {
-        const hFrom = hs[0][0], hTo = hs[hs.length - 1][0], hPl = hs[0][1];
+      // एक-एक होरा के लगातार मिनट; उनमें से कार्य-ग्रह की सबसे लम्बी होरा
+      const runs = [];
+      s.horas.forEach(([m, h]) => { const r = runs[runs.length - 1]; if (r && r.h === h && m === r.to + 1) r.to = m; else runs.push({ h, from: m, to: m }); });
+      const okRuns = runs.filter(r => prof.workSet.slice(0, 3).includes(r.h)).sort((a, b) => (b.to - b.from) - (a.to - a.from));
+      if (okRuns.length) {
+        const hFrom = okRuns[0].from, hTo = okRuns[0].to, hPl = okRuns[0].h;
         bestHora = { from: hm(hFrom), to: hm(Math.min(hTo, s.end)), planet: HI[hPl] };
         good(5, `${hm(hFrom)}–${hm(Math.min(hTo, s.end))} ${HI[hPl]} की होरा — आपका कार्य-ग्रह (इस खण्ड में यही समय सबसे अच्छा)`, 'होरा (दिनमान के 12 भाग, वार-स्वामी से क्रम)');
       }
@@ -429,9 +581,27 @@
     if (s.start < c.abhE && s.end > c.abhS && c.vaar !== 3) good(5, 'अभिजित् मुहूर्त का भाग', REF.mcClass + ' (अभिजित् क्षिप्र-संज्ञक)');
 
     if (stop.length) return null;
+
+    // ── षड्बल (BPHS 28) मुहूर्त के क्षण पर: कार्य-ग्रह और मुहूर्त लग्नेश ──
+    if (prof && prof.bala === 'shadbala' && c.dayChart && c.dayChart.sripatiBhavas && c.dayChart.astronomy && c.dayChart.astronomy.sunrise) {
+      const jd = localJd(c.y, c.mo, c.d, mid, opts.tz), ayan = c.dayChart.astronomy.ayanamsa_deg;
+      const asc = N(tropicalAsc(jd, opts.lat, opts.lon) - ayan), mc = siderealMc(jd, opts.lon, ayan);
+      const SB = shadbalaOf(slotChart(c.dayChart, jd, asc, mc));
+      if (SB) {
+        const say = (p, r) => `${(SB.sb.planets[p].total / 60).toFixed(1)} रूप, आवश्यक ${(SB.req[p] / 60).toFixed(1)}`;
+        prof.work.slice(0, 5).filter(w => SB.sb.planets[w.planet]).forEach(w => {
+          const r = SB_RATIO(SB, w.planet);
+          if (r >= 1) good(3, `${HI[w.planet]} मुहूर्त में षड्बल से सबल (${say(w.planet)})`, REF.bphs28);
+          else if (r < 0.75) bad(3, `${HI[w.planet]} मुहूर्त में षड्बल से निर्बल (${say(w.planet)})`, REF.bphs28);
+        });
+        const ll = LORD[s.lag], r = SB_RATIO(SB, ll);
+        if (r !== null && r >= 1) good(5, `मुहूर्त लग्नेश ${HI[ll]} षड्बल से सबल (${say(ll)})`, REF.bphs28);
+        else if (r !== null && r < 0.75) bad(5, `मुहूर्त लग्नेश ${HI[ll]} षड्बल से निर्बल (${say(ll)})`, REF.bphs28);
+      }
+    }
     const startMin = s.start;
     return {
-      date: c.date, vaar: VAAR[c.vaar], tithi: tithiName, nakshatra: NAK[s.nk], nakClass: CLASS_HI[ncls],
+      date: c.date, vaar: VAAR[c.vaar], masa: c.masa, tithi: tithiName, nakshatra: NAK[s.nk], nakClass: CLASS_HI[ncls],
       lagna: RASHI[s.lag], lagnaIdx: s.lag, hora: bestHora, core,
       start: hm(startMin), end: hm(s.end), startMin, endMin: s.end,
       raw: score, score: Math.max(0, Math.min(100, Math.round(score))), positives: pos, negatives: neg

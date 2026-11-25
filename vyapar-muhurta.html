@@ -13,7 +13,12 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="sra-config.js"></script>
 <script src="patrikaEngineBridge.js"></script>
-<script src="vyapar-shuddhi.js?v=1"></script>
+<script src="vivah-shuddhi.js?v=3"></script>
+<script src="bphsLabCh03.js?v=1"></script>
+<script src="bphsLabCh05_08.js?v=1"></script>
+<script src="bphsLabCh27.js?v=1"></script>
+<script src="bphsLabCh28.js?v=1"></script>
+<script src="vyapar-shuddhi.js?v=2"></script>
 <script src="theme.js"></script>
 <style>
   /* vyapar-muhurta.html — business / new-work muhurta from the native's own chart (25 Nov 2026).
@@ -152,10 +157,18 @@
       <ul class="refs" id="vRefs"></ul>
       <h3>सीमाएँ (ईमानदारी से)</h3>
       <ul class="refs">
-        <li>"बली" ग्रह चुनने में सरल बल (राशि-बल और भाव) लिया है, पूरा षड्बल नहीं।</li>
+        <li>षड्बल BPHS अध्याय 28 के श्लोकों से है; वर्ष-मास स्वामी का बल (28.13, अहर्गण पर टिका) और ग्रह-युद्ध का विजेता (इस अध्याय में नियम नहीं) नहीं जोड़े। इष्ट-कष्ट फल (अध्याय 29) पुस्तक की टीका से मिलाकर आगे जोड़ा जाएगा।</li>
         <li>चन्द्र बल और तारा बल मुहूर्त चिन्तामणि के गोचर-विचार से हैं; उनकी श्लोक-संख्या पुस्तक से मिलाना अभी बाकी है।</li>
         <li>जिन नियमों के साथ "युक्ति" लिखा है, वे सीधे किसी श्लोक के वाक्य नहीं — BPHS और फलदीपिका के सिद्धान्त (कर्मेश-बल, दशांश, अमात्यकारक, आरूढ) को मुहूर्त-कुण्डली पर लगाकर बनाए गए हैं।</li>
-        <li>स्थानीय पंचांग में सूर्योदय-आधारित वार, ग्रहण, संक्रान्ति, अधिक मास आदि का अलग विचार आपके ज्योतिषी से कराएँ।</li>
+      </ul>
+      <h3>हर मुहूर्त पर क्या-क्या जाँचा गया</h3>
+      <ul class="refs">
+        <li><b>पंचांग:</b> वार सूर्योदय से (मुहूर्त केवल सूर्योदय से सूर्यास्त के बीच), तिथि, नक्षत्र, करण (भद्रा), राहुकाल, अभिजित् — कार्य-स्थान के सूर्योदय-सूर्यास्त से।</li>
+        <li><b>मास और वर्ष के दोष:</b> अधिक (मल) मास, क्षय मास, गुरु अस्त, शुक्र अस्त, सूर्य/चन्द्र ग्रहण के 7 दिन, पिछले 6 मास के ग्रहण का नक्षत्र, अयन-विषुव संक्रान्ति के दिन, सभी ग्रहों की संक्रान्ति-घटी।</li>
+        <li><b>क्षण के दोष:</b> दुर्मुहूर्त, कुलिक, विषघटी, तिथि-नक्षत्र-लग्न गण्डान्त — मिनट तक।</li>
+        <li><b>परम्परा:</b> खरमास, पितृ पक्ष, होलाष्टक में अंक घटते हैं।</li>
+        <li><b>काम का श्लोक:</b> दुकान/व्यापार (मु.चि. 17), बिक्री (17), नौकरी (26), धन-प्रयोग (24, 27)।</li>
+        <li><b>आपकी कुण्डली:</b> चन्द्र बल, तारा बल, जन्म-लग्न/राशि से अष्टम लग्न; कार्य-ग्रहों का मुहूर्त में भाव, अस्त और षड्बल; मुहूर्त लग्नेश का षड्बल; होरा; चल रही दशा।</li>
       </ul>
     </div>
   </section>
@@ -268,9 +281,20 @@
         const list = r.results || r.charts || [];
         part.forEach((d, j) => charts.push({ date: d, chart: list[j] }));
       }
-      prog.textContent = 'हर लग्न-खण्ड की जाँच हो रही है…';
+      // ग्रहण और अमावस्याएँ (पिछले 6 मास से): मलमास, ग्रहण के 7 दिन, ग्रहण-नक्षत्र के लिए
+      prog.textContent = 'ग्रहण, संक्रान्ति और मास देखे जा रहे हैं…';
+      let eclipses = [], newMoons = [];
+      try {
+        const cands = VivahShuddhi.eclipseCandidateDates(dates[0], dates[dates.length - 1], bTz);
+        const er = await PatrikaEngineBridge.calculateBatchPlanets(cands.map(c => ({ date: c.date, time: '12:00:00', lat: bLat, lon: bLon, tz: bTz })));
+        const syz = VivahShuddhi.syzygiesFromCharts(cands, er.results || er.charts || [], bTz);
+        eclipses = syz.filter(x => x.eclipse);
+        newMoons = syz.filter(x => x.kind === 0).sort((a, b) => a.jd - b.jd);
+      } catch (ex) { console.warn('eclipse scan', ex); }
+      prog.textContent = 'हर लग्न-खण्ड की जाँच हो रही है (षड्बल सहित)…';
       await new Promise(r => setTimeout(r, 30));
-      const slots = V.scanRange(charts.filter(c => c.chart && c.chart.planets), { lat: bLat, lon: bLon, tz: bTz, work, profile: prof });
+      const slots = V.scanRange(charts.filter(c => c.chart && c.chart.planets), { lat: bLat, lon: bLon, tz: bTz, work, profile: prof, eclipses, newMoons });
+      prof.eclipses = eclipses;
       lastProfile = prof; lastSlots = slots; filter = 'all';
       renderProfile(prof, work, dates);
       renderSlots();
@@ -351,7 +375,7 @@
       <h2>${esc(p.name)} के कार्य-ग्रह</h2>
       <p class="muted" style="margin-top:-4px;">लग्न ${esc(V.RASHI[p.lagna])} · चन्द्र राशि ${esc(V.RASHI[p.moonSign])}, नक्षत्र ${esc(V.NAK[p.moonNak])}${p.d10 ? ' · दशांश लग्न ' + esc(V.RASHI[p.d10.lagna]) : ''} · आरूढ लग्न ${esc(V.RASHI[p.al])}${nowD ? ' · अभी ' + esc(V.HI[nowD.md]) + '–' + esc(V.HI[nowD.ad]) + ' दशा' : ''}</p>
       ${p.livelihood ? `<div class="note"><b>आजीविका ग्रह: ${esc(V.HI[p.livelihood])}</b> — ${esc(p.livelihoodWork)}<br><span class="ref">${esc(V.REF.pd51)}</span></div>` : ''}
-      <div class="wp">${p.work.slice(0, 6).map(w => `<div class="wp-row"><b>${esc(w.hi)}</b>
+      <div class="wp">${p.work.slice(0, 6).map(w => `<div class="wp-row"><b>${esc(w.hi)}</b>${w.shad ? ` <span class="ref">· षड्बल ${w.shad.rupas} रूप (आवश्यक ${w.shad.required}) — ${w.shad.ratio >= 1 ? 'सबल' : 'आवश्यक से कम'}${w.vim ? ` · विंशोपक ${w.vim.total}/20 (${esc(w.vim.grade)})` : ''}</span>` : ''}
         <div class="roles">${w.roles.map(r => `${esc(r.role)}: ${esc(r.why)} <span class="ref">(${esc(r.ref)})</span>`).join('<br>')}</div></div>`).join('')}</div>
       ${p.notes.map(n => `<div class="note">${esc(n.text)} <span class="ref">(${esc(n.ref)})</span></div>`).join('')}
       <p class="ref" style="margin-top:10px;">${esc(p.d7Note)}</p>
