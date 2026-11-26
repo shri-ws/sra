@@ -493,6 +493,7 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
       <div class="nav-item" onclick="showPanel('users', this)">Registered Users & Queries</div>
       <div class="nav-item" onclick="showPanel('students', this)">Students</div>
       <div class="nav-item nav-item-course-batches" onclick="showPanel('course-batches', this)">Course batches (11 seats)</div>
+      <div class="nav-item nav-item-intl-platforms" onclick="showPanel('intl-platforms', this)" style="color:#2563eb; font-weight:bold; background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.3); border-radius:8px; margin-top:3px;">Global Marketplaces &nbsp;<span style="font-size:9px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px; font-weight:bold;">4 LIVE</span></div>
       <div class="nav-item" onclick="showPanel('payments', this)">Payments</div>
       <div class="nav-item" onclick="showPanel('consultations', this)">Consultations</div>
       <div class="nav-item" onclick="showPanel('forum', this)">Forum Posts</div>
@@ -1863,6 +1864,293 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
         </div>
       </div>
     </div>
+
+    <!-- INTERNATIONAL PLATFORMS & MARKETPLACES PANEL -->
+    <div class="panel" id="panel-intl-platforms">
+      <!-- Top banner / KPI Summary -->
+      <div class="card" style="margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:16px;">
+          <div>
+            <h2 style="font-size:18px; font-weight:700; color:var(--gold); margin:0;">International Platforms & Global Marketplaces</h2>
+            <div style="font-size:13px; color:var(--muted); margin-top:3px;">
+              Track and manage all 4 global distribution channels (Fiverr, Topmate, Superprof, Etsy) from one central hub.
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="export-btn" onclick="toggleIntlOrderForm()" style="background:#2563eb; border-color:#1d4ed8; color:#fff; font-weight:700;">+ Log New Order</button>
+            <button class="export-btn" onclick="exportIntlOrdersToCsv()">Export CSV</button>
+            <button class="export-btn" onclick="loadIntlOrders()">Refresh</button>
+          </div>
+        </div>
+
+        <!-- Top Metrics Cards -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700;">Total Global Revenue</div>
+            <div id="intl-kpi-rev" style="font-size:22px; font-weight:800; color:var(--green); margin-top:4px;">$0 <span style="font-size:12px; font-weight:500; color:var(--muted);">(₹0)</span></div>
+            <div style="font-size:11px; color:var(--muted); margin-top:2px;">Across international sales</div>
+          </div>
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700;">Active Platforms</div>
+            <div style="font-size:22px; font-weight:800; color:#2563eb; margin-top:4px;">4 Platforms</div>
+            <div style="font-size:11px; color:var(--green); margin-top:2px;">3 Live, 1 Pending Payoneer</div>
+          </div>
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700;">Total Orders Logged</div>
+            <div id="intl-kpi-orders" style="font-size:22px; font-weight:800; color:var(--gold); margin-top:4px;">0 Orders</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:2px;">Delivered / in-progress</div>
+          </div>
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700;">Primary Target Market</div>
+            <div style="font-size:20px; font-weight:800; color:var(--text); margin-top:4px;">USA, UK & Global</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:2px;">Currency: $ USD</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 PLATFORM PLACARDS (CARDS) -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:15px; font-weight:700; color:var(--gold); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+          <span>Channel Placards & Direct Quick-Action Links</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px;">
+          
+          <!-- PLACARD 1: FIVERR -->
+          <div class="card" style="border-top:4px solid #1dbf73; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:16px; font-weight:800; color:#1dbf73;">Fiverr</span>
+                  <span style="background:rgba(29,191,115,0.15); color:#1dbf73; border:1px solid rgba(29,191,115,0.4); font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">LIVE & ACTIVE</span>
+                </div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">Seller: <b>@shriramjiastro</b> (Raamji)</div>
+              </div>
+              <span style="font-size:22px;">📊</span>
+            </div>
+
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12.5px;">
+              <div style="font-weight:700; color:var(--text); margin-bottom:4px;">Active Offerings (Real Reports):</div>
+              <div style="display:flex; flex-direction:column; gap:3px; color:var(--muted);">
+                <div>• <b>Basic ($10):</b> Specific Dosha (Manglik/Kaalsarp/Dhan)</div>
+                <div>• <b>Standard ($20):</b> Mega Parashara Life Report</div>
+                <div>• <b>Premium ($35):</b> 4-in-1 Complete Vedic Suite</div>
+              </div>
+            </div>
+
+            <div style="font-size:11px; color:#b91c1c; background:rgba(185,28,28,0.06); border:1px solid rgba(185,28,28,0.2); padding:6px 10px; border-radius:6px; margin-bottom:14px;">
+              ⚠️ <b>Security Notice:</b> Real orders appear in the <i>Manage Orders</i> tab with countdown timer. Never open PDF links in inbox.
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <a href="https://www.fiverr.com/users/shriramjiastro/manage_orders" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none; background:#1dbf73; border-color:#16a34a; color:#fff; font-weight:700;">📦 Orders</a>
+              <a href="https://www.fiverr.com/seller_dashboard" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">Dashboard</a>
+              <a href="https://www.fiverr.com/inbox" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">💬 Inbox</a>
+              <a href="https://www.fiverr.com/shriramjiastro/provide-an-authentic-classical-vedic-astrology-birth-chart-report" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">🔗 Live Gig</a>
+            </div>
+          </div>
+
+          <!-- PLACARD 2: TOPMATE -->
+          <div class="card" style="border-top:4px solid #ff5a5f; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:16px; font-weight:800; color:#ff5a5f;">Topmate</span>
+                  <span style="background:rgba(22,163,74,0.15); color:#16a34a; border:1px solid rgba(22,163,74,0.4); font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">LIVE & ACTIVE</span>
+                </div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">Handle: <b>topmate.io/shriramjiastro</b></div>
+              </div>
+              <span style="font-size:22px;">📅</span>
+            </div>
+
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12.5px;">
+              <div style="font-weight:700; color:var(--text); margin-bottom:4px;">Active Offerings:</div>
+              <div style="display:flex; flex-direction:column; gap:3px; color:var(--muted);">
+                <div>• <b>1:1 Consultation:</b> $101 USD (> 90 mins, single daily client)</div>
+                <div>• <b>The Global Eleven:</b> $1,111 USD (1-Year Classical Immersion)</div>
+                <div>• <b>Availability:</b> Mon–Sun (covers all US timezones)</div>
+              </div>
+            </div>
+
+            <div style="font-size:11.5px; color:var(--muted); margin-bottom:14px; min-height:30px;">
+              Direct foreign card acceptance (USD) & automated calendar scheduling via Google Meet.
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <a href="https://topmate.io/dashboard/bookings" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none; background:#ff5a5f; border-color:#e11d48; color:#fff; font-weight:700;">📆 Bookings</a>
+              <a href="https://topmate.io/dashboard" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">Dashboard</a>
+              <a href="https://topmate.io/dashboard/payouts" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">💰 Payouts</a>
+              <a href="https://topmate.io/shriramjiastro" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">🔗 Public Page</a>
+            </div>
+          </div>
+
+          <!-- PLACARD 3: SUPERPROF USA -->
+          <div class="card" style="border-top:4px solid #f97316; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:16px; font-weight:800; color:#f97316;">Superprof USA</span>
+                  <span style="background:rgba(22,163,74,0.15); color:#16a34a; border:1px solid rgba(22,163,74,0.4); font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">LIVE & ACTIVE</span>
+                </div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">Tutor: <b>Shriramji</b> (Los Angeles, Online)</div>
+              </div>
+              <span style="font-size:22px;">🎓</span>
+            </div>
+
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12.5px;">
+              <div style="font-weight:700; color:var(--text); margin-bottom:4px;">Active Offerings:</div>
+              <div style="display:flex; flex-direction:column; gap:3px; color:var(--muted);">
+                <div>• <b>Hourly Private Tutoring:</b> $60 / hour (Webcam)</div>
+                <div>• <b>Exclusive 11-Seat Cohort:</b> $1,111 for 48 masterclasses</div>
+                <div>• <b>Target:</b> USA & International students</div>
+              </div>
+            </div>
+
+            <div style="font-size:11.5px; color:var(--muted); margin-bottom:14px; min-height:30px;">
+              Students inquiring for tutoring can be directly converted into The Global Eleven $1,111 batch.
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <a href="https://www.superprof.com/dashboard.html/messages" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none; background:#f97316; border-color:#ea580c; color:#fff; font-weight:700;">💬 Inquiries</a>
+              <a href="https://www.superprof.com/dashboard.html" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">Dashboard</a>
+              <a href="https://www.superprof.com/dashboard.html/my-listings" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">My Listings</a>
+              <a href="https://www.superprof.com/exclusive-seat-classical-vedic-astrology-year-cohort-live-masterclasses-shriramji-astro.html" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">🔗 Live Ad</a>
+            </div>
+          </div>
+
+          <!-- PLACARD 4: ETSY -->
+          <div class="card" style="border-top:4px solid #d97706; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:16px; font-weight:800; color:#d97706;">Etsy Shop</span>
+                  <span style="background:rgba(217,119,6,0.15); color:#d97706; border:1px solid rgba(217,119,6,0.4); font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">PENDING PAYONEER</span>
+                </div>
+                <div style="font-size:12px; color:var(--muted); margin-top:2px;">Shop Name: <b>ShriRamjiAstro</b> (USD)</div>
+              </div>
+              <span style="font-size:22px;">🛍️</span>
+            </div>
+
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12.5px;">
+              <div style="font-weight:700; color:var(--text); margin-bottom:4px;">Planned Offerings:</div>
+              <div style="display:flex; flex-direction:column; gap:3px; color:var(--muted);">
+                <div>• <b>Classical Horoscope PDF:</b> $20 USD (~₹1,700)</div>
+                <div>• <b>Custom Digital Downloads:</b> Made-to-order delivery</div>
+                <div>• <b>Payoneer Verification:</b> 1–3 business days review</div>
+              </div>
+            </div>
+
+            <div style="font-size:11.5px; color:var(--muted); margin-bottom:14px; min-height:30px;">
+              Payoneer bank verification submitted. Once approved, report listings will be published immediately.
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <a href="https://www.etsy.com/your/shops/me/onboarding/payments" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none; background:#d97706; border-color:#b45309; color:#fff; font-weight:700;">🏦 Status</a>
+              <a href="https://www.etsy.com/your/shops/me/dashboard" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">Manager</a>
+              <a href="https://www.etsy.com/your/orders/sold" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">Orders</a>
+              <a href="https://www.etsy.com/sell" target="_blank" rel="noopener" class="export-btn" style="text-align:center; text-decoration:none;">Etsy Sell</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- LOG ORDER MODAL / COLLAPSIBLE FORM -->
+      <div id="intl-order-form-wrap" style="display:none; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:20px; box-shadow:0 6px 20px rgba(0,0,0,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+          <h3 style="margin:0; font-size:15px; font-weight:700; color:var(--gold);">+ Log New International Sale / Inquiry</h3>
+          <button onclick="toggleIntlOrderForm()" style="background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer;">✕</button>
+        </div>
+        <form id="frm-intl-order" onsubmit="saveIntlOrder(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; font-size:13px;">
+          <div>
+            <label style="display:block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Platform</label>
+            <select id="io-platform" style="width:100%; padding:8px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text);" required>
+              <option value="Fiverr">Fiverr</option>
+              <option value="Topmate">Topmate</option>
+              <option value="Superprof">Superprof</option>
+              <option value="Etsy">Etsy</option>
+              <option value="Direct Website">Direct Website (Razorpay/PayPal)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Client Name / Handle</label>
+            <input type="text" id="io-client" placeholder="e.g. John D. (USA)" style="width:100%; padding:8px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text);" required />
+          </div>
+          <div>
+            <label style="display:block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Product / Service</label>
+            <select id="io-product" onchange="autoFillIntlPrice()" style="width:100%; padding:8px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text);" required>
+              <option value="Mega Parashara Life Report ($20)">Mega Parashara Life Report ($20)</option>
+              <option value="Specific Dosha Report ($10)">Specific Dosha Report ($10)</option>
+              <option value="Complete 4-Report Suite ($35)">Complete 4-Report Suite ($35)</option>
+              <option value="1:1 Consultation ($101)">1:1 Consultation ($101)</option>
+              <option value="The Global Eleven Cohort ($1,111)">The Global Eleven Cohort ($1,111)</option>
+              <option value="Superprof Hourly Class ($60)">Superprof Hourly Class ($60)</option>
+              <option value="Other Custom">Other Custom</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Amount ($ USD)</label>
+            <input type="number" id="io-amount" value="20" min="0" step="1" style="width:100%; padding:8px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text);" required />
+          </div>
+          <div>
+            <label style="display:block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Status</label>
+            <select id="io-status" style="width:100%; padding:8px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+              <option value="Completed">Completed / Delivered</option>
+              <option value="In Progress">In Progress (Generating PDF)</option>
+              <option value="Pending">New / Pending Details</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Notes / Order ID</label>
+            <input type="text" id="io-notes" placeholder="e.g. Order #FO12345 or DOB: 14/05/1990" style="width:100%; padding:8px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text);" />
+          </div>
+          <div style="grid-column: 1 / -1; display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+            <button type="button" onclick="toggleIntlOrderForm()" class="export-btn">Cancel</button>
+            <button type="submit" class="export-btn" style="background:var(--green); border-color:var(--green); color:#fff; font-weight:700;">Save Order</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ORDERS TRACKING TABLE -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+          <div>
+            <span class="table-title">International Sales & Orders Log</span>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">All recorded orders from foreign clients across international channels.</div>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <select id="intl-filter-platform" onchange="renderIntlOrdersTable()" style="padding:6px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:12px;">
+              <option value="ALL">All Platforms</option>
+              <option value="Fiverr">Fiverr</option>
+              <option value="Topmate">Topmate</option>
+              <option value="Superprof">Superprof</option>
+              <option value="Etsy">Etsy</option>
+              <option value="Direct Website">Direct Website</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Platform</th>
+                <th>Client</th>
+                <th>Product / Service</th>
+                <th>Amount ($ USD)</th>
+                <th>Status</th>
+                <th>Notes / Order ID</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="intl-orders-tbody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MANUAL UPI PAYOUT MODAL -->
@@ -2921,6 +3209,7 @@ function showPanel(name, targetEl){
       'sutra-list': currentAdminLang === 'en' ? 'Sutradhar List — who is active' : 'सूत्रधार सूची — कौन सक्रिय',
       'sutra-daily': currentAdminLang === 'en' ? 'Sutradhar daily push — who worked today, who needs a message' : 'सूत्रधार रोज़ का संदेश — आज किसने काम किया, किसे धक्का चाहिए',
       'course-batches': currentAdminLang === 'en' ? 'Course batches (11 seats)' : 'कोर्स बैच (11 सीटें)',
+      'intl-platforms': currentAdminLang === 'en' ? 'International Platforms & Global Marketplaces' : 'अंतरराष्ट्रीय प्लेटफ़ॉर्म व ग्लोबल मार्केटप्लेस (Global Marketplaces)',
       'sutra-invite': currentAdminLang === 'en' ? 'Sutradhar Invite' : 'सूत्रधार आमंत्रण'
     };
     const titleEl = document.getElementById('panelTitle');
@@ -2954,6 +3243,8 @@ function showPanel(name, targetEl){
       loadSutraDaily();
     } else if (name === 'course-batches') {
       loadCourseBatchesAdmin();
+    } else if (name === 'intl-platforms') {
+      initIntlPlatforms();
     } else if (name === 'sutra-reviews') {
       loadSutradharReviewQueue();
     } else if (name === 'sutra-payouts') {
@@ -2967,6 +3258,214 @@ function showPanel(name, targetEl){
   } catch(e) {
     console.error("showPanel error:", e);
   }
+}
+
+/* ══ INTERNATIONAL PLATFORMS TRACKING MODULE ══ */
+const INTL_STORAGE_KEY = 'sra_intl_orders_v1';
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function getStoredIntlOrders() {
+  try {
+    const raw = localStorage.getItem(INTL_STORAGE_KEY);
+    if (!raw) {
+      const sample = [
+        {
+          id: 'IO-SAMPLE1',
+          date: new Date().toISOString().split('T')[0],
+          platform: 'Fiverr',
+          client: 'Michael R. (California, USA)',
+          product: 'Mega Parashara Life Report ($20)',
+          amount: 20,
+          status: 'Completed',
+          notes: 'Fulfilled via parashara-report.html'
+        }
+      ];
+      localStorage.setItem(INTL_STORAGE_KEY, JSON.stringify(sample));
+      return sample;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveStoredIntlOrders(orders) {
+  try {
+    localStorage.setItem(INTL_STORAGE_KEY, JSON.stringify(orders));
+  } catch (e) {}
+}
+
+function initIntlPlatforms() {
+  loadIntlOrders();
+}
+
+function toggleIntlOrderForm() {
+  const w = document.getElementById('intl-order-form-wrap');
+  if (!w) return;
+  w.style.display = (w.style.display === 'none' || !w.style.display) ? 'block' : 'none';
+}
+
+function autoFillIntlPrice() {
+  const prod = document.getElementById('io-product').value;
+  const amtInput = document.getElementById('io-amount');
+  if (/101/.test(prod)) amtInput.value = 101;
+  else if (/1,111/.test(prod)) amtInput.value = 1111;
+  else if (/35/.test(prod)) amtInput.value = 35;
+  else if (/20/.test(prod)) amtInput.value = 20;
+  else if (/10/.test(prod)) amtInput.value = 10;
+  else if (/60/.test(prod)) amtInput.value = 60;
+}
+
+function saveIntlOrder(e) {
+  e.preventDefault();
+  const platform = document.getElementById('io-platform').value;
+  const client = document.getElementById('io-client').value.trim();
+  const product = document.getElementById('io-product').value;
+  const amount = parseFloat(document.getElementById('io-amount').value) || 0;
+  const status = document.getElementById('io-status').value;
+  const notes = document.getElementById('io-notes').value.trim();
+
+  const newOrder = {
+    id: 'IO-' + Date.now().toString(36).toUpperCase(),
+    date: new Date().toISOString().split('T')[0],
+    platform,
+    client,
+    product,
+    amount,
+    status,
+    notes
+  };
+
+  const orders = getStoredIntlOrders();
+  orders.unshift(newOrder);
+  saveStoredIntlOrders(orders);
+
+  document.getElementById('frm-intl-order').reset();
+  toggleIntlOrderForm();
+  loadIntlOrders();
+}
+
+function deleteIntlOrder(id) {
+  if (!confirm('Are you sure you want to delete this order entry?')) return;
+  let orders = getStoredIntlOrders();
+  orders = orders.filter(o => o.id !== id);
+  saveStoredIntlOrders(orders);
+  loadIntlOrders();
+}
+
+function toggleIntlStatus(id) {
+  const orders = getStoredIntlOrders();
+  const ord = orders.find(o => o.id === id);
+  if (!ord) return;
+  if (ord.status === 'Pending') ord.status = 'In Progress';
+  else if (ord.status === 'In Progress') ord.status = 'Completed';
+  else ord.status = 'Pending';
+  saveStoredIntlOrders(orders);
+  loadIntlOrders();
+}
+
+function loadIntlOrders() {
+  renderIntlOrdersTable();
+  updateIntlKPIs();
+}
+
+function updateIntlKPIs() {
+  const orders = getStoredIntlOrders();
+  let totalUsd = 0;
+  orders.forEach(o => {
+    if (o.status === 'Completed' || o.status === 'In Progress') {
+      totalUsd += (Number(o.amount) || 0);
+    }
+  });
+
+  const approxInr = Math.round(totalUsd * 86);
+  const revEl = document.getElementById('intl-kpi-rev');
+  if (revEl) {
+    revEl.innerHTML = `$${totalUsd.toLocaleString()} <span style="font-size:12px; font-weight:500; color:var(--muted);">(₹${approxInr.toLocaleString()})</span>`;
+  }
+
+  const ordEl = document.getElementById('intl-kpi-orders');
+  if (ordEl) {
+    ordEl.textContent = `${orders.length} Order${orders.length === 1 ? '' : 's'}`;
+  }
+}
+
+function renderIntlOrdersTable() {
+  const tbody = document.getElementById('intl-orders-tbody');
+  if (!tbody) return;
+
+  const orders = getStoredIntlOrders();
+  const filter = (document.getElementById('intl-filter-platform') ? document.getElementById('intl-filter-platform').value : 'ALL');
+
+  const filtered = filter === 'ALL' ? orders : orders.filter(o => o.platform === filter);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px 16px; color:var(--muted);">
+      No international orders found for this filter. Click <b>"+ Log New Order"</b> above to record a sale.
+    </td></tr>`;
+    return;
+  }
+
+  const pColors = {
+    'Fiverr': '#1dbf73',
+    'Topmate': '#ff5a5f',
+    'Superprof': '#f97316',
+    'Etsy': '#d97706',
+    'Direct Website': '#2563eb'
+  };
+
+  const statusColors = {
+    'Completed': { bg: 'rgba(22,163,74,0.15)', text: '#16a34a', border: 'rgba(22,163,74,0.4)' },
+    'In Progress': { bg: 'rgba(37,99,235,0.15)', text: '#2563eb', border: 'rgba(37,99,235,0.4)' },
+    'Pending': { bg: 'rgba(217,119,6,0.15)', text: '#d97706', border: 'rgba(217,119,6,0.4)' }
+  };
+
+  tbody.innerHTML = filtered.map(o => {
+    const col = pColors[o.platform] || '#64748b';
+    const sc = statusColors[o.status] || statusColors['Pending'];
+    const approxInr = Math.round((o.amount || 0) * 86);
+    return `<tr>
+      <td style="white-space:nowrap; font-weight:600;">${o.date || '—'}</td>
+      <td>
+        <span style="background:${col}18; color:${col}; border:1px solid ${col}55; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:800;">
+          ${o.platform}
+        </span>
+      </td>
+      <td style="font-weight:700; color:var(--text);">${escHtml(o.client || '—')}</td>
+      <td style="color:var(--text);">${escHtml(o.product || '—')}</td>
+      <td style="font-weight:800; color:var(--green);">$${o.amount} <span style="font-size:11px; font-weight:500; color:var(--muted);">(₹${approxInr})</span></td>
+      <td>
+        <button onclick="toggleIntlStatus('${o.id}')" title="Click to cycle status" style="background:${sc.bg}; color:${sc.text}; border:1px solid ${sc.border}; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700; cursor:pointer;">
+          ${o.status} ⟳
+        </button>
+      </td>
+      <td style="font-size:12px; color:var(--muted);">${escHtml(o.notes || '—')}</td>
+      <td>
+        <button onclick="deleteIntlOrder('${o.id}')" style="background:none; border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:6px; padding:3px 7px; font-size:11px; cursor:pointer;" title="Delete">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function exportIntlOrdersToCsv() {
+  const orders = getStoredIntlOrders();
+  if (orders.length === 0) {
+    alert('No international orders to export.');
+    return;
+  }
+  let csv = 'ID,Date,Platform,Client,Product,Amount_USD,Status,Notes\n';
+  orders.forEach(o => {
+    csv += `"${o.id}","${o.date}","${o.platform}","${(o.client || '').replace(/"/g, '""')}","${(o.product || '').replace(/"/g, '""')}","${o.amount}","${o.status}","${(o.notes || '').replace(/"/g, '""')}"\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sra_international_orders_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
 }
 
 /* ══ SOCIAL MEDIA AI AGENT FUNCTIONS ══ */
