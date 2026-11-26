@@ -8,6 +8,9 @@
     <meta name="keywords" content="yajnopavita muhurat, upanayan sanskar date, janeu muhurat 2026, sacred thread ceremony date, upanayana muhurta calculator" />
     <meta name="author" content="Astro Raamji — Shri Ramji Astro" />
     <meta name="robots" content="index, follow" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <link rel="canonical" href="https://shriramjiastro.in/yajnopavita.html" />
 
     <!-- Open Graph -->
@@ -909,7 +912,7 @@
 
             <!-- VIP Passcode Unlock Option -->
             <div class="unlock-code-box">
-                <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP कोड / पिन">
+                <input type="text" id="vipCodeInput" class="unlock-input" placeholder="VIP कोड / पिन" onkeydown="if(event.key==='Enter'){event.preventDefault();verifyVipCode();}">
                 <button type="button" class="unlock-btn" onclick="verifyVipCode()">अनलॉक</button>
             </div>
 
@@ -1758,6 +1761,13 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const urlVip = params.get('vip') || params.get('code') || params.get('unlock');
+            if (urlVip && document.getElementById('vipCodeInput')) {
+                document.getElementById('vipCodeInput').value = urlVip;
+                verifyVipCode();
+                return;
+            }
             checkUnlockStatus();
         });
     </script>
