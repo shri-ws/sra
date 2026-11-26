@@ -244,7 +244,8 @@ def calculate_astronomy_state(jd_ut: float, lat: float, lon: float) -> Dict[str,
     ven_combust = abs((planets["Venus"]["lon"] - sun_lon + 180) % 360 - 180) < 9.0
 
     is_uttarayana = planets["Sun"]["sign"] in {10, 11, 12, 1, 2, 3}
-    is_bhadra = karana in {7, 14, 21, 28, 35, 42, 49, 56}
+    # Vishti (Bhadrā) is the 7th movable karana (indices 8, 15, 22, 29, 36, 43, 50, 57 out of 60)
+    is_bhadra = karana in {8, 15, 22, 29, 36, 43, 50, 57}
 
     return {
         "jd": jd_ut,
