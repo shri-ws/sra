@@ -725,13 +725,14 @@
             margin-top: 6px;
         }
         .unlock-input {
-            background: rgba(0,0,0,0.6);
+            background: #2a1114 !important;
             border: 1px solid var(--gold-accent, #C5A059);
             border-radius: 6px;
-            color: #FFFFFF;
+            color: #FFFFFF !important;
             padding: 6px 8px;
-            font-size: 12px;
-            width: 140px;
+            font-size: 13px;
+            font-weight: 700;
+            width: 150px;
             text-align: center;
             letter-spacing: 1.5px;
             text-transform: uppercase;
@@ -1585,7 +1586,23 @@
             }
         }
 
-        async function startVipSession(receipt, paymentId = null) {
+        async function startVipSession(receipt, paymentId = null, silent = false) {
+            // Immediate unlock for MASTER_KEY (zero network latency / zero fail)
+            if (paymentId === 'MASTER_KEY' || (receipt && receipt.admin_key)) {
+                sessionExpiryMs = Date.now() + 20 * 60 * 1000;
+                try { localStorage.setItem('sra_yajno_last_payid', 'MASTER_KEY'); } catch (e) {}
+                unlockAccess();
+                if (!silent) {
+                    alert(`🎉 VIP सत्र सक्रिय!\n\nआपका 20 मिनट का VIP सत्र सक्रिय कर दिया गया है।`);
+                }
+                if (window.SraCouponEngine) {
+                    window.SraCouponEngine.verifyUnlock(UNLOCK_SERVICE, sraUnlockRef(), receipt).then(v => {
+                        if (v && v.ok && v.exp) sessionExpiryMs = v.exp * 1000;
+                    }).catch(() => {});
+                }
+                return;
+            }
+
             const v = window.SraCouponEngine ? await window.SraCouponEngine.verifyUnlock(UNLOCK_SERVICE, sraUnlockRef(), receipt) : { ok: false };
             if (!v.ok) {
                 alert((v.message || 'पुष्टि नहीं हो सकी।') + (paymentId && !/^(SAAS_|MASTER)/.test(paymentId) ? '\n\nपैसा कटा हो तो support@shriramjiastro.in पर भुगतान ID भेजें: ' + paymentId : ''));
@@ -1595,7 +1612,9 @@
             const minutes = Math.max(1, Math.round((sessionExpiryMs - Date.now()) / 60000));
             if (paymentId) { try { localStorage.setItem('sra_yajno_last_payid', paymentId); } catch (e) {} }
             unlockAccess();
-            alert(`🎉 भुगतान सफल (Payment Successful)!\n\nआपका 20 मिनट का VIP सत्र सक्रिय कर दिया गया है।\n\nपृष्ठ के शीर्ष पर स्थित टाइमर द्वारा शेष समय देख सकते हैं।`);
+            if (!silent) {
+                alert(`🎉 भुगतान सफल (Payment Successful)!\n\nआपका 20 मिनट का VIP सत्र सक्रिय कर दिया गया है।\n\nपृष्ठ के शीर्ष पर स्थित टाइमर द्वारा शेष समय देख सकते हैं।`);
+            }
         }
 
         function unlockAccess() {
@@ -1739,35 +1758,48 @@
             calculateUpanayana();
         }
 
-        function verifyVipCode() {
+        function verifyVipCode(silent = false) {
             const raw = (document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '');
             let pin = raw.toUpperCase().replace(/[\s\-_]+/g, '');
             if (pin === 'जयहनुमान' || pin === 'जय_हनुमान') pin = 'JAIHANUMAN';
 
+            const isMaster = (pin === 'JAIHANUMAN') || (window.sraIsMasterKey && (window.sraIsMasterKey(pin) || window.sraIsMasterKey(raw)));
+
+            if (isMaster) {
+                startVipSession({ admin_key: 'JAIHANUMAN' }, 'MASTER_KEY', silent);
+                return;
+            }
+
             // SaaS astrologer: own login number opens a session; other codes get the same "invalid" reply
             if (window.SraCouponEngine && window.SraCouponEngine.isPhoneCode(pin)) {
-                window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_yajno', code: pin, reportRef: sraUnlockRef(), onUnlock: r => startVipSession({ unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id), show: (ok, m) => { if (ok === false) alert(m); } });
+                window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_yajno', code: pin, reportRef: sraUnlockRef(), onUnlock: r => startVipSession({ unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id, silent), show: (ok, m) => { if (ok === false && !silent) alert(m); } });
                 return;
             }
             if (window.SraCouponEngine) {
                 const res = window.SraCouponEngine.validateAndCalculate(pin, 1551);
                 window._muhuratCoupon = res.code;  // Code box: every code gets the same reply; the server decides at payment
             }
-            if (window.sraIsMasterKey && (window.sraIsMasterKey(pin) || window.sraIsMasterKey(raw))) {
-                startVipSession({ admin_key: pin }, 'MASTER_KEY');
-                return;
+            if (!silent) {
+                alert("अमान्य कोड! सही कोड या ₹1,551 भुगतान विकल्प का प्रयोग करें।");
             }
-            alert("अमान्य कोड! सही कोड या ₹1,551 भुगतान विकल्प का प्रयोग करें।");
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const urlVip = params.get('vip') || params.get('code') || params.get('unlock');
-            if (urlVip && document.getElementById('vipCodeInput')) {
-                document.getElementById('vipCodeInput').value = urlVip;
-                verifyVipCode();
+            if (urlVip) {
+                if (document.getElementById('vipCodeInput')) {
+                    document.getElementById('vipCodeInput').value = urlVip;
+                }
+                verifyVipCode(true);
                 return;
             }
+            try {
+                if (localStorage.getItem('sra_yajno_last_payid') === 'MASTER_KEY') {
+                    startVipSession({ admin_key: 'JAIHANUMAN' }, 'MASTER_KEY', true);
+                    return;
+                }
+            } catch(e) {}
             checkUnlockStatus();
         });
     </script>
