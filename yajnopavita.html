@@ -1156,9 +1156,27 @@
 
             try {
                 const url = `${window.SRA_API_BASE || ""}/api/muhurta/yajnopavita?child_dob=${childDob}&child_tob=${childTob}&child_lat=${lat}&child_lon=${lon}&child_tz=${tz}&lat=${lat}&lon=${lon}&start_date=${startDate}&days=${days}`;
-                const response = await fetch(url);
                 
-                if (response.ok) {
+                // Wake-up & retry logic for Render free-tier cold starts (55s timeout each)
+                let response = null;
+                for (let attempt = 1; attempt <= 2; attempt++) {
+                    const controller = new AbortController();
+                    const tid = setTimeout(() => controller.abort(), 55000);
+                    try {
+                        response = await fetch(url, { signal: controller.signal });
+                        clearTimeout(tid);
+                        if (response.ok) break;
+                    } catch (e) {
+                        clearTimeout(tid);
+                        if (attempt === 1) {
+                            const loaderP = loader.querySelector('p');
+                            if (loaderP) loaderP.textContent = 'सर्वर जाग रहा है... कृपया 15-20 सेकंड प्रतीक्षा करें और पुनः प्रयास करें...';
+                            await new Promise(r => setTimeout(r, 5000));
+                        }
+                    }
+                }
+
+                if (response && response.ok) {
                     const data = await response.json();
                     loader.style.display = 'none';
 
@@ -1172,7 +1190,7 @@
                         <div style="background:#fee2e2; border:1px solid #ef4444; color:#991b1b; padding:16px 20px; border-radius:12px; margin:20px 0; text-align:center;">
                             <h4 style="margin:0 0 8px 0; font-size:16px;">⚠️ गणना सर्वर अनुपलब्ध है</h4>
                             <p style="margin:0; font-size:13px; line-height:1.6;">
-                                यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। कृपया कुछ समय पश्चात पुनः प्रयास करें।
+                                यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। यदि सर्वर स्लीप मोड में था, तो अब वह सक्रिय हो चुका है। कृपया <button onclick="calculateUpanayana()" style="background:#b91c1c; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-weight:700; cursor:pointer; margin-left:6px;">पुनः प्रयास करें</button>
                             </p>
                         </div>
                     `;
@@ -1184,7 +1202,7 @@
                     <div style="background:#fee2e2; border:1px solid #ef4444; color:#991b1b; padding:16px 20px; border-radius:12px; margin:20px 0; text-align:center;">
                         <h4 style="margin:0 0 8px 0; font-size:16px;">⚠️ गणना सर्वर अनुपलब्ध है</h4>
                         <p style="margin:0; font-size:13px; line-height:1.6;">
-                            यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। कृपया कुछ समय पश्चात पुनः प्रयास करें।
+                            यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। यदि सर्वर स्लीप मोड में था, तो अब वह सक्रिय हो चुका है। कृपया <button onclick="calculateUpanayana()" style="background:#b91c1c; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-weight:700; cursor:pointer; margin-left:6px;">पुनः प्रयास करें</button>
                         </p>
                     </div>
                 `;
@@ -1239,7 +1257,7 @@
             };
 
             let svg = `
-            <svg viewBox="0 0 440 440" width="100%" height="auto" style="max-width:440px; display:block; margin: 0 auto; filter: drop-shadow(0px 4px 12px rgba(74, 14, 23, 0.15));">
+            <svg viewBox="0 0 440 440" width="100%" height="100%" style="max-width:440px; display:block; margin: 0 auto; filter: drop-shadow(0px 4px 12px rgba(74, 14, 23, 0.15));">
                 <defs>
                     <linearGradient id="kundliBg" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stop-color="#FFFDF9"/>
@@ -1381,9 +1399,28 @@
             const content = document.getElementById('resultsContent');
 
             if (!slots || slots.length === 0) {
-                content.innerHTML = `<div class="empty-state" style="color: var(--fail-text); background: var(--fail-bg); border-color: rgba(183,28,28,0.2); font-weight: 700;">
-                    दी गई अवधि में बालक की कुण्डली के अनुसार कोई शुद्ध यज्ञोपवीत मुहूर्त प्राप्त नहीं हुआ। (दक्षिणायन, भद्रा, अष्टम अशुद्धि अथवा त्रिबल दोष)।
-                </div>`;
+                const startDt = document.getElementById('startDate').value;
+                const m = startDt ? parseInt(startDt.split('-')[1], 10) : new Date().getMonth() + 1;
+                const isDakshinayana = (m >= 7 && m <= 12) || (m === 1 && parseInt(startDt.split('-')[2] || '1', 10) < 14);
+
+                content.innerHTML = `
+                    <div class="empty-state" style="color: var(--fail-text); background: var(--fail-bg); border-color: rgba(183,28,28,0.2); font-weight: 600; text-align: left; padding: 20px; border-radius: 12px;">
+                        <div style="font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; color: var(--primary);">
+                            दी गई अवधि में बालक की कुण्डली के अनुसार कोई शुद्ध यज्ञोपवीत मुहूर्त प्राप्त नहीं हुआ
+                        </div>
+                        <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-main); margin-bottom: 12px;">
+                            ${isDakshinayana 
+                                ? '<strong>शास्त्रीय प्रमाण (*मुहूर्त चिन्तामणि* - संस्कार प्रकरण):</strong> उपनयन संस्कार केवल <strong>उत्तरायण</strong> (माघ, फाल्गुन, चैत्र, वैशाख, ज्येष्ठ मास — जब सूर्य मकर से मिथुन राशि में हो) में ही शास्त्रसम्मत है। वर्तमान में <strong>दक्षिणायन</strong> होने के कारण यह अवधि उपनयन संस्कार हेतु सर्वथा वर्जित है।'
+                                : 'दी गई अवधि में भद्रा, अष्टम अशुद्धि अथवा त्रिबल दोष (गुरु, सूर्य, चन्द्र बल) के कारण कोई निर्दोष मुहूर्त नहीं बन रहा है।'
+                            }
+                        </p>
+                        <div style="margin-top: 14px;">
+                            <button type="button" onclick="setUpcomingUttarayanaAndScan()" style="background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13.5px;">
+                                📅 आगामी उत्तरायण (फरवरी 2027) के शुद्ध मुहूर्त देखें
+                            </button>
+                        </div>
+                    </div>
+                `;
                 return;
             }
 
@@ -1689,8 +1726,21 @@
             }
         }
 
+        function setUpcomingUttarayanaAndScan() {
+            const curDate = new Date();
+            const curYr = curDate.getFullYear();
+            const curMo = curDate.getMonth() + 1;
+            const targetYr = (curMo >= 7) ? curYr + 1 : curYr;
+            document.getElementById('startDate').value = `${targetYr}-02-01`;
+            document.getElementById('scanDays').value = '30';
+            calculateUpanayana();
+        }
+
         function verifyVipCode() {
-            const pin = (document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '').toUpperCase();
+            const raw = (document.getElementById('vipCodeInput') ? document.getElementById('vipCodeInput').value.trim() : '');
+            let pin = raw.toUpperCase().replace(/[\s\-_]+/g, '');
+            if (pin === 'जयहनुमान' || pin === 'जय_हनुमान') pin = 'JAIHANUMAN';
+
             // SaaS astrologer: own login number opens a session; other codes get the same "invalid" reply
             if (window.SraCouponEngine && window.SraCouponEngine.isPhoneCode(pin)) {
                 window.SraCouponEngine.handleCodeBox({ serviceId: 'muhurta_yajno', code: pin, reportRef: sraUnlockRef(), onUnlock: r => startVipSession({ unlock_id: r.unlock_id }, 'SAAS_' + r.unlock_id), show: (ok, m) => { if (ok === false) alert(m); } });
@@ -1700,7 +1750,10 @@
                 const res = window.SraCouponEngine.validateAndCalculate(pin, 1551);
                 window._muhuratCoupon = res.code;  // Code box: every code gets the same reply; the server decides at payment
             }
-            if (window.sraIsMasterKey && window.sraIsMasterKey(pin)) { startVipSession({ admin_key: pin }, 'MASTER_KEY'); return; }
+            if (window.sraIsMasterKey && (window.sraIsMasterKey(pin) || window.sraIsMasterKey(raw))) {
+                startVipSession({ admin_key: pin }, 'MASTER_KEY');
+                return;
+            }
             alert("अमान्य कोड! सही कोड या ₹1,551 भुगतान विकल्प का प्रयोग करें।");
         }
 
