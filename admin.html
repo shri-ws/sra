@@ -3271,22 +3271,15 @@ function getStoredIntlOrders() {
   try {
     const raw = localStorage.getItem(INTL_STORAGE_KEY);
     if (!raw) {
-      const sample = [
-        {
-          id: 'IO-SAMPLE1',
-          date: new Date().toISOString().split('T')[0],
-          platform: 'Fiverr',
-          client: 'Michael R. (California, USA)',
-          product: 'Mega Parashara Life Report ($20)',
-          amount: 20,
-          status: 'Completed',
-          notes: 'Fulfilled via parashara-report.html'
-        }
-      ];
-      localStorage.setItem(INTL_STORAGE_KEY, JSON.stringify(sample));
-      return sample;
+      localStorage.setItem(INTL_STORAGE_KEY, JSON.stringify([]));
+      return [];
     }
-    return JSON.parse(raw);
+    const orders = JSON.parse(raw) || [];
+    const cleaned = orders.filter(o => o && o.id !== 'IO-SAMPLE1');
+    if (cleaned.length !== orders.length) {
+      localStorage.setItem(INTL_STORAGE_KEY, JSON.stringify(cleaned));
+    }
+    return cleaned;
   } catch (e) {
     return [];
   }
