@@ -1136,8 +1136,11 @@
 
         async function calculateUpanayana() {
             const childName = (document.getElementById('childName').value || 'बालक').trim();
-            const childDob = document.getElementById('childDob').value || '2015-05-10';
-            const childTob = document.getElementById('childTob').value || '10:30';
+            const childDob = (document.getElementById('childDob').value || '2015-05-10').trim();
+            let rawTob = (document.getElementById('childTob').value || '10:30').trim();
+            // Normalize time to HH:MM format (strip seconds like :00 from browser time pickers)
+            let childTob = rawTob.split(':').slice(0, 2).map(p => p.padStart(2, '0')).join(':');
+            if (!childTob || childTob.length < 5) childTob = '12:00';
             
             const lat = document.getElementById('latInput').value || '26.8467';
             const lon = document.getElementById('lonInput').value || '80.9462';
@@ -1189,12 +1192,19 @@
                     }
                     renderResults(data.results || [], data.moon_sign);
                 } else {
+                    let errMsg = '';
+                    if (response) {
+                        try {
+                            const errData = await response.json();
+                            if (errData && errData.detail) errMsg = errData.detail;
+                        } catch(e) {}
+                    }
                     loader.style.display = 'none';
                     content.innerHTML = `
                         <div style="background:#fee2e2; border:1px solid #ef4444; color:#991b1b; padding:16px 20px; border-radius:12px; margin:20px 0; text-align:center;">
-                            <h4 style="margin:0 0 8px 0; font-size:16px;">⚠️ गणना सर्वर अनुपलब्ध है</h4>
+                            <h4 style="margin:0 0 8px 0; font-size:16px;">⚠️ ${errMsg ? 'गणना त्रुटि' : 'गणना सर्वर अनुपलब्ध है'}</h4>
                             <p style="margin:0; font-size:13px; line-height:1.6;">
-                                यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। यदि सर्वर स्लीप मोड में था, तो अब वह सक्रिय हो चुका है। कृपया <button onclick="calculateUpanayana()" style="background:#b91c1c; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-weight:700; cursor:pointer; margin-left:6px;">पुनः प्रयास करें</button>
+                                ${errMsg ? escapeHtml(errMsg) : 'यज्ञोपवीत मुहूर्त की सटीक खगोलीय गणना हेतु बैकएंड सर्वर सक्रिय होना अनिवार्य है। यदि सर्वर स्लीप मोड में था, तो अब वह सक्रिय हो चुका है। कृपया'} <button onclick="calculateUpanayana()" style="background:#b91c1c; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-weight:700; cursor:pointer; margin-left:6px;">पुनः प्रयास करें</button>
                             </p>
                         </div>
                     `;

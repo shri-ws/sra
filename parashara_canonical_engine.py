@@ -1602,10 +1602,13 @@ try:
     ):
         natal_summary = None
         if child_dob and child_lat is not None and child_lon is not None:
+            clean_tob = (child_tob or "12:00").strip()[:5]
+            if len(clean_tob) == 4 and clean_tob[1] == ':':
+                clean_tob = '0' + clean_tob
             try:
                 natal_summary = calculate_natal_kundli(
-                    dob_str=child_dob,
-                    tob_str=child_tob or "12:00",
+                    dob_str=child_dob.strip(),
+                    tob_str=clean_tob,
                     lat=child_lat,
                     lon=child_lon,
                     tz_offset_hours=child_tz or 5.5

@@ -63,7 +63,11 @@ def calculate_natal_kundli(
     lon: float,
     tz_offset_hours: float = 5.5
 ) -> Dict[str, Any]:
-    dt_local = datetime.strptime(f"{dob_str} {tob_str}", "%Y-%m-%d %H:%M")
+    # Normalize tob_str: strip seconds if present (e.g. "19:00:00" -> "19:00")
+    tob_clean = (tob_str or "12:00").strip()[:5]
+    if len(tob_clean) == 4 and tob_clean[1] == ':':
+        tob_clean = '0' + tob_clean
+    dt_local = datetime.strptime(f"{dob_str.strip()} {tob_clean}", "%Y-%m-%d %H:%M")
     dt_utc = dt_local - timedelta(hours=tz_offset_hours)
     jd_ut = get_julian_day(dt_utc)
 
