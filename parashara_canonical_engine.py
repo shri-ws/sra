@@ -1622,13 +1622,16 @@ try:
 
         try:
             dt_start = datetime.strptime(start_date, "%Y-%m-%d")
-            slots = scan_yajnopavita_window(
+            scan_res = scan_yajnopavita_window(
                 start_date=dt_start,
                 days=days,
                 lat=lat,
                 lon=lon,
                 child_moon_sign=moon_sign
             )
+            slots = scan_res["slots"] if isinstance(scan_res, dict) else scan_res
+            daily_analysis = scan_res.get("daily_analysis", []) if isinstance(scan_res, dict) else []
+
             return JSONResponse(content={
                 "status": "success",
                 "moon_sign": moon_sign,
@@ -1636,7 +1639,8 @@ try:
                 "days_scanned": days,
                 "total_found": len(slots),
                 "natal_kundli": natal_summary,
-                "results": slots
+                "results": slots,
+                "daily_analysis": daily_analysis
             })
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Upanayana calculation error: {str(e)}")

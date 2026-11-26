@@ -549,6 +549,71 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* DAILY ANALYSIS & REASONS CARDS */
+        .filter-tab-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 16px 0 20px;
+        }
+        .filter-tab-btn {
+            background: var(--toggle-bg, #f1f5f9);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .daily-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .daily-card.shubha {
+            border-left: 6px solid #16a34a;
+        }
+        .daily-card.madhyam {
+            border-left: 6px solid #d97706;
+        }
+        .daily-card.varjit {
+            border-left: 6px solid #dc2626;
+            opacity: 0.95;
+        }
+        .reasons-box {
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            line-height: 1.6;
+        }
+        .reasons-pos {
+            background: rgba(22, 163, 74, 0.08);
+            border: 1px solid rgba(22, 163, 74, 0.25);
+            color: #14532d;
+        }
+        .reasons-neg {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #7f1d1d;
+        }
+        .badge-shubha { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .badge-madhyam { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+        .badge-varjit { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -1190,7 +1255,7 @@
                     if (data.natal_kundli) {
                         renderNatalKundliCard(childName, data.natal_kundli);
                     }
-                    renderResults(data.results || [], data.moon_sign);
+                    renderResults(data.results || [], data.moon_sign, data.daily_analysis || []);
                 } else {
                     let errMsg = '';
                     if (response) {
@@ -1409,93 +1474,225 @@
             `;
         }
 
-        function renderResults(slots, moonSign) {
+        function renderResults(slots, moonSign, dailyAnalysis = []) {
             const content = document.getElementById('resultsContent');
 
-            if (!slots || slots.length === 0) {
-                const startDt = document.getElementById('startDate').value;
-                const m = startDt ? parseInt(startDt.split('-')[1], 10) : new Date().getMonth() + 1;
-                const isDakshinayana = (m >= 7 && m <= 12) || (m === 1 && parseInt(startDt.split('-')[2] || '1', 10) < 14);
-
+            if ((!slots || slots.length === 0) && (!dailyAnalysis || dailyAnalysis.length === 0)) {
                 content.innerHTML = `
                     <div class="empty-state" style="color: var(--fail-text); background: var(--fail-bg); border-color: rgba(183,28,28,0.2); font-weight: 600; text-align: left; padding: 20px; border-radius: 12px;">
                         <div style="font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; color: var(--primary);">
-                            दी गई अवधि में बालक की कुण्डली के अनुसार कोई शुद्ध यज्ञोपवीत मुहूर्त प्राप्त नहीं हुआ
-                        </div>
-                        <p style="font-size: 13.5px; line-height: 1.6; color: var(--text-main); margin-bottom: 12px;">
-                            ${isDakshinayana 
-                                ? '<strong>शास्त्रीय प्रमाण (*मुहूर्त चिन्तामणि* - संस्कार प्रकरण):</strong> उपनयन संस्कार केवल <strong>उत्तरायण</strong> (माघ, फाल्गुन, चैत्र, वैशाख, ज्येष्ठ मास — जब सूर्य मकर से मिथुन राशि में हो) में ही शास्त्रसम्मत है। वर्तमान में <strong>दक्षिणायन</strong> होने के कारण यह अवधि उपनयन संस्कार हेतु सर्वथा वर्जित है।'
-                                : 'दी गई अवधि में भद्रा, अष्टम अशुद्धि अथवा त्रिबल दोष (गुरु, सूर्य, चन्द्र बल) के कारण कोई निर्दोष मुहूर्त नहीं बन रहा है।'
-                            }
-                        </p>
-                        <div style="margin-top: 14px;">
-                            <button type="button" onclick="setUpcomingUttarayanaAndScan()" style="background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13.5px;">
-                                📅 आगामी उत्तरायण (फरवरी 2027) के शुद्ध मुहूर्त देखें
-                            </button>
+                            दी गई अवधि में कोई गणना डेटा प्राप्त नहीं हुआ
                         </div>
                     </div>
                 `;
                 return;
             }
 
-            let html = `
-                <div class="results-summary">
-                    <div><strong>शोधन एवं रैंकिंग परिणाम:</strong> बालक की जन्म राशि (${RASHI_NAMES[moonSign] || 'राशि #' + moonSign}) हेतु <span class="summary-badge">${slots.length} श्रेष्ठ मुहूर्त (Ranked)</span> प्राप्त हुए।</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">रैंकिंग: गुणवत्ता स्कोर (% Quality Score) अनुसार अवरोही क्रम</div>
+            const totalDays = dailyAnalysis.length;
+            const shubhaCount = dailyAnalysis.filter(d => d.status_code === 'shubha').length;
+            const madhyamCount = dailyAnalysis.filter(d => d.status_code === 'madhyam').length;
+            const varjitCount = dailyAnalysis.filter(d => d.status_code === 'varjit').length;
+
+            const startDt = document.getElementById('startDate').value;
+            const m = startDt ? parseInt(startDt.split('-')[1], 10) : new Date().getMonth() + 1;
+            const isDakshinayana = (m >= 7 && m <= 12) || (m === 1 && parseInt(startDt.split('-')[2] || '1', 10) < 14);
+
+            let html = '';
+
+            // Top Dakshinayana advisory if in Dakshinayana and no pure slot found
+            if (isDakshinayana && shubhaCount === 0) {
+                html += `
+                    <div style="background: #fffbeb; border: 1px solid #f59e0b; color: #92400e; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; font-size: 13.5px; line-height: 1.6;">
+                        <strong>शास्त्रीय प्रमाण (*मुहूर्त चिन्तामणि* - संस्कार प्रकरण):</strong> वर्तमान में <strong>सूर्य दक्षिणायन</strong> में होने के कारण इस माह के सभी दिन उपनयन हेतु वर्जित हैं। उपनयन संस्कार केवल <strong>उत्तरायण</strong> (माघ, फाल्गुन, चैत्र, वैशाख, ज्येष्ठ मास) में ही शास्त्रसम्मत है।
+                        <div style="margin-top: 10px;">
+                            <button type="button" onclick="setUpcomingUttarayanaAndScan()" style="background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;">
+                                📅 आगामी उत्तरायण (फरवरी 2027) के शुद्ध मुहूर्त देखें
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // High-Level Summary
+            html += `
+                <div class="results-summary" style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <div>
+                            <strong>दैनिक खगोलीय विश्लेषण (${totalDays} दिन):</strong> बालक की जन्म राशि (${RASHI_NAMES[moonSign] || 'राशि #' + moonSign})
+                        </div>
+                        <div style="display:flex; gap:12px; font-size:12.5px; font-weight:800;">
+                            <span style="color:#16a34a;">🟢 श्रेष्ठ: ${shubhaCount} दिन</span>
+                            <span style="color:#d97706;">🟡 मध्यम: ${madhyamCount} दिन</span>
+                            <span style="color:#dc2626;">🔴 वर्जित: ${varjitCount} दिन</span>
+                        </div>
+                    </div>
                 </div>
             `;
 
-            html += slots.map((slot, i) => `
-                <div class="slot-card">
-                    <div class="slot-header">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="rank-badge">🥇 #${slot.rank || (i+1)} सर्वश्रेष्ठ</span>
-                            <div class="slot-time">
-                                <span>🪔</span>
-                                <span>${slot.datetime}</span>
+            // Filter Tabs Bar
+            html += `
+                <div class="filter-tab-bar">
+                    <button type="button" class="filter-tab-btn active" onclick="filterDailyView('all', this)">📅 सभी ${totalDays} दिन</button>
+                    ${shubhaCount > 0 ? `<button type="button" class="filter-tab-btn" onclick="filterDailyView('shubha', this)">🟢 श्रेष्ठ/उत्तम (${shubhaCount})</button>` : ''}
+                    ${madhyamCount > 0 ? `<button type="button" class="filter-tab-btn" onclick="filterDailyView('madhyam', this)">🟡 मध्यम (${madhyamCount})</button>` : ''}
+                    ${varjitCount > 0 ? `<button type="button" class="filter-tab-btn" onclick="filterDailyView('varjit', this)">🔴 वर्जित/दोषयुक्त (${varjitCount})</button>` : ''}
+                    ${slots.length > 0 ? `<button type="button" class="filter-tab-btn" onclick="filterDailyView('slots', this)">🪔 शुद्ध लग्न मुहूर्त (${slots.length})</button>` : ''}
+                </div>
+            `;
+
+            // Pure Slots Section (hidden by default unless 'slots' tab clicked)
+            html += `<div id="pureSlotsSection" style="display:none;">`;
+            if (slots.length > 0) {
+                html += slots.map((slot, i) => `
+                    <div class="slot-card">
+                        <div class="slot-header">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="rank-badge">🥇 #${slot.rank || (i+1)} सर्वश्रेष्ठ</span>
+                                <div class="slot-time">
+                                    <span>🪔</span>
+                                    <span>${slot.datetime}</span>
+                                </div>
+                            </div>
+                            <div class="verdict-tag">✓ ${slot.rank_grade || 'Śuddha Muhūrta'}</div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 12px; font-weight: 800; color: var(--gold-dark);">मुहूर्त सामर्थ्य स्कोर: ${slot.score || 85}%</span>
+                            <div class="score-bar-bg">
+                                <div class="score-bar-fill" style="width: ${slot.score || 85}%;"></div>
                             </div>
                         </div>
-                        <div class="verdict-tag">✓ ${slot.rank_grade || 'Śuddha Muhūrta'}</div>
-                    </div>
 
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 12px; font-weight: 800; color: var(--gold-dark);">मुहूर्त सामर्थ्य स्कोर: ${slot.score || 85}%</span>
-                        <div class="score-bar-bg">
-                            <div class="score-bar-fill" style="width: ${slot.score || 85}%;"></div>
+                        <div class="slot-details">
+                            <div class="detail-item">
+                                <span class="detail-label">तिथि (Tithi)</span>
+                                <span class="detail-value">${slot.tithi_name || 'Tithi #' + slot.tithi}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">नक्षत्र (Nakshatra)</span>
+                                <span class="detail-value">${slot.nakshatra_name || 'Nakshatra #' + slot.nakshatra}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">लग्न (Lagna Sign)</span>
+                                <span class="detail-value">${slot.lagna_name || 'Lagna #' + slot.lagna_sign}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">अष्टम शुद्धि</span>
+                                <span class="detail-value" style="color: var(--pass-text);">100% रिक्त (Pure)</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="slot-details">
-                        <div class="detail-item">
-                            <span class="detail-label">तिथि (Tithi)</span>
-                            <span class="detail-value">${slot.tithi_name || 'Tithi #' + slot.tithi}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">नक्षत्र (Nakshatra)</span>
-                            <span class="detail-value">${slot.nakshatra_name || 'Nakshatra #' + slot.nakshatra}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">लग्न (Lagna Sign)</span>
-                            <span class="detail-value">${slot.lagna_name || 'Lagna #' + slot.lagna_sign}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">अष्टम शुद्धि</span>
-                            <span class="detail-value" style="color: var(--pass-text);">100% रिक्त (Pure)</span>
+                        <div class="tribala-bar">
+                            <span class="tribala-chip">☀️ सूर्य बल: ${slot.sun_bala_house}म भाव</span>
+                            <span class="tribala-chip">🌙 चन्द्र बल: ${slot.moon_bala_house}म भाव</span>
+                            <span class="tribala-chip">🪐 गुरु बल: ${slot.guru_bala_house}म भाव</span>
+                            <span class="tribala-chip" style="background:#E8F5E9; color:#1B5E20; border-color:#C8E6C9;">✓ भद्रा मुक्त</span>
+                            <span class="tribala-chip" style="background:#E8F5E9; color:#1B5E20; border-color:#C8E6C9;">✓ कर्तरी दोष मुक्त</span>
                         </div>
                     </div>
+                `).join('');
+            } else {
+                html += `<div style="text-align:center; padding:30px; color:var(--text-muted);">इस अवधि में कोई शुद्ध लग्न मुहूर्त उपलब्ध नहीं है।</div>`;
+            }
+            html += `</div>`;
 
-                    <div class="tribala-bar">
-                        <span class="tribala-chip">☀️ सूर्य बल: ${slot.sun_bala_house}म भाव</span>
-                        <span class="tribala-chip">🌙 चन्द्र बल: ${slot.moon_bala_house}म भाव</span>
-                        <span class="tribala-chip">🪐 गुरु बल: ${slot.guru_bala_house}म भाव</span>
-                        <span class="tribala-chip" style="background:#E8F5E9; color:#1B5E20; border-color:#C8E6C9;">✓ भद्रा मुक्त</span>
-                        <span class="tribala-chip" style="background:#E8F5E9; color:#1B5E20; border-color:#C8E6C9;">✓ कर्तरी दोष मुक्त</span>
+            // Daily Cards Container (shown by default)
+            html += `<div id="dailyCardsContainer">`;
+            html += dailyAnalysis.map(d => {
+                const badgeClass = d.status_code === 'shubha' ? 'badge-shubha' : (d.status_code === 'madhyam' ? 'badge-madhyam' : 'badge-varjit');
+                const barColor = d.status_code === 'shubha' ? '#16a34a' : (d.status_code === 'madhyam' ? '#d97706' : '#dc2626');
+
+                return `
+                    <div class="daily-card ${d.status_code}" data-status="${d.status_code}">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div>
+                                <span style="font-size:1.1rem; font-weight:800; color:var(--primary);">${d.date_display}</span>
+                                <span style="font-size:13px; font-weight:700; color:var(--text-muted); margin-left:8px;">• ${d.weekday_name}</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12px; font-weight:800; padding:4px 10px; border-radius:12px;" class="${badgeClass}">${d.verdict}</span>
+                                <span style="font-size:15px; font-weight:900; color:${barColor};">${d.score}% सामर्थ्य</span>
+                            </div>
+                        </div>
+
+                        <!-- Score bar -->
+                        <div style="height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden;">
+                            <div style="width:${d.score}%; height:100%; background:${barColor}; border-radius:3px; transition:width 0.4s;"></div>
+                        </div>
+
+                        <!-- Panchang Pills -->
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:12px;">
+                            <span style="background:var(--toggle-bg); padding:3px 10px; border-radius:6px; font-weight:600;">📅 ${d.tithi_name}</span>
+                            <span style="background:var(--toggle-bg); padding:3px 10px; border-radius:6px; font-weight:600;">✨ ${d.nakshatra_name}</span>
+                            <span style="background:var(--toggle-bg); padding:3px 10px; border-radius:6px; font-weight:600;">🌙 ${d.moon_rashi_name}</span>
+                        </div>
+
+                        ${d.best_slot ? `
+                            <div style="background:var(--gold-dim); border:1px solid var(--gold-border); padding:8px 12px; border-radius:8px; font-size:12.5px; font-weight:700; color:var(--gold-dark); display:flex; align-items:center; gap:6px;">
+                                <span>🪔</span>
+                                <span><b>सर्वोत्तम मुहूर्त समय:</b> ${d.best_slot.datetime} — ${d.best_slot.lagna_name} लग्न (अष्टम भाव 100% रिक्त)</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- Positive reasons: why it is good -->
+                        ${d.positive_reasons && d.positive_reasons.length > 0 ? `
+                            <div class="reasons-box reasons-pos">
+                                <div style="font-weight:800; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                                    <span>✓</span>
+                                    <span>शुभ कारक (इस दिन के अनुकूल पक्ष):</span>
+                                </div>
+                                <ul style="margin:0 0 0 16px; padding:0;">
+                                    ${d.positive_reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+
+                        <!-- Negative reasons: why it is not good -->
+                        ${d.negative_reasons && d.negative_reasons.length > 0 ? `
+                            <div class="reasons-box reasons-neg">
+                                <div style="font-weight:800; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                                    <span>⚠️</span>
+                                    <span>दोष व निषेध कारक (इस दिन के प्रतिकूल पक्ष):</span>
+                                </div>
+                                <ul style="margin:0 0 0 16px; padding:0;">
+                                    ${d.negative_reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+            html += `</div>`;
 
             content.innerHTML = html;
         }
+
+        function filterDailyView(mode, btnEl) {
+            document.querySelectorAll('.filter-tab-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+
+            const pureSection = document.getElementById('pureSlotsSection');
+            const dailyContainer = document.getElementById('dailyCardsContainer');
+
+            if (mode === 'slots') {
+                if (pureSection) pureSection.style.display = 'block';
+                if (dailyContainer) dailyContainer.style.display = 'none';
+                return;
+            }
+
+            if (pureSection) pureSection.style.display = 'none';
+            if (dailyContainer) dailyContainer.style.display = 'block';
+
+            const cards = document.querySelectorAll('.daily-card');
+            cards.forEach(card => {
+                if (mode === 'all') {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = (card.dataset.status === mode) ? 'flex' : 'none';
+                }
+            });
+        }
+        window.filterDailyView = filterDailyView;
 
         /* ══════════════════════════════════════════════════════════════════
            20-MINUTE VIP ACCESS PASS & RAZORPAY GATEWAY LOGIC

@@ -35,10 +35,23 @@ NAKSHATRA_NAMES = [
     "Pūrvābhādrapadā", "Uttarābhādrapadā", "Revatī"
 ]
 
+NAKSHATRA_NAMES_HI = [
+    "", "अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशिरा", "आर्द्रा",
+    "पुनर्वसु", "पुष्य", "आश्लेषा", "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी",
+    "हस्त", "चित्रा", "स्वाति", "विशाखा", "अनुराधा", "ज्येष्ठा",
+    "मूल", "पूर्वाषाढ़ा", "उत्तराषाढ़ा", "श्रवण", "धनिष्ठा", "शतभिषा",
+    "पूर्वाभाद्रपदा", "उत्तराभाद्रपदा", "रेवती"
+]
+
 RASHI_NAMES = [
     "", "Meṣa (Aries)", "Vṛṣabha (Taurus)", "Mithuna (Gemini)", "Karka (Cancer)",
     "Siṁha (Leo)", "Kanyā (Virgo)", "Tulā (Libra)", "Vṛścika (Scorpio)",
     "Dhanu (Sagittarius)", "Makara (Capricorn)", "Kumbha (Aquarius)", "Mīna (Pisces)"
+]
+
+RASHI_NAMES_HI = [
+    "", "मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक",
+    "धनु", "मकर", "कुंभ", "मीन"
 ]
 
 TITHI_NAMES = [
@@ -48,6 +61,20 @@ TITHI_NAMES = [
     "Pratipadā (K)", "Dvitīyā (K)", "Tṛtīyā (K)", "Caturthī (K)", "Pañcamī (K)",
     "Ṣaṣṭhī (K)", "Saptamī (K)", "Aṣṭamī (K)", "Navamī (K)", "Daśamī (K)",
     "Ekādaśī (K)", "Dvādaśī (K)", "Trayodaśī (K)", "Caturdaśī (K)", "Amāvāsyā"
+]
+
+TITHI_NAMES_HI = [
+    "", "शुक्ल प्रतिपदा", "शुक्ल द्वितीया", "शुक्ल तृतीया", "शुक्ल चतुर्थी", "शुक्ल पंचमी", "शुक्ल षष्ठी",
+    "शुक्ल सप्तमी", "शुक्ल अष्टमी", "शुक्ल नवमी", "शुक्ल दशमी", "शुक्ल एकादशी", "शुक्ल द्वादशी",
+    "शुक्ल त्रयोदशी", "शुक्ल चतुर्दशी", "पूर्णिमा",
+    "कृष्ण प्रतिपदा", "कृष्ण द्वितीया", "कृष्ण तृतीया", "कृष्ण चतुर्थी", "कृष्ण पंचमी", "कृष्ण षष्ठी",
+    "कृष्ण सप्तमी", "कृष्ण अष्टमी", "कृष्ण नवमी", "कृष्ण दशमी", "कृष्ण एकादशी", "कृष्ण द्वादशी",
+    "कृष्ण त्रयोदशी", "कृष्ण चतुर्दशी", "अमावस्या"
+]
+
+WEEKDAY_NAMES_HI = [
+    "रविवार (Sunday)", "सोमवार (Monday)", "मंगलवार (Tuesday)",
+    "बुधवार (Wednesday)", "गुरुवार (Thursday)", "शुक्रवार (Friday)", "शनिवार (Saturday)"
 ]
 
 def get_julian_day(dt_utc: datetime) -> float:
@@ -380,17 +407,187 @@ def evaluate_yajnopavita_slot(
         "status": "Śuddha Yajñopavīta Muhūrta"
     }
 
+def evaluate_single_day(
+    day_date: datetime,
+    lat: float,
+    lon: float,
+    child_moon_sign: int
+) -> Dict[str, Any]:
+    """
+    Evaluates a single 24-hr day for Upanayana (Yajnopavita) Sanskar suitability,
+    providing a percentage score, detailed positive factors, and negative doshas.
+    """
+    dt_mid = day_date.replace(hour=10, minute=0, second=0)
+    jd_ut = get_julian_day(dt_mid - timedelta(hours=5.5))
+    state = calculate_astronomy_state(jd_ut, lat, lon)
+
+    weekday = dt_mid.weekday()
+    py_to_vedic = {6: 0, 0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6}
+    vedic_varna = py_to_vedic[weekday]
+    weekday_name = WEEKDAY_NAMES_HI[vedic_varna]
+
+    pos = []
+    neg = []
+    score = 0.0
+
+    # 1. Ayana (अयन शुद्धि)
+    if state["is_uttarayana"]:
+        score += 25.0
+        pos.append("सूर्य उत्तरायण में स्थित हैं (उपनयन संस्कार हेतु अनिवार्य एवं परम शुभ काल)।")
+    else:
+        neg.append("दक्षिणायन दोष: सूर्य दक्षिणायन में स्थित हैं। *मुहूर्तचिन्तामणि* अनुसार दक्षिणायन में उपनयन संस्कार सर्वथा वर्जित है।")
+
+    # 2. Weekday (वार शुद्धि)
+    if vedic_varna in PERMISSIBLE_WEEKDAYS:
+        score += 15.0
+        pos.append(f"{weekday_name} उपनयन संस्कार हेतु शास्त्रसम्मत शुभ वार है।")
+    else:
+        neg.append(f"क्रूर वार दोष: {weekday_name} उपनयन संस्कार हेतु त्याज्य/वर्जित माना गया है।")
+
+    # 3. Tithi (तिथि शुद्धि)
+    t_name = TITHI_NAMES_HI[state["tithi"]] if state["tithi"] < len(TITHI_NAMES_HI) else f"Tithi #{state['tithi']}"
+    if state["tithi"] in SUPREME_TITHIS:
+        score += 15.0
+        pos.append(f"{t_name} उपनयन हेतु श्रेष्ठ अमृत तिथि है।")
+    elif state["tithi"] not in PROHIBITED_TITHIS:
+        score += 8.0
+        pos.append(f"{t_name} सामान्य ग्राह्य तिथि है।")
+    else:
+        neg.append(f"निषिद्ध तिथि दोष: {t_name} (रिक्ता/पर्व/अशुभ) उपनयन संस्कार हेतु त्याज्य है।")
+
+    # 4. Nakshatra (नक्षत्र शुद्धि)
+    n_name = NAKSHATRA_NAMES_HI[state["nakshatra"]] if state["nakshatra"] < len(NAKSHATRA_NAMES_HI) else str(state["nakshatra"])
+    if state["nakshatra"] in SUPREME_NAKSHATRAS:
+        score += 20.0
+        pos.append(f"{n_name} नक्षत्र उपनयन हेतु सर्वोत्कृष्ट (अमृत) नक्षत्र है।")
+    elif state["nakshatra"] in UPANAYANA_NAKSHATRAS:
+        score += 10.0
+        pos.append(f"{n_name} नक्षत्र उपनयन हेतु शास्त्रसम्मत मध्यम शुभ नक्षत्र है।")
+    else:
+        neg.append(f"निषिद्ध नक्षत्र दोष: {n_name} उपनयन संस्कार हेतु वर्जित नक्षत्र है।")
+
+    # 5. Tri-Bala (गुरु, सूर्य, चन्द्र त्रिबल)
+    jup_h = ((state["planets"]["Jupiter"]["sign"] - child_moon_sign) % 12) + 1
+    sun_h = ((state["planets"]["Sun"]["sign"] - child_moon_sign) % 12) + 1
+    moon_h = ((state["planets"]["Moon"]["sign"] - child_moon_sign) % 12) + 1
+
+    if jup_h in {2, 5, 7, 9, 11}:
+        score += 10.0
+        pos.append(f"गुरु बल पूर्ण शुभ: देवगुरु बालक की जन्म राशि से {jup_h}वें भाव में अनुकूल हैं।")
+    elif jup_h in {1, 3, 6, 10}:
+        score += 5.0
+        pos.append(f"गुरु बल मध्यम: देवगुरु बालक की राशि से {jup_h}वें भाव में स्थित हैं (दान/शांति उपरांत ग्राह्य)।")
+    else:
+        neg.append(f"गुरु बल दोष: देवगुरु बालक की राशि से {jup_h}वें (अनिष्ट) भाव में हैं।")
+
+    if sun_h in {3, 6, 10, 11}:
+        score += 5.0
+        pos.append(f"सूर्य बल पूर्ण शुभ: सूर्य देव बालक की राशि से {sun_h}वें भाव में बलवान हैं।")
+    elif sun_h in {1, 2, 5, 7, 9}:
+        score += 3.0
+        pos.append(f"सूर्य बल सामान्य अनुकूल ({sun_h}वें भाव में) है।")
+    else:
+        neg.append(f"सूर्य बल दोष: सूर्य बालक की राशि से {sun_h}वें (अनिष्ट) भाव में हैं।")
+
+    if moon_h in {1, 3, 6, 7, 10, 11}:
+        score += 5.0
+        pos.append(f"चन्द्र बल शुभ: चन्द्रमा बालक की राशि से {moon_h}वें भाव में अनुकूल हैं।")
+    else:
+        neg.append(f"घातक चन्द्र दोष: चन्द्रमा बालक की राशि से {moon_h}वें (घातक/अनिष्ट) भाव में हैं।")
+
+    # 6. Bhadra (विष्टि करण)
+    if state["is_bhadra"]:
+        neg.append("भद्रा दोष: दिन के समय विष्टि (भद्रा) करण विद्यमान है, जिसमें उपनयन सर्वथा वर्जित है।")
+    else:
+        score += 5.0
+        pos.append("विष्टि (भद्रा) दोष से पूर्णतः मुक्त है।")
+
+    # 7. Combustion (गुरु/शुक्र अस्त)
+    if state["combustion"]["jupiter"]:
+        neg.append("गुरु अस्त दोष: देवगुरु बृहस्पति अस्त हैं (उपनयन संभव नहीं)।")
+    if state["combustion"]["venus"]:
+        neg.append("शुक्र अस्त दोष: दैत्यगुरु शुक्र अस्त हैं (शुभ संस्कार वर्जित)।")
+
+    # Scan daytime rising lagnas (6:00 AM to 5:30 PM)
+    day_slots = []
+    slot_cur = day_date.replace(hour=6, minute=0, second=0)
+    slot_end = day_date.replace(hour=17, minute=30, second=0)
+    while slot_cur <= slot_end:
+        m = evaluate_yajnopavita_slot(slot_cur, lat, lon, child_moon_sign)
+        if m:
+            day_slots.append(m)
+            slot_cur += timedelta(minutes=90)
+            continue
+        slot_cur += timedelta(minutes=20)
+
+    best_slot = None
+    if day_slots:
+        day_slots.sort(key=lambda x: x["score"], reverse=True)
+        best_slot = day_slots[0]
+        score += 5.0
+        pos.append(f"श्रेष्ठ लग्न प्राप्त: {best_slot['lagna_name']} लग्न में अष्टम भाव 100% रिक्त व निर्दोष है।")
+    else:
+        if state["is_uttarayana"]:
+            neg.append("लग्न अशुद्धि: दिन के किसी भी उपलब्ध लग्न में अष्टम भाव रिक्त अथवा कर्तरी-मुक्त नहीं मिला।")
+
+    # Hard prohibitions cap score
+    if (not state["is_uttarayana"]) or state["combustion"]["jupiter"] or state["combustion"]["venus"] or (jup_h in {4, 8, 12}):
+        score = min(score, 45.0)
+
+    score = max(10.0, min(100.0, round(score, 1)))
+
+    if len(day_slots) > 0 and score >= 85.0:
+        verdict = "सर्वश्रेष्ठ (Grade A+)"
+        status_code = "shubha"
+    elif len(day_slots) > 0 and score >= 70.0:
+        verdict = "उत्तम (Grade A)"
+        status_code = "shubha"
+    elif score >= 50.0:
+        verdict = "मध्यम (विचारणीय)"
+        status_code = "madhyam"
+    else:
+        verdict = "वर्जित (अशुभ)"
+        status_code = "varjit"
+
+    moon_rashi_idx = state["planets"]["Moon"]["sign"]
+    moon_rashi_hi = RASHI_NAMES_HI[moon_rashi_idx] if moon_rashi_idx < len(RASHI_NAMES_HI) else str(moon_rashi_idx)
+
+    return {
+        "date": day_date.strftime("%Y-%m-%d"),
+        "date_display": day_date.strftime("%d %b %Y"),
+        "weekday_name": weekday_name,
+        "score": score,
+        "verdict": verdict,
+        "status_code": status_code,
+        "is_suitable": len(day_slots) > 0,
+        "tithi_name": t_name,
+        "nakshatra_name": n_name,
+        "moon_rashi_name": f"{moon_rashi_hi} राशि",
+        "best_slot": best_slot,
+        "slots_count": len(day_slots),
+        "positive_reasons": pos,
+        "negative_reasons": neg
+    }
+
 def scan_yajnopavita_window(
     start_date: datetime,
     days: int,
     lat: float,
     lon: float,
     child_moon_sign: int
-) -> List[Dict[str, Any]]:
+) -> Dict[str, Any]:
     valid_slots = []
+    daily_analysis = []
+
+    # 1. Day-by-day evaluation across all requested days
+    for d in range(days):
+        day_cur = start_date + timedelta(days=d)
+        day_eval = evaluate_single_day(day_cur, lat, lon, child_moon_sign)
+        daily_analysis.append(day_eval)
+
+    # 2. Extract valid slots from all days
     current = start_date
     end = start_date + timedelta(days=days)
-    
     step = timedelta(minutes=20)
     while current < end:
         if 6 <= current.hour < 17 or (current.hour == 17 and current.minute <= 30):
@@ -408,4 +605,7 @@ def scan_yajnopavita_window(
     for index, slot in enumerate(valid_slots, start=1):
         slot["rank"] = index
 
-    return valid_slots
+    return {
+        "slots": valid_slots,
+        "daily_analysis": daily_analysis
+    }

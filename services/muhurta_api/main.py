@@ -62,13 +62,15 @@ def get_yajnopavita_muhurta(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format for start_date. Expected YYYY-MM-DD.")
 
-    slots = scan_yajnopavita_window(
+    scan_res = scan_yajnopavita_window(
         start_date=dt_start,
         days=days,
         lat=lat,
         lon=lon,
         child_moon_sign=moon_sign
     )
+    slots = scan_res["slots"] if isinstance(scan_res, dict) else scan_res
+    daily_analysis = scan_res.get("daily_analysis", []) if isinstance(scan_res, dict) else []
 
     return {
         "status": "success",
@@ -78,7 +80,8 @@ def get_yajnopavita_muhurta(
         "start_date": start_date,
         "days": days,
         "count": len(slots),
-        "results": slots
+        "results": slots,
+        "daily_analysis": daily_analysis
     }
 
 @app.get("/ymm.html")
