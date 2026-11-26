@@ -117,46 +117,54 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
 
     // 2. Browser environment: returns Promise
     return (async () => {
-      const targetEndpoint = endpoint || (typeof window !== 'undefined' && window.SRA_CANONICAL_ENDPOINT) || '/calculate';
+      const TIMEOUT_MS = 55000; // Render free tier cold-start can take up to ~50s
+      const targetEndpoint = endpoint || (typeof window !== 'undefined' && window.SRA_CANONICAL_ENDPOINT) || 'https://sra-canonical-engine.onrender.com/calculate';
+
+      async function tryFetch(url, retryOnFail) {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), TIMEOUT_MS);
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(input),
+            signal: controller.signal
+          });
+          clearTimeout(tid);
+
+          if (!res.ok) {
+            const raw = await res.text().catch(() => '');
+            let errDetail = raw;
+            try { const errObj = JSON.parse(raw); errDetail = errObj.detail || errObj.error || raw; } catch(e) {}
+            throw new Error(`गणना सर्वर त्रुटि (HTTP ${res.status}): ${errDetail || 'अमान्य प्रतिक्रिया'}`);
+          }
+
+          const data = await res.json();
+          if (!data || !data.planets || !Array.isArray(data.planets)) {
+            throw new Error("गणना सर्वर से अमान्य ग्रह स्थिति प्राप्त हुई।");
+          }
+          return data;
+        } catch (err) {
+          clearTimeout(tid);
+          if (retryOnFail) {
+            // Server may be waking from sleep — wait 4s and retry once
+            console.warn("SRA: First attempt failed, retrying after 4s delay (server may be waking)...", err.message);
+            await new Promise(r => setTimeout(r, 4000));
+            return tryFetch(url, false);
+          }
+          throw err;
+        }
+      }
+
       try {
-        const res = await fetch(targetEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(input)
-        });
-
-        if (!res.ok) {
-          // a response body can be read only once: read it as text, then try JSON
-          const raw = await res.text().catch(() => '');
-          let errDetail = raw;
-          try {
-            const errObj = JSON.parse(raw);
-            errDetail = errObj.detail || errObj.error || raw;
-          } catch(e) {}
-          throw new Error(`गणना सर्वर त्रुटि (HTTP ${res.status}): ${errDetail || 'अमान्य प्रतिक्रिया'}`);
-        }
-
-        const data = await res.json();
-        if (!data || !data.planets || !Array.isArray(data.planets)) {
-          throw new Error("गणना सर्वर से अमान्य ग्रह स्थिति प्राप्त हुई।");
-        }
-        return data;
+        return await tryFetch(targetEndpoint, true);
       } catch (err) {
-        // Automatic fallback: If local /calculate was unreachable, try production cloud engine
-        if (!endpoint && (targetEndpoint === '/calculate' || targetEndpoint.endsWith('/calculate')) && typeof window !== 'undefined' && !targetEndpoint.includes('onrender.com')) {
+        // If primary was local /calculate, also try the cloud fallback endpoint
+        const cloudEndpoint = 'https://sra-canonical-engine.onrender.com/calculate';
+        if (targetEndpoint !== cloudEndpoint) {
           try {
-            console.warn("Primary endpoint unreachable, retrying via production cloud engine...");
-            const fbRes = await fetch('https://sra-canonical-engine.onrender.com/calculate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(input)
-            });
-            if (fbRes.ok) {
-              const fbData = await fbRes.json();
-              if (fbData && fbData.planets && Array.isArray(fbData.planets)) {
-                return fbData;
-              }
-            }
+            console.warn("Primary endpoint failed, trying cloud engine:", cloudEndpoint);
+            return await tryFetch(cloudEndpoint, true);
           } catch(fbErr) {
             console.warn("Cloud fallback also failed:", fbErr);
           }
@@ -180,19 +188,36 @@ print(json.dumps({"status": "ok", "count": len(results), "charts": results}))`;
     }
 
     return (async () => {
-      const targetEndpoint = endpoint || (typeof window !== 'undefined' && window.SRA_CANONICAL_BATCH_ENDPOINT) || '/calculate/batch';
-      try {
-        const payload = Array.isArray(batchInput) ? { items: batchInput } : (batchInput && batchInput.items ? batchInput : { items: [] });
-        const res = await fetch(targetEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+      const TIMEOUT_MS = 60000;
+      const targetEndpoint = endpoint || (typeof window !== 'undefined' && window.SRA_CANONICAL_BATCH_ENDPOINT) || 'https://sra-canonical-engine.onrender.com/calculate/batch';
+      const payload = Array.isArray(batchInput) ? { items: batchInput } : (batchInput && batchInput.items ? batchInput : { items: [] });
 
-        if (!res.ok) {
-          throw new Error(`गणना सर्वर बैच त्रुटि (HTTP ${res.status})`);
+      async function tryBatch(url, retryOnFail) {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), TIMEOUT_MS);
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(tid);
+          if (!res.ok) throw new Error(`गणना सर्वर बैच त्रुटि (HTTP ${res.status})`);
+          return await res.json();
+        } catch (err) {
+          clearTimeout(tid);
+          if (retryOnFail) {
+            console.warn("SRA Batch: First attempt failed, retrying after 4s delay...", err.message);
+            await new Promise(r => setTimeout(r, 4000));
+            return tryBatch(url, false);
+          }
+          throw err;
         }
-        return await res.json();
+      }
+
+      try {
+        return await tryBatch(targetEndpoint, true);
       } catch (err) {
         console.error("SRA Parashara Batch Microservice failure:", err);
         throw new Error(
