@@ -1219,7 +1219,6 @@ function evaluateNeevCandidates(owner, targetYear, targetMonth, lat, lon, tz, ch
 
     let tithiDiff = (moonDeg - sunDeg + 360) % 360;
     let tithiIndex = Math.floor(tithiDiff / 12);
-    let tithiInPaksha = (tithiIndex % 15) + 1;
     let dateObj = new Date(targetYear, targetMonth - 1, day);
     let varaIndex = dateObj.getDay();
 
@@ -1227,13 +1226,13 @@ function evaluateNeevCandidates(owner, targetYear, targetMonth, lat, lon, tz, ch
     let monthScore = 0;
     let monthStatus = "सामान्य मास";
     if ([1, 4, 7, 10].includes(sunSignIndex)) { // Fixed Solar Signs: Vrishabh, Simha, Vrishchik, Kumbha
-      monthScore = 25;
+      monthScore = 35;
       monthStatus = "स्थिर सौर राशि (अति शुभ)";
-    } else if ([0, 3, 7, 10].includes(targetMonth - 1)) { // Vaishakh, Shravan, Agahan, Phalguna
-      monthScore = 15;
+    } else if ([1, 4, 8, 11].includes(targetMonth)) { // Vaishakh, Shravan, Agahan, Phalguna
+      monthScore = 25;
       monthStatus = "शुभ मास (वैशाख/श्रावण/अगहन/फाल्गुन)";
-    } else if ([4, 5].includes(targetMonth - 1)) {
-      monthScore = 5;
+    } else if ([5, 6].includes(targetMonth)) {
+      monthScore = 10;
       monthStatus = "मध्यम (ज्येष्ठ/आषाढ़)";
     } else {
       monthScore = -25;
@@ -1243,18 +1242,8 @@ function evaluateNeevCandidates(owner, targetYear, targetMonth, lat, lon, tz, ch
     // Prithvi Shayana Check
     let prithviCount = ((moonNakshatraIndex - sunNakshatraIndex + 27) % 27) + 1;
     let isPrithviSleeping = [5, 7, 9, 12, 19, 26].includes(prithviCount);
-    let prithviScore = isPrithviSleeping ? -35 : 20;
+    let prithviScore = isPrithviSleeping ? -40 : 20;
     let prithviText = isPrithviSleeping ? "सोयी हुई पृथ्वी (वर्जित)" : "जागृत पृथ्वी (शुभ)";
-
-    // Auspicious Neev Nakshatras (Dhruva/Mridu/Kshipra)
-    let isShubhaNak = [3, 4, 7, 11, 12, 13, 14, 16, 20, 21, 22, 23, 25, 26].includes(moonNakshatraIndex);
-    let isVarjyaNak = [1, 2, 5, 8, 9, 15, 17, 18, 19, 24].includes(moonNakshatraIndex);
-    let nakScore = isShubhaNak ? 20 : (isVarjyaNak ? -30 : -10);
-
-    // Tithi Shuddhi (Avoid Rikta 4/9/14 and Amavasya 30)
-    let isRikta = [4, 9, 14].includes(tithiInPaksha);
-    let isAmav = (tithiIndex === 29);
-    let tithiScore = (isRikta || isAmav) ? -35 : ([2, 3, 5, 7, 10, 11, 13, 15].includes(tithiInPaksha) ? 15 : -10);
 
     // Rahu Mukha & First Digging Corner
     let rahuHeadDir = "";
@@ -1273,14 +1262,14 @@ function evaluateNeevCandidates(owner, targetYear, targetMonth, lat, lon, tz, ch
     let taraDiff = ((moonNakshatraIndex - owner.nakshatraIndex + 27) % 27) + 1;
     let taraNum = ((taraDiff - 1) % 9) + 1;
     let isTaraGood = [2, 4, 6, 8, 9].includes(taraNum);
-    let taraScore = isTaraGood ? 15 : -20;
+    let taraScore = isTaraGood ? 20 : -20;
 
     let moonDiff = ((moonSignIndex - owner.moonSignIndex + 12) % 12) + 1;
     let isMoonGood = [1, 3, 6, 7, 10, 11].includes(moonDiff);
-    let moonScore = isMoonGood ? 15 : ([2, 5, 9].includes(moonDiff) ? 5 : -25);
+    let moonScore = isMoonGood ? 20 : ([2, 5, 9].includes(moonDiff) ? 10 : -30);
 
     let isVaraGood = [1, 3, 4, 5].includes(varaIndex); // Mon, Wed, Thu, Fri
-    let varaScore = isVaraGood ? 10 : -20;
+    let varaScore = isVaraGood ? 10 : -10;
 
     let lagnaWindow = "सुबह 08:30 AM - 10:45 AM (वृषभ स्थिर लग्न)";
     if (sunSignIndex === 5 || sunSignIndex === 6) {
@@ -1289,7 +1278,7 @@ function evaluateNeevCandidates(owner, targetYear, targetMonth, lat, lon, tz, ch
       lagnaWindow = "दोपहर 12:00 PM - 02:15 PM (कुंभ स्थिर लग्न)";
     }
 
-    let totalScore = 20 + monthScore + prithviScore + nakScore + tithiScore + taraScore + moonScore + varaScore;
+    let totalScore = 40 + monthScore + prithviScore + taraScore + moonScore + varaScore;
     if (totalScore > 100) totalScore = 100;
     if (totalScore < 0) totalScore = 0;
 
@@ -1332,62 +1321,56 @@ function evaluateGrihaCandidates(owner, targetYear, targetMonth, lat, lon, tz, c
 
     let tithiDiff = (moonDeg - sunDeg + 360) % 360;
     let tithiIndex = Math.floor(tithiDiff / 12);
-    let tithiInPaksha = (tithiIndex % 15) + 1;
     let dateObj = new Date(targetYear, targetMonth - 1, day);
     let varaIndex = dateObj.getDay();
 
     // 1. Uttarayana Check (Sun in Capricorn to Gemini: 270° to 90°)
     let isUttarayana = (sunDeg >= 270 || sunDeg < 90);
     let ayanaStatus = isUttarayana ? "सूर्य उत्तरायण (अति शुभ)" : "दक्षिणायन (अपूर्वा में वर्जित)";
-    let ayanaScore = isUttarayana ? 20 : -35;
+    let ayanaScore = isUttarayana ? 35 : -45;
 
     // 2. Solar Month Check for Griha Pravesh (Magha, Phalguna, Vaishakha, Jyeshtha)
     let grihaMonthScore = 0;
     let grihaMonthStatus = "सामान्य मास";
-    if ([9, 10, 0, 1].includes(sunSignIndex)) { // Makara, Kumbha, Mesha, Vrishabha
-      grihaMonthScore = 20;
+    if ([10, 11, 0, 1].includes(sunSignIndex)) { // Magha, Phalguna, Vaishakha, Jyeshtha Solar Months
+      grihaMonthScore = 35;
       grihaMonthStatus = "उत्तम गृहप्रवेश मास (माघ/फाल्गुन/वैशाख/ज्येष्ठ)";
     } else if (sunSignIndex === 11 || sunSignIndex === 2) {
       grihaMonthScore = 10;
       grihaMonthStatus = "मध्यम मास (चैत्र/आषाढ़)";
     } else {
-      grihaMonthScore = -30;
+      grihaMonthScore = -35;
       grihaMonthStatus = "वर्जित मास (अपूर्वा गृहप्रवेश में निषेध)";
     }
 
-    // 3. Tithi Shuddhi for Griha Pravesh
-    let isRikta = [4, 9, 14].includes(tithiInPaksha);
-    let isAmav = (tithiIndex === 29);
-    let tithiScore = (isRikta || isAmav) ? -35 : ([2, 3, 5, 7, 10, 11, 12, 13, 15].includes(tithiInPaksha) ? 15 : -10);
-
-    // 4. Grahswami Ashtama Shuddhi Check (8th House Moon from Birth Rashi)
+    // 3. Grahswami Ashtama Shuddhi Check (8th House Moon from Birth Rashi)
     let moonDiff = ((moonSignIndex - owner.moonSignIndex + 12) % 12) + 1;
     let isAshtamaDosh = (moonDiff === 8);
     let isMoonGood = [1, 3, 6, 7, 10, 11].includes(moonDiff);
-    let ashtamaScore = isAshtamaDosh ? -50 : (isMoonGood ? 15 : ([2, 5, 9].includes(moonDiff) ? 5 : -25));
+    let ashtamaScore = isAshtamaDosh ? -50 : (isMoonGood ? 25 : -20);
     let ashtamaText = isAshtamaDosh ? "अष्टम चंद्र दोष (अत्यंत वर्जित)" : (isMoonGood ? `शुभ चंद्र बल (${moonDiff}वां)` : `मध्यम चंद्र (${moonDiff}वां)`);
 
-    // 5. Griha Pravesh Nakshatra Check
-    let isGrihaNakshatra = [3, 11, 12, 13, 14, 16, 20, 21, 22, 23, 25, 26].includes(moonNakshatraIndex); // Rohini, U.Phalguni, Hasta, Chitra, Swati, Anuradha, U.Ashadha, Shravana, Dhanishtha, Shatabhisha, U.Bhadrapada, Revati
-    let nakshatraScore = isGrihaNakshatra ? 20 : -25;
+    // 4. Griha Pravesh Nakshatra Check
+    let isGrihaNakshatra = [3, 11, 12, 13, 14, 16, 20, 25, 26].includes(moonNakshatraIndex); // Rohini, Uttara Phalguni, Uttara Ashadha, Uttara Bhadrapada, Anuradha, Revati, Chitra, Swati, Shatabhisha
+    let nakshatraScore = isGrihaNakshatra ? 25 : -15;
 
-    // 6. Tara Strength
+    // 5. Tara Strength
     let taraDiff = ((moonNakshatraIndex - owner.nakshatraIndex + 27) % 27) + 1;
     let taraNum = ((taraDiff - 1) % 9) + 1;
     let isTaraGood = [2, 4, 6, 8, 9].includes(taraNum);
-    let taraScore = isTaraGood ? 10 : -15;
+    let taraScore = isTaraGood ? 15 : -20;
 
     let isVaraGood = [1, 3, 4, 5].includes(varaIndex); // Mon, Wed, Thu, Fri
-    let varaScore = isVaraGood ? 10 : -20;
+    let varaScore = isVaraGood ? 10 : -15;
 
     let lagnaWindow = "प्रातः 07:30 AM - 09:45 AM (स्थिर/द्विस्वभाव लग्न)";
     if (sunSignIndex === 0 || sunSignIndex === 1) {
       lagnaWindow = "प्रातः 06:15 AM - 08:30 AM (वृषभ/मिथुन लग्न)";
-    } else if (sunSignIndex >= 9) {
+    } else if (sunSignIndex >= 10) {
       lagnaWindow = "प्रातः 08:00 AM - 10:15 AM (कुंभ/मीन लग्न)";
     }
 
-    let totalScore = 20 + ayanaScore + grihaMonthScore + tithiScore + ashtamaScore + nakshatraScore + taraScore + varaScore;
+    let totalScore = 30 + ayanaScore + grihaMonthScore + ashtamaScore + nakshatraScore + taraScore + varaScore;
     if (totalScore > 100) totalScore = 100;
     if (totalScore < 0) totalScore = 0;
 
