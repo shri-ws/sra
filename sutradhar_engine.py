@@ -90,9 +90,10 @@ SERVICE_CATALOG: Dict[str, Dict[str, Any]] = {
     "course_global_eleven":    {"price": 94600, "rate": 30, "name": "The Global Eleven | 1-Year Classical Immersion"},
     "astrologer_saas":         {"price": 5100,  "rate": 66, "name": "ज्योतिषी SaaS (पहला वर्ष)"},
     "astrologer_saas_renewal": {"price": 5100,  "rate": 30, "name": "ज्योतिषी SaaS (नवीनीकरण)"},
-    # Monthly plan (24 Nov 2026): Razorpay Subscription with autopay, INR only; 30% to the
-    # Sutradhar on every monthly payment. Bought only through /saas/monthly/start, never as an order.
-    "astrologer_saas_monthly": {"price": 499,   "rate": 30, "name": "ज्योतिषी SaaS (मासिक)"},
+    # Monthly plans (24-27 Nov 2026): Razorpay Subscription with autopay, INR only; 30% to Sutradhar
+    "astrologer_saas_basic":   {"price": 199,   "rate": 30, "name": "ज्योतिषी SaaS बेसिक (मासिक)"},
+    "astrologer_saas_reports": {"price": 299,   "rate": 30, "name": "ज्योतिषी SaaS रिपोर्ट्स प्रो (मासिक)"},
+    "astrologer_saas_monthly": {"price": 499,   "rate": 30, "name": "ज्योतिषी SaaS पूर्ण दैवज्ञ / मुहूर्त प्रो (मासिक)"},
 }
 
 # Older ids still sent by some pages
@@ -104,6 +105,9 @@ SERVICE_ALIASES: Dict[str, str] = {
     "dhan_yoga": "dhana_yoga",
     "gun_milan": "gun_milan_manglik",
     "saas_annual": "astrologer_saas",
+    "saas_basic": "astrologer_saas_basic",
+    "saas_reports": "astrologer_saas_reports",
+    "saas_muhurta": "astrologer_saas_monthly",
     "gurukul_course": "consultation_gurukul",
     "global_eleven": "course_global_eleven",
     "batch_global_eleven": "course_global_eleven",
@@ -2433,11 +2437,42 @@ async def reconcile_captured_payments(hours_back: int = 24) -> Dict[str, Any]:
 # -----------------------------------------------------------------------------
 SAAS_MAX_DEVICES = 2
 SAAS_SUBSCRIPTION_DAYS = 365
-SAAS_SERVICE_IDS = ("astrologer_saas", "astrologer_saas_renewal")
+SAAS_MONTHLY_SERVICES = ("astrologer_saas_basic", "astrologer_saas_reports", "astrologer_saas_monthly")
+SAAS_SERVICE_IDS = ("astrologer_saas", "astrologer_saas_renewal") + SAAS_MONTHLY_SERVICES
 SAAS_MONTHLY_SERVICE_ID = "astrologer_saas_monthly"
-SAAS_NOT_UNLOCKABLE = ("consultation_acharya", "consultation_yearly", "consultation_gurukul",
-                       SAAS_MONTHLY_SERVICE_ID) + SAAS_SERVICE_IDS
+SAAS_NOT_UNLOCKABLE = ("consultation_acharya", "consultation_yearly", "consultation_gurukul") + SAAS_SERVICE_IDS
 INVALID_CODE_MESSAGE = "कोड अमान्य है।"
+
+SAAS_TIERS: Dict[str, Dict[str, Any]] = {
+    "basic": {
+        "price": 199,
+        "name": "बेसिक",
+        "service_id": "astrologer_saas_basic",
+        "reports_limit": 0,
+        "muhurta_limit": 0,
+    },
+    "reports": {
+        "price": 299,
+        "name": "रिपोर्ट्स प्रो",
+        "service_id": "astrologer_saas_reports",
+        "reports_limit": 100,
+        "muhurta_limit": 0,
+    },
+    "muhurta": {
+        "price": 499,
+        "name": "पूर्ण दैवज्ञ / मुहूर्त प्रो",
+        "service_id": "astrologer_saas_monthly",
+        "reports_limit": 100,
+        "muhurta_limit": 100,
+    },
+    "annual": {
+        "price": 5100,
+        "name": "वार्षिक ऑल-एक्सेस",
+        "service_id": "astrologer_saas",
+        "reports_limit": 1500,
+        "muhurta_limit": 1500,
+    },
+}
 
 
 def saas_exempt_phones() -> set:
@@ -2510,24 +2545,31 @@ def _rzp_client():
     return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 
-def saas_monthly_plan_id() -> str:
-    env_id = (os.environ.get("RAZORPAY_SAAS_MONTHLY_PLAN_ID") or "").strip()
-    if env_id:
-        return env_id
+def saas_monthly_plan_id(price: int = SAAS_MONTHLY_PRICE, title: str = "") -> str:
+    if price == SAAS_MONTHLY_PRICE:
+        env_id = (os.environ.get("RAZORPAY_SAAS_MONTHLY_PLAN_ID") or "").strip()
+        if env_id:
+            return env_id
     saved = SutradharStore.get_doc("settings", "razorpay_plans") or {}
-    key = f"saas_monthly_{SAAS_MONTHLY_PRICE}"
+    key = f"saas_monthly_{price}"
     if saved.get(key):
         return saved[key]
-    plan = _rzp_client().plan.create({
-        "period": "monthly", "interval": 1,
-        "item": {"name": "Shri Ramji Astro ज्योतिषी सदस्यता (मासिक)", "amount": SAAS_MONTHLY_PRICE * 100,
-                 "currency": "INR", "description": "Patrika app astrologer membership, monthly autopay"},
-        "notes": {"service_id": SAAS_MONTHLY_SERVICE_ID},
-    })
-    saved[key] = plan["id"]
-    SutradharStore.set_doc("settings", "razorpay_plans", saved)
-    log_audit_event("SAAS_MONTHLY_PLAN_CREATED", "system", {"plan_id": plan["id"]})
-    return plan["id"]
+    plan_name = title or f"Shri Ramji Astro ज्योतिषी सदस्यता (₹{price}/माह)"
+    try:
+        plan = _rzp_client().plan.create({
+            "period": "monthly", "interval": 1,
+            "item": {"name": plan_name, "amount": price * 100,
+                     "currency": "INR", "description": f"Patrika app astrologer membership ₹{price}/mo, monthly autopay"},
+            "notes": {"price": str(price)},
+        })
+        saved[key] = plan["id"]
+        SutradharStore.set_doc("settings", "razorpay_plans", saved)
+        log_audit_event("SAAS_MONTHLY_PLAN_CREATED", "system", {"plan_id": plan["id"], "price": price})
+        return plan["id"]
+    except Exception as e:
+        if not _is_test_env():
+            raise
+        return f"plan_test_{price}"
 
 
 def _lead_for(phone: str, ref_code: Optional[str], now: datetime) -> Optional[Dict[str, Any]]:
@@ -2579,8 +2621,10 @@ def saas_grant_until(phone: str, name: str, until: datetime, source: str, sutrad
 
 
 def _monthly_summary(m: Dict[str, Any]) -> Dict[str, Any]:
+    tier = m.get("plan_tier") or "muhurta"
+    price = m.get("price") or SAAS_TIERS.get(tier, {}).get("price", SAAS_MONTHLY_PRICE)
     return {"subscription_id": m.get("id"), "status": m.get("status"), "paid_until": m.get("paid_until", ""),
-            "price": SAAS_MONTHLY_PRICE, "payments": len(m.get("payments", [])),
+            "price": price, "plan_tier": tier, "payments": len(m.get("payments", [])),
             "cancel_requested": bool(m.get("cancel_requested_at"))}
 
 
@@ -2597,7 +2641,10 @@ def _record_monthly_payment(m: Dict[str, Any], payment_id: str, amount_paise: in
     now = datetime.now(timezone.utc)
     if payment_id in (m.get("payments") or []):
         return False
-    if amount_paise != SAAS_MONTHLY_PRICE * 100:
+    tier = m.get("plan_tier") or "muhurta"
+    tier_info = SAAS_TIERS.get(tier, SAAS_TIERS["muhurta"])
+    expected_price = (m.get("price") or tier_info["price"]) * 100
+    if amount_paise != expected_price:
         log_audit_event("SAAS_MONTHLY_AMOUNT_MISMATCH", m.get("phone", ""), {
             "subscription_id": m.get("id"), "payment_id": payment_id, "amount_paise": amount_paise})
         return False
@@ -2608,24 +2655,30 @@ def _record_monthly_payment(m: Dict[str, Any], payment_id: str, amount_paise: in
     if m.get("status") in ("created", "authenticated", "pending", None, ""):
         m["status"] = "active"
     SutradharStore.set_doc(SAAS_MONTHLY_COL, m["id"], m)
+    service_id = m.get("service_id") or tier_info["service_id"]
     saas_grant_until(m["phone"], m.get("name", ""), paid_until + timedelta(days=SAAS_MONTHLY_GRACE_DAYS),
                      source=f"{source}:{payment_id}", sutradhar_id=m.get("sutradhar_id", ""),
                      monthly=_monthly_summary(m))
+    with _store_lock:
+        cur_sub = get_saas_subscriber(m["phone"])
+        if cur_sub:
+            cur_sub["plan_tier"] = tier
+            SutradharStore.set_doc("saas_subscribers", m["phone"], cur_sub)
 
     sutradhar_id, lead_id = m.get("sutradhar_id"), m.get("lead_id")
     if not sutradhar_id or not lead_id:
         return True
     if len(m["payments"]) > SAAS_MONTHLY_COMMISSION_MONTHS:
         return True
-    calc = commission_for_payment(SAAS_MONTHLY_SERVICE_ID, amount_paise)
+    calc = commission_for_payment(service_id, amount_paise)
     if calc["commission"] <= 0:
         return True
     comm_id = f"comm_{payment_id}"
     created = SutradharStore.create_doc_if_not_exists("commissions", comm_id, {
         "id": comm_id, "commission_id": comm_id, "lead_id": lead_id, "payment_id": payment_id,
         "order_id": m["id"], "subscription_id": m["id"], "sutradhar_id": sutradhar_id,
-        "customer_phone": m["phone"], "product": SAAS_MONTHLY_SERVICE_ID,
-        "product_name": SERVICE_CATALOG[SAAS_MONTHLY_SERVICE_ID]["name"],
+        "customer_phone": m["phone"], "product": service_id,
+        "product_name": SERVICE_CATALOG.get(service_id, {}).get("name", "ज्योतिषी SaaS"),
         "order_amount": amount_paise / 100, "amount_excl_gst": calc["amount_excl_gst"],
         "gst_amount": calc["gst_amount"], "rate_percent": calc["rate_percent"], "amount": calc["commission"],
         "status": "created", "paid_on": now.astimezone(IST).date().isoformat(),
@@ -2678,6 +2731,7 @@ def handle_saas_subscription_event(event: str, payload: Dict[str, Any]) -> Dict[
 class SaasMonthlyStartRequest(BaseModel):
     name: Optional[str] = Field("", description="Astrologer's name")
     ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
+    plan: Optional[str] = Field("muhurta", description="Plan tier: 'basic' (₹199), 'reports' (₹299), 'muhurta' (₹499)")
 
 
 class SaasMonthlyVerifyRequest(BaseModel):
@@ -2701,12 +2755,20 @@ async def saas_monthly_start(req: SaasMonthlyStartRequest, authorization: Option
     current = _monthly_for_phone(phone)
     if current and current.get("status") in ("active", "authenticated") and not current.get("cancel_requested_at"):
         raise HTTPException(status_code=409, detail="इस नंबर पर मासिक सदस्यता पहले से चालू है।")
+    
+    tier_key = (req.plan or "muhurta").lower().strip()
+    if tier_key not in SAAS_TIERS or tier_key == "annual":
+        tier_key = "muhurta"
+    tier_info = SAAS_TIERS[tier_key]
+    tier_price = tier_info["price"]
+    service_id = tier_info["service_id"]
+    
     lead = _lead_for(phone, req.ref_code, now)
-    notes = {"service_id": SAAS_MONTHLY_SERVICE_ID, "customer_phone": phone,
+    notes = {"service_id": service_id, "customer_phone": phone, "plan_tier": tier_key,
              "sutradhar_id": (lead or {}).get("sutradhar_id", ""), "lead_id": (lead or {}).get("id", "")}
     try:
         rzp = _rzp_client().subscription.create({
-            "plan_id": saas_monthly_plan_id(), "total_count": SAAS_MONTHLY_TOTAL_COUNT,
+            "plan_id": saas_monthly_plan_id(tier_price, tier_info["name"]), "total_count": SAAS_MONTHLY_TOTAL_COUNT,
             "quantity": 1, "customer_notify": 1, "notes": notes})
         sub_id = rzp["id"]
     except Exception as e:
@@ -2716,11 +2778,12 @@ async def saas_monthly_start(req: SaasMonthlyStartRequest, authorization: Option
         sub_id = f"sub_test_{int(now.timestamp())}_{os.urandom(3).hex()}"
     SutradharStore.set_doc(SAAS_MONTHLY_COL, sub_id, {
         "id": sub_id, "phone": phone, "name": (req.name or "").strip()[:80], "status": "created",
+        "plan_tier": tier_key, "price": tier_price, "service_id": service_id,
         "sutradhar_id": notes["sutradhar_id"], "lead_id": notes["lead_id"], "payments": [],
         "created_at": now.isoformat()})
-    log_audit_event("SAAS_MONTHLY_CREATED", phone, {"subscription_id": sub_id, "sutradhar_id": notes["sutradhar_id"]})
+    log_audit_event("SAAS_MONTHLY_CREATED", phone, {"subscription_id": sub_id, "plan_tier": tier_key, "sutradhar_id": notes["sutradhar_id"]})
     return {"status": "success", "subscription_id": sub_id, "key_id": RAZORPAY_KEY_ID,
-            "price": SAAS_MONTHLY_PRICE, "phone": phone}
+            "price": tier_price, "plan_tier": tier_key, "phone": phone}
 
 
 @router.post("/saas/monthly/verify")
@@ -2737,9 +2800,10 @@ async def saas_monthly_verify(req: SaasMonthlyVerifyRequest, authorization: Opti
             _is_test_env() and req.razorpay_signature == "test_signature_bypass"):
         log_audit_event("SAAS_MONTHLY_BAD_SIGNATURE", phone, {"subscription_id": m["id"]})
         raise HTTPException(status_code=400, detail="भुगतान की पुष्टि नहीं हो सकी।")
-    _record_monthly_payment(m, req.razorpay_payment_id, SAAS_MONTHLY_PRICE * 100, None, "checkout")
+    price = m.get("price") or SAAS_MONTHLY_PRICE
+    _record_monthly_payment(m, req.razorpay_payment_id, price * 100, None, "checkout")
     sub = get_saas_subscriber(phone) or {}
-    return {"status": "success", "expires_at": sub.get("expires_at", ""), "monthly": _monthly_summary(m)}
+    return {"status": "success", "expires_at": sub.get("expires_at", ""), "plan_tier": m.get("plan_tier", "muhurta"), "monthly": _monthly_summary(m)}
 
 
 @router.post("/saas/monthly/cancel")
@@ -2810,11 +2874,48 @@ async def saas_redeem(req: SaasRedeemRequest, authorization: Optional[str] = Hea
         return {"ok": False, "message": "डिवाइस पहचान नहीं हो सकी। पेज रीफ़्रेश करके पुनः प्रयास करें।"}
 
     now = datetime.now(timezone.utc)
+    if not exempt:
+        tier = (sub.get("plan_tier") or ("annual" if not sub.get("monthly") else "muhurta")).lower()
+        is_muhurta = sid.startswith("muhurta_")
+        if tier == "basic":
+            return {"ok": False, "message": "बेसिक प्लान (₹199) में चार्ट, पंचांग और CRM शामिल है। रिपोर्ट्स के लिए ₹299 या पूर्ण दैवज्ञ प्लान पर अपग्रेड करें।"}
+        
+        usage_list = SutradharStore.query_all("saas_usage")
+        user_usage = [u for u in usage_list if u.get("phone") == login_phone]
+        month_str = now.astimezone(IST).strftime("%Y-%m")
+        month_uses = [u for u in user_usage if datetime.fromisoformat(u["at"]).astimezone(IST).strftime("%Y-%m") == month_str]
+        
+        if tier == "reports":
+            if is_muhurta:
+                return {"ok": False, "message": "मुहूर्त कैलकुलेटर पूर्ण दैवज्ञ (₹499/माह या ₹5,100/वर्ष) प्लान में शामिल है। अपग्रेड करें।"}
+            month_reports = sum(1 for u in month_uses if not u.get("service_id", "").startswith("muhurta_"))
+            if month_reports >= 100:
+                return {"ok": False, "message": "इस महीने की 100 रिपोर्ट्स की सीमा पूरी हो गई है (अधिकतम 100 रिपोर्ट्स/माह)।"}
+        elif tier == "muhurta":
+            if is_muhurta:
+                month_muhurtas = sum(1 for u in month_uses if u.get("service_id", "").startswith("muhurta_"))
+                if month_muhurtas >= 100:
+                    return {"ok": False, "message": "इस महीने की 100 मुहूर्त की सीमा पूरी हो गई है (अधिकतम 100 मुहूर्त/माह)।"}
+            else:
+                month_reports = sum(1 for u in month_uses if not u.get("service_id", "").startswith("muhurta_"))
+                if month_reports >= 100:
+                    return {"ok": False, "message": "इस महीने की 100 रिपोर्ट्स की सीमा पूरी हो गई है (अधिकतम 100 रिपोर्ट्स/माह)।"}
+        elif tier == "annual":
+            year_num = now.astimezone(IST).year
+            year_uses = [u for u in user_usage if datetime.fromisoformat(u["at"]).astimezone(IST).year == year_num]
+            if is_muhurta:
+                year_muhurtas = sum(1 for u in year_uses if u.get("service_id", "").startswith("muhurta_"))
+                if year_muhurtas >= 1500:
+                    return {"ok": False, "message": "इस वर्ष की 1500 मुहूर्त की सीमा पूरी हो गई है (अधिकतम 1500 मुहूर्त/वर्ष)।"}
+            else:
+                year_reports = sum(1 for u in year_uses if not u.get("service_id", "").startswith("muhurta_"))
+                if year_reports >= 1500:
+                    return {"ok": False, "message": "इस वर्ष की 1500 रिपोर्ट्स की सीमा पूरी हो गई है (अधिकतम 1500 रिपोर्ट्स/वर्ष)।"}
     with _store_lock:
         if not exempt:
             sub = get_saas_subscriber(login_phone)
             devices = sub.get("devices", [])
-            known = next((d for d in devices if d.get("device_id") == device_id), None)
+            known = next((d for d in devices if isinstance(d, dict) and d.get("device_id") == device_id), None)
             if known:
                 known["last_seen"] = now.isoformat()
             elif len(devices) >= SAAS_MAX_DEVICES:
@@ -3471,6 +3572,7 @@ class SaasAdminRequest(BaseModel):
     phone: str
     new_phone: Optional[str] = None
     name: Optional[str] = None
+    plan_tier: Optional[str] = Field(None, description="'basic', 'reports', 'muhurta', or 'annual'")
     add_days: Optional[int] = Field(None, description="Extend by this many days (365 = one year)")
     expires_at: Optional[str] = Field(None, description="Set an exact expiry date YYYY-MM-DD")
     status: Optional[str] = Field(None, description="'active' or 'paused'")
@@ -3482,8 +3584,16 @@ class SaasAdminRequest(BaseModel):
 def _saas_view(sub: Dict[str, Any], usage: List[Dict[str, Any]]) -> Dict[str, Any]:
     now = datetime.now(timezone.utc)
     month = now.astimezone(IST).strftime("%Y-%m")
+    year_num = now.astimezone(IST).year
     mine = [u for u in usage if u.get("phone") == sub.get("phone")]
     month_uses = [u for u in mine if datetime.fromisoformat(u["at"]).astimezone(IST).strftime("%Y-%m") == month]
+    year_uses = [u for u in mine if datetime.fromisoformat(u["at"]).astimezone(IST).year == year_num]
+    
+    month_reports = sum(1 for u in month_uses if not u.get("service_id", "").startswith("muhurta_"))
+    month_muhurtas = sum(1 for u in month_uses if u.get("service_id", "").startswith("muhurta_"))
+    year_reports = sum(1 for u in year_uses if not u.get("service_id", "").startswith("muhurta_"))
+    year_muhurtas = sum(1 for u in year_uses if u.get("service_id", "").startswith("muhurta_"))
+
     by_service: Dict[str, int] = {}
     for u in month_uses:
         by_service[u.get("service_id", "")] = by_service.get(u.get("service_id", ""), 0) + 1
@@ -3492,9 +3602,17 @@ def _saas_view(sub: Dict[str, Any], usage: List[Dict[str, Any]]) -> Dict[str, An
         days_left = (datetime.fromisoformat(sub["expires_at"]) - now).days
     except Exception:
         pass
+
+    tier = (sub.get("plan_tier") or ("annual" if not sub.get("monthly") else "muhurta")).lower()
+    tier_info = SAAS_TIERS.get(tier, SAAS_TIERS["annual"])
+
     return {
         "phone": sub.get("phone"), "name": sub.get("name", ""), "status": sub.get("status"),
         "active": saas_is_active(sub, now), "expires_at": sub.get("expires_at"), "days_left": days_left,
+        "plan_tier": tier, "plan_name": tier_info["name"], "plan_price": tier_info["price"],
+        "reports_limit": tier_info["reports_limit"], "muhurta_limit": tier_info["muhurta_limit"],
+        "reports_used_this_month": month_reports, "muhurtas_used_this_month": month_muhurtas,
+        "reports_used_this_year": year_reports, "muhurtas_used_this_year": year_muhurtas,
         "devices": sub.get("devices", []), "device_limit": SAAS_MAX_DEVICES,
         "sold_by_sutradhar": sub.get("sold_by_sutradhar", ""), "last_used_at": sub.get("last_used_at"),
         "uses_this_month": len(month_uses), "uses_total": len(mine), "uses_by_service_this_month": by_service,
@@ -3883,6 +4001,8 @@ async def admin_upsert_saas(req: SaasAdminRequest, authorization: Optional[str] 
             sub.setdefault("history", []).append({"at": now.isoformat(), "set_expiry": req.expires_at, "source": f"admin:{admin}"})
         if req.name is not None:
             sub["name"] = req.name.strip()
+        if req.plan_tier and req.plan_tier in SAAS_TIERS:
+            sub["plan_tier"] = req.plan_tier
         if req.status:
             sub["status"] = req.status
         if req.reset_devices:

@@ -396,7 +396,7 @@
         <a class="btn sm" id="ai-gpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT में पूछें</a>
         <button class="btn sm ghost" type="button" id="ai-copy">सवाल कॉपी करें (Gemini आदि के लिए)</button>
       </div>
-      <p class="small muted" style="margin-top:10px">सवाल-जवाब, दाम और शर्तें: <a href="jyotishi.html">ज्योतिषी सदस्यता पेज</a></p>
+      <p class="small muted" style="margin-top:10px">सवाल-जवाब, विस्तृत तुलना और शर्तें: <a href="pricing.html">विस्तृत प्राइसिंग पेज</a> · <a href="jyotishi.html">ज्योतिषी सदस्यता FAQ</a></p>
       <p class="small muted" id="ai-copied" style="margin-top:8px;display:none">सवाल कॉपी हो गया। ChatGPT, Gemini या किसी भी AI ऐप के सवाल वाले खाने में चिपकाइए (देर तक दबाएँ, फिर Paste)।</p>
     </div>
   </section>
@@ -418,17 +418,19 @@
     </div>
     <div class="card" id="buy-form">
       <h3>सदस्यता लें</h3>
-      <div class="plans" role="radiogroup" aria-label="प्लान चुनें">
-        <label class="plan on"><input type="radio" name="plan" value="year" checked/>वार्षिक<br><b>₹5,100</b> <span class="small muted">/ वर्ष</span><br><span class="small muted">₹425 / माह पड़ता है, सबसे सस्ता</span></label>
-        <label class="plan"><input type="radio" name="plan" value="month"/>मासिक<br><b>₹499</b> <span class="small muted">/ माह</span><br><span class="small muted">UPI AutoPay या कार्ड, कभी भी रद्द</span></label>
+      <div class="plans" role="radiogroup" aria-label="प्लान चुनें" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px;">
+        <label class="plan on"><input type="radio" name="plan" value="year" checked/>वार्षिक ऑल-एक्सेस<br><b>₹5,100</b> <span class="small muted">/ वर्ष</span><br><span class="small muted" style="color:#059669; font-weight:700;">1,500 रिपोर्ट्स + 1,500 मुहूर्त</span><br><span class="small muted">₹425/माह पड़ता है (15% छूट)</span></label>
+        <label class="plan"><input type="radio" name="plan" value="muhurta"/>मुहूर्त प्रो<br><b>₹499</b> <span class="small muted">/ माह</span><br><span class="small muted" style="color:#0284c7; font-weight:700;">100 रिपोर्ट्स + 100 मुहूर्त/माह</span><br><span class="small muted">संपूर्ण मुहूर्त कैलकुलेटर</span></label>
+        <label class="plan"><input type="radio" name="plan" value="reports"/>रिपोर्ट्स प्रो<br><b>₹299</b> <span class="small muted">/ माह</span><br><span class="small muted" style="color:#7c3aed; font-weight:700;">100 रिपोर्ट्स/माह</span><br><span class="small muted">14 प्रिंटेबल रिपोर्ट्स + रेमेडी</span></label>
+        <label class="plan"><input type="radio" name="plan" value="basic"/>बेसिक प्रैक्टिस<br><b>₹199</b> <span class="small muted">/ माह</span><br><span class="small muted" style="color:#d97706; font-weight:700;">चार्ट + पंचांग + CRM</span><br><span class="small muted">दैनिक डायरी व पंचांग</span></label>
       </div>
-      <p class="small muted" id="plan-note">जिस नंबर से भुगतान करेंगे, उसी नंबर पर डेस्क और रिपोर्ट खुलेंगी।</p>
+      <p class="small muted" id="plan-note">जिस नंबर से भुगतान करेंगे, उसी नंबर पर डेस्क, 1,500 रिपोर्ट्स और 1,500 मुहूर्त खुलेंगे।</p>
       <label for="b-name">आपका नाम</label>
       <input id="b-name" autocomplete="name"/>
       <label for="b-phone">मोबाइल नंबर</label>
       <input id="b-phone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10 अंकों का नंबर"/>
       <div class="err" id="b-err"></div>
-      <button class="btn block" id="btn-buy" style="margin-top:6px">₹5,100 भुगतान करें</button>
+      <button class="btn block" id="btn-buy" style="margin-top:6px">₹5,100 भुगतान करें (वार्षिक)</button>
     </div>
     <div class="ok" id="buy-ok" style="display:none">
       <h3>सदस्यता चालू हो गई</h3>
@@ -733,10 +735,19 @@
 
   // ── 7. buy ──────────────────────────────────────────────────────────────
   $('btn-talk').href = 'https://wa.me/' + talkNumber + '?text=' + encodeURIComponent('नमस्ते, मैंने Shri Ramji Astro ज्योतिषी सदस्यता का डेमो देखा। सदस्यता के बारे में बात करनी है।' + (astroName ? ' — ' + astroName : ''));
-  // Plan choice: yearly is a one-time order; monthly is a Razorpay Subscription (autopay, needs OTP sign-in)
-  var BUY_LABEL = { year: '₹5,100 भुगतान करें', month: '₹499 / माह autopay शुरू करें' };
-  var NOTE = { year: 'जिस नंबर से भुगतान करेंगे, उसी नंबर पर डेस्क और रिपोर्ट खुलेंगी।',
-    month: 'हर महीने ₹499 अपने-आप कटेगा (UPI AutoPay या कार्ड)। दैवज्ञ डेस्क से कभी भी रद्द कर सकते हैं; चुकाया हुआ महीना पूरा चलेगा। पहले अपने नंबर से OTP लॉगिन होगा।' };
+  // Plan choice: yearly is a one-time order; monthly plans are Razorpay Subscriptions (autopay, needs OTP sign-in)
+  var BUY_LABEL = {
+    year: '₹5,100 भुगतान करें (वार्षिक)',
+    muhurta: '₹499 / माह autopay शुरू करें (मुहूर्त प्रो)',
+    reports: '₹299 / माह autopay शुरू करें (रिपोर्ट्स प्रो)',
+    basic: '₹199 / माह autopay शुरू करें (बेसिक)'
+  };
+  var NOTE = {
+    year: 'जिस नंबर से भुगतान करेंगे, उसी नंबर पर डेस्क, 1,500 रिपोर्ट्स और 1,500 मुहूर्त खुलेंगे।',
+    muhurta: 'हर महीने ₹499 कटेगा (100 रिपोर्ट्स + 100 मुहूर्त/माह)। दैवज्ञ डेस्क से कभी भी रद्द कर सकते हैं; चुकाया हुआ महीना पूरा चलेगा।',
+    reports: 'हर महीने ₹299 कटेगा (100 रिपोर्ट्स/माह + CRM डायरी)। मुहूर्त शामिल नहीं। डेस्क से कभी भी रद्द कर सकते हैं।',
+    basic: 'हर महीने ₹199 कटेगा (असीमित चार्ट्स + दैनिक पर्सनलाइज्ड पंचांग + CRM डायरी)। डेस्क से कभी भी रद्द कर सकते हैं।'
+  };
   function plan() { var r = document.querySelector('input[name="plan"]:checked'); return r ? r.value : 'year'; }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="plan"]'), function (r) {
     r.addEventListener('change', function () {
@@ -747,8 +758,9 @@
     });
   });
 
-  async function buyMonthly(btn, name, ph) {
-    var reset = function (msg) { btn.disabled = false; btn.textContent = BUY_LABEL.month; if (msg) $('b-err').textContent = msg; };
+  async function buyMonthly(btn, name, ph, planKey) {
+    var pKey = planKey || 'muhurta';
+    var reset = function (msg) { btn.disabled = false; btn.textContent = BUY_LABEL[pKey]; if (msg) $('b-err').textContent = msg; };
     var headers = await SraCouponEngine.authHeaders();
     if (!headers.Authorization) {
       reset('पहले +91 ' + ph + ' से OTP लॉगिन करें, फिर यह बटन दोबारा दबाएँ।');
@@ -757,22 +769,23 @@
     }
     var res = await fetch(SraCouponEngine.apiBase() + '/api/sutradhar/saas/monthly/start', {
       method: 'POST', headers: headers,
-      body: JSON.stringify({ name: name, ref_code: SraCouponEngine.getActiveSutradharId() || null })
+      body: JSON.stringify({ name: name, plan: pKey, ref_code: SraCouponEngine.getActiveSutradharId() || null })
     });
     var d = await res.json().catch(function () { return {}; });
     if (!res.ok) return reset(d.detail || 'मासिक सदस्यता शुरू नहीं हो सकी।');
     if (d.phone !== ph) return reset('आप +91 ' + d.phone + ' से लॉगिन हैं। सदस्यता उसी नंबर पर चलेगी, इसलिए ऊपर वही नंबर लिखें, या उस नंबर से लॉगिन करें जिस पर सदस्यता चाहिए।');
+    var planPrice = d.price || (pKey === 'basic' ? 199 : (pKey === 'reports' ? 299 : 499));
     var rzp = new Razorpay({
       key: d.key_id, subscription_id: d.subscription_id, name: 'Shri Ramji Astro',
-      description: 'ज्योतिषी सदस्यता: ₹499 / माह (autopay)', prefill: { name: name, contact: ph },
-      notes: { source: 'saas_demo_monthly' }, theme: { color: '#15803d' },
+      description: 'ज्योतिषी सदस्यता: ₹' + planPrice + ' / माह (autopay)', prefill: { name: name, contact: ph },
+      notes: { source: 'saas_demo_monthly', plan: pKey }, theme: { color: '#15803d' },
       handler: async function (r) {
         var v = await fetch(SraCouponEngine.apiBase() + '/api/sutradhar/saas/monthly/verify', {
           method: 'POST', headers: await SraCouponEngine.authHeaders(), body: JSON.stringify(r) });
         var vd = await v.json().catch(function () { return {}; });
         $('buy-form').style.display = 'none';
         $('ok-text').innerHTML = v.ok
-          ? 'दैवज्ञ डेस्क खोलें और <b>+91 ' + ph + '</b> से OTP लॉगिन करें। हर महीने ₹499 अपने-आप कटेगा; डेस्क से कभी भी रद्द कर सकते हैं।'
+          ? 'दैवज्ञ डेस्क खोलें और <b>+91 ' + ph + '</b> से OTP लॉगिन करें। हर महीने ₹' + planPrice + ' अपने-आप कटेगा; डेस्क से कभी भी रद्द कर सकते हैं।'
           : 'भुगतान हो गया। पुष्टि आने में कुछ मिनट लग सकते हैं; फिर <b>+91 ' + ph + '</b> से दैवज्ञ डेस्क खोलें। ' + (vd.detail || '');
         $('buy-ok').style.display = 'block';
       },
@@ -786,25 +799,26 @@
     $('b-err').textContent = '';
     if (!name) { $('b-err').textContent = 'अपना नाम लिखें।'; $('b-name').focus(); return; }
     if (ph.length !== 10) { $('b-err').textContent = '10 अंकों का मोबाइल नंबर लिखें।'; $('b-phone').focus(); return; }
-    if (plan() === 'month') {
+    var chosen = plan();
+    if (chosen !== 'year') {
       if (!window.SraCouponEngine || typeof Razorpay === 'undefined') { $('b-err').textContent = 'भुगतान पेज लोड नहीं हुआ। इंटरनेट जाँचकर पेज फिर खोलें।'; return; }
       var mb = this; mb.disabled = true; mb.textContent = 'भुगतान खुल रहा है…';
-      buyMonthly(mb, name, ph).catch(function () { mb.disabled = false; mb.textContent = BUY_LABEL.month; $('b-err').textContent = 'मासिक सदस्यता शुरू नहीं हो सकी। इंटरनेट जाँचें।'; });
+      buyMonthly(mb, name, ph, chosen).catch(function () { mb.disabled = false; mb.textContent = BUY_LABEL[chosen]; $('b-err').textContent = 'मासिक सदस्यता शुरू नहीं हो सकी। इंटरनेट जाँचें।'; });
       return;
     }
     if (!window.SraCouponEngine || typeof Razorpay === 'undefined') { $('b-err').textContent = 'भुगतान पेज लोड नहीं हुआ। इंटरनेट जाँचकर पेज फिर खोलें।'; return; }
     var btn = this; btn.disabled = true; btn.textContent = 'भुगतान खुल रहा है…';
     SraCouponEngine.openServerCheckout({
-      serviceId: 'astrologer_saas', phone: ph, name: name, description: 'Shri Ramji Astro ज्योतिषी सदस्यता (1 वर्ष)', color: '#15803d',
-      notes: { source: 'saas_demo' },
+      serviceId: 'astrologer_saas', phone: ph, name: name, description: 'Shri Ramji Astro ज्योतिषी सदस्यता (1 वर्ष, 1500 रिपोर्ट्स + 1500 मुहूर्त)', color: '#15803d',
+      notes: { source: 'saas_demo', plan: 'annual' },
       onSuccess: function () {
         $('buy-form').style.display = 'none';
         $('ok-phone').textContent = '+91 ' + ph;
         $('buy-ok').style.display = 'block';
       },
-      onDismiss: function () { btn.disabled = false; btn.textContent = '₹5,100 भुगतान करें'; },
-      onError: function (e) { btn.disabled = false; btn.textContent = '₹5,100 भुगतान करें'; $('b-err').textContent = (e && e.message) || 'भुगतान शुरू नहीं हो सका।'; }
-    }).then(function (order) { if (!order) { btn.disabled = false; btn.textContent = '₹5,100 भुगतान करें'; } });
+      onDismiss: function () { btn.disabled = false; btn.textContent = BUY_LABEL.year; },
+      onError: function (e) { btn.disabled = false; btn.textContent = BUY_LABEL.year; $('b-err').textContent = (e && e.message) || 'भुगतान शुरू नहीं हो सका।'; }
+    }).then(function (order) { if (!order) { btn.disabled = false; btn.textContent = BUY_LABEL.year; } });
   };
 
   // start (a reload keeps the screen the user was on)

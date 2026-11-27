@@ -1655,15 +1655,21 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           A SaaS subscriber signs in on the website with OTP and types <b>their own number</b> in any report’s code box; the report opens (except consultation and course). The same number typed from someone else’s login gives "कोड अमान्य है" . One account works on at most 2 phones/browsers; clearing browser data counts as a new phone — then use "Reset phones" . A paid SaaS order adds the subscriber for 1 year automatically.
           <br><span id="saas-summary" style="font-weight:700;"></span>
         </p>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:center;">
           <input type="tel" id="saas-new-phone" placeholder="Mobile (10 digits)" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
           <input type="text" id="saas-new-name" placeholder="Name (e.g. Pt. Sharma)" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" />
+          <select id="saas-new-tier" style="padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);">
+            <option value="annual">वार्षिक ऑल-एक्सेस (₹5,100 / वर्ष, 1500 रिपोर्ट्स + 1500 मुहूर्त)</option>
+            <option value="muhurta">मुहूर्त प्रो (₹499 / माह, 100 रिपोर्ट्स + 100 मुहूर्त)</option>
+            <option value="reports">रिपोर्ट्स प्रो (₹299 / माह, 100 रिपोर्ट्स)</option>
+            <option value="basic">बेसिक प्रैक्टिस (₹199 / माह, चार्ट्स + CRM)</option>
+          </select>
           <input type="number" id="saas-new-days" value="365" min="1" style="width:90px; padding:7px 9px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text);" title="Days" />
           <button class="export-btn" style="background:#2563eb; border-color:#1d4ed8; color:#fff;" onclick="addSaasSubscriber()">+ Add / extend</button>
         </div>
         <div style="overflow-x:auto">
           <table class="tbl">
-            <thead><tr><th>Subscriber</th><th>Status</th><th>Valid till</th><th>Phones</th><th>Reports this month</th><th>Sutradhar</th><th>Last used</th><th>Action</th></tr></thead>
+            <thead><tr><th>Subscriber</th><th>Plan / Status</th><th>Valid till</th><th>Phones</th><th>Usage & Quotas (Reports / Muhurta)</th><th>Sutradhar</th><th>Last used</th><th>Action</th></tr></thead>
             <tbody id="saas-tbody"><tr><td colspan="8" class="empty-row">Loading...</td></tr></tbody>
           </table>
         </div>
@@ -1732,6 +1738,9 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
           <b id="scl-sel-count" style="font-size:13px;"></b>
           <button class="export-btn" id="scl-sel-btn" style="background:#16a34a; border-color:#15803d; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendSelected('welcome')">Welcome message</button>
           <button class="export-btn" id="scl-sel-video-btn" style="background:#2563eb; border-color:#1d4ed8; color:#fff; font-weight:700; padding:8px 14px;" onclick="sclSendSelected('video')">Demo video</button>
+          <button class="export-btn" style="background:#d97706; border-color:#b45309; color:#fff; font-weight:700; padding:8px 12px;" onclick="sclSendSelectedTier('basic')" title="चार्ट + पंचांग + CRM @ ₹199">₹199 बेसिक</button>
+          <button class="export-btn" style="background:#7c3aed; border-color:#6d28d9; color:#fff; font-weight:700; padding:8px 12px;" onclick="sclSendSelectedTier('reports')" title="14 रिपोर्ट्स @ ₹299 (100 rep/mo)">₹299 रिपोर्ट्स</button>
+          <button class="export-btn" style="background:#059669; border-color:#047857; color:#fff; font-weight:700; padding:8px 12px;" onclick="sclSendSelectedTier('muhurta')" title="मुहूर्त प्रो @ ₹499/mo या ₹5,100/yr">₹499/₹5100 मुहूर्त</button>
           <button class="export-btn" style="padding:6px 10px;" onclick="sclClearSelected()">Clear</button>
           <span id="scl-sel-info" style="font-size:12px; color:var(--text-muted);">Pick which message to send. Each click opens the next selected astrologer’s WhatsApp (one chat per click).</span>
         </div>
@@ -2279,6 +2288,16 @@ body, button, input, select, textarea{font-family:'Inter','Noto Sans Devanagari'
         <div>
           <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">मोबाइल नंबर (Phone - 10 अंक) *</label>
           <input type="tel" id="editSaasPhone" maxlength="10" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-family:monospace; font-size:14px;" placeholder="10-digit mobile" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+
+        <div>
+          <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text-muted, #9ca3af);">प्लान टियर (Plan Tier)</label>
+          <select id="editSaasPlanTier" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border, #374151); border-radius:8px; padding:10px; color:#fff; font-size:14px;">
+            <option value="annual">वार्षिक ऑल-एक्सेस (₹5,100 / वर्ष, 1500 रिपोर्ट्स + 1500 मुहूर्त)</option>
+            <option value="muhurta">मुहूर्त प्रो (₹499 / माह, 100 रिपोर्ट्स + 100 मुहूर्त)</option>
+            <option value="reports">रिपोर्ट्स प्रो (₹299 / माह, 100 रिपोर्ट्स/माह)</option>
+            <option value="basic">बेसिक प्रैक्टिस (₹199 / माह, चार्ट्स + पंचांग + CRM)</option>
+          </select>
         </div>
 
         <div>
@@ -4393,6 +4412,14 @@ function sclDemoLink(name) {
   const q = p.toString();
   return 'https://shriramjiastro.in/saas-demo.html' + (q ? '?' + q : '');
 }
+function sclPricingLink(name) {
+  const s = sclSettings(), p = new URLSearchParams();
+  if (s.ref) p.set('ref', s.ref);
+  if (name) p.set('n', String(name).replace(/^\s*(पं\.?|पंडित|आचार्य|श्री|डॉ\.?|pt\.?|pandit|acharya|shri|sri|dr\.?)\s+/i, '').trim());
+  if (s.w.length >= 10) p.set('w', s.w.slice(-10));
+  const q = p.toString();
+  return 'https://shriramjiastro.in/pricing.html' + (q ? '?' + q : '');
+}
 // Demo video (25 Nov 2026): one WhatsApp message with both videos, phone and computer (desk-demo.html, no download)
 const SCL_VIDEO_MSG = 'जय श्री राम {नाम} जी,\n\nजैसा कि आपसे बात हुई थी, श्री राम जी एस्ट्रो के "पत्रिका ऐप · दैवज्ञ डेस्क" का डेमो वीडियो भेज रहे हैं।\n\nइसे देखकर आप समझ सकेंगे कि shriramjiastro.in से जुड़ने के बाद आप अपने यजमानों से रोज़ कैसे जुड़े रह सकेंगे — उनकी कुंडली, उपाय की डिजिटल पर्ची, हर दिन का व्यक्तिगत पंचांग, मंत्र-स्तोत्र और पूजा विधि, सब WhatsApp पर एक क्लिक में — और अपने ज्योतिष को एक नए स्तर पर कैसे ले जा सकेंगे।\n\nमोबाइल पर कैसा चलेगा:\n{मोबाइल}\n\nकंप्यूटर / लैपटॉप पर कैसा चलेगा:\n{कंप्यूटर}\n\nउम्मीद है इस डेमो से आपको बहुत सहायता मिलेगी। कोई भी प्रश्न हो तो इसी नंबर पर तुरंत संदेश करें।\n\nसादर,\nश्री राम जी एस्ट्रो';
 function sclVideoLink(name, view) {
@@ -4418,6 +4445,39 @@ window.sclVideoWhatsApp = sclVideoWhatsApp;
 function sclMessage(l) {
   return sclSettings().msg.replace(/\{नाम\}/g, l.name || 'Astrologer').replace(/\{लिंक\}/g, sclDemoLink(l.name));
 }
+
+const SCL_TIER_MSGS = {
+  basic: 'प्रणाम {नाम} जी! 🔮\n\nShri Ramji Astro लेकर आया है ज्योतिषियों के लिए विशेष "बेसिक प्रैक्टिस डेस्क" मात्र ₹199/माह में!\n\n✅ स्विस एफिमेरिस (DE431) आधारित सटीक कुंडली (D1 से D60, भावचलित)\n✅ 1-क्लिक दैनिक पर्सनलाइज्ड पंचांग (रोज़ सुबह यजमान को उनके जन्म अनुसार पंचांग भेजें)\n✅ पूर्ण क्लाइंट डायरी / CRM (यजमानों का रिकॉर्ड और हिस्ट्री सुरक्षित)\n\n👉 लाइव डेमो देखें और तुरंत शुरू करें:\n{लिंक}\n(UPI AutoPay, कभी भी रद्द करें)',
+  reports: 'प्रणाम {नाम} जी! 📜\n\nShri Ramji Astro "रिपोर्ट्स प्रो प्लान" मात्र ₹299/माह में:\n\n✅ 14 प्रिंटेबल A4 PDF रिपोर्ट्स (मंगल दोष, कालसर्प, धन योग, 97-अध्याय BPHS आदि)\n✅ अधिकतम 100 रिपोर्ट्स/माह (जातक से लिया पूरा शुल्क 100% आपका)\n✅ आपकी अपनी ब्रांडिंग और नाम के साथ रिपोर्ट्स\n✅ 40-दिवसीय रेमेडी स्लिप व ट्रैकर (यजमान रोज़ उपाय टिक करेगा)\n\nमहीने में केवल 1 रिपोर्ट भी दी तो पूरा खर्च वसूल!\n👉 लाइव डेमो देखें:\n{लिंक}',
+  muhurta: 'प्रणाम {नाम} जी! 🏛️\n\nShri Ramji Astro "पूर्ण दैवज्ञ / मुहूर्त प्रो प्लान":\n\n✅ संपूर्ण मुहूर्त इंजन (विवाह मुहूर्त, व्यापार व नया कार्य, वास्तु/गृह प्रवेश, उपनयन)\n✅ 100 रिपोर्ट्स + 100 मुहूर्त प्रति माह (₹499/माह में)\n✅ या वार्षिक ऑल-एक्सेस ₹5,100/वर्ष (1,500 रिपोर्ट्स + 1,500 मुहूर्त/वर्ष, ₹425/माह, 15% छूट)\n✅ दैवज्ञ डेस्क, क्लाइंट CRM और फुल व्हाइट-लेबल\n\n👉 लाइव डेमो व पूरी जानकारी:\n{लिंक}'
+};
+
+function sclTierMessage(l, tier) {
+  const tmpl = SCL_TIER_MSGS[tier] || SCL_TIER_MSGS.muhurta;
+  const name = (l.name || '').trim() || 'ज्योतिषी';
+  return tmpl.replace(/\{नाम\}/g, name).replace(/\{लिंक\}/g, sclPricingLink(name));
+}
+
+function sclTierWhatsApp(phone, tier) {
+  const l = sclLeads.find(x => x.phone === phone);
+  if (!l) return;
+  const text = sclTierMessage(l, tier);
+  window.open('https://wa.me/91' + phone + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+  const body = { demo_sent: true };
+  if (['new', 'no_answer', 'callback', 'interested'].includes(sclStatusOf(l))) body.status = 'demo_sent';
+  sclSave(phone, body);
+}
+window.sclTierWhatsApp = sclTierWhatsApp;
+
+function sclSendSelectedTier(tier) {
+  const l = sclSelQueue()[0];
+  if (!l) return;
+  sclTierWhatsApp(l.phone, tier);
+  sclSelected.delete(l.phone);
+  if (sclStatusOf(l) === 'new') { l.status = 'demo_sent'; l.demo_sent_at = new Date().toISOString(); }
+  renderSaasLeads();
+}
+window.sclSendSelectedTier = sclSendSelectedTier;
 
 function sclCopyAi(lang) {
   if (!window.SRAAIPrompt) return;
@@ -4587,6 +4647,9 @@ function renderSaasLeads() {
         <div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:6px;">
           <a class="export-btn" style="${B}" href="tel:+91${l.phone}" onclick="sclSave('${l.phone}', {called:true})">Call</a>
           <button class="export-btn" style="${B} background:#2563eb; border-color:#1d4ed8; color:#fff;" onclick="sclVideoWhatsApp('${l.phone}')" title="बात होने के बाद: मोबाइल और कंप्यूटर, दोनों डेमो वीडियो के लिंक एक संदेश में">Demo video</button>
+          <button class="export-btn" style="${B} background:#d97706; border-color:#b45309; color:#fff; font-weight:700;" onclick="sclTierWhatsApp('${l.phone}', 'basic')" title="बेसिक प्लान (चार्ट्स + पंचांग + CRM @ ₹199/माह)">WA ₹199</button>
+          <button class="export-btn" style="${B} background:#7c3aed; border-color:#6d28d9; color:#fff; font-weight:700;" onclick="sclTierWhatsApp('${l.phone}', 'reports')" title="रिपोर्ट्स प्रो (14 रिपोर्ट्स @ ₹299/माह, 100 रिपोर्ट्स/माह)">WA ₹299</button>
+          <button class="export-btn" style="${B} background:#059669; border-color:#047857; color:#fff; font-weight:700;" onclick="sclTierWhatsApp('${l.phone}', 'muhurta')" title="मुहूर्त प्रो व वार्षिक ऑल-एक्सेस (₹499/माह या ₹5,100/वर्ष, 1500 रिपोर्ट्स + 1500 मुहूर्त)">WA ₹499/₹5100</button>
           <button class="export-btn" style="${B} background:#16a34a; border-color:#15803d; color:#fff;" onclick="sclWhatsApp('${l.phone}')">Welcome message</button>
           <button class="export-btn" style="${B}" onclick="sclCopy('${l.phone}', 'link', this)">Copy link</button>
           <button class="export-btn" style="${B}" onclick="sclCopy('${l.phone}', 'msg', this)">Copy message</button>
@@ -5464,15 +5527,37 @@ async function loadSaasSubscribers() {
       const soon = s.active && s.days_left !== null && s.days_left <= 15 ? ` <span style="color:#b45309; font-weight:700;">(${s.days_left} days left)</span>` : '';
       const devs = (s.devices || []).map(dv => `<div style="font-size:10px; color:var(--text-muted); font-family:monospace;">${safe(dv.device_id.slice(0, 8))}… · ${dv.last_seen ? new Date(dv.last_seen).toLocaleDateString('hi-IN') : ''}</div>`).join('');
       const usage = Object.entries(s.uses_by_service_this_month || {}).map(([k, v]) => `${safe(k)}: ${v}`).join(', ');
-      const mo = s.monthly;   // ₹499 monthly autopay (Razorpay Subscription)
-      const monthly = mo ? `<div style="font-size:11px; margin-top:4px;">Monthly ₹499: <b>${safe(mo.cancel_requested ? 'cancel requested' : mo.status)}</b> · ${mo.payments} paid${mo.paid_until ? ' · till ' + new Date(mo.paid_until).toLocaleDateString('hi-IN') : ''}</div>` : '';
+      const mo = s.monthly;   // monthly autopay (Razorpay Subscription)
+      const moPrice = (mo && mo.price) || s.plan_price || 499;
+      const monthly = mo ? `<div style="font-size:11px; margin-top:4px;">Monthly ₹${moPrice}: <b>${safe(mo.cancel_requested ? 'cancel requested' : mo.status)}</b> · ${mo.payments} paid${mo.paid_until ? ' · till ' + new Date(mo.paid_until).toLocaleDateString('hi-IN') : ''}</div>` : '';
+
+      const tierBadge = s.plan_tier === 'basic'
+        ? '<div style="margin-top:4px;"><span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">बेसिक (₹199)</span></div>'
+        : (s.plan_tier === 'reports'
+          ? '<div style="margin-top:4px;"><span class="badge" style="background:#ede9fe; color:#5b21b6; font-weight:700;">रिपोर्ट्स प्रो (₹299)</span></div>'
+          : (s.plan_tier === 'muhurta'
+            ? '<div style="margin-top:4px;"><span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">मुहूर्त प्रो (₹499)</span></div>'
+            : '<div style="margin-top:4px;"><span class="badge" style="background:#dcfce7; color:#166534; font-weight:700;">वार्षिक ऑल-एक्सेस (₹5,100)</span></div>'));
+
+      let quotaDisplay = '';
+      if (s.plan_tier === 'basic') {
+        quotaDisplay = '<div style="font-size:11px; color:#d97706; font-weight:600;">चार्ट्स + पंचांग + CRM</div><div style="font-size:10px; color:var(--text-muted);">(रिपोर्ट्स/मुहूर्त उपलब्ध नहीं)</div>';
+      } else if (s.plan_tier === 'reports') {
+        const repLeft = Math.max(0, 100 - (s.reports_used_this_month || 0));
+        quotaDisplay = `<div style="font-size:12px;">रिपोर्ट्स: <b>${s.reports_used_this_month || 0} / 100</b> <span style="font-size:10px; color:${repLeft <= 10 ? '#dc2626' : 'var(--text-muted)'}">(${repLeft} शेष)</span></div><div style="font-size:10px; color:var(--text-muted);">मुहूर्त: N/A</div>`;
+      } else if (s.plan_tier === 'muhurta') {
+        quotaDisplay = `<div style="font-size:12px;">रिपोर्ट्स: <b>${s.reports_used_this_month || 0} / 100</b></div><div style="font-size:12px; margin-top:2px;">मुहूर्त: <b>${s.muhurtas_used_this_month || 0} / 100</b></div>`;
+      } else {
+        quotaDisplay = `<div style="font-size:12px;">रिपोर्ट्स: <b>${s.reports_used_this_year || s.reports_used_this_month || 0} / 1500</b></div><div style="font-size:12px; margin-top:2px;">मुहूर्त: <b>${s.muhurtas_used_this_year || s.muhurtas_used_this_month || 0} / 1500</b></div><div style="font-size:10px; color:var(--text-muted);">इस माह: ${s.reports_used_this_month || 0}R · ${s.muhurtas_used_this_month || 0}M</div>`;
+      }
+
       return `
         <tr>
           <td><div style="font-weight:700;">${safe(s.name || '—')}</div><div style="font-family:monospace; font-size:12px;">${safe(s.phone)}</div></td>
-          <td>${state}${monthly}</td>
+          <td>${state}${tierBadge}${monthly}</td>
           <td>${exp}${soon}</td>
           <td><b>${(s.devices || []).length}/${s.device_limit}</b>${devs}</td>
-          <td><b>${s.uses_this_month}</b> <span style="font-size:11px; color:var(--text-muted);">(total ${s.uses_total})</span><div style="font-size:10px; color:var(--text-muted);">${usage}</div></td>
+          <td>${quotaDisplay}<div style="font-size:10px; color:var(--text-muted); margin-top:4px;">${usage}</div></td>
           <td style="font-size:11px;">${safe(s.sold_by_sutradhar || '—')}</td>
           <td style="font-size:11px; color:var(--text-muted);">${s.last_used_at ? new Date(s.last_used_at).toLocaleString('hi-IN') : '—'}</td>
           <td>
@@ -5503,9 +5588,10 @@ async function addSaasSubscriber() {
   const phone = (document.getElementById('saas-new-phone').value || '').replace(/\D/g, '').slice(-10);
   const name = document.getElementById('saas-new-name').value.trim();
   const days = parseInt(document.getElementById('saas-new-days').value, 10) || 365;
+  const plan_tier = (document.getElementById('saas-new-tier') || {}).value || 'annual';
   if (phone.length !== 10) { alert('Enter a 10-digit mobile number.'); return; }
   try {
-    await saasSave({ phone, name, add_days: days });
+    await saasSave({ phone, name, add_days: days, plan_tier });
     document.getElementById('saas-new-phone').value = '';
     document.getElementById('saas-new-name').value = '';
     loadSaasSubscribers();
@@ -5545,6 +5631,7 @@ function openEditSaasModal(i) {
   document.getElementById('editSaasName').value = s.name || '';
   document.getElementById('editSaasPhone').value = s.phone || '';
   document.getElementById('editSaasExpiry').value = s.expires_at ? s.expires_at.slice(0, 10) : '';
+  if (document.getElementById('editSaasPlanTier')) document.getElementById('editSaasPlanTier').value = s.plan_tier || 'annual';
   const m = document.getElementById('modalEditSaas');
   if (m) m.style.display = 'flex';
 }
@@ -5559,6 +5646,7 @@ async function saveEditSaas() {
   const name = (document.getElementById('editSaasName').value || '').trim();
   const newPhone = (document.getElementById('editSaasPhone').value || '').trim().replace(/\D/g, '');
   const expiry = document.getElementById('editSaasExpiry').value;
+  const plan_tier = (document.getElementById('editSaasPlanTier') || {}).value;
 
   if (!name) { alert('कृपया नाम दर्ज करें।'); return; }
   if (newPhone.length !== 10) { alert('कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।'); return; }
@@ -5571,6 +5659,7 @@ async function saveEditSaas() {
     const payload = { phone: oldPhone, name: name };
     if (newPhone !== oldPhone) payload.new_phone = newPhone;
     if (expiry) payload.expires_at = expiry;
+    if (plan_tier) payload.plan_tier = plan_tier;
 
     await saasSave(payload);
     alert('SaaS ग्राहक विवरण सफलतापूर्वक अपडेट किया गया।');

@@ -209,3 +209,77 @@ def test_commission_only_for_first_12_months():
     assert "comm_pay_m12_13" not in {c["id"] for c in comms}
     # access still runs for every paid month
     assert se.saas_is_active(se.get_saas_subscriber(ph))
+
+
+def test_saas_tier_permissions_and_pricing():
+    # 1. Basic tier (199): Charts & CRM only, cannot redeem reports or muhurtas
+    ph_b = "9833300021"
+    r_b = client.post("/api/sutradhar/saas/monthly/start", headers=_auth(ph_b), json={"name": "पं. बेसिक", "plan": "basic"})
+    assert r_b.status_code == 200
+    assert r_b.json()["price"] == 199
+    sub_b = r_b.json()["subscription_id"]
+    client.post("/api/sutradhar/saas/monthly/verify", headers=_auth(ph_b), json={
+        "razorpay_payment_id": "pay_b1", "razorpay_subscription_id": sub_b,
+        "razorpay_signature": "test_signature_bypass"})
+    assert se.get_saas_subscriber(ph_b)["plan_tier"] == "basic"
+    # Basic user trying to unlock paid report
+    red_b = client.post("/api/sutradhar/saas/redeem", headers=_auth(ph_b), json={
+        "service_id": "mangal_dosha", "code": ph_b, "device_id": "device_test_123"})
+    assert red_b.json()["ok"] is False
+    assert "बेसिक प्लान" in red_b.json()["message"]
+
+    # 2. Reports tier (299): Can unlock reports, blocked from muhurtas
+    ph_r = "9833300022"
+    r_r = client.post("/api/sutradhar/saas/monthly/start", headers=_auth(ph_r), json={"name": "पं. रिपोर्ट्स", "plan": "reports"})
+    assert r_r.status_code == 200
+    assert r_r.json()["price"] == 299
+    sub_r = r_r.json()["subscription_id"]
+    client.post("/api/sutradhar/saas/monthly/verify", headers=_auth(ph_r), json={
+        "razorpay_payment_id": "pay_r1", "razorpay_subscription_id": sub_r,
+        "razorpay_signature": "test_signature_bypass"})
+    assert se.get_saas_subscriber(ph_r)["plan_tier"] == "reports"
+    # Can unlock report
+    red_r1 = client.post("/api/sutradhar/saas/redeem", headers=_auth(ph_r), json={
+        "service_id": "mangal_dosha", "code": ph_r, "device_id": "device_test_123"})
+    assert red_r1.json()["ok"] is True
+    # Blocked from muhurta
+    red_r2 = client.post("/api/sutradhar/saas/redeem", headers=_auth(ph_r), json={
+        "service_id": "muhurta_vivah", "code": ph_r, "device_id": "device_test_123"})
+    assert red_r2.json()["ok"] is False
+    assert "मुहूर्त कैलकुलेटर" in red_r2.json()["message"]
+
+    # 3. Muhurta tier (499): Can unlock both reports and muhurtas
+    ph_m = "9833300023"
+    r_m = client.post("/api/sutradhar/saas/monthly/start", headers=_auth(ph_m), json={"name": "पं. मुहूर्त", "plan": "muhurta"})
+    assert r_m.status_code == 200
+    assert r_m.json()["price"] == 499
+    sub_m = r_m.json()["subscription_id"]
+    client.post("/api/sutradhar/saas/monthly/verify", headers=_auth(ph_m), json={
+        "razorpay_payment_id": "pay_m1", "razorpay_subscription_id": sub_m,
+        "razorpay_signature": "test_signature_bypass"})
+    assert se.get_saas_subscriber(ph_m)["plan_tier"] == "muhurta"
+    # Can unlock report
+    assert client.post("/api/sutradhar/saas/redeem", headers=_auth(ph_m), json={
+        "service_id": "mangal_dosha", "code": ph_m, "device_id": "device_test_123"}).json()["ok"] is True
+    # Can unlock muhurta
+    assert client.post("/api/sutradhar/saas/redeem", headers=_auth(ph_m), json={
+        "service_id": "muhurta_vivah", "code": ph_m, "device_id": "device_test_123"}).json()["ok"] is True
+
+    # 4. Annual tier (5100): 1500 reports & 1500 muhurtas quota
+    ph_a = "9833300024"
+    se.SutradharStore.set_doc("saas_subscribers", ph_a, {
+        "phone": ph_a, "name": "पं. वार्षिक", "active": True,
+        "plan_tier": "annual", "status": "active",
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=365)).isoformat(),
+        "devices": [{"device_id": "device_test_123"}],
+        "reports_quota": 1500, "muhurtas_quota": 1500,
+        "reports_used_this_year": 0, "muhurtas_used_this_year": 0
+    })
+    sub_a = se.get_saas_subscriber(ph_a)
+    assert sub_a["plan_tier"] == "annual"
+    assert sub_a["reports_quota"] == 1500
+    assert sub_a["muhurtas_quota"] == 1500
+    assert client.post("/api/sutradhar/saas/redeem", headers=_auth(ph_a), json={
+        "service_id": "mangal_dosha", "code": ph_a, "device_id": "device_test_123"}).json()["ok"] is True
+    assert client.post("/api/sutradhar/saas/redeem", headers=_auth(ph_a), json={
+        "service_id": "muhurta_vivah", "code": ph_a, "device_id": "device_test_123"}).json()["ok"] is True
