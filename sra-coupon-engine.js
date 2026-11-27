@@ -407,6 +407,15 @@
           message: 'विशेष दैवज्ञ कूपन लागू! दक्षिणा ₹2,100 (₹3,000 की छूट)'
         };
       }
+      if (clean === 'SRA3100' || clean === 'NOV30' || clean === 'SANCTUARY3100') {
+        return {
+          valid: true,
+          code: code,
+          finalPrice: 3100,
+          discount: 2000,
+          message: 'विशेष 30 नवंबर कूपन लागू! दक्षिणा ₹3,100 (₹2,000 की छूट)'
+        };
+      }
       return { valid: false, code: code, message: 'कोड अमान्य है।' };
     },
 

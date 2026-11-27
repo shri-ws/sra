@@ -2030,6 +2030,50 @@
                 return;
             }
 
+            // Time-limited special slot coupon: SRA3100 / NOV30 (₹3,100, 10-min window, 30 Nov only)
+            const clean = code.replace(/[-_\s]/g, '');
+            if (clean === 'SRA3100' || clean === 'NOV30' || clean === 'SANCTUARY3100') {
+                const resDate = (document.getElementById('resDate') ? document.getElementById('resDate').value : '').trim();
+                // Check 1: 30 November Date restriction
+                if (!resDate || (!resDate.includes('30') || (!resDate.includes('Nov') && !resDate.includes('नवंबर')))) {
+                    consultationAmountPaise = 510000;
+                    appliedPromoCode = "";
+                    msg.style.color = "var(--fail-red, #b91c1c)";
+                    msg.textContent = "❌ यह कूपन कोड केवल 30 नवंबर 2026 के स्लॉट के लिए मान्य है। कृपया ऊपर कैलेंडर में 30 नवंबर का स्लॉट चुनें।";
+                    if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
+                    return;
+                }
+
+                // Check 2: 10-Minute Expiry restriction
+                const now = Date.now();
+                let startTime = parseInt(sessionStorage.getItem('sra_sra3100_start') || '0', 10);
+                if (!startTime) {
+                    startTime = now;
+                    sessionStorage.setItem('sra_sra3100_start', String(startTime));
+                }
+                const elapsedSeconds = Math.floor((now - startTime) / 1000);
+                const limitSeconds = 600; // 10 minutes
+                if (elapsedSeconds > limitSeconds) {
+                    consultationAmountPaise = 510000;
+                    appliedPromoCode = "";
+                    msg.style.color = "var(--fail-red, #b91c1c)";
+                    msg.textContent = "❌ इस विशेष कूपन कोड की 10 मिनट की समयावधि समाप्त हो चुकी है।";
+                    if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
+                    return;
+                }
+
+                const remainSec = limitSeconds - elapsedSeconds;
+                const remMin = Math.floor(remainSec / 60);
+                const remSec = remainSec % 60;
+
+                consultationAmountPaise = 310000;
+                appliedPromoCode = clean;
+                msg.style.color = "var(--pass-green, #15803D)";
+                msg.innerHTML = "✨ <b>विशेष 30 नवंबर कूपन लागू!</b> दक्षिणा: ₹3,100 (₹2,000 की तत्काल छूट)। शेष समय: " + remMin + " मिनट " + remSec + " सेकंड।";
+                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹3,100)</span>";
+                return;
+            }
+
             // Code box: validate coupon
             const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, 5100) : { valid: false, message: 'कोई कूपन कोड मान्य नहीं है।' };
             if (res.valid && res.finalPrice) {
@@ -2063,6 +2107,18 @@
             if (!resDate) {
                 alert("Please select a reserved date from the calendar.");
                 return;
+            }
+
+            if (['SRA3100', 'NOV30', 'SANCTUARY3100'].includes(appliedPromoCode)) {
+                if (!resDate.includes('30') || (!resDate.includes('Nov') && !resDate.includes('नवंबर'))) {
+                    alert("यह विशेष कूपन कोड केवल 30 नवंबर 2026 के स्लॉट के लिए मान्य है।");
+                    return;
+                }
+                const startTime = parseInt(sessionStorage.getItem('sra_sra3100_start') || '0', 10);
+                if (startTime && (Date.now() - startTime) > 600000) {
+                    alert("इस कूपन कोड की 10 मिनट की समय-सीमा समाप्त हो चुकी है। सामान्य दक्षिणा लागू होगी।");
+                    return;
+                }
             }
 
             const actualAmt = consultationAmountPaise / 100;
@@ -2456,7 +2512,15 @@
         window.addEventListener('DOMContentLoaded', () => {
             renderDynamicCalendar();
             loadApprovedReviews();
-            if (window.SraCouponEngine) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlCode = urlParams.get('coupon') || urlParams.get('code') || urlParams.get('c');
+            if (urlCode) {
+                const promoInput = document.getElementById('promoCodeInput');
+                if (promoInput) {
+                    promoInput.value = urlCode.toUpperCase();
+                    setTimeout(applyConsultationPromo, 300);
+                }
+            } else if (window.SraCouponEngine) {
                 const activeRef = window.SraCouponEngine.getActiveSutradharId();
                 if (activeRef) {
                     const promoInput = document.getElementById('promoCodeInput');
