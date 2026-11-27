@@ -571,7 +571,7 @@
         <span style="font-size:0.75rem; color:var(--muted);">कंसल्टेंट ID:</span>
         <b id="consultant-phone">—</b> <span id="consultant-plan" style="font-size:0.72rem; color:var(--muted);"></span>
       </div>
-      <button class="btn btn-outline btn-sm" id="monthly-cancel" style="display:none" onclick="cancelMonthly()" title="₹499 मासिक autopay बंद करें">मासिक autopay रद्द करें</button>
+      <button class="btn btn-outline btn-sm" id="monthly-cancel" style="display:none" onclick="cancelMonthly()" title="मासिक autopay बंद करें">मासिक autopay रद्द करें</button>
       <button class="btn btn-outline btn-sm" onclick="toggleTheme()" title="दिन/रात्रि मोड">थीम</button>
       <a href="patrika.html" class="btn btn-outline btn-sm">पत्रिका खोलें</a>
     </div>
@@ -882,13 +882,15 @@
       const until = me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') : '';
       let t = me.plan === 'owner' ? 'मुख्य खाता' : ('सदस्यता ' + (until ? until + ' तक' : 'चालू'));
       const running = m && ['active', 'authenticated', 'pending'].includes(m.status) && !m.cancel_requested;
-      if (m && me.plan !== 'owner') t += running ? ' · मासिक ₹499 autopay चालू' : (m.cancel_requested ? ' · मासिक autopay रद्द, आगे पैसा नहीं कटेगा' : '');
+      const price = (m && m.price) ? m.price : 499;
+      if (m && me.plan !== 'owner') t += running ? (' · मासिक ₹' + price + ' autopay चालू') : (m.cancel_requested ? ' · मासिक autopay रद्द, आगे पैसा नहीं कटेगा' : '');
       document.getElementById('consultant-plan').textContent = t;
       document.getElementById('monthly-cancel').style.display = running ? '' : 'none';
     }
 
     async function cancelMonthly() {
-      if (!confirm('मासिक ₹499 autopay बंद करें?\n\nआगे से पैसा नहीं कटेगा। जिस महीने का भुगतान हो चुका है, वह पूरा चलेगा, उसके बाद डेस्क और रिपोर्ट बंद हो जाएँगी।')) return;
+      const price = (window.deskMe && window.deskMe.monthly && window.deskMe.monthly.price) ? window.deskMe.monthly.price : 499;
+      if (!confirm('मासिक ₹' + price + ' autopay बंद करें?\n\nआगे से पैसा नहीं कटेगा। जिस महीने का भुगतान हो चुका है, वह पूरा चलेगा, उसके बाद डेस्क और रिपोर्ट बंद हो जाएँगी।')) return;
       const btn = document.getElementById('monthly-cancel');
       btn.disabled = true;
       try {
