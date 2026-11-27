@@ -1992,6 +1992,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="sra-currency.js?v=7"></script>
 <script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
   <style id="sra-layout">
@@ -2078,12 +2079,12 @@
             📱 आपका १०-अंकीय मोबाइल नंबर (WhatsApp / SMS अपडेट व रिपोर्ट सुरक्षा हेतु):
           </label>
           <div style="display: flex; gap: 8px;">
-            <span style="background: var(--card-subtle); border: 1px solid var(--border-gold); padding: 9px 12px; border-radius: 8px; font-weight: 800; color: var(--primary);">+91</span>
+            <span id="gatePhonePrefix" style="background: var(--card-subtle); border: 1px solid var(--border-gold); padding: 9px 12px; border-radius: 8px; font-weight: 800; color: var(--primary);">+91</span>
             <input type="tel" id="gateUserPhone" placeholder="उदा. 9876543210" maxlength="10" style="flex: 1; padding: 9px 14px; border: 1px solid var(--border-gold); border-radius: 8px; font-size: 15px; font-weight: 700; color: var(--text); background: var(--bg); outline: none; box-sizing: border-box;" />
           </div>
         </div>
         <button type="button" class="btn-hero-primary" onclick="triggerMegaParasharaRazorpayCheckout()" style="width: 100%; justify-content: center; padding: 14px 18px; font-size: 16px; border-radius: 12px;">
-          <span>🔒 Razorpay द्वारा ₹1111 भुगतान करें</span>
+          <span id="gatePayBtnText">🔒 Razorpay द्वारा ₹1111 भुगतान करें</span>
         </button>
         <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 8px; text-align: center;">
           🔒 100% सुरक्षित 256-bit Razorpay • Google Pay / PhonePe / Paytm / कार्ड / नेटबैंकिंग
@@ -3203,17 +3204,18 @@
       }
       localStorage.setItem('sra_verified_mobile', clientMobile);
 
-      const baseAmt = 1111;
+      const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
+      const baseAmt = isUsd ? 21 : 1111;
       const appliedDisc = 0;
       const finalAmt = baseAmt;
-      const finalPaise = finalAmt * 100;
+      const finalPaise = isUsd ? (21 * 100) : (1111 * 100);
       const sutradharRef = window._parasharaSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
       const couponUsed = window._parasharaCoupon || '';
 
       const options = {
         key: PARASHARA_RZP_KEY,
         amount: finalPaise,
-        currency: "INR",
+        currency: isUsd ? "USD" : "INR",
         name: "श्री रामजी एस्ट्रो",
         description: `मेगा पाराशर संहिता कुण्डली रिपोर्ट (सम्पूर्ण ९७ अध्याय) - ${clientName}` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
         image: "/logo.png",
@@ -3272,7 +3274,7 @@
           closeGateModal();
           updateAuthBadge();
           updateGenerateButtonState(currentSelectedKundali);
-          alert("🎉 धन्यवाद! आपका ₹1111 का दक्षिणा भुगतान सफल रहा। आपकी सम्पूर्ण ९७-अध्याय मेगा पाराशर रिपोर्ट अनलॉक हो चुकी है।");
+          alert(isUsd ? "🎉 Thank you! Your payment of $21 was successful. Your complete 97-chapter Mega Parashara report is unlocked." : "🎉 धन्यवाद! आपका ₹1111 का दक्षिणा भुगतान सफल रहा। आपकी सम्पूर्ण ९७-अध्याय मेगा पाराशर रिपोर्ट अनलॉक हो चुकी है।");
           generateMegaParasharaReport(true);
         },
         modal: {
@@ -3294,13 +3296,14 @@
     function updateAuthBadge() {
       const badge = document.getElementById('authStatusBadge');
       if (!badge) return;
+      const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
       if (isAuthorized()) {
-        badge.innerHTML = '✅ प्रीमियम रिपोर्ट अनलॉक्ड';
+        badge.innerHTML = isUsd ? '✅ Premium Report Unlocked' : '✅ प्रीमियम रिपोर्ट अनलॉक्ड';
         badge.style.background = 'rgba(22, 101, 52, 0.15)';
         badge.style.color = '#15803d';
         badge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
       } else {
-        badge.innerHTML = '🔑 अनलॉक रिपोर्ट (₹1111)';
+        badge.innerHTML = isUsd ? '🔑 Unlock Report ($21)' : '🔑 अनलॉक रिपोर्ट (₹1111)';
         badge.style.background = 'rgba(212, 175, 55, 0.15)';
         badge.style.color = 'var(--gold-dark)';
         badge.style.borderColor = 'var(--border-gold)';
@@ -3310,10 +3313,19 @@
     function openGateModal() {
       const overlay = document.getElementById('gateOverlay');
       if (overlay) overlay.style.display = 'flex';
+      const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
+      const btnText = document.getElementById('gatePayBtnText');
+      if (btnText) btnText.textContent = isUsd ? '🔒 Pay $21 via Razorpay' : '🔒 Razorpay द्वारा ₹1111 भुगतान करें';
+      const pfx = document.getElementById('gatePhonePrefix');
+      if (pfx) pfx.style.display = isUsd ? 'none' : 'block';
       const phoneInput = document.getElementById('gateUserPhone');
       if (phoneInput) {
+        if (isUsd) {
+          phoneInput.placeholder = 'Mobile with country code, e.g. +1 555 123 4567';
+          phoneInput.maxLength = 16;
+        }
         const savedPhone = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '');
-        if (savedPhone.length === 10) phoneInput.value = savedPhone;
+        if (savedPhone) phoneInput.value = savedPhone;
       }
       const input = document.getElementById('gatePasscodeInput');
       if (input) {

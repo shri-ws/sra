@@ -855,6 +855,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="/sra-currency.js?v=7"></script>
 <script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
   <script src="sra-config.js"></script>
@@ -1896,19 +1897,20 @@
                 return;
             }
             try {
-                const basePrice = 1551;
+                const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
+                const basePrice = isUsd ? 31 : 1551;
                 const appliedDisc = 0;
                 const finalAmt = Math.max(0, basePrice - appliedDisc);
-                const finalPaise = finalAmt * 100;
+                const finalPaise = isUsd ? (31 * 100) : (finalAmt * 100);
                 const sutradharRef = window._muhuratSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
                 const couponUsed = window._muhuratCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
 
                 const options = {
                     key: RZP_KEY,
                     amount: finalPaise,
-                    currency: "INR",
+                    currency: isUsd ? "USD" : "INR",
                     name: "Shri Ramji Astro",
-                    description: "20-Min VIP Engine Access — Yajnopavita Muhurta Engine" + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
+                    description: isUsd ? ("20-Min VIP Engine Access — Yajnopavita Muhurta Engine" + (couponUsed ? ` [Code: ${couponUsed}]` : '')) : ("20-Min VIP Engine Access — Yajnopavita Muhurta Engine" + (couponUsed ? ` [कूपन: ${couponUsed}]` : '')),
                     prefill: {
                         name: "VIP Client"
                     },

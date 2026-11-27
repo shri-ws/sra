@@ -70,29 +70,46 @@
       return !tz || /^Asia\/(Kolkata|Calcutta)$/.test(tz);
     } catch (e) { return true; }
   }
-  // Prices shown follow where the visitor is (25 Nov 2026, owner's rule): India always rupees, abroad the
-  // local currency. Nothing is remembered across visits any more — an old saved "USD" (e.g. from a Global
-  // Eleven link) had made Indian visitors see dollars on Hindi pages. ?cur=xxx (testing) lasts for this tab
-  // only. The payer can still pick any currency at the payment step (sra-coupon-engine.js chooseCurrency).
+
+  function isEnglishVersion() {
+    if (location.pathname.indexOf('/en/') !== -1) return true;
+    if (/[?&]cur=usd\b/i.test(location.search)) return true;
+    if (/[?&]lang=en\b/i.test(location.search)) return true;
+    try {
+      if (document.documentElement.getAttribute('lang') === 'en') return true;
+      if (localStorage.getItem('sra_lang') === 'en') return true;
+    } catch (e) {}
+    return false;
+  }
+
   try { localStorage.removeItem(KEY); } catch (e) {}
   function get() {
     if (skipPage) return 'INR';
     var m = location.search.match(/[?&]cur=([a-z]{3})\b/i);
-    if (m && ok(m[1].toUpperCase())) { try { sessionStorage.setItem(KEY, m[1].toUpperCase()); } catch (e) {} return m[1].toUpperCase(); }
-    try { var v = sessionStorage.getItem(KEY); if (ok(v)) return v; } catch (e) {}
-    return inIndia() ? 'INR' : localCurrency();
+    if (m && ok(m[1].toUpperCase())) {
+      var sel = m[1].toUpperCase();
+      try { sessionStorage.setItem(KEY, sel); } catch (e) {}
+      return sel;
+    }
+    try {
+      var v = sessionStorage.getItem(KEY);
+      if (ok(v)) return v;
+    } catch (e) {}
+
+    // English version or English language preference -> Always US Dollars (USD)
+    if (isEnglishVersion()) return 'USD';
+
+    // Foreign visitors: USA, UK, Canada, Europe, or any country outside India -> US Dollars (USD)
+    if (!inIndia()) return 'USD';
+
+    return 'INR';
   }
   function ok(c) { return c === 'INR' || !!TABLE[c]; }
   function localCurrency() {
-    if (inEuroCountry()) return 'EUR';
-    try {
-      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      for (var i = 0; i < LOCAL_TZ.length; i++) if (LOCAL_TZ[i][1].test(tz)) return LOCAL_TZ[i][0];
-    } catch (e) {}
     return 'USD';
   }
   function inEuroCountry() {
-    try { return EURO_TZ.test(Intl.DateTimeFormat().resolvedOptions().timeZone || ''); } catch (e) { return false; }
+    return false;
   }
   var cur = get();
   function inCur(inr, c) {

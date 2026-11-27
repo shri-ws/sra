@@ -307,6 +307,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="/sra-currency.js?v=7"></script>
 <script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -568,14 +569,15 @@
   };
 
   window.gmPayManglik = function () {
-    var bn = (window.__gmBoy && window.__gmBoy.name) || 'वर';
-    var gn = (window.__gmGirl && window.__gmGirl.name) || 'वधू';
+    var isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
+    var bn = (window.__gmBoy && window.__gmBoy.name) || (isUsd ? 'Groom' : 'वर');
+    var gn = (window.__gmGirl && window.__gmGirl.name) || (isUsd ? 'Bride' : 'वधू');
     // Amount, order and lead come from the server order
     window.SraCouponEngine.openServerCheckout({
       serviceId: 'gun_milan_manglik',
       name: bn + ' × ' + gn,
       code: window._gmMilanCoupon || '',
-      description: 'संयुक्त मांगलिक मिलान — ' + bn + ' × ' + gn,
+      description: isUsd ? ('Joint Manglik Matching — ' + bn + ' × ' + gn) : ('संयुक्त मांगलिक मिलान — ' + bn + ' × ' + gn),
       notes: { report_type: 'gun_milan_manglik' },
       onSuccess: function (resp) { gmUnlockManglik(resp.razorpay_payment_id || 'RZP_SUCCESS'); }
     });

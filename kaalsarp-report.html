@@ -130,6 +130,7 @@
 <script src="sra-config.js"></script>
 <script src="sra-auth.js"></script>
 <script src="sra-records.js"></script>
+<script src="/sra-currency.js?v=7"></script>
 <script src="sra-coupon-engine.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="patrikaEngineBridge.js?v=13"></script>
@@ -495,7 +496,11 @@
     return !!r.ok;
   }
   let allowedRef = null;   // make() renders only for the kundali the server just confirmed
-  const phoneVal = () => ($('phoneIn').value || '').replace(/\D/g, '').slice(-10);
+  const isAbroad = () => (window.SRACurrency && window.SRACurrency.get() !== 'INR');
+  const phoneVal = () => {
+    const raw = ($('phoneIn').value || '').replace(/\D/g, '');
+    return isAbroad() ? (raw.length > 10 ? raw.slice(-15) : raw) : raw.slice(-10);
+  };
   let lead = null, coupon = '', paidAmount = null;
   try { $('phoneIn').value = (localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10); } catch (e) {}
 
@@ -505,7 +510,11 @@
     const k = selected();
     if (!k) { $('status').textContent = 'पहले पत्रिका पर कुंडली बनाएँ।'; return; }
     const ph = phoneVal();
-    if (ph.length !== 10) { $('status').textContent = 'कृपया 10 अंकों का मोबाइल नंबर डालें।'; $('phoneIn').focus(); return; }
+    if (isAbroad() ? (ph.length < 7 || ph.length > 15) : ph.length !== 10) {
+      $('status').textContent = isAbroad() ? 'Please enter a valid mobile number with country code.' : 'कृपया 10 अंकों का मोबाइल नंबर डालें।';
+      $('phoneIn').focus();
+      return;
+    }
     try { localStorage.setItem('sra_verified_mobile', ph); localStorage.setItem('sra_user_phone', ph); } catch (e) {}
     $('status').textContent = '⏳ भुगतान की स्थिति जाँची जा रही है…';
     let paid = false;

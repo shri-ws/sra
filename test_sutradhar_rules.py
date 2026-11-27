@@ -699,7 +699,7 @@ def test_more_local_currencies_russia_china_gulf():
 
 
 def test_ip_country_decides_the_currency(monkeypatch):
-    # 25 Nov 2026: India pays in rupees, abroad in the local currency, whatever the page asked for
+    # 27 Nov 2026: India pays in rupees; USA, UK, Canada, Europe & all abroad in US dollars
     buyer = "9822200093"
     hdr = {"Authorization": f"Bearer mock_token_{buyer}"}
     make = lambda cur, sid="muhurta_vyapar": client.post("/api/sutradhar/orders/create", headers=hdr,
@@ -708,15 +708,15 @@ def test_ip_country_decides_the_currency(monkeypatch):
     o = make("INR")                                        # Indian time zone set on a phone in the USA
     assert o["currency"] == "USD" and o["amount"] == 31 * 100, o
     monkeypatch.setattr(se, "visitor_country", lambda request: "DE")
-    assert make("INR")["currency"] == "EUR"
+    assert make("INR")["currency"] == "USD"
     monkeypatch.setattr(se, "visitor_country", lambda request: "RU")
-    assert make("USD")["currency"] == "RUB"
-    monkeypatch.setattr(se, "visitor_country", lambda request: "BR")   # no local table: US dollars
+    assert make("USD")["currency"] == "USD"
+    monkeypatch.setattr(se, "visitor_country", lambda request: "BR")   # abroad: US dollars
     assert make("INR")["currency"] == "USD"
     monkeypatch.setattr(se, "visitor_country", lambda request: "IN")
     o = make("USD")                                        # Indian visitor never pays in dollars
     assert o["currency"] == "INR" and o["amount"] == 1551 * 100, o
-    q = client.post("/api/sutradhar/quote", json={"customer_phone": buyer, "service_id": "muhurta_vyapar", "currency": "EUR"}).json()
+    q = client.post("/api/sutradhar/quote", json={"customer_phone": buyer, "service_id": "muhurta_vyapar", "currency": "USD"}).json()
     assert q["currency"] == "INR" and q["display_price"] == "₹1,551"
     monkeypatch.setattr(se, "visitor_country", lambda request: "FR")
     assert make("INR", "astrologer_saas")["currency"] == "USD"           # membership abroad: dollars only

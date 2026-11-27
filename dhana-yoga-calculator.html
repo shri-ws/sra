@@ -954,6 +954,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="/sra-currency.js?v=7"></script>
 <script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 <script src="sra-analytics.js" defer></script>
@@ -1629,22 +1630,24 @@
       executeDhanCalculation(input);
     }
 
-    // Razorpay Checkout for Dhana Yoga (₹501)
+    // Razorpay Checkout for Dhana Yoga (₹501 / $11 USD)
     function triggerDhanRazorpayCheckout() {
       if (!pendingDhanInput) {
         alert('कृपया पहले जन्म विवरण दर्ज करें।');
         closeDhanPaymentModal();
         return;
       }
+      const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
       const clientName = pendingDhanInput.name || "जातक";
-      const clientMobile = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '').slice(-10);
+      const rawPhone = (localStorage.getItem('sra_verified_mobile') || (pendingDhanInput && pendingDhanInput.phone) || '').replace(/\D/g, '');
+      const clientMobile = isUsd ? (rawPhone.length > 10 ? rawPhone.slice(-15) : rawPhone) : rawPhone.slice(-10);
       // Amount and lead come from the server order
       window.SraCouponEngine.openServerCheckout({
         serviceId: 'dhana_yoga',
         phone: clientMobile,
         name: clientName,
         code: window._dhanCoupon || '',
-        description: `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName}`,
+        description: isUsd ? `Dhana Yoga & Lakshmi Yoga Report - ${clientName}` : `सर्वाधिक सटीक धन योग एवं लक्ष्मी योग रिपोर्ट - ${clientName}`,
         notes: { report_type: 'dhana_yoga_report' },
         onSuccess: function(response, order) {
           window._dhanPaidAmount = order ? order.net_price : null;

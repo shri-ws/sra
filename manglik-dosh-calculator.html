@@ -131,6 +131,7 @@
     }
   </script>
   <script src="sra-config.js"></script>
+  <script src="/sra-currency.js?v=7"></script>
   <script src="sra-coupon-engine.js" defer></script>
   <script src="/patrikaEngineBridge.js?v=13"></script>
   <script src="/mangalDoshaService.js?v=13"></script>
@@ -2460,15 +2461,17 @@
 
     // Razorpay Checkout: amount and lead come from the server order
     function triggerManglikRazorpayCheckout() {
+      const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
       const clientName = (currentSelectedKundali && currentSelectedKundali.name) || "जातक";
       const phoneInput = document.getElementById('inMangalPhone') || document.getElementById('mangalPhone');
-      const clientMobile = ((phoneInput && phoneInput.value) || localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
+      const rawMobile = ((phoneInput && phoneInput.value) || localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '');
+      const clientMobile = isUsd ? (rawMobile.length > 10 ? rawMobile.slice(-15) : rawMobile) : rawMobile.slice(-10);
       window.SraCouponEngine.openServerCheckout({
         serviceId: 'mangal_dosha',
         phone: clientMobile,
         name: clientName,
         code: window._manglikCoupon || '',
-        description: `प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट - ${clientName}`,
+        description: isUsd ? `Classical Manglik Dosha & 21 Cancellations Report - ${clientName}` : `प्रामाणिक मंगल दोष एवं २१ परिहार रिपोर्ट - ${clientName}`,
         notes: { report_type: 'mangal_dosha_report' },
         onSuccess: function(response, order) {
           window._manglikPaidAmount = order ? order.net_price : null;

@@ -689,8 +689,11 @@ async function pay(){
   try {
     const curSuffix = curTag();
     const cleanPhone = phone.replace(/[^\d+]/g, '');
+    const isForeign = isUSD();
+    const rzpCurrency = isForeign ? curNow() : 'INR';
+    const rzpAmount = isForeign ? (SRACurrency.price(S.total) * 100) : (S.total * 100);
     const options={
-      key:RZP_KEY, amount:S.total*100, currency:'INR',
+      key:RZP_KEY, amount:rzpAmount, currency:rzpCurrency,
       name:'Shri Ramji Astro', description:S.name,
       prefill:{name:fname+' '+lname,email,contact:cleanPhone},
       theme:{color:'#c9a84c'},

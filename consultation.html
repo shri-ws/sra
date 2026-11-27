@@ -1141,6 +1141,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="/sra-currency.js?v=7"></script>
 <script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 <script src="sra-analytics.js" defer></script>
@@ -2121,7 +2122,9 @@
                 }
             }
 
-            const actualAmt = consultationAmountPaise / 100;
+            const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
+            const consultationAmount = isUsd ? (consultationAmountPaise === 0 ? 0 : 10100) : consultationAmountPaise;
+            const actualAmt = consultationAmount / 100;
 
             if (appliedPromoCode === "MASTER") {
                 saveConsultationBooking({
@@ -2136,13 +2139,13 @@
 
             const options = {
                 "key": RZP_KEY,
-                "amount": consultationAmountPaise.toString(), // ₹5,100 or ₹1 in paise
-                "currency": "INR",
+                "amount": consultationAmount.toString(),
+                "currency": isUsd ? "USD" : "INR",
                 "name": "Shri Ramji Astro",
                 "description": `1-on-1 Sanctuary Consultation Session (${resDate})` + (appliedPromoCode ? ` [Code: ${appliedPromoCode}]` : ''),
                 "image": "https://shriramjiastro.in/logo.jpg",
                 "handler": function (response, order) {
-                    const actualAmt = (order && order.net_price) || 5100;
+                    const paidAmt = (order && order.net_price) || actualAmt;
                     saveConsultationBooking({
                         razorpay_payment_id: response.razorpay_payment_id,
                         client_name: clientName,
@@ -2152,9 +2155,9 @@
                         tob: clientTob,
                         location: clientLocation,
                         inquiry: clientInquiry,
-                        context: clientContext + (appliedPromoCode ? ` [Promo Applied: ${appliedPromoCode} Paid ₹${actualAmt}]` : ''),
+                        context: clientContext + (appliedPromoCode ? ` [Promo Applied: ${appliedPromoCode} Paid ${isUsd ? '$' : '₹'}${paidAmt}]` : ''),
                         reserved_date: resDate,
-                        amount_paid: actualAmt
+                        amount_paid: paidAmt
                     });
                 },
                 "prefill": {

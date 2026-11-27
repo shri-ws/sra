@@ -958,6 +958,7 @@
 <script src="sra-translate.js" defer></script>
 <script src="sra-nav.js" defer></script>
 <script src="sra-master.js" defer></script>
+<script src="/sra-currency.js?v=7"></script>
 <script src="sra-coupon-engine.js" defer></script>
 <script src="sra-i18n.js" defer></script>
 <script src="sra-analytics.js" defer></script>
@@ -1749,19 +1750,20 @@
                 return;
             }
             try {
-                const basePrice = 2100;
+                const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
+                const basePrice = isUsd ? 41 : 2100;
                 const appliedDisc = 0;
                 const finalAmt = Math.max(0, basePrice - appliedDisc);
-                const finalPaise = finalAmt * 100;
+                const finalPaise = isUsd ? (41 * 100) : (finalAmt * 100);
                 const sutradharRef = window._muhuratSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
                 const couponUsed = window._muhuratCoupon || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
 
                 const options = {
                     key: RZP_KEY,
                     amount: finalPaise,
-                    currency: 'INR',
+                    currency: isUsd ? 'USD' : 'INR',
                     name: 'Shri Ramji Astro',
-                    description: 'VIP Vivah Muhurt & Matchmaking (20-Min Engine Access)' + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
+                    description: isUsd ? ('VIP Vivah Muhurt & Matchmaking (20-Min Engine Access)' + (couponUsed ? ` [Code: ${couponUsed}]` : '')) : ('VIP Vivah Muhurt & Matchmaking (20-Min Engine Access)' + (couponUsed ? ` [कूपन: ${couponUsed}]` : '')),
                     prefill: {
                         name: 'VIP Client' },
                     theme: { color: '#C5A059' },

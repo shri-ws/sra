@@ -248,10 +248,9 @@ def currency_for_visitor(request: Optional["Request"], asked: str, service_id: s
     cc = visitor_country(request)
     if not cc:
         return asked
-    cur = "INR" if cc == "IN" else ("EUR" if cc in EURO_COUNTRIES else COUNTRY_CURRENCY.get(cc, "USD"))
-    if cur != "INR" and service_id in ("astrologer_saas", "astrologer_saas_renewal"):
-        cur = "USD"            # astrologer membership abroad: US dollars only
-    return cur
+    if cc == "IN":
+        return "USD" if service_id == "course_global_eleven" else "INR"
+    return "USD"
 
 
 def resolve_service_id(service_id: str) -> str:
@@ -1333,6 +1332,22 @@ COURSE_BATCHES = {
         "price_usd": 451,
         "service_id": "consultation_gurukul",
     },
+    "batch_morning": {
+        "name": "फ़ाउंडेशन एस्ट्रोलॉजिकल बैच",
+        "name_en": "Foundation Astrological Batch",
+        "seats": 11,
+        "price": 24000,
+        "price_usd": 451,
+        "service_id": "consultation_gurukul",
+    },
+    "batch_evening": {
+        "name": "मास्टर एस्ट्रोलॉजिकल बैच",
+        "name_en": "Master Astrological Batch",
+        "seats": 11,
+        "price": 24000,
+        "price_usd": 451,
+        "service_id": "consultation_gurukul",
+    },
 }
 _course_lock = threading.Lock()
 
@@ -1368,10 +1383,8 @@ def course_seat_counts() -> Dict[str, Dict[str, int]]:
 
 def hold_course_seat(batch_id: str, phone: str, name: str) -> str:
     """Reserves one seat for this phone (replacing its earlier hold) or refuses when the batch is full."""
-    if batch_id in ("batch_morning", "batch_evening"):
-        batch_id = "batch_indian"
     if not batch_id:
-        batch_id = "batch_global_eleven"
+        raise HTTPException(status_code=400, detail="कृपया मान्य बैच चुनें: The Global Eleven या भारतीय शास्त्रीय बैच।")
     if batch_id not in COURSE_BATCHES:
         raise HTTPException(status_code=400, detail="कृपया मान्य बैच चुनें: The Global Eleven या भारतीय शास्त्रीय बैच।")
     if not course_registration_open():
@@ -1527,7 +1540,10 @@ async def create_razorpay_order(req: CreateOrderRequest, request: Request, autho
     seat_id = ""
     if service_id in (COURSE_SERVICE_ID, GLOBAL_ELEVEN_SERVICE_ID):
         seat_phone = effective_phone if effective_phone != "9999999999" else (body_phone or "")
-        seat_id = hold_course_seat((req.batch_id or "").strip(), seat_phone, req.customer_name or "")
+        batch = (req.batch_id or "").strip()
+        if not batch and service_id == GLOBAL_ELEVEN_SERVICE_ID:
+            batch = "batch_global_eleven"
+        seat_id = hold_course_seat(batch, seat_phone, req.customer_name or "")
         effective_phone = seat_phone
     if is_test_order:
         # Master-code test payments never earn a commission

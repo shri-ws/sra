@@ -3259,6 +3259,7 @@
 <script src="kundali-print.js?v=7" defer></script>
 <script src="panchang-subscribe.js?v=7" defer></script>
   <script src="sra-config.js"></script>
+  <script src="/sra-currency.js?v=7"></script>
   <script src="sra-coupon-engine.js" defer></script>
   <script src="patrikaEngineBridge.js?v=17"></script>
 <script src="sra-analytics.js" defer></script>
@@ -7703,18 +7704,19 @@ async function triggerParasharaRazorpayCheckout() {
     : "पाराशर VIP जातक";
   const clientMobile = (window.SraCouponEngine ? window.SraCouponEngine.guessPhone() : '');
 
+  const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
   const appliedDisc = 0;
-  const finalAmt = 501;
-  const finalPaise = finalAmt * 100;
+  const finalAmt = isUsd ? 11 : 501;
+  const finalPaise = isUsd ? (11 * 100) : (501 * 100);
   const couponUsed = window._parasharaCoupon || '';
   const sutradharRef = window._parasharaSutradhar || (window.SraCouponEngine ? window.SraCouponEngine.getActiveSutradharId() : '');
 
   const options = {
     key: PARASHARA_RZP_KEY,
     amount: finalPaise,
-    currency: "INR",
+    currency: isUsd ? "USD" : "INR",
     name: "Shri Ramji Astro",
-    description: `${reportTitle} (₹${finalAmt} आजीवन एक्सेस)` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
+    description: `${reportTitle} (${isUsd ? '$11' : '₹501'} ${isUsd ? 'Lifetime Access' : 'आजीवन एक्सेस'})` + (couponUsed ? ` [कूपन: ${couponUsed}]` : ''),
     prefill: {
       name: clientName,
       contact: clientMobile || ''
