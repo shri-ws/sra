@@ -571,7 +571,7 @@
         <span style="font-size:0.75rem; color:var(--muted);">कंसल्टेंट ID:</span>
         <b id="consultant-phone">—</b> <span id="consultant-plan" style="font-size:0.72rem; color:var(--muted);"></span>
       </div>
-      <button class="btn btn-outline btn-sm" id="monthly-cancel" style="display:none" onclick="cancelMonthly()" title="मासिक autopay बंद करें">मासिक autopay रद्द करें</button>
+      <button class="btn btn-outline btn-sm" onclick="openSettingsModal()" title="खाता व सेटिंग्स">⚙️ सेटिंग्स</button>
       <button class="btn btn-outline btn-sm" onclick="toggleTheme()" title="दिन/रात्रि मोड">थीम</button>
       <a href="patrika.html" class="btn btn-outline btn-sm">पत्रिका खोलें</a>
     </div>
@@ -815,6 +815,42 @@
     </div>
   </div>
 
+  <!-- Modal: Account Settings -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span>दैवज्ञ डेस्क खाता व सेटिंग्स</span>
+        <button onclick="closeSettingsModal()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text);">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size:0.85rem;">
+        <div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+          <div style="color:var(--muted); font-size:0.75rem;">कंसल्टेंट आईडी (पंजीकृत मोबाइल):</div>
+          <b id="settings-phone" style="font-size:0.95rem;">—</b>
+          <div id="settings-plan-info" style="margin-top:4px; color:var(--accent); font-weight:600; font-size:0.8rem;"></div>
+        </div>
+
+        <div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+          <div style="color:var(--muted); font-size:0.75rem; margin-bottom:2px;">डिवाइस व सुरक्षा:</div>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">आपकी सदस्यता एक साथ 2 फ़ोन/कंप्यूटर पर अधिकृत है।</p>
+        </div>
+
+        <!-- Nested Collapsible Section for AutoPay cancellation -->
+        <details style="margin-top:6px; border:1px solid var(--border); border-radius:6px; padding:8px 10px; background:var(--bg-panel);">
+          <summary style="cursor:pointer; font-size:0.78rem; color:var(--muted); font-weight:600;">उन्नत सदस्यता व बिलिंग सेटिंग्स</summary>
+          <div style="margin-top:10px; font-size:0.76rem; color:var(--muted); line-height:1.4;">
+            <p style="margin-bottom:8px;">मासिक सदस्यता का नवीनीकरण ऑटोपे द्वारा हर माह होता है। यदि आप अपनी सदस्यता को समाप्त करना चाहते हैं:</p>
+            <div style="text-align:right;">
+              <button class="btn btn-outline btn-sm" id="monthly-cancel" style="display:none; color:var(--muted); font-size:0.72rem; padding:4px 8px;" onclick="cancelMonthly()" title="मासिक autopay बंद करें">मासिक autopay रद्द करें</button>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="closeSettingsModal()">बंद करें</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast notification -->
   <div class="toast" id="toast"></div>
 
@@ -876,7 +912,7 @@
       loadClientsForConsultant(back || undefined);
     }
 
-    // Plan line in the header; a running ₹499 monthly plan gets a cancel button (24 Nov 2026)
+    // Plan line in the header; a running monthly plan gets a cancel button inside settings (24 Nov 2026)
     function showPlan(me) {
       const m = me.monthly;
       const until = me.expires_at ? new Date(me.expires_at).toLocaleDateString('hi-IN') : '';
@@ -885,7 +921,22 @@
       const price = (m && m.price) ? m.price : 499;
       if (m && me.plan !== 'owner') t += running ? (' · मासिक ₹' + price + ' autopay चालू') : (m.cancel_requested ? ' · मासिक autopay रद्द, आगे पैसा नहीं कटेगा' : '');
       document.getElementById('consultant-plan').textContent = t;
-      document.getElementById('monthly-cancel').style.display = running ? '' : 'none';
+      const cancelBtn = document.getElementById('monthly-cancel');
+      if (cancelBtn) cancelBtn.style.display = running ? 'inline-block' : 'none';
+
+      const sPhone = document.getElementById('settings-phone');
+      if (sPhone) sPhone.textContent = '+91 ' + me.phone;
+      const sPlan = document.getElementById('settings-plan-info');
+      if (sPlan) sPlan.textContent = t;
+    }
+
+    function openSettingsModal() {
+      const el = document.getElementById('settings-modal');
+      if (el) el.style.display = 'flex';
+    }
+    function closeSettingsModal() {
+      const el = document.getElementById('settings-modal');
+      if (el) el.style.display = 'none';
     }
 
     async function cancelMonthly() {
