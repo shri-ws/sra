@@ -6980,6 +6980,58 @@ const SOUTH_BOX_SIGNS = [
   { s: 8,  x: 5, y: 297.5 }, { s: 7, x: 102.5, y: 297.5 },{ s: 6, x: 200, y: 297.5 },{ s: 5, x: 297.5, y: 297.5 }
 ];
 
+const NORTH_HOUSE_POLYGONS = {
+  1:  "200,5 297.5,102.5 200,200 102.5,102.5",
+  2:  "5,5 200,5 102.5,102.5",
+  3:  "5,5 102.5,102.5 5,200",
+  4:  "5,200 102.5,102.5 200,200 102.5,297.5",
+  5:  "5,200 102.5,297.5 5,395",
+  6:  "5,395 102.5,297.5 200,395",
+  7:  "200,200 297.5,297.5 200,395 102.5,297.5",
+  8:  "200,395 297.5,297.5 395,395",
+  9:  "297.5,297.5 395,200 395,395",
+  10: "200,200 297.5,102.5 395,200 297.5,297.5",
+  11: "297.5,102.5 395,5 395,200",
+  12: "200,5 395,5 297.5,102.5"
+};
+
+let chartRotationOffset = 0;
+
+function rotateChartByHouse(h) {
+  if (!currentCalculation || !currentCalculation.planets) return;
+  chartRotationOffset = (h === 1 && chartRotationOffset !== 0) ? 0 : (chartRotationOffset + h - 1) % 12;
+  rerenderRotatedCharts();
+}
+
+function rotateChartToSign(targetSign, baseLagnaSign) {
+  if (!currentCalculation || !currentCalculation.planets) return;
+  const nextOffset = (targetSign - baseLagnaSign + 12) % 12;
+  chartRotationOffset = (nextOffset === chartRotationOffset && chartRotationOffset !== 0) ? 0 : nextOffset;
+  rerenderRotatedCharts();
+}
+
+function resetChartRotation() {
+  chartRotationOffset = 0;
+  rerenderRotatedCharts();
+}
+
+function rerenderRotatedCharts() {
+  if (typeof drawnChartSlides !== 'undefined' && drawnChartSlides.clear) drawnChartSlides.clear();
+  renderRasiAndChalitCharts();
+  if (typeof renderSelectedVargaCharts === 'function' && currentChartSlide === 4) {
+    renderSelectedVargaCharts();
+  }
+  if (typeof updateActiveViewHeader === 'function') updateActiveViewHeader(currentOutputDomain, currentChartSlide);
+}
+
+function northHouseHitLayer(h) {
+  return `<polygon points="${NORTH_HOUSE_POLYGONS[h]}" fill="transparent" style="cursor:pointer;" onclick="rotateChartByHouse(${h})"><title>भाव ${h} को लग्न बनाएं (Click to rotate)</title></polygon>`;
+}
+
+function southSignHitLayer(b, baseLagnaSign) {
+  return `<rect x="${b.x}" y="${b.y}" width="97.5" height="97.5" fill="transparent" style="cursor:pointer;" onclick="rotateChartToSign(${b.s}, ${baseLagnaSign})"><title>${SIGNS[b.s]} को लग्न बनाएं (Click to rotate)</title></rect>`;
+}
+
 function drawNorthBase(svgId) {
   const svg = document.getElementById(svgId);
   if (!svg) return;
@@ -7008,71 +7060,88 @@ function drawSouthBase(svgId) {
 
 function renderRasiAndChalitCharts() {
   const { planets, lagnaSign, sripatiBhavas } = currentCalculation;
+  const off = chartRotationOffset || 0;
+  const effLagnaSign = (lagnaSign + off) % 12;
+  const origLagnaHouse = (1 - off + 12) % 12 || 12;
 
   // 1. North Rasi Chart
   drawNorthBase("northRasiSvg");
   const nRasiSvg = document.getElementById("northRasiSvg");
   for (let h = 1; h <= 12; h++) {
-    const sNum = (lagnaSign + h - 1) % 12 + 1;
+    const sNum = (effLagnaSign + h - 1) % 12 + 1;
     const pt = NORTH_HOUSE_COORDS[h];
     nRasiSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
     const occ = [];
-    if (h === 1) occ.push("लग्न");
-    planets.filter(p => p.id !== "Lagna" && p.rasiHouse === h).forEach(p => {
+    if (h === 1) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+    else if (off && h === origLagnaHouse) occ.push("मूल-लग्न");
+    planets.filter(p => p.id !== "Lagna" && ((p.rasiHouse - off - 1 + 12) % 12 + 1) === h).forEach(p => {
       occ.push(`${p.name}${p.retro ? '*' : ''}`);
     });
     nRasiSvg.innerHTML += northOccupants(pt, h, occ, "var(--chart-text)", 11);
+    nRasiSvg.innerHTML += northHouseHitLayer(h);
   }
 
   // 2. North Chalit Chart
   drawNorthBase("northChalitSvg");
   const nChalitSvg = document.getElementById("northChalitSvg");
   for (let h = 1; h <= 12; h++) {
-    const bhavaData = sripatiBhavas[h - 1];
+    const origH = (h + off - 1) % 12 + 1;
+    const bhavaData = sripatiBhavas[origH - 1];
     const sNum = bhavaData.midSign + 1;
     const pt = NORTH_HOUSE_COORDS[h];
     nChalitSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
     const occ = [];
-    if (h === 1) occ.push("लग्न");
-    planets.filter(p => p.id !== "Lagna" && p.chalitHouse === h).forEach(p => {
+    if (h === 1) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+    else if (off && h === origLagnaHouse) occ.push("मूल-लग्न");
+    planets.filter(p => p.id !== "Lagna" && ((p.chalitHouse - off - 1 + 12) % 12 + 1) === h).forEach(p => {
       occ.push(`${p.name}${p.retro ? '*' : ''}`);
     });
     nChalitSvg.innerHTML += northOccupants(pt, h, occ, "#0f766e", 11);
+    nChalitSvg.innerHTML += northHouseHitLayer(h);
   }
 
   // 3. South Rasi Chart
   drawSouthBase("southRasiSvg");
   const sRasiSvg = document.getElementById("southRasiSvg");
   SOUTH_BOX_SIGNS.forEach(b => {
-    const isLagna = (b.s === lagnaSign);
-    sRasiSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+    const isLagna = (b.s === effLagnaSign);
+    const isOrigLagna = (off && b.s === lagnaSign);
+    const rotH = (b.s - effLagnaSign + 12) % 12 + 1;
+    sRasiSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}${off ? ' · H' + rotH : ''}</text>`;
     if (isLagna) {
       sRasiSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
     }
     const occ = [];
-    if (isLagna) occ.push("लग्न");
+    if (isLagna) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+    else if (isOrigLagna) occ.push("मूल-लग्न");
     planets.filter(p => p.id !== "Lagna" && p.sign === b.s).forEach(p => {
       occ.push(`${p.name}${p.retro ? '*' : ''}`);
     });
     sRasiSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
+    sRasiSvg.innerHTML += southSignHitLayer(b, lagnaSign);
   });
 
   // 4. South Chalit Chart
   drawSouthBase("southChalitSvg");
   const sChalitSvg = document.getElementById("southChalitSvg");
   SOUTH_BOX_SIGNS.forEach(b => {
-    const isLagna = (b.s === lagnaSign);
-    sChalitSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+    const isLagna = (b.s === effLagnaSign);
+    const isOrigLagna = (off && b.s === lagnaSign);
+    const rotH = (b.s - effLagnaSign + 12) % 12 + 1;
+    sChalitSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}${off ? ' · H' + rotH : ''}</text>`;
     if (isLagna) {
       sChalitSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
     }
 
     const occ = [];
-    if (isLagna) occ.push("लग्न");
+    if (isLagna) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+    else if (isOrigLagna) occ.push("मूल-लग्न");
     planets.filter(p => p.id !== "Lagna" && p.sign === b.s).forEach(p => {
-      occ.push(`${p.name}[H${p.chalitHouse}]${p.retro ? '*' : ''}`);
+      const ch = (p.chalitHouse - off - 1 + 12) % 12 + 1;
+      occ.push(`${p.name}[H${ch}]${p.retro ? '*' : ''}`);
     });
     sChalitSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="#0f766e" font-size="10" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
+    sChalitSvg.innerHTML += southSignHitLayer(b, lagnaSign);
   });
 
   // Render D9 Navamsha and D10 Dasamsa for carousel slides
@@ -7133,10 +7202,27 @@ function updateActiveViewHeader(domain, slideIdx, vargaId) {
   }
 
   const textEl = titleEl.querySelector('.active-view-text');
+  const rotSuffix = (domain === 'charts' && !isAllViewMode && chartRotationOffset)
+    ? ` • H${chartRotationOffset + 1} लग्न`
+    : '';
   if (textEl) {
-    textEl.textContent = titleText;
+    textEl.textContent = titleText + rotSuffix;
   } else {
-    titleEl.textContent = titleText;
+    titleEl.textContent = titleText + rotSuffix;
+  }
+  let resetBtn = document.getElementById('btnResetChartRotation');
+  if (domain === 'charts' && !isAllViewMode && chartRotationOffset) {
+    if (!resetBtn) {
+      resetBtn = document.createElement('button');
+      resetBtn.id = 'btnResetChartRotation';
+      resetBtn.type = 'button';
+      resetBtn.textContent = '↺ मूल लग्न';
+      resetBtn.style.cssText = 'margin-left:8px; padding:3px 10px; font-size:11px; font-weight:700; border-radius:999px; border:1px solid var(--chart-accent,#b8860b); background:#fff8e7; color:#6e1409; cursor:pointer;';
+      resetBtn.onclick = resetChartRotation;
+      titleEl.appendChild(resetBtn);
+    }
+  } else if (resetBtn) {
+    resetBtn.remove();
   }
 }
 
@@ -9521,7 +9607,10 @@ function drawSpecificVarga(vId, northSvgId, southSvgId) {
   const lagna = planets.find(p => p.id === "Lagna");
   if (!lagna) return;
   const vNum = (String(vId).toUpperCase() === "GOCHAR") ? 1 : parseInt(vId, 10);
-  const vLagnaSign = getVargaSign(lagna.sign, lagna.deg, vNum);
+  const baseVLagnaSign = getVargaSign(lagna.sign, lagna.deg, vNum);
+  const off = chartRotationOffset || 0;
+  const vLagnaSign = (baseVLagnaSign + off) % 12;
+  const origLagnaHouse = (1 - off + 12) % 12 || 12;
 
   // Varga North
   const vNorthSvg = document.getElementById(northSvgId);
@@ -9532,7 +9621,8 @@ function drawSpecificVarga(vId, northSvgId, southSvgId) {
       const pt = NORTH_HOUSE_COORDS[h];
       vNorthSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
       const occ = [];
-      if (h === 1) occ.push("लग्न");
+      if (h === 1) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+      else if (off && h === origLagnaHouse) occ.push("मूल-लग्न");
       planets.filter(p => p.id !== "Lagna").forEach(p => {
         const pVSign = getVargaSign(p.sign, p.deg, vNum);
         const vHouse = (pVSign - vLagnaSign + 12) % 12 + 1;
@@ -9541,6 +9631,7 @@ function drawSpecificVarga(vId, northSvgId, southSvgId) {
         }
       });
       vNorthSvg.innerHTML += northOccupants(pt, h, occ, "var(--chart-text)");
+      vNorthSvg.innerHTML += northHouseHitLayer(h);
     }
   }
 
@@ -9550,12 +9641,15 @@ function drawSpecificVarga(vId, northSvgId, southSvgId) {
     drawSouthBase(southSvgId);
     SOUTH_BOX_SIGNS.forEach(b => {
       const isLagna = (b.s === vLagnaSign);
-      vSouthSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+      const isOrigLagna = (off && b.s === baseVLagnaSign);
+      const rotH = (b.s - vLagnaSign + 12) % 12 + 1;
+      vSouthSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}${off ? ' · H' + rotH : ''}</text>`;
       if (isLagna) {
         vSouthSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
       }
       const occ = [];
-      if (isLagna) occ.push("लग्न");
+      if (isLagna) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+      else if (isOrigLagna) occ.push("मूल-लग्न");
       planets.filter(p => p.id !== "Lagna").forEach(p => {
         const pVSign = getVargaSign(p.sign, p.deg, vNum);
         if (pVSign === b.s) {
@@ -9571,6 +9665,7 @@ function drawSpecificVarga(vId, northSvgId, southSvgId) {
       } else {
         vSouthSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
       }
+      vSouthSvg.innerHTML += southSignHitLayer(b, baseVLagnaSign);
     });
   }
 }
@@ -9695,7 +9790,10 @@ function renderSelectedVargaCharts() {
   const lagna = planets.find(p => p.id === "Lagna");
   if (!lagna) return;
   const vNum = parseInt(selectedVarga, 10) || 1;
-  const vLagnaSign = getVargaSign(lagna.sign, lagna.deg, vNum);
+  const baseVLagnaSign = getVargaSign(lagna.sign, lagna.deg, vNum);
+  const off = chartRotationOffset || 0;
+  const vLagnaSign = (baseVLagnaSign + off) % 12;
+  const origLagnaHouse = (1 - off + 12) % 12 || 12;
 
   // Varga North
   drawNorthBase("vargaNorthSvg");
@@ -9706,12 +9804,14 @@ function renderSelectedVargaCharts() {
       const pt = NORTH_HOUSE_COORDS[h];
       vNorthSvg.innerHTML += `<text x="${pt.sx}" y="${pt.sy}" fill="var(--chart-accent)" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${sNum}</text>`;
       const occ = [];
-      if (h === 1) occ.push("लग्न");
+      if (h === 1) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+      else if (off && h === origLagnaHouse) occ.push("मूल-लग्न");
       planets.filter(p => p.id !== "Lagna").forEach(p => {
         const pVSign = getVargaSign(p.sign, p.deg, vNum);
         if (pVSign === sNum - 1) occ.push(`${p.name}${p.retro ? '*' : ''}`);
       });
       vNorthSvg.innerHTML += northOccupants(pt, h, occ, "var(--chart-text)");
+      vNorthSvg.innerHTML += northHouseHitLayer(h);
     }
   }
 
@@ -9721,12 +9821,15 @@ function renderSelectedVargaCharts() {
   if (vSouthSvg) {
     SOUTH_BOX_SIGNS.forEach(b => {
       const isVLagna = (b.s === vLagnaSign);
-      vSouthSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}</text>`;
+      const isOrigLagna = (off && b.s === baseVLagnaSign);
+      const rotH = (b.s - vLagnaSign + 12) % 12 + 1;
+      vSouthSvg.innerHTML += `<text x="${b.x + 6}" y="${b.y + 14}" fill="#64748b" font-size="10" font-weight="bold">${SIGNS[b.s]}${off ? ' · H' + rotH : ''}</text>`;
       if (isVLagna) {
         vSouthSvg.innerHTML += `<line x1="${b.x + 2}" y1="${b.y + 2}" x2="${b.x + 35}" y2="${b.y + 35}" stroke="var(--chart-accent)" stroke-width="1.5"/>`;
       }
       const occ = [];
-      if (isVLagna) occ.push("लग्न");
+      if (isVLagna) occ.push(off ? `लग्न(H${off + 1})` : "लग्न");
+      else if (isOrigLagna) occ.push("मूल-लग्न");
       planets.filter(p => p.id !== "Lagna").forEach(p => {
         const pVSign = getVargaSign(p.sign, p.deg, vNum);
         if (pVSign === b.s) occ.push(`${p.name}${p.retro ? '*' : ''}`);
@@ -9740,6 +9843,7 @@ function renderSelectedVargaCharts() {
       } else {
         vSouthSvg.innerHTML += `<text x="${b.x + 48}" y="${b.y + 55}" fill="var(--chart-text)" font-size="11" font-weight="bold" text-anchor="middle">${occ.join(', ')}</text>`;
       }
+      vSouthSvg.innerHTML += southSignHitLayer(b, baseVLagnaSign);
     });
   }
 }
