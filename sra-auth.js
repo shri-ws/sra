@@ -205,6 +205,7 @@
         const legacy = readLegacyUser();
         const data = (legacy && legacy.uid === u.uid) ? legacy : writeLegacy(u);
         refreshUi();
+        syncWelcomeCoupon(fb, data);
         try { await saveProfile(fb, data); await pull(fb); } catch (e) { cloudError(e); }
       } else {
         // Firebase has no session: a stored Firebase login is stale and must not look logged in
@@ -576,7 +577,99 @@
     }
   }
 
-  window.SRAAuth = { open, close, logout, user: currentUser, ready: ensureFirebase, welcome: openWelcome };
+  // ── 10-Day New-User 30% Consultation Welcome Coupon ──────────────────────
+  function currentWelcomeCoupon() {
+    const u = currentUser();
+    const phone = (u && u.phone ? String(u.phone) : '').replace(/\D/g, '').slice(-10);
+    if (!phone || phone.length !== 10) return null;
+    try {
+      const raw = JSON.parse(localStorage.getItem('sra_welcome_coupon_' + phone) || 'null');
+      if (!raw || !raw.expires_at) return null;
+      const msLeft = Date.parse(raw.expires_at) - Date.now();
+      const active = !raw.used && msLeft > 0;
+      const daysLeft = active ? Math.min(10, Math.max(1, Math.ceil(msLeft / 86400000))) : 0;
+      return Object.assign({}, raw, { active, days_left: daysLeft });
+    } catch (e) { return null; }
+  }
+
+  function showWelcomeCouponPopup(wc) {
+    if (!wc || !wc.active || wc.used) return;
+    if (document.getElementById('sraWelcomeCouponModal')) return;
+    ensureAuthStyles();
+    const pop = document.createElement('div');
+    pop.id = 'sraWelcomeCouponModal';
+    pop.className = 'sra-auth-overlay open';
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-modal', 'true');
+    const code = wc.coupon_code || wc.phone;
+    const days = wc.days_left || 10;
+    const title = tr('🎉 स्वागत है! 30% कंसल्टेशन छूट', '🎉 Welcome! 30% OFF Consultation');
+    const desc = tr(
+      `नए यूजर के रूप में आपका मोबाइल नंबर ही आपका कूपन कोड है। अगले <b>${days} दिनों</b> तक परामर्श शुल्क पर <b>30% छूट</b> पाएं।`,
+      `As a new user, your mobile number is your personal coupon code. Get <b>30% OFF</b> your 1-on-1 consultation for the next <b>${days} days</b>.`
+    );
+    const cta = tr('30% छूट के साथ स्लॉट बुक करें →', 'Book Consultation (30% OFF) →');
+    pop.innerHTML = `
+      <div class="sra-auth-card" style="text-align:center;">
+        <button type="button" class="sra-auth-x" data-wc-close>✕</button>
+        <div style="font-size:28px; margin-bottom:6px;">🎁</div>
+        <h3 class="sra-auth-title" style="margin-bottom:8px;">${title}</h3>
+        <p class="sra-auth-sub" style="margin-bottom:14px;">${desc}</p>
+        <div style="background:#FFF8E7; border:1.5px dashed #B8860B; border-radius:10px; padding:12px 16px; margin-bottom:16px;">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#8C6D2B; font-weight:700;">${tr('आपका कूपन कोड', 'YOUR COUPON CODE')}</div>
+          <div style="font-size:22px; font-weight:800; letter-spacing:2px; color:#5C1108; margin-top:4px;">${code}</div>
+        </div>
+        <a href="consultation.html?coupon=${encodeURIComponent(code)}" class="sra-auth-primary" style="display:block; text-decoration:none; line-height:1.4; padding:12px 16px;" data-wc-close>${cta}</a>
+      </div>`;
+    document.body.appendChild(pop);
+    const dismiss = () => {
+      try { localStorage.setItem('sra_welcome_popup_seen_' + code, '1'); } catch (e) {}
+      pop.remove();
+    };
+    pop.querySelectorAll('[data-wc-close]').forEach(el => el.addEventListener('click', dismiss));
+    pop.addEventListener('click', (e) => { if (e.target === pop) dismiss(); });
+  }
+
+  async function syncWelcomeCoupon(fb, data) {
+    const phone = (data && data.phone ? String(data.phone) : '').replace(/\D/g, '').slice(-10);
+    if (!phone || phone.length !== 10) return;
+    let wc = null;
+    try {
+      const apiBase = (window.SraCouponEngine && window.SraCouponEngine.apiBase) ? window.SraCouponEngine.apiBase() : '';
+      const token = fb && fb.auth().currentUser ? await fb.auth().currentUser.getIdToken() : '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      const res = await fetch(apiBase + '/api/sutradhar/user/welcome-coupon', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ phone })
+      });
+      if (res.ok) wc = await res.json();
+    } catch (e) {}
+    if (!wc || !wc.coupon_code) {
+      const existing = currentWelcomeCoupon();
+      if (existing) {
+        wc = existing;
+      } else {
+        const now = Date.now();
+        wc = {
+          phone, coupon_code: phone, discount_percent: 30,
+          first_login_at: new Date(now).toISOString(),
+          expires_at: new Date(now + 10 * 86400000).toISOString(),
+          used: false, active: true, is_new: true, days_left: 10
+        };
+      }
+    }
+    try { localStorage.setItem('sra_welcome_coupon_' + phone, JSON.stringify(wc)); } catch (e) {}
+    refreshUi();
+    let seen = false;
+    try { seen = localStorage.getItem('sra_welcome_popup_seen_' + phone) === '1'; } catch (e) {}
+    if (wc.active && !wc.used && (wc.is_new || !seen)) {
+      setTimeout(() => showWelcomeCouponPopup(wc), 400);
+    }
+  }
+
+  window.SRAAuth = { open, close, logout, user: currentUser, ready: ensureFirebase, welcome: openWelcome, welcomeCoupon: currentWelcomeCoupon };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { takeOver(); start(); });
   else { takeOver(); start(); }
   // theme.js may define its own versions after this file runs

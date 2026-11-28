@@ -1530,6 +1530,11 @@
     <script>
         let currentLang = 'en';
         let selectedDateStr = '';
+        let selectedIsoDate = '';
+        let monthlyBookedCount = 0;
+        let monthlyBookedDates = new Set();
+        let currentDynamicInr = 5100;
+        let currentDynamicUsd = 101;
 
         const todayDateObj = new Date();
         let currentCalYear = todayDateObj.getFullYear();
@@ -1698,7 +1703,7 @@
             document.getElementById('lblWhatsapp').textContent = d.lblWhatsapp;
             document.getElementById('lblEmail').textContent = d.lblEmail;
             document.getElementById('lblContext').textContent = d.lblContext;
-            document.getElementById('btnSubmitPayment').querySelector('span').textContent = d.btnPay;
+            updateDynamicPricingUI();
 
             document.getElementById('txtTestimonialsHeading').textContent = d.testimonialsHeading;
             document.getElementById('txtTestimonialsSub').textContent = d.testimonialsSub;
@@ -1706,6 +1711,85 @@
             document.getElementById('txtFeedbackSub').textContent = d.feedbackSub;
 
             renderDynamicCalendar();
+            fetchConsultationPricing(currentCalYear, currentCalMonth);
+        }
+
+        function getDynamicSlotPrice(isoDateStr) {
+            const booked = monthlyBookedCount || 0;
+            let tierInr = 0, tierUsd = 0;
+            if (booked >= 16) { tierInr = 6000; tierUsd = 100; }
+            else if (booked >= 12) { tierInr = 4400; tierUsd = 80; }
+            else if (booked >= 8) { tierInr = 2400; tierUsd = 50; }
+            else if (booked >= 4) { tierInr = 1000; tierUsd = 20; }
+
+            let urgencyInr = 0, urgencyUsd = 0;
+            let weekendInr = 0, weekendUsd = 0;
+            if (isoDateStr && /^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)) {
+                const parts = isoDateStr.split('-').map(Number);
+                const slotMidnight = new Date(parts[0], parts[1] - 1, parts[2]);
+                const todayMidnight = new Date(todayDateObj.getFullYear(), todayDateObj.getMonth(), todayDateObj.getDate());
+                const daysAway = Math.round((slotMidnight - todayMidnight) / 86400000);
+                if (daysAway >= 0 && daysAway <= 3) { urgencyInr = 2000; urgencyUsd = 40; }
+                else if (daysAway >= 4 && daysAway <= 7) { urgencyInr = 1000; urgencyUsd = 20; }
+                const dow = slotMidnight.getDay();
+                if (dow === 0 || dow === 6) { weekendInr = 500; weekendUsd = 10; }
+            }
+            const inr = Math.min(15100, Math.max(5100, 5100 + tierInr + urgencyInr + weekendInr));
+            const usd = Math.min(201, Math.max(101, 101 + tierUsd + urgencyUsd + weekendUsd));
+            return { inr, usd };
+        }
+
+        function formatDynamicPriceLabel(priceObj) {
+            const cur = (window.SRACurrency && window.SRACurrency.get()) || 'INR';
+            if (cur === 'USD') return '$' + priceObj.usd + ' USD';
+            if (cur === 'INR') return '₹' + priceObj.inr.toLocaleString('en-IN');
+            if (window.SRACurrency && window.SRACurrency.price) {
+                const baseF = window.SRACurrency.price(5100);
+                const scaled = Math.max(1, Math.round(baseF * (priceObj.inr / 5100)));
+                return window.SRACurrency.symbol() + scaled.toLocaleString();
+            }
+            return '₹' + priceObj.inr.toLocaleString('en-IN');
+        }
+
+        function updateDynamicPricingUI() {
+            const p = getDynamicSlotPrice(selectedIsoDate);
+            currentDynamicInr = p.inr;
+            currentDynamicUsd = p.usd;
+            if (!appliedPromoCode) {
+                consultationAmountPaise = p.inr * 100;
+            }
+            const cur = (window.SRACurrency && window.SRACurrency.get()) || 'INR';
+            const bannerEl = document.querySelector('.pricing-amount');
+            if (bannerEl) {
+                if (cur === 'INR') {
+                    bannerEl.textContent = '₹' + p.inr.toLocaleString('en-IN') + ' / $' + p.usd + ' USD';
+                } else {
+                    bannerEl.textContent = formatDynamicPriceLabel(p);
+                }
+            }
+            const btn = document.getElementById('btnSubmitPayment');
+            if (btn && !appliedPromoCode) {
+                const priceLabel = formatDynamicPriceLabel(p);
+                const prefix = (currentLang === 'hi')
+                    ? 'पवित्र स्लॉट पक्का करें एवं दक्षिणा भुगतान करें'
+                    : 'CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT';
+                btn.innerHTML = '<span>' + prefix + ' (' + priceLabel + ')</span>';
+            }
+        }
+
+        async function fetchConsultationPricing(year, monthIdx) {
+            const ym = `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
+            const base = (window.SraCouponEngine && window.SraCouponEngine.apiBase) ? window.SraCouponEngine.apiBase() : '';
+            try {
+                const res = await fetch(`${base}/api/sutradhar/consultation/pricing?month=${encodeURIComponent(ym)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && typeof data.booked_count === 'number') {
+                    monthlyBookedCount = data.booked_count;
+                    monthlyBookedDates = new Set(Array.isArray(data.booked_dates) ? data.booked_dates : []);
+                    renderDynamicCalendar();
+                }
+            } catch (e) { /* keep current fallback */ }
         }
 
         function changeMonth(offset) {
@@ -1727,6 +1811,7 @@
             }
 
             renderDynamicCalendar();
+            fetchConsultationPricing(currentCalYear, currentCalMonth);
         }
 
         // ASTRONOMICAL ENGINE FOR CHANDRA RASHI & AMAVASYA SCRUTINY (MEEUS ELP-2000 + TRUE LAHIRI AYANAMSA)
@@ -1959,12 +2044,22 @@
                                 ? `शास्त्रीय नियम: ${dayNum} ${monthList[currentCalMonth]} को चन्द्रमा ${rashiName} राशि में रहने के कारण परामर्श स्थगित रहता है। कृपया किसी अन्य खुली तिथि का चयन करें।` 
                                 : `Shastric Rule: On ${dayNum} ${monthList[currentCalMonth]}, transiting Moon is in ${rashiName}, so consultations are suspended. Please select an open date.`);
                         };
+                    } else if (monthlyBookedDates.has(isoDateStr)) {
+                        slot.className = 'cal-slot restricted';
+                        const bookedText = lang === 'hi' ? 'बुक हो चुका' : 'BOOKED';
+                        slot.innerHTML = `
+                            <div class="cal-day">${dayName}</div>
+                            <div class="cal-date-num">${dayNum}</div>
+                            <div class="cal-status">${bookedText}</div>
+                        `;
                     } else {
                         // OPEN DATE
+                        const slotPrice = getDynamicSlotPrice(isoDateStr);
                         const isSelected = (selectedDateStr === displayStr) || (!selectedDateStr && !firstAvailableSlotFound);
                         if (isSelected && !firstAvailableSlotFound) {
                             firstAvailableSlotFound = true;
                             selectedDateStr = displayStr;
+                            selectedIsoDate = isoDateStr;
                             const resInput = document.getElementById('resDate');
                             if (resInput) resInput.value = displayStr;
                         }
@@ -1973,7 +2068,7 @@
                         slot.dataset.date = displayStr;
                         slot.dataset.isodate = isoDateStr;
 
-                        const openText = lang === 'hi' ? '1 सीट उपलब्ध' : '1 Seat Open';
+                        const openText = (lang === 'hi' ? '1 सीट • ' : '1 Seat • ') + formatDynamicPriceLabel(slotPrice);
 
                         slot.innerHTML = `
                             <div class="cal-day">${dayName}</div>
@@ -1987,6 +2082,7 @@
 
                 container.appendChild(slot);
             }
+            updateDynamicPricingUI();
         }
 
 
@@ -1995,7 +2091,9 @@
             document.querySelectorAll('.cal-slot').forEach(s => s.classList.remove('selected'));
             el.classList.add('selected');
             selectedDateStr = dateStr;
+            selectedIsoDate = el.dataset.isodate || '';
             document.getElementById('resDate').value = dateStr;
+            updateDynamicPricingUI();
 
             // Scroll smoothly to form if needed
             document.getElementById('intakeSection').scrollIntoView({ behavior: 'smooth' });
@@ -2003,7 +2101,7 @@
 
         // PROMO CODE & RAZORPAY INTEGRATION FOR CONSULTATION BOOKING
         const RZP_KEY = 'rzp_live_U1a0a504puKK5e';
-        let consultationAmountPaise = 510000; // Default ₹5,100
+        let consultationAmountPaise = 510000; // Dynamic base ₹5,100
         let appliedPromoCode = "";
 
         function applyConsultationPromo() {
@@ -2011,13 +2109,14 @@
             const msg = document.getElementById('promoStatusMsg');
             const btn = document.getElementById('btnSubmitPayment');
             const code = (input.value || "").trim().toUpperCase();
+            const baseInr = currentDynamicInr || 5100;
 
             if (!code) {
                 msg.style.color = "var(--fail-red, #b91c1c)";
                 msg.textContent = "कृपया कोड दर्ज करें।";
-                consultationAmountPaise = 510000;
+                consultationAmountPaise = baseInr * 100;
                 appliedPromoCode = "";
-                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
+                updateDynamicPricingUI();
                 return;
             }
 
@@ -2075,8 +2174,40 @@
                 return;
             }
 
+            // New-user 10-day welcome coupon: own 10-digit phone number gives 30% OFF
+            if (/^\d{10}$/.test(clean)) {
+                const loggedPhone = ((window.SRAAuth && window.SRAAuth.user() && window.SRAAuth.user().phone) || localStorage.getItem('sra_verified_mobile') || '').replace(/\D/g, '').slice(-10);
+                const wc = (window.SRAAuth && window.SRAAuth.welcomeCoupon) ? window.SRAAuth.welcomeCoupon() : null;
+                if (loggedPhone !== clean) {
+                    consultationAmountPaise = baseInr * 100;
+                    appliedPromoCode = "";
+                    msg.style.color = "var(--fail-red, #b91c1c)";
+                    msg.textContent = "❌ यह कूपन केवल उसी मोबाइल नंबर (" + clean + ") से लॉगिन करने पर मान्य है।";
+                    updateDynamicPricingUI();
+                    return;
+                }
+                if (wc && !wc.active) {
+                    consultationAmountPaise = baseInr * 100;
+                    appliedPromoCode = "";
+                    msg.style.color = "var(--fail-red, #b91c1c)";
+                    msg.textContent = wc.used ? "❌ यह स्वागत कूपन पहले ही उपयोग किया जा चुका है।" : "❌ इस स्वागत कूपन की 10 दिन की अवधि समाप्त हो चुकी है।";
+                    updateDynamicPricingUI();
+                    return;
+                }
+                const discInr = Math.max(1, Math.round(baseInr * 0.70));
+                const discUsd = Math.max(1, Math.round((currentDynamicUsd || 101) * 0.70));
+                consultationAmountPaise = discInr * 100;
+                appliedPromoCode = clean;
+                const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
+                const disp = isUsd ? ('$' + discUsd + ' USD') : ('₹' + discInr.toLocaleString('en-IN'));
+                msg.style.color = "var(--pass-green, #15803D)";
+                msg.innerHTML = "✨ <b>स्वागत कूपन लागू (30% छूट)!</b> आपकी दक्षिणा: " + disp;
+                if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (" + disp + ")</span>";
+                return;
+            }
+
             // Code box: validate coupon
-            const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, 5100) : { valid: false, message: 'कोई कूपन कोड मान्य नहीं है।' };
+            const res = window.SraCouponEngine ? window.SraCouponEngine.validateAndCalculate(code, baseInr) : { valid: false, message: 'कोई कूपन कोड मान्य नहीं है।' };
             if (res.valid && res.finalPrice) {
                 consultationAmountPaise = res.finalPrice * 100;
                 appliedPromoCode = code;
@@ -2085,11 +2216,11 @@
                 if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹" + res.finalPrice.toLocaleString('en-IN') + ")</span>";
                 return;
             }
-            consultationAmountPaise = 510000;
-            appliedPromoCode = code;
+            consultationAmountPaise = baseInr * 100;
+            appliedPromoCode = "";
             msg.style.color = res.valid ? "var(--pass-green, #15803D)" : "var(--fail-red, #b91c1c)";
             msg.textContent = (res.valid ? "✓ " : "❌ ") + res.message;
-            if (btn) btn.innerHTML = "<span>CONFIRM SACRED SLOT & PROCEED TO SECURE PAYMENT (₹5,100)</span>";
+            updateDynamicPricingUI();
         }
 
         function handleRazorpayBooking(e) {
@@ -2123,7 +2254,9 @@
             }
 
             const isUsd = (window.SRACurrency && window.SRACurrency.get() === 'USD');
-            const consultationAmount = isUsd ? (consultationAmountPaise === 0 ? 0 : 10100) : consultationAmountPaise;
+            const isWelcome30 = /^\d{10}$/.test(appliedPromoCode || '');
+            const usdAmt = isWelcome30 ? Math.max(1, Math.round((currentDynamicUsd || 101) * 0.70)) : currentDynamicUsd;
+            const consultationAmount = isUsd ? (consultationAmountPaise === 0 ? 0 : usdAmt * 100) : consultationAmountPaise;
             const actualAmt = consultationAmount / 100;
 
             if (appliedPromoCode === "MASTER") {
@@ -2177,7 +2310,15 @@
             };
 
             // Amount and order come from the server (no commission on consultation)
-            window.SraCouponEngine.checkoutWithOptions({ serviceId: 'consultation_acharya', options: options, code: appliedPromoCode || '', phone: clientPhone, email: clientEmail, name: clientName });
+            window.SraCouponEngine.checkoutWithOptions({
+                serviceId: 'consultation_acharya',
+                options: options,
+                code: appliedPromoCode || '',
+                phone: clientPhone,
+                email: clientEmail,
+                name: clientName,
+                extra: { slot_date: selectedIsoDate || '' }
+            });
         }
 
         async function saveConsultationBooking(data) {
@@ -2253,8 +2394,9 @@
 
             // ── 3. Central server payment logging ─────────────────────────────
             try {
-                const paidAmt = (data.amount_paid !== undefined) ? Number(data.amount_paid) : 5100;
-                const discAmt = Math.max(0, 5100 - paidAmt);
+                const baseInr = currentDynamicInr || 5100;
+                const paidAmt = (data.amount_paid !== undefined) ? Number(data.amount_paid) : baseInr;
+                const discAmt = Math.max(0, baseInr - paidAmt);
                 fetch('api/save_payment.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2514,6 +2656,7 @@
         // INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
             renderDynamicCalendar();
+            fetchConsultationPricing(currentCalYear, currentCalMonth);
             loadApprovedReviews();
             const urlParams = new URLSearchParams(window.location.search);
             const urlCode = urlParams.get('coupon') || urlParams.get('code') || urlParams.get('c');

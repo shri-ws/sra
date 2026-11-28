@@ -787,6 +787,7 @@ class QuoteRequest(BaseModel):
     service_id: str = Field(..., description="Catalog service identifier")
     input_code: Optional[str] = Field(None, description="Promo code entered by customer (optional)")
     currency: Optional[str] = Field("INR", description="INR, or USD/EUR/JPY/GBP/AUD/CAD/SGD/AED/CHF for customers outside India")
+    slot_date: Optional[str] = Field(None, description="Selected consultation date YYYY-MM-DD")
 
 class CreateOrderRequest(BaseModel):
     customer_phone: str = Field(..., description="Customer 10-digit mobile number")
@@ -797,6 +798,7 @@ class CreateOrderRequest(BaseModel):
     batch_id: Optional[str] = Field(None, description="1-year course only: batch_morning / batch_evening")
     ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
     currency: Optional[str] = Field("INR", description="INR, or USD/EUR/JPY/GBP/AUD/CAD/SGD/AED/CHF for customers outside India")
+    slot_date: Optional[str] = Field(None, description="Selected consultation date YYYY-MM-DD")
 
 class ReviewActionRequest(BaseModel):
     commission_id: str
@@ -1186,8 +1188,134 @@ def find_active_lead_for_phone(phone: str, now: Optional[datetime] = None) -> Op
     return None
 
 
+CONSULTATION_BASE_INR = 5100
+CONSULTATION_MAX_INR = 15100
+CONSULTATION_BASE_USD = 101
+CONSULTATION_MAX_USD = 201
+WELCOME_COUPON_DAYS = 10
+WELCOME_COUPON_DISCOUNT_PCT = 30
+
+
+def _welcome_coupon_state(phone: str, create_if_missing: bool = False) -> Optional[Dict[str, Any]]:
+    """Return 10-day 30% OFF consultation welcome coupon state for a 10-digit phone."""
+    p = normalize_phone(phone)
+    if not p or len(p) != 10:
+        return None
+    now = datetime.now(timezone.utc)
+    doc = SutradharStore.get_doc("welcome_coupons", p)
+    is_new = False
+    if not doc:
+        if not create_if_missing:
+            return None
+        expires_at = (now + timedelta(days=WELCOME_COUPON_DAYS)).isoformat()
+        doc = {
+            "id": p,
+            "phone": p,
+            "coupon_code": p,
+            "discount_percent": WELCOME_COUPON_DISCOUNT_PCT,
+            "first_login_at": now.isoformat(),
+            "expires_at": expires_at,
+            "used": False,
+        }
+        SutradharStore.set_doc("welcome_coupons", p, doc)
+        is_new = True
+    try:
+        exp_dt = datetime.fromisoformat(doc["expires_at"])
+        if exp_dt.tzinfo is None:
+            exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+    except Exception:
+        exp_dt = now
+    used = bool(doc.get("used"))
+    active = (not used) and (now <= exp_dt)
+    days_left = max(0, (exp_dt - now).days + (1 if (exp_dt - now).seconds > 0 and exp_dt > now else 0)) if active else 0
+    return {
+        "phone": p,
+        "coupon_code": p,
+        "discount_percent": WELCOME_COUPON_DISCOUNT_PCT,
+        "first_login_at": doc.get("first_login_at"),
+        "expires_at": doc.get("expires_at"),
+        "used": used,
+        "active": active,
+        "is_new": is_new,
+        "days_left": min(WELCOME_COUPON_DAYS, days_left),
+    }
+
+
+def _consultation_month_stats(month_ym: str) -> Dict[str, Any]:
+    """Count paid non-test consultation orders and collect booked YYYY-MM-DD slot dates for a month."""
+    orders = SutradharStore.query_all("orders")
+    booked_count = 0
+    booked_dates: List[str] = []
+    for o in orders:
+        if o.get("service_id") not in ("consultation_acharya", "consultation_yearly"):
+            continue
+        if o.get("is_test") or o.get("status") != "paid":
+            continue
+        slot_date = (o.get("slot_date") or "").strip()
+        created_ym = (o.get("created_at") or "")[:7]
+        order_ym = slot_date[:7] if len(slot_date) >= 7 else created_ym
+        if order_ym == month_ym:
+            booked_count += 1
+            if len(slot_date) == 10 and slot_date not in booked_dates:
+                booked_dates.append(slot_date)
+    return {"booked_count": booked_count, "booked_dates": booked_dates}
+
+
+def consultation_dynamic_price(slot_date: Optional[str] = None, booked_count: Optional[int] = None) -> Dict[str, Any]:
+    """
+    Flight-style dynamic pricing for 1-on-1 consultations:
+    - India: ₹5,100 base to ₹15,100 cap
+    - USA:   $101 base to $201 cap
+    Factors: monthly booked slots (load factor), days until slot (urgency), weekend (Sat/Sun).
+    """
+    today_ist = datetime.now(IST).date()
+    parsed_date = None
+    if slot_date:
+        try:
+            parsed_date = datetime.strptime(slot_date.strip()[:10], "%Y-%m-%d").date()
+        except ValueError:
+            parsed_date = None
+
+    month_ym = parsed_date.strftime("%Y-%m") if parsed_date else today_ist.strftime("%Y-%m")
+    if booked_count is None:
+        booked_count = _consultation_month_stats(month_ym)["booked_count"]
+
+    if booked_count >= 16:
+        tier_inr, tier_usd = 6000, 100
+    elif booked_count >= 12:
+        tier_inr, tier_usd = 4400, 80
+    elif booked_count >= 8:
+        tier_inr, tier_usd = 2400, 50
+    elif booked_count >= 4:
+        tier_inr, tier_usd = 1000, 20
+    else:
+        tier_inr, tier_usd = 0, 0
+
+    urgency_inr, urgency_usd = 0, 0
+    weekend_inr, weekend_usd = 0, 0
+    if parsed_date is not None:
+        days_away = (parsed_date - today_ist).days
+        if 0 <= days_away <= 3:
+            urgency_inr, urgency_usd = 2000, 40
+        elif 4 <= days_away <= 7:
+            urgency_inr, urgency_usd = 1000, 20
+        if parsed_date.weekday() in (5, 6):
+            weekend_inr, weekend_usd = 500, 10
+
+    inr = min(CONSULTATION_MAX_INR, max(CONSULTATION_BASE_INR, CONSULTATION_BASE_INR + tier_inr + urgency_inr + weekend_inr))
+    usd = min(CONSULTATION_MAX_USD, max(CONSULTATION_BASE_USD, CONSULTATION_BASE_USD + tier_usd + urgency_usd + weekend_usd))
+    return {
+        "inr": inr,
+        "usd": usd,
+        "booked_count": booked_count,
+        "tier_inr": tier_inr,
+        "urgency_inr": urgency_inr,
+        "weekend_inr": weekend_inr,
+    }
+
+
 def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
-                verified_phone: Optional[str]) -> Dict[str, Any]:
+                verified_phone: Optional[str], slot_date: Optional[str] = None) -> Dict[str, Any]:
     """
     दाम बताना (checkout से पहले):
     1. दाम केवल SERVICE_CATALOG से (GST सहित)। अनजान सेवा पर 400।
@@ -1201,7 +1329,13 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
         raise HTTPException(status_code=400, detail=f"अज्ञात सेवा: {service_id}")
     if sid == "astrologer_saas_monthly":
         raise HTTPException(status_code=400, detail="मासिक सदस्यता autopay से ही ली जाती है।")
-    base_price = int(item["price"])
+    dyn_usd = None
+    if sid == "consultation_acharya":
+        dyn = consultation_dynamic_price(slot_date)
+        base_price = dyn["inr"]
+        dyn_usd = dyn["usd"]
+    else:
+        base_price = int(item["price"])
     gst_inclusive = commission_for_payment(sid, base_price * 100)
     base = {
         "status": "success",
@@ -1216,9 +1350,55 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
         "auto_applied": False,
         "is_test": False,
     }
+    if dyn_usd is not None:
+        base["dynamic_usd"] = dyn_usd
 
     code_given = bool((input_code or "").strip())
     clean_code = (input_code or "").strip().upper().replace("-", "").replace("_", "")
+    # New-user 10-day welcome coupon: own 10-digit phone number gives 30% OFF on consultation_acharya
+    if sid == "consultation_acharya" and len(clean_code) == 10 and clean_code.isdigit():
+        caller_phone = normalize_phone(verified_phone or customer_phone)
+        if caller_phone == clean_code:
+            wc = _welcome_coupon_state(clean_code, create_if_missing=False)
+            if wc and wc["active"]:
+                net_price = max(1, int(round(base_price * (100 - WELCOME_COUPON_DISCOUNT_PCT) / 100.0)))
+                disc = max(0, base_price - net_price)
+                if dyn_usd is not None:
+                    base["dynamic_usd"] = max(1, int(round(dyn_usd * (100 - WELCOME_COUPON_DISCOUNT_PCT) / 100.0)))
+                base.update({
+                    "has_active_lead": False,
+                    "is_test": False,
+                    "welcome_coupon_applied": True,
+                    "welcome_coupon_phone": clean_code,
+                    "discount_amount": disc,
+                    "discount_percent": WELCOME_COUPON_DISCOUNT_PCT,
+                    "net_price": net_price,
+                    "final_price": net_price,
+                    "net_price_paise": net_price * 100,
+                    "code_status": "applied",
+                    "message": f"स्वागत कूपन लागू ({clean_code}): परामर्श शुल्क पर 30% छूट! ({wc['days_left']} दिन शेष)"
+                })
+                return base
+            elif wc and wc.get("used"):
+                code_message = "यह स्वागत कूपन पहले ही उपयोग किया जा चुका है।"
+            elif wc:
+                code_message = "इस स्वागत कूपन की 10 दिन की अवधि समाप्त हो चुकी है।"
+            else:
+                code_message = "यह कूपन केवल नए लॉगिन नंबर के लिए मान्य है।"
+        else:
+            code_message = "यह कूपन केवल उसी मोबाइल नंबर से लॉगिन करने पर मान्य है।"
+        base.update({
+            "has_active_lead": False,
+            "discount_amount": 0,
+            "discount_percent": 0,
+            "net_price": base_price,
+            "final_price": base_price,
+            "net_price_paise": base_price * 100,
+            "code_status": "invalid",
+            "message": code_message,
+        })
+        return base
+
     if clean_code in ("DAIVAJNA2100", "INSTA2100") and sid == "consultation_acharya":
         disc = max(0, base_price - 2100)
         base.update({
@@ -1276,13 +1456,54 @@ def build_quote(customer_phone: str, service_id: str, input_code: Optional[str],
     return base
 
 
+@router.post("/user/welcome-coupon")
+async def register_or_get_welcome_coupon(request: Request, authorization: Optional[str] = Header(None)):
+    """Register first login for a mobile user and return their 10-day 30% OFF consultation coupon."""
+    body = {}
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    auth_phone = get_authenticated_customer_phone(authorization)
+    phone = auth_phone if (auth_phone and len(auth_phone) == 10) else normalize_phone(body.get("phone") or "")
+    if not phone or len(phone) != 10:
+        raise HTTPException(status_code=400, detail="Valid 10-digit phone required")
+    wc = _welcome_coupon_state(phone, create_if_missing=True)
+    return {"status": "success", **(wc or {})}
+
+
+@router.get("/consultation/pricing")
+async def get_consultation_pricing(month: Optional[str] = None):
+    """Public dynamic pricing metadata and booked dates for 1-on-1 consultations."""
+    today_ist = datetime.now(IST).date()
+    month_ym = (month or today_ist.strftime("%Y-%m")).strip()[:7]
+    stats = _consultation_month_stats(month_ym)
+    return {
+        "status": "success",
+        "month": month_ym,
+        "booked_count": stats["booked_count"],
+        "booked_dates": stats["booked_dates"],
+        "base_inr": CONSULTATION_BASE_INR,
+        "max_inr": CONSULTATION_MAX_INR,
+        "base_usd": CONSULTATION_BASE_USD,
+        "max_usd": CONSULTATION_MAX_USD,
+    }
+
+
 @router.post("/quote")
 async def get_checkout_quote(req: QuoteRequest, request: Request, authorization: Optional[str] = Header(None)):
     verified_phone = token_phone(verify_firebase_token(authorization))
-    q = build_quote(req.customer_phone, req.service_id, req.input_code, verified_phone)
+    q = build_quote(req.customer_phone, req.service_id, req.input_code, verified_phone, req.slot_date)
     cur = currency_for_visitor(request, clean_currency(req.currency), q.get("service_id", ""))
     if cur != "INR" and not q.get("is_test"):
-        amt = foreign_price(q["service_id"], cur)
+        if q.get("service_id") == "consultation_acharya":
+            if cur == "USD":
+                amt = int(q.get("dynamic_usd") or CONSULTATION_BASE_USD)
+            else:
+                base_f = foreign_price(q["service_id"], cur)
+                amt = max(1, int(round(base_f * (q["base_price"] / CONSULTATION_BASE_INR))))
+        else:
+            amt = foreign_price(q["service_id"], cur)
         q.update({"currency": cur, "price_foreign": amt, "display_price": money_text(amt, cur)})
         if cur == "USD":
             q["price_usd"] = amt
@@ -1532,7 +1753,7 @@ async def create_razorpay_order(req: CreateOrderRequest, request: Request, autho
 
     # Quote determination (server catalog only; master test code needs a Phone-Auth token)
     strict_phone = token_phone(verify_firebase_token(authorization))
-    quote = build_quote(effective_phone, req.service_id, req.input_code, strict_phone)
+    quote = build_quote(effective_phone, req.service_id, req.input_code, strict_phone, req.slot_date)
     service_id = quote["service_id"]
     net_price = quote["net_price"]
     net_paise = net_price * 100
@@ -1556,7 +1777,17 @@ async def create_razorpay_order(req: CreateOrderRequest, request: Request, autho
     asked = currency_for_visitor(request, clean_currency(req.currency), service_id)   # the IP country decides
     currency = asked if (asked != "INR" and not is_test_order) else "INR"
     rate = inr_rate(currency) if currency != "INR" else None
-    price_foreign = foreign_price(service_id, currency) if currency != "INR" else 0
+    if currency != "INR":
+        if service_id == "consultation_acharya":
+            if currency == "USD":
+                price_foreign = int(quote.get("dynamic_usd") or CONSULTATION_BASE_USD)
+            else:
+                base_f = foreign_price(service_id, currency)
+                price_foreign = max(1, int(round(base_f * (quote["base_price"] / CONSULTATION_BASE_INR))))
+        else:
+            price_foreign = foreign_price(service_id, currency)
+    else:
+        price_foreign = 0
     price_usd = price_foreign if currency == "USD" else 0
     if currency != "INR":
         net_price = int(round(price_foreign * rate))      # rupee value: commission and reports
@@ -1625,6 +1856,10 @@ async def create_razorpay_order(req: CreateOrderRequest, request: Request, autho
         "status": "created",
         "created_at": now.isoformat()
     }
+    if req.slot_date and service_id in ("consultation_acharya", "consultation_yearly"):
+        order_doc["slot_date"] = req.slot_date.strip()[:10]
+    if quote.get("welcome_coupon_applied") and quote.get("welcome_coupon_phone"):
+        order_doc["welcome_coupon_phone"] = quote["welcome_coupon_phone"]
     if seat_id:
         order_doc["seat_id"] = seat_id
         order_doc["course_batch"] = req.batch_id
@@ -1785,6 +2020,15 @@ async def razorpay_payment_webhook(request: Request, x_razorpay_signature: Optio
     order["razorpay_payment_id"] = payment_id
     order["paid_at"] = now_iso
     SutradharStore.set_doc("orders", order_id, order)
+
+    if order.get("welcome_coupon_phone"):
+        wc_phone = normalize_phone(order["welcome_coupon_phone"])
+        wc_doc = SutradharStore.get_doc("welcome_coupons", wc_phone)
+        if wc_doc and not wc_doc.get("used"):
+            wc_doc["used"] = True
+            wc_doc["used_at"] = now_iso
+            wc_doc["used_order_id"] = order_id
+            SutradharStore.set_doc("welcome_coupons", wc_phone, wc_doc)
 
     # Course: the held seat becomes paid, or the payment is refunded if the batch is already full
     if order.get("seat_id") or resolve_service_id(order.get("service_id", "")) in (COURSE_SERVICE_ID, GLOBAL_ELEVEN_SERVICE_ID):

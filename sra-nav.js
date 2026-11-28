@@ -436,9 +436,14 @@
     const initial = (u.name || 'U').replace(/[^A-Za-zऀ-ॿ]/g, '').charAt(0).toUpperCase() || 'U';
     const av = u.photo ? `<img src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer">` : esc(initial);
     const sub = u.email && !/@shriramjiastro\.in$/.test(u.email) ? u.email : (u.phone ? '+91 ' + u.phone : '');
+    const wc = auth.welcomeCoupon ? auth.welcomeCoupon() : null;
+    const wcBanner = (wc && wc.active && !wc.used)
+      ? `<a href="consultation.html?coupon=${encodeURIComponent(wc.coupon_code)}" style="display:block; margin-top:8px; padding:7px 10px; border-radius:8px; background:linear-gradient(135deg,#FFF8E7,#FDECC8); border:1px solid #C99A2E; color:#6E1409; font-size:11.5px; font-weight:700; text-decoration:none; line-height:1.35;">🎁 30% OFF Consultation • Code: <b>${esc(wc.coupon_code)}</b> (${wc.days_left}d left)</a>`
+      : '';
     return `<div class="sra-gd-me">
       <div class="sra-gd-me-row"><span class="sra-gd-me-av">${av}</span>
         <span class="sra-gd-me-meta"><b>${esc(u.name)}</b><small>${esc(sub)}</small></span></div>
+      ${wcBanner}
       <div class="sra-gd-me-actions">
         <button type="button" class="sra-gd-me-btn" data-auth="kundalis">${esc(t(T.myKundalis))}</button>
         <button type="button" class="sra-gd-me-btn sra-gd-me-out" data-auth="logout">${esc(t(T.logout))}</button>

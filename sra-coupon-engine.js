@@ -226,6 +226,7 @@
           service_id: serviceId,
           input_code: inputCode || null,
           batch_id: (extra && extra.batch_id) || null,
+          slot_date: (extra && extra.slot_date) || null,
           ref_code: this.getActiveSutradharId() || null,   // Sutradhar's shared offer link (?ref=)
           currency: this.currency()                         // USD for customers outside India (sra-currency.js)
         })
