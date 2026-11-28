@@ -795,7 +795,7 @@ class CreateOrderRequest(BaseModel):
     customer_email: Optional[str] = Field(None, description="Customer email")
     service_id: str = Field(..., description="Service identifier")
     input_code: Optional[str] = Field(None, description="Optional manual coupon")
-    batch_id: Optional[str] = Field(None, description="1-year course only: batch_morning / batch_evening")
+    batch_id: Optional[str] = Field(None, description="1-year course only: batch_global_eleven / batch_indian")
     ref_code: Optional[str] = Field(None, description="Sutradhar code from a shared offer link (?ref=)")
     currency: Optional[str] = Field("INR", description="INR, or USD/EUR/JPY/GBP/AUD/CAD/SGD/AED/CHF for customers outside India")
     slot_date: Optional[str] = Field(None, description="Selected consultation date YYYY-MM-DD")
@@ -1548,22 +1548,6 @@ COURSE_BATCHES = {
     "batch_indian": {
         "name": "भारतीय शास्त्रीय वैदिक बैच",
         "name_en": "Indian Classical Vedic Batch",
-        "seats": 11,
-        "price": 24000,
-        "price_usd": 451,
-        "service_id": "consultation_gurukul",
-    },
-    "batch_morning": {
-        "name": "फ़ाउंडेशन एस्ट्रोलॉजिकल बैच",
-        "name_en": "Foundation Astrological Batch",
-        "seats": 11,
-        "price": 24000,
-        "price_usd": 451,
-        "service_id": "consultation_gurukul",
-    },
-    "batch_evening": {
-        "name": "मास्टर एस्ट्रोलॉजिकल बैच",
-        "name_en": "Master Astrological Batch",
         "seats": 11,
         "price": 24000,
         "price_usd": 451,

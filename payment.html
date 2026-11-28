@@ -772,10 +772,13 @@ async function loadCourseBatches() {
   try {
     const base = (window.SraCouponEngine && SraCouponEngine.apiBase()) || 'https://sra-canonical-engine.onrender.com';
     const d = await (await fetch(base + '/api/sutradhar/course/batches')).json();
+    if (d && Array.isArray(d.batches)) {
+      d.batches = d.batches.filter(b => b.id !== 'batch_morning' && b.id !== 'batch_evening');
+    }
     window._courseInfo = d;
     const want = new URLSearchParams(location.search).get('batch');
     if (!window._courseBatch && want && d.batches.some(b => b.id === want && !b.full)) window._courseBatch = want;
-    if (window._courseBatch && d.batches.some(b => b.id === window._courseBatch && b.full)) window._courseBatch = '';
+    if (window._courseBatch && !d.batches.some(b => b.id === window._courseBatch && !b.full)) window._courseBatch = '';
     info.textContent = d.registration_open
       ? (isInternational() ? 'Classes start March 11, 2027. Your seat is held for ' + d.hold_minutes + ' minutes once checkout begins.' : 'कक्षाएँ 11 मार्च 2027 से। भुगतान शुरू करते ही आपकी सीट ' + d.hold_minutes + ' मिनट के लिए रोक ली जाती है।')
       : (isInternational() ? 'Registration opens soon. Classes start March 11, 2027.' : 'पंजीकरण 26 दिसंबर 2026 से खुलेगा। कक्षाएँ 11 मार्च 2027 से।');
